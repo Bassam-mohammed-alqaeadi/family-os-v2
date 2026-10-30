@@ -26,7 +26,7 @@ CREATE TABLE permissions.catalog (
     domain VARCHAR(30) NOT NULL, -- 'members', 'settings', 'tasks', 'calendar', 'chat', إلخ
     title_ar VARCHAR(100) NOT NULL,
     description_ar TEXT,
-    min_role_level VARCHAR(10) NOT NULL DEFAULT 'L2', -- أدنى رتبة يُسمح بتفويض هذه الصلاحية لها
+    min_role VARCHAR(20) NOT NULL DEFAULT 'adult', -- أدنى دور يُسمح بتفويض هذه الصلاحية له
     is_sensitive BOOLEAN NOT NULL DEFAULT FALSE, -- تتطلب تأكيد بـ Father PIN
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -50,7 +50,7 @@ CREATE INDEX idx_grants_lookup ON permissions.member_grants(family_id, user_id);
 -- 3. جدول القوالب الجاهزة للأدوار (Role Presets)
 CREATE TABLE permissions.role_presets (
     preset_id VARCHAR(40) PRIMARY KEY, -- 'preset_partner_full', 'preset_adult_member', 'preset_teen_safe'
-    target_role_level VARCHAR(10) NOT NULL, -- 'L1', 'L2', 'L3'
+    target_role VARCHAR(20) NOT NULL, -- 'adult', 'teen'
     title_ar VARCHAR(80) NOT NULL,
     description_ar TEXT,
     granted_keys JSONB NOT NULL, -- مصفوفة بمفاتيح الصلاحيات الممنوحة
@@ -96,7 +96,7 @@ class LocalFamilyRoleTreeTable extends Table {
   TextColumn get userId => text()();
   TextColumn get familyId => text()();
   TextColumn get displayName => text()();
-  TextColumn get roleLevel => text()(); // 'L0' .. 'L5'
+  TextColumn get role => text()(); // 'owner' | 'adult' | 'teen' | 'child'
   TextColumn get roleTitle => text()();
   TextColumn get avatarColorHex => text()();
   BoolColumn get isOwner => boolean().withDefault(const Constant(false))();

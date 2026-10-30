@@ -22,7 +22,8 @@ interface ShellSessionState {
   session_id: string;              // معرف الجلسة الحالية
   active_family_id: string;        // معرف العائلة النشطة
   active_member_id: string;        // معرف الفرد المستخدم للجهاز حالياً
-  experience_profile: ExperienceProfileType; // 'command' | 'supervisor' | 'adult' | 'teen' | 'child' | 'young_child'
+  role: RoleType; // 'owner' | 'adult' | 'teen' | 'child'
+  display_template: DisplayTemplateType; // 'standard' | 'compact' | 'minimal'
   active_tab_index: number;        // الفهرس النشط في شريط التنقل السفلي
   theme_mode: 'system' | 'light' | 'dark' | 'child_playful';
   locale: string;                  // 'ar-SA' | 'ar-YE' | 'en-US'
@@ -35,8 +36,8 @@ interface ShellSessionState {
 ### 1.2 كائن ملف التجربة (`ExperienceProfileDefinition`)
 ```typescript
 interface ExperienceProfileDefinition {
-  profile_key: 'command' | 'supervisor' | 'adult' | 'teen' | 'child' | 'young_child';
-  role_level: 0 | 1 | 2 | 3 | 4 | 5;
+  role: 'owner' | 'adult' | 'teen' | 'child';
+  display_template: 'standard' | 'compact' | 'minimal';
   display_name_i18n: string;
   allowed_nav_tabs: Array<{
     tab_id: string;
@@ -45,7 +46,7 @@ interface ExperienceProfileDefinition {
     route_path: string;
     required_permission?: string;
   }>;
-  parent_gate_required: boolean;   // إلزامي للأطفال L4 و L5
+  parent_gate_required: boolean;   // إلزامي لدور child في قالب minimal
   max_session_duration_minutes?: number; // للأطفال الصغار
   theme_preset: 'executive_navy' | 'modern_slate' | 'playful_pastel';
 }

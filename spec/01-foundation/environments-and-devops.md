@@ -25,7 +25,7 @@
 
 ## 3. البيئة المحلية
 - `infra/compose/local.yml`: PostgreSQL وRedis ومحاكي تخزين S3 وخادم بريد/رسائل وهمي، وأي منفذ خارجي (SMS وPush) بمحوّل **وهمي (fake)** يسجّل الرسائل.
-- أمر واحد: `pnpm dev:server`. و`pnpm db:migrate && pnpm db:seed` يجهّز عائلة تجريبية بكل الملفات (command/adult/teen/child/young_child).
+- أمر واحد: `pnpm dev:server`. و`pnpm db:migrate && pnpm db:seed` يجهّز عائلة تجريبية بكل الملفات (owner/adult/teen/child).
 - OTP محلي: رمز ثابت معلن في بيئة `local` و`ci` فقط، ومعطّل برمجيًا خارجهما.
 - **ملف الأسرار المحلي:** `.env.local` غير ملتزم، ومولَّد من `.env.example`.
 

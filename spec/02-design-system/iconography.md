@@ -39,7 +39,7 @@
 | المجال | أمثلة (المعرّف) |
 |---|---|
 | **التنقل** | `nav.home`, `nav.family`, `nav.chat`, `nav.controls`, `nav.more`, `nav.learn`, `nav.rewards`, `nav.me`, `nav.map` |
-| **الأدوار والأفراد** | `role.owner`, `role.parent`, `role.adult`, `role.teen`, `role.child`, `role.young_child`, `member.add`, `member.invite`, `member.switch` |
+| **الأدوار والأفراد** | `role.owner`, `role.adult`, `role.teen`, `role.child`, `member.add`, `member.invite`, `member.switch` |
 | **السلامة** | `safety.sos`, `safety.alert`, `safety.shield`, `safety.geofence`, `safety.check_in`, `safety.emergency_contact` |
 | **الموقع** | `location.pin`, `location.share`, `location.history`, `location.place_home`, `location.place_school` |
 | **التواصل** | `chat.message`, `chat.group`, `chat.attachment`, `chat.voice`, `chat.call`, `chat.video` |

@@ -22,7 +22,7 @@ last_updated: 2026-10-30
 ```json
 {
   "user_id": "22222222-3333-4444-5555-666666666666",
-  "role_level": "L1",
+  "role": "adult",
   "role_title": "أم العائلة",
   "is_owner": false,
   "grants": {
@@ -37,7 +37,7 @@ last_updated: 2026-10-30
 ```
 
 ### ب) تحديث تفويضات صلاحيات العضو: `PUT /v1/permissions/members/:userId/grants`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1 المصرح له).
+- **المصادقة:** Bearer Token مطلوب (owner أو adult المصرح له).
 - **الطلب (Request Body):**
 ```json
 {
@@ -61,11 +61,11 @@ last_updated: 2026-10-30
 ```
 
 ### ج) نقل ملكية العائلة المشدد: `POST /v1/family/transfer-ownership`
-- **المصادقة:** Bearer Token مطلوب (L0 المالك الحالي حصراً).
+- **المصادقة:** Bearer Token مطلوب (owner المالك الحالي حصراً).
 - **الطلب (Request Body):**
 ```json
 {
-  "target_user_id": "22222222-3333-4444-5555-666666666666", // يجب أن يكون L1 بالغ
+  "target_user_id": "22222222-3333-4444-5555-666666666666", // يجب أن يكون adult بالغ
   "father_pin": "982143",
   "otp_verification_code": "512890"
 }
@@ -75,7 +75,7 @@ last_updated: 2026-10-30
 {
   "status": "OWNERSHIP_TRANSFERRED",
   "new_owner_user_id": "22222222-3333-4444-5555-666666666666",
-  "previous_owner_new_role": "L1",
+  "previous_owner_new_role": "adult",
   "transferred_at": "2026-10-30T10:16:00Z"
 }
 ```

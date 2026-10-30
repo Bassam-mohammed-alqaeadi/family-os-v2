@@ -47,7 +47,8 @@ last_updated: 2026-10-30
       "display_name": "سعود (الأب)",
       "avatar_url": "https://cdn.familyos.app/avatars/dad.webp",
       "role_level": 0,
-      "experience_profile": "command"
+      "role": "owner",
+      "display_template": "standard"
     },
     "family_profile": {
       "family_id": "fam_7712",
@@ -150,7 +151,8 @@ last_updated: 2026-10-30
 {
   "event": "PROFILE_ROLE_UPDATED",
   "target_member_id": "mem_003",
-  "new_experience_profile": "teen",
+  "new_role": "teen",
+  "display_template": "standard",
   "timestamp": 1730249000000
 }
 ```

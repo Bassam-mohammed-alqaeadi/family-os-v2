@@ -11,7 +11,7 @@ last_updated: 2026-10-30
 
 > **المعرف:** `SCR-S1-04-01`  
 > **النظام:** `S1-04 — plans-and-subscriptions`  
-> **المستخدم المستهدف:** الأب المالك L0 (كامل الصلاحيات والشراء)، والوصي L1 (للقراءة والاستعراض فقط).  
+> **المستخدم المستهدف:** المالك `owner` (كامل الصلاحيات والشراء)، والبالغ `adult` (للقراءة والاستعراض فقط أو حسب التفويض).  
 > **المرجع التصميمي والمعياري:** `spec/02-design-system/components.md`, `[REF: benchmarks/extracted/qustodio/01_architecture_and_manifest/permissions_strategy.md]`.
 
 ---

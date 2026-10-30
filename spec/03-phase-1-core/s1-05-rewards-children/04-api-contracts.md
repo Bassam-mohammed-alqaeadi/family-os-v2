@@ -17,7 +17,7 @@ last_updated: 2026-10-30
 ## 1. نقاط النهاية لمتجر الجوائز والمحفظة (Rewards Store Endpoints)
 
 ### أ) جلب رصيد المحفظة وسلسلة الإنجاز: `GET /v1/rewards/wallet/me`
-- **المصادقة:** Bearer Token مطلوب (حساب الطفل L4/L5 أو المراهق L3).
+- **المصادقة:** Bearer Token مطلوب (حساب الطفل `child` أو المراهق `teen`).
 - **الاستجابة (Response 200 OK):**
 ```json
 {
