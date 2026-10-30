@@ -63,7 +63,7 @@ CREATE TABLE permissions.audit_log (
     family_id UUID NOT NULL REFERENCES identity.families(id) ON DELETE CASCADE,
     target_user_id UUID NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
     actor_user_id UUID NOT NULL REFERENCES identity.users(id),
-    action_type VARCHAR(30) NOT NULL, -- 'ROLE_LEVEL_CHANGED', 'PERMISSION_GRANTED', 'PERMISSION_REVOKED', 'OWNERSHIP_TRANSFERRED'
+    action_type VARCHAR(30) NOT NULL, -- 'ROLE_CHANGED', 'PERMISSION_GRANTED', 'PERMISSION_REVOKED', 'OWNERSHIP_TRANSFERRED'
     details JSONB NOT NULL, -- السجل القديم والجديد والمفاتيح المعدلة
     ip_address VARCHAR(45),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -102,6 +102,6 @@ class LocalFamilyRoleTreeTable extends Table {
   BoolColumn get isOwner => boolean().withDefault(const Constant(false))();
 
   @override
-  Set<Column> get primaryKey => {userId};
+  Set<Column> get primaryKey => {userId, familyId}; // مفتاح مركب — ISSUE-003
 }
 ```

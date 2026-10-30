@@ -4,8 +4,8 @@ title: عقود الواجهات والشبكة — الهوية والتهيئ�
 phase: 1
 file: 04-api-contracts
 status: drafted
-depends_on: [S1-02/03-data-model, D-007, D-020, D-031]
-last_updated: 2026-10-30
+depends_on: [S1-02/03-data-model, D-007, D-020, D-031, D-038]
+last_updated: 2026-10-31
 ---
 # S1-02: عقود الواجهات والشبكة (API Contracts)
 
@@ -61,7 +61,7 @@ last_updated: 2026-10-30
     "is_new_user": false,
     "has_family": true,
     "active_family_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    "role_level": "L0"
+    \"role\": \"owner\"
   },
   "tokens": {
     "access_token": "eyJhbGciOiJIUzI1NiIsIn...",
@@ -76,7 +76,7 @@ last_updated: 2026-10-30
 ## 2. نقاط النهاية لتأسيس العائلة ودعوة الأعضاء (Family Circle Endpoints)
 
 ### أ) إنشاء عائلة جديدة: `POST /v1/family/create`
-- **المصادقة:** Bearer Token مطلوب (المستخدم L0).
+- **المصادقة:** Bearer Token مطلوب (المستخدم `owner`).
 - **الطلب (Request Body):**
 ```json
 {
@@ -96,7 +96,7 @@ last_updated: 2026-10-30
 ```
 
 ### ب) إنشاء حساب طفل وتوليد كود الاقتران: `POST /v1/family/children/create-and-pair`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1 فقط).
+- **المصادقة:** Bearer Token مطلوب (`owner` أو `adult` مفوَّض فقط).
 - **الطلب (Request Body):**
 ```json
 {
@@ -135,7 +135,7 @@ last_updated: 2026-10-30
   "child_user": {
     "id": "cccccccc-dddd-eeee-ffff-000000000000",
     "display_name": "عمر",
-    "role_level": "L4"
+    \"role\": \"child\"
   },
   "tokens": {
     "access_token": "child-jwt-token...",

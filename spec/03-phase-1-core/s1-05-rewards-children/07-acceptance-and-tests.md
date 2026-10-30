@@ -4,8 +4,8 @@ title: معايير القبول والاختبارات — المكافآت و�
 phase: 1
 file: 07-acceptance-and-tests
 status: drafted
-depends_on: [S1-05/00-analysis, S1-05/05-business-rules-and-permissions]
-last_updated: 2026-10-30
+depends_on: [S1-05/00-analysis, S1-05/05-business-rules-and-permissions, D-038]
+last_updated: 2026-10-31
 ---
 # S1-05: معايير القبول والاختبارات (Acceptance Criteria & Test Matrix)
 
@@ -17,7 +17,7 @@ last_updated: 2026-10-30
 ## 1. معايير القبول الصارمة (Acceptance Criteria)
 
 ### AC-S1-05-01: حظر إنشاء محافظ رصيد للبالغين (D-012 Strict Enforcement)
-- **الشرط:** محاولة إنشاء محفظة أو تسجيل نقاط لحساب يحمل رتبة L0 أو L1 أو L2 يجب أن تفشل قطعياً.
+- **الشرط:** محاولة إنشاء محفظة أو تسجيل نقاط لحساب يحمل دور `owner` أو `adult` يجب أن تفشل قطعياً (D-012).
 - **التحقق:** الخادم يُرجع كود الخطأ `400 Bad Request` مع رسالة صريحة: «المكافآت مخصصة للأطفال فقط بحسب القرار D-012».
 
 ### AC-S1-05-02: منع الخصم المزدوج عبر مفتاح التحقق الفريد (Idempotency)

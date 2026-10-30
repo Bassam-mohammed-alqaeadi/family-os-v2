@@ -4,8 +4,8 @@ title: سطح التحكم — المكافآت وسلاسل الإنجاز
 phase: 1
 file: 08-control-surface
 status: drafted
-depends_on: [S1-05/00-analysis, S1-05/03-data-model, S1-05/05-business-rules-and-permissions, D-012, D-014, D-015, D-016, D-017, D-018, D-026]
-last_updated: 2026-10-30
+depends_on: [S1-05/00-analysis, S1-05/03-data-model, S1-05/05-business-rules-and-permissions, D-012, D-014, D-015, D-016, D-017, D-018, D-026, D-038]
+last_updated: 2026-10-31
 ---
 # سطح التحكم: S1-05 — المكافآت للأطفال وسلاسل الإنجاز (Rewards & Streaks Control Surface)
 
@@ -17,7 +17,7 @@ last_updated: 2026-10-30
 
 ## 1. الغرض والنطاق (Purpose & Scope)
 
-يحدد سطح التحكم لنظام **S1-05** ما يتحكم فيه الوالدان (L0 و L1) بخصوص:
+يحدد سطح التحكم لنظام **S1-05** ما يتحكم فيه الوالدان (`owner` و `adult` مفوض) بخصوص:
 1. سياسات كسب وصرف النقاط الذهبية والسقف اليومي لكل طفل.
 2. تفعيل وضبط خوارزميات سلاسل الإنجاز اليومية ومكافآت التميز الأسبوعية.
 3. إدارة كتالوج الجوائز العائلية وتحديد شروط استبدال كل مكافأة.
@@ -35,7 +35,7 @@ last_updated: 2026-10-30
 | `rewards.streaks_enabled` | تفعيل محرك سلاسل الإنجاز التلعيبية | `switch` | العائلة | `true` | `true`, `false` |
 | `rewards.weekly_streak_bonus_stars` | مكافأة إتمام أسبوع كامل من السلسلة | `select` | العائلة | `20_stars` | `10_stars`, `20_stars`, `50_stars` |
 | `rewards.require_pin_for_manual_grant` | فرض رمز PIN لمنح نقاط فورية يدوية | `switch` | العائلة | `true` | `true`, `false` |
-| `rewards.allow_teen_participation` | إتاحة نظام المكافآت للمراهقين (L3) | `switch` | العائلة | `true` (اختياري) | `true`, `false` |
+| `rewards.allow_teen_participation` | إتاحة نظام المكافآت للمراهقين (`teen`) | `switch` | العائلة | `true` (اختياري) | `true`, `false` |
 | `rewards.auto_streak_freeze_on_illness` | تجميد السلسلة تلقائياً عند طلب الوالد | `action` | الطفل | — | استدعاء تجميد ليوم واحد |
 
 ---
@@ -55,8 +55,8 @@ last_updated: 2026-10-30
 
 ## 4. مصفوفة الصلاحيات لسطح التحكم (Control Permissions)
 
-- **المالك (L0 الأب):** تحكم كامل في كافة الخيارات وتعديل السقف اليومي.
-- **الشريك (L1 الأم):** إمكانية إضافة جوائز جديدة وتجميد سلاسل الإنجاز ومنح النقاط.
+- **المالك (`owner` الأب):** تحكم كامل في كافة الخيارات وتعديل السقف اليومي.
+- **الشريكة (`adult` مفوضة / الأم):** إمكانية إضافة جوائز جديدة وتجميد سلاسل الإنجاز ومنح النقاط.
 - **الأطفال (`child`):** هذا القسم محجوب تماماً عنهم.
 
 ---

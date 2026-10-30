@@ -4,8 +4,8 @@ title: التحليل والمتطلبات — غلاف التطبيق والم�
 phase: 1
 file: 00-analysis
 status: drafted
-depends_on: [D-014, D-024, D-026, D-027, D-028, D-029, D-031]
-last_updated: 2026-10-30
+depends_on: [D-014, D-024, D-026, D-027, D-028, D-029, D-031, D-038]
+last_updated: 2026-10-31
 ---
 # S1-01: التحليل والمتطلبات (App Shell & Shared Platform)
 
@@ -72,7 +72,7 @@ last_updated: 2026-10-30
 flowchart TD
     subgraph Client_Flutter ["تطبيق عائلتي — Flutter App Shell (S1-01)"]
         UI_Shell["غلاف الواجهة التكيفي (Adaptive UI Shell)"]
-        ProfileEngine["محرك التبديل وملفات التجربة (L0-L5 Engine)"]
+        ProfileEngine["محرك التبديل وملفات التجربة (Role & Display Engine - D-038)"]
         LocalOutbox[("طابور المزامنة دون اتصال (SQLite Outbox)")]
         EdgeAI["نواة الذكاء الطرفية (On-Device AI Hook)"]
         Registries["السجلات المركزية (Registries Hook)"]

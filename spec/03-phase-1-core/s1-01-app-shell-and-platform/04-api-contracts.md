@@ -4,8 +4,8 @@ title: عقود الواجهات البرمجية — غلاف التطبيق و
 phase: 1
 file: 04-api-contracts
 status: drafted
-depends_on: [S1-01/00-analysis, S1-01/03-data-model, D-026, D-031]
-last_updated: 2026-10-30
+depends_on: [S1-01/00-analysis, S1-01/03-data-model, D-026, D-031, D-038]
+last_updated: 2026-10-31
 ---
 # S1-01: عقود الواجهات البرمجية (API Contracts & Integration Protocols)
 
@@ -46,7 +46,6 @@ last_updated: 2026-10-30
       "member_id": "mem_001",
       "display_name": "سعود (الأب)",
       "avatar_url": "https://cdn.familyos.app/avatars/dad.webp",
-      "role_level": 0,
       "role": "owner",
       "display_template": "standard"
     },

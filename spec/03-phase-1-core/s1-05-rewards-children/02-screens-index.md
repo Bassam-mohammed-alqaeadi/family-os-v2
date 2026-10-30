@@ -4,8 +4,8 @@ title: فهرس الشاشات والواجهات — المكافآت للأط�
 phase: 1
 file: 02-screens-index
 status: drafted
-depends_on: [S1-05/00-analysis, S1-05/01-user-scenarios, spec/02-design-system/]
-last_updated: 2026-10-30
+depends_on: [S1-05/00-analysis, S1-05/01-user-scenarios, spec/02-design-system/, D-038]
+last_updated: 2026-10-31
 ---
 # S1-05: فهرس الشاشات والمكونات البصرية (Screens & UI Index)
 
@@ -19,9 +19,9 @@ last_updated: 2026-10-30
 
 | معرف الشاشة (Screen ID) | مسمى الشاشة بالعربية والإنجليزية | نمط العرض (Display Mode) | ملفات التجربة المستهدفة | الوظيفة والمكونات الرئيسية |
 |---|---|---|---|---|
-| `SCR-S1-05-01` | **شاشة متجر الجوائز للأطفال والرصيد**<br>`Child Rewards Store & Wallet` | شاشة متجر مبهجة كاملة<br>(Playful Store Screen) | الأطفال والبراعم (L4, L5)<br>والمراهقون (L3) | رصيد النجوم الذهبية، عداد سلاسل الإنجاز اليومية، شبكة بطاقات الجوائز `FosRewardCard`، زر طلب الجائزة. |
-| `SCR-S1-05-02` | **لوحة الوالدين لإدارة الجوائز والطلبات**<br>`Parent Rewards Manager & Approvals` | لوحة إدارة وتحكم متدرجة<br>(Admin Catalog Screen) | الوالدان (L0, L1) | استعراض طلبات الاستبدال المعلقة، زر الاعتماد السريع، إضافة جائزة جديدة، وضبط السقف اليومي للنقاط. |
-| `SCR-S1-05-03` | **شاشة الاحتفال بسلاسل الإنجاز والترقية**<br>`Streak Milestone Celebration Overlay` | نافذة احتفالية تفاعلية معتمة<br>(Celebration Modal Dialog) | الأطفال (L4, L5, L3) عند الترقية | قصاصات رقمية ملونة متطايرة (`Confetti Animation`)، صوت نغمي مبهج، عرض شارة الإنجاز الجديدة المكتسبة. |
+| `SCR-S1-05-01` | **شاشة متجر الجوائز للأطفال والرصيد**<br>`Child Rewards Store & Wallet` | شاشة متجر مبهجة كاملة<br>(Playful Store Screen) | الأطفال (`child`)<br>والمراهقون (`teen`) | رصيد النجوم الذهبية، عداد سلاسل الإنجاز اليومية، شبكة بطاقات الجوائز `FosRewardCard`، زر طلب الجائزة. |
+| `SCR-S1-05-02` | **لوحة الوالدين لإدارة الجوائز والطلبات**<br>`Parent Rewards Manager & Approvals` | لوحة إدارة وتحكم متدرجة<br>(Admin Catalog Screen) | الوالدان (`owner`, `adult` مفوض) | استعراض طلبات الاستبدال المعلقة، زر الاعتماد السريع، إضافة جائزة جديدة، وضبط السقف اليومي للنقاط. |
+| `SCR-S1-05-03` | **شاشة الاحتفال بسلاسل الإنجاز والترقية**<br>`Streak Milestone Celebration Overlay` | نافذة احتفالية تفاعلية معتمة<br>(Celebration Modal Dialog) | الأطفال والمراهقون (`child`, `teen`) عند الترقية | قصاصات رقمية ملونة متطايرة (`Confetti Animation`)، صوت نغمي مبهج، عرض شارة الإنجاز الجديدة المكتسبة. |
 
 ---
 

@@ -4,8 +4,8 @@ title: نموذج البيانات والمخططات — الهوية والت�
 phase: 1
 file: 03-data-model
 status: drafted
-depends_on: [S1-02/00-analysis, D-005, D-006, D-020, D-021]
-last_updated: 2026-10-30
+depends_on: [S1-02/00-analysis, D-005, D-006, D-020, D-021, D-038]
+last_updated: 2026-10-31
 ---
 # S1-02: نموذج البيانات والمخططات (Data Models & Schemas)
 
@@ -54,8 +54,8 @@ CREATE TABLE identity.family_memberships (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     family_id UUID NOT NULL REFERENCES identity.families(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    role_level VARCHAR(10) NOT NULL DEFAULT 'L2', -- 'L0', 'L1', 'L2', 'L3', 'L4', 'L5'
-    role_title VARCHAR(50), -- 'أب', 'أم', 'ابن', 'مشرف'
+    role VARCHAR(10) NOT NULL DEFAULT 'adult' CHECK (role IN ('owner','adult','teen','child')), -- الدور وفق D-038
+    role_title VARCHAR(50), -- 'أب', 'أم', 'ابن', 'جد' — لقب حر للعرض (اختياري)
     is_suspended BOOLEAN NOT NULL DEFAULT FALSE,
     joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE(family_id, user_id)
@@ -103,7 +103,7 @@ CREATE TABLE identity.family_invitations (
     family_id UUID NOT NULL REFERENCES identity.families(id) ON DELETE CASCADE,
     invited_by_user_id UUID NOT NULL REFERENCES identity.users(id),
     invite_code VARCHAR(12) NOT NULL UNIQUE, -- مثل: 'FAM-849-210'
-    target_role_level VARCHAR(10) NOT NULL DEFAULT 'L2',
+    target_role VARCHAR(10) NOT NULL DEFAULT 'adult' CHECK (target_role IN ('owner','adult','teen','child')), -- الدور المستهدف للعضو الجديد (D-038)
     max_uses INT NOT NULL DEFAULT 1,
     uses_count INT NOT NULL DEFAULT 0,
     expires_at TIMESTAMPTZ NOT NULL,
@@ -124,7 +124,7 @@ class LocalUserSessionTable extends Table {
   TextColumn get displayName => text()();
   TextColumn get avatarUrl => text().nullable()();
   TextColumn get avatarColorHex => text().withDefault(const Constant('#1F3A6B'))();
-  TextColumn get activeRoleLevel => text().withDefault(const Constant('L0'))();
+  TextColumn get activeRole => text().withDefault(const Constant('adult'))(); // 'owner' | 'adult' | 'teen' | 'child' (D-038)
   BoolColumn get isKidAccount => boolean().withDefault(const Constant(false))();
   TextColumn get accessToken => text()();
   TextColumn get refreshToken => text()();
@@ -142,7 +142,7 @@ class LocalFamilyMembersTable extends Table {
   TextColumn get displayName => text()();
   TextColumn get avatarUrl => text().nullable()();
   TextColumn get avatarColorHex => text()();
-  TextColumn get roleLevel => text()();
+  TextColumn get role => text()(); // 'owner' | 'adult' | 'teen' | 'child' (D-038)
   TextColumn get roleTitle => text()();
   BoolColumn get isKidAccount => boolean()();
   IntColumn get pointsBalance => integer().withDefault(const Constant(0))();

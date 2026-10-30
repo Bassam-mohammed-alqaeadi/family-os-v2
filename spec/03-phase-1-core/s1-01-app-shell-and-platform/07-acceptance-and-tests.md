@@ -4,8 +4,8 @@ title: معايير القبول والاختبارات — غلاف التطب�
 phase: 1
 file: 07-acceptance-and-tests
 status: drafted
-depends_on: [S1-01/00-analysis, S1-01/05-business-rules-and-permissions, S1-01/06-implementation-plan]
-last_updated: 2026-10-30
+depends_on: [S1-01/00-analysis, S1-01/05-business-rules-and-permissions, S1-01/06-implementation-plan, D-038]
+last_updated: 2026-10-31
 ---
 # S1-01: معايير القبول وسيناريوهات الاختبار (Acceptance Criteria & Test Matrix)
 
@@ -29,7 +29,7 @@ last_updated: 2026-10-30
 ---
 
 ### AC-S1-01-03: إحكام بوابة حماية الوالدين (Parent Gate Integrity)
-* **المعيار:** عند محاولة الخروج من تجربة الأطفال (`L4` أو `L5`) أو محاولة فتح شاشة الإعدادات، يجب أن تنبثق بوابة `SCR-S1-01-03` فورياً.
+* **المعيار:** عند محاولة الخروج من تجربة الأطفال (`child`) أو محاولة فتح شاشة الإعدادات، يجب أن تنبثق بوابة `SCR-S1-01-03` فورياً.
 * **شروط النجاح:**
   - الإجابة الخاطئة على المسألة الرياضية تغلق النافذة وتعيد الطفل لواجهته فوراً.
   - لا يمكن تجاوز البوابة بالضغط على زر الرجوع في أندرويد (Back Button Intercepted).
@@ -79,7 +79,7 @@ flowchart TD
     UnitTests --> GateTest["اختبار مولد التحدي الرياضي وصحة رمز PIN"]
     UnitTests --> RegistryTest["اختبار تسجيل وفهرسة السجلات المركزية D-026"]
 
-    WidgetTests --> ShellNavTest["فحص رسم أشرطة التنقل الستة وفق ملفات التجربة L0-L5"]
+    WidgetTests --> ShellNavTest["فحص رسم أشرطة التنقل للأدوار الأربعة وفق D-038"]
     WidgetTests --> HapticTest["فحص انطلاق الاهتزاز اللمسي وتأثيرات الحواف"]
 
     IntegrationTests --> ProfileSwitchE2E["اختبار دورة تبديل الحساب من الأب إلى الطفل وعكسها"]

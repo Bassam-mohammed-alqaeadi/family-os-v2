@@ -4,8 +4,8 @@ title: سطح التحكم — غلاف التطبيق والمنصة المشت
 phase: 1
 file: 08-control-surface
 status: drafted
-depends_on: [S1-01/00-analysis, S1-01/03-data-model, S1-01/05-business-rules-and-permissions, D-014, D-015, D-016, D-017, D-018, D-026, D-031]
-last_updated: 2026-10-30
+depends_on: [S1-01/00-analysis, S1-01/03-data-model, S1-01/05-business-rules-and-permissions, D-014, D-015, D-016, D-017, D-018, D-026, D-031, D-038]
+last_updated: 2026-10-31
 ---
 # سطح التحكم: S1-01 — غلاف التطبيق والمنصة المشتركة (App Shell & Platform Control Surface)
 
@@ -33,7 +33,7 @@ last_updated: 2026-10-30
 | `control_key` | العنوان | النوع (kind) | الافتراضي L0 | النطاق (scope) | ينطبق على | `merge_strategy` | `safety_class` | الصلاحية المطلوبة | `child_writable` | متقدم؟ | نص المساعدة والهدف |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `shell.theme_mode` | المظهر البصري | `enum` | `system` | `device` | كافة الأعضاء | `LAST_WRITE` | `COSMETIC` | `shell.settings.self_view` | نعم | لا | اختيار الوضع الفاتح أو الداكن أو اتباع النظام. |
-| `shell.parent_gate_mode` | نمط حماية الأطفال | `enum` | `math_challenge` | `family` | L4, L5 | `RESTRICTIVE` | `CRITICAL` | `shell.settings.full_control` | لا | لا | تحديد نوع التحدي المطلوب للخروج من وضع الأطفال (مسألة رياضية أو رمز PIN). |
+| `shell.parent_gate_mode` | نمط حماية الأطفال | `enum` | `math_challenge` | `family` | `child` | `RESTRICTIVE` | `CRITICAL` | `shell.settings.full_control` | لا | لا | تحديد نوع التحدي المطلوب للخروج من وضع الأطفال (مسألة رياضية أو رمز PIN). |
 | `shell.low_bandwidth_mode` | توفير البيانات والباندويث | `boolean` | حسب الدولة (Tier B=True) | `device` | كافة الأعضاء | `LAST_WRITE` | `NORMAL` | `shell.settings.self_view` | نعم | لا | ضغط استهلاك البيانات وإيقاف التنزيل التلقائي للوسائط في البيئات الضعيفة. |
 | `shell.offline_outbox_autoflush`| التفريغ التلقائي للعمليات | `boolean` | `true` | `device` | كافة الأعضاء | `LAST_WRITE` | `NORMAL` | `shell.settings.self_view` | لا | نعم | رفع العمليات المنجزة دون اتصال تلقائياً فور استعادة الإنترنت. |
 | `shell.sos_haptic_feedback` | اهتزاز استغاثة SOS | `boolean` | `true` | `device` | كافة الأعضاء | `LAST_WRITE` | `CRITICAL` | `shell.settings.self_view` | لا | لا | إطلاق نبضات اهتزاز لمسي متسارعة أثناء الضغط المطول على زر SOS. |
@@ -74,7 +74,7 @@ last_updated: 2026-10-30
 | اسم القالب | الفئة المستهدفة | القيم الرئيسية للتحكمات | الأقفال غير القابلة للتعديل |
 |---|---|---|---|
 | **قالب الجهاز العائلي المشترك (Shared Family Tablet)** | أجهزة المنزل اللوحية (آيباد/تابلت) | `profile_quick_switch = true`<br>`parent_gate_mode = pin_or_biometrics`<br>`theme_mode = system` | قفل بوابة الوالدين مفعل بصورة دائمة لمنع الوصول للإدارة |
-| **قالب الطفل الصغير (Kids Safe Island)** | الأطفال 3–12 سنة (L4, L5) | `parent_gate_mode = math_challenge`<br>`theme_mode = child_playful`<br>`low_bandwidth = auto` | إخفاء تام لكافة أزرار الإعدادات وعزل التطبيق |
+| **قالب الطفل الصغير (Kids Safe Island)** | الأطفال حتى 12 سنة (`child`) | `parent_gate_mode = math_challenge`<br>`theme_mode = child_playful`<br>`low_bandwidth = auto` | إخفاء تام لكافة أزرار الإعدادات وعزل التطبيق |
 | **قالب توفير البيانات الأقصى (Yemen / Ultra Saver)** | المناطق محدودة الاتصال (Tier B) | `low_bandwidth_mode = true`<br>`offline_outbox_autoflush = true` | ضغط Brotli إلزامي وتعطيل تحميل الوسائط التلقائي |
 | **قالب الحماية القصوى (Maximum Security)** | العائلات ذات الحساسية الأمنية العالية | `parent_gate_mode = pin_only`<br>`profile_quick_switch = false` | طلب كلمة المرور عند كل محاولة تبديل حساب |
 

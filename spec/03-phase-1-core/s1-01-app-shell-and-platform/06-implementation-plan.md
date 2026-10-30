@@ -4,8 +4,8 @@ title: خطة التنفيذ الفنية — غلاف التطبيق والمن
 phase: 1
 file: 06-implementation-plan
 status: drafted
-depends_on: [S1-01/00-analysis, S1-01/03-data-model, S1-01/04-api-contracts, D-026, D-027, D-029]
-last_updated: 2026-10-30
+depends_on: [S1-01/00-analysis, S1-01/03-data-model, S1-01/04-api-contracts, D-026, D-027, D-029, D-038]
+last_updated: 2026-10-31
 ---
 # S1-01: خطة التنفيذ الفنية وهندسة الحزم (Implementation Plan & Package Architecture)
 
@@ -26,7 +26,7 @@ packages_dart/
 │   │   ├── src/
 │   │   │   ├── shell/                            # كود الغلاف وشريط التنقل المتكيف
 │   │   │   │   ├── app_shell_scaffold.dart       # الحاوية الرئيسية للتطبيق
-│   │   │   │   ├── adaptive_navigation_bar.dart  # شريط التنقل المتغير حسب الدور L0-L5
+│   │   │   │   ├── adaptive_navigation_bar.dart  # شريط التنقل المتغير حسب الأدوار الأربعة (D-038)
 │   │   │   │   └── quick_action_header.dart      # الشريط العلوي وزر SOS
 │   │   │   ├── profile/                          # محرك تبديل الحسابات وبوابة الأمان
 │   │   │   │   ├── profile_switcher_sheet.dart   # اللوحة السفلية لتبديل الحساب

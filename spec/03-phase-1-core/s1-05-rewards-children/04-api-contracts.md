@@ -4,8 +4,8 @@ title: عقود الواجهات والشبكة — المكافآت وسلاس�
 phase: 1
 file: 04-api-contracts
 status: drafted
-depends_on: [S1-05/03-data-model, D-012, D-020]
-last_updated: 2026-10-30
+depends_on: [S1-05/03-data-model, D-012, D-020, D-038]
+last_updated: 2026-10-31
 ---
 # S1-05: عقود الواجهات والشبكة (API Contracts)
 
@@ -83,7 +83,7 @@ last_updated: 2026-10-30
 ## 2. نقاط النهاية لإدارة واعتماد الجوائز للوالدين (Parent Approval Endpoints)
 
 ### أ) اعتماد أو رفض طلب استبدال: `POST /v1/rewards/redemptions/:requestId/decide`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1 فقط).
+- **المصادقة:** Bearer Token مطلوب (`owner` أو `adult` مفوض فقط).
 - **الطلب (Request Body):**
 ```json
 {
@@ -103,7 +103,7 @@ last_updated: 2026-10-30
 ```
 
 ### ب) تجميد السلسلة ليوم واحد (Streak Freeze): `POST /v1/rewards/children/:childId/freeze-streak`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1).
+- **المصادقة:** Bearer Token مطلوب (`owner` أو `adult` مفوض).
 - **الطلب (Request Body):**
 ```json
 {
