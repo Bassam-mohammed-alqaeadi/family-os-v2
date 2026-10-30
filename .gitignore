@@ -33,7 +33,6 @@ benchmarks/extracted/*/02_design_system_and_ui/vector_icons/
 # 4. استثناء سجلات الوكلاء المؤقتة ومجلد التجارب
 .agents/
 scratch/
-project-tree-snapshot.md
 family-os-core.zip
 
 # 5. الإبقاء على قواعد بيانات القرآن وحصن المسلم الجاهزة إن رغبت برفعها (أو احذف السطرين التاليين لاستثنائها)
