@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fue_2019_bullet_text_margin_top">16.0dp</dimen>
+    <dimen name="fue_2019_code_input_view_margin_top">40.0dp</dimen>
+    <dimen name="fue_2019_country_flag_image_height">28.0dp</dimen>
+    <dimen name="fue_2019_country_flag_image_width">28.0dp</dimen>
+    <dimen name="fue_2019_done_sharing_text_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_edit_text_birthday_margin_top">59.0dp</dimen>
+    <dimen name="fue_2019_first_bullet_container_margin_top">24.0dp</dimen>
+    <dimen name="fue_2019_give_approval_chk_btn_container_margin_top">32.0dp</dimen>
+    <dimen name="fue_2019_give_approval_info_text_above_btn_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_give_approval_subtext_margin_top">16.0dp</dimen>
+    <dimen name="fue_2019_give_approval_title_margin_top">70.0dp</dimen>
+    <dimen name="fue_2019_location_block_margin_top">48.0dp</dimen>
+    <dimen name="fue_2019_location_text_block_padding_end">24.0dp</dimen>
+    <dimen name="fue_2019_name_circle_margin_top">64.0dp</dimen>
+    <dimen name="fue_2019_password_edit_text_margin_top">48.0dp</dimen>
+    <dimen name="fue_2019_phone_entry_view_margin_top">36.0dp</dimen>
+    <dimen name="fue_2019_share_code_button_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_sign_in_password_continue_button_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_sign_in_password_forgot_pass_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_sign_up_edit_text_size">24.0sp</dimen>
+    <dimen name="fue_2019_sign_up_email_edit_text_margin_top">48.0dp</dimen>
+    <dimen name="fue_2019_sign_up_first_name_edit_text_margin_top">32.0dp</dimen>
+    <dimen name="fue_2019_sign_up_last_name_edit_text_margin_top">24.0dp</dimen>
+    <dimen name="fue_2019_sign_up_name_circle_edit_text_margin_top">42.0dp</dimen>
+    <dimen name="fue_2019_sign_up_name_continue_button_margin_bottom">24.0dp</dimen>
+    <dimen name="fue_2019_sign_up_password_password_edit_margin_top">48.0dp</dimen>
+    <dimen name="fue_2019_text_title_2">24.0sp</dimen>
+    <dimen name="fue_2019_underage_subtitle_text_margin_top">16.0dp</dimen>
+    <dimen name="fue_2019_underage_title_margin_top">70.0dp</dimen>
+    <dimen name="fue_2019_view_circle_code_joining_circle_text_margin_top">64.0dp</dimen>
+</resources>

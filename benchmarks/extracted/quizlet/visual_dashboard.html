@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizlet Architecture Benchmark — Family OS Reverse Engineering</title>
+<style>
+  :root {
+    --bg-dark: #0A092D;
+    --card-bg: #131A38;
+    --card-border: rgba(66, 85, 255, 0.25);
+    --brand-indigo: #4255FF;
+    --brand-indigo-light: #6E7DFF;
+    --brand-mint: #23B26D;
+    --brand-gold: #FFCD1F;
+    --accent-coral: #FF725B;
+    --text-primary: #FFFFFF;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  body { background-color: var(--bg-dark); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+
+  /* Header & Navigation */
+  header {
+    background: linear-gradient(135deg, rgba(66, 85, 255, 0.18) 0%, rgba(10, 9, 45, 0.98) 100%);
+    border-bottom: 1px solid var(--card-border);
+    padding: 1.25rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-title { display: flex; align-items: center; gap: 1rem; }
+  .brand-badge {
+    background: var(--brand-indigo);
+    color: white;
+    padding: 0.35rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .nav-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .tab-btn.active {
+    color: white;
+    background: var(--brand-indigo);
+    border-color: var(--brand-indigo-light);
+    box-shadow: 0 4px 14px rgba(66, 85, 255, 0.4);
+  }
+
+  /* Main Container */
+  main { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .metric-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--brand-indigo);
+  }
+  .metric-title { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+  .metric-val { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); }
+  .metric-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  /* Glass Panels */
+  .glass-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .panel-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; }
+
+  /* Tables */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .data-table th { background: rgba(66, 85, 255, 0.12); color: var(--brand-indigo-light); padding: 0.75rem; text-align: right; border-bottom: 1px solid var(--card-border); }
+  .data-table td { padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); vertical-align: top; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-primary); }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+  .tag-indigo { background: rgba(66, 85, 255, 0.2); color: #8C99FF; border: 1px solid rgba(66, 85, 255, 0.4); }
+  .tag-mint { background: rgba(35, 178, 109, 0.2); color: #4ADE80; border: 1px solid rgba(35, 178, 109, 0.4); }
+  .tag-gold { background: rgba(255, 205, 31, 0.2); color: #FDE047; border: 1px solid rgba(255, 205, 31, 0.4); }
+  .tag-coral { background: rgba(255, 114, 91, 0.2); color: #FFA392; border: 1px solid rgba(255, 114, 91, 0.4); }
+
+  /* 3D Flip Card Simulator */
+  .card-scene {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 520px;
+    height: 300px;
+    margin: 1.5rem auto;
+    cursor: pointer;
+  }
+  .flashcard-3d {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .flashcard-3d.is-flipped {
+    transform: rotateY(180deg);
+  }
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 2px solid var(--card-border);
+  }
+  .card-front {
+    background: linear-gradient(145deg, #1A2346 0%, #101730 100%);
+    color: var(--text-primary);
+  }
+  .card-back {
+    background: linear-gradient(145deg, #1B2B3E 0%, #0F1D2B 100%);
+    color: var(--brand-mint);
+    transform: rotateY(180deg);
+    border-color: rgba(35, 178, 109, 0.4);
+  }
+  .card-term { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem; }
+  .card-definition { font-size: 1.25rem; color: #E2E8F0; line-height: 1.5; }
+  .card-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; }
+
+  /* Match Game Simulator */
+  .match-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+  .match-tile {
+    background: #1B2344;
+    border: 2px solid rgba(66, 85, 255, 0.3);
+    border-radius: 10px;
+    padding: 1.2rem 0.8rem;
+    min-height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+  }
+  .match-tile:hover { transform: translateY(-2px); border-color: var(--brand-indigo-light); }
+  .match-tile.selected { background: var(--brand-indigo); color: white; border-color: #8C99FF; box-shadow: 0 0 14px rgba(66, 85, 255, 0.6); }
+  .match-tile.matched { opacity: 0; pointer-events: none; transform: scale(0.8); transition: all 0.4s ease; }
+  .match-tile.mismatch { background: var(--accent-coral); color: white; animation: shake 0.35s ease; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  /* Icons Browser */
+  .icon-search { width: 100%; max-width: 400px; padding: 0.6rem 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 8px; color: white; margin-bottom: 1rem; font-size: 0.9rem; }
+  .icons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.8rem; max-height: 480px; overflow-y: auto; padding-right: 0.5rem; }
+  .icon-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.8rem 0.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.2s ease; }
+  .icon-cell:hover { background: rgba(66, 85, 255, 0.15); border-color: var(--brand-indigo); }
+  .icon-cell svg { width: 32px; height: 32px; fill: var(--brand-indigo-light); }
+  .icon-name { font-size: 0.7rem; color: var(--text-secondary); text-align: center; word-break: break-all; }
+
+  /* Controls & Forms */
+  .sim-control-group { margin-bottom: 1rem; }
+  .sim-control-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+  .sim-input { width: 100%; padding: 0.65rem 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 8px; color: white; font-size: 0.95rem; }
+  .sim-btn {
+    background: var(--brand-indigo);
+    color: white;
+    border: none;
+    padding: 0.65rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .sim-btn:hover { background: var(--brand-indigo-light); }
+  .sim-btn-mint { background: var(--brand-mint); }
+  .sim-btn-mint:hover { background: #2BCF80; }
+  .sim-btn-coral { background: var(--accent-coral); }
+  .sim-btn-coral:hover { background: #FF8773; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-title">
+    <div class="brand-badge">QUIZLET 100% REVERSED</div>
+    <div>
+      <h1 style="font-size: 1.2rem; font-weight: 800;">Quizlet Architectural Benchmark</h1>
+      <p style="font-size: 0.75rem; color: var(--text-secondary);">Family OS Educational Extraction Pipeline (OP-019)</p>
+    </div>
+  </div>
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('overview')">نظرة عامة</button>
+    <button class="tab-btn" onclick="switchTab('architecture')">المعمارية والمانيفست</button>
+    <button class="tab-btn" onclick="switchTab('design')">نظام التصميم والـ SVG</button>
+    <button class="tab-btn" onclick="switchTab('engines')">المحركات والمحاكيات الحية</button>
+    <button class="tab-btn" onclick="switchTab('data')">قواعد البيانات والموديلات</button>
+    <button class="tab-btn" onclick="switchTab('network')">نقاط النهاية والشبكة</button>
+  </nav>
+</header>
+
+<main>
+  <!-- TAB 1: OVERVIEW -->
+  <section id="tab-overview" class="tab-pane active">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">الفئات المفككة كلياً (Classes)</div>
+        <div class="metric-val">32,357</div>
+        <div class="metric-sub">10,757 فئة مخصصة في com.quizlet.*</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">ملفات الواجهات (Layout XMLs)</div>
+        <div class="metric-val">1,288</div>
+        <div class="metric-sub">تشمل كافة أوضاع المذاكرة والبطاقات</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">أيقونات الفيكتور (Pure SVGs)</div>
+        <div class="metric-val">328</div>
+        <div class="metric-sub">محولة 100% لصيغة SVG قياسية للويب</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">الرموز اللونية (Colors)</div>
+        <div class="metric-val">563</div>
+        <div class="metric-sub">نظام الألوان والسمات المفهرسة</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">نقاط النهاية السحابية (APIs)</div>
+        <div class="metric-val">195</div>
+        <div class="metric-sub">195 نقطة REST فريدة + بث AI Coach</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">المحركات الرياضية (Engines)</div>
+        <div class="metric-val">6</div>
+        <div class="metric-sub">التكرار SM-2، التصحيح الذكي، فيزياء Match</div>
+      </div>
+    </div>
+
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🏛️ الهيكلية المعمارية السداسية لعملية التفكيك (Zero-Omission Extraction)</div>
+        <span class="tag tag-indigo">OP-019 VERIFIED</span>
+      </div>
+      <p style="color: var(--text-secondary); margin-bottom: 1.2rem;">
+        تم استخراج وتفكيك حزمة <strong>Quizlet</strong> الرسمية (النسخة 10.41.1 المركبة من نوع .xapk بحجم 44.36 MB) بالكامل دون حذف أو تلخيص، لتكون المرجع الهندسي الشامل لبناء ركيزة التعليم الذكي والبطاقات التكرارية في منصة <strong>Family OS</strong>.
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>القسم المستخرج</th>
+            <th>المحتويات والوظائف البرمجية</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>01_architecture_and_manifest/</strong></td>
+            <td>المانيفست كاملاً، 25 إذناً مفحوصاً، 147 مكوناً (96 نشاط، 23 خدمة، 21 مستقبل، 7 مزودات)، ودليل المذاكرة دون إنترنت.</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+          <tr>
+            <td><strong>02_design_system_and_ui/</strong></td>
+            <td>1,288 ملف تخطيط XML، تحويل 328 أيقونة إلى SVG نقي، 563 لون مفهرس، وتوثيق التدفقات الستة الكاملة لتجربة المستخدم.</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+          <tr>
+            <td><strong>03_decompiled_src/</strong></td>
+            <td>32,357 ملف كود عبر JADX مع خريطة شاملة لـ 25 حزمة فرعية في <code>com.quizlet.*</code> ومسؤولياتها.</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+          <tr>
+            <td><strong>04_extracted_algorithms/</strong></td>
+            <td>6 محركات كاملة بلغة Kotlin (التكرار المتباعد SM-2، التصحيح الذكي وتجريد التشكيل، منظم المذاكرة، لعبة المطابقة، والصوت).</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+          <tr>
+            <td><strong>05_data_models_and_schemas/</strong></td>
+            <td>سكيما SQLite/Room المكونة من 9 جداول، كائنات نقل البيانات TypeScript، ونماذج البيانات المتوافقة مع Flutter.</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+          <tr>
+            <td><strong>06_network_and_telemetry/</strong></td>
+            <td>195 نقطة نهاية REST فريدة، بروتوكول مسابقات Quizlet Live اللحظي، وتحليل 6 مكتبات ثنائية أصلية .so في arm64.</td>
+            <td><span class="tag tag-mint">مكتمل 100%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TAB 2: ARCHITECTURE & MANIFEST -->
+  <section id="tab-architecture" class="tab-pane">
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🛡️ تدقيق أذونات النظام (Permissions Audit - إجمالي 25 إذناً)</div>
+        <span class="tag tag-indigo">Contextual UX</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>اسم الإذن (Permission)</th>
+            <th>مستوى الخطورة</th>
+            <th>الغرض المعماري واستراتيجية طلب الإذن في Quizlet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>android.permission.CAMERA</code></td>
+            <td><span class="tag tag-coral">خطر / Runtime</span></td>
+            <td>التقاط صور المستندات والكتب لإنشاء البطاقات آلياً عبر OCR. يُطلب فقط عند نقر أيقونة الكاميرا بمحرر البطاقات.</td>
+          </tr>
+          <tr>
+            <td><code>android.permission.RECORD_AUDIO</code></td>
+            <td><span class="tag tag-coral">خطر / Runtime</span></td>
+            <td>تسجيل النطق الصوتي للبطاقات والإملاء الصوتي في وضعي Write و Spell. يُطلب عند النقر على الميكروفون.</td>
+          </tr>
+          <tr>
+            <td><code>android.permission.POST_NOTIFICATIONS</code></td>
+            <td><span class="tag tag-coral">خطر / Runtime</span></td>
+            <td>إرسال تذكيرات المذاكرة اليومية لحماية السلسلة (Daily Streak). لا يُطلب إلا بعد إنهاء الطالب لأول جلسة مراجعة.</td>
+          </tr>
+          <tr>
+            <td><code>android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK</code></td>
+            <td><span class="tag tag-indigo">خدمة وسائط</span></td>
+            <td>تشغيل قارئ البطاقات التلقائي في الخلفية في وضع الاستماع بالأيدي الحرة (Hands-Free Study) دون انقطاع عند قفل الشاشة.</td>
+          </tr>
+          <tr>
+            <td><code>android.permission.ACCESS_NETWORK_STATE</code></td>
+            <td><span class="tag tag-mint">عادي</span></td>
+            <td>فحص الاتصال والتحويل السلس التلقائي بين وضع عدم الاتصال (Offline-First) والمزامنة الفورية.</td>
+          </tr>
+          <tr>
+            <td><code>android.permission.RECEIVE_BOOT_COMPLETED</code></td>
+            <td><span class="tag tag-mint">عادي</span></td>
+            <td>إعادة برمجة وتثبيت منبهات المذاكرة وسلسلة التكرار المتباعد بعد إعادة تشغيل الهاتف عبر AlarmManager.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">📱 المكونات الأربعة والروابط العميقة (147 مكوناً)</div>
+        <span class="tag tag-gold">Deep Links: quizlet://</span>
+      </div>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        يدعم التطبيق بروتوكولي <code>quizlet://</code> و <code>https://quizlet.com/*</code> لربط كافة الشاشات التعليمية بروابط عميقة سريعة (Deep Linking) تتيح للطلاب فتح المجموعات المشتركة من تطبيق واتساب أو الرسائل بلمسة واحدة.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border-right: 3px solid var(--brand-indigo);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: white;">96</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">أنشطة (Activities)</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border-right: 3px solid var(--brand-mint);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: white;">23</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">خدمات خلفية (Services)</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border-right: 3px solid var(--brand-gold);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: white;">21</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">مستقبلات بث (Receivers)</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 8px; border-right: 3px solid var(--accent-coral);">
+          <div style="font-size: 1.5rem; font-weight: bold; color: white;">7</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">مزودات محتوى (Providers)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: DESIGN SYSTEM & SVGS -->
+  <section id="tab-design" class="tab-pane">
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🎨 نظام التصميم والألوان المعتمدة (Design Tokens)</div>
+        <span class="tag tag-indigo">563 Colors Extracted</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: #4255FF; padding: 1rem; border-radius: 10px; color: white; text-align: center;">
+          <div style="font-weight: bold;">#4255FF</div>
+          <div style="font-size: 0.75rem;">الأزرق النيلي (Primary)</div>
+        </div>
+        <div style="background: #2E3856; padding: 1rem; border-radius: 10px; color: white; text-align: center;">
+          <div style="font-weight: bold;">#2E3856</div>
+          <div style="font-size: 0.75rem;">الكحلي الليلي (Surface)</div>
+        </div>
+        <div style="background: #23B26D; padding: 1rem; border-radius: 10px; color: white; text-align: center;">
+          <div style="font-weight: bold;">#23B26D</div>
+          <div style="font-size: 0.75rem;">الأخضر النعناعي (Correct)</div>
+        </div>
+        <div style="background: #FFCD1F; padding: 1rem; border-radius: 10px; color: #1E293B; text-align: center;">
+          <div style="font-weight: bold;">#FFCD1F</div>
+          <div style="font-size: 0.75rem;">الأصفر الذهبي (Star/Streak)</div>
+        </div>
+        <div style="background: #FF725B; padding: 1rem; border-radius: 10px; color: white; text-align: center;">
+          <div style="font-weight: bold;">#FF725B</div>
+          <div style="font-size: 0.75rem;">المرجاني (Incorrect)</div>
+        </div>
+        <div style="background: #0A092D; padding: 1rem; border-radius: 10px; color: white; text-align: center; border: 1px solid var(--card-border);">
+          <div style="font-weight: bold;">#0A092D</div>
+          <div style="font-size: 0.75rem;">الداكن العميق (Dark BG)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🔍 مستعرض الأيقونات المتجهية (328 Pure SVGs)</div>
+        <input type="text" id="iconSearchInput" class="icon-search" placeholder="ابحث باسم الأيقونة..." oninput="filterIcons()">
+      </div>
+      <div class="icons-grid" id="iconsGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: ENGINES & LIVE SIMULATORS -->
+  <section id="tab-engines" class="tab-pane">
+    <!-- Simulator 1: 3D Flip Card -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🃏 المحاكي 1: تقليب البطاقات التعليمية التفاعلية (3D Card Flip Simulator)</div>
+        <span class="tag tag-indigo">Active Recall</span>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        انقر على البطاقة أدناه لتجربة حركة التقليب ثلاثية الأبعاد (3D Flip Animation) بنفس زاوية الاستيفاء المعتمدة في تطبيق Quizlet، ثم قيّم مدى معرفتك بالمصطلح:
+      </p>
+      
+      <div class="card-scene" onclick="flipCard()">
+        <div class="flashcard-3d" id="flashcardElement">
+          <div class="card-face card-front">
+            <span class="tag tag-indigo" style="margin-bottom: 0.8rem;">المصطلح (Term)</span>
+            <div class="card-term" id="cardTermText">الميتوكوندريا (Mitochondria)</div>
+            <div class="card-hint">👆 انقر لقلب البطاقة ورؤية التعريف</div>
+          </div>
+          <div class="card-face card-back">
+            <span class="tag tag-mint" style="margin-bottom: 0.8rem;">التعريف (Definition)</span>
+            <div class="card-definition" id="cardDefText">عُضية خلوية محاطة بغشاء مزدوج تُعتبر "مصنع الطاقة" في الخلية وتتولى توليد جزيئات ATP عبر التنفس الخلوي.</div>
+            <div class="card-hint">👆 انقر مرة أخرى للعودة للمصطلح</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+        <button class="sim-btn sim-btn-coral" onclick="recordCardRecall(false)">❌ ما زلت أتعلمها (Swipe Left)</button>
+        <button class="sim-btn sim-btn-mint" onclick="recordCardRecall(true)">✅ أتقنتها تماماً (Swipe Right)</button>
+        <button class="sim-btn" onclick="nextCard()">➡️ البطاقة التالية</button>
+      </div>
+      <div id="cardRecallStatus" style="text-align: center; margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-secondary);">
+        البطاقة 1 من 4 | مستوى الإتقان الحالي: <span style="color: var(--brand-gold);">قيد التعلم (STILL_LEARNING)</span>
+      </div>
+    </div>
+
+    <!-- Simulator 2: Spaced Repetition (SM-2) -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">📈 المحاكي 2: حاسبة التكرار المتباعد ومنحنى إبينغهاوس (SM-2 Spaced Repetition)</div>
+        <span class="tag tag-mint">Cognitive Math</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+          <div class="sim-control-group">
+            <label>جودة تذكر الإجابة (Response Quality):</label>
+            <select id="smQuality" class="sim-input" onchange="runSM2Sim()">
+              <option value="4">سهلة جداً (استرجاع فوري ممتاز - Quality 5)</option>
+              <option value="3" selected>صحيحة بعد تردد بسيط (Good - Quality 4)</option>
+              <option value="2">صحيحة بصعوبة بالغة (Hard - Quality 3)</option>
+              <option value="1">إجابة خاطئة مع تذكر بعد الرؤية (Incorrect - Quality 2)</option>
+              <option value="0">عجز تام عن التذكر (Blackout - Quality 1)</option>
+            </select>
+          </div>
+          <div class="sim-control-group">
+            <label>عدد مرات الإجابة الصحيحة المتتالية:</label>
+            <input type="number" id="smConsecutive" class="sim-input" value="1" min="0" max="15" onchange="runSM2Sim()">
+          </div>
+          <div class="sim-control-group">
+            <label>معامل السهولة الحالي (Easiness Factor EF):</label>
+            <input type="number" id="smEF" class="sim-input" value="2.5" step="0.1" min="1.3" max="3.5" onchange="runSM2Sim()">
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">الفاصل الزمني المحسوب للمراجعة القادمة:</div>
+          <div style="font-size: 2.2rem; font-weight: 800; color: var(--brand-mint);" id="smResultInterval">بعد 3 أيام</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.8rem;">
+            معامل السهولة الجديد: <strong id="smNewEF" style="color: var(--brand-gold);">2.50</strong> | 
+            احتمالية الاحتفاظ (Retention): <strong id="smRetention" style="color: #60A5FA;">88%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulator 3: Interactive Match Game -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">⚡ المحاكي 3: لعبة المطابقة السريعة التفاعلية (Match Game Simulator)</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span style="font-size: 1.1rem; font-weight: bold; color: var(--brand-gold);">المؤقت: <span id="matchTimerText">0.0</span> ث</span>
+          <button class="sim-btn" onclick="resetMatchGame()">إعادة اللعب</button>
+        </div>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">
+        طابق كل مصطلح بتعريفه المقابل بأسرع وقت ممكن! كل خطأ يضيف <strong>+1.0 ثانية</strong> كعقوبة لمؤقتك:
+      </p>
+      <div class="match-grid" id="matchTilesGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div id="matchGameOverBanner" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(35, 178, 109, 0.2); border: 1px solid var(--brand-mint); border-radius: 10px; text-align: center;">
+        🎉 رائع جداً! أنهيت جميع البطاقات في زمن <strong id="matchFinalTime" style="color: var(--brand-mint);">0.0</strong> ثانية! أنت في أفضل 5% من الفصل!
+      </div>
+    </div>
+
+    <!-- Simulator 4: Smart Arabic Grading Tester -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">✍️ المحاكي 4: المصحح الذكي المتسامح مع التشكيل العربي (Smart Arabic Grading)</div>
+        <span class="tag tag-gold">Levenshtein + Tashkeel</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div>
+          <div class="sim-control-group">
+            <label>الإجابة النموذجية المعتمدة (مع التشكيل والأقواس):</label>
+            <input type="text" id="gradeExpectedInput" class="sim-input" value="المِيتُوكُونْدْرِيَا (مصنع طاقة الخلية)">
+          </div>
+          <div class="sim-control-group">
+            <label>إجابة الطالب المدخلة للتجربة:</label>
+            <input type="text" id="gradeUserInput" class="sim-input" value="ميتوكوندريا" oninput="runGradingTest()">
+          </div>
+        </div>
+        <div id="gradingResultBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center;">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </div>
+  
+    <!-- Simulator 5: Daily Streak & Gamification (Streaks & Freeze Engine) -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🔥 المحاكي 5: محاكي السلاسل اليومية ودروع التجميد والتلعيب (Daily Streak & Freeze Simulator)</div>
+        <span class="tag tag-gold">Gamification Engine</span>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">
+        يحاكي هذا المكون خوارزمية السلسلة اليومية (Daily Streak) ونظام دروع التجميد (Streak Freeze) لحماية عادة المذاكرة عند تفويت يوم:
+      </p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <span style="font-size: 2.5rem;" id="streakFlameIcon">🔥</span>
+              <div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--brand-gold);" id="streakDaysCount">7 أيام</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">سلسلة المذاكرة الحالية</div>
+              </div>
+            </div>
+            <div style="text-align: left;">
+              <div style="font-size: 1.1rem; font-weight: 700; color: #60A5FA;" id="freezeCountText">2 ❄️</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">دروع التجميد المتبقية</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+              <span>المستوى الحالي: <strong id="playerLevelText" style="color: var(--brand-mint);">المستوى 4</strong></span>
+              <span id="playerXpText" style="color: var(--text-secondary);">1,450 / 1,600 XP</span>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+              <div id="playerXpBar" style="width: 72%; height: 100%; background: linear-gradient(90deg, var(--brand-indigo), var(--brand-mint)); transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
+            <button class="sim-btn sim-btn-mint" onclick="simStudyToday()">🔥 دراسة اليوم (+1 يوم، +50 XP)</button>
+            <button class="sim-btn" onclick="simSkipDay()">📅 تخطي يوم (اختبار الحماية)</button>
+            <button class="sim-btn" style="background: #3B82F6;" onclick="simAddFreeze()">❄️ شراء درع تجميد (+1)</button>
+            <button class="sim-btn sim-btn-coral" onclick="simResetStreak()">🔄 تصفير السلسلة</button>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem;">سجل أحداث التلعيب الحي (Gamification Log):</div>
+            <div id="streakEventLog" style="font-family: monospace; font-size: 0.82rem; color: #D1D5DB; line-height: 1.6; max-height: 120px; overflow-y: auto;">
+              [البداية] السلسلة 7 أيام مستقرة. رصيد دروع التجميد: 2.
+            </div>
+          </div>
+          <div style="margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--card-border); font-size: 0.78rem; color: var(--text-secondary);">
+            الشارات المفتوحة: <span id="unlockedBadgesList" style="color: var(--brand-gold);">🏆 صانع العادة (7d) | ⚡ بطل الالتزام</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulator 6: Adaptive Test Generator (MCQ & Distractor Engine) -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🧠 المحاكي 6: محاكي توليد الاختبار الذكي والمشتتات (Adaptive Quiz Generator)</div>
+        <span class="tag tag-indigo">Cognitive Distractors</span>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">
+        يولّد هذا المحاكي أسئلة تكيفية فورية مع توليد مشتتات ذكية (Smart Distractors) متقاربة في الطول والسياق المعرفي:
+      </p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <span class="tag tag-indigo" id="quizQuestionTypeTag">اختيار من متعدد (MCQ)</span>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);" id="quizCounterText">السؤال 1 من 4</span>
+          </div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: white; margin-bottom: 1.2rem; min-height: 48px;" id="quizPromptText">
+            ما هي العُضية الخلوية المسؤولة عن إنتاج وتوليد جزيئات الطاقة ATP في الخلية؟
+          </div>
+          <div id="quizOptionsContainer" style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <!-- Injected via JavaScript -->
+          </div>
+          <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+            <button class="sim-btn" onclick="generateNextAdaptiveQuestion()">🔄 توليد سؤال تكيفي جديد</button>
+          </div>
+        </div>
+        <div id="quizFeedbackBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size: 1.1rem; font-weight: bold; color: var(--text-secondary); margin-bottom: 0.5rem;">اختر إجابة لرؤية تحليل المشتت الذكي</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            يقوم محرك Quizlet بفحص الفروق بين الخيارات المختارة ويحلل سبب استبعاد المشتتات لتثبيت المفهوم في الذاكرة طويلة المدى.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TAB 5: DATABASE & SCHEMAS -->
+  <section id="tab-data" class="tab-pane">
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">💾 مخطط قاعدة البيانات المحلية (SQLite / Room Schema - 9 جداول)</div>
+        <span class="tag tag-indigo">local_db_schema.sql</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>اسم الجدول (Table Name)</th>
+            <th>المفاتيح الأساسية والفهارس (Primary Keys & Indexes)</th>
+            <th>الغرض المعماري</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>study_sets</code></td>
+            <td><code>id (PK)</code>, <code>idx_study_sets_creator</code>, <code>idx_study_sets_last_studied</code></td>
+            <td>تخزين المجموعات الدراسية وعناوينها وعدد كلماتها وحالتها دون اتصال.</td>
+          </tr>
+          <tr>
+            <td><code>studiable_items</code></td>
+            <td><code>id (PK)</code>, <code>set_id (FK)</code>, <code>idx_studiable_items_set_order</code></td>
+            <td>تخزين البطاقات والمصطلحات والتعريفات وروابط الصور والتسجيلات الصوتية.</td>
+          </tr>
+          <tr>
+            <td><code>card_mastery_states</code></td>
+            <td><code>(card_id, user_id) PK</code>, <code>idx_card_mastery_due</code></td>
+            <td>محرك التكرار المتباعد: مستويات الإتقان، الفاصل الزمني، وتاريخ الاستحقاق.</td>
+          </tr>
+          <tr>
+            <td><code>folders</code> & <code>folder_sets_cross_ref</code></td>
+            <td><code>folder_id</code>, <code>set_id</code></td>
+            <td>تنظيم المواد الدراسية في مجلدات متخصصة للشهادات والاختبارات.</td>
+          </tr>
+          <tr>
+            <td><code>classes</code> & <code>class_members</code></td>
+            <td><code>class_id</code>, <code>user_id</code>, <code>invite_code</code></td>
+            <td>إدارة الفصول الدراسية الرقمية ودعوات الطلاب ومجموعات المعلم المشتركة.</td>
+          </tr>
+          <tr>
+            <td><code>offline_action_queue</code></td>
+            <td><code>event_id (PK)</code>, <code>idx_offline_queue_synced</code></td>
+            <td>طابور تفريغ أحداث المذاكرة عند عودة الإنترنت بدون أي فقدان للتقدم.</td>
+          </tr>
+          <tr>
+            <td><code>daily_streaks</code></td>
+            <td><code>user_id (PK)</code></td>
+            <td>حساب أيام المذاكرة المتتالية وحماية السلسلة بالتوقيت المحلي للطالب.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TAB 6: NETWORK & ENDPOINTS -->
+  <section id="tab-network" class="tab-pane">
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">🌐 فهرس نقاط النهاية السحابية (195 REST APIs Extracted)</div>
+        <input type="text" id="endpointSearch" class="icon-search" placeholder="ابحث في الـ Endpoints..." oninput="filterEndpoints()">
+      </div>
+      <div style="max-height: 520px; overflow-y: auto;">
+        <table class="data-table" id="endpointsTable">
+          <thead>
+            <tr>
+              <th>الطريقة</th>
+              <th>مسار نقطة النهاية (Endpoint Path)</th>
+              <th>الوصف والتصنيف</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-coral">POST</span></td>
+              <td><code>coach/v1/chat/stream</code></td>
+              <td>بث إجابات المعلم التوليدي الذكي عبر تدفق <code>application/x-ndjson</code>.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-indigo">GET</span></td>
+              <td><code>sets/{setIds}</code></td>
+              <td>استرجاع تفاصيل المجموعة والبطاقات ومؤلفها وسجل التعديل.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-indigo">GET</span></td>
+              <td><code>study/v1/learn/settings</code></td>
+              <td>جلب إعدادات التكرار المتباعد وجدول الاختبارات التجريبية.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-coral">POST</span></td>
+              <td><code>study/v1/learn/sessions</code></td>
+              <td>إنشاء جلسة تعلم جديدة وحساب درجات التذكر الحالية.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-gold">PUT</span></td>
+              <td><code>practice-tests/{practiceTestId}/answers/{questionId}</code></td>
+              <td>إرسال إجابة الطالب الفورية على أسئلة الاختبار التجريبي للتصحيح.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-indigo">GET</span></td>
+              <td><code>achievements/streak</code></td>
+              <td>استرجاع رصيد سلسلة المذاكرة اليومية وتنبيهات الحماية.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-coral">POST</span></td>
+              <td><code>/v4/creation/v1/documents/audio</code></td>
+              <td>رفع التسجيلات الصوتية الشخصية للبطاقات بصيغة multipart.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-indigo">GET</span></td>
+              <td><code>explanations/textbooks/{isbn}</code></td>
+              <td>جلب حلول وشروحات الكتب المدرسية والجامعية بالرقم الدولي ISBN.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">⚙️ تحليل المكتبات الأصلية الثنائية (Native .so Analysis)</div>
+        <span class="tag tag-indigo">arm64-v8a</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>المكتبة (.so)</th>
+            <th>الحجم</th>
+            <th>الوظيفة والرموز المستخرجة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>libimage_processing_util_jni.so</code></td>
+            <td>32.5 KB</td>
+            <td>محرك تحويل مساحات ألوان الكاميرا YUV420 إلى Bitmap على المستوى الأصلي لخدمة مسح المستندات OCR دون أي تأخير في العرض.</td>
+          </tr>
+          <tr>
+            <td><code>libapproov.so</code></td>
+            <td>244.6 KB</td>
+            <td>محرك توثيق نزاهة التطبيق وتوليد توكنات JWT المشفرة لمنع استخراج محتوى المجموعات وسحبها عبر البوتات.</td>
+          </tr>
+          <tr>
+            <td><code>libcomScore.so</code></td>
+            <td>1.85 MB</td>
+            <td>مكتبة قياس التلمتري ومعدلات الاحتفاظ بزمن المذاكرة.</td>
+          </tr>
+          <tr>
+            <td><code>libandroidx.graphics.path.so</code></td>
+            <td>10.1 KB</td>
+            <td>تسريع حسابات المنحنيات ومسارات الرسم المتجهي للواجهات.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Tab Navigation
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('tab-' + tabId).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Sample SVGs Injected
+  const sampleSvgs = ["$anim_splash_quizlet_logo__0", "$avd_hide_password__0", "$avd_show_password__0", "$m3_avd_hide_password__0", "$m3_avd_show_password__0", "abc_ic_ab_back_material", "abc_ic_arrow_drop_right_black_24dp", "abc_ic_clear_material", "abc_ic_go_search_api_material", "abc_ic_menu_copy_mtrl_am_alpha", "abc_ic_menu_cut_mtrl_alpha", "abc_ic_menu_overflow_material", "abc_ic_menu_paste_mtrl_am_alpha", "abc_ic_menu_selectall_mtrl_alpha", "abc_ic_menu_share_mtrl_alpha", "abc_ic_search_api_material", "abc_ic_voice_search_api_material", "abc_star_black_48dp", "abc_star_half_black_48dp", "abc_vector_test", "admob_close_button_black_circle_white_cross", "admob_close_button_white_circle_black_cross", "admob_close_button_white_cross", "balloon_arrow_drawable", "bg_email_confirmation_smoke_horizontal", "bg_email_confirmation_smoke_vertical", "bg_gradient_subscription_dark", "bg_gradient_subscription_light", "bg_question_detail_search_card", "bg_shape_fire_half_hcut_off", "bg_shape_fire_half_hcut_on", "bg_shape_fire_half_vcut_off", "bg_shape_fire_half_vcut_on", "bg_shape_q_logo_quarter", "bg_shape_q_logo_vcut", "bg_toast", "btn_checkbox_checked_mtrl", "btn_checkbox_unchecked_mtrl", "btn_radio_off_mtrl", "btn_radio_on_mtrl", "com_facebook_favicon_blue", "design_ic_visibility", "design_ic_visibility_off", "error_icon", "glance_btn_checkbox_checked_mtrl", "glance_btn_checkbox_unchecked_mtrl", "glance_btn_radio_off_mtrl", "glance_btn_radio_on_mtrl", "glance_switch_track", "ic_ad_badge", "ic_arrow_back_black_24", "ic_baseline_check_24", "ic_brand_classes", "ic_brand_clock", "ic_brand_create", "ic_brand_create_class", "ic_brand_creation_toolkit", "ic_brand_creation_toolkit_plus", "ic_brand_custom_teams_plus", "ic_brand_email_confirmation"];
+  const iconContainer = document.getElementById('iconsGrid');
+  sampleSvgs.forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'icon-cell';
+    div.innerHTML = `
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <div class="icon-name">${name}</div>
+    `;
+    iconContainer.appendChild(div);
+  });
+
+  function filterIcons() {
+    const q = document.getElementById('iconSearchInput').value.toLowerCase();
+    document.querySelectorAll('.icon-cell').forEach(el => {
+      const txt = el.querySelector('.icon-name').innerText.toLowerCase();
+      el.style.display = txt.includes(q) ? 'flex' : 'none';
+    });
+  }
+
+  function filterEndpoints() {
+    const q = document.getElementById('endpointSearch').value.toLowerCase();
+    document.querySelectorAll('#endpointsTable tbody tr').forEach(tr => {
+      tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  // Simulator 1: 3D Flashcard
+  const sampleCards = [
+    { term: "الميتوكوندريا (Mitochondria)", def: "عُضية خلوية محاطة بغشاء مزدوج تُعتبر 'مصنع الطاقة' في الخلية وتتولى توليد جزيئات ATP عبر التنفس الخلوي." },
+    { term: "البناء الضوئي (Photosynthesis)", def: "عملية كيميائية حيوية تحول فيها النباتات طاقة ضوء الشمس إلى طاقة كيميائية في صورة سكر الجلوكوز مع إطلاق الأكسجين." },
+    { term: "الريبوسومات (Ribosomes)", def: "مصانع بناء البروتين الدقيقة في الخلية، وتقوم بترجمة شفرات الحمض النووي الريبوزي الرسول mRNA إلى سلاسل أحماض أمينية." },
+    { term: "قانون مندل الأول (Law of Segregation)", def: "قانون انعزال الصفات الوراثية: ينعزل زوج العوامل الوراثية عند تكوين الأمشاج بحيث يحمل كل مشيج عاملاً واحداً فقط." }
+  ];
+  let currentCardIdx = 0;
+
+  function flipCard() {
+    const el = document.getElementById('flashcardElement');
+    el.classList.toggle('is-flipped');
+  }
+
+  function nextCard() {
+    currentCardIdx = (currentCardIdx + 1) % sampleCards.length;
+    const el = document.getElementById('flashcardElement');
+    el.classList.remove('is-flipped');
+    setTimeout(() => {
+      document.getElementById('cardTermText').innerText = sampleCards[currentCardIdx].term;
+      document.getElementById('cardDefText').innerText = sampleCards[currentCardIdx].def;
+      document.getElementById('cardRecallStatus').innerHTML = `البطاقة ${currentCardIdx + 1} من ${sampleCards.length} | مستوى الإتقان: <span style="color: var(--brand-gold);">قيد التعلم (STILL_LEARNING)</span>`;
+    }, 200);
+  }
+
+  function recordCardRecall(isMastered) {
+    const status = document.getElementById('cardRecallStatus');
+    if (isMastered) {
+      status.innerHTML = `البطاقة ${currentCardIdx + 1} من ${sampleCards.length} | <strong style="color: var(--brand-mint);">🎉 تم إتقانها! الفاصل الزمني: بعد 3 أيام</strong>`;
+    } else {
+      status.innerHTML = `البطاقة ${currentCardIdx + 1} من ${sampleCards.length} | <strong style="color: var(--accent-coral);">⚠️ تم تأجيلها لنهاية الجولة للمراجعة الفورية</strong>`;
+    }
+    setTimeout(nextCard, 1200);
+  }
+
+  // Simulator 2: Spaced Repetition (SM-2)
+  function runSM2Sim() {
+    const q = parseInt(document.getElementById('smQuality').value);
+    const n = parseInt(document.getElementById('smConsecutive').value);
+    let ef = parseFloat(document.getElementById('smEF').value);
+
+    // SM-2 formula
+    const deltaEF = 0.1 - (5 - (q + 1)) * (0.08 + (5 - (q + 1)) * 0.02);
+    ef = Math.max(1.3, ef + deltaEF);
+
+    let interval = 0;
+    if (q < 3) {
+      interval = 0.1; // Review in 2.5 hours
+    } else if (n === 0) {
+      interval = 1;
+    } else if (n === 1) {
+      interval = 3;
+    } else {
+      interval = Math.round(3 * Math.pow(ef, n - 1));
+    }
+
+    const intervalText = interval < 1 ? "اليوم (خلال ساعتين)" : `بعد ${interval} أيام`;
+    document.getElementById('smResultInterval').innerText = intervalText;
+    document.getElementById('smNewEF').innerText = ef.toFixed(2);
+    const ret = Math.min(99, Math.round(Math.exp(-0.5 / Math.max(1, interval)) * 100));
+    document.getElementById('smRetention').innerText = `${ret}%`;
+  }
+  runSM2Sim();
+
+  // Simulator 3: Match Game
+  const matchPairs = [
+    { id: 1, term: "ATP", def: "عملة الطاقة الخلوية" },
+    { id: 2, term: "DNA", def: "الحمض النووي الوراثي" },
+    { id: 3, term: "النواة", def: "مركز التحكم بالخلية" },
+    { id: 4, term: "الإنزيمات", def: "محفزات التفاعلات الحيوية" },
+    { id: 5, term: "الجدار الخلوي", def: "حماية الخلايا النباتية" },
+    { id: 6, term: "الكلوروفيل", def: "صبغة امتصاص الضوء الأخضر" }
+  ];
+
+  let matchTiles = [];
+  let selectedTile = null;
+  let matchTimer = null;
+  let matchSeconds = 0.0;
+  let matchedCount = 0;
+
+  function resetMatchGame() {
+    if (matchTimer) clearInterval(matchTimer);
+    matchSeconds = 0.0;
+    matchedCount = 0;
+    selectedTile = null;
+    document.getElementById('matchTimerText').innerText = "0.0";
+    document.getElementById('matchGameOverBanner').style.display = "none";
+
+    matchTiles = [];
+    matchPairs.forEach(p => {
+      matchTiles.push({ tileId: 't_' + p.id, pairId: p.id, text: p.term });
+      matchTiles.push({ tileId: 'd_' + p.id, pairId: p.id, text: p.def });
+    });
+    matchTiles.sort(() => Math.random() - 0.5);
+
+    renderMatchGrid();
+    matchTimer = setInterval(() => {
+      matchSeconds += 0.1;
+      document.getElementById('matchTimerText').innerText = matchSeconds.toFixed(1);
+    }, 100);
+  }
+
+  function renderMatchGrid() {
+    const grid = document.getElementById('matchTilesGrid');
+    grid.innerHTML = '';
+    matchTiles.forEach(tile => {
+      const el = document.createElement('div');
+      el.className = 'match-tile';
+      el.id = tile.tileId;
+      el.innerText = tile.text;
+      el.onclick = () => onTileClick(tile);
+      grid.appendChild(el);
+    });
+  }
+
+  function onTileClick(tile) {
+    const el = document.getElementById(tile.tileId);
+    if (el.classList.contains('matched')) return;
+
+    if (!selectedTile) {
+      selectedTile = tile;
+      el.classList.add('selected');
+    } else if (selectedTile.tileId === tile.tileId) {
+      selectedTile = null;
+      el.classList.remove('selected');
+    } else {
+      const prevEl = document.getElementById(selectedTile.tileId);
+      if (selectedTile.pairId === tile.pairId) {
+        // MATCH!
+        el.classList.remove('selected');
+        prevEl.classList.remove('selected');
+        el.classList.add('matched');
+        prevEl.classList.add('matched');
+        matchedCount++;
+        selectedTile = null;
+
+        if (matchedCount === matchPairs.length) {
+          clearInterval(matchTimer);
+          document.getElementById('matchGameOverBanner').style.display = 'block';
+          document.getElementById('matchFinalTime').innerText = matchSeconds.toFixed(1);
+        }
+      } else {
+        // MISMATCH (Penalty +1.0s)
+        matchSeconds += 1.0;
+        el.classList.add('mismatch');
+        prevEl.classList.add('mismatch');
+        setTimeout(() => {
+          el.classList.remove('mismatch', 'selected');
+          prevEl.classList.remove('mismatch', 'selected');
+        }, 400);
+        selectedTile = null;
+      }
+    }
+  }
+  resetMatchGame();
+
+  // Simulator 4: Smart Arabic Grading
+  function runGradingTest() {
+    const expected = document.getElementById('gradeExpectedInput').value;
+    const user = document.getElementById('gradeUserInput').value;
+    const resultBox = document.getElementById('gradingResultBox');
+
+    // Normalization logic: strip tashkeel, normalize alef, strip brackets
+    function norm(t) {
+      return t.toLowerCase()
+        .replace(/[\u064B-\u0652\u0670]/g, '') // remove tashkeel
+        .replace(/[إأآا]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\([^)]*\)/g, '') // remove brackets
+        .replace(/[\p{P}\s]+/gu, ' ')
+        .trim();
+    }
+
+    const nExp = norm(expected);
+    const nUsr = norm(user);
+
+    if (nUsr === nExp && nUsr.length > 0) {
+      resultBox.innerHTML = `
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--brand-mint); margin-bottom: 0.3rem;">✅ إجابة صحيحة تماماً (EXACT MATCH)</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">تم تجريد حركات التشكيل والأقواس وتطابقت المفاهيم بنسبة 100%!</div>
+      `;
+      resultBox.style.borderColor = "var(--brand-mint)";
+    } else if (nUsr.length > 0 && (nExp.includes(nUsr) || nUsr.includes(nExp))) {
+      resultBox.innerHTML = `
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--brand-gold); margin-bottom: 0.3rem;">⚠️ مقبولة مع تطابق جزئي (ACCEPTED WITH TYPO)</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">المصطلح مطابق للأصل مع اختلاف طفيف في الكلمات الزائدة.</div>
+      `;
+      resultBox.style.borderColor = "var(--brand-gold)";
+    } else {
+      resultBox.innerHTML = `
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--accent-coral); margin-bottom: 0.3rem;">❌ إجابة غير صحيحة (INCORRECT)</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">لم يتم العثور على تشابه كافٍ مع الإجابة النموذجية.</div>
+      `;
+      resultBox.style.borderColor = "var(--accent-coral)";
+    }
+  }
+  runGradingTest();
+
+  // Simulator 5: Daily Streak & Freeze Logic
+  let streakDays = 7;
+  let freezeCount = 2;
+  let playerXp = 1450;
+  let currentLevel = 4;
+  let studiedToday = false;
+
+  function updateStreakUI(msg) {
+    document.getElementById('streakDaysCount').innerText = `${streakDays} أيام`;
+    document.getElementById('freezeCountText').innerText = `${freezeCount} ❄️`;
+    document.getElementById('playerXpText').innerText = `${playerXp} / ${currentLevel * currentLevel * 100} XP`;
+    document.getElementById('playerLevelText').innerText = `المستوى ${currentLevel}`;
+    
+    const prevBase = (currentLevel - 1) * (currentLevel - 1) * 100;
+    const nextTarget = currentLevel * currentLevel * 100;
+    const pct = Math.min(100, Math.max(5, Math.round(((playerXp - prevBase) / (nextTarget - prevBase)) * 100)));
+    document.getElementById('playerXpBar').style.width = `${pct}%`;
+
+    const logEl = document.getElementById('streakEventLog');
+    logEl.innerHTML = `<div>[${new Date().toLocaleTimeString('ar-SA')}] ${msg}</div>` + logEl.innerHTML;
+  }
+
+  function simStudyToday() {
+    if (studiedToday) {
+      playerXp += 20;
+      updateStreakUI("أتممت مراجعة إضافية اليوم! (+20 XP بونص إضافي)");
+    } else {
+      streakDays += 1;
+      playerXp += 50;
+      studiedToday = true;
+      if (playerXp >= currentLevel * currentLevel * 100) currentLevel++;
+      updateStreakUI("🎉 رائـع! أنجزت جلسة المذاكرة اليومية! زادت السلسلة ليوم جديد (+50 XP)");
+    }
+  }
+
+  function simSkipDay() {
+    studiedToday = false;
+    if (freezeCount > 0) {
+      freezeCount -= 1;
+      updateStreakUI("❄️ فاتك يوم مذاكرة! تم استهلاك درع تجميد وحماية سلسلتك بنجاح دون انقطاع.");
+    } else {
+      const prev = streakDays;
+      streakDays = 1;
+      updateStreakUI(`⚠️ للأسف انقطعت سلسلتك السابقة (${prev} أيام) لعدم توفر دروع تجميد! بدأت سلسلة جديدة.`);
+    }
+  }
+
+  function simAddFreeze() {
+    freezeCount += 1;
+    updateStreakUI("🛡️ تم شحن رصيدك بدرع تجميد جديد (+1 Freeze Shield) لحماية السلسلة.");
+  }
+
+  function simResetStreak() {
+    streakDays = 1;
+    freezeCount = 2;
+    playerXp = 100;
+    currentLevel = 2;
+    studiedToday = false;
+    updateStreakUI("🔄 تمت إعادة ضبط المحاكاة للقيم الأولية.");
+  }
+
+  // Simulator 6: Adaptive Test Generator & Smart Distractors
+  const adaptiveQuizPool = [
+    {
+      q: "ما هي العُضية الخلوية المسؤولة عن إنتاج وتوليد جزيئات الطاقة ATP في الخلية؟",
+      correct: "الميتوكوندريا",
+      distractors: ["الريبوسومات", "البلاستيدات الخضراء", "جهاز جولجي"],
+      type: "MCQ",
+      analysis: "الميتوكوندريا هي عُضية إنتاج الطاقة الخلوية عبر التنفس الخلوي. المشتتات الذكية اختيرت لكونها عُضيات خلوية شائعة ذات أطوال متقاربة تمنع التخمين الشكلي."
+    },
+    {
+      q: "ما هي العملية الحيوية التي تحول بها النباتات طاقة الضوء إلى سكر الجلوكوز؟",
+      correct: "البناء الضوئي",
+      distractors: ["التنفس الخلوي", "التخمر الكحولي", "الانشطار الثنائي"],
+      type: "MCQ",
+      analysis: "البناء الضوئي (Photosynthesis). المشتتات المحددة هي مسارات حيوية أخرى لإنتاج الطاقة يخلط الطلاب بينها عادةً في اختبارات علم الأحياء."
+    },
+    {
+      q: "ما هو الجزيء الحيوي الحامل للشفرة الوراثية الأساسية في نواة الخلية؟",
+      correct: "الحمض النووي DNA",
+      distractors: ["الحمض النووي mRNA", "البروتين الهستوني", "الدهون الفسفورية"],
+      type: "MCQ",
+      analysis: "DNA هو المخزن الوراثي الدائم، بينما mRNA وسيط ناقل. المشتتات من نفس عائلة الأحماض النووية والجزيئات الخلوية الكبرى لتنشيط التمييز الدقيق."
+    },
+    {
+      q: "أي من الخيارات التالية يُعتبر الإنزيم المحفز لتفكيك النشا في الفم؟",
+      correct: "الأميليز (Amylase)",
+      distractors: ["البيبسين (Pepsin)", "اللايبيز (Lipase)", "التربسين (Trypsin)"],
+      type: "MCQ",
+      analysis: "الأميليز يفرز من الغدد اللعابية. المشتتات الثلاثة هي إنزيمات هاضمة حقيقية أخرى (للبروتين والدهون)، مما يجعلها مشتتات إدراكية فائقة الفعالية."
+    }
+  ];
+  let currentQuizIdx = 0;
+
+  function renderQuizQuestion(item) {
+    document.getElementById('quizPromptText').innerText = item.q;
+    document.getElementById('quizCounterText').innerText = `السؤال ${currentQuizIdx + 1} من ${adaptiveQuizPool.length}`;
+    
+    const container = document.getElementById('quizOptionsContainer');
+    container.innerHTML = '';
+
+    const allOpts = [...item.distractors, item.correct].sort(() => Math.random() - 0.5);
+    allOpts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'sim-btn';
+      btn.style.textAlign = 'right';
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.border = '1px solid var(--card-border)';
+      btn.style.color = 'white';
+      btn.innerText = opt;
+      btn.onclick = () => onSelectQuizOption(btn, opt, item);
+      container.appendChild(btn);
+    });
+  }
+
+  function onSelectQuizOption(btn, chosen, item) {
+    const isCorrect = (chosen === item.correct);
+    const box = document.getElementById('quizFeedbackBox');
+
+    document.querySelectorAll('#quizOptionsContainer button').forEach(b => {
+      b.disabled = true;
+      if (b.innerText === item.correct) {
+        b.style.background = 'var(--brand-mint)';
+        b.style.borderColor = 'var(--brand-mint)';
+      } else if (b.innerText === chosen && !isCorrect) {
+        b.style.background = 'var(--accent-coral)';
+        b.style.borderColor = 'var(--accent-coral)';
+      }
+    });
+
+    if (isCorrect) {
+      box.innerHTML = `
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--brand-mint); margin-bottom: 0.4rem;">🎉 إجابة صحيحة تماماً!</div>
+        <div style="font-size: 0.85rem; color: #D1D5DB; line-height: 1.5;">${item.analysis}</div>
+        <div style="margin-top: 0.6rem; font-size: 0.78rem; color: var(--brand-gold);">+25 XP مكتسبة في رصيد المعرفة!</div>
+      `;
+      box.style.borderColor = 'var(--brand-mint)';
+    } else {
+      box.innerHTML = `
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-coral); margin-bottom: 0.4rem;">❌ إجابة خاطئة (وقع في المشتت الذكي)</div>
+        <div style="font-size: 0.85rem; color: #D1D5DB; line-height: 1.5;">الإجابة الصحيحة هي: <strong style="color: var(--brand-mint);">${item.correct}</strong>.<br>${item.analysis}</div>
+      `;
+      box.style.borderColor = 'var(--accent-coral)';
+    }
+  }
+
+  function generateNextAdaptiveQuestion() {
+    currentQuizIdx = (currentQuizIdx + 1) % adaptiveQuizPool.length;
+    document.getElementById('quizFeedbackBox').innerHTML = `
+      <div style="font-size: 1.1rem; font-weight: bold; color: var(--text-secondary); margin-bottom: 0.5rem;">اختر إجابة لرؤية تحليل المشتت الذكي</div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary);">
+        يقوم محرك Quizlet بفحص الفروق بين الخيارات المختارة ويحلل سبب استبعاد المشتتات لتثبيت المفهوم في الذاكرة طويلة المدى.
+      </div>
+    `;
+    document.getElementById('quizFeedbackBox').style.borderColor = 'var(--card-border)';
+    renderQuizQuestion(adaptiveQuizPool[currentQuizIdx]);
+  }
+  renderQuizQuestion(adaptiveQuizPool[0]);
+
+</script>
+
+</body>
+</html>

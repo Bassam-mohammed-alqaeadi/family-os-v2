@@ -1,0 +1,41 @@
+# 1. استثناء ملفات الـ APK الخام وأدوات الهندسة العكسية الثقيلة
+benchmarks/raw_apks/
+benchmarks/tools/
+*.apk
+*.xapk
+*.dex
+*.so
+*.jar
+*.exe
+*.zip
+*.bin
+*.pack
+
+# 2. استثناء مجلدات التفكيك الخام والكود المصدري الضخم داخل التطبيقات الـ 8
+benchmarks/extracted/*/00_xapk_unpacked/
+benchmarks/extracted/*/03_decompiled_src/
+benchmarks/extracted/*/apktool_out/
+benchmarks/extracted/*/_apktool_raw/
+benchmarks/extracted/*/_target_dex/
+benchmarks/extracted/*/06_network_and_telemetry/lib/
+benchmarks/extracted/*/06_network_and_telemetry/native_libs/
+
+# 3. استثناء قوائم الـ XML والصور الخام الضخمة (مع الإبقاء على ملفات التوثيق، الألوان، الثيمات، Lottie، والصوتيات)
+benchmarks/extracted/*/02_design_system_and_ui/all_layouts/
+benchmarks/extracted/*/02_design_system_and_ui/all_vector_drawables/
+benchmarks/extracted/*/02_design_system_and_ui/assets_catalog/
+benchmarks/extracted/*/02_design_system_and_ui/illustrations_high_res/
+benchmarks/extracted/*/02_design_system_and_ui/key_layouts/
+benchmarks/extracted/*/02_design_system_and_ui/assets/
+benchmarks/extracted/*/02_design_system_and_ui/svg_icons/
+benchmarks/extracted/*/02_design_system_and_ui/vector_icons/
+
+# 4. استثناء سجلات الوكلاء المؤقتة ومجلد التجارب
+.agents/
+scratch/
+project-tree-snapshot.md
+family-os-core.zip
+
+# 5. الإبقاء على قواعد بيانات القرآن وحصن المسلم الجاهزة إن رغبت برفعها (أو احذف السطرين التاليين لاستثنائها)
+!benchmarks/extracted/10-muslim-pro/apktool_out/assets/hisnul_v3.sqlite
+!benchmarks/extracted/10-muslim-pro/apktool_out/assets/quran.sqlite

@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:allowBackup="false" android:compileSdkVersion="29" android:compileSdkVersionCodename="10" package="com.bitsmedia.android.muslimpro" platformBuildVersionCode="29" platformBuildVersionName="10">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA"/>
+    <permission android:name="com.bitsmedia.android.muslimpro.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.bitsmedia.android.muslimpro.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="com.samsung.android.iap.permission.BILLING"/>
+    <permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
+    <uses-feature android:name="android.hardware.location" android:required="false"/>
+    <uses-feature android:name="android.hardware.location.network" android:required="false"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false"/>
+    <uses-feature android:name="android.hardware.sensor.compass" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:glEsVersion="0x20000" android:required="true"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ"/>
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
+    <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE"/>
+    <uses-permission android:name="com.sonymobile.home.permission.PROVIDER_INSERT_BADGE"/>
+    <uses-permission android:name="com.anddoes.launcher.permission.UPDATE_COUNT"/>
+    <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.huawei.android.launcher.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_APP_BADGE"/>
+    <uses-permission android:name="com.oppo.launcher.permission.READ_SETTINGS"/>
+    <uses-permission android:name="com.oppo.launcher.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="me.everything.badger.permission.BADGE_COUNT_READ"/>
+    <uses-permission android:name="me.everything.badger.permission.BADGE_COUNT_WRITE"/>
+    <application android:allowBackup="false" android:appComponentFactory="o.setShuffleModeEnabledRemoved" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:label="@string/APKTOOL_RENAMED_0x7f120330" android:largeHeap="true" android:name="o.setRetainInstance" android:networkSecurityConfig="@xml/APKTOOL_RENAMED_0x7f150004" android:requestLegacyExternalStorage="true" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.MuslimPro.Default">
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_api_key"/>
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/admob_app_id"/>
+        <meta-data android:name="com.google.android.gms.ads.AD_MANAGER_APP" android:value="true"/>
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/home_actionbar_icon"/>
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/APKTOOL_RENAMED_0x7f060305"/>
+        <meta-data android:name="applovin.sdk.key" android:value="02p1b0Lv5c1MaAcffMUy3CgiubD1WCB6w7hyy8xyhichK83B_5mnB7OT7Da_Td4BpbT6BlDg1-Zypa4r3d8b1Z"/>
+        <meta-data android:name="com.facebook.sdk.AutoInitEnabled" android:value="false"/>
+        <meta-data android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT" android:value="true"/>
+        <activity android:excludeFromRecents="true" android:exported="true" android:launchMode="standard" android:name="com.google.firebase.auth.internal.FederatedSignInActivity" android:permission="com.google.firebase.auth.api.gms.permission.LAUNCH_FEDERATED_SIGN_IN" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120001" android:launchMode="singleTask" android:name="o.requestPermissionsFromFragment" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activities.HolidaysActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12008f" android:launchMode="singleTask" android:name="o.downloadContent"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.migratePremiumToFirebase" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.inspiration.view.ContentActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1200ba" android:launchMode="singleTask" android:name="o.updatedInterruptedPurchaseIfRequired" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.inspiration.view.ContentDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120330" android:launchMode="singleTask" android:name=".activities.SplashActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="keyboardHidden|orientation|uiMode|screenSize|layoutDirection" android:label="@string/APKTOOL_RENAMED_0x7f120330" android:launchMode="singleTask" android:name=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.TranslucentStatusBar.Default" android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="premium" android:scheme="muslimpro"/>
+                <data android:host="premium" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="prayertimes" android:scheme="muslimpro"/>
+                <data android:host="prayertimes" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="quran" android:scheme="muslimpro"/>
+                <data android:host="quran" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="qibla" android:scheme="muslimpro"/>
+                <data android:host="qibla" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="go.muslimpro.com" android:pathPrefix="/" android:scheme="https"/>
+                <data android:host="go.muslimpro.com" android:pathPrefix="/" android:scheme="http"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/premium" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/quran" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/qibla" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/community" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/virtual_tour" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/makkah" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/login" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/article" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/video" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/image" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/halal" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/quote" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/hajjumrah" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/shop" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/duas" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/name" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/message" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/Prayer" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/en/Prayer" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/fr/horaires" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/in/waktu" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/tr/namaz" android:scheme="https"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/ru/bремя" android:scheme="https"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setStateAfterAnimating" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120444" android:launchMode="singleTask" android:name="o.startIntentSenderFromFragment" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120624" android:launchMode="singleTask" android:name=".screens.settings.SettingsActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="settings" android:scheme="muslimpro"/>
+                <data android:host="settings" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120624" android:name="o.setSingleIcon" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settings.SettingsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12062a" android:launchMode="singleTask" android:name=".screens.login_signup.LoginSignupActivity" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="premium" android:scheme="muslimpro"/>
+                <data android:host="login" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="login" android:scheme="muslimpro"/>
+            </intent-filter>
+            <intent-filter android:autoVerify="true" android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="www.muslimpro.com" android:pathPrefix="/login" android:scheme="http"/>
+                <data android:host="muslimpro.com" android:pathPrefix="/login" android:scheme="http"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120625" android:launchMode="singleTask" android:name="o.Lifecycling$1" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12039f" android:launchMode="singleTask" android:name="o.markState" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name=".screens.sura.view.SuraActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120550" android:launchMode="singleTask" android:name=".screens.names.views.NamesActivity" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="names" android:scheme="muslimpro"/>
+                <data android:host="names" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="99names" android:scheme="muslimpro"/>
+                <data android:host="99names" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1200dd" android:launchMode="singleTask" android:name=".screens.hajj_journey.HajjJourneyActivity" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="virtual_tour" android:scheme="muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1200dd" android:launchMode="singleTask" android:name="o.setCashInHands" android:parentActivityName=".screens.hajj_journey.HajjJourneyActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.hajj_journey.HajjJourneyActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name=".screens.places.PlacesActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.app.searchable" android:resource="@xml/APKTOOL_RENAMED_0x7f150006"/>
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="places" android:scheme="muslimpro"/>
+                <data android:host="places" android:scheme="com.bitsmedia.android.muslimpro"/>
+                <data android:host="placedetails" android:scheme="muslimpro"/>
+                <data android:host="placedetails" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name=".screens.halalplaces.HalalPlacesActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateUnchanged|adjustPan">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="halal" android:scheme="muslimpro"/>
+                <data android:host="halal" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setAgricultureBoth" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.TranslucentStatusBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.halalplaces.HalalPlacesActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120660" android:launchMode="singleTask" android:name=".screens.duas.DuasActivity" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.bitsmedia.android.muslimpro.screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="hisnul" android:scheme="muslimpro"/>
+                <data android:host="hisnul" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120660" android:launchMode="singleTask" android:name=".screens.hisnul.views.HisnulChaptersActivity" android:parentActivityName=".screens.duas.DuasActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.bitsmedia.android.muslimpro.screens.duas.DuasActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1204bc" android:launchMode="singleTask" android:name="o.considerNotify" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.bitsmedia.android.muslimpro.screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1205e6" android:launchMode="singleTask" android:name="o.loadAdViewAd" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settings.SettingsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12066b" android:launchMode="singleTask" android:name="o.onActivityResumed" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.sura.view.SuraActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12062c" android:launchMode="singleTask" android:name="o.AdOptionsView$Orientation" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.FullLifecycleObserverAdapter" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.observe" android:screenOrientation="portrait" android:windowSoftInputMode="stateAlwaysVisible|adjustResize">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.sura.view.SuraActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.ReflectiveGenericLifecycleObserver" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settings.SettingsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1202f7" android:launchMode="singleTask" android:name=".screens.zakat.ZakatActivity" android:screenOrientation="portrait" android:windowSoftInputMode="stateAlwaysHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="zakat" android:scheme="muslimpro"/>
+                <data android:host="zakat" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120619" android:launchMode="singleTask" android:name="o.NativeAdViewAttributes" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120346" android:launchMode="singleTask" android:name="o.fromString" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.sura.view.SuraActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120346" android:launchMode="singleTask" android:name="o.onNativeAdImagePrecachingFailed" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.ayashare.view.MessageBackgroundsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/MessagesTitle" android:launchMode="singleTask" android:name="o.PlaylistSura" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120260" android:launchMode="singleTask" android:name="o.getAdViewAttributes" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12010f" android:launchMode="singleTask" android:name="o.getApplication" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settings.SettingsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120067" android:launchMode="singleTask" android:name="o.getSupportFragmentManager" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.onActivityPreDestroyed" android:screenOrientation="portrait" android:theme="@style/Theme.Zendesk.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.onActivityPreStopped" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activities.ZendeskSupportActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120397" android:launchMode="singleTask" android:name=".screens.prayer_request.PrayerRequestActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="community" android:scheme="muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12015f" android:launchMode="singleTask" android:name="o.getStateAfterAnimating" android:screenOrientation="portrait" android:windowSoftInputMode="stateAlwaysVisible|adjustPan">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.prayer_request.PrayerRequestActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120251" android:launchMode="singleTask" android:name="o.assertMainThread" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120052" android:launchMode="singleTask" android:name="o.getAdCallToAction" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settings.SettingsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120125" android:launchMode="singleTask" android:name="o.onActivityStarted" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12067a" android:launchMode="singleTask" android:name="o.handleNativeAssets" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12062a" android:launchMode="singleTask" android:name="o.SuraViewModel" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.login_signup.LoginSignupActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120218" android:launchMode="singleTask" android:name="o.getValue" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.phone_login.PhoneLoginActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120626" android:launchMode="singleTask" android:name="o.setValue" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settingsdetails.SettingsDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f1200ce" android:launchMode="singleTask" android:name="o.ZakatCompat" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.login_signup.LoginSignupActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120044" android:launchMode="singleTask" android:name="o.getAdService" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.login_signup.LoginSignupActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120060" android:launchMode="singleTask" android:name="o.hasCriticalErrors" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.login_signup.LoginSignupActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.showHighContrastPopupIfNeeded" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.halalplacedetails.PlaceDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12019e" android:launchMode="singleTask" android:name="o.onAyaMenuLongClicked" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.halalplacedetails.PlaceDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120009" android:launchMode="singleTask" android:name="o.removeCancellable" android:screenOrientation="portrait" android:windowSoftInputMode="stateUnchanged|adjustResize">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.places.PlacesActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="" android:launchMode="singleTask" android:name="o.onDownloadStarted" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.addplace.AddHalalPlaceActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120296" android:launchMode="singleTask" android:name="o.getNativeAdService" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.halalplacedetails.PlaceDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120063" android:launchMode="singleTask" android:name="o.getLogger" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120244" android:launchMode="singleTask" android:name="o.getPrayedText" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12020a" android:launchMode="singleTask" android:name="o.getAdChoiceOverlay" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120472" android:launchMode="singleTask" android:name="o.Internal" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.MPImage" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setOthers" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.FacebookAuthorizationException" android:parentActivityName=".screens.halalplaces.HalalPlacesActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar" android:windowSoftInputMode="stateVisible">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.halalplaces.HalalPlacesActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.getButtonTextColor" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activities.ZendeskSupportActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.onActivityStopped" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.zakat.ZakatActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.addSource" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120330" android:launchMode="singleTask" android:name="o.refreshTitleBar" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:configChanges="keyboardHidden|orientation|uiMode|screenSize|layoutDirection" android:label="@string/APKTOOL_RENAMED_0x7f120440" android:launchMode="singleTask" android:name="o.shouldMuteAudio" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.inspiration.view.ContentActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f120666" android:launchMode="singleTask" android:name="o.NativeAdBase$NativeComponentTag" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.Default" android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setUsingSilverWeight" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.getNextPrayerIndex" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.onAppUnmuted" android:parentActivityName="o.getNextPrayerIndex" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.startTicking" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.hideProgress" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.onSubscriptionErrorResolved" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.inspiration.view.ContentActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name=".screens.inspiration.view.ContentActivity" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.main.MainActivity"/>
+            <intent-filter android:label="@string/APKTOOL_RENAMED_0x7f120330">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="inspiration" android:scheme="muslimpro"/>
+                <data android:host="inspiration" android:scheme="com.bitsmedia.android.muslimpro"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.FeaturedImageJsonAdapter" android:parentActivityName="o.setSingleIcon" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settingsdetails.SettingsDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.NativeAdView$Type" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setGoldPrice" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setPluginVersion" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.settingsdetails.SettingsDetailsActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.releasePlayer" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait"/>
+        <activity android:configChanges="uiMode" android:label="@string/APKTOOL_RENAMED_0x7f12026e" android:launchMode="singleTask" android:name="o.getSponsoredTranslation" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.bitsmedia.android.muslimpro.screens.main.MainActivity"/>
+        </activity>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f12042e" android:launchMode="singleTask" android:name="o.applyOverrideConfiguration" android:parentActivityName=".screens.hisnul.views.HisnulChaptersActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.bitsmedia.android.muslimpro.screens.hisnul.views.HisnulChaptersActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.initImageView" android:parentActivityName="o.AdChoiceOverlayNativeRenderer" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <activity android:launchMode="singleTask" android:name="o.GlideException" android:parentActivityName="o.AdChoiceOverlayNativeRenderer" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:launchMode="singleTask" android:name="o.loadAdWithDisplayData" android:screenOrientation="portrait"/>
+        <activity android:launchMode="singleTask" android:name="o.AdChoiceOverlayNativeRenderer" android:parentActivityName=".screens.main.MainActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.setGold18Weight" android:parentActivityName=".screens.hajj_journey.HajjJourneyActivity" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".screens.hajj_journey.HajjJourneyActivity"/>
+        </activity>
+        <activity android:configChanges="uiMode" android:launchMode="singleTask" android:name="o.Registry$NoImageHeaderParserException" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:launchMode="singleTask" android:name="o.androidManifestHasValidSdkKey" android:screenOrientation="portrait" android:theme="@style/Theme.MuslimPro.NoActionBar.Default"/>
+        <receiver android:name=".PrayerTimeNotificationReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.ADHAN_NOTIFICATION"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.ADHAN_RESTART"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.PRE_ADHAN_NOTIFICATION"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.QURAN_QUOTE_NOTIFICATION"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.FASTING_TRACKER_NOTIFICATION"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.REENGAGEMENT_REMINDER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.REENGAGEMENT_REMINDER_FRIDAY"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.BIRTHDAY_NOTIFICATION"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bitsmedia.android.muslimpro.HOLIDAY_NOTIFICATION"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".MPDownloadBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".MPMediaControlBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.provider" android:exported="false" android:grantUriPermissions="true" android:name="o.getSessionActivity">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/APKTOOL_RENAMED_0x7f150005"/>
+        </provider>
+        <service android:name="o.getRetainInstance"/>
+        <service android:name="o.getValueForType"/>
+        <service android:name="o.onAyaCheckmarkClicked"/>
+        <service android:name="o.InterstitialAd$InterstitialLoadAdConfig"/>
+        <service android:name="o.setIconSizeDp"/>
+        <service android:name="o.getExitTransition"/>
+        <service android:name="o.getValueTypeNameRes"/>
+        <service android:name=".MPFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:exported="false" android:name="o.requestPermissions">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="12451000"/>
+        <receiver android:name=".widget.BigTimeWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/APKTOOL_RENAMED_0x7f150014"/>
+        </receiver>
+        <receiver android:name=".widget.HorizontalShortcutWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/APKTOOL_RENAMED_0x7f150016"/>
+        </receiver>
+        <receiver android:name=".widget.HorizontalPrayerTimeWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/APKTOOL_RENAMED_0x7f150015"/>
+        </receiver>
+        <receiver android:name=".widget.VerticalPrayerTimeWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.ACTION_APPWIDGET_OPTIONS_CHANGED"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/APKTOOL_RENAMED_0x7f150017"/>
+        </receiver>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="\155477247795798"/>
+        <activity android:name="com.google.android.gms.ads.purchase.InAppPurchaseActivity" android:theme="@style/APKTOOL_RENAMED_0x7f1301f1"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:label="@string/APKTOOL_RENAMED_0x7f120330" android:name="com.facebook.FacebookActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:exported="true" android:name="com.facebook.CustomTabActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="@string/APKTOOL_RENAMED_0x7f120405"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="cct.com.bitsmedia.android.muslimpro" android:scheme="fbconnect"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:hardwareAccelerated="true" android:name="com.applovin.adview.AppLovinInterstitialActivity" android:screenOrientation="behind"/>
+        <activity android:name="o.h_"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.workmanager-init" android:directBootAware="false" android:exported="false" android:multiprocess="true" android:name="o.setSupportButtonTintMode"/>
+        <service android:directBootAware="false" android:enabled="@bool/APKTOOL_RENAMED_0x7f050004" android:exported="false" android:name="o.drawableStateChanged"/>
+        <service android:directBootAware="false" android:enabled="@bool/APKTOOL_RENAMED_0x7f050006" android:exported="true" android:name="androidx.work.impl.background.systemjob.SystemJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:directBootAware="false" android:enabled="true" android:exported="false" android:name="o.setPrecomputedText"/>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="false" android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"/>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="o.setSupportImageTintList$INotificationSideChannel$Default">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="o.setSupportImageTintList$INotificationSideChannel">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="o.setSupportImageTintList$notify">
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="o.setSupportImageTintList$cancel">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="o.setSupportImageTintMode">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="@bool/APKTOOL_RENAMED_0x7f050004" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver">
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS"/>
+            </intent-filter>
+        </receiver>
+        <service android:directBootAware="true" android:exported="false" android:name="o.zzddd">
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.auth.FirebaseAuthRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.remoteconfig.RemoteConfigRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.database.DatabaseRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.functions.FunctionsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.dynamiclinks.internal.FirebaseDynamicLinkRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.CrashlyticsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.iid.Registrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.abt.component.AbtRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+        </service>
+        <activity android:exported="false" android:label="@string/APKTOOL_RENAMED_0x7f12058a" android:name="com.google.android.libraries.places.widget.AutocompleteActivity" android:theme="@style/APKTOOL_RENAMED_0x7f130118" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="zendesk.support.request.RequestActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/APKTOOL_RENAMED_0x7f1206b3" android:name="zendesk.support.guide.ViewArticleActivity"/>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f120643" android:name="zendesk.support.guide.HelpCenterActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f1205f6" android:name="zendesk.support.requestlist.RequestListActivity"/>
+        <receiver android:exported="false" android:name="zendesk.support.DeepLinkingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="zendesk.support"/>
+            </intent-filter>
+        </receiver>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.zendesk.support.SupportSdkStartupProvider" android:enabled="true" android:exported="false" android:name="zendesk.support.SupportSdkStartupProvider"/>
+        <activity android:name="zendesk.messaging.MessagingActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:name="o.InvalidAppIdException" android:theme="@style/APKTOOL_RENAMED_0x7f1303be"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.imagepicker.provider" android:exported="false" android:grantUriPermissions="true" android:name="o.newThread">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/APKTOOL_RENAMED_0x7f150002"/>
+        </provider>
+        <service android:directBootAware="true" android:exported="false" android:name="o.extraCallback"/>
+        <receiver android:enabled="true" android:exported="false" android:name="com.google.android.gms.analytics.AnalyticsReceiver"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.analytics.AnalyticsService"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.analytics.AnalyticsJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <activity android:excludeFromRecents="true" android:exported="false" android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <service android:exported="true" android:name="com.google.android.gms.auth.api.signin.RevocationBoundService" android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" android:visibleToInstantApps="true"/>
+        <activity android:configChanges="locale|keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:hardwareAccelerated="true" android:launchMode="singleTop" android:name="com.applovin.adview.AppLovinFullscreenActivity" android:screenOrientation="behind"/>
+        <activity android:configChanges="keyboardHidden|orientation|uiMode|screenSize" android:name="com.applovin.sdk.AppLovinWebViewActivity"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:name="com.applovin.mediation.MaxDebuggerActivity" android:theme="@style/APKTOOL_RENAMED_0x7f1303ad"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:name="com.applovin.mediation.MaxDebuggerDetailActivity" android:theme="@style/APKTOOL_RENAMED_0x7f1303ad"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:name="com.applovin.mediation.MaxDebuggerMultiAdActivity" android:theme="@style/APKTOOL_RENAMED_0x7f1303ad"/>
+        <service android:exported="false" android:name="o.RemoteActionCompat" android:stopWithTask="false"/>
+        <service android:exported="false" android:name="o.setSwitchTypeface" android:stopWithTask="false"/>
+        <receiver android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementReceiver"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:directBootAware="true" android:exported="false" android:name="o.zzgy">
+            <intent-filter android:priority="-4">
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:exported="false" android:name="o.setOnQueryTextListener" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.FacebookInitProvider" android:exported="false" android:name="com.facebook.internal.INotificationSideChannel$Stub"/>
+        <receiver android:exported="false" android:name="o.onSurfaceTextureSizeChanged">
+            <intent-filter>
+                <action android:name="com.facebook.sdk.ACTION_CURRENT_ACCESS_TOKEN_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:exported="false" android:name="com.facebook.ads.AudienceNetworkActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.AudienceNetworkContentProvider" android:exported="false" android:name="com.facebook.ads.AudienceNetworkContentProvider"/>
+        <activity android:configChanges="locale|keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale" android:hardwareAccelerated="true" android:name="com.inmobi.ads.rendering.InMobiAdActivity" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:configChanges="orientation|screenSize" android:name="o.c_" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.com.squareup.picasso" android:exported="false" android:name="com.squareup.picasso.PicassoProvider"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:hardwareAccelerated="true" android:name="com.fyber.inneractive.sdk.activities.InneractiveInternalBrowserActivity" android:screenOrientation="fullUser"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:hardwareAccelerated="true" android:name="com.fyber.inneractive.sdk.activities.InneractiveFullscreenAdActivity" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:hardwareAccelerated="true" android:name="com.fyber.inneractive.sdk.activities.InneractiveRichMediaVideoPlayerActivityCore" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <receiver android:enabled="true" android:exported="false" android:name="com.fyber.inneractive.sdk.video.IAVideoKit">
+            <intent-filter>
+                <action android:name="com.fyber.inneractive.sdk.intent.action.REGISTER_KIT"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:enabled="true" android:exported="false" android:name="com.fyber.inneractive.sdk.mraid.IAMraidKit">
+            <intent-filter>
+                <action android:name="com.fyber.inneractive.sdk.intent.action.REGISTER_KIT"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:exported="true" android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            </intent-filter>
+        </receiver>
+        <activity android:exported="false" android:name="com.google.android.gms.common.api.GoogleApiActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.mobileadsinitprovider" android:exported="false" android:initOrder="100" android:name="com.google.android.gms.ads.MobileAdsInitProvider"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.ads.AdService"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.firebaseinitprovider" android:directBootAware="true" android:exported="false" android:initOrder="100" android:name="com.google.firebase.provider.FirebaseInitProvider"/>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.belvedere2.attachments" android:exported="false" android:grantUriPermissions="true" android:name="o.Places" android:readPermission="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/APKTOOL_RENAMED_0x7f150000"/>
+        </provider>
+        <provider android:authorities="com.bitsmedia.android.muslimpro.lifecycle-process" android:exported="false" android:multiprocess="true" android:name="o.createItem"/>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery">
+            <meta-data android:name="backend:com.google.android.datatransport.cct.CctBackendFactory" android:value="cct"/>
+        </service>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="false" android:name="o.b$b$8"/>
+        <meta-data android:name="com.android.dynamic.apk.fused.modules" android:value="base"/>
+        <meta-data android:name="com.android.stamp.source" android:value="https://play.google.com/store"/>
+        <meta-data android:name="com.android.stamp.type" android:value="STAMP_TYPE_STANDALONE_APK"/>
+        <meta-data android:name="com.android.vending.splits" android:resource="@xml/splits0"/>
+        <meta-data android:name="com.android.vending.derived.apk.id" android:value="6"/>
+    </application>
+</manifest>

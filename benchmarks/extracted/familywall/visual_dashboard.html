@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamilyWall Architecture & UI Visual Explorer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Mermaid CDN for Dynamic Architecture Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Lottie Web for Vector Animation Playback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        :root {
+            --primary: #5B4AE4;
+            --primary-dark: #4333C4;
+            --secondary: #FE6F8A;
+            --accent: #FFB74D;
+            --success: #4CAF50;
+            --warning: #FFA000;
+            --danger: #F44336;
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
+            --card-border: #334155;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1E1B4B 0%, #311042 50%, #0F172A 100%);
+            padding: 40px 24px;
+            border-bottom: 1px solid var(--card-border);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(91, 74, 228, 0.25);
+            border: 1px solid var(--primary);
+            color: #C7D2FE;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            background: linear-gradient(to left, #FFFFFF, #C7D2FE, #FE6F8A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(91, 74, 228, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #C7D2FE;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #FFFFFF;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--card-border);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+
+        .mermaid-wrapper {
+            background: #0B1120;
+            padding: 24px;
+            border-radius: 14px;
+            overflow-x: auto;
+            text-align: center;
+            border: 1px solid #1E293B;
+        }
+
+        /* UI Asset Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        .asset-card {
+            background: #0F172A;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+
+        .asset-card:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+            box-shadow: 0 6px 20px rgba(254, 111, 138, 0.25);
+        }
+
+        .asset-card img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .asset-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            word-break: break-all;
+            direction: ltr;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Lottie Interactive Player */
+        .lottie-studio {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .lottie-studio {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .lottie-list {
+            background: #0F172A;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .lottie-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            direction: ltr;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+        }
+
+        .lottie-item:hover {
+            background: #1E293B;
+            color: #FFFFFF;
+        }
+
+        .lottie-item.active {
+            background: rgba(91, 74, 228, 0.2);
+            color: #C7D2FE;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+
+        .lottie-display {
+            background: #0F172A;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+            position: relative;
+        }
+
+        #lottieContainer {
+            width: 280px;
+            height: 280px;
+        }
+
+        .lottie-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .ctrl-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-family: inherit;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Color Swatches */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .color-chip {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            background: #0F172A;
+        }
+
+        .color-box {
+            height: 70px;
+            width: 100%;
+        }
+
+        .color-info {
+            padding: 10px 12px;
+            font-size: 0.8rem;
+        }
+
+        .color-hex {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+            color: #C7D2FE;
+            direction: ltr;
+        }
+
+        .color-desc {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        /* Audio Player Bar */
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .audio-card {
+            background: #0F172A;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .play-audio-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .play-audio-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        /* Instructions Banner */
+        .jadx-guide-box {
+            background: linear-gradient(135deg, rgba(91, 74, 228, 0.1), rgba(254, 111, 138, 0.05));
+            border: 1px solid rgba(91, 74, 228, 0.4);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .code-pill {
+            background: #0F172A;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #38BDF8;
+            font-size: 0.85rem;
+            direction: ltr;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="badge">FAMILY OS BENCHMARKING SUITE</div>
+    <h1>لوحة العرض البصري والهندسي لتطبيق FamilyWall</h1>
+    <p class="subtitle">استكشاف المخططات البيانية التفاعلية، شجرة المكونات، ومكتبة الأصول المرئية والصوتية المستخرجة بالكامل بدون الحاجة لقراءة الأكواد النصية الجافة.</p>
+    
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('architecture')">🏛️ الهيكلية المعمارية والمخططات</button>
+        <button class="tab-btn" onclick="switchTab('database')">💾 قاعدة البيانات والعلاقات (ERD)</button>
+        <button class="tab-btn" onclick="switchTab('lottie')">✨ مشغل الرسوم المتحركة (Lottie)</button>
+        <button class="tab-btn" onclick="switchTab('ui-gallery')">🎨 واجهات وأيقونات التطبيق</button>
+        <button class="tab-btn" onclick="switchTab('colors')">🌈 لوحة الألوان والأصوات</button>
+        <button class="tab-btn" onclick="switchTab('jadx-guide')">🔍 دليل المخطط في JADX-GUI</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- KPI STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">7,033</div>
+            <div class="stat-label">صنف برمجي مفكك (Classes)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">1,137</div>
+            <div class="stat-label">أيقونة شعاعية فكتور (Vector Drawables)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">41</div>
+            <div class="stat-label">رسوم متحركة تفاعلية (Lottie JSON)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">127</div>
+            <div class="stat-label">رسوميات ورسوم إيضاحية عالية الدقة</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">11</div>
+            <div class="stat-label">جداول بيانات محلية (SQLite Schema)</div>
+        </div>
+    </div>
+
+    <!-- TAB 1: ARCHITECTURE -->
+    <div id="tab-architecture" class="tab-content active">
+        <div class="card">
+            <h2 class="section-title">مخطط تدفق العمليات والمعمارية الموزعة (Distributed System Architecture)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                يوضح هذا الرسم البياني البصري كيفية استقبال التطبيق لأوامر المستخدم، تخزينها فورياً محلياً بدون تأخير، ثم معالجة المزامنة الذكية عبر طابور المهام المحمية.
+            </p>
+            <div class="mermaid-wrapper">
+                <pre class="mermaid">
+flowchart TD
+    subgraph UI_Layer["📱 طبقة واجهة المستخدم (UI Layer)"]
+        UI_Cal["📅 تقويم العائلة\n(CalendarActivity)"]
+        UI_Tasks["📝 قوائم المهام والمشتريات\n(ListDetailFragment)"]
+        UI_Vault["🔒 الخزنة العائلية المشفرة\n(VaultPasswordFragment)"]
+        UI_Loc["📍 محدد مواقع الأفراد\n(LocatorFragment)"]
+    end
+
+    subgraph Domain_Engine["⚙️ محركات المنطق الداخلي (Domain Engines)"]
+        RecEngine["🔄 محرك التكرار والجدولة\n(RFC 5545 RRULE Engine)"]
+        ColorStripe["🎨 موزع ألوان شرائط الأعضاء\n(MemberColorStripeResolver)"]
+        ConflictResolver["⚖️ خوارزمية فض النزاعات\n(3-Way Conflict Resolver)"]
+        CryptoEngine["🛡️ محرك التشفير AES-256-GCM\n(FamilyVaultCrypto)"]
+    end
+
+    subgraph Sync_Subsystem["⚡ نظام المزامنة غير المتزامن (WriteBack Queue)"]
+        Dispatcher["📨 موجه العمليات الخلفية\n(WriteBackJobDispatcher)"]
+        LocalQueue["📋 طابور العمليات المؤجلة\n(EnqueuedOperation Table)"]
+        SyncWorker["🛰️ عامل المزامنة الخلفي\n(WorkManager / AlarmManager)"]
+    end
+
+    subgraph Storage_Layer["💾 طبقة التخزين والاتصال الخارجي"]
+        LocalDB[("🗄️ قاعدة بيانات SQLite/Room\n(11 جداول محلية)")]
+        CloudAPI["☁️ خوادم FamilyWall السحابية\n(70 نقطة نهاية REST/WS)"]
+        ExternalCal["🌐 تقاويم خارجية\n(Google / Outlook / iCal)"]
+    end
+
+    UI_Cal --> RecEngine
+    UI_Cal --> ColorStripe
+    UI_Tasks --> ConflictResolver
+    UI_Vault --> CryptoEngine
+
+    RecEngine --> Dispatcher
+    ConflictResolver --> Dispatcher
+    CryptoEngine --> Dispatcher
+
+    Dispatcher -->|تحديث محلي فوري 0ms| LocalDB
+    Dispatcher -->|إدراج في طابور العمليات| LocalQueue
+    LocalQueue --> SyncWorker
+    SyncWorker -->|مزامنة عند توفر الإنترنت| CloudAPI
+    SyncWorker -->|استيراد وتصدير iCal| ExternalCal
+                </pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">دورة حياة العملية المحلية والتراجع (WriteBack Queue State Machine)</h2>
+            <div class="mermaid-wrapper">
+                <pre class="mermaid">
+stateDiagram-v2
+    [*] --> العملية_المحلية_الجديدة: المستخدم يضيف حدث أو مهمة
+    العملية_المحلية_الجديدة --> التحديث_الفوري_للذاكرة_وقاعدة_البيانات: استجابة فورية (Optimistic UI)
+    التحديث_الفوري_للذاكرة_وقاعدة_البيانات --> حالة_الانتظار_في_الطابور: حفظ في جدول enqueued_operation
+    
+    حالة_الانتظار_في_الطابور --> فحص_حالة_الاتصال
+    فحص_حالة_الاتصال --> تأجيل_مع_Exponential_Backoff: الإنترنت غير متاح
+    تأجيل_مع_Exponential_Backoff --> حالة_الانتظار_في_الطابور: إعادة محاولة مجدولة
+    
+    فحص_حالة_الاتصال --> إرسال_الطلب_للسيرفر: الإنترنت متاح
+    إرسال_الطلب_للسيرفر --> نجاح_المزامنة: HTTP 200 OK
+    نجاح_المزامنة --> حذف_من_طابور_الانتظار: تأكيد المزامنة وتثبيت المعرف
+    حذف_من_طابور_الانتظار --> [*]
+    
+    إرسال_الطلب_للسيرفر --> وجود_تعارض_بيانات: HTTP 409 Conflict
+    وجود_تعارض_بيانات --> تطبيق_قاعدة_Last_Write_Wins: فض النزاع وتحديث السجل
+    تطبيق_قاعدة_Last_Write_Wins --> [*]
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: DATABASE ERD -->
+    <div id="tab-database" class="tab-content">
+        <div class="card">
+            <h2 class="section-title">مخطط الكيانات والعلاقات لقاعدة البيانات المحلية (Entity-Relationship Diagram)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                تم استخراج هذا الهيكل مباشرة من محرك SQLite في تطبيق FamilyWall، ويحتوي على 11 جدولاً تغطي كافة أبعاد النظام العائلي.
+            </p>
+            <div class="mermaid-wrapper">
+                <pre class="mermaid">
+erDiagram
+    COMMUNITY ||--o{ MEMBER : "يحتوي على"
+    COMMUNITY ||--o{ CALENDAR_EVENT : "يملك"
+    COMMUNITY ||--o{ LIST_HEADER : "ينظم"
+    COMMUNITY ||--o{ VAULT_ITEM : "يحمي"
+    COMMUNITY ||--o{ TIMETABLE_ENTRY : "يجدول"
+    COMMUNITY ||--o{ WRITEBACK_OPERATION : "يطبق"
+
+    MEMBER ||--o{ EVENT_ATTENDEE : "يشارك في"
+    MEMBER ||--o{ LIST_ITEM : "مكلف بـ"
+
+    CALENDAR_EVENT ||--o{ EVENT_ATTENDEE : "يتضمن"
+    CALENDAR_EVENT ||--o{ EVENT_EXCEPTION : "يستثني"
+    LIST_HEADER ||--o{ LIST_ITEM : "يضم"
+
+    COMMUNITY {
+        string id PK "معرف العائلة"
+        string name "اسم العائلة"
+        string role "دور المستخدم (Admin/Parent/Child)"
+        string pin_hash "الرمز السري للأطفال"
+        datetime created_at "تاريخ التأسيس"
+    }
+
+    MEMBER {
+        string id PK "معرف الفرد"
+        string community_id FK "معرف العائلة"
+        string name "الاسم المستعار"
+        string color_hex "لون شريط التقويم (#5B4AE4)"
+        string role "الدور (الأب/الأم/الأبناء)"
+        string avatar_res "صورة الأفاتار"
+    }
+
+    CALENDAR_EVENT {
+        string id PK "معرف الحدث"
+        string community_id FK "معرف العائلة"
+        string title "عنوان الموعد"
+        datetime start_time "وقت البدء"
+        datetime end_time "وقت الانتهاء"
+        string rrule "قاعدة التكرار (RFC 5545)"
+        string creator_id "منشئ الموعد"
+        boolean is_birthday "هل هو عيد ميلاد؟"
+    }
+
+    LIST_HEADER {
+        string id PK "معرف القائمة"
+        string community_id FK "معرف العائلة"
+        string title "عنوان القائمة"
+        string type "النوع (بقالة / مهام / توضيب)"
+        string icon_res "أيقونة القائمة"
+    }
+
+    LIST_ITEM {
+        string id PK "معرف العنصر"
+        string list_id FK "معرف القائمة"
+        string label "نص المهمة / الغرض"
+        boolean is_completed "هل اكتمل؟"
+        string assigned_to_member FK "مكلف إلى"
+    }
+
+    VAULT_ITEM {
+        string id PK "معرف العنصر المشفر"
+        string community_id FK "معرف العائلة"
+        string encrypted_payload "البيانات المشفرة AES-256"
+        string iv_salt "متجه البدء والملح"
+        string item_type "نوع السر (كلمة سر / بطاقة / كود)"
+    }
+
+    WRITEBACK_OPERATION {
+        string id PK "معرف العملية"
+        string operation_name "نوع العملية (ADD_EVENT / COMPLETE_TASK)"
+        string payload_json "الحمولة المشفرة"
+        integer retry_count "عدد محاولات الإرسال"
+        datetime enqueued_at "تاريخ الإدراج في الطابور"
+    }
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: LOTTIE PLAYER -->
+    <div id="tab-lottie" class="tab-content">
+        <div class="card">
+            <h2 class="section-title">مشغل الرسوم المتحركة التفاعلي (Interactive Lottie Animations)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">
+                اضغط على أي ملف من القائمة الجانبية لتشغيله في المشغل الحي في الوقت الفعلي:
+            </p>
+            <div class="lottie-studio">
+                <div class="lottie-list" id="lottieList">
+                    <!-- Dynamic buttons injected via JS -->
+                </div>
+                <div class="lottie-display">
+                    <div id="lottieContainer"></div>
+                    <div id="currentLottieName" style="margin-top: 15px; font-family: 'JetBrains Mono', monospace; color: #C7D2FE; font-weight: bold;"></div>
+                    <div class="lottie-controls">
+                        <button class="ctrl-btn" onclick="playLottie()">▶️ تشغيل</button>
+                        <button class="ctrl-btn" onclick="pauseLottie()">⏸️ إيقاف مؤقت</button>
+                        <button class="ctrl-btn" onclick="stopLottie()">⏹️ إعادة للبداية</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: UI ASSET GALLERY -->
+    <div id="tab-ui-gallery" class="tab-content">
+        <div class="card">
+            <h2 class="section-title">أيقونات الأقسام ولوحة التحكم العائلية (Dashboard Category Icons)</h2>
+            <div class="gallery-grid">
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_calendar.webp" alt="Calendar">
+                    <span class="asset-name">التقويم العائلي</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_chat.webp" alt="Chat">
+                    <span class="asset-name">المحادثة العائلية</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_family.webp" alt="Family">
+                    <span class="asset-name">حائط العائلة</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_list.webp" alt="Lists">
+                    <span class="asset-name">القوائم والمهام</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_location.webp" alt="Location">
+                    <span class="asset-name">تحديد المواقع</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_timetable.webp" alt="Timetable">
+                    <span class="asset-name">الجدول الدراسي</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_trust.webp" alt="Trust/Vault">
+                    <span class="asset-name">الخزنة المشفرة</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/ic_dashboard_gallery.webp" alt="Gallery">
+                    <span class="asset-name">ألبوم الصور</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">أفاتار أفراد الأسرة المستخرجة (Family Avatars)</h2>
+            <div class="gallery-grid">
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_father.webp" alt="Father">
+                    <span class="asset-name">الأب (Father)</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_mother.webp" alt="Mother">
+                    <span class="asset-name">الأم (Mother)</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_daughter.webp" alt="Daughter">
+                    <span class="asset-name">الابنة الكبرى</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_daughter_younger.webp" alt="Daughter Younger">
+                    <span class="asset-name">الابنة الصغرى</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_son.webp" alt="Son">
+                    <span class="asset-name">الابن الأكبر</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_son_younger.webp" alt="Son Younger">
+                    <span class="asset-name">الابن الأصغر</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_grand_father.webp" alt="Grand Father">
+                    <span class="asset-name">الجد (Grandfather)</span>
+                </div>
+                <div class="asset-card">
+                    <img src="02_design_system_and_ui/illustrations_high_res/avatar_grand_mother.webp" alt="Grand Mother">
+                    <span class="asset-name">الجدة (Grandmother)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">معاينات الودجات والرسوم التوضيحية (Widgets & Banners)</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div class="asset-card" style="padding: 20px;">
+                    <img src="02_design_system_and_ui/illustrations_high_res/calendar_appwidget_month_preview.webp" style="width: 100%; height: auto; border-radius: 8px;" alt="Calendar Widget">
+                    <span class="asset-name" style="margin-top: 10px;">ودجت التقويم الشهري لشاشة الهاتف</span>
+                </div>
+                <div class="asset-card" style="padding: 20px;">
+                    <img src="02_design_system_and_ui/illustrations_high_res/premium_crown_3d_illustration.png" style="width: 120px; height: 120px;" alt="Premium Crown">
+                    <span class="asset-name" style="margin-top: 10px;">شعار الترقية الملكي ثلاثي الأبعاد</span>
+                </div>
+                <div class="asset-card" style="padding: 20px;">
+                    <img src="02_design_system_and_ui/illustrations_high_res/mealplanner_appwidget_previewimage.png" style="width: 100%; height: auto; border-radius: 8px;" alt="Meal Planner Widget">
+                    <span class="asset-name" style="margin-top: 10px;">ودجت منظم الوجبات العائلي</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: COLORS & SOUNDS -->
+    <div id="tab-colors" class="tab-content">
+        <div class="card">
+            <h2 class="section-title">لوحة الألوان الأساسية والهوية البصرية (Theme Colors)</h2>
+            <div class="color-palette">
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #5B4AE4;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#5B4AE4</div>
+                        <div class="color-desc">اللون الأساسي (Primary Indigo)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #FE6F8A;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#FE6F8A</div>
+                        <div class="color-desc">اللون الثانوي (Rose Accent)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #86C06A;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#86C06A</div>
+                        <div class="color-desc">لون الإنجاز والنجاح (Success Green)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #FFB74D;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#FFB74D</div>
+                        <div class="color-desc">لون التنبيه والتذكير (Warning Amber)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #42A5F5;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#42A5F5</div>
+                        <div class="color-desc">لون شريط الأب (Father Blue)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #AB47BC;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#AB47BC</div>
+                        <div class="color-desc">لون شريط الأم (Mother Purple)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #26A69A;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#26A69A</div>
+                        <div class="color-desc">لون شريط الابنة (Teal)</div>
+                    </div>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #FFA726;"></div>
+                    <div class="color-info">
+                        <div class="color-hex">#FFA726</div>
+                        <div class="color-desc">لون شريط الابن (Orange)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">التأثيرات الصوتية التفاعلية المستخرجة (Interactive Audio Effects)</h2>
+            <div class="audio-grid">
+                <div class="audio-card">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 2px;">صوت إنجاز المهمة (Pop Sound)</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">sound_pop.mp3</div>
+                    </div>
+                    <button class="play-audio-btn" onclick="playAudio('02_design_system_and_ui/audio_effects/sound_pop.mp3')">▶</button>
+                </div>
+                <div class="audio-card">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 2px;">صوت فتح الميكروفون الصوتي</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">lb_voice_open.ogg</div>
+                    </div>
+                    <button class="play-audio-btn" onclick="playAudio('02_design_system_and_ui/audio_effects/lb_voice_open.ogg')">▶</button>
+                </div>
+                <div class="audio-card">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 2px;">صوت نجاح الأمر الصوتي</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">lb_voice_success.ogg</div>
+                    </div>
+                    <button class="play-audio-btn" onclick="playAudio('02_design_system_and_ui/audio_effects/lb_voice_success.ogg')">▶</button>
+                </div>
+                <div class="audio-card">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 2px;">صوت فشل الأمر الصوتي</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">lb_voice_failure.ogg</div>
+                    </div>
+                    <button class="play-audio-btn" onclick="playAudio('02_design_system_and_ui/audio_effects/lb_voice_failure.ogg')">▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: JADX GUIDE -->
+    <div id="tab-jadx-guide" class="tab-content">
+        <div class="card">
+            <h2 class="section-title">كيف ترى المخططات البصرية والرسوم التفاعلية داخل JADX-GUI مباشرة؟</h2>
+            <div class="jadx-guide-box">
+                <h3 style="color: #38BDF8; margin-bottom: 8px;">🚀 أداة JADX-GUI مفتوحة الآن أمامك في الخلفية وبإمكانك تفعيل الأنماط البصرية كالآتي:</h3>
+                <p>لقد قمنا بتشغيل الأداة على ملف <span class="code-pill">familywall.apk</span>. لرؤية المخططات الشبكية والرسومية بدلاً من الشفرة النصية:</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: #0F172A; border: 1px solid var(--card-border); border-radius: 14px; padding: 20px;">
+                    <h3 style="color: #C7D2FE; margin-bottom: 10px;">1️⃣ إظهار المخطط البياني الصوري (Call Graph)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+                        اضغط بزر الفأرة الأيمن (Right Click) على أي صنف برمجي أو دالة (مثل <span class="code-pill">WriteBackJobDispatcher</span>) ثم اختر:
+                    </p>
+                    <div style="background: #1E293B; padding: 10px 14px; border-radius: 8px; color: #38BDF8; font-weight: bold; text-align: center;">
+                        Open Call Graph (G)
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 10px;">
+                        سيتحول المحرر إلى شبكة رسومية (Nodes & Edges) توضح مسار النداءات بين الدوال بصرياً.
+                    </p>
+                </div>
+
+                <div style="background: #0F172A; border: 1px solid var(--card-border); border-radius: 14px; padding: 20px;">
+                    <h3 style="color: #C7D2FE; margin-bottom: 10px;">2️⃣ معاينة شاشات التطبيق الرسومية (Layout Tree)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+                        من الشجرة الجانبية اليسرى، افتح المجلد:
+                    </p>
+                    <div style="background: #1E293B; padding: 10px 14px; border-radius: 8px; color: #4ADE80; font-weight: bold; text-align: center; direction: ltr;">
+                        Resources ➔ res ➔ layout
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 10px;">
+                        انقر نقراً مزدوجاً على أي شاشة مثل <span class="code-pill">fragment_calendar.xml</span> لمعاينة تسلسل عناصر الواجهة.
+                    </p>
+                </div>
+
+                <div style="background: #0F172A; border: 1px solid var(--card-border); border-radius: 14px; padding: 20px;">
+                    <h3 style="color: #C7D2FE; margin-bottom: 10px;">3️⃣ استعراض كافة الرسوم والأيقونات فورياً</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+                        من الشجرة الجانبية اليسرى، افتح المجلد:
+                    </p>
+                    <div style="background: #1E293B; padding: 10px 14px; border-radius: 8px; color: #F472B6; font-weight: bold; text-align: center; direction: ltr;">
+                        Resources ➔ res ➔ drawable
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 10px;">
+                        الضغط على أي ملف صورة أو أيقونة سيعرض الصورة فوراً في نافذة معاينة مرئية بدون كود!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Initialize Mermaid
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+            darkMode: true,
+            background: '#0B1120',
+            primaryColor: '#5B4AE4',
+            primaryTextColor: '#F8FAFC',
+            primaryBorderColor: '#7C3AED',
+            lineColor: '#60A5FA',
+            secondaryColor: '#FE6F8A',
+            tertiaryColor: '#1E293B'
+        }
+    });
+
+    // Tab Switching
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        const activeTab = document.getElementById('tab-' + tabId);
+        activeTab.classList.add('active');
+
+        // Re-render mermaid if tab has it
+        mermaid.run();
+    }
+
+    // Audio Player
+    let currentAudio = null;
+    function playAudio(path) {
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        currentAudio = new Audio(path);
+        currentAudio.play().catch(e => {
+            alert('تعذر تشغيل الصوت محلياً عبر المتصفح: ' + e.message);
+        });
+    }
+
+    // Lottie Files List
+    const lottieFiles = [
+        'anim_confettis.json',
+        'anim_calendar_add.json',
+        'anim_best_moment.json',
+        'anim_clock.json',
+        'anim_kid_account.json',
+        'anim_budget_setup_congratulations.json',
+        'anim_calendar_special_day.json',
+        'anim_email_confirmation.json',
+        'anim_emoji_partying_face.json',
+        'anim_explore_pin_success.json',
+        'anim_face_smiling_with_heart_eyes.json',
+        'anim_face_with_rolling_eyes.json',
+        'anim_globe_earth.json',
+        'anim_hugging_face.json',
+        'anim_lock.json',
+        'anim_robot_face.json',
+        'anim_verified_check.json',
+        'anim_warning.json',
+        'anim_fying_saucer.json',
+        'anim_storage_full.json'
+    ];
+
+    let lottieAnim = null;
+    const lottieListEl = document.getElementById('lottieList');
+    const currentLottieEl = document.getElementById('currentLottieName');
+
+    function loadLottie(filename, element) {
+        document.querySelectorAll('.lottie-item').forEach(i => i.classList.remove('active'));
+        if (element) element.classList.add('active');
+        currentLottieEl.textContent = 'ملف العرض الحالي: ' + filename;
+
+        if (lottieAnim) {
+            lottieAnim.destroy();
+        }
+
+        const lottiePath = '02_design_system_and_ui/lottie_animations/' + filename;
+        lottieAnim = lottie.loadAnimation({
+            container: document.getElementById('lottieContainer'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: lottiePath
+        });
+    }
+
+    function playLottie() { if (lottieAnim) lottieAnim.play(); }
+    function pauseLottie() { if (lottieAnim) lottieAnim.pause(); }
+    function stopLottie() { if (lottieAnim) lottieAnim.stop(); }
+
+    // Populate Lottie list
+    lottieFiles.forEach((f, idx) => {
+        const item = document.createElement('div');
+        item.className = 'lottie-item' + (idx === 0 ? ' active' : '');
+        item.textContent = f;
+        item.onclick = () => loadLottie(f, item);
+        lottieListEl.appendChild(item);
+    });
+
+    // Load first lottie on init
+    setTimeout(() => {
+        loadLottie(lottieFiles[0]);
+    }, 500);
+</script>
+
+</body>
+</html>

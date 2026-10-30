@@ -1,0 +1,254 @@
+[
+  {
+    "permission": "android.permission.ACCESS_COARSE_LOCATION",
+    "category": "SENSITIVE",
+    "risk_level": "HIGH",
+    "description": "موقع تقريبي عبر الشبكة والواي فاي",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.ACCESS_FINE_LOCATION",
+    "category": "SENSITIVE",
+    "risk_level": "HIGH",
+    "description": "موقع GPS عالي الدقة (خطر تسريب الموقع)",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.ACCESS_NETWORK_STATE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.ACCESS_WIFI_STATE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.CAMERA",
+    "category": "SENSITIVE",
+    "risk_level": "HIGH",
+    "description": "الوصول للكاميرا (قبلة AR / مسح النصوص)",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.FOREGROUND_SERVICE",
+    "category": "SENSITIVE",
+    "risk_level": "LOW",
+    "description": "تشغيل خدمة واجهة لتشغيل الصوتيات المستمرة",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.INTERNET",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.READ_APP_BADGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.READ_EXTERNAL_STORAGE",
+    "category": "SENSITIVE",
+    "risk_level": "HIGH",
+    "description": "قراءة الملفات من التخزين الخارجي",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.RECEIVE_BOOT_COMPLETED",
+    "category": "SENSITIVE",
+    "risk_level": "MEDIUM",
+    "description": "إعادة جدولة المنبهات عند إقلاع الجهاز",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.VIBRATE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "android.permission.WAKE_LOCK",
+    "category": "SENSITIVE",
+    "risk_level": "MEDIUM",
+    "description": "إيقاظ المعالج في الخلفية لإنذارات الأذان",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.WRITE_EXTERNAL_STORAGE",
+    "category": "SENSITIVE",
+    "risk_level": "HIGH",
+    "description": "كتابة وتنزيل ملفات الصوت والوسائط",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "android.permission.WRITE_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.anddoes.launcher.permission.UPDATE_COUNT",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.android.vending.BILLING",
+    "category": "SENSITIVE",
+    "risk_level": "MEDIUM",
+    "description": "فوترة المشتريات والاشتراكات داخل التطبيق",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "com.bitsmedia.android.muslimpro.permission.C2D_MESSAGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.google.android.c2dm.permission.RECEIVE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.htc.launcher.permission.READ_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.htc.launcher.permission.UPDATE_SHORTCUT",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.huawei.android.launcher.permission.CHANGE_BADGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.huawei.android.launcher.permission.READ_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.huawei.android.launcher.permission.WRITE_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.majeur.launcher.permission.UPDATE_BADGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.oppo.launcher.permission.READ_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.oppo.launcher.permission.WRITE_SETTINGS",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.samsung.android.iap.permission.BILLING",
+    "category": "SENSITIVE",
+    "risk_level": "MEDIUM",
+    "description": "متجر سامسونج للمشتريات",
+    "family_os_policy": "REJECT_OR_RESTRICT"
+  },
+  {
+    "permission": "com.sec.android.provider.badge.permission.READ",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.sec.android.provider.badge.permission.WRITE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.sonyericsson.home.permission.BROADCAST_BADGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "com.sonymobile.home.permission.PROVIDER_INSERT_BADGE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "me.everything.badger.permission.BADGE_COUNT_READ",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  },
+  {
+    "permission": "me.everything.badger.permission.BADGE_COUNT_WRITE",
+    "category": "NORMAL",
+    "risk_level": "LOW",
+    "description": "إذن قياسي أو إذن شارات اللانشر (Launcher Badges)",
+    "family_os_policy": "ALLOWED"
+  }
+]

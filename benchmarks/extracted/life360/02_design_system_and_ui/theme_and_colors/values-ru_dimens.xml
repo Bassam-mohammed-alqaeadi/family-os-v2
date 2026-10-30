@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="map_center_lat">61.524</dimen>
+    <dimen name="map_center_lng">105.3188</dimen>
+</resources>

@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" android:installLocation="auto" package="com.familywall" platformBuildVersionCode="36" platformBuildVersionName="16">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:maxSdkVersion="31" android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_SYNC_STATS"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:maxSdkVersion="32" android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:glEsVersion="0x20000" android:required="true"/>
+    <uses-feature android:name="android.hardware.location"/>
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="image/jpeg"/>
+        </intent>
+        <intent>
+            <action android:name="com.android.vending.billing.InAppBillingService.BIND"/>
+        </intent>
+        <intent>
+            <action android:name="com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND"/>
+        </intent>
+        <package android:name="com.google.android.apps.maps"/>
+        <intent>
+            <action android:name="com.appsflyer.referrer.INSTALL_PROVIDER"/>
+        </intent>
+        <package android:name="com.facebook.katana"/>
+        <package android:name="com.instagram.android"/>
+        <package android:name="com.facebook.lite"/>
+        <package android:name="com.samsung.android.mapsagent"/>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+        </intent>
+    </queries>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"/>
+    <uses-permission android:name="com.samsung.android.mapsagent.permission.READ_APP_INFO"/>
+    <uses-permission android:name="com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS"/>
+    <permission android:name="com.familywall.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.familywall.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <application android:allowBackup="false" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:dataExtractionRules="@xml/appsflyer_data_extraction_rules" android:debuggable="false" android:enableOnBackInvokedCallback="true" android:extractNativeLibs="false" android:fullBackupContent="@xml/appsflyer_backup_rules" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:label="@string/applicationName" android:largeHeap="true" android:name="com.familywall.FamilyWallApplication" android:networkSecurityConfig="@xml/network_security_config" android:theme="@style/Theme.FamilyWall2.NoActionBar">
+        <activity android:exported="false" android:label="" android:name="com.familywall.app.filer.UploadDispatcherResultActivity" android:theme="@style/Theme.Transparent"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/key_maps_v2"/>
+        <meta-data android:name="com.google.android.gms.analytics.globalConfigResource" android:resource="@xml/analytics_global"/>
+        <meta-data android:name="engagement:reportCrash" android:value="false"/>
+        <meta-data android:name="engagement:burstThreshold" android:value="20000"/>
+        <meta-data android:name="engagement:sessionTimeout" android:value="1200000"/>
+        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9099561257831895~8411675198"/>
+        <property android:name="android.adservices.AD_SERVICES_CONFIG" android:resource="@xml/gma_ad_services_config"/>
+        <provider android:authorities="com.familywall.provider" android:exported="false" android:name="com.familywall.provider.FamilyProvider"/>
+        <provider android:authorities="com.familywall.file.provider" android:exported="false" android:grantUriPermissions="true" android:name="com.familywall.provider.GenericFileProvider">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider"/>
+        </provider>
+        <receiver android:exported="false" android:name="com.familywall.applicationmanagement.OnBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="false" android:name="com.familywall.applicationmanagement.FcmFirebaseInstanceIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:exported="false" android:name="com.familywall.applicationmanagement.FcmListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:enabled="true" android:exported="false" android:name="com.familywall.applicationmanagement.NotificationsActionsIntentService">
+            <intent-filter>
+                <action android:name=".service.Notificationservice.REPLY_ACTION"/>
+                <action android:name=".app.location.request.LocationRequestCallActivity.ACTION_ACCEPT"/>
+                <action android:name=".service.Notificationservice.COMMENT_ACTION"/>
+                <action android:name=".service.Notificationservice.LIKE_ACTION"/>
+                <action android:name=".service.Notificationservice.CHECKIN_MESSAGE_ACTION"/>
+            </intent-filter>
+        </service>
+        <service android:name="com.familywall.app.location.providersreceiver.LocationProvidersChangedService"/>
+        <receiver android:exported="false" android:name="com.familywall.app.location.providersreceiver.LocationProvidersChangedReceiver">
+            <intent-filter>
+                <action android:name="android.location.PROVIDERS_CHANGED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="true" android:name="com.familywall.sync.AuthenticationService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator"/>
+        </service>
+        <service android:exported="true" android:name="com.familywall.app.location.geotracking.GeotrackingJobIntentService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="true" android:name="com.familywall.app.location.geotracking.GeotrackingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.familywall.app.location.geotracking.GeotrackingBroadcastReceiver.LOCATION_UPDATE"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="true" android:name="com.familywall.app.location.geofencing.GeofencingJobIntentService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="true" android:name="com.familywall.app.location.geofencing.GeofencingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.familywall.app.location.geofencing.GeofencingBroadcastReceiver.ACTION_PROCESS_GEOFENCE"/>
+                <action android:name="com.familywall.app.location.geofencing.GeofencingBroadcastReceiver.ACTION_DELAYED_EXIT"/>
+            </intent-filter>
+        </receiver>
+        <service android:enabled="true" android:exported="true" android:foregroundServiceType="location" android:name="com.familywall.app.location.geotracking.GeotrackingRequestForegroundService"/>
+        <receiver android:exported="false" android:name="com.familywall.app.logout.RemovedAccountReceiver">
+            <intent-filter>
+                <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:exported="true" android:name="com.familywall.app.debug.DebugReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE"/>
+                <data android:host="4242" android:scheme="android_secret_code"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="true" android:name="com.familywall.sync.ContactSynchronizationService">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/contact_syncadapter"/>
+            <meta-data android:name="android.provider.CONTACTS_STRUCTURE" android:resource="@xml/contacts"/>
+        </service>
+        <service android:exported="true" android:name="com.familywall.sync.CalendarSynchronizationService">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/calendar_syncadapter"/>
+        </service>
+        <service android:exported="false" android:name="com.familywall.app.postmedia.PostMediaService">
+            <intent-filter>
+                <action android:name="com.familywall.app.postmedia.PostMediaService.ACTION_POST"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.familywall.app.postmedia.PostMediaService.ACTION_ABORT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.familywall.app.postmedia.PostMediaService.ACTION_RETRY"/>
+            </intent-filter>
+        </service>
+        <service android:enabled="true" android:exported="false" android:name="com.familywall.applicationmanagement.ApplicationBackgroundManager$FamilyWallJobService" android:permission="android.permission.BIND_JOB_SERVICE">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
+        <service android:exported="true" android:name="com.familywall.backend.event.ReminderJobIntentService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="true" android:name="com.familywall.backend.event.ReminderBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.familywall.backend.event.ReminderBroadcastReceiver.REMINDER"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="false" android:name="com.familywall.app.panic.notification.PanicOngoingNotificationJobIntentService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="true" android:name="com.familywall.app.main.MainActivity" android:theme="@style/Theme.FamilyWall2.Starting" android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_main" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_main" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_im" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_im" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_home" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_home" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_map" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_map" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_calendar" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_calendar" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_list" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_list" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_budget" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_budget" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_documents" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_documents" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_specialdays" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_specialdays" android:scheme="https"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_promo" android:scheme="http"/>
+                <data android:host="api.familywall.com" android:pathPrefix="@string/deeplink_promo" android:scheme="https"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/about_title" android:name="com.familywall.app.about.AboutActivity" android:screenOrientation="behind"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.photo.viewer.PhotoViewerActivity" android:screenOrientation="sensor" android:theme="@style/Theme.FamilyWall2.Toolbar.Fullscreen"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.photo.viewer.BasicMediaViewerActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.Fullscreen"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.video.VideoViewerActivity" android:screenOrientation="sensor" android:theme="@style/Theme.FamilyWall2.Toolbar.Fullscreen"/>
+        <activity android:exported="false" android:label="" android:launchMode="singleTop" android:name="com.familywall.app.wall.WallActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.TranslucentStatus" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:exported="false" android:label="@string/wall_action_threadList" android:launchMode="singleTop" android:name="com.familywall.app.message.thread.list.ThreadListActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Wall" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="true" android:label="" android:name="com.familywall.app.event.browse.EventBrowseActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_edit_title_header" android:name="com.familywall.app.event.edit.EventEditActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.browse.EventBrowseActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="true" android:label="@string/import_event_from_ics" android:name="com.familywall.app.event.receiver.IcsReceiverActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="application/ics"/>
+                <data android:mimeType="text/calendar"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:pathPattern=".*.ics"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_member_filter_title" android:name="com.familywall.app.event.browse.memberfilter.MemberFilterActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.browse.EventBrowseActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_settings_title" android:name="com.familywall.app.event.settings.EventSettingsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.browse.EventBrowseActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="@string/event_color_activity_title" android:name="com.familywall.app.event.edit.colorselector.ColorListActivity" android:parentActivityName="com.familywall.app.event.edit.EventEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.edit.EventEditActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.place.detail.PlaceDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.TranslucentActionBar.EditAnimation" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.gallery.GallerySwipeActivity" android:screenOrientation="sensor" android:theme="@style/Theme.FamilyWall2.Toolbar.Fullscreen" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/settings_changePassword" android:name="com.familywall.app.password.PasswordEditActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/task_edit_txtCategory" android:name="com.familywall.app.task.category.TaskListDetailActivity" android:parentActivityName="com.familywall.app.task.category.list.CategoryListActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/task_detail_title" android:name="com.familywall.app.task.detail.TaskDetailActivity" android:parentActivityName="com.familywall.app.task.category.list.CategoryListActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/task_edit_assignedTo_hint" android:name="com.familywall.app.task.detail.assigneeSelector.AssigneesSelectorActivity" android:parentActivityName="com.familywall.app.task.detail.TaskDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.task.detail.TaskDetailActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/task_edit_txtCategory" android:name="com.familywall.app.task.category.selector.CategorySelectorActivity" android:parentActivityName="com.familywall.app.task.detail.TaskDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.task.detail.TaskDetailActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/common_categories" android:name="com.familywall.app.task.detail.TaskCategorySelectorActivity" android:parentActivityName="com.familywall.app.task.detail.TaskDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.task.detail.TaskDetailActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="" android:name="com.familywall.app.task.category.list.CategoryListActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:exported="false" android:label="" android:launchMode="singleTop" android:name="com.familywall.app.location.LocationMapActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:exported="false" android:name="com.familywall.app.location.request.LocationRequestCallActivity" android:screenOrientation="behind" android:theme="@style/dialogFullScreenImageBackground"/>
+        <activity android:exported="false" android:name="com.familywall.app.location.request.LocationRequestConfirmActivity" android:screenOrientation="behind" android:theme="@style/dialogFullScreenImageBackground"/>
+        <activity android:exported="false" android:name="com.familywall.app.dialog.DialogActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity"/>
+        <activity android:configChanges="orientation|screenSize" android:excludeFromRecents="true" android:exported="false" android:name="com.familywall.app.dialog.SimpleDialogActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.NoFrame"/>
+        <activity android:configChanges="orientation|screenSize" android:excludeFromRecents="true" android:exported="false" android:name="com.familywall.app.postmedia.PostMediaActionDialogActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.NoFrame"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.panic.countdown.PanicCountdownActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/location_family_ongoing_title" android:name="com.familywall.app.panic.ongoing.PanicOngoingActivity" android:parentActivityName="com.familywall.app.wall.WallActivity" android:screenOrientation="behind">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:enabled="false" android:exported="false" android:label="FamilyWall Debug" android:launchMode="singleInstance" android:name="com.familywall.app.debug.DebugActivity" android:windowSoftInputMode="stateVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:enabled="false" android:exported="false" android:label="FamilyWall Dev Tools" android:name="com.familywall.app.devtools.DevToolsActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.webview.WebViewActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.help.HelpActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.privacy.PrivacyPolicyActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.terms.TermsConditionsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:exported="false" android:label="@string/navigation_premium" android:name="com.familywall.app.premium.info.PremiumInfoActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.VisibleStatusBar" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.family.pick.FamilyPickActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.family.manage.dispatch.FamilyManageDispatchActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.family.manage.members.FamilyListMembersActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.family.manage.members.FamilyManageMembersActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:label="@string/family_storage_activity_title" android:name="com.familywall.app.family.storage.FamilyStorageActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.member.edit.MemberEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers.Inverse.RoundedIcons" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.family.edit.FamilyEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:label="" android:name="com.familywall.app.member.detail.MemberDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon.NoTitle" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:label="" android:name="com.familywall.app.contact.familywall.list.ContactListActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.contact.familywall.list.ContactPickerActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.contact.familywall.detail.ContactDetailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/contact_edit_title_create" android:name="com.familywall.app.contact.familywall.edit.ContactEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/shout_edit_title_add" android:name="com.familywall.app.wall.TextEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.EditAnimation" android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/shout_edit_title_add" android:name="com.familywall.app.shout.edit.ShoutEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.EditAnimation" android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/shout_detail_title" android:name="com.familywall.app.shout.detail.ShoutDetailActivity" android:parentActivityName="com.familywall.app.wall.WallActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail.NoActionBar" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/shout_detail_title" android:name="com.familywall.app.premium.detail.PremiumDetailActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="@string/media_set_detail_title" android:name="com.familywall.app.media.set.detail.preview.MediaSetDetailPreviewActivity" android:parentActivityName="com.familywall.app.wall.WallActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="@string/media_set_detail_title" android:name="com.familywall.app.media.set.detail.grid.MediaSetDetailGridActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/checkin_detail_title" android:name="com.familywall.app.checkin.detail.CheckinDetailActivity" android:parentActivityName="com.familywall.app.location.LocationMapActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.CalendarDetailActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.browse.EventBrowseActivity"/>
+        </activity>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.connectgoogle.ConnectExternalCalendarActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.aiimport.EventImportCreateEmailActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated.NoFullScreen" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.aiimport.EventImportAISettingsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated.NoFullScreen" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.dashboard.AppObsoleteActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.invitation.child.InvitationChildActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:exported="false" android:label="@string/event_detail_title" android:name="com.familywall.app.event.detail.EventDetailActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail.NoActionBar" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.browse.EventBrowseActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="@string/event_detail_title" android:name="com.familywall.app.event.detail.BirthdayDetailActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:exported="false" android:label="@string/new_member_title" android:name="com.familywall.app.member.NewMemberDetailsActivity" android:parentActivityName="com.familywall.app.wall.WallActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation" android:exported="false" android:name="com.familywall.app.invitation.edit.InvitationEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="adjustPan"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.invitation.edit.InvitationEditDialogActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Dialog.FullScreen" android:windowSoftInputMode="stateHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.firstuse.FirstUseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.SystemAnimation" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/login_title" android:name="com.familywall.app.login.LoginActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:exported="true" android:label="@string/navigation_settings" android:name="com.familywall.app.settings.SettingsActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/settings_alerts" android:name="com.familywall.app.settings.notifications.NotificationListActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="true" android:label="@string/message_thread_create_title" android:name="com.familywall.app.message.thread.create.ThreadCreateActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter android:label="@string/applicationName">
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="text/plain"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/message_message_list_title" android:name="com.familywall.app.message.message.list.MessageListActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.wall.WallActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.family.receivedinvitation.ReceivedInvitationDialogActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.DialogActivity" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/place_pick_title" android:name="com.familywall.app.place.pick.PlacePickActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/place_edit_title_create" android:name="com.familywall.app.place.edit.PlaceEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.EditAnimation" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/location_title" android:name="com.familywall.app.location.pick.GeocodedAddressPickActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/place_address_pick_title" android:name="com.familywall.app.place.address.PlaceAddressPickActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateAlwaysVisible"/>
+        <activity android:exported="false" android:label="@string/navigation_gallery" android:name="com.familywall.app.photo.album.list.AlbumListActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:exported="false" android:name="com.familywall.app.photo.album.contents.MediaListActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/contact_native_pick_title" android:name="com.familywall.app.contact.data.pick.ContactDataPickActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:exported="false" android:label="@string/native_album_title" android:name="com.familywall.app.media.android.pick.MediaMultiplePickActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="true" android:label="@string/media_post_title" android:name="com.familywall.app.media.set.post.MediaPostActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter android:label="@string/applicationName">
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:label="@string/applicationName">
+                <action android:name="android.intent.action.SEND_MULTIPLE"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="false" android:label="@string/native_album_pick_title" android:name="com.familywall.app.media.android.album.pick.AlbumPickActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/account_create_title" android:name="com.familywall.app.account.create.AccountCreateActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/account_create_title" android:name="com.familywall.app.account.create.AccountCreateComposeActivity" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/family_create_title_additional" android:name="com.familywall.app.family.create.FamilyCreateActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/contact_native_pick_title" android:name="com.familywall.app.invitation.wizard.phonebook.PhonebookInviteActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:exported="false" android:label="@string/invitation_from_circles_title" android:name="com.familywall.app.invitation.othercircles.InvitationFromCirclesActivity" android:screenOrientation="behind" android:windowSoftInputMode="adjustResize">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".app.invitation.wizard.phonebook.PhonebookInviteActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/checkin_placePick_title" android:name="com.familywall.app.checkin.placepick.CheckinPlacePickActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.checkin.create.CheckinCreateActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateVisible"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/placeType_pick_title" android:name="com.familywall.app.place.type.PlaceTypePickActivity" android:screenOrientation="behind" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.rating.RatingActivity" android:theme="@style/Theme.FamilyWall2.DialogActivity.Animated"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/reminder_activity_title" android:name="com.familywall.app.reminder.ReminderActivity" android:parentActivityName="com.familywall.app.event.edit.EventEditActivity" android:screenOrientation="behind">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.edit.EventEditActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/recurrency_activity_title" android:name="com.familywall.app.event.edit.recurrency.RecurrencyActivity" android:parentActivityName="com.familywall.app.event.edit.EventEditActivity" android:screenOrientation="behind">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.edit.EventEditActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/end_recurrency_activity_title" android:name="com.familywall.app.event.edit.endrecurrency.EndRecurrencyActivity" android:parentActivityName="com.familywall.app.event.edit.EventEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.WithDatePickers">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.edit.EventEditActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_visibleBy_title" android:name="com.familywall.app.event.edit.privacy.EventPrivacyActivity" android:parentActivityName="com.familywall.app.event.edit.EventEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.familywall.app.event.edit.EventEditActivity"/>
+        </activity>
+        <activity android:exported="false" android:name="com.familywall.app.location.TemporaryDurationChooser" android:screenOrientation="behind" android:theme="@style/dialogFullScreenImageBackground"/>
+        <activity android:exported="false" android:name="com.familywall.app.location.request.PickMeUpRequestCallActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.VisibleStatusBar"/>
+        <activity android:exported="false" android:label="@string/navigation_activities" android:name="com.familywall.app.family.profile.FamilyProfileActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon"/>
+        <activity android:exported="true" android:name="net.openid.appauth.RedirectUriReceiverActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="com.googleusercontent.apps.712281767254-5cvrlbehddjojo5cvhl55jtdduc19hrg"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="true" android:label="@string/appwidget_config_activity_title" android:name="com.familywall.appwidget.BaseWidgetConfigureActivity" android:theme="@style/Theme.FamilyWall2.Starting">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <receiver android:exported="true" android:icon="@mipmap/ic_launcher" android:label="@string/appwidget_calendar_agenda" android:name="com.familywall.appwidget.CalendarWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.familywall.appwidget.EVENT_CLICKED_ACTION"/>
+                <action android:name="com.familywall.appwidget.NEXT_CLICKED_ACTION"/>
+                <action android:name="com.familywall.appwidget.PREV_CLICKED_ACTION"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/calendar_widget_info"/>
+        </receiver>
+        <activity android:exported="false" android:label="@string/appwidget_config_activity_title" android:name="com.familywall.appwidget.CalendarMonthWidgetConfigureActivity" android:theme="@style/Theme.FamilyWall2.Starting">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="false" android:label="@string/appwidget_config_activity_title" android:name="com.familywall.app.widgets.SpecialDayTrackerWidgetConfigureActivity" android:theme="@style/Theme.FamilyWall2.Starting">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <receiver android:exported="false" android:icon="@drawable/calendar_appwidget_month_preview" android:label="@string/appwidget_calendar_month_title" android:name="com.familywall.appwidget.CalendarMonthWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.familywall.appwidget.EVENT_CLICKED_ACTION"/>
+                <action android:name="com.familywall.appwidget.NEXT_CLICKED_ACTION"/>
+                <action android:name="com.familywall.appwidget.PREV_CLICKED_ACTION"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/calendar_month_widget_info"/>
+        </receiver>
+        <service android:name="com.familywall.appwidget.CalendarWidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
+        <activity android:exported="false" android:label="@string/appwidget_config_activity_title" android:name="com.familywall.app.widgets.TasksWidgetConfigureActivity" android:theme="@style/Theme.FamilyWall2.Starting">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.familywall.appwidget.ChangeListDialogWidgetActivity" android:theme="@style/Theme.FamilyWall2.DialogActivity.AppWidget"/>
+        <receiver android:exported="false" android:icon="@drawable/tasks_appwidget_preview" android:label="@string/appwidget_tasks_title" android:name="com.familywall.app.widgets.TasklistWidgetReceiver">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.familywall.appwidget.CHANGE_LIST_ACTION"/>
+                <action android:name="com.familywall.appwidget.TASK_CLICKED_ACTION"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/tasks_widget_info"/>
+        </receiver>
+        <activity android:exported="false" android:label="@string/google_calendar_list_title" android:name="com.familywall.app.event.browse.rightmenu.connectgoogle.ExternalCalendarListActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/mealplanner_home_title" android:name="com.familywall.app.mealplanner.MealPlannerActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="adjustNothing">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".app.dashboard.DashboardActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/mealplanner_title" android:name="com.familywall.app.mealplanner.mealdetails.MealDetailsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/mealplanner_select_or_enter_a_dish" android:name="com.familywall.app.mealplanner.adddish.AddDishActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="@string/mealplanner_title" android:name="com.familywall.app.mealplanner.adddish.SearchDishActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.TranslucentWindow" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="@string/mealbox" android:name="com.familywall.app.mealplanner.mealbox.MealBoxActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/mealplanner_title" android:name="com.familywall.app.mealplanner.mealbox.SearchMealActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/mealplanner_title" android:name="com.familywall.app.mealplanner.addtoshoppinglist.AddToShoppingActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.mealplanner.recipe.RecipeActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.mealplanner.recipe.EditRecipeActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers.Inverse" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/recipe_collections" android:name="com.familywall.app.mealplanner.categories.ChooseCategoryActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/recipe_ingredients" android:name="com.familywall.app.mealplanner.recipe.AddIngredientsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="@string/recipe_instructions" android:name="com.familywall.app.mealplanner.recipe.AddInstructionsActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.mealplanner.mptutorial.MealPlannerTutorialActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:exported="false" android:name="com.familywall.app.dashboard.DashboardActivity" android:theme="@style/Animation.FamilyWall2.Dashboard"/>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.connectoutlook.OutlookConnectActivity" android:theme="@style/Theme.FamilyWall2"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.premium.suggest.PremiumFeatureActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.SlideInOutBottom" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.mealplanner.reminder.MealplannerReminderActivity" android:parentActivityName="com.familywall.app.mealplanner.MealPlannerActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/action_settings" android:name="com.familywall.app.mealplanner.MealplannerSettingsActivity" android:parentActivityName="com.familywall.app.mealplanner.MealPlannerActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:exported="false" android:name="com.familywall.app.gallery.MediaListFullScreenActivity" android:theme="@style/Theme.FamilyWall2.Toolbar.Fullscreen"/>
+        <activity android:exported="false" android:label="@string/rename_color_title" android:name="com.familywall.app.event.edit.colorselector.RenameColorActivity"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="@string/recipe_categories_title" android:name="com.familywall.app.mealplanner.mealbox.RecipeCategoriesManagementActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/rename_color_title" android:name="com.familywall.app.webview.WebViewCancelValidateActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/recipe_edit_category" android:name="com.familywall.app.mealplanner.mealbox.RecipeCategoryEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit"/>
+        <activity android:allowTaskReparenting="false" android:exported="false" android:label="@string/plan_recipe" android:name="com.familywall.app.mealplanner.MealPlannerDialogActivity" android:parentActivityName="com.familywall.app.mealplanner.recipe.RecipeActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar.Animated"/>
+        <activity android:exported="false" android:label="@string/add_from_history_activity_title" android:name="com.familywall.app.task.list.ListHistoryActivity" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.timetables.TimeTableActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="adjustNothing">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".app.dashboard.DashboardActivity"/>
+        </activity>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/timetable_create" android:name="com.familywall.app.timetables.TimetableCreateActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.WithDatePickers" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/timetable_edit_title" android:name="com.familywall.app.timetables.TimetableEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_edit_title_header" android:name="com.familywall.app.timetables.TimetableEventDetailActivity" android:parentActivityName="com.familywall.app.timetables.TimeTableActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/event_edit_title_header" android:name="com.familywall.app.timetables.TimetableEventEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/timetable_create" android:name="com.familywall.app.timetables.TimetableCreateWizard" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.premium.suggest.PremiumSuggestSinglePageActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.EditAnimation" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.premium.info.PremiumInfoWithSwitchPlanActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:exported="false" android:label="@string/settings_language_preferences_title" android:name="com.familywall.app.settings.language.LanguageActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="@string/manage_categories" android:name="com.familywall.app.task.list.TaskCategoriesManagementActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="@string/recipe_edit_category" android:name="com.familywall.app.task.list.TaskCategoryEditActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit"/>
+        <activity android:exported="false" android:label="@string/daily_briefing_notification_title" android:name="com.familywall.app.event.dailybriefing.DailyBriefingSettingsActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="uiMode" android:exported="false" android:label="@string/settings_darkMode" android:name="com.familywall.app.settings.language.DarkModeActivity" android:parentActivityName="com.familywall.app.settings.SettingsActivity" android:screenOrientation="behind"/>
+        <activity android:exported="false" android:label="@string/settings_edit_home" android:name="com.familywall.app.settings.CustomizeHomeActivity" android:parentActivityName="com.familywall.app.settings.SettingsActivity" android:screenOrientation="behind"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.premium.suggest.PremiumSuggestAtSubscriptionActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.TranslucentDecor.AppearBottom" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:exported="false" android:label="@string/settings_alerts" android:name="com.familywall.app.timetables.TimetableNotificationsSettingsActivity" android:parentActivityName="com.familywall.app.timetables.TimeTableActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Detail.NoActionBar" android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.emailverification.EmailVerificationActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.emailverification.ChangeEmailActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustPan"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.familywall.app.firstuse.terms.AcceptTermsActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.SlideInOutBottom" android:windowSoftInputMode="adjustResize"/>
+        <activity android:label="@string/events_add_calendar_from_url" android:name="com.familywall.app.event.browse.rightmenu.SubscribeCalendarActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:label="@string/calendar_import_ics_via_url_title" android:name="com.familywall.app.event.browse.rightmenu.ImportFromICSURLActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar"/>
+        <activity android:label="@string/title_meal_types" android:name="com.familywall.app.mealplanner.MealplannerMealTypesActivity" android:parentActivityName="com.familywall.app.mealplanner.MealPlannerActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation|screenSize" android:label="@string/title_edit_meal_type" android:name="com.familywall.app.mealplanner.EditMealTypeActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers"/>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:label="" android:name="com.familywall.app.budget.BudgetActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.RoundIcon" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="" android:name="com.familywall.app.filer.FilerActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustPan"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="" android:name="com.familywall.app.bdaytracker.BirthdayTrackerActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustPan"/>
+        <activity android:configChanges="orientation|screenSize" android:name="com.familywall.app.dashboard.FeaturePromotionActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.NoActionBar.TranslucentDecor.AppearBottom" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:name="com.familywall.app.timetables.TimetableEditSharingActivity" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers"/>
+        <activity android:configChanges="orientation" android:exported="false" android:name="com.familywall.app.common.edit.EditSimpleTextActivity" android:theme="@style/Theme.FamilyWall2.NoActionBar" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:name="com.familywall.app.event.browse.rightmenu.CalendarSuggestCountriesActivity" android:parentActivityName="com.familywall.app.event.browse.EventBrowseActivity" android:screenOrientation="behind" android:theme="@style/Theme.FamilyWall2.Edit.NoActionBar.WithDatePickers" android:windowSoftInputMode="stateHidden"/>
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <activity android:exported="true" android:label="@string/appwidget_config_activity_title" android:name="com.familywall.app.widgets.MealplannerWidgetConfigureActivity" android:theme="@style/Theme.FamilyWall2.Starting">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.familywall.app.mealplanner.dialogs.ActivitySelectMealTypeFromWidget" android:theme="@style/Theme.FamilyWall2.NoActionBar.TranslucentWindow"/>
+        <activity android:configChanges="orientation" android:exported="false" android:label="" android:name="com.familywall.app.task.list.TaskListActivity" android:parentActivityName="com.familywall.app.dashboard.DashboardActivity" android:screenOrientation="behind" android:theme="@style/Theme.TasksList" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="com.familywall.app.event.EventCleanUpActivity" android:screenOrientation="behind" android:theme="@style/Theme.Filer"/>
+        <receiver android:exported="true" android:icon="@mipmap/ic_launcher" android:label="@string/mealplanner_title" android:name="com.familywall.app.widgets.MealplannerWidgetReceiver">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/mealplanner_widget_info"/>
+        </receiver>
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/places_autocomplete_label" android:name="com.google.android.libraries.places.widget.AutocompleteActivity" android:theme="@style/PlacesAutocompleteOverlay" android:windowSoftInputMode="stateAlwaysVisible|adjustPan"/>
+        <meta-data android:name="com.google.android.play.billingclient.version" android:value="8.0.0"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:exported="false" android:name="com.android.billingclient.api.ProxyBillingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:exported="false" android:name="com.android.billingclient.api.ProxyBillingActivityV2" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:name="io.purchasely.views.PLYWebViewActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name="io.purchasely.views.PLYTVLinkActivity"/>
+        <activity android:name="io.purchasely.views.PLYActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name="io.purchasely.views.flows.PLYFlowActivity" android:theme="@style/Purchasely.Flow.Theme.Transparent"/>
+        <activity android:name="io.purchasely.views.subscriptions.tv.PLYSubscriptionsActivity" android:theme="@style/Theme.AppCompat.NoActionBar"/>
+        <uses-library android:name="android.test.base" android:required="false"/>
+        <uses-library android:name="android.test.mock" android:required="false"/>
+        <provider android:authorities="com.familywall.purchasely.initializer_provider" android:exported="false" android:name="io.purchasely.providers.InitializerProvider"/>
+        <activity android:enabled="true" android:excludeFromRecents="true" android:exported="false" android:name="androidx.glance.appwidget.action.ActionTrampolineActivity" android:theme="@android:style/Theme.NoDisplay"/>
+        <activity android:enabled="true" android:exported="false" android:launchMode="singleInstance" android:name="androidx.glance.appwidget.action.InvisibleActionTrampolineActivity" android:noHistory="true" android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline" android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"/>
+        <receiver android:enabled="true" android:exported="false" android:name="androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver"/>
+        <receiver android:enabled="true" android:exported="false" android:name="androidx.glance.appwidget.UnmanagedSessionReceiver"/>
+        <receiver android:enabled="true" android:exported="false" android:name="androidx.glance.appwidget.MyPackageReplacedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="true" android:name="androidx.glance.appwidget.GlanceRemoteViewsService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
+        <meta-data android:name="com.bumptech.glide.integration.webp.WebpGlideModule" android:value="GlideModule"/>
+        <meta-data android:name="com.bumptech.glide.integration.okhttp3.OkHttpGlideModule" android:value="GlideModule"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.tagmanager.TagManagerService"/>
+        <activity android:exported="true" android:name="com.google.android.gms.tagmanager.TagManagerPreviewActivity" android:noHistory="true">
+            <intent-filter>
+                <data android:scheme="tagmanager.c.com.familywall"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+            </intent-filter>
+        </activity>
+        <receiver android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementReceiver"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:directBootAware="true" android:exported="false" android:name="com.google.firebase.components.ComponentDiscoveryService">
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.FirebaseCrashlyticsKtxRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.CrashlyticsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.sessions.FirebaseSessionsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+            <meta-data android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
+        </service>
+        <receiver android:exported="true" android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+            </intent-filter>
+            <meta-data android:name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED" android:value="true"/>
+        </receiver>
+        <service android:directBootAware="true" android:exported="false" android:name="com.google.firebase.messaging.FirebaseMessagingService">
+            <intent-filter android:priority="-500">
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <activity android:exported="false" android:name="com.google.android.gms.common.api.GoogleApiActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.firebase.sessions.SessionLifecycleService"/>
+        <provider android:authorities="com.familywall.firebaseinitprovider" android:directBootAware="true" android:exported="false" android:initOrder="100" android:name="com.google.firebase.provider.FirebaseInitProvider"/>
+        <activity android:name="com.rajat.pdfviewer.PdfViewerActivity" android:theme="@style/Theme.PdfView.SelectedTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent"/>
+        <provider android:authorities="com.familywall.mobileadsinitprovider" android:exported="false" android:initOrder="100" android:name="com.google.android.gms.ads.MobileAdsInitProvider"/>
+        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.ads.AdService"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:name="com.google.android.gms.ads.OutOfContextTestingActivity"/>
+        <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleTask" android:name="com.google.android.gms.ads.NotificationHandlerActivity" android:taskAffinity="" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="com.familywall.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
+            <meta-data android:name="androidx.work.WorkManagerInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="okhttp3.internal.platform.PlatformInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="androidx.profileinstaller.ProfileInstallerInitializer" android:value="androidx.startup"/>
+        </provider>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"/>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_job_service_default" android:exported="true" android:name="androidx.work.impl.background.systemjob.SystemJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_foreground_service_default" android:exported="false" android:name="androidx.work.impl.foreground.SystemForegroundService"/>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="false" android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"/>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver">
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS"/>
+            </intent-filter>
+        </receiver>
+        <service android:directBootAware="true" android:exported="false" android:name="androidx.room.MultiInstanceInvalidationService"/>
+        <activity android:exported="true" android:name="androidx.compose.ui.tooling.PreviewActivity"/>
+        <uses-library android:name="android.ext.adservices" android:required="false"/>
+        <service android:name="androidx.core.widget.RemoteViewsCompatService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
+        <activity android:exported="false" android:launchMode="singleTask" android:name="net.openid.appauth.AuthorizationManagementActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <uses-library android:name="androidx.window.extensions" android:required="false"/>
+        <uses-library android:name="androidx.window.sidecar" android:required="false"/>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery">
+            <meta-data android:name="backend:com.google.android.datatransport.cct.CctBackendFactory" android:value="cct"/>
+        </service>
+        <service android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"/>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.profileinstaller.ProfileInstallReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+        <provider android:authorities="com.familywall.adjust-lifecycle-provider" android:exported="false" android:name="com.adjust.sdk.SystemLifecycleContentProvider"/>
+        <activity android:exported="false" android:name="com.google.android.play.core.common.PlayCoreDialogWrapperActivity" android:stateNotNeeded="true" android:theme="@style/Theme.PlayCore.Transparent"/>
+    </application>
+</manifest>

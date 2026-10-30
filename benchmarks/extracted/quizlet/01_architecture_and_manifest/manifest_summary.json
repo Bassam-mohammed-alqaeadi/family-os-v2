@@ -1,0 +1,6588 @@
+{
+  "package": "com.quizlet.quizletandroid",
+  "permissions_count": 25,
+  "activities_count": 96,
+  "services_count": 23,
+  "receivers_count": 21,
+  "providers_count": 7,
+  "permissions": [
+    {
+      "name": "android.permission.ACCESS_NETWORK_STATE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.ACCESS_WIFI_STATE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.INTERNET",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.RECEIVE_BOOT_COMPLETED",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.CAMERA",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.WAKE_LOCK",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.POST_NOTIFICATIONS",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.FOREGROUND_SERVICE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.VIBRATE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.RECORD_AUDIO",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.android.vending.BILLING",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.google.android.gms.permission.AD_ID",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.ACCESS_ADSERVICES_AD_ID",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.ACCESS_ADSERVICES_TOPICS",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.USE_BIOMETRIC",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.USE_FINGERPRINT",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.google.android.c2dm.permission.RECEIVE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.quizlet.quizletandroid.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.samsung.android.mapsagent.permission.READ_APP_INFO",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE",
+      "maxSdkVersion": ""
+    },
+    {
+      "name": "com.amazon.privacypass.ATTEST",
+      "maxSdkVersion": ""
+    }
+  ],
+  "activities": [
+    {
+      "name": "com.quizlet.quizletandroid.ui.RootActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.MAIN"
+          ],
+          "categories": [
+            "android.intent.category.LAUNCHER"
+          ],
+          "data": []
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "quizlet.onelink.me",
+              "path": "/GTBB"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.sharereceiver.ShareSheetReceiverActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.SEND"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.SEND_MULTIPLE"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.PROCESS_TEXT"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.shortcuts.CreateSetShortcutInterstitialActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.login.OldSignupActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "quizlet",
+              "host": "com.quizlet.quizletandroid",
+              "path": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.globalnav.GlobalNavigationActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.group.GroupActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.deeplinkinterstitial.DeepLinkInterstitialActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "quizlet",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "taste-builder",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "quizlet.com",
+              "path": "/taste-builder"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "quizlet",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "ablink.account.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "ablink.newsletter.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "ablink.lifecycle.quizlet.com",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/latest"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/notes"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/study-guides"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/test-questions"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/practice-test"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ai-practice-test-generator"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/p/wordlywise3000"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/user"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/live"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.live",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.live",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/class/"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/join/"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/upgrade"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/settings"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/achievements"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/create-set"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/search"
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": ""
+            }
+          ]
+        },
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "http",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "https",
+              "host": "",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "www.quizlet.com",
+              "path": ""
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/0"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/1"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/2"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/3"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/4"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/5"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/6"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/7"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/8"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ad/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ae/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ar/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/as/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/at/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/au/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/be/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bl/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bo/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/br/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/bz/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ca/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ch/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ci/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cl/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cm/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cn/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/co/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cu/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cv/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cw/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/cz/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/de/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dj/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dk/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/do/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/dz/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ec/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/eg/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/es/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fi/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/fr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gb/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gf/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gt/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/gu/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hk/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hn/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ht/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/hu/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/id/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ie/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/il/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/in/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/is/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/it/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/jp/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ko/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/kz/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/li/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/lu/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ma/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mc/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mo/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mt/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/mx/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/my/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ni/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nl/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/no/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/nz/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pa/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pe/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ph/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pk/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pl/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/pt/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/py/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/re/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ru/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sa/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/se/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sg/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sn/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/sv/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/th/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tr/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/tw/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ua/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/um/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/uy/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/va/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ve/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vg/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vi/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/vn/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/ws/9"
+            },
+            {
+              "scheme": "",
+              "host": "",
+              "path": "/za/9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "com.quizlet.features.setpage.SetPageActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.profile.ProfileActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.write.WriteModeActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.write.WriteSettingsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.match.activity.MatchActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.match.settings.MatchSettingsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.testmode.activities.TestStudyModeActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.FullScreenOverlayActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.EditTermImagePreviewActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.EditSetActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.EditSetDetailsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.EditSetLanguageSelectionActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.EditSetPermissionSelectionActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.InputPasswordActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.search.SearchActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.SEARCH"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT"
+          ],
+          "data": []
+        }
+      ]
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.preview.SetPreviewActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.webpages.WebViewActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.facebook.FacebookActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.usersettings.activities.ChangeProfileImageActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.login.FacebookAuthActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.usersettings.activities.CropImageActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.studymodes.assistant.LearningAssistantActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.upgrade.ui.activity.UpgradeActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.diagramming.DiagramOverviewActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setpage.addset.AddSetToClassActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.joincontenttofolder.JoinContentToFolderActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.group.addclassset.AddClassSetActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.live.QuizletLiveActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.live.QuizletLiveDeepLinkInterstitialActivity",
+      "exported": "",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.live.interstitial.QuizletLiveInterstitialActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.qrcodes.QLiveQrCodeReaderActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.setcreation.activities.ScanDocumentActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.ads.ui.activity.AdsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.classcreation.ClassCreationActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.folders.FolderActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.folders.course.CourseActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.setpage.NewSetPageActivity",
+      "exported": "",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.explanations.textbook.ui.TextbookActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.explanations.questiondetail.ui.QuestionDetailActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.flashcards.FlashcardsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.flashcards.SrsFlashcardsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.flashcards.old.OldFlashcardsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.learn.LearnActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.notes.upload.UploadNotesActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.notes.detail.MagicNotesDetailActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.practicetest.PracticeTestActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.universaluploadflow.UniversalUploadFlowActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.userprofile.ui.UserProfileActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.achievements.ui.AchievementsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.aicoach.ui.AICoachActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.createset.CreateFlashcardSetActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.emailconfirmation.ui.activities.EmailConfirmationActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.emailconfirmation.ui.activities.MagicLinkConfirmationActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.settings.SettingsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.settings.oss.OssLicensesActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.login.LoginNavActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.phonenumber.intake.presentation.PhoneNumberIntakeActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.questionnaire.navigation.QuestionnaireNavigationActivity",
+      "exported": "",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.notes.paywall.ScanNotesPaywallActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.paywall.PaywallActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.recordaudio.RecordAudioActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.blocks.GamesActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.features.userlock.activity.UserLockActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.quizlet.security.challenge.activity.SecurityChallengeActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.humansecurity.mobile_sdk.block.HSBlockActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.humansecurity.mobile_sdk.doctor_app.ui.HSDoctorActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.android.billingclient.api.ProxyBillingActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.android.billingclient.api.ProxyBillingActivityV2",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.mlkit.vision.documentscanner.internal.GmsDocumentScanningDelegateActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.gms.ads.AdActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.gms.ads.OutOfContextTestingActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.gms.ads.NotificationHandlerActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.play.core.hsdp.service.HsdpShimActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "androidx.credentials.playservices.controllers.identityauth.HiddenActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.facebook.CustomTabMainActivity",
+      "exported": "",
+      "filters": []
+    },
+    {
+      "name": "com.facebook.CustomTabActivity",
+      "exported": "true",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "fbconnect",
+              "host": "cct.com.quizlet.quizletandroid",
+              "path": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "com.braze.ui.BrazeWebViewActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.braze.ui.activities.ContentCardsActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.braze.push.NotificationTrampolineActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "org.prebid.mobile.rendering.views.browser.AdBrowserActivity",
+      "exported": "true",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.gms.auth.api.signin.internal.SignInHubActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.gms.common.api.GoogleApiActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "androidx.glance.appwidget.action.ActionTrampolineActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "androidx.glance.appwidget.action.InvisibleActionTrampolineActivity",
+      "exported": "false",
+      "filters": []
+    },
+    {
+      "name": "androidx.compose.ui.tooling.PreviewActivity",
+      "exported": "true",
+      "filters": []
+    },
+    {
+      "name": "com.amazon.aps.ads.activity.ApsInterstitialActivity",
+      "exported": "true",
+      "filters": []
+    },
+    {
+      "name": "com.amazon.device.ads.DTBInterstitialActivity",
+      "exported": "true",
+      "filters": []
+    },
+    {
+      "name": "com.google.android.play.core.common.PlayCoreDialogWrapperActivity",
+      "exported": "false",
+      "filters": []
+    }
+  ],
+  "services": [
+    {
+      "name": "com.quizlet.quizletandroid.firebase.services.QuizletFirebaseMessagingService",
+      "exported": "true"
+    },
+    {
+      "name": "com.google.android.gms.analytics.CampaignTrackingService",
+      "exported": "false"
+    },
+    {
+      "name": "com.quizlet.features.flashcards.old.autoplay.FlashcardsAutoplayService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.metadata.ModuleDependencies",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.firebase.components.ComponentDiscoveryService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.mlkit.common.internal.MlKitComponentDiscoveryService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.ads.AdService",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.credentials.playservices.CredentialProviderMetadataHolder",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.camera.core.impl.MetadataHolderService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.analytics.AnalyticsService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.analytics.AnalyticsJobService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.firebase.messaging.FirebaseMessagingService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.auth.api.signin.RevocationBoundService",
+      "exported": "true"
+    },
+    {
+      "name": "com.google.android.gms.measurement.AppMeasurementService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.measurement.AppMeasurementJobService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.firebase.sessions.SessionLifecycleService",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.glance.appwidget.GlanceRemoteViewsService",
+      "exported": "true"
+    },
+    {
+      "name": "androidx.work.impl.background.systemjob.SystemJobService",
+      "exported": "true"
+    },
+    {
+      "name": "androidx.work.impl.foreground.SystemForegroundService",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.core.widget.RemoteViewsCompatService",
+      "exported": ""
+    },
+    {
+      "name": "androidx.room.MultiInstanceInvalidationService",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.datatransport.runtime.backends.TransportBackendDiscovery",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService",
+      "exported": "false"
+    }
+  ],
+  "receivers": [
+    {
+      "name": "com.quizlet.quizletandroid.receivers.CoppaCompliantAdwordsConversionTrackingInstallReceiver",
+      "exported": "true"
+    },
+    {
+      "name": "com.quizlet.quizletandroid.receivers.CoppaCompliantCampaignTrackingReceiver",
+      "exported": "true"
+    },
+    {
+      "name": "com.google.android.gms.analytics.CampaignTrackingReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.quizlet.features.setpage.shareset.ShareIntentSender",
+      "exported": "false"
+    },
+    {
+      "name": "com.quizlet.quizletandroid.braze.receivers.BrazeNotificationBroadcastReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.quizlet.quizletandroid.ui.widgets.QuizletWidgetReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.braze.push.BrazePushReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.analytics.AnalyticsReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.firebase.iid.FirebaseInstanceIdReceiver",
+      "exported": "true"
+    },
+    {
+      "name": "com.google.android.gms.measurement.AppMeasurementReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.glance.appwidget.UnmanagedSessionReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.glance.appwidget.MyPackageReplacedReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.braze.BrazeFlushPushDeliveryReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.work.impl.background.systemalarm.RescheduleReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.work.impl.diagnostics.DiagnosticsReceiver",
+      "exported": "true"
+    },
+    {
+      "name": "com.facebook.CurrentAccessTokenExpirationBroadcastReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "com.facebook.AuthenticationTokenManager$CurrentAuthenticationTokenChangedBroadcastReceiver",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.profileinstaller.ProfileInstallReceiver",
+      "exported": "true"
+    },
+    {
+      "name": "com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver",
+      "exported": "false"
+    }
+  ],
+  "providers": [
+    {
+      "name": "androidx.core.content.FileProvider",
+      "authorities": "com.quizlet.quizletandroid.fileprovider",
+      "exported": "false"
+    },
+    {
+      "name": "androidx.startup.InitializationProvider",
+      "authorities": "com.quizlet.quizletandroid.androidx-startup",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.mlkit.common.internal.MlKitInitProvider",
+      "authorities": "com.quizlet.quizletandroid.mlkitinitprovider",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.android.gms.ads.MobileAdsInitProvider",
+      "authorities": "com.quizlet.quizletandroid.mobileadsinitprovider",
+      "exported": "false"
+    },
+    {
+      "name": "com.google.firebase.provider.FirebaseInitProvider",
+      "authorities": "com.quizlet.quizletandroid.firebaseinitprovider",
+      "exported": "false"
+    },
+    {
+      "name": "com.facebook.internal.FacebookInitProvider",
+      "authorities": "com.quizlet.quizletandroid.FacebookInitProvider",
+      "exported": "false"
+    },
+    {
+      "name": "leakcanary.internal.PlumberInstaller",
+      "authorities": "com.quizlet.quizletandroid.plumber-installer",
+      "exported": "false"
+    }
+  ]
+}

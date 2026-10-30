@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fue_2019_edit_text_birthday_margin_top">72.0dp</dimen>
+    <dimen name="fue_2019_location_block_margin_top">64.0dp</dimen>
+    <dimen name="fue_2019_password_edit_text_margin_top">56.0dp</dimen>
+    <dimen name="fue_2019_sign_up_email_edit_text_margin_top">72.0dp</dimen>
+    <dimen name="fue_2019_why_text_margin_bottom">24.0dp</dimen>
+</resources>

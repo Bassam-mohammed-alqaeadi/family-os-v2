@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="code_input_bottom_container_height">208.0dp</dimen>
+    <dimen name="code_input_view_bottom_spacing">32.0dp</dimen>
+    <dimen name="code_input_view_top_spacing">32.0dp</dimen>
+    <dimen name="fue_spacing_top_to_label">80.0dp</dimen>
+    <dimen name="submit_button_top_spacing">24.0dp</dimen>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="com_appboy_card_background_border_bottom">1.5dp</dimen>
+    <dimen name="com_appboy_card_background_border_left">1.5dp</dimen>
+    <dimen name="com_appboy_card_background_border_right">1.5dp</dimen>
+    <dimen name="com_appboy_card_background_border_top">1.0dp</dimen>
+    <dimen name="com_appboy_content_card_background_border_bottom">1.5dp</dimen>
+    <dimen name="com_appboy_content_card_background_border_left">1.5dp</dimen>
+    <dimen name="com_appboy_content_card_background_border_right">1.5dp</dimen>
+    <dimen name="com_appboy_content_card_background_border_top">1.0dp</dimen>
+    <dimen name="com_appboy_content_card_background_shadow_bottom">1.0dp</dimen>
+    <dimen name="fue_margin_top_upsell_details">8.0dp</dimen>
+    <dimen name="fue_upsell_margin_bottom_free_trial">0.0dp</dimen>
+    <dimen name="fue_upsell_margin_bottom_price">16.0dp</dimen>
+    <dimen name="map_button_radius">14.0dp</dimen>
+    <dimen name="premium_offering_container_vertical_padding">5.0dp</dimen>
+    <dimen name="premium_offering_layout_padding">12.0dp</dimen>
+    <dimen name="safe_zones_default_side_margin">24.0dp</dimen>
+    <dimen name="safe_zones_explanation_view_top_margin">16.0dp</dimen>
+</resources>
