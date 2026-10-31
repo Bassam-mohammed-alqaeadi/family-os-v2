@@ -35,7 +35,7 @@ last_updated: 2026-10-31
 | `rewards.streaks_enabled` | تفعيل محرك سلاسل الإنجاز التلعيبية | `switch` | العائلة | `true` | `true`, `false` |
 | `rewards.weekly_streak_bonus_stars` | مكافأة إتمام أسبوع كامل من السلسلة | `select` | العائلة | `20_stars` | `10_stars`, `20_stars`, `50_stars` |
 | `rewards.require_pin_for_manual_grant` | فرض رمز PIN لمنح نقاط فورية يدوية | `switch` | العائلة | `true` | `true`, `false` |
-| `rewards.allow_teen_participation` | إتاحة نظام المكافآت للمراهقين (`teen`) | `switch` | العائلة | `true` (اختياري) | `true`, `false` |
+| `rewards.teen_participation_note` | (ملاحظة O-009: مشاركة المراهقين معلقة رهن قرار المالك) | `info` | العائلة | — | مستبعد حالياً وفق D-012 |
 | `rewards.auto_streak_freeze_on_illness` | تجميد السلسلة تلقائياً عند طلب الوالد | `action` | الطفل | — | استدعاء تجميد ليوم واحد |
 
 ---

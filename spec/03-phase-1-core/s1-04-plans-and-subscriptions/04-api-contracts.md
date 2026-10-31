@@ -33,7 +33,7 @@ last_updated: 2026-10-30
   },
   "quotas": {
     "members_used": 5,
-    "members_limit": 0, // 0 = غير محدود
+    "members_limit": 0,
     "can_add_more_members": true,
     "location_history_days": 30,
     "has_advanced_study_ai": true
@@ -42,11 +42,11 @@ last_updated: 2026-10-30
 ```
 
 ### ب) التحقق من إيصال الشراء وتفعيل الترقية: `POST /v1/billing/purchase/verify-receipt`
-- **المصادقة:** Bearer Token مطلوب (L0 الأب حصراً).
+- **المصادقة:** Bearer Token مطلوب (مالك الأسرة حصراً / Owner).
 - **الطلب (Request Body):**
 ```json
 {
-  "provider": "GOOGLE_PLAY", // "GOOGLE_PLAY" | "APPLE_APP_STORE"
+  "provider": "GOOGLE_PLAY",
   "product_id": "fos_premium_annual_sub",
   "purchase_token": "token-string-from-in-app-purchase-sdk...",
   "father_pin": "982143"

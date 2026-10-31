@@ -22,7 +22,7 @@ last_updated: 2026-10-31
 ```json
 {
   "phone_e164": "+966501234567",
-  "requested_channel": "SMS", // "SMS" | "WHATSAPP" | "VOICE_CALL"
+  "requested_channel": "SMS",
   "device_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
   "locale": "ar"
 }
@@ -61,7 +61,7 @@ last_updated: 2026-10-31
     "is_new_user": false,
     "has_family": true,
     "active_family_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    \"role\": \"owner\"
+    "role": "owner"
   },
   "tokens": {
     "access_token": "eyJhbGciOiJIUzI1NiIsIn...",
@@ -82,7 +82,7 @@ last_updated: 2026-10-31
 {
   "family_name": "عائلة آل ناصر",
   "country_code": "SA",
-  "father_pin": "982143" // يُشفر بـ Argon2id في الخادم
+  "father_pin": "982143"
 }
 ```
 - **الاستجابة (Response 201 Created):**
@@ -135,12 +135,12 @@ last_updated: 2026-10-31
   "child_user": {
     "id": "cccccccc-dddd-eeee-ffff-000000000000",
     "display_name": "عمر",
-    \"role\": \"child\"
+    "role": "child"
   },
   "tokens": {
     "access_token": "child-jwt-token...",
     "refresh_token": "child-refresh-token...",
-    "expires_in": 2592000 // جلسة طويلة الأمد لأجهزة الأطفال (30 يوماً)
+    "expires_in": 2592000
   }
 }
 ```

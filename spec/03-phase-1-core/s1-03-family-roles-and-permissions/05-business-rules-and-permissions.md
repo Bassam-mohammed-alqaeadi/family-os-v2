@@ -16,8 +16,10 @@ last_updated: 2026-10-31
 
 ## 1. قواعد العمل الصارمة (Strict Business Rules)
 
-### BR-PERM-001: منع تصعيد الصلاحيات التلقائي (No Privilege Escalation)
-- لا يمكن لأي مستخدم بدور `adult` أو أدنى ترقية حسابه إلى دور `owner`، ولا يحق له منح أي عضو آخر صلاحية تفوق صلاحياته الخاصة الممنوحة له.
+### BR-PERM-001: حصرية سلطة التفويض للمالك وانعدام التفويض المتسلسل (Owner Delegation Exclusivity & No Cascading)
+- المالك (`owner`) هو السلطة الوحيدة المخولة بإنشاء وتعديل وإلغاء تفويضات الصلاحيات (`member_grants`) في الأسرة.
+- البالغ المفوض (`adult`) يمارس الصلاحيات التي فُوّضت له فقط، ويُمنع منعاً باتاً من تفويض غيره أو تعديل صلاحيات أي عضو آخر (انعدام التفويض المتسلسل Cascading Delegation).
+- لا يمكن لأي مستخدم بدور `adult` أو أدنى ترقية حسابه إلى دور `owner`.
 - تفويض أي صلاحية إدارية حساسة (`is_sensitive = TRUE`) يتطلب إدخال الرمز السري للأب `Father PIN` وتوقيعه قبل التنفيذ.
 
 ### BR-PERM-002: حصانة الأطفال ومنع حجب الرقابة الأبوية (Child Protection Immunity)
@@ -56,7 +58,7 @@ last_updated: 2026-10-31
 | `tasks.create_and_assign` | ✅ | ✅ | ❌ | ❌ |
 | `tasks.approve_completion` | ✅ | ✅ (إن فُوّض) | ❌ | ❌ |
 | `rewards.grant_points` | ✅ | ✅ (إن فُوّض) | ❌ | ❌ |
-| `rewards.redeem_rewards` | ✅ | ✅ | ✅ (للنفس) | ✅ (للنفس) |
+| `rewards.redeem_rewards` | ❌ | ❌ | ❌ (حصر المكافآت بالأطفال D-012) | ✅ (للنفس) |
 | `calendar.manage_family_events` | ✅ | ✅ | ❌ | ❌ |
 | `chat.create_channels` | ✅ | ✅ | ❌ | ❌ |
 | `location.view_all_members` | ✅ | ✅ (إن فُوّض) | ❌ | ❌ |

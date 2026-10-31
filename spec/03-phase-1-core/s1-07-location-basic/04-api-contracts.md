@@ -35,7 +35,7 @@ last_updated: 2026-10-30
 ```json
 {
   "status": "ACKNOWLEDGED",
-  "next_ping_interval_seconds": 60 // تكيفي بحسب حركة وسكون الهاتف
+  "next_ping_interval_seconds": 60
 }
 ```
 
@@ -89,12 +89,12 @@ last_updated: 2026-10-30
 ```
 
 ### ب) إلغاء وتأكيد سلامة الطفل: `POST /v1/location/sos/:incidentId/resolve`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1 فقط مع Father PIN).
-- **الطلب (Request Body):**
+- **المصادقة:** Bearer Token مطلوب (البالغين adult المصرح لهم مع رمز الحماية PIN).
+- **الطلب (Request Body):** (القيم المتاحة للحالة: `"RESOLVED_SAFE"` أو `"FALSE_ALARM"`)
 ```json
 {
   "father_pin": "982143",
-  "resolution_status": "RESOLVED_SAFE", // "RESOLVED_SAFE" | "FALSE_ALARM"
+  "resolution_status": "RESOLVED_SAFE",
   "notes_ar": "تم العثور على عمر وهو بخير ولله الحمد"
 }
 ```

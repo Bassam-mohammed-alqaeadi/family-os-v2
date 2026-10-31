@@ -11,7 +11,7 @@ last_updated: 2026-10-30
 
 > **المعرف:** `SCR-S1-04-02`  
 > **النظام:** `S1-04 — plans-and-subscriptions`  
-> **المستخدم المستهدف:** الأب المالك حصراً (L0) عبر مركز الإعدادات (`S1-09`).  
+> **المستخدم المستهدف:** المالك حصراً (`owner`) عبر مركز الإعدادات (`S1-09`).<br>
 > **المرجع التصميمي والمعياري:** `spec/02-design-system/settings-patterns.md`, `[REF: benchmarks/extracted/familywall/01_architecture_and_manifest/00_EXECUTIVE_SUMMARY.md]`.
 
 ---

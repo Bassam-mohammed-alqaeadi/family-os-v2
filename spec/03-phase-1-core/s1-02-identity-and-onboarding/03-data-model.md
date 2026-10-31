@@ -103,7 +103,9 @@ CREATE TABLE identity.family_invitations (
     family_id UUID NOT NULL REFERENCES identity.families(id) ON DELETE CASCADE,
     invited_by_user_id UUID NOT NULL REFERENCES identity.users(id),
     invite_code VARCHAR(12) NOT NULL UNIQUE, -- مثل: 'FAM-849-210'
-    target_role VARCHAR(10) NOT NULL DEFAULT 'adult' CHECK (target_role IN ('owner','adult','teen','child')), -- الدور المستهدف للعضو الجديد (D-038)
+    -- تقييد هدف الدعوة ومنع استهداف دور owner منعاً باتاً (حماية الملكية السيادية)
+    target_role VARCHAR(10) NOT NULL DEFAULT 'adult'
+        CHECK (target_role IN ('adult', 'teen', 'child')),
     max_uses INT NOT NULL DEFAULT 1,
     uses_count INT NOT NULL DEFAULT 0,
     expires_at TIMESTAMPTZ NOT NULL,

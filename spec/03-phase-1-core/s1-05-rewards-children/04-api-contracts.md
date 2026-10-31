@@ -17,7 +17,7 @@ last_updated: 2026-10-31
 ## 1. نقاط النهاية لمتجر الجوائز والمحفظة (Rewards Store Endpoints)
 
 ### أ) جلب رصيد المحفظة وسلسلة الإنجاز: `GET /v1/rewards/wallet/me`
-- **المصادقة:** Bearer Token مطلوب (حساب الطفل `child` أو المراهق `teen`).
+- **المصادقة:** Bearer Token مطلوب (حساب الطفل `child` حصراً وفق D-012؛ ويُرفض أي طلب من البالغين أو المراهقين بكود `403 Forbidden`).
 - **الاستجابة (Response 200 OK):**
 ```json
 {
@@ -65,7 +65,7 @@ last_updated: 2026-10-31
 ```json
 {
   "reward_id": "rew-uuid-1",
-  "idempotency_key": "idemp-req-987654321" // لمنع الخصم المكرر
+  "idempotency_key": "idemp-req-987654321"
 }
 ```
 - **الاستجابة (Response 201 Created):**
@@ -87,9 +87,9 @@ last_updated: 2026-10-31
 - **الطلب (Request Body):**
 ```json
 {
-  "decision": "APPROVE", // "APPROVE" | "REJECT"
+  "decision": "APPROVE",
   "decision_notes": "أحسنت يا عمر موعدنا السبت إن شاء الله",
-  "father_pin": "982143" // مطلوب للجوائز الكبرى
+  "father_pin": "982143"
 }
 ```
 - **الاستجابة (Response 200 OK):**

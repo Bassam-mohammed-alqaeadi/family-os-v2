@@ -73,10 +73,10 @@ last_updated: 2026-10-30
 
 ### ب) اتخاذ إجراء سريع على بند معلق: `POST /v1/command-center/needs-attention/:itemId/act`
 - **المصادقة:** Bearer Token مطلوب.
-- **الطلب (Request Body):**
+- **الطلب (Request Body):** (القيم المتاحة للقرار: `"APPROVE"` | `"REJECT"` | `"DISMISS"`)
 ```json
 {
-  "action_decision": "APPROVE", // "APPROVE" | "REJECT" | "DISMISS"
+  "action_decision": "APPROVE",
   "notes_ar": "أحسنت يا بطل بارك الله فيك"
 }
 ```

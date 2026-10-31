@@ -72,11 +72,11 @@ last_updated: 2026-10-30
 ```
 
 ### د) اعتماد إنجاز المهمة بواسطة الوالد: `POST /v1/tasks/:taskId/approve`
-- **المصادقة:** Bearer Token مطلوب (L0 أو L1).
-- **الطلب (Request Body):**
+- **المصادقة:** Bearer Token مطلوب (البالغين: adult مع الصلاحية المطلوبة).
+- **الطلب (Request Body):** (القيم المتاحة للقرار: `"APPROVE"` أو `"REJECT_WITH_NOTES"`)
 ```json
 {
-  "decision": "APPROVE", // "APPROVE" | "REJECT_WITH_NOTES"
+  "decision": "APPROVE",
   "notes_ar": "أحسنت يا بطل عمل متقن!"
 }
 ```

@@ -227,13 +227,13 @@
 | **Category** | ARC |
 | **Priority** | P1 |
 | **Affected files** | `spec/03-phase-1-core/s1-02-identity-and-onboarding/03-data-model.md`, `spec/03-phase-1-core/s1-03-family-roles-and-permissions/03-data-model.md` |
-| **Evidence** | في S1-02: `LocalFamilyMembersTable` المفتاح الأساسي `{memberId}` فقط. في S1-03: `LocalFamilyRoleTreeTable` المفتاح الأساسي `{userId}` فقط. كلا الجدولين يحتويان على `familyId` كعمود عادي غير مفتاح. |
-| **Root cause** | لم يُحسم في القرارات المعتمدة ما إذا كانت المنصة ستدعم انتماء المستخدم لأكثر من عائلة واحدة في آن واحد. D-021 يُلزم بـ RLS على مستوى `family_id` لكنه لا يحدد ما إذا كان المستخدم يمكنه الانتماء لعائلتين. |
-| **Impact** | إذا دُعم تعدد العائلات، ستفشل قواعد الانفراد في الكاش المحلي. |
-| **Proposed resolution** | تحديث المفاتيح الأساسية للجداول المحلية ليشمل `familyId` (ISSUE-003 نُفِّذ جزءاً منه). المسألة الكاملة تتطلب قراراً: هل يُسمح لمستخدم بالانتماء لأكثر من عائلة؟ |
-| **Acceptance criteria** | قرار معتمد من مالك المشروع بخصوص multi-family membership. |
-| **Validation method** | بعد القرار، مراجعة جميع جداول الكاش المحلي للتوافق. |
-| **Status** | ⚠️ PARTIALLY RESOLVED — ISSUE-003 نُفِّذ. المسألة الجوهرية تتطلب قراراً من المالك. |
+| **Evidence** | في S1-03 سابقاً: كاش الصلاحيات المحلي `LocalMemberPermissionsTable` كان يفتقر لـ `familyId` في أعمدته ومفتاحه. |
+| **Root cause** | افتراض انتماء المستخدم لعائلة واحدة محلياً، مع ترك سياسة تعدد العائلات دون حسم. |
+| **Impact** | خطر تسرب الصلاحيات عند تعدد العائلات في الكاش المحلي (خرق D-021). |
+| **Proposed resolution** | إضافة `familyId` والمفتاح المركب `{userId, familyId, permissionKey}` إلى `LocalMemberPermissionsTable`، وربط سياسة تعدد العائلات بـ O-007. |
+| **Acceptance criteria** | تأمين المفاتيح المركبة في الكاش المحلي، وتوثيق المسألة في O-007. |
+| **Validation method** | فحص تعريف الجدول في S1-03/03-data-model.md. |
+| **Status** | ⚠️ PARTIALLY RESOLVED — تم تأمين المفتاح المركب في كاش الصلاحيات لمنع تسرب البيانات؛ والسياسة العامة لتعدد العائلات تتابع في O-007. |
 
 ---
 
@@ -263,13 +263,13 @@
 | **Category** | ARC |
 | **Priority** | P2 |
 | **Affected files** | متعددة (ملفات S1-06, S1-07, S1-08, S1-09) |
-| **Evidence** | لم يُفحص هذه الملفات بعمق في هذه المهمة. من المرجح أنها تحتوي على نفس الأنماط (L0-L5 كأدوار وليس طبقات إعدادات) لأنها كُتبت في الجلسة ذاتها قبل أو مع D-038. |
-| **Root cause** | نطاق هذه المهمة محدود وفق الأولويات. |
-| **Impact** | تناقضات محتملة في توثيق الأنظمة S1-06, S1-07, S1-08, S1-09. |
-| **Proposed resolution** | فحص هذه الأنظمة في مهمة منفصلة أو دمجها في مراجعة Phase 1 قبل بدء التنفيذ. |
-| **Acceptance criteria** | مراجعة كاملة لملفات S1-06 إلى S1-09. |
-| **Validation method** | فحص grep للأنماط ذاتها. |
-| **Status** | 📋 OUT OF SCOPE — مسجل للمرحلة التالية |
+| **Evidence** | احتمال وجود بقايا أدوار قديمة في بقية أنظمة المرحلة الأولى غير المبرمجة بعد. |
+| **Root cause** | الحاجة إلى تدقيق استباقي قبل بدء البرمجة لكل نظام لاحق. |
+| **Impact** | تفادي تسرب أي تناقضات تاريخية إلى الأنظمة اللاحقة. |
+| **Proposed resolution** | إدراج فحص هذه الأنظمة كمهمة استباقية مجدولة ضمن خطة العمل لكل نظام قبل البدء فيه. |
+| **Acceptance criteria** | فحص ملفات S1-06 إلى S1-09 قبل بدء التنفيذ البرمجي. |
+| **Validation method** | تدقيق regex ومراجعة معمارية عند فتح كل نظام. |
+| **Status** | 📋 SCHEDULED — مهمة تدقيق استباقية مجدولة قبل برمجة الأنظمة المعنية |
 
 ---
 
@@ -281,13 +281,13 @@
 | **Category** | ARC |
 | **Priority** | P3 |
 | **Affected files** | `spec/99-decisions/decision-log.md` |
-| **Evidence** | D-038 يُعلن عن تعديل D-016، لكن D-016 غير موجود في سجل القرارات. جدول القرارات المعتمدة يبدأ من D-001 ويتضمن D-003 حتى D-033 ثم D-038 — لا وجود لـ D-016 بقسم المعتمدة ولا بقسم المفتوحة. |
-| **Root cause** | D-016 ربما ألغي أو دُمج في قرار آخر في جلسة سابقة، أو كان قراراً شفهياً غير مسجل. |
-| **Impact** | غياب القرار المرجعي الذي يدّعي D-038 تعديله. لا يمكن التحقق من العلاقة. |
-| **Proposed resolution** | يحتاج مالك المشروع لتوضيح ما إذا كان D-016 موجوداً في وثيقة خارجية أو ألغي بصمت. لا يُخترع قرار D-016 بدون سند. |
-| **Acceptance criteria** | توضيح مصير D-016 من مالك المشروع. |
-| **Validation method** | مراجعة أي وثائق تاريخية وإضافة ملاحظة إلى القرار. |
-| **Status** | ⚠️ BLOCKED — يتطلب توضيحاً من مالك المشروع |
+| **Evidence** | D-038 يُعلن عن تعديل D-016، لكن D-016 غير مسجل في جدول القرارات المعتمدة. |
+| **Root cause** | D-016 كان مسودة تاريخية مبكرة لم تُعتمد بصيغة نهائية. |
+| **Impact** | عدم وضوح الرابط التاريخي للإحالة. |
+| **Proposed resolution** | توثيق المسألة في O-008 وربطها بسجل القرارات دون ادعاء الإلغاء أو الاستيعاب بصمت. |
+| **Acceptance criteria** | تسجيل السؤال المعماري في open-questions.md. |
+| **Validation method** | مراجعة سجل القرارات والأسئلة المفتوحة. |
+| **Status** | ⚠️ BLOCKED — مسجل في O-008 بانتظار توضيح مالك المشروع |
 
 ---
 
@@ -299,13 +299,139 @@
 | **Category** | ARC |
 | **Priority** | P3 |
 | **Affected files** | `spec/03-phase-1-core/s1-03-family-roles-and-permissions/03-data-model.md` |
-| **Evidence** | حقل `scope` غير موجود في جدول `permissions.member_grants` رغم أن D-038 البند 4 ينص على: "لكل صلاحية ممنوحة نطاق يحدده المالك (`all_members`, `specific_members`, `children_only`, `self`)". |
-| **Root cause** | حقل `scope` وحقل `valid_until` مذكوران في D-038 لكنهما لم يُضافا لتعريف الجدول في S1-03. |
-| **Impact** | نموذج البيانات ناقص وفق ما حدده D-038. |
-| **Proposed resolution** | إضافة `scope VARCHAR(20) DEFAULT 'self'` و`valid_until TIMESTAMPTZ` للجدول. لكن هذا يحتاج تحديد قيمة الـ default الصحيحة — مسألة معمارية غير محسومة. |
-| **Acceptance criteria** | قرار من مالك المشروع بخصوص القيمة الافتراضية لـ scope وآلية تطبيقها. |
-| **Validation method** | بعد القرار، تحديث تعريف الجدول. |
-| **Status** | ⚠️ BLOCKED — يتطلب قراراً معمارياً من المالك |
+| **Evidence** | حقل `scope` وحقل `valid_until` لم يكونا موجودين في جدول `permissions.member_grants`. |
+| **Root cause** | نقص توصيف الحقلين في مخطط S1-03 الأولي. |
+| **Impact** | عدم اكتمال نموذج بيانات الصلاحيات وفق ثوابت D-038. |
+| **Proposed resolution** | إضافة `scope` و `valid_until` إلى جدول `permissions.member_grants` مع إبقاء الدلالات التفصيلية لـ specific_members معلقة في O-006. |
+| **Acceptance criteria** | وجود الحقول في تعريف الجدول ومطابقتها لـ D-038. |
+| **Validation method** | فحص جدول member_grants بعد التعديل. |
+| **Status** | ✅ RESOLVED في نموذج البيانات (ودلالات التقييم تتابع في O-006) |
+
+---
+
+### ISSUE-017
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-017 |
+| **Category** | UX / ARC |
+| **Priority** | P0 |
+| **Affected files** | شاشات S1-01, S1-02, S1-04, S1-08 وفهارسها |
+| **Evidence** | استمرار وجود مسميات الأدوار الملغاة L0–L5، `supervisor`، و `young_child` في ملفات الشاشات وفهارسها. |
+| **Root cause** | عدم اكتمال تطهير ملفات واجهات وشاشات المرحلة الأولى بعد اعتماد D-038. |
+| **Impact** | تشتت تجربة المستخدم وخرق نموذج رباعي الأدوار وقوالب العرض المعتمدة. |
+| **Proposed resolution** | استبدال شامل ومنضبط سياقياً لجميع مسميات الأدوار الملغاة بالرباعي المعتمد (`owner`, `adult`, `teen`, `child`) وفق دليل المراجعة السياقية لحماية O-005. |
+| **Acceptance criteria** | اختفاء تام لمسميات L0-L5 كأدوار للمستخدمين في كافة شاشات وفهارس المرحلة الأولى. |
+| **Validation method** | فحص regex آلي على مجلدات screens و screens-index. |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-018
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-018 |
+| **Category** | ARC / DAT |
+| **Priority** | P0 |
+| **Affected files** | `spec/03-phase-1-core/s1-03-family-roles-and-permissions/04-api-contracts.md`, `03-data-model.md` |
+| **Evidence** | غياب `scope` و `valid_until` عن استجابات `GET /effective`، طلبات `PUT /grants`، وحمولة أحداث WebSocket. |
+| **Root cause** | عدم اكتمال دورة حياة محرك الصلاحيات في عقود الواجهات والأحداث. |
+| **Impact** | عجز الواجهة وتطبيق Flutter عن معرفة نطاق الصلاحية المفوضة ومهلتها الزمنية. |
+| **Proposed resolution** | توسيع استجابة `GET /effective` وطلبات `PUT /grants` وتوثيق حمولة `permissions.member.updated` لتشمل النطاق والمهلة والإصدار. |
+| **Acceptance criteria** | ظهور حقلي `scope` و `valid_until` في عقود الواجهات وأحداث Outbox. |
+| **Validation method** | فحص وثيقة عقود API والتحقق من صحة كتل JSON. |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-019
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-019 |
+| **Category** | SEC / DAT |
+| **Priority** | P1 |
+| **Affected files** | `spec/03-phase-1-core/s1-03-family-roles-and-permissions/03-data-model.md` |
+| **Evidence** | جدول الكاش المحلي `LocalMemberPermissionsTable` كان يعرف المفتاح كـ `{userId, permissionKey}` فقط دون عمود `familyId`. |
+| **Root cause** | إغفال العزل الأسري في كاش الصلاحيات المحلي أثناء الصياغة الأولى. |
+| **Impact** | خطر تداخل وتسرب الصلاحيات بين العائلات على الأجهزة المشتركة (خرق صريح للقرار D-021). |
+| **Proposed resolution** | إضافة عمود `familyId` وتوسيع المفتاح الأساسي ليصبح `{userId, familyId, permissionKey}`. |
+| **Acceptance criteria** | وجود `familyId` في أعمدة ومفتاح `LocalMemberPermissionsTable`. |
+| **Validation method** | مراجعة تعريف جدول Drift في S1-03/03-data-model.md. |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-020
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-020 |
+| **Category** | BUS / GOV |
+| **Priority** | P1 |
+| **Affected files** | ملفات نظام `S1-05 — rewards-children` |
+| **Evidence** | إتاحة فتح محافظ النقاط وكسب واستبدال الجوائز للمراهقين (`teen`) في نصوص S1-05. |
+| **Root cause** | تأويل غير دقيق لمشاركة المراهقين يتعارض مع النص الحرفي للقرار D-012. |
+| **Impact** | تعارض تشغيلي ومعماري مباشر مع القرار D-012 الذي يقصر المكافآت على الأطفال حصراً. |
+| **Proposed resolution** | حصر المحافظ والنقاط والاستبدال بدور `child` فقط، وتعليق وضع تصفح الكتالوج للمراهقين رهن القرار في O-009. |
+| **Acceptance criteria** | رفض فتح محفظة أو تسجيل نقاط لغير الأطفال، وتعديل مصفوفة الصلاحيات وقواعد العمل. |
+| **Validation method** | مراجعة ملفات S1-05 (00-analysis, 02-screens-index, 04-api-contracts, 05-business-rules). |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-021
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-021 |
+| **Category** | INT |
+| **Priority** | P1 |
+| **Affected files** | `spec/03-phase-1-core/s1-02-identity-and-onboarding/04-api-contracts.md` |
+| **Evidence** | وجود علامات اقتباس مسبوقة بشرطة مائلة مقلوبة `\"role\": \"owner\"` وتعليقات غير معيارية داخل كتل JSON. |
+| **Root cause** | خطأ في إفلات النصوص أثناء عمليات التحرير السابقة. |
+| **Impact** | كتل JSON غير صالحة برمجياً، مما يفشل أدوات الفحص والتوليد التلقائي للكود. |
+| **Proposed resolution** | إزالة الشُرط المائلة المقلوبة ونقل التعليقات خارج كتل `json` لتصبح كتل JSON معيارية صالحة. |
+| **Acceptance criteria** | نجاح فحص `JSON.parse` لجميع كتل JSON في الملف بنسبة 100%. |
+| **Validation method** | تشغيل فحص برمجي آلي للتحقق من صحة الـ JSON. |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-022
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-022 |
+| **Category** | SEC |
+| **Priority** | P0 |
+| **Affected files** | `spec/03-phase-1-core/s1-02-identity-and-onboarding/03-data-model.md`, `05-business-rules`, `07-acceptance` |
+| **Evidence** | قيد `target_role` في جدول `identity.family_invitations` كان يقبل القيمة `'owner'`. |
+| **Root cause** | إدراج كافة الأدوار الأربعة تلقائياً دون مراعاة حصرية وسيادة الملكية. |
+| **Impact** | ثغرة أمنية تسمح باقتناص دور المالك عبر رمز دعوة عادي دون التأسيس أو نقل الملكية المشدد. |
+| **Proposed resolution** | تقييد القيد برمجياً إلى `CHECK (target_role IN ('adult', 'teen', 'child'))` وإضافة قواعد وحالات اختبار ترفض استهداف المالك. |
+| **Acceptance criteria** | خلو قيد CHECK من دور owner، ورفض الخادم لأي دعوة تستهدف المالك بكود 400 Bad Request. |
+| **Validation method** | فحص كود SQL وحالات الاختبار AC-S1-02-06. |
+| **Status** | ✅ RESOLVED في هذه المهمة |
+
+---
+
+### ISSUE-023
+
+| الحقل | القيمة |
+|---|---|
+| **Issue ID** | ISSUE-023 |
+| **Category** | ARC / INT |
+| **Priority** | P2 |
+| **Affected files** | `spec/03-phase-1-core/s1-08-chat-basic/screens/chat-info.md`, `05-business-rules`, `s1-03/05-business-rules` |
+| **Evidence** | توثق شاشات وقواعد S1-08 خمس عمليات إدارية وإشرافية (كتم المشارك، إزالته، حذف الرسالة للجميع، تثبيتها، ومسح السجل بـ PIN) دون وجود مفاتيح معتمدة لها في كتالوج ومصفوفة S1-03. |
+| **Root cause** | فجوة ربط وتتبع معماري (Traceability Gap) بين ضوابط المحادثة ونظام الصلاحيات. |
+| **Impact** | عدم وضوح تمثيل هذه العمليات: هل هي حصرية للمالك أم صلاحيات ذرية مفوضة. |
+| **Proposed resolution** | تسجيل الفجوة كمسألة معمارية مفتوحة O-010 لدراسة الخيارين المعتمدين (حصرية المالك أو صلاحيات ذرية domain.action مفوضة صراحة) دون اختراع مفاتيح أو تغيير سلوك المنتج. |
+| **Acceptance criteria** | توثيق الفجوة في open-questions.md تحت O-010 وعدم إغلاق القضية قبل اعتماد المالك. |
+| **Validation method** | مراجعة S1-08 و O-010. |
+| **Status** | ⚠️ BLOCKED — رهن المسألة المعمارية المفتوحة O-010 |
 
 ---
 
@@ -313,14 +439,14 @@
 
 | الحالة | العدد | القضايا |
 |---|---|---|
-| ✅ RESOLVED في هذه المهمة | 10 | 001-010, 013 |
+| ✅ RESOLVED في هذه المهمة | 19 | 001-011, 013, 016, 017, 018, 019, 020, 021, 022 |
 | ⚠️ PARTIALLY RESOLVED | 1 | 012 |
-| ⚠️ BLOCKED — يتطلب قراراً | 2 | 015, 016 |
-| 📋 OUT OF SCOPE | 1 | 014 |
-| **المجموع** | **16** | — |
+| ⚠️ BLOCKED — يتطلب قراراً | 2 | 015, 023 |
+| 📋 SCHEDULED — مهمة مجدولة | 1 | 014 |
+| **المجموع** | **23** | — |
 
 ---
 
-> **آخر تحديث:** 2026-10-31T02:30+03:00  
-> **المهمة:** D-038 Integration & Consistency Closure  
+> **آخر تحديث:** 2026-10-31<br>
+> **المهمة:** D-038 Integration & Consistency Closure (Refined Plan Execution)<br>
 > **الفرع:** `audit/d038-integration-closure-20261031`

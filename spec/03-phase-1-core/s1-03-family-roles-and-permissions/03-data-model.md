@@ -37,7 +37,20 @@ CREATE TABLE permissions.member_grants (
     family_id UUID NOT NULL REFERENCES identity.families(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
     permission_key VARCHAR(60) NOT NULL REFERENCES permissions.catalog(permission_key) ON DELETE CASCADE,
-    is_granted BOOLEAN NOT NULL DEFAULT TRUE, -- TRUE = تفويض، FALSE = حجب صريح
+    -- النطاق مطلوب صراحة بحسب D-038 دون افتراض مسبق لـ 'self' (مع بقاء 'specific_members' غير مكتمل تشغيلياً رهن O-006)
+    scope VARCHAR(30) NOT NULL
+        CHECK (scope IN (
+            'all_members',
+            'specific_members',
+            'children_only',
+            'self'
+        )),
+
+    -- مهلة التفويض الاختيارية بحسب D-038
+    valid_until TIMESTAMPTZ,
+
+    -- حالة التفويض: ترتبط الدلالة الدقيقة (حجب صريح مقابل سحب المنح) وأولويات التعارض بالمسألة المفتوحة O-006
+    is_granted BOOLEAN NOT NULL,
     granted_by_user_id UUID NOT NULL REFERENCES identity.users(id),
     version INT NOT NULL DEFAULT 1, -- للقفل التفاؤلي (Optimistic Locking)
     granted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -79,22 +92,26 @@ CREATE INDEX idx_audit_family ON permissions.audit_log(family_id, created_at DES
 لتوفير استجابة فورية أقل من 50ms عند فحص الأذونات دون انتظار الشبكة، تُخزن الصلاحيات محلياً:
 
 ```dart
-// جدول الكاش المحلي للصلاحيات المفوضة للمستخدم النشط
+// جدول الكاش المحلي للصلاحيات المفوضة مع فرض العزل الأسري التام (D-021)
 class LocalMemberPermissionsTable extends Table {
   TextColumn get userId => text()();
+  TextColumn get familyId => text()(); // إضافة إلزامية لمنع تداخل الصلاحيات بين العائلات
   TextColumn get permissionKey => text()();
+  TextColumn get scope => text()(); // 'all_members' | 'specific_members' | 'children_only' | 'self'
+  DateTimeColumn get validUntil => dateTime().nullable()(); // مهلة التفويض
   BoolColumn get isGranted => boolean()();
   IntColumn get version => integer().withDefault(const Constant(1))();
   DateTimeColumn get lastSyncedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {userId, permissionKey};
+  Set<Column> get primaryKey => {userId, familyId, permissionKey};
 }
 
 // جدول شجرة العائلة والأدوار للعرض السريع في الغلاف
 class LocalFamilyRoleTreeTable extends Table {
   TextColumn get userId => text()();
-  TextColumn get familyId => text()();
+  TextColumn get familyId => text()(); // إضافة إلزامية لمنع تداخل الصلاحيات بين العائلات
+
   TextColumn get displayName => text()();
   TextColumn get role => text()(); // 'owner' | 'adult' | 'teen' | 'child'
   TextColumn get roleTitle => text()();

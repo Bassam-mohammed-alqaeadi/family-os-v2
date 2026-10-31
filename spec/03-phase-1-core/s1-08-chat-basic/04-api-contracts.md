@@ -31,7 +31,7 @@ last_updated: 2026-10-30
       "sender_color_hex": "#1F3A6B",
       "server_seq_id": 121,
       "message_type": "TEXT",
-      "encrypted_payload": "U2FsdGVkX19G4K3n...", // يُفك تشفيره محلياً
+      "encrypted_payload": "U2FsdGVkX19G4K3n...",
       "created_at": "2026-10-30T16:00:00Z"
     },
     {
@@ -52,7 +52,7 @@ last_updated: 2026-10-30
 - **الطلب (Request Body):**
 ```json
 {
-  "client_message_id": "client-uuid-987654321", // random_id لمنع التكرار
+  "client_message_id": "client-uuid-987654321",
   "message_type": "TEXT",
   "encrypted_payload": "U2FsdGVkX19G4K3n...",
   "encryption_key_epoch": 1
