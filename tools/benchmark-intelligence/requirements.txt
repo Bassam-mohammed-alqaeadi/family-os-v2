@@ -1,4 +1,12 @@
 # Requirements for BIP Verification Tools
 # Family OS (عائلتي) — BIP-01 / D-039
 
-jsonschema>=4.0.0
+# Pinned to exact tested version:
+jsonschema==4.25.1
+
+# Installation command:
+#   pip install -r tools/benchmark-intelligence/requirements.txt
+#
+# Execution commands:
+#   python tools/benchmark-intelligence/validate-program.py
+#   python tools/benchmark-intelligence/test_validator.py

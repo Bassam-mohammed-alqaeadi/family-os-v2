@@ -10,10 +10,13 @@ Validates:
 4. Schema conformity and manifest consistency of reference-registry.json.
 5. Path safety: guards against path traversal (..), absolute paths, and workspace escapes.
 6. Cryptographic SHA-256 hashes and exact byte sizes against files on disk.
-7. Line locator bounds (#L<start>-L<end>) against actual line counts of target files.
-8. Global uniqueness of all identifiers (SRC, RES, EVD, REL, FUS, REP).
-9. Referential integrity between sources, resources, evidence, relationships, and fusion decisions.
-10. Dynamic recalculation of application-report.json summaries against underlying records.
+7. Git Blob verification for git_tracked files (git cat-file blob SHA-256 and size).
+8. Storage tier classification (git_tracked vs local_only) and fingerprint_basis consistency.
+9. Line locator bounds (#L<start>-L<end>) against actual line counts of target files.
+10. Global uniqueness of all identifiers (SRC, RES, EVD, REL, FUS, REP).
+11. Strict app_id consistency across resources, sources, evidence, and relationships.
+12. Referential integrity between sources, resources, evidence, relationships, and fusion decisions.
+13. Dynamic recalculation of application-report.json summaries against underlying records.
 """
 
 import os
@@ -23,13 +26,14 @@ import glob
 import re
 import hashlib
 import argparse
+import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 try:
     import jsonschema
 except ImportError:
-    print("FATAL: jsonschema library is required. Install via pip install jsonschema>=4.0.0")
+    print("FATAL: jsonschema library is required. Install via pip install jsonschema==4.25.1")
     sys.exit(1)
 
 
@@ -94,7 +98,6 @@ class BIPValidator:
             return False
 
         if path_str.startswith("/") or (len(path_str) > 1 and path_str[1] == ":"):
-            # Absolute path
             resolved = Path(path_str).resolve()
         else:
             resolved = (self.workspace_root / path_str).resolve()
@@ -123,6 +126,41 @@ class BIPValidator:
         except Exception:
             return 0
 
+    def is_git_tracked(self, relative_path):
+        """Checks whether a file path is tracked in the Git index."""
+        norm_path = relative_path.replace("\\", "/")
+        cmd = ["git", "ls-files", "--error-unmatch", norm_path]
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(self.workspace_root),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False
+            )
+            return proc.returncode == 0
+        except Exception:
+            return False
+
+    def get_git_blob_bytes(self, relative_path):
+        """Retrieves raw bytes of a Git blob from HEAD."""
+        norm_path = relative_path.replace("\\", "/")
+        cmd = ["git", "cat-file", "-p", f"HEAD:{norm_path}"]
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(self.workspace_root),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False
+            )
+            if proc.returncode == 0:
+                return proc.stdout
+            return None
+        except Exception as e:
+            self.log_error(f"Git command failed for {relative_path}: {e}")
+            return None
+
     def load_schemas(self):
         print("\n🔍 1. التحقق من صحة مخططات JSON Schemas (Draft-7)...")
         if not self.schemas_dir.exists():
@@ -146,9 +184,9 @@ class BIPValidator:
             except Exception as e:
                 self.log_error(f"Schema check failed for {name}: {e}")
 
-    def validate_reference_registry(self):
+    def validate_reference_registry(self, registry_path=None):
         print("\n🔍 2. التحقق من سجل المراجع (reference-registry.json)...")
-        reg_path = self.bip_root / "reference-registry.json"
+        reg_path = Path(registry_path) if registry_path else (self.bip_root / "reference-registry.json")
         if not reg_path.exists():
             self.log_error(f"Missing reference-registry.json at {reg_path}")
             return
@@ -172,6 +210,8 @@ class BIPValidator:
             self.log_error(f"Expected 9 applications in reference registry, found {len(apps)}")
 
         seen_app_ids = set()
+        seen_priorities = set()
+
         for app in apps:
             app_id = app.get("app_id")
             if not app_id:
@@ -180,6 +220,12 @@ class BIPValidator:
             if app_id in seen_app_ids:
                 self.log_error(f"Duplicate app_id in reference registry: {app_id}")
             seen_app_ids.add(app_id)
+
+            priority = app.get("inventory_priority")
+            if priority in seen_priorities:
+                self.log_error(f"Duplicate inventory_priority in reference registry: {priority}")
+            if priority is not None:
+                seen_priorities.add(priority)
 
             # Check path safety and physical existence
             source_path = app.get("source_path")
@@ -260,7 +306,6 @@ class BIPValidator:
                 all_json_files.extend(glob.glob(str(d / "**" / "*.json"), recursive=True))
 
         for jf in sorted(all_json_files):
-            # Skip schemas or templates if accidentally placed in search dirs
             p = Path(jf)
             if "schemas" in p.parts or "templates" in p.parts:
                 continue
@@ -293,30 +338,102 @@ class BIPValidator:
                 self.log_error(f"Duplicate file_path in source records: '{fpath}' in {sid} and {prev_sid}")
             self.source_paths[fpath] = sid
 
-            # Physical file validation
+            storage_tier = rec.get("storage_tier")
+            fingerprint_basis = rec.get("fingerprint_basis", "")
+
+            # Consistency check: storage_tier vs fingerprint_basis
+            if storage_tier == "local_only" and "git_blob" in fingerprint_basis:
+                self.log_error(f"Conflict in {sid}: storage_tier is 'local_only' but fingerprint_basis is '{fingerprint_basis}'")
+            elif storage_tier == "git_tracked" and fingerprint_basis == "disk_bytes_local":
+                self.log_error(f"Conflict in {sid}: storage_tier is 'git_tracked' but fingerprint_basis is 'disk_bytes_local'")
+
             full_disk_path = self.workspace_root / fpath
-            if not full_disk_path.exists():
-                self.log_error(f"Physical file missing on disk for {sid}: {fpath}")
-            else:
-                # Actual size
-                actual_sz = full_disk_path.stat().st_size
-                rec_sz = rec.get("size_bytes")
-                if rec_sz != actual_sz:
-                    self.log_error(
-                        f"Size mismatch for {sid}: record says {rec_sz} bytes, disk has {actual_sz} bytes"
+
+            if storage_tier == "git_tracked":
+                # Must be tracked in Git
+                if not self.is_git_tracked(fpath):
+                    self.log_error(f"Source {sid} classified as 'git_tracked' but file is not tracked in Git: {fpath}")
+                else:
+                    blob_bytes = self.get_git_blob_bytes(fpath)
+                    if blob_bytes is None:
+                        self.log_error(f"Source {sid} could not retrieve Git blob for {fpath} from HEAD")
+                    else:
+                        actual_blob_sz = len(blob_bytes)
+                        actual_blob_sha = hashlib.sha256(blob_bytes).hexdigest()
+
+                        rec_blob_sz = rec.get("git_blob_size")
+                        rec_blob_sha = rec.get("git_blob_sha256")
+
+                        if rec_blob_sz is None:
+                            self.log_error(f"Source {sid} is 'git_tracked' but missing required 'git_blob_size'")
+                        elif rec_blob_sz != actual_blob_sz:
+                            self.log_error(
+                                f"Git blob size mismatch for {sid}: record says {rec_blob_sz}, actual Git blob has {actual_blob_sz}"
+                            )
+
+                        if rec_blob_sha is None:
+                            self.log_error(f"Source {sid} is 'git_tracked' but missing required 'git_blob_sha256'")
+                        elif rec_blob_sha.lower() != actual_blob_sha.lower():
+                            self.log_error(
+                                f"Git blob SHA-256 mismatch for {sid}:\n"
+                                f"    record: {rec_blob_sha}\n"
+                                f"    actual: {actual_blob_sha}"
+                            )
+                        else:
+                            self.log_info(f"Verified Git blob for {sid}: {actual_blob_sz} bytes, {actual_blob_sha[:12]}...")
+
+                # Verify disk file
+                if not full_disk_path.exists():
+                    self.log_error(f"Physical file missing on disk for tracked source {sid}: {fpath}")
+                else:
+                    actual_sz = full_disk_path.stat().st_size
+                    rec_sz = rec.get("size_bytes")
+                    if rec_sz != actual_sz:
+                        self.log_error(
+                            f"Size mismatch for {sid}: record says {rec_sz} bytes, disk has {actual_sz} bytes"
+                        )
+
+                    actual_sha = self.calculate_sha256(full_disk_path)
+                    rec_sha = rec.get("sha256", "").lower()
+                    if rec_sha != actual_sha.lower():
+                        self.log_error(
+                            f"SHA-256 mismatch for {sid} ({fpath}):\n"
+                            f"    record: {rec_sha}\n"
+                            f"    actual: {actual_sha}"
+                        )
+                    else:
+                        self.log_info(f"Verified disk SHA-256 & size for {sid}: {actual_sz} bytes, {actual_sha[:12]}...")
+
+            elif storage_tier == "local_only":
+                # Must NOT be tracked in Git
+                if self.is_git_tracked(fpath):
+                    self.log_error(f"Source {sid} classified as 'local_only' but file is tracked in Git: {fpath}")
+
+                if full_disk_path.exists():
+                    actual_sz = full_disk_path.stat().st_size
+                    rec_sz = rec.get("size_bytes")
+                    if rec_sz != actual_sz:
+                        self.log_error(
+                            f"Size mismatch for local_only source {sid}: record says {rec_sz} bytes, disk has {actual_sz} bytes"
+                        )
+
+                    actual_sha = self.calculate_sha256(full_disk_path)
+                    rec_sha = rec.get("sha256", "").lower()
+                    if rec_sha != actual_sha.lower():
+                        self.log_error(
+                            f"SHA-256 mismatch for local_only source {sid} ({fpath}):\n"
+                            f"    record: {rec_sha}\n"
+                            f"    actual: {actual_sha}"
+                        )
+                    else:
+                        self.log_info(f"Verified local_only file for {sid}: {actual_sz} bytes, {actual_sha[:12]}...")
+                else:
+                    self.log_warning(
+                        f"File for local_only source {sid} not available on disk: NOT_VERIFIABLE_IN_THIS_WORKSPACE ({fpath})"
                     )
 
-                # Actual SHA-256
-                actual_sha = self.calculate_sha256(full_disk_path)
-                rec_sha = rec.get("sha256", "").lower()
-                if rec_sha != actual_sha.lower():
-                    self.log_error(
-                        f"SHA-256 mismatch for {sid} ({fpath}):\n"
-                        f"    record: {rec_sha}\n"
-                        f"    actual: {actual_sha}"
-                    )
-                else:
-                    self.log_info(f"Verified SHA-256 & size for {sid}: {actual_sz} bytes, {actual_sha[:12]}...")
+            else:
+                self.log_error(f"Invalid storage_tier '{storage_tier}' in source {sid}")
 
         # 2. Resource record
         elif "resource_id" in rec and "category" in rec:
@@ -349,10 +466,8 @@ class BIPValidator:
             if not full_loc_file.exists():
                 self.log_error(f"Evidence location file missing on disk for {eid}: {loc_file}")
             else:
-                # Check line locator bounds
                 if line_spec:
                     total_lines = self.count_file_lines(full_loc_file)
-                    # Support formats: L1-L20, L337, L337-L337
                     m = re.match(r"^L(\d+)(?:-L(\d+))?$", line_spec)
                     if m:
                         start_line = int(m.group(1))
@@ -408,30 +523,79 @@ class BIPValidator:
             self.log_error(f"Record failed schema {schema_name} in {file_source}: {e.message}")
 
     def validate_referential_integrity(self):
-        print("\n🔍 5. التحقق من سلامة العلاقات والتكامل الإحالي (Referential Integrity)...")
-        # 1. Resource -> Sources & Evidence
+        print("\n🔍 5. التحقق من سلامة العلاقات والتكامل الإحالي واتساق app_id...")
+        # 1. Resource -> Sources & Evidence + app_id consistency
         for rid, (res, src_file) in self.resource_records.items():
+            res_app = res.get("app_id")
             for sref in res.get("source_refs", []):
                 if sref not in self.source_records:
                     self.log_error(f"Resource {rid} in {src_file} references non-existent source {sref}")
+                else:
+                    source_rec, _ = self.source_records[sref]
+                    src_app = source_rec.get("app_id")
+                    if res_app != src_app:
+                        self.log_error(
+                            f"app_id mismatch in {rid}: resource app_id is '{res_app}', "
+                            f"but referenced source {sref} belongs to app '{src_app}'"
+                        )
+
             for eref in res.get("evidence_refs", []):
                 if eref not in self.evidence_records:
                     self.log_error(f"Resource {rid} in {src_file} references non-existent evidence {eref}")
+                else:
+                    evd_rec, _ = self.evidence_records[eref]
+                    evd_app = evd_rec.get("app_id")
+                    if res_app != evd_app:
+                        self.log_error(
+                            f"app_id mismatch in {rid}: resource app_id is '{res_app}', "
+                            f"but referenced evidence {eref} belongs to app '{evd_app}'"
+                        )
 
-        # 2. Evidence -> Source
+        # 2. Evidence -> Source + app_id consistency
         for eid, (evd, src_file) in self.evidence_records.items():
+            evd_app = evd.get("app_id")
             s_id = evd.get("source_id")
-            if s_id and s_id not in self.source_records:
-                self.log_error(f"Evidence {eid} in {src_file} references non-existent source {s_id}")
+            if s_id:
+                if s_id not in self.source_records:
+                    self.log_error(f"Evidence {eid} in {src_file} references non-existent source {s_id}")
+                else:
+                    source_rec, _ = self.source_records[s_id]
+                    src_app = source_rec.get("app_id")
+                    if evd_app != src_app:
+                        self.log_error(
+                            f"app_id mismatch in {eid}: evidence app_id is '{evd_app}', "
+                            f"but referenced source {s_id} belongs to app '{src_app}'"
+                        )
 
-        # 3. Relationships -> Resources & Evidence
+        # 3. Relationships -> Resources & Evidence + scope consistency
         for rel_id, (rel, src_file) in self.relationship_records.items():
-            src_res = rel.get("source_resource_id")
-            tgt_res = rel.get("target_resource_id")
-            if src_res not in self.resource_records:
-                self.log_error(f"Relationship {rel_id} references missing source_resource {src_res}")
-            if tgt_res not in self.resource_records:
-                self.log_error(f"Relationship {rel_id} references missing target_resource {tgt_res}")
+            src_res_id = rel.get("source_resource_id")
+            tgt_res_id = rel.get("target_resource_id")
+            scope = rel.get("scope")
+
+            src_res_entry = self.resource_records.get(src_res_id)
+            tgt_res_entry = self.resource_records.get(tgt_res_id)
+
+            if not src_res_entry:
+                self.log_error(f"Relationship {rel_id} references missing source_resource {src_res_id}")
+            if not tgt_res_entry:
+                self.log_error(f"Relationship {rel_id} references missing target_resource {tgt_res_id}")
+
+            if src_res_entry and tgt_res_entry:
+                src_app = src_res_entry[0].get("app_id")
+                tgt_app = tgt_res_entry[0].get("app_id")
+
+                if scope == "intra_app":
+                    if src_app != tgt_app:
+                        self.log_error(
+                            f"Relationship {rel_id} declared as 'intra_app' but connects different apps: "
+                            f"source is '{src_app}' and target is '{tgt_app}'"
+                        )
+                    else:
+                        self.log_info(f"Verified intra_app relationship {rel_id} within app '{src_app}'")
+                elif scope == "cross_app":
+                    self.log_info(f"Verified cross_app relationship {rel_id} connecting '{src_app}' -> '{tgt_app}'")
+
             for eref in rel.get("evidence_refs", []):
                 if eref not in self.evidence_records:
                     self.log_error(f"Relationship {rel_id} references missing evidence {eref}")
@@ -462,14 +626,15 @@ class BIPValidator:
             app_id = rep.get("app_id")
             self.log_info(f"Verifying application report '{rep_id}' for app '{app_id}'...")
 
-            # Filter records belonging to this app_id
+            # Filter records belonging strictly to this app_id
             app_sources = [r for r, _ in self.source_records.values() if r.get("app_id") == app_id]
             app_resources = [r for r, _ in self.resource_records.values() if r.get("app_id") == app_id]
             app_evidence = [r for r, _ in self.evidence_records.values() if r.get("app_id") == app_id]
+            app_resource_ids = {res["resource_id"] for res in app_resources}
             app_relationships = [
                 r for r, _ in self.relationship_records.values()
-                if (r.get("source_resource_id", "").startswith(f"{app_id.upper()}-") or
-                    r.get("source_resource_id") in [res["resource_id"] for res in app_resources])
+                if (r.get("source_resource_id") in app_resource_ids or
+                    r.get("target_resource_id") in app_resource_ids)
             ]
 
             inv = rep.get("inventory_summary", {})
@@ -481,7 +646,7 @@ class BIPValidator:
                     f"report says {inv.get('total_files_discovered')}, actual count is {expected_files}"
                 )
 
-            # Check total bytes
+            # Check total bytes (disk bytes)
             expected_bytes = sum(s.get("size_bytes", 0) for s in app_sources)
             if inv.get("total_bytes") != expected_bytes:
                 self.log_error(
@@ -542,6 +707,18 @@ class BIPValidator:
                     f"report says {res_sum.get('total_resources_cataloged')}, actual count is {len(app_resources)}"
                 )
 
+            # Check resource counts by category
+            res_cat_counts = {}
+            for r in app_resources:
+                cat = r.get("category")
+                res_cat_counts[cat] = res_cat_counts.get(cat, 0) + 1
+            if res_sum.get("counts_by_category") != res_cat_counts:
+                self.log_error(
+                    f"Report {rep_id} resource counts_by_category mismatch:\n"
+                    f"    report: {res_sum.get('counts_by_category')}\n"
+                    f"    actual: {res_cat_counts}"
+                )
+
             # Check total evidence records
             evd_sum = rep.get("evidence_summary", {})
             if evd_sum.get("total_evidence_records") != len(app_evidence):
@@ -569,6 +746,18 @@ class BIPValidator:
                 self.log_error(
                     f"Report {rep_id} total_relationships mismatch: "
                     f"report says {rel_sum.get('total_relationships')}, actual count is {len(app_relationships)}"
+                )
+
+            # Check relationships counts by type
+            rel_type_counts = {}
+            for rel in app_relationships:
+                rt = rel.get("relationship_type")
+                rel_type_counts[rt] = rel_type_counts.get(rt, 0) + 1
+            if rel_sum.get("counts_by_type") != rel_type_counts:
+                self.log_error(
+                    f"Report {rep_id} relationships counts_by_type mismatch:\n"
+                    f"    report: {rel_sum.get('counts_by_type')}\n"
+                    f"    actual: {rel_type_counts}"
                 )
 
             self.log_info(f"Report {rep_id} recalculated successfully!")

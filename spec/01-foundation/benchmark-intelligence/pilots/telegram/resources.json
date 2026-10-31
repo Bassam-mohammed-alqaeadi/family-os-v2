@@ -131,17 +131,21 @@
   {
     "resource_id": "TG-RES-000006",
     "app_id": "telegram",
-    "name": "Continuous Notification Foreground Service",
+    "name": "Declared Notifications Foreground Service",
     "category": "Android Platform Integration",
-    "description": "Android foreground service ensuring reliable socket connectivity, push delivery, and incoming message alert dispatching.",
+    "description": "Declaration of NotificationsService in AndroidManifest.xml configured as an enabled and exported foreground service with dataSync type.",
     "source_refs": ["TG-SRC-000006"],
     "evidence_refs": ["TG-EVD-000006"],
     "technical_depth": "T2_functional",
-    "behavior_summary": "Maintains background process persistence via declared foreground service type 'dataSync' for real-time synchronization.",
+    "behavior_summary": "Manifest-declared foreground service configuration binding dataSync foreground type, establishing system-level registration for background data synchronization.",
     "implementation_details": {
-      "primary_language": "Java",
+      "primary_language": "XML",
       "key_classes": ["org.telegram.messenger.NotificationsService"],
-      "entry_points": ["NotificationsService.onCreate()", "NotificationsService.onStartCommand()"]
+      "parameters": {
+        "enabled": "true",
+        "exported": "true",
+        "foregroundServiceType": "dataSync"
+      }
     },
     "reusability_assessment": {
       "legal_authorization": "authorized_by_project_owner",
@@ -149,8 +153,8 @@
       "licensing_risk": "authorized",
       "cleanroom_requirement": false,
       "architectural_fit": "adaptable",
-      "notes": "Authorized for adoption; provides reference configuration for Family OS Android background communication services."
+      "notes": "Authorized for adoption; provides reference configuration for registering Android background data synchronization services in Family OS without unjustified runtime assumptions."
     },
-    "tags": ["PILOT_ONLY", "android", "foreground_service", "notifications", "background"]
+    "tags": ["PILOT_ONLY", "android", "manifest", "foreground_service", "dataSync"]
   }
 ]

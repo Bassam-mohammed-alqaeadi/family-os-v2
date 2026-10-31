@@ -12,26 +12,27 @@
 
 ```
 spec/01-foundation/benchmark-intelligence/
-├── README.md                  # هذا الملف (دليل بنية البرنامج)
-├── PROGRAM-STATUS.md          # جدول المتابعة الحي لمراحل وتطبيقات البرنامج
-├── reference-registry.json    # سجل التطبيقات المرجعية التسعة ومساراتها وحالاتها
-├── schemas/                   # مخططات JSON Schema الستة الصارمة
+├── README.md                      # هذا الملف (دليل بنية البرنامج)
+├── PROGRAM-STATUS.md              # جدول المتابعة الحي لمراحل وتطبيقات البرنامج
+├── reference-registry.json        # سجل التطبيقات المرجعية التسعة ومساراتها وحالاتها
+├── schemas/                       # مخططات JSON Schema السبعة الصارمة (Draft-7)
+│   ├── reference-registry.schema.json
 │   ├── source-record.schema.json
 │   ├── resource-record.schema.json
 │   ├── evidence-record.schema.json
 │   ├── relationship-record.schema.json
 │   ├── fusion-decision.schema.json
 │   └── application-report.schema.json
-├── templates/                 # قوالب السجلات والتقارير المعتمدة
+├── templates/                     # قوالب السجلات والتقارير المعتمدة
 │   ├── source-record.template.json
 │   ├── resource-record.template.json
 │   ├── evidence-record.template.json
 │   ├── relationship-record.template.json
 │   ├── fusion-decision.template.json
 │   └── application-report.template.json
-├── inventories/               # سجلات الجرد لكل تطبيق (تُملأ في BIP-02 فصاعداً)
-├── synthesis/                 # سجلات التحليل المقارن والعلاقات الشاملة والصهر (BIP-07, BIP-08)
-└── pilots/                    # العينات التجريبية لاختبار المنهجية (BIP-01: telegram pilot)
+├── inventories/                   # سجلات الجرد لكل تطبيق (BIP-02 إلى BIP-10)
+├── synthesis/                     # سجلات التحليل المقارن وسجل الصهر وخريطة الخدمات (BIP-11 إلى BIP-13)
+└── pilots/                        # العينات التجريبية لاختبار المنهجية (BIP-01: telegram pilot)
 ```
 
 ---
@@ -39,7 +40,7 @@ spec/01-foundation/benchmark-intelligence/
 ### 2. تدفق البيانات وسلسلة التتبع (Traceability Pipeline)
 
 ```
-[ملف مادي في benchmarks/] ──(T0)──> [source-record] (مسار + SHA256)
+[ملف مادي في benchmarks/] ──(T0)──> [source-record] (مسار + SHA256 + Git Blob)
                                         │
                                       (T1-T3)
                                         ↓
@@ -47,7 +48,7 @@ spec/01-foundation/benchmark-intelligence/
                                         │
                                      (ربط)
                                         ↓
-[مورد وظيفي أو معماري]  ──────────> [resource-record] (22 فئة تصنيفية)
+[مورد وظيفي أو معماري]  ──────────> [resource-record] (22 فئة تصنيفية + تفويض قانوني)
                                         │
                                      (علاقة)
                                         ↓
@@ -64,15 +65,22 @@ spec/01-foundation/benchmark-intelligence/
 
 ---
 
-### 3. أدوات التحقق الآلي
+### 3. أدوات التحقق الآلي المستقلة
 
-تخضع كافة السجلات في هذا المجلد للتحقق الآلي الصارم عبر أداة البرنامج:  
-`python tools/benchmark-intelligence/validate-program.py`
+تخضع كافة السجلات في هذا البرنامج للتحقق الآلي الصارم عبر أدوات البرنامج في `tools/benchmark-intelligence/`:
 
-تفحص الأداة:
-- صحة JSON.
-- مطابقة المخططات (Draft-7 JSON Schema).
-- تفرد المعرفات عبر المستودع بالكامل.
-- سلامة الروابط التكاملية (Referential Integrity).
-- التحقق من وجود مسارات الملفات المشار إليها فعلياً على القرص.
-- خلو السجلات من أي مصادر مجهولة المصير.
+1. **أداة الفحص المستقلة:**  
+   `python tools/benchmark-intelligence/validate-program.py`
+   - مطابقة مخططات Draft-7 السبعة.
+   - تفرد المعرفات عبر المستودع.
+   - التحقق من أحجام وبصمات القرص SHA-256.
+   - التحقق من كائنات Git Blob وبصماتها وأحجامها للملفات المتتبعة (`git_tracked`).
+   - توثيق طبقات التخزين وحماية مسارات التخطي (`..`).
+   - فحص حدود مؤشرات السطور الفعلية في الملفات.
+   - فحص حزم `AndroidManifest.xml` ومطابقتها للسجل.
+   - التحقق من اتساق `app_id` بين الموارد ومصادرها وأدلتها.
+   - إعادة الحساب الديناميكي لإحصاءات تقارير التطبيقات.
+
+2. **جناح الاختبارات السلبية:**  
+   `python tools/benchmark-intelligence/test_validator.py`
+   - يضم 17 فحصاً سلبياً وتكاملياً يضمن كشف التلاعب وأخطاء السجلات.
