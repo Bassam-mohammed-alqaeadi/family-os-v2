@@ -1,0 +1,4 @@
+# Requirements for BIP Verification Tools
+# Family OS (عائلتي) — BIP-01 / D-039
+
+jsonschema>=4.0.0

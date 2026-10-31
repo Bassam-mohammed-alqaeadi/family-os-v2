@@ -90,6 +90,25 @@
       "enum": ["discovered", "inspected", "analyzed", "deep_analyzed", "skipped", "inaccessible"],
       "description": "Inspection workflow status."
     },
+    "storage_tier": {
+      "type": "string",
+      "enum": ["git_tracked", "local_only"],
+      "description": "Whether the source file is tracked in Git or excluded via .gitignore (local extraction workspace only)."
+    },
+    "fingerprint_basis": {
+      "type": "string",
+      "description": "Specification of the byte source used for SHA256 and size computation (e.g. disk_bytes_local, git_blob_lf)."
+    },
+    "git_blob_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Normalized Git blob SHA-256 for tracked files if different from disk bytes."
+    },
+    "git_blob_size": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Normalized Git blob size in bytes."
+    },
     "tags": {
       "type": "array",
       "items": { "type": "string" },

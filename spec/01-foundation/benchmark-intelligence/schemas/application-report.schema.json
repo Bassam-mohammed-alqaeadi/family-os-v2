@@ -59,7 +59,12 @@
         "BIP-05",
         "BIP-06",
         "BIP-07",
-        "BIP-08"
+        "BIP-08",
+        "BIP-09",
+        "BIP-10",
+        "BIP-11",
+        "BIP-12",
+        "BIP-13"
       ],
       "description": "Program phase during which this report was produced."
     },
@@ -69,12 +74,17 @@
     },
     "inventory_summary": {
       "type": "object",
-      "required": ["total_files_discovered", "total_bytes", "counts_by_level", "counts_by_type"],
+      "required": ["total_files_discovered", "total_bytes", "t0_inventory_count", "counts_by_deepest_level", "counts_by_storage_tier", "counts_by_type"],
       "additionalProperties": false,
       "properties": {
         "total_files_discovered": { "type": "integer", "minimum": 0 },
         "total_bytes": { "type": "integer", "minimum": 0 },
-        "counts_by_level": {
+        "t0_inventory_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total files entered into T0 comprehensive source inventory."
+        },
+        "counts_by_deepest_level": {
           "type": "object",
           "required": ["T0", "T1", "T2", "T3"],
           "additionalProperties": false,
@@ -83,7 +93,18 @@
             "T1": { "type": "integer", "minimum": 0 },
             "T2": { "type": "integer", "minimum": 0 },
             "T3": { "type": "integer", "minimum": 0 }
-          }
+          },
+          "description": "Distribution of files by deepest inspection level reached."
+        },
+        "counts_by_storage_tier": {
+          "type": "object",
+          "required": ["git_tracked", "local_only"],
+          "additionalProperties": false,
+          "properties": {
+            "git_tracked": { "type": "integer", "minimum": 0 },
+            "local_only": { "type": "integer", "minimum": 0 }
+          },
+          "description": "Count of files tracked in Git vs local extraction workspace only."
         },
         "counts_by_type": {
           "type": "object",

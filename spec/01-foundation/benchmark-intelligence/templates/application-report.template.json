@@ -8,11 +8,16 @@
   "inventory_summary": {
     "total_files_discovered": 1,
     "total_bytes": 1024,
-    "counts_by_level": {
+    "t0_inventory_count": 1,
+    "counts_by_deepest_level": {
       "T0": 1,
       "T1": 0,
       "T2": 0,
       "T3": 0
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 1,
+      "local_only": 0
     },
     "counts_by_type": {
       "source_code": 1
@@ -40,5 +45,5 @@
     }
   },
   "quality_gate_passed": true,
-  "generated_at": "2026-10-31T00:00:00Z"
+  "generated_at": "2026-11-01T00:00:00Z"
 }

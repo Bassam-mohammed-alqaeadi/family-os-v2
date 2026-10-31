@@ -9,6 +9,8 @@
   "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   "inspection_level": "T0",
   "status": "discovered",
+  "storage_tier": "git_tracked",
+  "fingerprint_basis": "disk_bytes",
   "tags": ["example", "template"],
   "notes": "Template source record placeholder."
 }

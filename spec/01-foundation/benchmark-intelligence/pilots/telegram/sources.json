@@ -10,8 +10,10 @@
     "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
     "inspection_level": "T2",
     "status": "analyzed",
-    "tags": ["PILOT_ONLY", "visual_asset", "vector_icon", "navigation"],
-    "notes": "Action bar back arrow vector asset extracted from Telegram design resources."
+    "storage_tier": "local_only",
+    "fingerprint_basis": "disk_bytes_local",
+    "tags": ["PILOT_ONLY", "visual_asset", "vector_icon", "navigation", "local_only"],
+    "notes": "Action bar back arrow vector asset. Excluded from Git tracking by .gitignore (present in local extraction workspace only)."
   },
   {
     "source_id": "TG-SRC-000002",
@@ -24,8 +26,10 @@
     "sha256": "0d4da7e694b9faeb77ae8302b7e0010ddce5f68200aa376b18534ba59ad832e4",
     "inspection_level": "T2",
     "status": "analyzed",
-    "tags": ["PILOT_ONLY", "ui_layout", "dialog_component", "material_design"],
-    "notes": "Material alert dialog layout defining button bar, content panel, and title frames."
+    "storage_tier": "local_only",
+    "fingerprint_basis": "disk_bytes_local",
+    "tags": ["PILOT_ONLY", "ui_layout", "dialog_component", "material_design", "local_only"],
+    "notes": "Material alert dialog layout defining button bar, content panel, and title frames. Excluded from Git tracking by .gitignore (present in local extraction workspace only)."
   },
   {
     "source_id": "TG-SRC-000003",
@@ -38,8 +42,12 @@
     "sha256": "dbe642759542c496de33e4e8e0d7daea26c951fb9c61f7b54bfe40e782db8499",
     "inspection_level": "T2",
     "status": "analyzed",
+    "storage_tier": "git_tracked",
+    "fingerprint_basis": "disk_bytes_and_git_blob",
+    "git_blob_size": 31564,
+    "git_blob_sha256": "dbe642759542c496de33e4e8e0d7daea26c951fb9c61f7b54bfe40e782db8499",
     "tags": ["PILOT_ONLY", "database_schema", "sqlite", "messages_v2", "wal_mode"],
-    "notes": "Client master SQLite DDL extracted from MessagesStorage.java (96 production tables)."
+    "notes": "Client master SQLite DDL extracted from MessagesStorage.java (96 production tables). Tracked in Git with LF newlines."
   },
   {
     "source_id": "TG-SRC-000004",
@@ -52,8 +60,12 @@
     "sha256": "08b7a7421cad6f774cb70e7348f9cf94904c78c601da56c8664188af117d5bd4",
     "inspection_level": "T3",
     "status": "deep_analyzed",
+    "storage_tier": "git_tracked",
+    "fingerprint_basis": "disk_bytes_and_git_blob",
+    "git_blob_size": 5587,
+    "git_blob_sha256": "08b7a7421cad6f774cb70e7348f9cf94904c78c601da56c8664188af117d5bd4",
     "tags": ["PILOT_ONLY", "network_protocol", "connections_manager", "multi_dc", "transport_cascade"],
-    "notes": "Deep dive analysis of ConnectionsManager multi-transport protocol cascade (TCP -> HTTP -> WS)."
+    "notes": "Derived technical analysis document examining ConnectionsManager multi-transport protocol cascade. Tracked in Git with LF newlines."
   },
   {
     "source_id": "TG-SRC-000005",
@@ -66,8 +78,12 @@
     "sha256": "b8347e9c9a5cf59e9d93e76e4732d8d8b07c8a1a1b7677d47f3ae8622195282f",
     "inspection_level": "T3",
     "status": "deep_analyzed",
+    "storage_tier": "git_tracked",
+    "fingerprint_basis": "disk_bytes_and_git_blob",
+    "git_blob_size": 7548,
+    "git_blob_sha256": "b8347e9c9a5cf59e9d93e76e4732d8d8b07c8a1a1b7677d47f3ae8622195282f",
     "tags": ["PILOT_ONLY", "algorithm", "gap_resolution", "pts_qts_seq", "diff_sync"],
-    "notes": "Extracted state tracking, PTS gap detection, and difference resolution engine."
+    "notes": "Extracted state tracking, PTS gap detection, and difference resolution engine. Tracked in Git with LF newlines."
   },
   {
     "source_id": "TG-SRC-000006",
@@ -80,7 +96,11 @@
     "sha256": "cfd6ee17995e41fbb49e1670ebf766aaea3194b62ca3e09af12d7bb3e46f53bd",
     "inspection_level": "T1",
     "status": "inspected",
+    "storage_tier": "git_tracked",
+    "fingerprint_basis": "disk_bytes_windows_crlf",
+    "git_blob_size": 44611,
+    "git_blob_sha256": "d7261be22e02e64628be867b95525bbc682bd75ad07e223ac02d77d2c80a03d0",
     "tags": ["PILOT_ONLY", "manifest", "android_platform", "notifications_service", "foreground_service"],
-    "notes": "Production AndroidManifest declaring 32 services, 27 activities, and notification listeners."
+    "notes": "Production AndroidManifest. Tracked in Git (44611 bytes LF). Disk working copy size is 45114 bytes with 503 CRLF newlines."
   }
 ]

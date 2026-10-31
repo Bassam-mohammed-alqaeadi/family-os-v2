@@ -7,12 +7,17 @@
   "pilot_flag": true,
   "inventory_summary": {
     "total_files_discovered": 6,
-    "total_bytes": 92679,
-    "counts_by_level": {
+    "total_bytes": 92675,
+    "t0_inventory_count": 6,
+    "counts_by_deepest_level": {
       "T0": 0,
       "T1": 1,
       "T2": 3,
       "T3": 2
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 4,
+      "local_only": 2
     },
     "counts_by_type": {
       "asset_vector": 1,
@@ -37,10 +42,10 @@
   "evidence_summary": {
     "total_evidence_records": 6,
     "counts_by_tag": {
-      "REF": 6,
+      "REF": 5,
       "ASSUMPTION": 0,
       "PENDING-REF": 0,
-      "PARTIAL-EVIDENCE": 0
+      "PARTIAL-EVIDENCE": 1
     }
   },
   "relationships_summary": {
@@ -50,5 +55,5 @@
     }
   },
   "quality_gate_passed": true,
-  "generated_at": "2026-10-31T23:55:00Z"
+  "generated_at": "2026-11-01T01:30:00Z"
 }

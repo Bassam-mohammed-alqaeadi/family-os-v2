@@ -127,15 +127,37 @@
     },
     "reusability_assessment": {
       "type": "object",
-      "required": ["licensing_risk", "cleanroom_requirement", "architectural_fit"],
+      "required": ["cleanroom_requirement", "architectural_fit"],
       "additionalProperties": false,
       "properties": {
+        "legal_authorization": {
+          "type": "string",
+          "enum": [
+            "authorized_by_project_owner",
+            "open_source_permissive",
+            "standard_compliance",
+            "proprietary_restricted"
+          ],
+          "description": "Legal status confirming authorization scope as confirmed by project owner."
+        },
+        "technical_reuse_strategy": {
+          "type": "string",
+          "enum": [
+            "direct_asset_reuse",
+            "direct_code_reuse",
+            "concept_adaptation",
+            "architectural_reference",
+            "cleanroom_reimplementation"
+          ],
+          "description": "Technical approach to adopting or adapting the capability into Family OS."
+        },
         "licensing_risk": {
           "type": "string",
-          "enum": ["low", "medium", "high", "proprietary_closed"]
+          "enum": ["authorized", "low", "medium", "high", "proprietary_closed"]
         },
         "cleanroom_requirement": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether technical re-engineering is required for architecture/language adaptation reasons."
         },
         "architectural_fit": {
           "type": "string",

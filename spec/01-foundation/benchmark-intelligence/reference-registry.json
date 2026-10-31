@@ -1,171 +1,206 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "program": "Benchmark Intelligence & Platform Fusion Program (BIP)",
   "established_by": "D-039",
-  "last_updated": "2026-10-31",
+  "last_updated": "2026-11-01",
   "applications": [
     {
       "app_id": "telegram",
       "display_name": "Telegram",
-      "package_name": "org.telegram.messenger",
+      "package_name": "org.telegram.messenger.web",
+      "product_url": "https://telegram.org",
       "source_path": "benchmarks/extracted/telegram/",
+      "manifest_path": "benchmarks/extracted/telegram/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "TG",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-01",
+      "program_phase": "BIP-02",
       "status": "pilot_active",
       "executive_summary_path": "benchmarks/extracted/telegram/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 1,
+      "initial_capability_hypotheses": [
         "Application Shell & Unified Platform (S1-01)",
         "Binary Synchronization & Offline Tier",
         "Managed Encrypted Chat & Message Dispatcher (S1-08)",
         "Multi-Device Session Management",
         "High-Performance Local Caching & Media Pipeline"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is org.telegram.messenger.web (FOSS/Direct Web APK build)."
     },
     {
       "app_id": "familywall",
       "display_name": "FamilyWall",
       "package_name": "com.familywall",
+      "product_url": "https://www.familywall.com",
       "source_path": "benchmarks/extracted/familywall/",
+      "manifest_path": "benchmarks/extracted/familywall/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "FW",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-02",
+      "program_phase": "BIP-03",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/familywall/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 2,
+      "initial_capability_hypotheses": [
         "Family Account & Circles Domain Model (S1-02)",
         "Calendar Recurrence & Exception Engine (S1-06)",
         "Shared Task Lists & Assignment Workflows (S1-06)",
         "Family Budget & Shared Finance Primitives",
         "Basic Geolocation & Battery Telemetry (S1-07)"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.familywall."
     },
     {
       "app_id": "life360",
       "display_name": "Life360",
       "package_name": "com.life360.android.safetymapd",
+      "product_url": "https://www.life360.com",
       "source_path": "benchmarks/extracted/life360/",
+      "manifest_path": "benchmarks/extracted/life360/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "L360",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-02",
+      "program_phase": "BIP-03",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/life360/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 3,
+      "initial_capability_hypotheses": [
         "High-Frequency Smart Location Tracking (S1-07)",
         "Emergency SOS & Escalation Protocols (S1-07)",
         "Battery-Aware Geolocation Sampling Algorithms",
         "Place/Geofence Boundary Entry-Exit Detection (S2-04)",
         "Driving Behavior & Crash Sensor Telemetry"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.life360.android.safetymapd."
     },
     {
       "app_id": "qustodio",
       "display_name": "Qustodio",
-      "package_name": "com.qustodio.famisafe",
+      "package_name": "com.qustodio.family.parental.control.app.screentime",
+      "product_url": "https://www.qustodio.com",
       "source_path": "benchmarks/extracted/qustodio/",
+      "manifest_path": "benchmarks/extracted/qustodio/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "QU",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-03",
+      "program_phase": "BIP-04",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/qustodio/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 4,
+      "initial_capability_hypotheses": [
         "Parental Control & Screen Time Enforcement (S2-01)",
         "Android Device Administration (DPM / Device Owner)",
         "AccessibilityService-Based App Blocking & Lockout",
         "Local VPN / DNS Web Content Filtering (S2-03)",
         "Anti-Tamper & Bypass Detection Engine"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.qustodio.family.parental.control.app.screentime."
     },
     {
       "app_id": "famisafe",
       "display_name": "FamiSafe",
       "package_name": "com.wondershare.famisafe",
+      "product_url": "https://famisafe.wondershare.com",
       "source_path": "benchmarks/extracted/famisafe/",
+      "manifest_path": "benchmarks/extracted/famisafe/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "FS",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-03",
+      "program_phase": "BIP-04",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/famisafe/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 5,
+      "initial_capability_hypotheses": [
         "Remote Device Management & Instant Lock (S2-01)",
         "Social App Activity Monitoring & Keystroke Watch",
         "Suspicious Photo & Media Scanning",
         "Cross-Platform Child Protection Rules",
         "Web & Search History Audit Trails"
-      ]
-    },
-    {
-      "app_id": "bark",
-      "display_name": "Bark",
-      "package_name": "com.bark.parental",
-      "source_path": "benchmarks/extracted/bark/",
-      "id_prefix": "BK",
-      "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-04",
-      "status": "ready_for_inventory",
-      "executive_summary_path": "benchmarks/extracted/bark/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
-        "Smart Safety & Content Risk Classification (S4-01)",
-        "Teen Privacy-Preserving Alert Filtering",
-        "On-Device Text Analysis & Keyword Sentiment Heuristics",
-        "Multi-Category Safety Sentinel (Cyberbullying, Depression, Inappropriate Content)",
-        "Parent Advisory Notification Templates"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.wondershare.famisafe."
     },
     {
       "app_id": "quizlet",
       "display_name": "Quizlet",
       "package_name": "com.quizlet.quizletandroid",
+      "product_url": "https://quizlet.com",
       "source_path": "benchmarks/extracted/quizlet/",
+      "manifest_path": "benchmarks/extracted/quizlet/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "QZ",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-04",
+      "program_phase": "BIP-05",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/quizlet/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 6,
+      "initial_capability_hypotheses": [
         "Smart Learning Flashcards & Study Sets (S5-01)",
         "Spaced Repetition Algorithm & Adaptive Recall",
         "Gamified Streak & Achievement Retention Mechanics",
         "Child Reward Integration Hook (S1-05)",
         "Study Activity Event Telemetry"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.quizlet.quizletandroid."
+    },
+    {
+      "app_id": "bark",
+      "display_name": "Bark",
+      "package_name": "cm.pt.barkparent",
+      "product_url": "https://www.bark.us",
+      "source_path": "benchmarks/extracted/bark/",
+      "manifest_path": "benchmarks/extracted/bark/01_architecture_and_manifest/AndroidManifest.xml",
+      "id_prefix": "BK",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-05",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/bark/00_EXECUTIVE_SUMMARY.md",
+      "inventory_priority": 7,
+      "initial_capability_hypotheses": [
+        "Smart Safety & Content Risk Classification (S4-01)",
+        "Teen Privacy-Preserving Alert Filtering",
+        "On-Device Text Analysis & Keyword Sentiment Heuristics",
+        "Multi-Category Safety Sentinel (Cyberbullying, Depression, Inappropriate Content)",
+        "Parent Advisory Notification Templates"
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is cm.pt.barkparent."
     },
     {
       "app_id": "muslim-pro",
       "display_name": "Muslim Pro",
       "package_name": "com.bitsmedia.android.muslimpro",
+      "product_url": "https://www.muslimpro.com",
       "source_path": "benchmarks/extracted/10-muslim-pro/",
+      "manifest_path": "benchmarks/extracted/10-muslim-pro/01_architecture_and_manifest/AndroidManifest.xml",
       "id_prefix": "MP",
       "analysis_type": "decompiled_apk",
-      "program_phase": "BIP-05",
+      "program_phase": "BIP-06",
       "status": "ready_for_inventory",
       "executive_summary_path": "benchmarks/extracted/10-muslim-pro/00_EXECUTIVE_SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 8,
+      "initial_capability_hypotheses": [
         "Astronomical Prayer Times Calculation Engine (S5-04)",
         "Precise Qibla Direction Algorithm",
         "Hijri Calendar & Religious Event Scheduling (S1-06)",
         "Adhan Audio Playback & Exact Alarm Notification Scheduling",
         "Quranic Text & Authentic Supplication Local Database"
-      ]
+      ],
+      "notes": "Verified package name in AndroidManifest.xml is com.bitsmedia.android.muslimpro. Physical directory is 10-muslim-pro."
     },
     {
       "app_id": "notebooklm",
       "display_name": "NotebookLM",
-      "package_name": "google.notebooklm.web",
+      "product_url": "https://notebooklm.google.com",
       "source_path": "spec/01-foundation/benchmark-intelligence/inventories/notebooklm/",
+      "manifest_path": null,
       "id_prefix": "NLM",
       "analysis_type": "product_teardown",
-      "program_phase": "BIP-06",
+      "program_phase": "BIP-07",
       "status": "planned_teardown",
       "executive_summary_path": "spec/01-foundation/benchmark-intelligence/inventories/notebooklm/TEARDOWN-SUMMARY.md",
-      "primary_contributions": [
+      "inventory_priority": 9,
+      "initial_capability_hypotheses": [
         "Notebook & Multi-Source Knowledge Architecture (S5-03)",
         "Grounded Factual Citations & Attribution Display",
         "Generative Studio & Document Synthesis Panel",
         "Strict Source-Constrained AI Prompt Orchestration",
         "Source Hierarchy & Boundary Edge Cases"
-      ]
+      ],
+      "notes": "Product Teardown analysis based on public documentation, observable user flows, and citation behaviors, not decompiled APK."
     }
   ]
 }

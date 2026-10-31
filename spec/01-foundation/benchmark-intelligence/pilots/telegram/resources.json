@@ -16,10 +16,12 @@
       "parameters": {"width": "24dp", "height": "24dp", "viewport": "0 0 24 24"}
     },
     "reusability_assessment": {
-      "licensing_risk": "low",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "direct_asset_reuse",
+      "licensing_risk": "authorized",
       "cleanroom_requirement": false,
       "architectural_fit": "direct",
-      "notes": "Standard standard-compliant vector icon, directly adaptable into fos_design_system icon pack."
+      "notes": "Vector asset authorized for project use; directly importable into Family OS design system icon suite."
     },
     "tags": ["PILOT_ONLY", "icon", "navigation", "design_system"]
   },
@@ -32,17 +34,19 @@
     "source_refs": ["TG-SRC-000002"],
     "evidence_refs": ["TG-EVD-000002"],
     "technical_depth": "T2_functional",
-    "behavior_summary": "Manages modal alert presentations, keyboard focus trapping, touch-outside dismissal, and responsive action button wrapping.",
+    "behavior_summary": "Structural three-tier dialog hierarchy arranging title, content/custom scrollable view, and button action bar.",
     "implementation_details": {
       "primary_language": "XML",
-      "key_classes": ["androidx.appcompat.app.AlertDialog"],
-      "entry_points": ["AlertDialog.Builder.show()"]
+      "key_classes": ["androidx.appcompat.widget.AlertDialogLayout"],
+      "entry_points": ["layout/abc_alert_dialog_material.xml"]
     },
     "reusability_assessment": {
-      "licensing_risk": "low",
-      "cleanroom_requirement": true,
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "cleanroom_requirement": false,
       "architectural_fit": "adaptable",
-      "notes": "Adaptable into Flutter FosAlertDialog with Family OS design tokens."
+      "notes": "Authorized for adoption; layout structure serves as technical blueprint for Flutter FosAlertDialog widget implementation."
     },
     "tags": ["PILOT_ONLY", "ui_component", "dialog", "presentation"]
   },
@@ -63,10 +67,12 @@
       "parameters": {"journal_mode": "WAL", "user_version": 179}
     },
     "reusability_assessment": {
-      "licensing_risk": "medium",
-      "cleanroom_requirement": true,
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "cleanroom_requirement": false,
       "architectural_fit": "adaptable",
-      "notes": "Cleanroom adaptation into Drift (SQLite) tables for Family OS local messaging storage (S1-08)."
+      "notes": "Authorized for adoption; schema architecture adapts to Drift (SQLite) tables for Family OS local messaging storage (S1-08)."
     },
     "tags": ["PILOT_ONLY", "database", "sqlite", "local_storage", "wal"]
   },
@@ -79,7 +85,7 @@
     "source_refs": ["TG-SRC-000004"],
     "evidence_refs": ["TG-EVD-000004"],
     "technical_depth": "T3_engineering",
-    "behavior_summary": "Attempts fast direct TCP sockets on standard and alternate ports; falls back to HTTP proxying and Secure WebSockets upon firewall blockage.",
+    "behavior_summary": "Attempts direct TCP sockets; provides architectural fallback pattern for HTTP proxying and Secure WebSockets upon firewall blockage.",
     "implementation_details": {
       "primary_language": "Java/C++",
       "key_classes": ["org.telegram.tgnet.ConnectionsManager"],
@@ -87,10 +93,12 @@
       "state_machine": "DISCONNECTED -> CONNECTING -> CONNECTED -> SUSPENDED"
     },
     "reusability_assessment": {
-      "licensing_risk": "medium",
-      "cleanroom_requirement": true,
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "cleanroom_requirement": false,
       "architectural_fit": "reference_only",
-      "notes": "Informs the architectural design of Family OS realtime gateway client in Flutter (S1-01 / S1-08)."
+      "notes": "Authorized for adoption; informs architectural pattern for Family OS realtime gateway connectivity without raw binary reuse."
     },
     "tags": ["PILOT_ONLY", "networking", "multi_dc", "fallback", "transport"]
   },
@@ -103,7 +111,7 @@
     "source_refs": ["TG-SRC-000005"],
     "evidence_refs": ["TG-EVD-000005"],
     "technical_depth": "T3_engineering",
-    "behavior_summary": "Maintains persistent PTS monotonic sequence numbers; upon sequence discontinuity, pauses ingestion and requests difference payload.",
+    "behavior_summary": "Maintains persistent PTS monotonic sequence numbers; upon sequence discontinuity, buffers out-of-order messages and requests difference payload.",
     "implementation_details": {
       "primary_language": "Kotlin",
       "key_classes": ["familyos.benchmark.telegram.algorithms.sync.SyncManager"],
@@ -111,10 +119,12 @@
       "state_machine": "SYNCED -> GAP_DETECTED -> FETCHING_DIFF -> APPLYING_DIFF -> SYNCED"
     },
     "reusability_assessment": {
-      "licensing_risk": "low",
-      "cleanroom_requirement": true,
-      "architectural_fit": "direct",
-      "notes": "Direct mathematical model adaptable for Family OS multi-device synchronization engine (S1-01 / S1-08)."
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "cleanroom_requirement": false,
+      "architectural_fit": "adaptable",
+      "notes": "Authorized for adoption; algorithmic mathematical model to be implemented natively in Dart for Family OS offline-first synchronization."
     },
     "tags": ["PILOT_ONLY", "sync", "gap_resolution", "pts", "offline_first"]
   },
@@ -127,17 +137,19 @@
     "source_refs": ["TG-SRC-000006"],
     "evidence_refs": ["TG-EVD-000006"],
     "technical_depth": "T2_functional",
-    "behavior_summary": "Keeps client networking active in background, binding notification manager channels and managing system power-saving policies.",
+    "behavior_summary": "Maintains background process persistence via declared foreground service type 'dataSync' for real-time synchronization.",
     "implementation_details": {
       "primary_language": "Java",
       "key_classes": ["org.telegram.messenger.NotificationsService"],
       "entry_points": ["NotificationsService.onCreate()", "NotificationsService.onStartCommand()"]
     },
     "reusability_assessment": {
-      "licensing_risk": "low",
-      "cleanroom_requirement": true,
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "cleanroom_requirement": false,
       "architectural_fit": "adaptable",
-      "notes": "Essential reference for building fos_device_control Android Kotlin background services (S1-01 / S1-08)."
+      "notes": "Authorized for adoption; provides reference configuration for Family OS Android background communication services."
     },
     "tags": ["PILOT_ONLY", "android", "foreground_service", "notifications", "background"]
   }

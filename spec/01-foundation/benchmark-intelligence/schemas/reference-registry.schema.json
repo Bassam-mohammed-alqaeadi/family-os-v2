@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/reference-registry.schema.json",
+  "title": "BIP Reference Registry Schema",
+  "description": "Schema for the unified benchmark reference registry cataloging the 9 benchmark targets.",
+  "type": "object",
+  "required": [
+    "version",
+    "program",
+    "established_by",
+    "last_updated",
+    "applications"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "program": { "type": "string" },
+    "established_by": { "type": "string" },
+    "last_updated": { "type": "string" },
+    "applications": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "app_id",
+          "display_name",
+          "source_path",
+          "id_prefix",
+          "analysis_type",
+          "program_phase",
+          "status",
+          "executive_summary_path",
+          "inventory_priority",
+          "initial_capability_hypotheses"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "enum": [
+              "telegram",
+              "familywall",
+              "life360",
+              "qustodio",
+              "famisafe",
+              "bark",
+              "quizlet",
+              "muslim-pro",
+              "notebooklm"
+            ]
+          },
+          "display_name": { "type": "string" },
+          "package_name": { "type": "string" },
+          "product_url": { "type": "string" },
+          "source_path": { "type": "string" },
+          "manifest_path": { "type": ["string", "null"] },
+          "id_prefix": { "type": "string" },
+          "analysis_type": {
+            "type": "string",
+            "enum": ["decompiled_apk", "product_teardown"]
+          },
+          "program_phase": { "type": "string" },
+          "status": { "type": "string" },
+          "executive_summary_path": { "type": "string" },
+          "inventory_priority": { "type": "integer", "minimum": 1, "maximum": 9 },
+          "initial_capability_hypotheses": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "notes": { "type": "string" }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": { "analysis_type": { "const": "decompiled_apk" } }
+            },
+            "then": {
+              "required": ["package_name", "manifest_path"]
+            }
+          },
+          {
+            "if": {
+              "properties": { "analysis_type": { "const": "product_teardown" } }
+            },
+            "then": {
+              "required": ["product_url"],
+              "not": { "required": ["package_name"] }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
