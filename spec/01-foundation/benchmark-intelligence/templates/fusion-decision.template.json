@@ -1,0 +1,21 @@
+{
+  "decision_id": "FUS-000001",
+  "title": "Standard Platform Fusion Decision Template",
+  "action": "ADAPT",
+  "status": "PROPOSED",
+  "target_subsystems": [
+    "S1-01"
+  ],
+  "source_resource_refs": [
+    "APP-RES-000001"
+  ],
+  "rationale": "Detailed rationale describing why and how this benchmark capability is synthesized into Family OS.",
+  "reuse_pattern": "cleanroom_reimplementation",
+  "ip_and_legal_boundary": "Cleanroom specification reimplemented in Flutter/Dart without borrowing proprietary code or protected artwork.",
+  "owner_approval": {
+    "approved": false,
+    "approval_date": null,
+    "decision_ref": null,
+    "notes": "Pending formal review during BIP-08 platform fusion phase."
+  }
+}

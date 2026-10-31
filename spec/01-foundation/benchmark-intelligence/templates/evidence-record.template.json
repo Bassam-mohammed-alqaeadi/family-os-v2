@@ -1,0 +1,12 @@
+{
+  "evidence_id": "APP-EVD-000001",
+  "app_id": "telegram",
+  "tag_type": "REF",
+  "source_id": "APP-SRC-000001",
+  "location_ref": "benchmarks/extracted/telegram/example_path/file.ext#L1-L20",
+  "claim": "Verified claim regarding capability implementation in benchmark.",
+  "observed_fact": "Observed class declaration, methods, or asset structures directly in file on disk.",
+  "confidence_level": "verified_direct",
+  "verifier": "bip-coordinator",
+  "verified_at": "2026-10-31T00:00:00Z"
+}

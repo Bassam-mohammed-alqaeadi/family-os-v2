@@ -1,0 +1,29 @@
+{
+  "resource_id": "APP-RES-000001",
+  "app_id": "telegram",
+  "name": "Example Canonical Resource Name",
+  "category": "Engines & Services",
+  "description": "Standard detailed template description of the abstract architectural or functional resource.",
+  "source_refs": [
+    "APP-SRC-000001"
+  ],
+  "evidence_refs": [
+    "APP-EVD-000001"
+  ],
+  "technical_depth": "T2_functional",
+  "behavior_summary": "Summary of functional behavior, lifecycle, and public contracts.",
+  "implementation_details": {
+    "primary_language": "Java",
+    "key_classes": ["org.example.ServiceEngine"],
+    "entry_points": ["startService()"],
+    "parameters": {},
+    "state_machine": "IDLE -> RUNNING -> STOPPED"
+  },
+  "reusability_assessment": {
+    "licensing_risk": "low",
+    "cleanroom_requirement": true,
+    "architectural_fit": "adaptable",
+    "notes": "Requires cleanroom reimplementation in Dart/Flutter or Node.js/TypeScript."
+  },
+  "tags": ["template", "example"]
+}

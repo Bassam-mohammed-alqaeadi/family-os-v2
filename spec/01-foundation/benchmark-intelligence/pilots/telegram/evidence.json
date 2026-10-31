@@ -1,0 +1,74 @@
+[
+  {
+    "evidence_id": "TG-EVD-000001",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000001",
+    "location_ref": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg#L1-L9",
+    "claim": "Telegram includes scalable vector asset for navigation back button with standard 24x24dp viewport.",
+    "observed_fact": "File contains <svg viewBox=\"0 0 24 24\"> with path M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  },
+  {
+    "evidence_id": "TG-EVD-000002",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000002",
+    "location_ref": "benchmarks/extracted/telegram/02_design_system_and_ui/all_layouts/abc_alert_dialog_material.xml#L1-L60",
+    "claim": "Material dialog layout implements structured three-tier layout (title, custom content panel, button bar).",
+    "observed_fact": "XML layout defines LinearLayout container with topPanel, contentPanel, and buttonPanel frames.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  },
+  {
+    "evidence_id": "TG-EVD-000003",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000003",
+    "location_ref": "benchmarks/extracted/telegram/05_data_models_and_schemas/telegram_sqlite_schema.sql#L19-L38",
+    "claim": "Telegram client utilizes messages_v2 table with WAL journaling and packed MTProto TL binary blobs.",
+    "observed_fact": "Schema explicitly executes PRAGMA journal_mode = WAL and defines messages_v2 table with mid, uid, read_state, send_state, date, data BLOB.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  },
+  {
+    "evidence_id": "TG-EVD-000004",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000004",
+    "location_ref": "benchmarks/extracted/telegram/06_network_and_telemetry/connections_manager_deep_dive.md#L9-L30",
+    "claim": "ConnectionsManager implements a 3-tier fallback protocol cascade (Direct TCP -> HTTP Tunneling -> WSS).",
+    "observed_fact": "Documented direct connection orchestration in org.telegram.tgnet.ConnectionsManager with automatic fallback when TCP 443/5222 is constrained.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  },
+  {
+    "evidence_id": "TG-EVD-000005",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000005",
+    "location_ref": "benchmarks/extracted/telegram/04_extracted_algorithms/messages_sync_and_gap_engine.kt#L1-L35",
+    "claim": "Message sync algorithm detects channel and chat gaps using (new_pts - pts_count != current_pts).",
+    "observed_fact": "Extracted Kotlin implementation demonstrates atomic PTS tracking, diff fetching triggering, and outbox queue buffering.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  },
+  {
+    "evidence_id": "TG-EVD-000006",
+    "app_id": "telegram",
+    "tag_type": "REF",
+    "source_id": "TG-SRC-000006",
+    "location_ref": "benchmarks/extracted/telegram/01_architecture_and_manifest/AndroidManifest.xml#L100-L130",
+    "claim": "Telegram declares NotificationsService as a persistent foreground service for real-time messaging alerts.",
+    "observed_fact": "AndroidManifest.xml contains <service android:name=\"org.telegram.messenger.NotificationsService\" android:exported=\"false\"/>.",
+    "confidence_level": "verified_direct",
+    "verifier": "bip-coordinator",
+    "verified_at": "2026-10-31T23:50:00Z"
+  }
+]

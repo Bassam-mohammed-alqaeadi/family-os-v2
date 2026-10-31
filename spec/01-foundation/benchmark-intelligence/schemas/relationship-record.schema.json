@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/relationship-record.schema.json",
+  "title": "BIP Relationship Record Schema",
+  "description": "Schema for inter-resource and cross-application relationships and dependencies.",
+  "type": "object",
+  "required": [
+    "relationship_id",
+    "source_resource_id",
+    "target_resource_id",
+    "relationship_type",
+    "scope",
+    "description",
+    "resolution_status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "pattern": "^REL-[0-9]{6}$",
+      "description": "Unique immutable relationship identifier (e.g. REL-000001)."
+    },
+    "source_resource_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-RES-[0-9]{6}$",
+      "description": "Identifier of the subject resource."
+    },
+    "target_resource_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-RES-[0-9]{6}$",
+      "description": "Identifier of the object resource."
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": [
+        "DEPENDS_ON",
+        "DUPLICATES",
+        "COMPLEMENTS",
+        "CONFLICTS_WITH",
+        "ALTERNATIVE_TO",
+        "VARIANT_OF",
+        "DERIVED_FROM"
+      ],
+      "description": "Standardized relationship classification."
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["intra_app", "cross_app"],
+      "description": "Whether the relationship is within one application or between different applications."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Detailed explanation of the relationship, overlap, or conflict."
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]+-EVD-[0-9]{6}$"
+      },
+      "uniqueItems": true,
+      "description": "Evidence records validating this relationship."
+    },
+    "resolution_status": {
+      "type": "string",
+      "enum": ["unresolved", "deferred_to_synthesis", "resolved"],
+      "description": "Status of conflict/overlap resolution."
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/resource-record.schema.json",
+  "title": "BIP Resource Record Schema",
+  "description": "Schema for abstract functional, visual, or architectural resources cataloged during T1-T3 analysis.",
+  "type": "object",
+  "required": [
+    "resource_id",
+    "app_id",
+    "name",
+    "category",
+    "description",
+    "source_refs",
+    "evidence_refs",
+    "technical_depth",
+    "reusability_assessment"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "resource_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-RES-[0-9]{6}$",
+      "description": "Unique immutable resource identifier (e.g. TG-RES-000001)."
+    },
+    "app_id": {
+      "type": "string",
+      "enum": [
+        "telegram",
+        "familywall",
+        "life360",
+        "qustodio",
+        "quizlet",
+        "famisafe",
+        "bark",
+        "muslim-pro",
+        "notebooklm"
+      ],
+      "description": "Unified logical application identifier."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Canonical name of the resource."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "UI Screens & Flows",
+        "Design Assets",
+        "Icons & Graphics",
+        "Animations & Audio",
+        "Features & Business Rules",
+        "Algorithms",
+        "Engines & Services",
+        "Data Models & Schemas",
+        "Local Storage",
+        "Network & API",
+        "Realtime & Messaging",
+        "Synchronization & Offline",
+        "Background Processing",
+        "Android Platform Integration",
+        "Authentication & Authorization",
+        "Security & Cryptography",
+        "Media Processing",
+        "AI & Machine Learning",
+        "Performance & Battery",
+        "Analytics & Telemetry",
+        "Error Handling & Recovery",
+        "Dependencies & Third-party Libraries"
+      ],
+      "description": "Standardized unified taxonomy category."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Detailed explanation of what the resource represents and does."
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]+-SRC-[0-9]{6}$"
+      },
+      "uniqueItems": true,
+      "description": "List of physical source records supporting this resource."
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]+-EVD-[0-9]{6}$"
+      },
+      "uniqueItems": true,
+      "description": "List of evidence records corroborating this resource."
+    },
+    "technical_depth": {
+      "type": "string",
+      "enum": ["T1_structural", "T2_functional", "T3_engineering"],
+      "description": "Level of technical depth applied in analyzing this resource."
+    },
+    "behavior_summary": {
+      "type": "string",
+      "description": "Summary of functional behavior, inputs, outputs, side effects."
+    },
+    "implementation_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary_language": { "type": "string" },
+        "key_classes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "entry_points": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "state_machine": {
+          "type": "string"
+        }
+      }
+    },
+    "reusability_assessment": {
+      "type": "object",
+      "required": ["licensing_risk", "cleanroom_requirement", "architectural_fit"],
+      "additionalProperties": false,
+      "properties": {
+        "licensing_risk": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "proprietary_closed"]
+        },
+        "cleanroom_requirement": {
+          "type": "boolean"
+        },
+        "architectural_fit": {
+          "type": "string",
+          "enum": ["direct", "adaptable", "reference_only", "incompatible"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "source_id": "APP-SRC-000001",
+  "app_id": "telegram",
+  "file_path": "benchmarks/extracted/telegram/example_path/file.ext",
+  "file_name": "file.ext",
+  "file_extension": "ext",
+  "file_type": "source_code",
+  "size_bytes": 1024,
+  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "inspection_level": "T0",
+  "status": "discovered",
+  "tags": ["example", "template"],
+  "notes": "Template source record placeholder."
+}

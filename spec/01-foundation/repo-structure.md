@@ -1,6 +1,6 @@
 # هيكل المستودع (Repository Structure)
 
-> الحالة: معتمد للتنفيذ | القرارات: D-002, D-003, D-005, D-009, D-010, D-014 | يعتمد على: architecture.md, tech-stack.md
+> الحالة: معتمد للتنفيذ | القرارات: D-002, D-003, D-005, D-009, D-010, D-014, D-039 | يعتمد على: architecture.md, tech-stack.md, benchmark-intelligence-program.md
 
 ## 1. المبادئ
 1. **مستودع واحد (Monorepo) باسم `family-os-v2`** (D-002): الخادم والتطبيق والعقود والمواصفات والبنية في مكان واحد، فيتغير العقد والتنفيذ في طلب دمج واحد.
@@ -27,7 +27,7 @@ family-os-v2/
 │  ├─ fos_registries/         # نسخة Dart من مانيفست السجلات (مولَّدة)
 │  └─ fos_device_control/     # واجهة DeviceControlGateway + Android (Kotlin) + iOS stub
 ├─ infra/                     # Docker, compose, IaC, سكربتات النشر
-├─ tools/                     # سكربتات التوليد والفحص (CI/محلي)
+├─ tools/                     # سكربتات التوليد والفحص والتحقق لبرنامج الجرد (tools/benchmark-intelligence/)
 ├─ .github/                   # workflows, CODEOWNERS, قوالب PR
 ├─ README.md  CONTRIBUTING.md  LICENSE
 ├─ package.json  pnpm-workspace.yaml  turbo.json  melos.yaml

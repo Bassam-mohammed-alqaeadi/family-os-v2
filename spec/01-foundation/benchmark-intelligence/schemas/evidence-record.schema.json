@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/evidence-record.schema.json",
+  "title": "BIP Evidence Record Schema",
+  "description": "Schema for traceable factual evidence supporting architectural claims and resource behaviors.",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "app_id",
+    "tag_type",
+    "location_ref",
+    "claim",
+    "observed_fact",
+    "confidence_level",
+    "verified_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-EVD-[0-9]{6}$",
+      "description": "Unique immutable evidence identifier (e.g. TG-EVD-000001)."
+    },
+    "app_id": {
+      "type": "string",
+      "enum": [
+        "telegram",
+        "familywall",
+        "life360",
+        "qustodio",
+        "quizlet",
+        "famisafe",
+        "bark",
+        "muslim-pro",
+        "notebooklm"
+      ],
+      "description": "Unified logical application identifier."
+    },
+    "tag_type": {
+      "type": "string",
+      "enum": ["REF", "ASSUMPTION", "PENDING-REF", "PARTIAL-EVIDENCE"],
+      "description": "Evidence tag type per BIP and D-039 protocol."
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^([A-Z0-9]+-SRC-[0-9]{6})?$",
+      "description": "Optional direct reference to source record if tag_type is REF or PARTIAL-EVIDENCE."
+    },
+    "location_ref": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Precise file location, line range, or teardown citation reference."
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 5,
+      "description": "The architectural or behavioral assertion being evaluated."
+    },
+    "observed_fact": {
+      "type": "string",
+      "minLength": 5,
+      "description": "The factual reality directly verified on disk or in product behavior, distinguished from inferences."
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["verified_direct", "high_inference", "medium_inference", "unverified"],
+      "description": "Confidence assessment of the claim based on observed facts."
+    },
+    "verifier": {
+      "type": "string",
+      "description": "Agent role, tool, or authority who performed the verification."
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of verification in ISO 8601 format."
+    }
+  }
+}

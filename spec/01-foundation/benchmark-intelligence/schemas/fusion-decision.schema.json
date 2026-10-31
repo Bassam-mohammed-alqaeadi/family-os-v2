@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/fusion-decision.schema.json",
+  "title": "BIP Fusion Decision Schema",
+  "description": "Schema for platform fusion propositions and owner-approved fusion decisions.",
+  "type": "object",
+  "required": [
+    "decision_id",
+    "title",
+    "action",
+    "status",
+    "target_subsystems",
+    "source_resource_refs",
+    "rationale",
+    "reuse_pattern",
+    "ip_and_legal_boundary",
+    "owner_approval"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "pattern": "^FUS-[0-9]{6}$",
+      "description": "Unique immutable fusion decision identifier (e.g. FUS-000001)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Concise summary title of the fusion decision."
+    },
+    "action": {
+      "type": "string",
+      "enum": ["ADOPT", "ADAPT", "COMPOSE", "DEFER", "REJECT"],
+      "description": "Strategic fusion action."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PROPOSED", "REVIEWED", "APPROVED_BY_OWNER", "REJECTED_BY_OWNER"],
+      "description": "Lifecycle state of the fusion decision."
+    },
+    "target_subsystems": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Family OS subsystems receiving this capability (e.g. S1-01, S1-08)."
+    },
+    "source_resource_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]+-RES-[0-9]{6}$"
+      },
+      "uniqueItems": true,
+      "description": "List of benchmark resources being synthesized."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Engineering and architectural justification for this decision."
+    },
+    "reuse_pattern": {
+      "type": "string",
+      "enum": [
+        "cleanroom_reimplementation",
+        "concept_adaptation",
+        "specification_only",
+        "asset_derivative",
+        "none"
+      ],
+      "description": "Legal and technical pattern of reuse."
+    },
+    "ip_and_legal_boundary": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Documentation of cleanroom boundaries, license boundaries, and compliance warranties."
+    },
+    "owner_approval": {
+      "type": "object",
+      "required": ["approved", "approval_date", "decision_ref", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "approved": { "type": "boolean" },
+        "approval_date": {
+          "type": ["string", "null"]
+        },
+        "decision_ref": {
+          "type": ["string", "null"],
+          "description": "Official Decision ID (e.g. D-xxx) if ratified."
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "program": "Benchmark Intelligence & Platform Fusion Program (BIP)",
+  "established_by": "D-039",
+  "last_updated": "2026-10-31",
+  "applications": [
+    {
+      "app_id": "telegram",
+      "display_name": "Telegram",
+      "package_name": "org.telegram.messenger",
+      "source_path": "benchmarks/extracted/telegram/",
+      "id_prefix": "TG",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-01",
+      "status": "pilot_active",
+      "executive_summary_path": "benchmarks/extracted/telegram/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Application Shell & Unified Platform (S1-01)",
+        "Binary Synchronization & Offline Tier",
+        "Managed Encrypted Chat & Message Dispatcher (S1-08)",
+        "Multi-Device Session Management",
+        "High-Performance Local Caching & Media Pipeline"
+      ]
+    },
+    {
+      "app_id": "familywall",
+      "display_name": "FamilyWall",
+      "package_name": "com.familywall",
+      "source_path": "benchmarks/extracted/familywall/",
+      "id_prefix": "FW",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-02",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/familywall/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Family Account & Circles Domain Model (S1-02)",
+        "Calendar Recurrence & Exception Engine (S1-06)",
+        "Shared Task Lists & Assignment Workflows (S1-06)",
+        "Family Budget & Shared Finance Primitives",
+        "Basic Geolocation & Battery Telemetry (S1-07)"
+      ]
+    },
+    {
+      "app_id": "life360",
+      "display_name": "Life360",
+      "package_name": "com.life360.android.safetymapd",
+      "source_path": "benchmarks/extracted/life360/",
+      "id_prefix": "L360",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-02",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/life360/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "High-Frequency Smart Location Tracking (S1-07)",
+        "Emergency SOS & Escalation Protocols (S1-07)",
+        "Battery-Aware Geolocation Sampling Algorithms",
+        "Place/Geofence Boundary Entry-Exit Detection (S2-04)",
+        "Driving Behavior & Crash Sensor Telemetry"
+      ]
+    },
+    {
+      "app_id": "qustodio",
+      "display_name": "Qustodio",
+      "package_name": "com.qustodio.famisafe",
+      "source_path": "benchmarks/extracted/qustodio/",
+      "id_prefix": "QU",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-03",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/qustodio/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Parental Control & Screen Time Enforcement (S2-01)",
+        "Android Device Administration (DPM / Device Owner)",
+        "AccessibilityService-Based App Blocking & Lockout",
+        "Local VPN / DNS Web Content Filtering (S2-03)",
+        "Anti-Tamper & Bypass Detection Engine"
+      ]
+    },
+    {
+      "app_id": "famisafe",
+      "display_name": "FamiSafe",
+      "package_name": "com.wondershare.famisafe",
+      "source_path": "benchmarks/extracted/famisafe/",
+      "id_prefix": "FS",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-03",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/famisafe/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Remote Device Management & Instant Lock (S2-01)",
+        "Social App Activity Monitoring & Keystroke Watch",
+        "Suspicious Photo & Media Scanning",
+        "Cross-Platform Child Protection Rules",
+        "Web & Search History Audit Trails"
+      ]
+    },
+    {
+      "app_id": "bark",
+      "display_name": "Bark",
+      "package_name": "com.bark.parental",
+      "source_path": "benchmarks/extracted/bark/",
+      "id_prefix": "BK",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-04",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/bark/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Smart Safety & Content Risk Classification (S4-01)",
+        "Teen Privacy-Preserving Alert Filtering",
+        "On-Device Text Analysis & Keyword Sentiment Heuristics",
+        "Multi-Category Safety Sentinel (Cyberbullying, Depression, Inappropriate Content)",
+        "Parent Advisory Notification Templates"
+      ]
+    },
+    {
+      "app_id": "quizlet",
+      "display_name": "Quizlet",
+      "package_name": "com.quizlet.quizletandroid",
+      "source_path": "benchmarks/extracted/quizlet/",
+      "id_prefix": "QZ",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-04",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/quizlet/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Smart Learning Flashcards & Study Sets (S5-01)",
+        "Spaced Repetition Algorithm & Adaptive Recall",
+        "Gamified Streak & Achievement Retention Mechanics",
+        "Child Reward Integration Hook (S1-05)",
+        "Study Activity Event Telemetry"
+      ]
+    },
+    {
+      "app_id": "muslim-pro",
+      "display_name": "Muslim Pro",
+      "package_name": "com.bitsmedia.android.muslimpro",
+      "source_path": "benchmarks/extracted/10-muslim-pro/",
+      "id_prefix": "MP",
+      "analysis_type": "decompiled_apk",
+      "program_phase": "BIP-05",
+      "status": "ready_for_inventory",
+      "executive_summary_path": "benchmarks/extracted/10-muslim-pro/00_EXECUTIVE_SUMMARY.md",
+      "primary_contributions": [
+        "Astronomical Prayer Times Calculation Engine (S5-04)",
+        "Precise Qibla Direction Algorithm",
+        "Hijri Calendar & Religious Event Scheduling (S1-06)",
+        "Adhan Audio Playback & Exact Alarm Notification Scheduling",
+        "Quranic Text & Authentic Supplication Local Database"
+      ]
+    },
+    {
+      "app_id": "notebooklm",
+      "display_name": "NotebookLM",
+      "package_name": "google.notebooklm.web",
+      "source_path": "spec/01-foundation/benchmark-intelligence/inventories/notebooklm/",
+      "id_prefix": "NLM",
+      "analysis_type": "product_teardown",
+      "program_phase": "BIP-06",
+      "status": "planned_teardown",
+      "executive_summary_path": "spec/01-foundation/benchmark-intelligence/inventories/notebooklm/TEARDOWN-SUMMARY.md",
+      "primary_contributions": [
+        "Notebook & Multi-Source Knowledge Architecture (S5-03)",
+        "Grounded Factual Citations & Attribution Display",
+        "Generative Studio & Document Synthesis Panel",
+        "Strict Source-Constrained AI Prompt Orchestration",
+        "Source Hierarchy & Boundary Edge Cases"
+      ]
+    }
+  ]
+}

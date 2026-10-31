@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://family-os.internal/schemas/bip/source-record.schema.json",
+  "title": "BIP Source Record Schema",
+  "description": "Schema for physical or virtual source files/units registered during T0 inventory.",
+  "type": "object",
+  "required": [
+    "source_id",
+    "app_id",
+    "file_path",
+    "file_name",
+    "file_extension",
+    "file_type",
+    "size_bytes",
+    "sha256",
+    "inspection_level",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-SRC-[0-9]{6}$",
+      "description": "Unique immutable source identifier (e.g. TG-SRC-000001)."
+    },
+    "app_id": {
+      "type": "string",
+      "enum": [
+        "telegram",
+        "familywall",
+        "life360",
+        "qustodio",
+        "quizlet",
+        "famisafe",
+        "bark",
+        "muslim-pro",
+        "notebooklm"
+      ],
+      "description": "Unified logical application identifier."
+    },
+    "file_path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative workspace path to the source file."
+    },
+    "file_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "File basename with extension."
+    },
+    "file_extension": {
+      "type": "string",
+      "description": "File extension without dot, or empty string."
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "source_code",
+        "manifest",
+        "layout",
+        "values",
+        "asset_image",
+        "asset_audio",
+        "asset_vector",
+        "database_schema",
+        "binary_so",
+        "config",
+        "documentation",
+        "other"
+      ],
+      "description": "Coarse classification of file role."
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "File size in bytes."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA-256 cryptographic digest of the file content."
+    },
+    "inspection_level": {
+      "type": "string",
+      "enum": ["T0", "T1", "T2", "T3"],
+      "description": "Highest inspection level achieved for this source."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["discovered", "inspected", "analyzed", "deep_analyzed", "skipped", "inaccessible"],
+      "description": "Inspection workflow status."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Optional search and taxonomy tags."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Operational notes or observations."
+    }
+  }
+}

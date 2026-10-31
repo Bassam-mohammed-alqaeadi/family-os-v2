@@ -1,0 +1,54 @@
+{
+  "report_id": "REP-TG-001",
+  "app_id": "telegram",
+  "app_display_name": "Telegram",
+  "source_path": "benchmarks/extracted/telegram/",
+  "program_phase": "BIP-01",
+  "pilot_flag": true,
+  "inventory_summary": {
+    "total_files_discovered": 6,
+    "total_bytes": 92679,
+    "counts_by_level": {
+      "T0": 0,
+      "T1": 1,
+      "T2": 3,
+      "T3": 2
+    },
+    "counts_by_type": {
+      "asset_vector": 1,
+      "layout": 1,
+      "database_schema": 1,
+      "documentation": 1,
+      "source_code": 1,
+      "manifest": 1
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 6,
+    "counts_by_category": {
+      "Icons & Graphics": 1,
+      "UI Screens & Flows": 1,
+      "Data Models & Schemas": 1,
+      "Network & API": 1,
+      "Synchronization & Offline": 1,
+      "Android Platform Integration": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 6,
+    "counts_by_tag": {
+      "REF": 6,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 0
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 2,
+    "counts_by_type": {
+      "DEPENDS_ON": 2
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-10-31T23:55:00Z"
+}

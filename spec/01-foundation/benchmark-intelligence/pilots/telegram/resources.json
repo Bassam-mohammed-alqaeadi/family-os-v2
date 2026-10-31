@@ -1,0 +1,144 @@
+[
+  {
+    "resource_id": "TG-RES-000001",
+    "app_id": "telegram",
+    "name": "Navigation Back Action Vector Icon",
+    "category": "Icons & Graphics",
+    "description": "Standard left-pointing directional arrow icon used in top app bar for screen dismissal and backward stack navigation.",
+    "source_refs": ["TG-SRC-000001"],
+    "evidence_refs": ["TG-EVD-000001"],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Scalable SVG vector icon asset conforming to Material 24dp bounding box with crisp rendering across high-DPI displays.",
+    "implementation_details": {
+      "primary_language": "XML/SVG",
+      "key_classes": [],
+      "entry_points": ["R.drawable.abc_ic_ab_back_material"],
+      "parameters": {"width": "24dp", "height": "24dp", "viewport": "0 0 24 24"}
+    },
+    "reusability_assessment": {
+      "licensing_risk": "low",
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "notes": "Standard standard-compliant vector icon, directly adaptable into fos_design_system icon pack."
+    },
+    "tags": ["PILOT_ONLY", "icon", "navigation", "design_system"]
+  },
+  {
+    "resource_id": "TG-RES-000002",
+    "app_id": "telegram",
+    "name": "Material Alert Dialog Layout Framework",
+    "category": "UI Screens & Flows",
+    "description": "Composite modal dialog component supporting title, message body, custom view injection, and positive/negative/neutral actions.",
+    "source_refs": ["TG-SRC-000002"],
+    "evidence_refs": ["TG-EVD-000002"],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Manages modal alert presentations, keyboard focus trapping, touch-outside dismissal, and responsive action button wrapping.",
+    "implementation_details": {
+      "primary_language": "XML",
+      "key_classes": ["androidx.appcompat.app.AlertDialog"],
+      "entry_points": ["AlertDialog.Builder.show()"]
+    },
+    "reusability_assessment": {
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Adaptable into Flutter FosAlertDialog with Family OS design tokens."
+    },
+    "tags": ["PILOT_ONLY", "ui_component", "dialog", "presentation"]
+  },
+  {
+    "resource_id": "TG-RES-000003",
+    "app_id": "telegram",
+    "name": "Local Messages SQLite Master Store",
+    "category": "Data Models & Schemas",
+    "description": "High-throughput local persistence store for message history, media metadata, read/unread states, and transmission queues.",
+    "source_refs": ["TG-SRC-000003"],
+    "evidence_refs": ["TG-EVD-000003"],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Operates under Write-Ahead Logging (WAL) mode to permit concurrent read queries during intensive background message batch ingestion.",
+    "implementation_details": {
+      "primary_language": "SQL",
+      "key_classes": ["org.telegram.messenger.MessagesStorage"],
+      "entry_points": ["MessagesStorage.createTables()"],
+      "parameters": {"journal_mode": "WAL", "user_version": 179}
+    },
+    "reusability_assessment": {
+      "licensing_risk": "medium",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Cleanroom adaptation into Drift (SQLite) tables for Family OS local messaging storage (S1-08)."
+    },
+    "tags": ["PILOT_ONLY", "database", "sqlite", "local_storage", "wal"]
+  },
+  {
+    "resource_id": "TG-RES-000004",
+    "app_id": "telegram",
+    "name": "Multi-DC Connections Manager & Protocol Cascade",
+    "category": "Network & API",
+    "description": "Resilient client network engine managing connections to distributed data centers with automated transport fallback.",
+    "source_refs": ["TG-SRC-000004"],
+    "evidence_refs": ["TG-EVD-000004"],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Attempts fast direct TCP sockets on standard and alternate ports; falls back to HTTP proxying and Secure WebSockets upon firewall blockage.",
+    "implementation_details": {
+      "primary_language": "Java/C++",
+      "key_classes": ["org.telegram.tgnet.ConnectionsManager"],
+      "entry_points": ["ConnectionsManager.getInstance()", "ConnectionsManager.sendRequest()"],
+      "state_machine": "DISCONNECTED -> CONNECTING -> CONNECTED -> SUSPENDED"
+    },
+    "reusability_assessment": {
+      "licensing_risk": "medium",
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "notes": "Informs the architectural design of Family OS realtime gateway client in Flutter (S1-01 / S1-08)."
+    },
+    "tags": ["PILOT_ONLY", "networking", "multi_dc", "fallback", "transport"]
+  },
+  {
+    "resource_id": "TG-RES-000005",
+    "app_id": "telegram",
+    "name": "Cloud PTS Sequence & Gap Resolution Engine",
+    "category": "Synchronization & Offline",
+    "description": "State synchronization algorithm ensuring message ordering, deduplication, and gap recovery across offline intervals.",
+    "source_refs": ["TG-SRC-000005"],
+    "evidence_refs": ["TG-EVD-000005"],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maintains persistent PTS monotonic sequence numbers; upon sequence discontinuity, pauses ingestion and requests difference payload.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": ["familyos.benchmark.telegram.algorithms.sync.SyncManager"],
+      "entry_points": ["SyncManager.processUpdate()", "SyncManager.fetchDifferences()"],
+      "state_machine": "SYNCED -> GAP_DETECTED -> FETCHING_DIFF -> APPLYING_DIFF -> SYNCED"
+    },
+    "reusability_assessment": {
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct mathematical model adaptable for Family OS multi-device synchronization engine (S1-01 / S1-08)."
+    },
+    "tags": ["PILOT_ONLY", "sync", "gap_resolution", "pts", "offline_first"]
+  },
+  {
+    "resource_id": "TG-RES-000006",
+    "app_id": "telegram",
+    "name": "Continuous Notification Foreground Service",
+    "category": "Android Platform Integration",
+    "description": "Android foreground service ensuring reliable socket connectivity, push delivery, and incoming message alert dispatching.",
+    "source_refs": ["TG-SRC-000006"],
+    "evidence_refs": ["TG-EVD-000006"],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Keeps client networking active in background, binding notification manager channels and managing system power-saving policies.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": ["org.telegram.messenger.NotificationsService"],
+      "entry_points": ["NotificationsService.onCreate()", "NotificationsService.onStartCommand()"]
+    },
+    "reusability_assessment": {
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Essential reference for building fos_device_control Android Kotlin background services (S1-01 / S1-08)."
+    },
+    "tags": ["PILOT_ONLY", "android", "foreground_service", "notifications", "background"]
+  }
+]

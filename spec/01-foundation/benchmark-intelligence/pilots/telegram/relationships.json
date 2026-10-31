@@ -1,0 +1,28 @@
+[
+  {
+    "relationship_id": "REL-000001",
+    "source_resource_id": "TG-RES-000005",
+    "target_resource_id": "TG-RES-000003",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "The message synchronization and gap resolution engine relies on the local messages SQLite master store to persist sequence numbers and batch messages.",
+    "evidence_refs": [
+      "TG-EVD-000003",
+      "TG-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000002",
+    "source_resource_id": "TG-RES-000005",
+    "target_resource_id": "TG-RES-000004",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "The message synchronization engine depends on ConnectionsManager transport channels to issue diff-fetching queries when sequence gaps are identified.",
+    "evidence_refs": [
+      "TG-EVD-000004",
+      "TG-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  }
+]

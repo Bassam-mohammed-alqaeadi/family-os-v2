@@ -1,0 +1,44 @@
+{
+  "report_id": "REP-TG-001",
+  "app_id": "telegram",
+  "app_display_name": "Telegram",
+  "source_path": "benchmarks/extracted/telegram/",
+  "program_phase": "BIP-01",
+  "pilot_flag": true,
+  "inventory_summary": {
+    "total_files_discovered": 1,
+    "total_bytes": 1024,
+    "counts_by_level": {
+      "T0": 1,
+      "T1": 0,
+      "T2": 0,
+      "T3": 0
+    },
+    "counts_by_type": {
+      "source_code": 1
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 1,
+    "counts_by_category": {
+      "Engines & Services": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 1,
+    "counts_by_tag": {
+      "REF": 1,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 0
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 1,
+    "counts_by_type": {
+      "DUPLICATES": 1
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-10-31T00:00:00Z"
+}
