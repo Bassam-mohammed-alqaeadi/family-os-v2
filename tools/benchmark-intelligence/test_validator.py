@@ -538,6 +538,8 @@ class TestBIPValidatorNegativeFixtures(unittest.TestCase):
             self.assertFalse(has_local_err, "Missing local_only evidence improperly produced an error in clone environment")
 
             # Phase B: Missing git_tracked evidence must produce an error
+            clone_validator.source_records[git_tracked_source["source_id"]] = (git_tracked_source, "sources.json")
+            clone_validator.source_paths[git_tracked_source["file_path"]] = git_tracked_source["source_id"]
             clone_validator._index_and_validate_single_record(git_tracked_evidence, "evidence.json")
             has_git_err = any("Evidence location file missing on disk for TG-EVD-000082" in e for e in clone_validator.errors)
             self.assertTrue(has_git_err, "Missing git_tracked evidence did not produce an error")
