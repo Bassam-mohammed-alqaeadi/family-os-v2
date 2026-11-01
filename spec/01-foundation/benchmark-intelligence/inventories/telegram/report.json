@@ -1,0 +1,69 @@
+{
+  "report_id": "REP-TG-002",
+  "app_id": "telegram",
+  "app_display_name": "Telegram",
+  "source_path": "benchmarks/extracted/telegram/",
+  "program_phase": "BIP-02",
+  "pilot_flag": false,
+  "inventory_summary": {
+    "total_files_discovered": 26559,
+    "total_bytes": 415069036,
+    "t0_inventory_count": 26559,
+    "counts_by_deepest_level": {
+      "T0": 26540,
+      "T1": 2,
+      "T2": 2,
+      "T3": 15
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 50,
+      "local_only": 26509
+    },
+    "counts_by_type": {
+      "asset_audio": 24,
+      "asset_image": 7419,
+      "asset_vector": 561,
+      "binary_so": 17,
+      "config": 1811,
+      "database_schema": 2,
+      "documentation": 19,
+      "layout": 137,
+      "manifest": 3,
+      "other": 136,
+      "source_code": 16400,
+      "values": 30
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 14,
+    "counts_by_category": {
+      "Android Platform Integration": 2,
+      "Data Models & Schemas": 1,
+      "Engines & Services": 2,
+      "Icons & Graphics": 1,
+      "Local Storage": 1,
+      "Media Processing": 2,
+      "Network & API": 1,
+      "Realtime & Messaging": 2,
+      "Security & Cryptography": 2
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 19,
+    "counts_by_tag": {
+      "REF": 18,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 1
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 8,
+    "counts_by_type": {
+      "COMPLEMENTS": 3,
+      "DEPENDS_ON": 5
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-11-01T21:20:00Z"
+}

@@ -22,6 +22,15 @@ Validates actual execution paths in BIPValidator across:
 16. test_16_valid_cross_app_relationship: Succeeds when cross_app relationship connects resources from differing app_ids.
 17. test_17_report_category_count_mismatch: Fails when report resource counts_by_category differs from actual records.
 18. test_18_local_only_evidence_clone_behavior: Integration test verifying local_only evidence handling in cloned environments vs missing git_tracked evidence.
+19. test_19_duplicate_file_path_within_same_scope: Fails when file_path is duplicated within the same dataset scope.
+20. test_20_cross_scope_same_path_matching_fingerprints: Succeeds when same file_path appears in pilot and inventory with identical size and sha256.
+21. test_21_cross_scope_conflicting_fingerprints_rejected: Fails when same file_path appears in pilot and inventory with conflicting size or sha256.
+22. test_22_isolated_report_recalculation_by_scope: Integration test verifying that pilot report evaluates only pilot records and full inventory report evaluates only inventory records.
+23. test_23_cross_scope_conflicting_storage_tier_or_blob: Fails when same physical file has conflicting storage_tier or git blob metadata across scopes.
+24. test_24_scope_mismatch_resource_to_source: Fails when a resource references a source from a different dataset scope.
+25. test_25_scope_mismatch_resource_to_evidence: Fails when a resource references an evidence from a different dataset scope.
+26. test_26_scope_mismatch_relationship_to_resource: Fails when an intra_app relationship references resources from a different dataset scope.
+27. test_27_scope_mismatch_relationship_to_evidence: Fails when a relationship references evidence from a different dataset scope.
 """
 
 import sys
@@ -574,6 +583,305 @@ class TestBIPValidatorNegativeFixtures(unittest.TestCase):
             present_validator._index_and_validate_single_record(bad_line_evidence, "evidence.json")
             has_out_of_bounds_err = any("Line locator out of bounds for TG-EVD-000083" in e for e in present_validator.errors)
             self.assertTrue(has_out_of_bounds_err, "Validator did not catch line locator out of bounds on present file")
+
+    def test_19_duplicate_file_path_within_same_scope(self):
+        """19. Fails when file_path is duplicated within the same dataset scope."""
+        self.validator.errors.clear()
+        src1 = {
+            "source_id": "TG-SRC-000801",
+            "app_id": "telegram",
+            "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+            "file_name": "abc_ic_ab_back_material.svg",
+            "file_extension": "svg",
+            "file_type": "asset_vector",
+            "size_bytes": 192,
+            "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
+            "inspection_level": "T2",
+            "status": "analyzed",
+            "storage_tier": "local_only",
+            "fingerprint_basis": "disk_bytes_local"
+        }
+        src2 = copy.deepcopy(src1)
+        src2["source_id"] = "TG-SRC-000802"
+
+        scope_file = "spec/01-foundation/benchmark-intelligence/inventories/telegram/sources.json"
+        self.validator._index_and_validate_single_record(src1, scope_file)
+        self.validator._index_and_validate_single_record(src2, scope_file)
+
+        has_dup_path = any("Duplicate file_path in source records within scope" in e for e in self.validator.errors)
+        self.assertTrue(has_dup_path, "Validator did not catch duplicate file_path within the same scope")
+
+    def test_20_cross_scope_same_path_matching_fingerprints(self):
+        """20. Succeeds when same physical file_path appears in pilot and inventory with identical size and sha256."""
+        self.validator.errors.clear()
+        pilot_src = {
+            "source_id": "TG-SRC-000811",
+            "app_id": "telegram",
+            "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+            "file_name": "abc_ic_ab_back_material.svg",
+            "file_extension": "svg",
+            "file_type": "asset_vector",
+            "size_bytes": 192,
+            "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
+            "inspection_level": "T2",
+            "status": "analyzed",
+            "storage_tier": "local_only",
+            "fingerprint_basis": "disk_bytes_local"
+        }
+        inv_src = copy.deepcopy(pilot_src)
+        inv_src["source_id"] = "TG-SRC-000812"
+
+        pilot_file = "spec/01-foundation/benchmark-intelligence/pilots/telegram/sources.json"
+        inv_file = "spec/01-foundation/benchmark-intelligence/inventories/telegram/sources.json"
+
+        self.validator._index_and_validate_single_record(pilot_src, pilot_file)
+        self.validator._index_and_validate_single_record(inv_src, inv_file)
+
+        # There should be NO error for duplicate path or fingerprint conflict
+        path_errors = [e for e in self.validator.errors if "file_path" in e or "Conflicting fingerprints" in e]
+        self.assertEqual(len(path_errors), 0, f"Unexpected path/fingerprint errors: {path_errors}")
+
+    def test_21_cross_scope_conflicting_fingerprints_rejected(self):
+        """21. Fails when same file_path appears in pilot and inventory with conflicting size or sha256."""
+        self.validator.errors.clear()
+        pilot_src = {
+            "source_id": "TG-SRC-000821",
+            "app_id": "telegram",
+            "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+            "file_name": "abc_ic_ab_back_material.svg",
+            "file_extension": "svg",
+            "file_type": "asset_vector",
+            "size_bytes": 192,
+            "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
+            "inspection_level": "T2",
+            "status": "analyzed",
+            "storage_tier": "local_only",
+            "fingerprint_basis": "disk_bytes_local"
+        }
+        inv_src = copy.deepcopy(pilot_src)
+        inv_src["source_id"] = "TG-SRC-000822"
+        inv_src["sha256"] = "1111111111111111111111111111111111111111111111111111111111111111"
+
+        pilot_file = "spec/01-foundation/benchmark-intelligence/pilots/telegram/sources.json"
+        inv_file = "spec/01-foundation/benchmark-intelligence/inventories/telegram/sources.json"
+
+        self.validator._index_and_validate_single_record(pilot_src, pilot_file)
+        self.validator._index_and_validate_single_record(inv_src, inv_file)
+
+        has_conflict_err = any("Conflicting fingerprints for identical physical file_path" in e for e in self.validator.errors)
+        self.assertTrue(has_conflict_err, "Validator did not catch conflicting fingerprints across scopes")
+
+    def test_22_isolated_report_recalculation_by_scope(self):
+        """22. Integration test verifying that pilot report evaluates only pilot records and full inventory report evaluates only inventory records."""
+        self.validator.errors.clear()
+        self.validator.collect_and_validate_records()
+
+        # If inventories/telegram/report.json is not on disk (e.g. before BIP-02 execution), inject an inventory report fixture
+        if "REP-TG-002" not in self.validator.report_records:
+            inv_src = {
+                "source_id": "TG-SRC-000899",
+                "app_id": "telegram",
+                "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+                "file_name": "abc_ic_ab_back_material.svg",
+                "file_extension": "svg",
+                "file_type": "asset_vector",
+                "size_bytes": 192,
+                "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
+                "inspection_level": "T0",
+                "status": "cataloged",
+                "storage_tier": "local_only",
+                "fingerprint_basis": "disk_bytes_local"
+            }
+            inv_rep = {
+                "report_id": "REP-TG-002",
+                "app_id": "telegram",
+                "app_display_name": "Telegram",
+                "source_path": "benchmarks/extracted/telegram/",
+                "program_phase": "BIP-02",
+                "pilot_flag": False,
+                "inventory_summary": {
+                    "total_files_discovered": 1,
+                    "total_bytes": 192,
+                    "t0_inventory_count": 1,
+                    "counts_by_deepest_level": {"T0": 1, "T1": 0, "T2": 0, "T3": 0},
+                    "counts_by_storage_tier": {"git_tracked": 0, "local_only": 1},
+                    "counts_by_type": {"asset_vector": 1}
+                },
+                "resource_summary": {
+                    "total_resources_cataloged": 0,
+                    "counts_by_category": {}
+                },
+                "evidence_summary": {
+                    "total_evidence_records": 0,
+                    "counts_by_tag": {"REF": 0, "ASSUMPTION": 0, "PENDING-REF": 0, "PARTIAL-EVIDENCE": 0}
+                },
+                "relationships_summary": {
+                    "total_relationships": 0,
+                    "counts_by_type": {}
+                },
+                "quality_gate_passed": True,
+                "generated_at": "2026-11-01T12:00:00Z"
+            }
+            self.validator.source_records["TG-SRC-000899"] = (inv_src, "spec/01-foundation/benchmark-intelligence/inventories/telegram/sources.json")
+            self.validator.report_records["REP-TG-002"] = (inv_rep, "spec/01-foundation/benchmark-intelligence/inventories/telegram/report.json")
+
+        # Recalculate both reports from the loaded collections
+        self.validator.errors.clear()
+        self.validator.validate_and_recalculate_reports()
+
+        # Both reports (REP-TG-001 in pilots and REP-TG-002 in inventories) must recalculate and succeed without error!
+        self.assertEqual(len(self.validator.errors), 0, f"Cross-scope report isolation failed with errors: {self.validator.errors}")
+        has_rep1 = any("Report REP-TG-001 recalculated successfully" in m for m in self.validator.info_messages)
+        has_rep2 = any("Report REP-TG-002 recalculated successfully" in m for m in self.validator.info_messages)
+        self.assertTrue(has_rep1, "Pilot report REP-TG-001 was not recalculated successfully")
+        self.assertTrue(has_rep2, "Inventory report REP-TG-002 was not recalculated successfully")
+
+        # Now test that tampering with pilot report total_files does not affect inventory report validation
+        tampered_pilot = copy.deepcopy(self.validator.report_records["REP-TG-001"][0])
+        tampered_pilot["inventory_summary"]["total_files_discovered"] = 9999
+        self.validator.report_records["REP-TG-001"] = (tampered_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/report.json")
+
+        self.validator.errors.clear()
+        self.validator.validate_and_recalculate_reports()
+
+        has_pilot_err = any("Report REP-TG-001 total_files_discovered mismatch" in e for e in self.validator.errors)
+        has_inv_err = any("Report REP-TG-002" in e for e in self.validator.errors)
+
+        self.assertTrue(has_pilot_err, "Validator did not catch tampered pilot report count")
+        self.assertFalse(has_inv_err, "Tampering with pilot report leaked errors into inventory report recalculation")
+
+    def test_23_cross_scope_conflicting_storage_tier_or_blob(self):
+        """23. Fails when same physical file has conflicting storage_tier or git blob metadata across scopes."""
+        self.validator.errors.clear()
+        pilot_src = {
+            "source_id": "TG-SRC-000831",
+            "app_id": "telegram",
+            "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+            "file_name": "abc_ic_ab_back_material.svg",
+            "file_extension": "svg",
+            "file_type": "asset_vector",
+            "size_bytes": 192,
+            "sha256": "d3231f144faf28771829dc3f5a5d7637f1618322a13f231f945a5efdad2be720",
+            "inspection_level": "T2",
+            "status": "analyzed",
+            "storage_tier": "local_only",
+            "fingerprint_basis": "disk_bytes_local"
+        }
+        inv_src = copy.deepcopy(pilot_src)
+        inv_src["source_id"] = "TG-SRC-000832"
+        inv_src["storage_tier"] = "git_tracked"
+        inv_src["fingerprint_basis"] = "disk_bytes_and_git_blob"
+
+        pilot_file = "spec/01-foundation/benchmark-intelligence/pilots/telegram/sources.json"
+        inv_file = "spec/01-foundation/benchmark-intelligence/inventories/telegram/sources.json"
+
+        self.validator._index_and_validate_single_record(pilot_src, pilot_file)
+        self.validator._index_and_validate_single_record(inv_src, inv_file)
+
+        has_conflict_err = any("Conflicting fingerprints for identical physical file_path" in e for e in self.validator.errors)
+        self.assertTrue(has_conflict_err, "Validator did not catch conflicting storage_tier across scopes")
+
+    def test_24_scope_mismatch_resource_to_source(self):
+        """24. Fails when a resource references a source from a different dataset scope."""
+        self.validator.errors.clear()
+        source_in_pilot = {
+            "source_id": "TG-SRC-000841",
+            "app_id": "telegram",
+            "file_path": "benchmarks/extracted/telegram/02_design_system_and_ui/svg_icons/abc_ic_ab_back_material.svg",
+            "storage_tier": "local_only"
+        }
+        res_in_inv = {
+            "resource_id": "TG-RES-000842",
+            "app_id": "telegram",
+            "source_refs": ["TG-SRC-000841"],
+            "evidence_refs": []
+        }
+        self.validator.source_records["TG-SRC-000841"] = (source_in_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/sources.json")
+        self.validator.resource_records["TG-RES-000842"] = (res_in_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/resources.json")
+
+        self.validator.validate_referential_integrity()
+        has_scope_err = any("Scope mismatch in TG-RES-000842" in e and "referenced source TG-SRC-000841" in e for e in self.validator.errors)
+        self.assertTrue(has_scope_err, "Validator did not reject cross-scope Resource -> Source reference")
+
+    def test_25_scope_mismatch_resource_to_evidence(self):
+        """25. Fails when a resource references an evidence from a different dataset scope."""
+        self.validator.errors.clear()
+        evd_in_pilot = {
+            "evidence_id": "TG-EVD-000851",
+            "app_id": "telegram",
+            "source_id": "TG-SRC-000851"
+        }
+        source_in_pilot = {
+            "source_id": "TG-SRC-000851",
+            "app_id": "telegram"
+        }
+        res_in_inv = {
+            "resource_id": "TG-RES-000852",
+            "app_id": "telegram",
+            "source_refs": [],
+            "evidence_refs": ["TG-EVD-000851"]
+        }
+        self.validator.source_records["TG-SRC-000851"] = (source_in_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/sources.json")
+        self.validator.evidence_records["TG-EVD-000851"] = (evd_in_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/evidence.json")
+        self.validator.resource_records["TG-RES-000852"] = (res_in_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/resources.json")
+
+        self.validator.validate_referential_integrity()
+        has_scope_err = any("Scope mismatch in TG-RES-000852" in e and "referenced evidence TG-EVD-000851" in e for e in self.validator.errors)
+        self.assertTrue(has_scope_err, "Validator did not reject cross-scope Resource -> Evidence reference")
+
+    def test_26_scope_mismatch_relationship_to_resource(self):
+        """26. Fails when an intra_app relationship references resources from a different dataset scope."""
+        self.validator.errors.clear()
+        res_in_pilot = {
+            "resource_id": "TG-RES-000861",
+            "app_id": "telegram"
+        }
+        res_in_inv = {
+            "resource_id": "TG-RES-000862",
+            "app_id": "telegram"
+        }
+        rel_in_inv = {
+            "relationship_id": "REL-000863",
+            "source_resource_id": "TG-RES-000861",
+            "target_resource_id": "TG-RES-000862",
+            "relationship_type": "DEPENDS_ON",
+            "scope": "intra_app",
+            "description": "Test intra_app cross scope",
+            "resolution_status": "deferred_to_synthesis"
+        }
+        self.validator.resource_records["TG-RES-000861"] = (res_in_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/resources.json")
+        self.validator.resource_records["TG-RES-000862"] = (res_in_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/resources.json")
+        self.validator.relationship_records["REL-000863"] = (rel_in_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/relationships.json")
+
+        self.validator.validate_referential_integrity()
+        has_rel_scope_err = any("Scope mismatch in intra_app relationship REL-000863" in e for e in self.validator.errors)
+        self.assertTrue(has_rel_scope_err, "Validator did not reject intra_app relationship connecting across scopes")
+
+    def test_27_scope_mismatch_relationship_to_evidence(self):
+        """27. Fails when a relationship references evidence from a different dataset scope."""
+        self.validator.errors.clear()
+        res1_inv = {"resource_id": "TG-RES-000871", "app_id": "telegram"}
+        res2_inv = {"resource_id": "TG-RES-000872", "app_id": "telegram"}
+        evd_pilot = {"evidence_id": "TG-EVD-000873", "app_id": "telegram"}
+
+        rel_inv = {
+            "relationship_id": "REL-000874",
+            "source_resource_id": "TG-RES-000871",
+            "target_resource_id": "TG-RES-000872",
+            "relationship_type": "DEPENDS_ON",
+            "scope": "intra_app",
+            "evidence_refs": ["TG-EVD-000873"],
+            "description": "Test intra_app cross scope evidence",
+            "resolution_status": "deferred_to_synthesis"
+        }
+        self.validator.resource_records["TG-RES-000871"] = (res1_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/resources.json")
+        self.validator.resource_records["TG-RES-000872"] = (res2_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/resources.json")
+        self.validator.evidence_records["TG-EVD-000873"] = (evd_pilot, "spec/01-foundation/benchmark-intelligence/pilots/telegram/evidence.json")
+        self.validator.relationship_records["REL-000874"] = (rel_inv, "spec/01-foundation/benchmark-intelligence/inventories/telegram/relationships.json")
+
+        self.validator.validate_referential_integrity()
+        has_evd_scope_err = any("Scope mismatch in relationship REL-000874" in e and "referenced evidence TG-EVD-000873" in e for e in self.validator.errors)
+        self.assertTrue(has_evd_scope_err, "Validator did not reject relationship referencing cross-scope evidence")
 
 
 if __name__ == "__main__":

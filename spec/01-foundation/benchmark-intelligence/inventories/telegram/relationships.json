@@ -1,0 +1,104 @@
+[
+  {
+    "relationship_id": "REL-000003",
+    "source_resource_id": "TG-RES-000009",
+    "target_resource_id": "TG-RES-000008",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000010"
+    ],
+    "description": "NativeByteBuffer deserialization bridge reads directly from SQLiteCursor column handles of SQLite schema tables.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000004",
+    "source_resource_id": "TG-RES-000011",
+    "target_resource_id": "TG-RES-000010",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000013"
+    ],
+    "description": "Audio waveform peak extraction operates directly upon audio buffers recorded by Opus recorder pipeline.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000005",
+    "source_resource_id": "TG-RES-000012",
+    "target_resource_id": "TG-RES-000013",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000015",
+      "TG-EVD-000016"
+    ],
+    "description": "Emoji key emojifier visualizes the 32-byte key hash derived from Diffie-Hellman secret chat session negotiation.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000006",
+    "source_resource_id": "TG-RES-000012",
+    "target_resource_id": "TG-RES-000014",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000015",
+      "TG-EVD-000018"
+    ],
+    "description": "VoIP call service uses 4-emoji emojifyForCall to present visual key verification to calling parties.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000007",
+    "source_resource_id": "TG-RES-000017",
+    "target_resource_id": "TG-RES-000016",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000021",
+      "TG-EVD-000022"
+    ],
+    "description": "SendMessagesHelper posts message state transitions (sent, failed, delivered) through NotificationCenter event bus.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000008",
+    "source_resource_id": "TG-RES-000017",
+    "target_resource_id": "TG-RES-000018",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000022",
+      "TG-EVD-000023"
+    ],
+    "description": "SendMessagesHelper dispatches outgoing message RPCs through ConnectionsManager MTProto transport.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000009",
+    "source_resource_id": "TG-RES-000017",
+    "target_resource_id": "TG-RES-000008",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000008",
+      "TG-EVD-000022"
+    ],
+    "description": "SendMessagesHelper immediately commits optimistic message entries into messages_v2 SQLite table.",
+    "resolution_status": "deferred_to_synthesis"
+  },
+  {
+    "relationship_id": "REL-000010",
+    "source_resource_id": "TG-RES-000015",
+    "target_resource_id": "TG-RES-000007",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "evidence_refs": [
+      "TG-EVD-000007",
+      "TG-EVD-000020"
+    ],
+    "description": "NotificationsService is declared and exported within the application AndroidManifest.",
+    "resolution_status": "deferred_to_synthesis"
+  }
+]

@@ -1,0 +1,458 @@
+[
+  {
+    "resource_id": "TG-RES-000007",
+    "app_id": "telegram",
+    "name": "Android Application Manifest & Identity",
+    "category": "Android Platform Integration",
+    "description": "Android application package declaration (org.telegram.messenger.web), permissions, components, and deep links.",
+    "source_refs": [
+      "TG-SRC-000008"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000007"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Top-level application descriptor declaring core package identity, intent filters, required Android permissions, and lifecycle service bindings.",
+    "implementation_details": {
+      "primary_language": "XML",
+      "key_classes": [],
+      "entry_points": [
+        "AndroidManifest.xml"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Direct structural blueprint for Family OS application manifest declarations."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000008",
+    "app_id": "telegram",
+    "name": "SQLite Hybrid Storage Schema (95 Tables)",
+    "category": "Data Models & Schemas",
+    "description": "Optimized SQLite relational database schema comprising 95 verified tables and 86 indexes with WAL mode and compound keys.",
+    "source_refs": [
+      "TG-SRC-018981",
+      "TG-SRC-018980"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000008",
+      "TG-EVD-000009"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Persistence layer storing message timelines, dialog caches, user profiles, and media metadata using compound primary keys.",
+    "implementation_details": {
+      "primary_language": "SQL",
+      "key_classes": [
+        "MessagesStorage"
+      ],
+      "entry_points": [
+        "telegram_sqlite_schema.sql"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adapt compound key schema into Drift/Sqlite3 for S1-08 and S1-01 local caching."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000009",
+    "app_id": "telegram",
+    "name": "JNI / Native Direct Buffer Deserialization Bridge",
+    "category": "Local Storage",
+    "description": "JNI direct memory pointer wrapping from SQLiteCursor into NativeByteBuffer for Type Language objects, delegating byte parsing to native layers.",
+    "source_refs": [
+      "TG-SRC-009063",
+      "TG-SRC-009066"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000010",
+      "TG-EVD-000011"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Wraps native C++ sqlite3_column_blob memory pointers via NativeByteBuffer without JVM heap reallocation for TL object parsing.",
+    "implementation_details": {
+      "primary_language": "Java/JNI",
+      "key_classes": [
+        "org.telegram.SQLite.SQLiteCursor",
+        "org.telegram.tgnet.NativeByteBuffer"
+      ],
+      "entry_points": [
+        "SQLiteCursor.byteBufferValue"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Model zero-copy deserialization in Dart FFI when parsing high-frequency message packets to avoid GC overhead."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000010",
+    "app_id": "telegram",
+    "name": "Opus Audio Recording Pipeline with Native Trimming",
+    "category": "Media Processing",
+    "description": "Low-latency voice message recording architecture delegating frame capture and prefix trimming to AudioRecorderNative.",
+    "source_refs": [
+      "TG-SRC-009077"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000012"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Records Opus audio frames directly to file and triggers native post-processing to slice silent leading packets.",
+    "implementation_details": {
+      "primary_language": "Java/JNI",
+      "key_classes": [
+        "org.telegram.messenger.AudioRecorderV2Controller"
+      ],
+      "entry_points": [
+        "AudioRecorderV2Controller.record()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Implement Opus voice recording with leading noise trim in Flutter audio pipeline for S1-08 voice messages."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000011",
+    "app_id": "telegram",
+    "name": "Native Audio Waveform Extraction",
+    "category": "Media Processing",
+    "description": "Native JNI bridge extracting voice waveform peaks via getWaveform for compact binary encapsulation inside message headers.",
+    "source_refs": [
+      "TG-SRC-009172",
+      "TG-SRC-018964"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000013",
+      "TG-EVD-000014"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Downsamples audio signal into 100 5-bit normalized peaks packed into a compact byte array for fast visual rendering.",
+    "implementation_details": {
+      "primary_language": "Java/Kotlin",
+      "key_classes": [
+        "org.telegram.messenger.MediaController"
+      ],
+      "entry_points": [
+        "MediaController.getWaveform"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Extract 100-sample waveform peaks during recording to transmit visual waveform before audio download."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000012",
+    "app_id": "telegram",
+    "name": "Emoji Key Fingerprint Verification (Calls vs Secret Chats)",
+    "category": "Security & Cryptography",
+    "description": "Dual-mode cryptographic visual verification generating 4 emojis for VoIP calls and 5 emojis for Secret Chats from 32-byte key hash.",
+    "source_refs": [
+      "TG-SRC-009663"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000015"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Converts binary authentication token bytes into predefined emoji symbols for user-friendly out-of-band verification.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "org.telegram.messenger.voip.EncryptionKeyEmojifier"
+      ],
+      "entry_points": [
+        "EncryptionKeyEmojifier.emojify",
+        "EncryptionKeyEmojifier.emojifyForCall"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adopt 4-emoji visual verification in Family OS private family calls to easily verify end-to-end encryption."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000013",
+    "app_id": "telegram",
+    "name": "Diffie-Hellman Key Exchange & AES-IGE Native Encryption",
+    "category": "Security & Cryptography",
+    "description": "Secret chat forward secrecy establishing 2048-bit DH key exchange in Java and symmetric message encryption using native AES-IGE.",
+    "source_refs": [
+      "TG-SRC-009219",
+      "TG-SRC-009242"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000016",
+      "TG-EVD-000017"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Establishes shared secrets over insecure network channels and encrypts message blocks using AES in Infinite Garble Extension mode.",
+    "implementation_details": {
+      "primary_language": "Java/Native",
+      "key_classes": [
+        "org.telegram.messenger.SecretChatHelper",
+        "org.telegram.messenger.Utilities"
+      ],
+      "entry_points": [
+        "SecretChatHelper.processPendingSecretChats"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Reference DH exchange flow, but use standard AES-GCM in Dart/Rust rather than non-standard AES-IGE."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000014",
+    "app_id": "telegram",
+    "name": "WebRTC Video & Native Voice Pipeline Integration",
+    "category": "Realtime & Messaging",
+    "description": "Hybrid VoIP call architecture combining standard WebRTC for video rendering with Telegram proprietary tgVoip for audio.",
+    "source_refs": [
+      "TG-SRC-009676",
+      "TG-SRC-009667"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000018",
+      "TG-EVD-000019"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Orchestrates bidirectional peer-to-peer audio/video streaming with adaptive bitrates, echo cancellation, and network jitter management.",
+    "implementation_details": {
+      "primary_language": "Java/C++",
+      "key_classes": [
+        "org.telegram.messenger.voip.VoIPService",
+        "org.telegram.messenger.voip.NativeInstance"
+      ],
+      "entry_points": [
+        "VoIPService.init()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adopt flutter_webrtc for Family OS family audio/video calls with built-in echo cancellation and noise suppression."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000015",
+    "app_id": "telegram",
+    "name": "Android Background Resurrection Sentinel Service",
+    "category": "Android Platform Integration",
+    "description": "Lightweight Android service running with START_STICKY and broadcast resurrection mechanism on destruction.",
+    "source_refs": [
+      "TG-SRC-009196"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000020"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Maintains persistent background socket awareness and restarts service automatically via broadcast intents if OS kills the process.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "org.telegram.messenger.NotificationsService"
+      ],
+      "entry_points": [
+        "NotificationsService.onStartCommand"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Utilize foreground service lifecycle patterns in Android to maintain critical alert delivery for child safety (S1-07)."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000016",
+    "app_id": "telegram",
+    "name": "Central In-Memory Event Dispatcher (NotificationCenter)",
+    "category": "Engines & Services",
+    "description": "Ultra-fast UI thread event bus supporting decoupled observer registration and immediate notification dispatching.",
+    "source_refs": [
+      "TG-SRC-009190"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000021"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Synchronous publish-subscribe bus dispatching state update events to subscribed UI controllers across multiple active accounts.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "org.telegram.messenger.NotificationCenter"
+      ],
+      "entry_points": [
+        "NotificationCenter.postNotificationName"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adopt typed event stream broadcast bus pattern in Dart/Flutter across Family OS feature blocs."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000017",
+    "app_id": "telegram",
+    "name": "Optimistic Outbox Message Dispatcher",
+    "category": "Realtime & Messaging",
+    "description": "Stateful outbox manager creating temporary message records immediately and handling async network acknowledgment and retry.",
+    "source_refs": [
+      "TG-SRC-009224"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000022"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Writes outgoing messages immediately to SQLite with pending status to render in UI instantly before server confirmation.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "org.telegram.messenger.SendMessagesHelper"
+      ],
+      "entry_points": [
+        "SendMessagesHelper.sendMessage"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adopt optimistic local insertion for zero-latency UI perception in Family OS chat (S1-08)."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000018",
+    "app_id": "telegram",
+    "name": "MTProto Connection Manager & Datacenter Transport Waterfall",
+    "category": "Network & API",
+    "description": "Multi-DC network multiplexer supporting automatic fallback (TCP 443 -> HTTP Tunneling -> WSS) across global datacenters.",
+    "source_refs": [
+      "TG-SRC-009782"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000023"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maintains persistent socket connections with adaptive ping/keepalive cycles and automatic transport protocol fallback.",
+    "implementation_details": {
+      "primary_language": "Java/C++",
+      "key_classes": [
+        "org.telegram.tgnet.ConnectionsManager"
+      ],
+      "entry_points": [
+        "ConnectionsManager.sendRequest"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Adapt transport waterfall (TCP -> WebSocket) to guarantee connection in restrictive child network environments."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000019",
+    "app_id": "telegram",
+    "name": "Standard Vector Navigation Icon Asset",
+    "category": "Icons & Graphics",
+    "description": "Clean vector SVG back navigation icon conforming to Material Design specifications.",
+    "source_refs": [
+      "TG-SRC-002069"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000024"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Standard left-pointing vector arrow asset for screen back navigation.",
+    "implementation_details": {
+      "primary_language": "SVG",
+      "key_classes": [],
+      "entry_points": [
+        "abc_ic_ab_back_material.svg"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "direct_asset_reuse",
+      "licensing_risk": "authorized",
+      "notes": "Direct SVG asset reuse in Family OS design system."
+    }
+  },
+  {
+    "resource_id": "TG-RES-000020",
+    "app_id": "telegram",
+    "name": "Multi-DEX Execution Container Topology",
+    "category": "Engines & Services",
+    "description": "Multi-DEX container layout partitioning compiled Dalvik bytecode across 4 distinct containers (classes.dex to classes4.dex).",
+    "source_refs": [
+      "TG-SRC-026560"
+    ],
+    "evidence_refs": [
+      "TG-EVD-000025"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Partitions large Android application bytecode into 4 DEX containers to respect 64k method limit per DEX file.",
+    "implementation_details": {
+      "primary_language": "Dalvik Executable (DEX)",
+      "key_classes": [],
+      "entry_points": [
+        "classes.dex"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "reference_only",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Structural reference for Android AOT packaging limits."
+    }
+  }
+]

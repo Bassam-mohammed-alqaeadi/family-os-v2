@@ -15,7 +15,7 @@
       "id_prefix": "TG",
       "analysis_type": "decompiled_apk",
       "program_phase": "BIP-02",
-      "status": "pilot_active",
+      "status": "inventory_completed",
       "executive_summary_path": "benchmarks/extracted/telegram/00_EXECUTIVE_SUMMARY.md",
       "inventory_priority": 1,
       "initial_capability_hypotheses": [

@@ -56,6 +56,7 @@ class BIPValidator:
         self.warnings = []
         self.info_messages = []
         self.schemas = {}
+        self.validator_instances = {}
 
         # Index stores
         self.source_records = {}       # id -> (record, file_source)
@@ -66,6 +67,32 @@ class BIPValidator:
         self.report_records = {}       # id -> (record, file_source)
 
         self.source_paths = {}         # path -> source_id
+        self.source_paths_by_scope = {} # scope -> { path: source_id }
+        self.sources_by_path = {}       # path -> list of (source_id, record, scope, file_source)
+
+    def get_record_scope(self, file_source, record=None):
+        """
+        Determines the logical dataset scope for a record based on file_source and record properties.
+        Returns strings like 'pilots/telegram', 'inventories/telegram', 'synthesis', or 'default'.
+        """
+        p = Path(file_source)
+        parts = [part.replace("\\", "/") for part in p.parts]
+        for idx, part in enumerate(parts):
+            if part in ("pilots", "inventories"):
+                if idx + 1 < len(parts):
+                    return f"{part}/{parts[idx+1]}"
+                return part
+            elif part == "synthesis":
+                return "synthesis"
+
+        if record and isinstance(record, dict):
+            app = record.get("app_id", "telegram")
+            if record.get("pilot_flag") is True or record.get("program_phase") == "BIP-01":
+                return f"pilots/{app}"
+            if record.get("pilot_flag") is False or record.get("program_phase") == "BIP-02":
+                return f"inventories/{app}"
+
+        return "default"
 
     def log_error(self, message):
         self.errors.append(f"[ERROR] {message}")
@@ -128,21 +155,33 @@ class BIPValidator:
         except Exception:
             return 0
 
-    def is_git_tracked(self, relative_path):
-        """Checks whether a file path is tracked in the Git index."""
-        norm_path = relative_path.replace("\\", "/")
-        cmd = ["git", "ls-files", "--error-unmatch", norm_path]
+    def _load_git_tracked_set(self):
+        """Loads all git-tracked files in the workspace once into a set for O(1) lookups."""
+        if hasattr(self, "_git_tracked_set"):
+            return self._git_tracked_set
         try:
+            cmd = ["git", "ls-files"]
             proc = subprocess.run(
                 cmd,
                 cwd=str(self.workspace_root),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                check=False
+                check=False,
+                text=True
             )
-            return proc.returncode == 0
+            if proc.returncode == 0:
+                self._git_tracked_set = set(line.strip().replace("\\", "/") for line in proc.stdout.splitlines() if line.strip())
+            else:
+                self._git_tracked_set = set()
         except Exception:
-            return False
+            self._git_tracked_set = set()
+        return self._git_tracked_set
+
+    def is_git_tracked(self, relative_path):
+        """Checks whether a file path is tracked in the Git index (O(1))."""
+        tracked = self._load_git_tracked_set()
+        norm_path = relative_path.replace("\\", "/")
+        return norm_path in tracked
 
     def get_git_blob_bytes(self, relative_path):
         """Retrieves raw bytes of a Git blob from HEAD."""
@@ -337,15 +376,40 @@ class BIPValidator:
             self.source_records[sid] = (rec, file_source)
             self._validate_against_schema(rec, "source-record.schema.json", file_source)
 
-            # Check duplicate file path
+            # Check duplicate file path within scope and consistency across scopes
             fpath = rec.get("file_path")
             if not self.check_path_traversal(fpath, f"source {sid} file_path"):
                 return
 
-            if fpath in self.source_paths:
-                prev_sid = self.source_paths[fpath]
-                self.log_error(f"Duplicate file_path in source records: '{fpath}' in {sid} and {prev_sid}")
-            self.source_paths[fpath] = sid
+            scope = self.get_record_scope(file_source, rec)
+            if scope not in self.source_paths_by_scope:
+                self.source_paths_by_scope[scope] = {}
+
+            if fpath in self.source_paths_by_scope[scope]:
+                prev_sid = self.source_paths_by_scope[scope][fpath]
+                self.log_error(f"Duplicate file_path in source records within scope '{scope}': '{fpath}' in {sid} and {prev_sid}")
+            self.source_paths_by_scope[scope][fpath] = sid
+
+            if fpath in self.sources_by_path:
+                for prev_sid, prev_rec, prev_scope, _ in self.sources_by_path[fpath]:
+                    if (
+                        prev_rec.get("sha256") != rec.get("sha256")
+                        or prev_rec.get("size_bytes") != rec.get("size_bytes")
+                        or prev_rec.get("storage_tier") != rec.get("storage_tier")
+                        or prev_rec.get("git_blob_sha256") != rec.get("git_blob_sha256")
+                        or prev_rec.get("git_blob_size") != rec.get("git_blob_size")
+                    ):
+                        self.log_error(
+                            f"Conflicting fingerprints for identical physical file_path '{fpath}': "
+                            f"{sid} in '{scope}' (sha256: {rec.get('sha256')}, size: {rec.get('size_bytes')}, tier: {rec.get('storage_tier')}, blob: {rec.get('git_blob_sha256')}) vs "
+                            f"{prev_sid} in '{prev_scope}' (sha256: {prev_rec.get('sha256')}, size: {prev_rec.get('size_bytes')}, tier: {prev_rec.get('storage_tier')}, blob: {prev_rec.get('git_blob_sha256')})"
+                        )
+            else:
+                self.sources_by_path[fpath] = []
+
+            self.sources_by_path[fpath].append((sid, rec, scope, file_source))
+            if fpath not in self.source_paths:
+                self.source_paths[fpath] = sid
 
             storage_tier = rec.get("storage_tier")
             fingerprint_basis = rec.get("fingerprint_basis", "")
@@ -435,7 +499,8 @@ class BIPValidator:
                             f"    actual: {actual_sha}"
                         )
                     else:
-                        self.log_info(f"Verified local_only file for {sid}: {actual_sz} bytes, {actual_sha[:12]}...")
+                        if len(self.source_records) <= 20 or len(self.source_records) % 5000 == 0:
+                            self.log_info(f"Verified local_only file for {sid}: {actual_sz} bytes, {actual_sha[:12]}...")
                 else:
                     self.log_warning(
                         f"File for local_only source {sid} not available on disk: NOT_VERIFIABLE_IN_THIS_WORKSPACE ({fpath})"
@@ -540,58 +605,79 @@ class BIPValidator:
             self.log_warning(f"Unrecognized record format in {file_source}")
 
     def _validate_against_schema(self, instance, schema_name, file_source):
-        schema = self.schemas.get(schema_name)
-        if not schema:
-            self.log_error(f"Cannot validate record: Schema {schema_name} not loaded")
-            return
-        try:
-            jsonschema.validate(instance=instance, schema=schema)
-        except jsonschema.ValidationError as e:
-            self.log_error(f"Record failed schema {schema_name} in {file_source}: {e.message}")
+        if schema_name not in self.validator_instances:
+            schema = self.schemas.get(schema_name)
+            if not schema:
+                self.log_error(f"Cannot validate record: Schema {schema_name} not loaded")
+                return
+            self.validator_instances[schema_name] = jsonschema.Draft7Validator(schema)
+        validator = self.validator_instances[schema_name]
+        for error in validator.iter_errors(instance):
+            self.log_error(f"Record failed schema {schema_name} in {file_source}: {error.message}")
 
     def validate_referential_integrity(self):
-        print("\n🔍 5. التحقق من سلامة العلاقات والتكامل الإحالي واتساق app_id...")
-        # 1. Resource -> Sources & Evidence + app_id consistency
+        print("\n🔍 5. التحقق من سلامة العلاقات والتكامل الإحالي واتساق app_id والنطاق...")
+        # 1. Resource -> Sources & Evidence + app_id and scope consistency
         for rid, (res, src_file) in self.resource_records.items():
             res_app = res.get("app_id")
+            res_scope = self.get_record_scope(src_file, res)
             for sref in res.get("source_refs", []):
                 if sref not in self.source_records:
                     self.log_error(f"Resource {rid} in {src_file} references non-existent source {sref}")
                 else:
-                    source_rec, _ = self.source_records[sref]
+                    source_rec, s_file = self.source_records[sref]
                     src_app = source_rec.get("app_id")
+                    src_scope = self.get_record_scope(s_file, source_rec)
                     if res_app != src_app:
                         self.log_error(
                             f"app_id mismatch in {rid}: resource app_id is '{res_app}', "
                             f"but referenced source {sref} belongs to app '{src_app}'"
+                        )
+                    if res_scope != "default" and src_scope != "default" and res_scope != src_scope:
+                        self.log_error(
+                            f"Scope mismatch in {rid}: resource belongs to scope '{res_scope}', "
+                            f"but referenced source {sref} belongs to scope '{src_scope}'"
                         )
 
             for eref in res.get("evidence_refs", []):
                 if eref not in self.evidence_records:
                     self.log_error(f"Resource {rid} in {src_file} references non-existent evidence {eref}")
                 else:
-                    evd_rec, _ = self.evidence_records[eref]
+                    evd_rec, e_file = self.evidence_records[eref]
                     evd_app = evd_rec.get("app_id")
+                    evd_scope = self.get_record_scope(e_file, evd_rec)
                     if res_app != evd_app:
                         self.log_error(
                             f"app_id mismatch in {rid}: resource app_id is '{res_app}', "
                             f"but referenced evidence {eref} belongs to app '{evd_app}'"
                         )
+                    if res_scope != "default" and evd_scope != "default" and res_scope != evd_scope:
+                        self.log_error(
+                            f"Scope mismatch in {rid}: resource belongs to scope '{res_scope}', "
+                            f"but referenced evidence {eref} belongs to scope '{evd_scope}'"
+                        )
 
-        # 2. Evidence -> Source + app_id consistency
+        # 2. Evidence -> Source + app_id and scope consistency
         for eid, (evd, src_file) in self.evidence_records.items():
             evd_app = evd.get("app_id")
+            evd_scope = self.get_record_scope(src_file, evd)
             s_id = evd.get("source_id")
             if s_id:
                 if s_id not in self.source_records:
                     self.log_error(f"Evidence {eid} in {src_file} references non-existent source {s_id}")
                 else:
-                    source_rec, _ = self.source_records[s_id]
+                    source_rec, s_file = self.source_records[s_id]
                     src_app = source_rec.get("app_id")
+                    src_scope = self.get_record_scope(s_file, source_rec)
                     if evd_app != src_app:
                         self.log_error(
                             f"app_id mismatch in {eid}: evidence app_id is '{evd_app}', "
                             f"but referenced source {s_id} belongs to app '{src_app}'"
+                        )
+                    if evd_scope != "default" and src_scope != "default" and evd_scope != src_scope:
+                        self.log_error(
+                            f"Scope mismatch in {eid}: evidence belongs to scope '{evd_scope}', "
+                            f"but referenced source {s_id} belongs to scope '{src_scope}'"
                         )
 
         # 3. Relationships -> Resources & Evidence + scope consistency
@@ -599,6 +685,7 @@ class BIPValidator:
             src_res_id = rel.get("source_resource_id")
             tgt_res_id = rel.get("target_resource_id")
             scope = rel.get("scope")
+            rel_scope = self.get_record_scope(src_file, rel)
 
             src_res_entry = self.resource_records.get(src_res_id)
             tgt_res_entry = self.resource_records.get(tgt_res_id)
@@ -611,6 +698,8 @@ class BIPValidator:
             if src_res_entry and tgt_res_entry:
                 src_app = src_res_entry[0].get("app_id")
                 tgt_app = tgt_res_entry[0].get("app_id")
+                src_r_scope = self.get_record_scope(src_res_entry[1], src_res_entry[0])
+                tgt_r_scope = self.get_record_scope(tgt_res_entry[1], tgt_res_entry[0])
 
                 if scope == "intra_app":
                     if src_app != tgt_app:
@@ -618,14 +707,27 @@ class BIPValidator:
                             f"Relationship {rel_id} declared as 'intra_app' but connects different apps: "
                             f"source is '{src_app}' and target is '{tgt_app}'"
                         )
+                    elif rel_scope != "default" and (src_r_scope != rel_scope or tgt_r_scope != rel_scope):
+                        self.log_error(
+                            f"Scope mismatch in intra_app relationship {rel_id}: relation scope is '{rel_scope}', "
+                            f"source resource is in '{src_r_scope}' and target resource is in '{tgt_r_scope}'"
+                        )
                     else:
-                        self.log_info(f"Verified intra_app relationship {rel_id} within app '{src_app}'")
+                        self.log_info(f"Verified intra_app relationship {rel_id} within app '{src_app}' ({rel_scope})")
                 elif scope == "cross_app":
                     self.log_info(f"Verified cross_app relationship {rel_id} connecting '{src_app}' -> '{tgt_app}'")
 
             for eref in rel.get("evidence_refs", []):
                 if eref not in self.evidence_records:
                     self.log_error(f"Relationship {rel_id} references missing evidence {eref}")
+                else:
+                    evd_entry = self.evidence_records[eref]
+                    e_scope = self.get_record_scope(evd_entry[1], evd_entry[0])
+                    if rel_scope != "default" and e_scope != "default" and e_scope != rel_scope:
+                        self.log_error(
+                            f"Scope mismatch in relationship {rel_id}: relationship is in '{rel_scope}', "
+                            f"referenced evidence {eref} is in '{e_scope}'"
+                        )
 
         # 4. Fusion Decisions -> Resources
         for did, (fus, src_file) in self.fusion_records.items():
@@ -643,7 +745,8 @@ class BIPValidator:
 
         unreferenced = set(self.source_records.keys()) - referenced_sources
         if unreferenced:
-            self.log_warning(f"Sources cataloged without resource/evidence linkage: {unreferenced}")
+            sample_ids = sorted(list(unreferenced))[:10]
+            self.log_warning(f"Sources cataloged without resource/evidence linkage ({len(unreferenced)} sources): e.g. {sample_ids}...")
         else:
             self.log_info("All cataloged sources are properly linked to resources and evidence!")
 
@@ -651,17 +754,29 @@ class BIPValidator:
         print("\n🔍 6. إعادة الحساب الديناميكي لتقارير التطبيقات (Dynamic Report Verification)...")
         for rep_id, (rep, rep_file) in self.report_records.items():
             app_id = rep.get("app_id")
-            self.log_info(f"Verifying application report '{rep_id}' for app '{app_id}'...")
+            scope = self.get_record_scope(rep_file, rep)
+            self.log_info(f"Verifying application report '{rep_id}' for app '{app_id}' in scope '{scope}'...")
 
-            # Filter records belonging strictly to this app_id
-            app_sources = [r for r, _ in self.source_records.values() if r.get("app_id") == app_id]
-            app_resources = [r for r, _ in self.resource_records.values() if r.get("app_id") == app_id]
-            app_evidence = [r for r, _ in self.evidence_records.values() if r.get("app_id") == app_id]
+            # Filter records belonging strictly to this app_id AND matching scope
+            app_sources = [
+                r for r, src_f in self.source_records.values()
+                if r.get("app_id") == app_id and (scope == "default" or self.get_record_scope(src_f, r) == scope)
+            ]
+            app_resources = [
+                r for r, src_f in self.resource_records.values()
+                if r.get("app_id") == app_id and (scope == "default" or self.get_record_scope(src_f, r) == scope)
+            ]
+            app_evidence = [
+                r for r, src_f in self.evidence_records.values()
+                if r.get("app_id") == app_id and (scope == "default" or self.get_record_scope(src_f, r) == scope)
+            ]
             app_resource_ids = {res["resource_id"] for res in app_resources}
             app_relationships = [
-                r for r, _ in self.relationship_records.values()
-                if (r.get("source_resource_id") in app_resource_ids or
-                    r.get("target_resource_id") in app_resource_ids)
+                r for r, src_f in self.relationship_records.values()
+                if (scope == "default" or self.get_record_scope(src_f, r) == scope) and (
+                    r.get("source_resource_id") in app_resource_ids or
+                    r.get("target_resource_id") in app_resource_ids
+                )
             ]
 
             inv = rep.get("inventory_summary", {})
