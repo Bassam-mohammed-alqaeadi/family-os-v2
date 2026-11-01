@@ -21,6 +21,7 @@ Validates actual execution paths in BIPValidator across:
 15. test_15_intra_app_scope_app_mismatch: Fails when intra_app relationship connects resources from differing app_ids.
 16. test_16_valid_cross_app_relationship: Succeeds when cross_app relationship connects resources from differing app_ids.
 17. test_17_report_category_count_mismatch: Fails when report resource counts_by_category differs from actual records.
+18. test_18_local_only_evidence_clone_behavior: Integration test verifying local_only evidence handling in cloned environments vs missing git_tracked evidence.
 """
 
 import sys
@@ -462,6 +463,115 @@ class TestBIPValidatorNegativeFixtures(unittest.TestCase):
         self.validator.validate_and_recalculate_reports()
         has_cat_err = any("resource counts_by_category mismatch" in e for e in self.validator.errors)
         self.assertTrue(has_cat_err, "Validator did not catch report counts_by_category mismatch")
+
+    def test_18_local_only_evidence_clone_behavior(self):
+        """18. Integration test: handles local_only evidence in clone environments vs git_tracked evidence."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            clone_validator = BIPValidator(workspace_root=tmp_root)
+            clone_validator.schemas = copy.deepcopy(self.validator.schemas)
+
+            local_source = {
+                "source_id": "TG-SRC-000081",
+                "app_id": "telegram",
+                "file_path": "benchmarks/extracted/telegram/local_icon.svg",
+                "file_name": "local_icon.svg",
+                "file_extension": "svg",
+                "file_type": "asset_vector",
+                "size_bytes": 100,
+                "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+                "inspection_level": "T2",
+                "status": "analyzed",
+                "storage_tier": "local_only",
+                "fingerprint_basis": "disk_bytes_local"
+            }
+
+            local_evidence = {
+                "evidence_id": "TG-EVD-000081",
+                "app_id": "telegram",
+                "tag_type": "REF",
+                "source_id": "TG-SRC-000081",
+                "location_ref": "benchmarks/extracted/telegram/local_icon.svg#L1-L2",
+                "claim": "Testing local-only clone evidence behavior",
+                "observed_fact": "Simulated local file absent in cloned workspace",
+                "confidence_level": "verified_direct",
+                "verified_at": "2026-11-01T03:00:00Z"
+            }
+
+            git_tracked_source = {
+                "source_id": "TG-SRC-000082",
+                "app_id": "telegram",
+                "file_path": "benchmarks/extracted/telegram/tracked_code.kt",
+                "file_name": "tracked_code.kt",
+                "file_extension": "kt",
+                "file_type": "source_code",
+                "size_bytes": 200,
+                "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+                "inspection_level": "T2",
+                "status": "analyzed",
+                "storage_tier": "git_tracked",
+                "fingerprint_basis": "disk_bytes_and_git_blob",
+                "git_blob_size": 200,
+                "git_blob_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+            }
+
+            git_tracked_evidence = {
+                "evidence_id": "TG-EVD-000082",
+                "app_id": "telegram",
+                "tag_type": "REF",
+                "source_id": "TG-SRC-000082",
+                "location_ref": "benchmarks/extracted/telegram/tracked_code.kt#L1-L5",
+                "claim": "Testing git-tracked evidence missing in clone",
+                "observed_fact": "Simulated tracked file missing on disk",
+                "confidence_level": "verified_direct",
+                "verified_at": "2026-11-01T03:00:00Z"
+            }
+
+            # Phase A: Index local_only source and evidence where physical file is absent (Clone simulation)
+            clone_validator._index_and_validate_single_record(local_source, "sources.json")
+            clone_validator._index_and_validate_single_record(local_evidence, "evidence.json")
+
+            # Local-only evidence must produce NOT_VERIFIABLE_IN_THIS_WORKSPACE warning and NO errors
+            has_local_warn = any("NOT_VERIFIABLE_IN_THIS_WORKSPACE" in w and "TG-EVD-000081" in w for w in clone_validator.warnings)
+            has_local_err = any("TG-EVD-000081" in e for e in clone_validator.errors)
+            self.assertTrue(has_local_warn, "Missing local_only evidence did not produce NOT_VERIFIABLE_IN_THIS_WORKSPACE warning")
+            self.assertFalse(has_local_err, "Missing local_only evidence improperly produced an error in clone environment")
+
+            # Phase B: Missing git_tracked evidence must produce an error
+            clone_validator._index_and_validate_single_record(git_tracked_evidence, "evidence.json")
+            has_git_err = any("Evidence location file missing on disk for TG-EVD-000082" in e for e in clone_validator.errors)
+            self.assertTrue(has_git_err, "Missing git_tracked evidence did not produce an error")
+
+            # Phase C: When local file IS present, verify file and line bounds normally
+            file_path = tmp_root / "benchmarks" / "extracted" / "telegram" / "local_icon.svg"
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            file_content = "<svg>\n  <path d='...'/>\n</svg>\n"
+            file_path.write_text(file_content, encoding="utf-8")
+
+            # Create fresh validator to test present file
+            present_validator = BIPValidator(workspace_root=tmp_root)
+            present_validator.schemas = copy.deepcopy(self.validator.schemas)
+            actual_sz = file_path.stat().st_size
+            actual_sha = present_validator.calculate_sha256(file_path)
+
+            local_source_present = copy.deepcopy(local_source)
+            local_source_present["size_bytes"] = actual_sz
+            local_source_present["sha256"] = actual_sha
+
+            present_validator._index_and_validate_single_record(local_source_present, "sources.json")
+            present_validator._index_and_validate_single_record(local_evidence, "evidence.json")
+
+            self.assertEqual(len(present_validator.errors), 0, "Valid present local_only evidence produced unexpected error")
+            has_line_verified = any("Verified line locator for TG-EVD-000081: #L1-L2" in i for i in present_validator.info_messages)
+            self.assertTrue(has_line_verified, "Present local_only file line locator was not verified")
+
+            # Phase D: When local file is present but line locator exceeds bounds, it must fail
+            bad_line_evidence = copy.deepcopy(local_evidence)
+            bad_line_evidence["evidence_id"] = "TG-EVD-000083"
+            bad_line_evidence["location_ref"] = "benchmarks/extracted/telegram/local_icon.svg#L1-L99"
+            present_validator._index_and_validate_single_record(bad_line_evidence, "evidence.json")
+            has_out_of_bounds_err = any("Line locator out of bounds for TG-EVD-000083" in e for e in present_validator.errors)
+            self.assertTrue(has_out_of_bounds_err, "Validator did not catch line locator out of bounds on present file")
 
 
 if __name__ == "__main__":

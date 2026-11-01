@@ -54,6 +54,7 @@ class BIPValidator:
 
         self.errors = []
         self.warnings = []
+        self.info_messages = []
         self.schemas = {}
 
         # Index stores
@@ -75,6 +76,7 @@ class BIPValidator:
         print(f"  ⚠️ {message}")
 
     def log_info(self, message):
+        self.info_messages.append(message)
         print(f"  ℹ️ {message}")
 
     def load_json(self, path):
@@ -305,7 +307,14 @@ class BIPValidator:
             if d.exists():
                 all_json_files.extend(glob.glob(str(d / "**" / "*.json"), recursive=True))
 
-        for jf in sorted(all_json_files):
+        # Sort files so sources.json are indexed before evidence/resources
+        def _file_sort_key(file_path):
+            p = Path(file_path)
+            if "sources" in p.name:
+                return (0, file_path)
+            return (1, file_path)
+
+        for jf in sorted(all_json_files, key=_file_sort_key):
             p = Path(jf)
             if "schemas" in p.parts or "templates" in p.parts:
                 continue
@@ -464,7 +473,25 @@ class BIPValidator:
 
             full_loc_file = self.workspace_root / loc_file
             if not full_loc_file.exists():
-                self.log_error(f"Evidence location file missing on disk for {eid}: {loc_file}")
+                s_id = rec.get("source_id")
+                is_local_only = False
+                if s_id and s_id in self.source_records:
+                    source_rec, _ = self.source_records[s_id]
+                    if source_rec.get("storage_tier") == "local_only":
+                        is_local_only = True
+                elif loc_file in self.source_paths:
+                    s_id_from_path = self.source_paths[loc_file]
+                    if s_id_from_path in self.source_records:
+                        source_rec, _ = self.source_records[s_id_from_path]
+                        if source_rec.get("storage_tier") == "local_only":
+                            is_local_only = True
+
+                if is_local_only:
+                    self.log_warning(
+                        f"Evidence {eid} location file not available on disk: NOT_VERIFIABLE_IN_THIS_WORKSPACE ({loc_file})"
+                    )
+                else:
+                    self.log_error(f"Evidence location file missing on disk for {eid}: {loc_file}")
             else:
                 if line_spec:
                     total_lines = self.count_file_lines(full_loc_file)
