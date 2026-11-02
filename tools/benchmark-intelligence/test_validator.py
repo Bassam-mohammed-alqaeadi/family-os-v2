@@ -31,6 +31,8 @@ Validates actual execution paths in BIPValidator across:
 25. test_25_scope_mismatch_resource_to_evidence: Fails when a resource references an evidence from a different dataset scope.
 26. test_26_scope_mismatch_relationship_to_resource: Fails when an intra_app relationship references resources from a different dataset scope.
 27. test_27_scope_mismatch_relationship_to_evidence: Fails when a relationship references evidence from a different dataset scope.
+28. test_28_familywall_record_scope_and_fw_prefix: Verifies get_record_scope resolves inventories/familywall for BIP-03 and validates FW- IDs.
+29. test_29_target_app_filtering: Verifies BIPValidator correctly handles target_app initialization and filtering.
 """
 
 import sys
@@ -882,6 +884,40 @@ class TestBIPValidatorNegativeFixtures(unittest.TestCase):
         self.validator.validate_referential_integrity()
         has_evd_scope_err = any("Scope mismatch in relationship REL-000874" in e and "referenced evidence TG-EVD-000873" in e for e in self.validator.errors)
         self.assertTrue(has_evd_scope_err, "Validator did not reject relationship referencing cross-scope evidence")
+
+    def test_28_familywall_record_scope_and_fw_prefix(self):
+        """28. Verifies get_record_scope resolves inventories/familywall for BIP-03 and validates FW- IDs."""
+        self.validator.errors.clear()
+        fw_report = {
+            "app_id": "familywall",
+            "program_phase": "BIP-03",
+            "pilot_flag": False
+        }
+        scope = self.validator.get_record_scope("virtual/path/familywall/report.json", fw_report)
+        self.assertEqual(scope, "inventories/familywall")
+
+        # Test schema validation with FW- prefix
+        fw_src = {
+            "source_id": "FW-SRC-000001",
+            "app_id": "familywall",
+            "file_path": "benchmarks/extracted/familywall/00_EXECUTIVE_SUMMARY.md",
+            "file_name": "00_EXECUTIVE_SUMMARY.md",
+            "file_extension": "md",
+            "file_type": "documentation",
+            "size_bytes": 9304,
+            "sha256": "59c7cd7104abc405d9ca50800f02a10da062a2062fdf8399a3851696ee0e56be",
+            "inspection_level": "T0",
+            "status": "discovered"
+        }
+        self.validator._validate_against_schema(fw_src, "source-record.schema.json", "virtual_test")
+        self.assertEqual(len(self.validator.errors), 0, f"FW source record schema errors: {self.validator.errors}")
+
+    def test_29_target_app_filtering(self):
+        """29. Verifies BIPValidator correctly handles target_app initialization and filtering."""
+        v_fw = BIPValidator(workspace_root=WORKSPACE_ROOT, app_id="familywall")
+        self.assertEqual(v_fw.target_app, "familywall")
+        v_tg = BIPValidator(workspace_root=WORKSPACE_ROOT, app_id="telegram")
+        self.assertEqual(v_tg.target_app, "telegram")
 
 
 if __name__ == "__main__":

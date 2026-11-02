@@ -1,0 +1,554 @@
+[
+  {
+    "resource_id": "FW-RES-000001",
+    "app_id": "familywall",
+    "name": "Multi-Family Circles Manager",
+    "category": "Features & Business Rules",
+    "description": "Multi-family circle scope manager handling active circle switching, AppPrefsHelper persistence, and cross-circle cache invalidation.",
+    "source_refs": [
+      "FW-SRC-006635",
+      "FW-SRC-008907"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000004"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Singleton holding active mCurrentFamilyScope, managing circle membership switching, and purging stale entity caches.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "MultiFamilyManager",
+        "CircleInfo",
+        "UserInfo"
+      ],
+      "entry_points": [
+        "MultiFamilyManager.getInstance()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Architectural model for Family OS multi-family circles system S1-01."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000002",
+    "app_id": "familywall",
+    "name": "iCalendar RFC 5545 Recurrence Engine",
+    "category": "Engines & Services",
+    "description": "Calendar recurrence computation engine based on ical4j RFC 5545 specification supporting daily, weekly, monthly, and yearly recurring patterns.",
+    "source_refs": [
+      "FW-SRC-005073",
+      "FW-SRC-008908"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000005"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Parses VEvent entities, generates occurrence expansions according to RRule, ExDate, and RDate, mapping them to EventBean instances.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "IcalEventTool",
+        "RecurrencyManager"
+      ],
+      "entry_points": [
+        "IcalEventTool.parse()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Direct reference for Family OS shared family calendar S1-03."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000003",
+    "app_id": "familywall",
+    "name": "Android Native SyncAdapter Framework",
+    "category": "Synchronization & Offline",
+    "description": "System-level Android SyncAdapter framework orchestrating two-way calendar and contacts synchronization with local device databases.",
+    "source_refs": [
+      "FW-SRC-006673",
+      "FW-SRC-008906",
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000006",
+      "FW-EVD-000012"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Extends AbstractThreadedSyncAdapter, binding with CalendarContract and ContactsContract for battery-efficient background sync.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "SyncAdapter",
+        "AuthenticationService",
+        "CalendarSynchronizationService",
+        "ContactSynchronizationService"
+      ],
+      "entry_points": [
+        "SyncAdapter.onPerformSync()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Foundational pattern for Family OS offline synchronization engine S1-02."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000004",
+    "app_id": "familywall",
+    "name": "Shared Lists & Grocery Quantity Parser",
+    "category": "Features & Business Rules",
+    "description": "Intelligent grocery quantity parsing and measurement unit normalization engine.",
+    "source_refs": [
+      "FW-SRC-005595"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000007"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Decomposes freeform text entries into numeric quantity, measurement unit, and ingredient name using UnitRegistry dictionaries.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "GroceryQuantityParser"
+      ],
+      "entry_points": [
+        "GroceryQuantityParser.parse()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Blueprint for Family OS shared grocery lists and tasks S1-04."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000005",
+    "app_id": "familywall",
+    "name": "Geotracking & Geofencing Location Engine",
+    "category": "Engines & Services",
+    "description": "Continuous foreground location tracking and safe zone geofencing engine with battery-aware GPS provider monitoring.",
+    "source_refs": [
+      "FW-SRC-005235",
+      "FW-SRC-005230",
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000008",
+      "FW-EVD-000009"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Operates foregroundServiceType='location' service with FusedLocationProviderClient and processes safe zone entry/exit events.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "GeotrackingRequestForegroundService",
+        "GeofencingJobIntentService",
+        "LocationProvidersChangedReceiver"
+      ],
+      "entry_points": [
+        "GeotrackingRequestForegroundService.onStartCommand()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Direct reference for Family OS safety radar and child tracking S1-06."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000006",
+    "app_id": "familywall",
+    "name": "Family Wall & Realtime Messaging",
+    "category": "Realtime & Messaging",
+    "description": "Family social feed Activity and Fragment subsystem supporting chronological message lists, audio playback, and photo attachments (realtime server push unverified; polling/REST observed).",
+    "source_refs": [
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Renders chronological family posts, threaded comments, audio message playback, and media upload queueing via standard HTTP/FIZ APIs.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "WallActivity",
+        "WallListFragment",
+        "ThreadCreateActivity"
+      ],
+      "entry_points": [
+        "WallActivity.onCreate()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Functional blueprint for Family OS private family feed S1-07."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000007",
+    "app_id": "familywall",
+    "name": "Family Document Vault (Filer)",
+    "category": "Features & Business Rules",
+    "description": "Family document organizing subsystem (Filer) composed of 76 classes with folder hierarchies and category grouping (at-rest encryption unverified in APK; standard local storage observed).",
+    "source_refs": [
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Categorizes family documents (insurance, IDs, medical) with folder hierarchies and role-based viewing permissions stored in local SQLite/filesystem.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "FilerMainActivity",
+        "FilerFolderDetailFragment"
+      ],
+      "entry_points": [
+        "FilerMainActivity.onCreate()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Key design model for Family OS document vault S1-08."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000008",
+    "app_id": "familywall",
+    "name": "School Timetables & Alternating Weeks",
+    "category": "Features & Business Rules",
+    "description": "Student school timetable manager supporting alternating multi-week rotations (Week A / Week B) and class scheduling.",
+    "source_refs": [
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Manages recurring periods, subject color coding, instructor details, and alternating week schedules for children.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "TimetableMainActivity",
+        "FragmentWizardTimetableNumWeeks"
+      ],
+      "entry_points": [
+        "TimetableMainActivity.onCreate()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Core architecture model for Family OS student timetables S1-05."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000009",
+    "app_id": "familywall",
+    "name": "Birthday & Anniversary Tracker",
+    "category": "Features & Business Rules",
+    "description": "Anniversary and birthday milestone countdown tracker with gift idea lists and automated annual reminders.",
+    "source_refs": [
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Computes countdown days to upcoming family milestones, tracks gift suggestions, and dispatches reminder notifications.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "BdayTrackerMainActivity",
+        "BdayDetailActivity"
+      ],
+      "entry_points": [
+        "BdayTrackerMainActivity.onCreate()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Reference for Family OS family milestone alerts S1-03."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000010",
+    "app_id": "familywall",
+    "name": "Panic SOS & Family Shout Emergency Subsystem",
+    "category": "Security & Cryptography",
+    "description": "Emergency distress broadcast subsystem initiating audible siren alerts, persistent notifications, and rapid GPS broadcast.",
+    "source_refs": [
+      "FW-SRC-005398",
+      "FW-SRC-000002"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000015"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Displays cancellation countdown timer, invokes PanicOngoingNotificationJobIntentService, and broadcasts SOS alerts to all circle members.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "PanicCountdownActivity",
+        "PanicOngoingNotificationJobIntentService",
+        "ShoutDetailActivity"
+      ],
+      "entry_points": [
+        "PanicCountdownActivity.onCreate()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Essential pattern for Family OS emergency assistance S1-06."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000011",
+    "app_id": "familywall",
+    "name": "Child Account Access & Governance",
+    "category": "Authentication & Authorization",
+    "description": "Parental authorization and kid account onboarding flow providing supervised access to family feeds and schedules.",
+    "source_refs": [
+      "FW-SRC-004917",
+      "FW-SRC-008910"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000014"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Manages child account creation through parental email verification; Level B models specify PIN-based local lock mechanisms.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "EmailFromKidsAccountBottomSheetDialog"
+      ],
+      "entry_points": [
+        "EmailFromKidsAccountBottomSheetDialog.show()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Foundation for Family OS kid profile governance S1-01."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000012",
+    "app_id": "familywall",
+    "name": "Android Application Manifest & Identity",
+    "category": "Android Platform Integration",
+    "description": "Core application descriptor defining package com.familywall, 43 declared permissions, 249 architectural components, and deep link intents.",
+    "source_refs": [
+      "FW-SRC-000002",
+      "FW-SRC-000003",
+      "FW-SRC-000004"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000001",
+      "FW-EVD-000002",
+      "FW-EVD-000003"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Establishes Android OS component registration, deep link routing for 10 URL endpoints, and security permission boundaries.",
+    "implementation_details": {
+      "primary_language": "XML",
+      "key_classes": [
+        "FamilyWallApplication"
+      ],
+      "entry_points": [
+        "AndroidManifest.xml"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Direct architectural reference for Family OS Android container and manifest."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000013",
+    "app_id": "familywall",
+    "name": "SQLite Local Database Schema (11 Tables)",
+    "category": "Data Models & Schemas",
+    "description": "Relational SQLite local database schema modeling circles, members, calendar events, tasks, lists, messages, and geozones.",
+    "source_refs": [
+      "FW-SRC-008910",
+      "FW-SRC-008909"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000013"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Defines relational entities supporting offline caching, transactional consistency, and multi-family data isolation.",
+    "implementation_details": {
+      "primary_language": "SQL",
+      "key_classes": [
+        "FamilySQLiteOpenHelper",
+        "FamilyProvider"
+      ],
+      "entry_points": [
+        "local_db_schema.sql"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Relational schema baseline for Family OS local SQLite persistence S1-01 and S1-02."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000014",
+    "app_id": "familywall",
+    "name": "Sanitized REST & Media Web Services API Catalog",
+    "category": "Network & API",
+    "description": "Verified backend endpoints catalog targeting production api.familywall.com, media storage, map services, and development preprod environments.",
+    "source_refs": [
+      "FW-SRC-004407",
+      "FW-SRC-008911"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000010"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maps verified API endpoints from decompiled Java constants, eliminating all foreign HTML/CSS and XML namespace artifacts.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "Constants",
+        "Config",
+        "EnvironmentPreferences"
+      ],
+      "entry_points": [
+        "Constants.BASE_URL"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "reference_only",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Clean-room reference for Family OS cloud sync REST APIs S1-01."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000015",
+    "app_id": "familywall",
+    "name": "Design System Assets (Colors, Lottie, Audio)",
+    "category": "Icons & Graphics",
+    "description": "Visual and auditory asset collection containing 1,341 theme color keys, 41 animated Lottie files, 1,137 vector drawables, and 5 audio sound effects.",
+    "source_refs": [
+      "FW-SRC-001147",
+      "FW-SRC-001707",
+      "FW-SRC-001145"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000011"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Provides comprehensive color palettes, micro-interaction feedback animations, and notification earcons.",
+    "implementation_details": {
+      "primary_language": "JSON",
+      "key_classes": [
+        "ColorsAndTheme",
+        "LottieAnimationView"
+      ],
+      "entry_points": [
+        "colors_and_theme.json"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": false,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "direct_asset_reuse",
+      "licensing_risk": "authorized",
+      "notes": "Direct asset feeding for Family OS design system S1-09 upon project owner approval."
+    }
+  },
+  {
+    "resource_id": "FW-RES-000016",
+    "app_id": "familywall",
+    "name": "Task Ordering & Categorized Lists Engine",
+    "category": "Features & Business Rules",
+    "description": "Reorderable task and task list writeback cache synchronization engine utilizing midpoint-based numeric ordering.",
+    "source_refs": [
+      "FW-SRC-005963"
+    ],
+    "evidence_refs": [
+      "FW-EVD-000016"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates dynamic sortingIndex using midpoint-based numeric integer bisection between neighbor items, syncing changes via writeback cache operation to backend.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "TaskChangeOrderOperation",
+        "TaskListChangeOrderOperation",
+        "TaskListDetailActivity"
+      ],
+      "entry_points": [
+        "TaskChangeOrderOperation.changeOrder()",
+        "TaskChangeOrderOperation.doPendingOp()"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Blueprint for Family OS task reordering and list drag-and-drop prioritization S1-04."
+    }
+  }
+]

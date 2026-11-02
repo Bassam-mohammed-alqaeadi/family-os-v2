@@ -1,0 +1,70 @@
+{
+  "report_id": "REP-FW-001",
+  "app_id": "familywall",
+  "app_display_name": "FamilyWall",
+  "source_path": "benchmarks/extracted/familywall/",
+  "program_phase": "BIP-03",
+  "pilot_flag": false,
+  "inventory_summary": {
+    "total_files_discovered": 103133,
+    "total_bytes": 1008882813,
+    "t0_inventory_count": 103133,
+    "counts_by_deepest_level": {
+      "T0": 103092,
+      "T1": 5,
+      "T2": 9,
+      "T3": 27
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 58,
+      "local_only": 103075
+    },
+    "counts_by_type": {
+      "documentation": 145,
+      "manifest": 3,
+      "config": 859,
+      "asset_vector": 3841,
+      "asset_audio": 10,
+      "asset_image": 1278,
+      "layout": 2198,
+      "source_code": 89683,
+      "other": 5009,
+      "database_schema": 1,
+      "binary_so": 12,
+      "values": 94
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 16,
+    "counts_by_category": {
+      "Features & Business Rules": 6,
+      "Engines & Services": 2,
+      "Synchronization & Offline": 1,
+      "Realtime & Messaging": 1,
+      "Security & Cryptography": 1,
+      "Authentication & Authorization": 1,
+      "Android Platform Integration": 1,
+      "Data Models & Schemas": 1,
+      "Network & API": 1,
+      "Icons & Graphics": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 16,
+    "counts_by_tag": {
+      "REF": 15,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 1
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 11,
+    "counts_by_type": {
+      "DEPENDS_ON": 8,
+      "COMPLEMENTS": 3
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-11-01T21:40:00Z"
+}

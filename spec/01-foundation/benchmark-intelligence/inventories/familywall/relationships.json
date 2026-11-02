@@ -1,0 +1,142 @@
+[
+  {
+    "relationship_id": "REL-000011",
+    "source_resource_id": "FW-RES-000001",
+    "target_resource_id": "FW-RES-000013",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "MultiFamilyManager depends on local SQLite database schema for family circle entity isolation and querying.",
+    "evidence_refs": [
+      "FW-EVD-000004",
+      "FW-EVD-000013"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000012",
+    "source_resource_id": "FW-RES-000002",
+    "target_resource_id": "FW-RES-000003",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "iCalendar recurrence engine complements Android SyncAdapter to expand and sync recurring calendar occurrences.",
+    "evidence_refs": [
+      "FW-EVD-000005",
+      "FW-EVD-000006"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000013",
+    "source_resource_id": "FW-RES-000003",
+    "target_resource_id": "FW-RES-000012",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "SyncAdapter framework depends on Android Application Manifest for account authenticator and sync service declarations.",
+    "evidence_refs": [
+      "FW-EVD-000001",
+      "FW-EVD-000006"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000014",
+    "source_resource_id": "FW-RES-000004",
+    "target_resource_id": "FW-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Shared shopping lists require active family circle scoping from MultiFamilyManager to isolate family list data.",
+    "evidence_refs": [
+      "FW-EVD-000004",
+      "FW-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000015",
+    "source_resource_id": "FW-RES-000005",
+    "target_resource_id": "FW-RES-000012",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Geotracking engine requires foreground location permissions and foregroundServiceType declaration in AndroidManifest.",
+    "evidence_refs": [
+      "FW-EVD-000001",
+      "FW-EVD-000008"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000016",
+    "source_resource_id": "FW-RES-000006",
+    "target_resource_id": "FW-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Family Wall social feed and realtime chat are scoped strictly to the active circle managed by MultiFamilyManager.",
+    "evidence_refs": [
+      "FW-EVD-000004"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000017",
+    "source_resource_id": "FW-RES-000007",
+    "target_resource_id": "FW-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Family Document Vault partitions files and folders according to the active family circle scope.",
+    "evidence_refs": [
+      "FW-EVD-000004"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000018",
+    "source_resource_id": "FW-RES-000008",
+    "target_resource_id": "FW-RES-000002",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "School Timetable recurrence rules complement the iCalendar recurrence engine for multi-week schedule expansion.",
+    "evidence_refs": [
+      "FW-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000019",
+    "source_resource_id": "FW-RES-000010",
+    "target_resource_id": "FW-RES-000005",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Panic SOS emergency system queries current child coordinates directly from the geotracking location engine.",
+    "evidence_refs": [
+      "FW-EVD-000008",
+      "FW-EVD-000015"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000020",
+    "source_resource_id": "FW-RES-000011",
+    "target_resource_id": "FW-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Child account access and parental governance are bound to the parent circle managed by MultiFamilyManager.",
+    "evidence_refs": [
+      "FW-EVD-000004",
+      "FW-EVD-000014"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000021",
+    "source_resource_id": "FW-RES-000016",
+    "target_resource_id": "FW-RES-000004",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Task Ordering & Categorized Lists Engine complements Shared Lists & Grocery Quantity Parser by providing fractional sorting and writeback synchronization.",
+    "evidence_refs": [
+      "FW-EVD-000016",
+      "FW-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  }
+]

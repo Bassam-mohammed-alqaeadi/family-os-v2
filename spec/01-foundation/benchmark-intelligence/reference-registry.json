@@ -37,7 +37,7 @@
       "id_prefix": "FW",
       "analysis_type": "decompiled_apk",
       "program_phase": "BIP-03",
-      "status": "ready_for_inventory",
+      "status": "inventory_completed",
       "executive_summary_path": "benchmarks/extracted/familywall/00_EXECUTIVE_SUMMARY.md",
       "inventory_priority": 2,
       "initial_capability_hypotheses": [
@@ -47,7 +47,7 @@
         "Family Budget & Shared Finance Primitives",
         "Basic Geolocation & Battery Telemetry (S1-07)"
       ],
-      "notes": "Verified package name in AndroidManifest.xml is com.familywall."
+      "notes": "Verified package name in AndroidManifest.xml is com.familywall. BIP-03 Full Inventory completed locally, quality gate passed (READY FOR OWNER ACCEPTANCE)."
     },
     {
       "app_id": "life360",

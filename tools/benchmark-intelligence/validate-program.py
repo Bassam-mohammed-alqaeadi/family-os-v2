@@ -38,13 +38,14 @@ except ImportError:
 
 
 class BIPValidator:
-    def __init__(self, workspace_root=None, strict=False):
+    def __init__(self, workspace_root=None, strict=False, app_id=None):
         if workspace_root:
             self.workspace_root = Path(workspace_root).resolve()
         else:
             self.workspace_root = Path(__file__).resolve().parents[2]
 
         self.strict = strict
+        self.target_app = app_id
         self.bip_root = self.workspace_root / "spec" / "01-foundation" / "benchmark-intelligence"
         self.schemas_dir = self.bip_root / "schemas"
         self.templates_dir = self.bip_root / "templates"
@@ -87,9 +88,12 @@ class BIPValidator:
 
         if record and isinstance(record, dict):
             app = record.get("app_id", "telegram")
-            if record.get("pilot_flag") is True or record.get("program_phase") == "BIP-01":
+            phase = record.get("program_phase")
+            if record.get("pilot_flag") is True or phase == "BIP-01":
                 return f"pilots/{app}"
-            if record.get("pilot_flag") is False or record.get("program_phase") == "BIP-02":
+            if record.get("pilot_flag") is False or (
+                isinstance(phase, str) and phase.startswith("BIP-") and phase != "BIP-01"
+            ):
                 return f"inventories/{app}"
 
         return "default"
@@ -357,6 +361,11 @@ class BIPValidator:
             p = Path(jf)
             if "schemas" in p.parts or "templates" in p.parts:
                 continue
+
+            if self.target_app:
+                norm_parts = [part.replace("\\", "/") for part in p.parts]
+                if ("pilots" in norm_parts or "inventories" in norm_parts) and self.target_app not in norm_parts:
+                    continue
 
             data = self.load_json(jf)
             if not data:
@@ -941,9 +950,10 @@ def main():
     parser = argparse.ArgumentParser(description="BIP Verification Tool — Family OS (عائلتي)")
     parser.add_argument("--root", type=str, default=None, help="Root path of the repository workspace")
     parser.add_argument("--strict", action="store_true", help="Fail if any warning is encountered")
+    parser.add_argument("--app", "--app-id", type=str, default=None, dest="app_id", help="Filter validation to a specific app_id (e.g. telegram, familywall)")
     args = parser.parse_args()
 
-    validator = BIPValidator(workspace_root=args.root, strict=args.strict)
+    validator = BIPValidator(workspace_root=args.root, strict=args.strict, app_id=args.app_id)
     success = validator.run()
     sys.exit(0 if success else 1)
 
