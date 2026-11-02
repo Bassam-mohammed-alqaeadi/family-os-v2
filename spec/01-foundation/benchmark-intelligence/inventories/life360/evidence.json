@@ -161,9 +161,9 @@
     "tag_type": "REF",
     "source_id": "L360-SRC-021880",
     "location_ref": "benchmarks/extracted/life360/06_network_and_telemetry/realtime_location_streaming_protocol.md#L1-L35",
-    "claim": "Realtime location streaming utilizes PubNub WebSocket channels per circle combined with REST ingestion gateway.",
-    "observed_fact": "realtime_location_streaming_protocol.md documents low-latency streaming pipeline subscribing to 'circle_{circleId}_locations' for sub-250ms marker updates.",
-    "confidence_level": "verified_direct",
+    "claim": "Realtime location streaming architecture models PubNub WebSocket channels per circle combined with a REST ingestion gateway (Level B derived architectural model).",
+    "observed_fact": "realtime_location_streaming_protocol.md models a real-time streaming pipeline subscribing to 'circle_{circleId}_locations' WebSocket channels for map marker updates; latency metrics such as sub-250ms are architectural objectives rather than empirical APK runtime measurements, and the design represents a Level B clean-room model rather than direct APK bytecode evidence.",
+    "confidence_level": "high_inference",
     "verifier": "teamwork_worker (BIP-04 Implementer)",
     "verified_at": "2026-11-02T20:30:00Z"
   },

@@ -27,10 +27,6 @@ spec/01-foundation/benchmark-intelligence/inventories/life360/
 ├── relationships.json            # سجل العلاقات البينية داخل التطبيق (11 علاقة intra_app)
 ├── report.json                   # التقرير الإحصائي الديناميكي المعتمد (REP-L360-001)
 ├── README.md                     # هذا الملف — الدليل المرجعي العام للحزمة
-├── T1-STRUCTURAL-REPORT.md       # التقرير الهيكلي T1 في جذر الحزمة
-├── T2-RESOURCE-MAP.md            # خريطة الموارد المعمارية T2 في جذر الحزمة
-├── T3-ENGINEERING-DEEP-DIVES.md  # التحليل الجراحي T3 في جذر الحزمة
-├── COVERAGE-AND-GAPS.md          # تقرير التغطية والفجوات في جذر الحزمة
 └── analysis/                     # مجلد التحليلات الهندسية المعمقة
     ├── T1-STRUCTURAL-REPORT.md   # التقرير الهيكلي T1 (تشريح المانيفست والحاويات وحسم ملفات DEX)
     ├── T2-RESOURCE-MAP.md        # خريطة الموارد المعمارية T2 (التصنيف، الجدارة، والتفويض)

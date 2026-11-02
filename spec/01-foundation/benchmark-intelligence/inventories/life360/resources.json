@@ -328,7 +328,7 @@
       "L360-EVD-000013"
     ],
     "technical_depth": "T3_engineering",
-    "behavior_summary": "Leverages C++ mmap() zero-copy access to ingest 100Hz sensor bursts into thread-confined ring buffers, completely eliminating UI stutter.",
+    "behavior_summary": "Bundles native librealm-jni.so binary across 5 ABIs with bundled io.realm classes; direct call sites from first-party com.life360 packages are unproven in decompiled source and usage is restricted to third-party SDK dependencies.",
     "implementation_details": {
       "primary_language": "C++ / JNI",
       "key_classes": [
@@ -344,7 +344,7 @@
       "legal_authorization": "authorized_by_project_owner",
       "technical_reuse_strategy": "architectural_reference",
       "licensing_risk": "authorized",
-      "notes": "Architectural benchmark demonstrating why zero-copy ring buffering is required for 100Hz telemetry."
+      "notes": "Retained as a native shared library reference; direct first-party usage for sensor or telemetry persistence in com.life360 is unproven."
     }
   },
   {
@@ -422,7 +422,7 @@
     "app_id": "life360",
     "name": "Realtime Location Streaming & PubNub Dispatcher",
     "category": "Realtime & Messaging",
-    "description": "Low-latency WebSocket streaming pipeline delivering sub-250ms delta coordinate packets across circle channels for smooth map marker animation.",
+    "description": "Derived architectural model for low-latency WebSocket streaming delivering delta coordinate packets across circle channels for map marker animation (Level B derived design model; sub-250ms latency is an architectural objective rather than an APK runtime benchmark).",
     "source_refs": [
       "L360-SRC-021880"
     ],
@@ -430,7 +430,7 @@
       "L360-EVD-000014"
     ],
     "technical_depth": "T3_engineering",
-    "behavior_summary": "Subscribes to 'circle_{circleId}_locations' WebSockets, unmarshals compact short-key JSON payloads, and feeds marker interpolation renderers.",
+    "behavior_summary": "Models real-time location streaming subscribing to 'circle_{circleId}_locations' WebSockets with compact short-key JSON payloads for marker interpolation (Level B derived architecture).",
     "implementation_details": {
       "primary_language": "Documentation / Architecture",
       "key_classes": [
@@ -447,7 +447,7 @@
       "legal_authorization": "authorized_by_project_owner",
       "technical_reuse_strategy": "concept_adaptation",
       "licensing_risk": "authorized",
-      "notes": "Direct architectural design for Family OS live map synchronization."
+      "notes": "Derived architectural reference for Family OS live map synchronization; derived from design documentation rather than direct APK bytecode."
     }
   },
   {
