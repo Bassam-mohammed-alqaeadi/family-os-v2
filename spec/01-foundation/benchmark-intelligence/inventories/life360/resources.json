@@ -1,0 +1,557 @@
+[
+  {
+    "resource_id": "L360-RES-000001",
+    "app_id": "life360",
+    "name": "Location Keep-Alive & Service Sentinel",
+    "category": "Engines & Services",
+    "description": "Multi-process background architecture isolating location sampling in dedicated :service process via EventController and LocationWorker to protect background tracking from UI main process crashes, subject to Android OS lifecycle and OEM power constraints.",
+    "source_refs": [
+      "L360-SRC-000007",
+      "L360-SRC-009387",
+      "L360-SRC-009395"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000002",
+      "L360-EVD-000003",
+      "L360-EVD-000005"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Operates ForegroundService with location foregroundServiceType, listens to heartbeats, and runs WorkManager watchdog to guarantee continuous background survival.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "EventController",
+        "LocationWorker",
+        "LocationReceiver"
+      ],
+      "entry_points": [
+        "EventController.onStartCommand",
+        "LocationWorker.doWork"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Architectural model for Family OS continuous location tracking sentinel (S1-07)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000002",
+    "app_id": "life360",
+    "name": "Fused Location Sampling Controller",
+    "category": "Algorithms",
+    "description": "Adaptive GPS and network location sampling controller wrapping Google Play Services FusedLocationProviderClient with motion-aware duty cycling.",
+    "source_refs": [
+      "L360-SRC-010034",
+      "L360-SRC-009392"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000004",
+      "L360-EVD-000006"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Dispatches FUSED_LOCATION_UPDATE broadcasts, dynamically scales sampling frequency from stationary dwell (0 Hz) to active driving (0.5 Hz).",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "FusedLocationUpdateBroadcastReceiver",
+        "LocationReceiver"
+      ],
+      "entry_points": [
+        "FusedLocationUpdateBroadcastReceiver.onReceive"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Core design pattern for Family OS battery-efficient GPS polling (S1-07)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000003",
+    "app_id": "life360",
+    "name": "Kalman Filter & Motion State Machine",
+    "category": "Algorithms",
+    "description": "Algorithmic Kalman filter and discrete motion state machine smoothing raw noisy GPS points and computing true heading and velocity.",
+    "source_refs": [
+      "L360-SRC-021837"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000015"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Applies 1D/2D Kalman variance tracking, filters stationary jitter, and detects movement transitions between STATIONARY, WALKING, and IN_VEHICLE.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "GpsKalmanFilter",
+        "MotionActivityType"
+      ],
+      "entry_points": [
+        "GpsKalmanFilter.processLocation"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Clean-room mathematical algorithm directly suitable for Family OS S1-07 engine."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000004",
+    "app_id": "life360",
+    "name": "Device Health & Power Management Sentinel",
+    "category": "Performance & Battery",
+    "description": "Subsystem monitoring battery state, power-saving restrictions, Doze mode status, and location accuracy health across circle devices.",
+    "source_refs": [
+      "L360-SRC-000002",
+      "L360-SRC-009392"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000001",
+      "L360-EVD-000004"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Catches power saver notifications, prompts users for battery optimization exemptions, and synchronizes device battery percentages to circles.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "DeviceHealthEventReceiver",
+        "LocationReceiver"
+      ],
+      "entry_points": [
+        "LocationReceiver.onReceive"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Essential for Family OS battery telemetry and device health card (S1-07)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000005",
+    "app_id": "life360",
+    "name": "Circles & Places Geofencing Boundary Engine",
+    "category": "Features & Business Rules",
+    "description": "Multi-circle geographical place boundary management system tracking circular and polygonal geofence regions.",
+    "source_refs": [
+      "L360-SRC-010037",
+      "L360-SRC-009392"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000004",
+      "L360-EVD-000007"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maintains inner, outer, local, and zone geofences, intercepting hardware geofence transitions to notify circles upon entry/exit.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "GeofenceData",
+        "GeofenceReceiver"
+      ],
+      "entry_points": [
+        "GeofenceReceiver.onReceive"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Core model for Family OS Places and Geofence alerts (S2-04)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000006",
+    "app_id": "life360",
+    "name": "Geofence Boundary Hysteresis & Anti-Flapping Filter",
+    "category": "Algorithms",
+    "description": "Spatial and temporal hysteresis filter preventing rapid oscillation and duplicate notifications when a device lingers on place boundaries.",
+    "source_refs": [
+      "L360-SRC-021839"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000007",
+      "L360-EVD-000015"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Enforces 15-meter hysteresis deadband and 60-second continuous dwell requirement before confirming entry or exit state changes.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "CirclesGeofencingEngine",
+        "PlaceGeofence"
+      ],
+      "entry_points": [
+        "CirclesGeofencingEngine.evaluateLocation"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Solves false-positive notifications in Family OS Places system (S2-04)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000007",
+    "app_id": "life360",
+    "name": "High-Frequency Sensor Telemetry Framework",
+    "category": "Engines & Services",
+    "description": "Unified hardware sensor acquisition framework collecting accelerometer, gyroscope, barometer, and rotation readings at up to 100Hz.",
+    "source_refs": [
+      "L360-SRC-010020",
+      "L360-SRC-010034"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000006",
+      "L360-EVD-000008"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Buffers multi-axis IMU readings in native memory, timestamping motion events for collision physics and driving pattern evaluation.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "AccelerometerEventData",
+        "MultiAxisSensorEventData"
+      ],
+      "entry_points": [
+        "AccelerometerEventData.createFromParcel"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Foundational sensor collection architecture for Family OS safety modules."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000008",
+    "app_id": "life360",
+    "name": "Crash Detection & Impact Physics Engine",
+    "category": "Algorithms",
+    "description": "Multi-axis impact detection engine computing peak G-force, impulse Delta-V, and phone-drop rejection filters with emergency siren countdown.",
+    "source_refs": [
+      "L360-SRC-021842",
+      "L360-SRC-000002"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000008",
+      "L360-EVD-000016"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Analyzes sudden deceleration (>4G), validates trajectory continuity, triggers 10-second audible alert, and initiates automatic dispatch if uncancelled.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "CrashDetectionEngine",
+        "CrashEvent"
+      ],
+      "entry_points": [
+        "CrashDetectionEngine.processSensorReading"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Derivative clean-room model for Family OS vehicular safety features (S1-07)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000009",
+    "app_id": "life360",
+    "name": "Driving Behavior & Safety Scoring Telemetry",
+    "category": "Analytics & Telemetry",
+    "description": "Automatic trip detection, incident tracking (hard braking, rapid acceleration, phone usage), and composite driver safety score calculation.",
+    "source_refs": [
+      "L360-SRC-021844",
+      "L360-SRC-000002"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000001",
+      "L360-EVD-000016"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Monitors speed differentials (>13 km/h/s deceleration, >11 km/h/s acceleration), logs phone distraction periods, and generates weekly 0-100 score.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "DrivingBehaviorEngine",
+        "TripSummary"
+      ],
+      "entry_points": [
+        "DrivingBehaviorEngine.recordSpeedSample"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Model for Family OS teen driving safety and weekly report cards."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000010",
+    "app_id": "life360",
+    "name": "Native Realm JNI Shared Library Component",
+    "category": "Local Storage",
+    "description": "Presence of librealm-jni.so binary across 5 CPU architectures with bundled io.realm classes; retained as an architectural native library reference without asserting first-party telemetry persistence.",
+    "source_refs": [
+      "L360-SRC-021879"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000013"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Leverages C++ mmap() zero-copy access to ingest 100Hz sensor bursts into thread-confined ring buffers, completely eliminating UI stutter.",
+    "implementation_details": {
+      "primary_language": "C++ / JNI",
+      "key_classes": [
+        "librealm-jni.so"
+      ],
+      "entry_points": [
+        "JNI native methods in Realm"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Architectural benchmark demonstrating why zero-copy ring buffering is required for 100Hz telemetry."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000011",
+    "app_id": "life360",
+    "name": "Emergency SOS & Safety Dispatch Protocol",
+    "category": "Security & Cryptography",
+    "description": "Silent and audible emergency distress dispatch subsystem featuring PIN-protected cancellation, SMS escalation, and external dispatch dispatching.",
+    "source_refs": [
+      "L360-SRC-010391",
+      "L360-SRC-021849"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000009"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Dispatches PSOSAlertRequest with START_ALERT payload, broadcasts real-time emergency coordinates, and requires authenticated PIN to abort.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "PSOSAlertRequest",
+        "L360SOSButton"
+      ],
+      "entry_points": [
+        "PSOSAlertRequest.START_ALERT"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Core model for Family OS emergency SOS dispatching and child panic protocol (S1-07)."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000012",
+    "app_id": "life360",
+    "name": "BLE Beacon & Tile Tracking Ingestion Subsystem",
+    "category": "Features & Business Rules",
+    "description": "Bluetooth Low Energy advertisement scanner and community ingestion engine for capturing broadcast packets from nearby Tile hardware tags via standard BLE manufacturer advertising, without employing peer-to-peer BLE Mesh networking.",
+    "source_refs": [
+      "L360-SRC-009180",
+      "L360-SRC-009181",
+      "L360-SRC-021838"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000010"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Passively scans BLE advertisement packets in background, batches sighting beacons, and securely uploads to /api/v1/clients/batch_location_updates.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "TileAdvertisementApi",
+        "TileRegisterApi",
+        "BleReceiver"
+      ],
+      "entry_points": [
+        "TileAdvertisementApi.advertise"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Model for Family OS community lost-item and child tag tracking."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000013",
+    "app_id": "life360",
+    "name": "Realtime Location Streaming & PubNub Dispatcher",
+    "category": "Realtime & Messaging",
+    "description": "Low-latency WebSocket streaming pipeline delivering sub-250ms delta coordinate packets across circle channels for smooth map marker animation.",
+    "source_refs": [
+      "L360-SRC-021880"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000014"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Subscribes to 'circle_{circleId}_locations' WebSockets, unmarshals compact short-key JSON payloads, and feeds marker interpolation renderers.",
+    "implementation_details": {
+      "primary_language": "Documentation / Architecture",
+      "key_classes": [
+        "PubNub",
+        "MapInterpolationEngine"
+      ],
+      "entry_points": [
+        "PubNub subscribe channel listener"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Direct architectural design for Family OS live map synchronization."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000014",
+    "app_id": "life360",
+    "name": "REST Ingestion & Telemetry Upload Gateway",
+    "category": "Network & API",
+    "description": "Retrofit REST client layer cataloging 182 method declarations (155 unique endpoints) across 19 interface files for coordinate batch ingestion, driving log upload, emergency dispatch, and circle administration.",
+    "source_refs": [
+      "L360-SRC-021857"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000012"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Handles HTTP POST /v1/ingest, PUT locations, and secure OAuth2 bearer token authentication across api.life360.com and driverbehavior.life360.com.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "LocationApi",
+        "MembersEngineNetworkApi",
+        "DriverBehaviorApi"
+      ],
+      "entry_points": [
+        "LocationApi.updateLocation",
+        "DriverBehaviorApi.sendEvents"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "authorized",
+      "notes": "Comprehensive blueprint for Family OS cloud telemetry ingestion schema."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000015",
+    "app_id": "life360",
+    "name": "Local Room / SQLite Relational Schema",
+    "category": "Data Models & Schemas",
+    "description": "Relational database schema managing 10 tables for circle members, place geofences, driving trip segments, and offline telemetry buffering.",
+    "source_refs": [
+      "L360-SRC-021854"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000011"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Persists structured entity definitions including compound primary key (member_id, circle_id), place coordinates, and TripBlock telemetry records.",
+    "implementation_details": {
+      "primary_language": "SQL / Room",
+      "key_classes": [
+        "circles",
+        "circle_members",
+        "places",
+        "TripBlock"
+      ],
+      "entry_points": [
+        "Room database migrations and DAOs"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "authorized",
+      "notes": "Data model basis for Family OS S1-02 Circles and S1-07 Location storage."
+    }
+  },
+  {
+    "resource_id": "L360-RES-000016",
+    "app_id": "life360",
+    "name": "Android Manifest Platform & Process Architecture",
+    "category": "Android Platform Integration",
+    "description": "Decompiled application manifest configuring SDK parameters, 31 system permissions, 15 activities, 29 services, 49 receivers, and 16 providers.",
+    "source_refs": [
+      "L360-SRC-000002"
+    ],
+    "evidence_refs": [
+      "L360-EVD-000001",
+      "L360-EVD-000002"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Declares com.life360.android.safetymapd package, configures multi-process execution (:service), and requests hardware sensor and background location permissions.",
+    "implementation_details": {
+      "primary_language": "XML",
+      "key_classes": [
+        "AndroidManifest.xml"
+      ],
+      "entry_points": [
+        "RootActivity",
+        "EventController"
+      ]
+    },
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "legal_authorization": "authorized_by_project_owner",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "authorized",
+      "notes": "Structural reference for Android manifest configuration in Family OS."
+    }
+  }
+]

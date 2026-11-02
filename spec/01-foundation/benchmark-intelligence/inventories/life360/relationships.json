@@ -1,0 +1,145 @@
+[
+  {
+    "relationship_id": "REL-000022",
+    "source_resource_id": "L360-RES-000001",
+    "target_resource_id": "L360-RES-000016",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Location Keep-Alive & Service Sentinel depends on Android Manifest platform declaration of :service process and FOREGROUND_SERVICE permission.",
+    "evidence_refs": [
+      "L360-EVD-000001",
+      "L360-EVD-000002"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000023",
+    "source_resource_id": "L360-RES-000002",
+    "target_resource_id": "L360-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Fused Location Sampling Controller operates within the persistent lifecycle managed by Location Keep-Alive Sentinel.",
+    "evidence_refs": [
+      "L360-EVD-000003",
+      "L360-EVD-000006"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000024",
+    "source_resource_id": "L360-RES-000003",
+    "target_resource_id": "L360-RES-000002",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Kalman Filter & Motion State Machine filters and smooths raw coordinate points acquired by Fused Location Sampling Controller.",
+    "evidence_refs": [
+      "L360-EVD-000006",
+      "L360-EVD-000015"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000025",
+    "source_resource_id": "L360-RES-000004",
+    "target_resource_id": "L360-RES-000001",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Device Health & Power Sentinel feeds battery levels and power optimization states into Keep-Alive watchdog logic.",
+    "evidence_refs": [
+      "L360-EVD-000004",
+      "L360-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000026",
+    "source_resource_id": "L360-RES-000005",
+    "target_resource_id": "L360-RES-000002",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Circles & Places Geofencing Boundary Engine depends on Fused Location updates to evaluate member proximity to registered places.",
+    "evidence_refs": [
+      "L360-EVD-000006",
+      "L360-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000027",
+    "source_resource_id": "L360-RES-000006",
+    "target_resource_id": "L360-RES-000005",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Geofence Hysteresis Filter prevents boundary fluttering by applying deadbands to Places Geofencing Boundary Engine.",
+    "evidence_refs": [
+      "L360-EVD-000007",
+      "L360-EVD-000015"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000028",
+    "source_resource_id": "L360-RES-000008",
+    "target_resource_id": "L360-RES-000007",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Crash Detection & Impact Physics Engine depends on High-Frequency Sensor Telemetry Framework for 100Hz acceleration and angular velocity feeds.",
+    "evidence_refs": [
+      "L360-EVD-000008",
+      "L360-EVD-000016"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000029",
+    "source_resource_id": "L360-RES-000009",
+    "target_resource_id": "L360-RES-000007",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Driving Behavior & Safety Scoring Telemetry depends on Sensor Telemetry to detect rapid acceleration and hard braking events.",
+    "evidence_refs": [
+      "L360-EVD-000008",
+      "L360-EVD-000016"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000030",
+    "source_resource_id": "L360-RES-000007",
+    "target_resource_id": "L360-RES-000010",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "High-Frequency Sensor Telemetry references the Native Realm JNI Shared Library Component present in the bundled native binaries.",
+    "evidence_refs": [
+      "L360-EVD-000008",
+      "L360-EVD-000013"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000031",
+    "source_resource_id": "L360-RES-000011",
+    "target_resource_id": "L360-RES-000014",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Emergency SOS & Safety Dispatch Protocol routes distress payloads through REST Ingestion & Telemetry Upload Gateway.",
+    "evidence_refs": [
+      "L360-EVD-000009",
+      "L360-EVD-000012"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000032",
+    "source_resource_id": "L360-RES-000013",
+    "target_resource_id": "L360-RES-000014",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Realtime Location Streaming complements REST Ingestion Gateway by distributing low-latency location deltas across circle WebSocket channels.",
+    "evidence_refs": [
+      "L360-EVD-000012",
+      "L360-EVD-000014"
+    ],
+    "resolution_status": "resolved"
+  }
+]

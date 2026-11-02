@@ -1,0 +1,72 @@
+{
+  "report_id": "REP-L360-001",
+  "app_id": "life360",
+  "app_display_name": "Life360",
+  "source_path": "benchmarks/extracted/life360/",
+  "program_phase": "BIP-04",
+  "pilot_flag": false,
+  "inventory_summary": {
+    "total_files_discovered": 26433,
+    "total_bytes": 213321357,
+    "t0_inventory_count": 26433,
+    "counts_by_deepest_level": {
+      "T0": 26401,
+      "T1": 5,
+      "T2": 9,
+      "T3": 18
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 105,
+      "local_only": 26328
+    },
+    "counts_by_type": {
+      "documentation": 15,
+      "manifest": 3,
+      "config": 251,
+      "layout": 1683,
+      "asset_image": 1828,
+      "other": 1128,
+      "asset_vector": 1335,
+      "values": 171,
+      "source_code": 19956,
+      "database_schema": 1,
+      "binary_so": 42,
+      "asset_audio": 17,
+      "binary_dex": 3
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 16,
+    "counts_by_category": {
+      "Engines & Services": 2,
+      "Algorithms": 4,
+      "Performance & Battery": 1,
+      "Features & Business Rules": 2,
+      "Analytics & Telemetry": 1,
+      "Local Storage": 1,
+      "Security & Cryptography": 1,
+      "Realtime & Messaging": 1,
+      "Network & API": 1,
+      "Data Models & Schemas": 1,
+      "Android Platform Integration": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 16,
+    "counts_by_tag": {
+      "REF": 15,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 1
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 11,
+    "counts_by_type": {
+      "DEPENDS_ON": 7,
+      "COMPLEMENTS": 4
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-11-02T20:30:00Z"
+}
