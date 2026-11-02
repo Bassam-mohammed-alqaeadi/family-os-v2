@@ -1,0 +1,193 @@
+[
+  {
+    "relationship_id": "REL-000033",
+    "source_resource_id": "QU-RES-000002",
+    "target_resource_id": "QU-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Biometric Authentication Gate relies on the Native Android Shell and Cordova plugin container to intercept app startup and verify credentials.",
+    "evidence_refs": [
+      "QU-EVD-000001",
+      "QU-EVD-000002"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000034",
+    "source_resource_id": "QU-RES-000003",
+    "target_resource_id": "QU-RES-000006",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Native Request Signer generates cryptographic HMAC tokens to sign outbound network requests initiated by the REST API Client Core.",
+    "evidence_refs": [
+      "QU-EVD-000003",
+      "QU-EVD-000006"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000035",
+    "source_resource_id": "QU-RES-000004",
+    "target_resource_id": "QU-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Push Command Router relies on the Native Android Container to receive background FCM events and forward them to the Cordova bridge.",
+    "evidence_refs": [
+      "QU-EVD-000001",
+      "QU-EVD-000004"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000036",
+    "source_resource_id": "QU-RES-000005",
+    "target_resource_id": "QU-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Recovered React UI component tree executes inside the local Ionic WebView container provided by the Android shell.",
+    "evidence_refs": [
+      "QU-EVD-000001",
+      "QU-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000037",
+    "source_resource_id": "QU-RES-000006",
+    "target_resource_id": "QU-RES-000007",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "REST API Client Core relies on the OAuth2 Token Lifecycle engine for bearer authentication tokens and automatic 401 transparent refresh.",
+    "evidence_refs": [
+      "QU-EVD-000006",
+      "QU-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000038",
+    "source_resource_id": "QU-RES-000008",
+    "target_resource_id": "QU-RES-000006",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Multi-Device & Family Profile hierarchy synchronizes its entity graph and status via the REST API Client Core endpoints.",
+    "evidence_refs": [
+      "QU-EVD-000006",
+      "QU-EVD-000008"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000039",
+    "source_resource_id": "QU-RES-000010",
+    "target_resource_id": "QU-RES-000009",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Schedule & Routine Conflict Resolution State Machine complements the Daily Quota Constraint Engine by establishing temporal priority over allowances.",
+    "evidence_refs": [
+      "QU-EVD-000009",
+      "QU-EVD-000010"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000040",
+    "source_resource_id": "QU-RES-000012",
+    "target_resource_id": "QU-RES-000011",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "SafeSearch Domain Rewriting complements Local DNS Web Filtering by enforcing strict search filtering through targeted VIP IP redirection.",
+    "evidence_refs": [
+      "QU-EVD-000011",
+      "QU-EVD-000012"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000041",
+    "source_resource_id": "QU-RES-000014",
+    "target_resource_id": "QU-RES-000006",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Behavioral Activity Monitoring relies on REST API Client Core to transmit telemetry summaries and query alert details.",
+    "evidence_refs": [
+      "QU-EVD-000006",
+      "QU-EVD-000014"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000042",
+    "source_resource_id": "QU-RES-000015",
+    "target_resource_id": "QU-RES-000004",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Panic SOS Event Hub depends on Push Command Router to receive immediate emergency broadcast notifications.",
+    "evidence_refs": [
+      "QU-EVD-000004",
+      "QU-EVD-000015"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000043",
+    "source_resource_id": "QU-RES-000016",
+    "target_resource_id": "QU-RES-000008",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Multi-Tier Local Persistence caches the Multi-Device & Family Profile hierarchy locally to support offline UI rendering and rule enforcement.",
+    "evidence_refs": [
+      "QU-EVD-000008",
+      "QU-EVD-000016"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000044",
+    "source_resource_id": "QU-RES-000002",
+    "target_resource_id": "QU-RES-000017",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Parent dashboard integrates school safety cards and Linewize alert signatures.",
+    "evidence_refs": [
+      "QU-EVD-000017"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000045",
+    "source_resource_id": "QU-RES-000006",
+    "target_resource_id": "QU-RES-000018",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Web security category filtering complements YouTube Restricted Mode and video auditing.",
+    "evidence_refs": [
+      "QU-EVD-000018"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000046",
+    "source_resource_id": "QU-RES-000008",
+    "target_resource_id": "QU-RES-000019",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Application control registry complements contact-level call and SMS supervision.",
+    "evidence_refs": [
+      "QU-EVD-000019"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000047",
+    "source_resource_id": "QU-RES-000013",
+    "target_resource_id": "QU-RES-000020",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Parent identity subsystem resolves account license tier and feature entitlements.",
+    "evidence_refs": [
+      "QU-EVD-000020"
+    ],
+    "resolution_status": "resolved"
+  }
+]

@@ -1,0 +1,730 @@
+[
+  {
+    "resource_id": "QU-RES-000001",
+    "app_id": "qustodio",
+    "name": "Native Android Container & Cordova WebView Shell",
+    "category": "Android Platform Integration",
+    "description": "Native Android application shell hosting an Apache Cordova container with Ionic WebView local asset server for high-performance React UI execution.",
+    "source_refs": [
+      "QU-SRC-000002",
+      "QU-SRC-013505"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000001"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Initializes CordovaActivity, starts local HTTP asset server to prevent CORS issues, and coordinates WebAppReady handshake with JavaScript runtime.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "com.qustodio.family.parental.control.app.screentime.MainActivity",
+        "org.apache.cordova.CordovaActivity"
+      ],
+      "entry_points": [
+        "MainActivity.onCreate"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Reference for hybrid WebView container architectures, superseded by native Flutter shell in Family OS."
+    },
+    "tags": [
+      "cordova",
+      "webview",
+      "ionic",
+      "android_container"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000002",
+    "app_id": "qustodio",
+    "name": "Biometric Authentication Gate",
+    "category": "Authentication & Authorization",
+    "description": "BiometricPrompt authentication layer enforcing parent identity verification before granting access to parental rules and configuration.",
+    "source_refs": [
+      "QU-SRC-013552",
+      "QU-SRC-000002"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Prompts user for fingerprint or device credentials, caching validation state to safeguard rules from unauthorized child modification.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "de.niklasmerz.cordova.biometric.BiometricActivity"
+      ],
+      "entry_points": [
+        "BiometricActivity.onCreate",
+        "BiometricActivity.authenticate"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Adapts directly into Flutter local_auth biometric parental gate (S1-01 / S1-02)."
+    },
+    "tags": [
+      "biometric",
+      "security",
+      "parental_gate",
+      "fingerprint"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000003",
+    "app_id": "qustodio",
+    "name": "Native Request Signer & HMAC Generator",
+    "category": "Security & Cryptography",
+    "description": "Native C/C++ library libsigner.so generating cryptographic HMAC signatures and anti-tamper telemetry tokens for secure outbound requests.",
+    "source_refs": [
+      "QU-SRC-005006",
+      "QU-SRC-016641"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000003"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Loads libsigner.so via JNI, executes nSign() to generate signature headers (adj_sig_v3) preventing replay and request manipulation.",
+    "implementation_details": {
+      "primary_language": "C++ / Java JNI",
+      "key_classes": [
+        "com.adjust.sdk.sig.NativeLibHelper",
+        "com.adjust.sdk.sig.Signer"
+      ],
+      "entry_points": [
+        "NativeLibHelper.nSign",
+        "NativeLibHelper.nOnResume"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "proprietary_restricted",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "high",
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "notes": "Commercial Adjust SDK native library. Cleanroom HMAC-SHA256 request signing implemented in Dart/C++ for Family OS API layer."
+    },
+    "tags": [
+      "security",
+      "jni",
+      "anti_tamper",
+      "hmac",
+      "signer"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000004",
+    "app_id": "qustodio",
+    "name": "Push Command & Remote Notification Router",
+    "category": "Realtime & Messaging",
+    "description": "FCM push notification service and command dispatcher routing instant lock commands, policy updates, and emergency panic alerts.",
+    "source_refs": [
+      "QU-SRC-013508",
+      "QU-SRC-000002"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000004"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Receives high-priority FCM messages, wakes background services, and forwards payloads to the local web application store.",
+    "implementation_details": {
+      "primary_language": "Java",
+      "key_classes": [
+        "com.qustodio.pasa.QustodioPushNotificationService"
+      ],
+      "entry_points": [
+        "QustodioPushNotificationService.onMessageReceived"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Maps to Family OS unified push notification router (S1-08)."
+    },
+    "tags": [
+      "fcm",
+      "push_notifications",
+      "messaging",
+      "realtime"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000005",
+    "app_id": "qustodio",
+    "name": "Recovered TypeScript & React 18 Architecture",
+    "category": "UI Screens & Flows",
+    "description": "Complete recovered source tree of 2,332 files (1,994 TypeScript, 20 JavaScript, 318 visual assets) structured with Redux Ducks and Immutable.js models.",
+    "source_refs": [
+      "QU-SRC-002778",
+      "QU-SRC-002435"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000005"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Manages UI component hierarchy, 250 Redux Duck state modules, Immutable.js data records, and RxJS epic side-effect streams.",
+    "implementation_details": {
+      "primary_language": "TypeScript / React",
+      "key_classes": [
+        "src/index.tsx",
+        "src/ducks/devices.ts",
+        "src/records/category.ts"
+      ],
+      "entry_points": [
+        "ReactDOM.render"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "proprietary_restricted",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "proprietary_closed",
+      "cleanroom_requirement": true,
+      "architectural_fit": "reference_only",
+      "notes": "Recovered proprietary TypeScript codebase used exclusively as behavioral and structural benchmark reference for cleanroom Flutter models."
+    },
+    "tags": [
+      "typescript",
+      "react",
+      "redux_ducks",
+      "source_maps",
+      "frontend"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000006",
+    "app_id": "qustodio",
+    "name": "REST API Client Core",
+    "category": "Network & API",
+    "description": "Comprehensive API client qapi.ts (1,634 lines) coordinating 96 endpoint groups and 130 HTTP method invocations across 5 cloud hosts.",
+    "source_refs": [
+      "QU-SRC-002791",
+      "QU-SRC-016640"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000006"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Encapsulates REST endpoints, appends platform and device telemetry headers, handles parameter transformation and error parsing.",
+    "implementation_details": {
+      "primary_language": "TypeScript",
+      "key_classes": [
+        "src/lib/qapi.ts",
+        "QApi"
+      ],
+      "entry_points": [
+        "QApi.fetchApi",
+        "QApi.endpoint"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct reference for Family OS REST API client and domain endpoint catalog."
+    },
+    "tags": [
+      "api_client",
+      "rest",
+      "http",
+      "endpoints",
+      "qapi"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000007",
+    "app_id": "qustodio",
+    "name": "OAuth2 Token Lifecycle & Transparent Silent Refresh",
+    "category": "Authentication & Authorization",
+    "description": "Resilient OAuth2 token refresh interceptor catching HTTP 401 Unauthorized errors and replaying in-flight requests transparently.",
+    "source_refs": [
+      "QU-SRC-002791"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000007"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Intercepts 401 response, requests renewed bearer token using refresh_token grant, persists new tokens, and transparently retries original request.",
+    "implementation_details": {
+      "primary_language": "TypeScript",
+      "key_classes": [
+        "src/lib/qapi.ts",
+        "QApi"
+      ],
+      "entry_points": [
+        "QApi.refreshAccessToken",
+        "QApi.fetchApi"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "direct_code_reuse",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Standard RFC 6749 OAuth2 refresh interceptor pattern, implemented in Dio / Dart for Family OS."
+    },
+    "tags": [
+      "oauth2",
+      "token_refresh",
+      "authentication",
+      "session_management"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000008",
+    "app_id": "qustodio",
+    "name": "Multi-Device & Family Profile Hierarchy",
+    "category": "Data Models & Schemas",
+    "description": "Domain data model defining parent accounts, child profiles, supervised devices, school partner students, and device permissions.",
+    "source_refs": [
+      "QU-SRC-002435",
+      "QU-SRC-016639"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000008"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Models multi-tier entity relationships linking master account UIDs to individual kid profiles and delegated device hardware records.",
+    "implementation_details": {
+      "primary_language": "TypeScript / SQL",
+      "key_classes": [
+        "src/ducks/devices.ts",
+        "src/records/account.ts"
+      ],
+      "entry_points": [
+        "devices.actions.fetchDevices"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Informs Family Account & Circles Domain Model (S1-02)."
+    },
+    "tags": [
+      "family_model",
+      "profiles",
+      "device_management",
+      "data_hierarchy"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000009",
+    "app_id": "qustodio",
+    "name": "Daily Quota & 1440-Minute Mathematical Constraint Engine",
+    "category": "Algorithms",
+    "description": "Mathematical validation and enforcement algorithm enforcing a strict 1440-minute daily constraint across divided schedule intervals.",
+    "source_refs": [
+      "QU-SRC-016634",
+      "QU-SRC-000003"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000009"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates remaining screen time allowance, verifying sum(daily_minutes) <= 1440 and triggering quota exhaustion lockout.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "ScreenTimeManager",
+        "QuotaValidator"
+      ],
+      "entry_points": [
+        "ScreenTimeManager.calculateRemainingMinutes"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct cleanroom algorithm candidate for Family OS screen time engine (S2-01)."
+    },
+    "tags": [
+      "screen_time",
+      "quotas",
+      "algorithms",
+      "parental_control"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000010",
+    "app_id": "qustodio",
+    "name": "Schedule & Routine Conflict Resolution State Machine",
+    "category": "Engines & Services",
+    "description": "Hierarchical conflict resolution engine prioritizing Bedtime lock over School routine lock over Daily Quota expiration.",
+    "source_refs": [
+      "QU-SRC-002791",
+      "QU-SRC-016634"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000010"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Evaluates active schedules using strict precedence rules to determine real-time device restriction state.",
+    "implementation_details": {
+      "primary_language": "Kotlin / TypeScript",
+      "key_classes": [
+        "ScheduleResolver",
+        "RoutineManager"
+      ],
+      "entry_points": [
+        "ScheduleResolver.resolveActiveState"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Core logic aligns with Family OS routine and calendar enforcement (S1-06 / S2-01)."
+    },
+    "tags": [
+      "routines",
+      "schedules",
+      "conflict_resolution",
+      "state_machine"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000011",
+    "app_id": "qustodio",
+    "name": "Local DNS & Web Filtering Engine Specification",
+    "category": "Algorithms",
+    "description": "Loopback DNS interception algorithm parsing RFC 1035 wire packets on local port 53 and generating NXDOMAIN responses for blocked categories.",
+    "source_refs": [
+      "QU-SRC-016635",
+      "QU-SRC-002814"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000011"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Intercepts UDP port 53 packets via local VpnService, matches FQDNs against 31 categories, and returns synthetic 127.0.0.1 or NXDOMAIN for blocked domains.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "DnsVpnFilterService",
+        "DnsPacketParser"
+      ],
+      "entry_points": [
+        "DnsVpnFilterService.processPacket"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Foundational architectural reference for Family OS private local web filter (S2-03)."
+    },
+    "tags": [
+      "dns",
+      "vpn",
+      "web_filtering",
+      "anti_tamper",
+      "nxdomain"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000012",
+    "app_id": "qustodio",
+    "name": "SafeSearch & VIP IP Domain Rewriting Engine",
+    "category": "Features & Business Rules",
+    "description": "SafeSearch enforcement pipeline redirecting major search engine queries to strict VIP IPs and injecting safe search URL parameters.",
+    "source_refs": [
+      "QU-SRC-016635"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000012"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Maps Google to 216.239.38.120, Bing to 204.79.197.220, and YouTube to 216.239.38.119, overriding user search settings in incognito mode.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "SafeSearchRewriter"
+      ],
+      "entry_points": [
+        "SafeSearchRewriter.rewriteDnsResponse"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct cleanroom implementation for child web safety in Family OS (S2-03)."
+    },
+    "tags": [
+      "safesearch",
+      "dns_rewriting",
+      "web_filtering",
+      "child_safety"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000013",
+    "app_id": "qustodio",
+    "name": "Debounced Geofencing & Location Engine",
+    "category": "Algorithms",
+    "description": "Geofence boundary transition algorithm utilizing Haversine distance with 8000ms debounce and 15m hysteresis filtering to suppress GPS jitter.",
+    "source_refs": [
+      "QU-SRC-016632"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000013"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates great-circle distance between GPS coordinates and place centers, holding exit transitions until boundary is cleared by 15m for 8 seconds.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "GeofenceManager",
+        "HaversineCalculator"
+      ],
+      "entry_points": [
+        "GeofenceManager.onLocationUpdate"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Adapts into Family OS smart location and place alert pipeline (S1-07 / S2-04)."
+    },
+    "tags": [
+      "geofencing",
+      "haversine",
+      "debounce",
+      "hysteresis",
+      "location"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000014",
+    "app_id": "qustodio",
+    "name": "Behavioral & Social Media Activity Monitoring Pipeline",
+    "category": "Analytics & Telemetry",
+    "description": "Activity monitoring architecture capturing call logs, SMS metadata, YouTube video search queries, and social network threat alerts.",
+    "source_refs": [
+      "QU-SRC-016630",
+      "QU-SRC-002791"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000014"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Gathers device activity telemetry, extracts search keywords, and provides aggregated safety timelines to parent dashboards.",
+    "implementation_details": {
+      "primary_language": "Kotlin / TypeScript",
+      "key_classes": [
+        "ActivityMonitorService",
+        "ThreatAlertManager"
+      ],
+      "entry_points": [
+        "ActivityMonitorService.onEventRecorded"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "medium",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Subject to strict COPPA/GDPR-K privacy controls in Family OS on-device intelligence."
+    },
+    "tags": [
+      "telemetry",
+      "activity_monitoring",
+      "social_media",
+      "youtube_monitoring"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000015",
+    "app_id": "qustodio",
+    "name": "Panic SOS Event Hub",
+    "category": "Features & Business Rules",
+    "description": "Emergency alert system providing an interactive SOS trigger, 5-second false-alarm cancellation grace window, and high-priority push broadcasting.",
+    "source_refs": [
+      "QU-SRC-016633"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000015"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Initiates 5-second countdown upon child SOS activation; upon completion, dispatches EventType 500 alert with precise GPS and battery status.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "PanicManager",
+        "SosCountdownTimer"
+      ],
+      "entry_points": [
+        "PanicManager.triggerPanic"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Directly informs Emergency SOS & Escalation Protocols (S1-07)."
+    },
+    "tags": [
+      "sos",
+      "panic_button",
+      "emergency",
+      "location_alert"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000016",
+    "app_id": "qustodio",
+    "name": "Multi-Tier Local Persistence & Firestore Offline Cache",
+    "category": "Local Storage",
+    "description": "Comprehensive local offline persistence layer comprising 22 SQLite tables (15 Firestore v16 + 6 DataTransport v7 + 1 NativeStorage KV) and 26 persistent preference keys.",
+    "source_refs": [
+      "QU-SRC-016637",
+      "QU-SRC-016639"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000016"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maintains cached document snapshots, offline mutation queues, and multi-process atomic counters to ensure offline policy enforcement.",
+    "implementation_details": {
+      "primary_language": "SQL / Java",
+      "key_classes": [
+        "com.google.firebase.firestore.local.SQLiteSchema",
+        "com.google.android.datatransport.runtime.scheduling.persistence.SchemaManager"
+      ],
+      "entry_points": [
+        "SQLiteSchema.runMigrations",
+        "SchemaManager.onUpgrade"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Informs offline-first Drift/SQLite persistence architecture for Family OS (S1-01 / S1-02)."
+    },
+    "tags": [
+      "sqlite",
+      "firestore_cache",
+      "offline_first",
+      "local_storage"
+    ]
+  },
+  {
+    "resource_id": "QU-RES-000017",
+    "app_id": "qustodio",
+    "name": "School & Linewize Community Digital Safety System",
+    "category": "Features & Business Rules",
+    "description": "Integrates school digital safety, in-school period restrictions, Linewize event alerts, and student profile delegation.",
+    "source_refs": [
+      "QU-SRC-001151",
+      "QU-SRC-001016"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000017"
+    ],
+    "technical_depth": "T2_functional",
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "legal_authorization": "authorized_by_project_owner"
+    }
+  },
+  {
+    "resource_id": "QU-RES-000018",
+    "app_id": "qustodio",
+    "name": "YouTube Supervision & Watched Video Analytics Engine",
+    "category": "Security & Cryptography",
+    "description": "Governs YouTube restricted mode, search query monitoring, watched video history, and channel blocking.",
+    "source_refs": [
+      "QU-SRC-000696",
+      "QU-SRC-002621"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000018"
+    ],
+    "technical_depth": "T2_functional",
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "legal_authorization": "authorized_by_project_owner"
+    }
+  },
+  {
+    "resource_id": "QU-RES-000019",
+    "app_id": "qustodio",
+    "name": "Calls & SMS Supervision Subsystem",
+    "category": "Features & Business Rules",
+    "description": "Configures supervised contacts, call logs, SMS text message monitoring, and contact-specific blocking rules.",
+    "source_refs": [
+      "QU-SRC-002280",
+      "QU-SRC-001289"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000019"
+    ],
+    "technical_depth": "T2_functional",
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "legal_authorization": "authorized_by_project_owner"
+    }
+  },
+  {
+    "resource_id": "QU-RES-000020",
+    "app_id": "qustodio",
+    "name": "Commercial Licensing & In-App Entitlements Engine",
+    "category": "Authentication & Authorization",
+    "description": "Manages feature gating, Google Play in-app purchases, trial activation, and license entitlement matrix resolution.",
+    "source_refs": [
+      "QU-SRC-002470",
+      "QU-SRC-002368"
+    ],
+    "evidence_refs": [
+      "QU-EVD-000020"
+    ],
+    "technical_depth": "T2_functional",
+    "reusability_assessment": {
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "legal_authorization": "authorized_by_project_owner"
+    }
+  }
+]

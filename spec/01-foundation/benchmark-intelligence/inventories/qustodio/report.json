@@ -1,0 +1,69 @@
+{
+  "report_id": "REP-QU-001",
+  "app_id": "qustodio",
+  "app_display_name": "Qustodio",
+  "source_path": "benchmarks/extracted/qustodio/",
+  "program_phase": "BIP-05",
+  "pilot_flag": false,
+  "inventory_summary": {
+    "total_files_discovered": 16643,
+    "total_bytes": 122179310,
+    "t0_inventory_count": 16643,
+    "counts_by_deepest_level": {
+      "T2": 6,
+      "T3": 22,
+      "T0": 16614,
+      "T1": 1
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 41,
+      "local_only": 16602
+    },
+    "counts_by_type": {
+      "documentation": 15,
+      "manifest": 1,
+      "config": 133,
+      "layout": 100,
+      "other": 17,
+      "asset_image": 517,
+      "asset_vector": 211,
+      "source_code": 15648,
+      "database_schema": 1
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 20,
+    "counts_by_category": {
+      "Android Platform Integration": 1,
+      "Authentication & Authorization": 3,
+      "Security & Cryptography": 2,
+      "Realtime & Messaging": 1,
+      "UI Screens & Flows": 1,
+      "Network & API": 1,
+      "Data Models & Schemas": 1,
+      "Algorithms": 3,
+      "Engines & Services": 1,
+      "Features & Business Rules": 4,
+      "Analytics & Telemetry": 1,
+      "Local Storage": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 20,
+    "counts_by_tag": {
+      "REF": 13,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 7
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 15,
+    "counts_by_type": {
+      "DEPENDS_ON": 9,
+      "COMPLEMENTS": 6
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-11-03T00:35:00Z"
+}
