@@ -384,9 +384,9 @@
   {
     "resource_id": "QZ-RES-000010",
     "app_id": "quizlet",
-    "name": "Match Game Physics, Tile Grid & Scoring Engine",
+    "name": "Match Game State Machine, Tile Grid & Scoring Engine",
     "category": "Features & Business Rules",
-    "description": "Interactive speed-matching game engine operating a 12-tile randomized grid with tap selection physics, error state feedback, and millisecond stopwatch scoring.",
+    "description": "Interactive speed-matching game engine operating a 12-tile randomized grid with tap state machine transitions, error state feedback, and stopwatch scoring.",
     "source_refs": [
       "QZ-SRC-033873",
       "QZ-SRC-037363"
@@ -420,7 +420,7 @@
       "match_game",
       "gamification",
       "interactive_ui",
-      "physics",
+      "state_machine",
       "timer"
     ]
   },
@@ -607,7 +607,7 @@
       "QZ-EVD-000015"
     ],
     "technical_depth": "T3_engineering",
-    "behavior_summary": "Calculates binary memory hashes to detect Frida/Xposed hooks, signs outbound HTTPS requests with dynamic Approov-Token JWTs, and enforces API gateway authentication.",
+    "behavior_summary": "Integrates third-party Approov SDK (libapproov.so) via OkHttp interceptor to attach dynamic Approov-Token JWTs to outbound API requests; runtime memory attestation and anti-hooking represent vendor-specified mechanics rather than statically verified APK logic.",
     "implementation_details": {
       "primary_language": "C++ / Kotlin",
       "key_classes": [

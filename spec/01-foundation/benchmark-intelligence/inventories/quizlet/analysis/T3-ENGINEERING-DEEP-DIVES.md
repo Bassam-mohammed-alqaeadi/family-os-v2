@@ -1,17 +1,21 @@
 # التحليلات الهندسية المعمقة للمسارات الثلاثة — Quizlet (T3 Engineering Deep Dives)
 
-> **المعرف:** `T3-QZ-DEEP-DIVES-001`  
-> **التطبيق:** Quizlet Android (`com.quizlet.quizletandroid`)  
-> **الإصدار المفحوص:** `10.41.1` (كود البناء `2601779`)  
-> **المرحلة:** BIP-06 — Learning & Flashcards Exhaustive Benchmark  
-> **حالة التحقق:** مثبت قطيعاً بالأدلة البرمجية في Kotlin و C++ JNI ومطابق للمخطط بنسبة 100%
+> **المعرف:** `T3-QZ-DEEP-DIVES-001`
+> **التطبيق:** Quizlet Android (`com.quizlet.quizletandroid`)
+> **الإصدار المفحوص:** `10.41.1` (كود البناء `2601779`)
+> **المرحلة:** BIP-06 — Learning & Flashcards Exhaustive Benchmark
+> **حالة التحقق:** مثبت تحليلياً وفق أدلة أندرويد الأصلية (Level A) ونماذج إعادة البناء النظيفة (Level B) ومطابق للمخطط بنسبة 100%
+
+> [!IMPORTANT]
+> **إقرار أصل الأدلة وإعادة البناء (Provenance & Reconstruction Notice):**
+> ملفات الكود في مجلد `04_extracted_algorithms/*.kt` تحمل الحزمة البرمجية `package com.familyos.education.quizlet.engine`؛ وهي **نماذج هندسية معيارية مستخلصة ومعاد بناؤها (Cleanroom Reconstruction / Adaptation Models for Family OS)** تم تصميمها بناءً على الملاحظات السلوكية وعقود الحزم الأصلية في `com.quizlet.*`. لا تدعي هذه الوثيقة أن هذه النماذج تمثل كوداً مصدرياً خاماً مستخرجاً بنصه من APK، بل تُصنف كأدلة استنتاجية هندسية عالية الموثوقية (**Level B — High Inference / Reconstruction Models**).
 
 ---
 
 ## 1. المسار الهندسي الأول (Track A): خوارزميات التعلم والتكرار المتباعد والتقييم التكيفي
 
-### 1.1 محرك التكرار المتباعد (Spaced Repetition System - SM-2 & Leitner)
-أثبت الفحص المباشر لكود Kotlin في `spaced_repetition_and_mastery_engine.kt` (#L58-L112 في `QZ-EVD-000003`) و `complete_engines_breakdown.md` (#L25-L52) أن Quizlet يطبق نموذج **SuperMemo SM-2** المعدل بالاقتران مع منحنى النسيان لإبينغهاوس (Ebbinghaus Forgetting Curve):
+### 1.1 محرك التكرار المتباعد (Spaced Repetition System - SM-2 Adaptation Model)
+يوثق نموذج إعادة البناء الهندسي في `spaced_repetition_and_mastery_engine.kt` (#L58-L112 في `QZ-EVD-000003` - Level B) تطبيقاً معيارياً لخوارزمية **SuperMemo SM-2** المعدلة بالاقتران مع منحنى النسيان لإبينغهاوس (Ebbinghaus Forgetting Curve) لمصلحة Family OS. تجدر الإشارة إلى أن كود Quizlet الأصلي المفكك في `com.quizlet.features.learn` و `com.quizlet.studiablemodels` يدير دورات التعلم عبر خدمات الخادم السحابية ومؤشرات الإتقان المحلية دون الإعلان الحرفي عن دوال SM-2 في كود الجافا على العميل:
 
 1. **منحنى الاستبقاء لإبينغهاوس (Ebbinghaus Forgetting Curve):**
    تصف المعادلة الرياضية الأسية احتمالية تذكر الطالب للبطاقة مع مرور الوقت:
@@ -54,8 +58,10 @@ $$\text{Suitability Score} = |\text{Length}_{\text{Candidate}} - \text{Length}_{
 
 ---
 
-### 1.3 محرك التصحيح والتطبيع اللغوي العربي (Smart Grading & Arabic Normalization)
-أثبت فحص `smart_grading_and_fuzzy_matching_engine.kt` (#L48-L123 في `QZ-EVD-000009`) تصميم خوارزمية تصحيح متقدمة للغة العربية تتسامح مع الهفوات الإملائية البسيطة:
+### 1.3 محرك التصحيح والتطبيع اللغوي العربي (Smart Grading & Arabic Normalization Model)
+يوثق نموذج إعادة البناء في `smart_grading_and_fuzzy_matching_engine.kt` (#L48-L123 في `QZ-EVD-000009` - Level B) معايير التطبيع اللغوي العربي المصممة لـ Family OS:
+> [!NOTE]
+> **ملاحظة لغوية تدقيقية:** يتضمن النموذج تحويلاً لغوياً حاداً بتحويل التاء المربوطة (`ة`) إلى هاء (`ه`)، إضافة إلى توحيد الألفات والهمزات وتجريد التشكيل؛ وهو خيار تصميمي عملي للتسامح مع أخطاء الإدخال لدى الأطفال في محركات البحث والتصحيح، مع تطبيق مسافة Levenshtein بحد قبول $\ge 0.85$ للكلمات $\ge 10$ أحرف.
 1. **تجريد التشكيل العربي الكامل (Tashkeel Stripping):**
    إزالة كافة علامات الحركات الثمانية بنطاق اليونيكود `\u064B` إلى `\u0652` (الفتحة، الضمة، الكسرة، التنوين، السكون، الشدة).
 2. **إزالة التطويل والكشيدة (Tatweel Removal):**
@@ -81,7 +87,7 @@ sequenceDiagram
     Note over App: الطالب يذاكر 30 بطاقة في الحافلة (بدون إنترنت)
     App->>LocalDB: كتابة أحداث الاسترجاع في offline_action_queue
     App->>LocalDB: تحديث حالة الإتقان المحلية في card_mastery_states
-    
+
     Note over Worker: استشعار عودة الاتصال عبر NetworkChangeReceiver
     Worker->>LocalDB: استخراج الأحداث غير المرفوعة (synced_status = 0)
     Worker->>Worker: ضغط الحمولة بصيغة GZIP وتوقيع Approov-Token
@@ -131,8 +137,9 @@ $$\text{Level} = \left\lfloor \sqrt{\frac{\text{Total XP}}{100}} \right\rfloor +
 والنقاط المطلوبة للوصول إلى المستوى القادم $L+1$ هي:
 $$\text{XP}_{\text{Required}}(L+1) = (L)^2 \times 100$$
 
-### 3.3 ميكانيكا لعبة المطابقة التنافسية (Match Game Physics & Penalties)
-أثبت فحص `match_game_physics_and_scoring_engine.kt` (#L58-L150 في `QZ-EVD-000010`):
+### 3.3 ميكانيكا لعبة المطابقة وتحديد النقاط (Match Game State Machine & Scoring Engine)
+أثبت فحص `match_game_physics_and_scoring_engine.kt` (#L58-L150 في `QZ-EVD-000010` - Level B):
+*(ملاحظة تدقيقية: تم تصحيح المصطلح بإزالة كلمة Physics؛ إذ لا يتضمن الكود أي محاكاة ديناميكية أو فيزيائية للأجسام، بل هو آلة حالات شبكية وحساب للمؤقت والعقوبات)*:
 - شبكة من **12 بلاطة** (6 أزواج مصطلحات وتعريفات) موزعة عشوائياً.
 - عند النقر على بلاطتين متطابقتين: اختفاء فوري من الشاشة مع مؤثر بصري أخضر.
 - عند النقر على بلاطتين غير متطابقتين: اهتزاز باللون الأحمر وتطبيق **عقوبة زمنية فورية قدرها $+1.0\text{s}$** تُضاف إلى عداد الوقت المنقضي لدفع الطلاب نحو التركيز وعدم النقر العشوائي.
@@ -147,11 +154,10 @@ $$\text{XP}_{\text{Required}}(L+1) = (L)^2 \times 100$$
 - تتولى تحويل مستشعر الفيديو عالي الدقة `YUV_420_888` من CameraX مباشرة إلى مصفوفة `Bitmap` (ARGB_8888) في ذاكرة C++ الأصلية دون استهلاك معالج الجافا ودون استدعاء Garbage Collector (Zero-Copy Frame Processing).
 - تدوير الإطارات الثنائية بزاوية 90 أو 180 أو 270 درجة لتهيئة الصورة لنموذج التعرف الضوئي على الحروف (ML Kit OCR) في أقل من 15 ميلي ثانية لكل إطار.
 
-### 4.2 درع توثيق نزاهة التطبيق ومكافحة التجريف (Approov Mobile App Attestation)
-أثبت تحليل مكتبة `libapproov.so` (المصدر `QZ-SRC-033888` في `QZ-EVD-000015`):
-- تقوم بحساب هاش الذاكرة وكود الـ DEX للتأكد من عدم تشغيل التطبيق داخل بيئة هندسة عكسية (Frida, Xposed, Magisk).
-- تدمج مع كل طلب موجه لـ `api.quizlet.com` ترويسة مشفرة `Approov-Token` بتوقيع رقمي صالح لفترة قصيرة جداً (Short-lived JWT).
-- خوادم Quizlet ترفض أي طلب يفتقر إلى هذا التوقيع بكود `403 Forbidden` لمنع أدوات جمع البطاقات التلقائية واستخراج قواعد البيانات.
+### 4.2 تكامل حزمة توثيق نزاهة التطبيق (Approov SDK Integration & Token Binding)
+أثبت الفحص البرمجي في `AppAttestationInitializer.java` ومكتبة `libapproov.so` (المصدر `QZ-SRC-033888` في `QZ-EVD-000015` - Level C / Partial Evidence):
+- **المثبت كودياً (Level A):** دمج حزمة `io.approov.service.okhttp` وتفعيلها عبر AndroidX Startup، وحقن ترويسة `Approov-Token` في طلبات OkHttp المتجهة لخوادم Quizlet.
+- **ادعاءات مزود الخدمة الخارجية (Level C — Vendor Claims):** تزعم وثائق Approov ومصادر التحليل حساب هاش للذاكرة الحية ورصد أدوات الحقن (Frida/Xposed)؛ إلا أن هذه الآليات داخلية ومغلقة في المكتبة الثنائية `libapproov.so` ولا يمكن إثبات تفاصيلها ميكانيكياً من فحص APK الساكن، كما أن مجرد استدعاء SDK لا يثبت قطيعاً نجاح التحقق في بيئة التشغيل الفعلية.
 
 ### 4.3 كتالوج نقاط النهاية والاتصال السحابي (REST APIs Catalog)
 وثّق ملف `api_endpoints_catalog.md` (المصدر `QZ-SRC-033886` في `QZ-EVD-000013`) **195 نقطة نهاية REST فريدة** موزعة عبر 4 بوابات أساسية:

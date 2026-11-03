@@ -21,7 +21,7 @@
 | `QZ-RES-000007` | Offline-First Study & Action Queue Engine | Local Storage | T3 | Cleanroom Reimplementation | `QZ-SRC-033874`, `QZ-SRC-033885` | `QZ-EVD-000007` |
 | `QZ-RES-000008` | Offline Sync & LWW Conflict Resolution Engine | Engines & Services | T3 | Cleanroom Reimplementation | `QZ-SRC-033875`, `QZ-SRC-033894` | `QZ-EVD-000008` |
 | `QZ-RES-000009` | Smart Grading & Arabic Diacritics Normalization Engine | Algorithms | T3 | Cleanroom Reimplementation | `QZ-SRC-033876`, `QZ-SRC-033871` | `QZ-EVD-000009` |
-| `QZ-RES-000010` | Match Game Physics, Tile Grid & Scoring Engine | Features & Business Rules | T3 | Cleanroom Reimplementation | `QZ-SRC-033873`, `QZ-SRC-037363` | `QZ-EVD-000010` |
+| `QZ-RES-000010` | Match Game State Machine, Tile Grid & Scoring Engine | Features & Business Rules | T3 | Cleanroom Reimplementation | `QZ-SRC-033873`, `QZ-SRC-037363` | `QZ-EVD-000010` |
 | `QZ-RES-000011` | Text-to-Speech & Hands-Free Audio Playback Engine | Engines & Services | T3 | Cleanroom Reimplementation | `QZ-SRC-033880`, `QZ-SRC-000003` | `QZ-EVD-000011` |
 | `QZ-RES-000012` | Room Database & Local Structured Schema Architecture | Local Storage | T2 | Cleanroom Reimplementation | `QZ-SRC-033883`, `QZ-SRC-033884` | `QZ-EVD-000012` |
 | `QZ-RES-000013` | Cloud REST API & HTTP Gateways Layer | Network & API | T2 | Concept Adaptation | `QZ-SRC-033886`, `QZ-SRC-033894` | `QZ-EVD-000013` |
