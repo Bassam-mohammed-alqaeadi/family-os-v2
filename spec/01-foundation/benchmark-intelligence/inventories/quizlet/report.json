@@ -1,0 +1,72 @@
+{
+  "report_id": "REP-QZ-001",
+  "app_id": "quizlet",
+  "app_display_name": "Quizlet",
+  "source_path": "benchmarks/extracted/quizlet/",
+  "program_phase": "BIP-06",
+  "pilot_flag": false,
+  "inventory_summary": {
+    "total_files_discovered": 37363,
+    "total_bytes": 205886274,
+    "t0_inventory_count": 37363,
+    "counts_by_deepest_level": {
+      "T0": 37330,
+      "T1": 1,
+      "T2": 15,
+      "T3": 17
+    },
+    "counts_by_storage_tier": {
+      "git_tracked": 36,
+      "local_only": 37327
+    },
+    "counts_by_type": {
+      "documentation": 36,
+      "manifest": 3,
+      "config": 526,
+      "layout": 2407,
+      "other": 926,
+      "asset_image": 6,
+      "asset_vector": 985,
+      "source_code": 32392,
+      "database_schema": 1,
+      "binary_so": 6,
+      "binary_dex": 4,
+      "asset_audio": 7,
+      "values": 64
+    }
+  },
+  "resource_summary": {
+    "total_resources_cataloged": 20,
+    "counts_by_category": {
+      "Android Platform Integration": 1,
+      "UI Screens & Flows": 1,
+      "Algorithms": 4,
+      "Engines & Services": 4,
+      "Local Storage": 2,
+      "Features & Business Rules": 3,
+      "Network & API": 1,
+      "Security & Cryptography": 1,
+      "Realtime & Messaging": 1,
+      "Authentication & Authorization": 1,
+      "Analytics & Telemetry": 1
+    }
+  },
+  "evidence_summary": {
+    "total_evidence_records": 20,
+    "counts_by_tag": {
+      "REF": 20,
+      "ASSUMPTION": 0,
+      "PENDING-REF": 0,
+      "PARTIAL-EVIDENCE": 0
+    }
+  },
+  "relationships_summary": {
+    "total_relationships": 15,
+    "counts_by_type": {
+      "DEPENDS_ON": 11,
+      "COMPLEMENTS": 4
+    }
+  },
+  "quality_gate_passed": true,
+  "generated_at": "2026-11-03T20:00:00Z"
+}

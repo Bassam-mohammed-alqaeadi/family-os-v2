@@ -1,0 +1,197 @@
+[
+  {
+    "relationship_id": "REL-000048",
+    "source_resource_id": "QZ-RES-000003",
+    "target_resource_id": "QZ-RES-000012",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Spaced repetition SM-2 engine queries and persists card memory states and due intervals in Room database card_mastery_states table.",
+    "evidence_refs": [
+      "QZ-EVD-000003",
+      "QZ-EVD-000012"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000049",
+    "source_resource_id": "QZ-RES-000004",
+    "target_resource_id": "QZ-RES-000003",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Adaptive test generator depends on spaced repetition retention probabilities to select high-difficulty questions and vulnerable concepts.",
+    "evidence_refs": [
+      "QZ-EVD-000004",
+      "QZ-EVD-000003"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000050",
+    "source_resource_id": "QZ-RES-000004",
+    "target_resource_id": "QZ-RES-000009",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Adaptive test engine integrates smart grading and fuzzy matching to evaluate written recall questions with typo tolerance.",
+    "evidence_refs": [
+      "QZ-EVD-000004",
+      "QZ-EVD-000009"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000051",
+    "source_resource_id": "QZ-RES-000005",
+    "target_resource_id": "QZ-RES-000006",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Daily streak engine receives completed study sessions and card progress events from learning mastery tracking to validate streak maintenance.",
+    "evidence_refs": [
+      "QZ-EVD-000005",
+      "QZ-EVD-000006"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000052",
+    "source_resource_id": "QZ-RES-000005",
+    "target_resource_id": "QZ-RES-000012",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Gamification engine persists current and longest streak days, freeze counts, and last study dates in Room daily_streaks table.",
+    "evidence_refs": [
+      "QZ-EVD-000005",
+      "QZ-EVD-000012"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000053",
+    "source_resource_id": "QZ-RES-000006",
+    "target_resource_id": "QZ-RES-000007",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Learning mastery engine enqueues local recall outcomes into offline action queue for asynchronous cloud persistence.",
+    "evidence_refs": [
+      "QZ-EVD-000006",
+      "QZ-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000054",
+    "source_resource_id": "QZ-RES-000007",
+    "target_resource_id": "QZ-RES-000008",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Offline action queue supplies buffered study events to sync engine for payload batching and LWW conflict resolution.",
+    "evidence_refs": [
+      "QZ-EVD-000007",
+      "QZ-EVD-000008"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000055",
+    "source_resource_id": "QZ-RES-000008",
+    "target_resource_id": "QZ-RES-000013",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Offline sync engine dispatches compressed GZIP batch requests to cloud REST API study session sync endpoints.",
+    "evidence_refs": [
+      "QZ-EVD-000008",
+      "QZ-EVD-000013"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000056",
+    "source_resource_id": "QZ-RES-000008",
+    "target_resource_id": "QZ-RES-000015",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Offline sync network requests attach cryptographically verified Approov-Token headers to pass API gateway attestation checks.",
+    "evidence_refs": [
+      "QZ-EVD-000008",
+      "QZ-EVD-000015"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000057",
+    "source_resource_id": "QZ-RES-000010",
+    "target_resource_id": "QZ-RES-000002",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Match game physics engine binds directly to Jetpack Compose UI tile components for animations and error shake effects.",
+    "evidence_refs": [
+      "QZ-EVD-000010",
+      "QZ-EVD-000002"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000058",
+    "source_resource_id": "QZ-RES-000011",
+    "target_resource_id": "QZ-RES-000002",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Text-to-speech audio engine synchronizes real-time word highlighting on Compose flashcard presentation widgets.",
+    "evidence_refs": [
+      "QZ-EVD-000011",
+      "QZ-EVD-000002"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000059",
+    "source_resource_id": "QZ-RES-000014",
+    "target_resource_id": "QZ-RES-000001",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "CameraX document scanner relies on Android application container for runtime CAMERA permission checks and lifecycle binding.",
+    "evidence_refs": [
+      "QZ-EVD-000014",
+      "QZ-EVD-000001"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000060",
+    "source_resource_id": "QZ-RES-000016",
+    "target_resource_id": "QZ-RES-000005",
+    "relationship_type": "COMPLEMENTS",
+    "scope": "intra_app",
+    "description": "Quizlet Live classroom competitions award bonus gamification XP and badge achievements to winning team participants.",
+    "evidence_refs": [
+      "QZ-EVD-000016",
+      "QZ-EVD-000005"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000061",
+    "source_resource_id": "QZ-RES-000017",
+    "target_resource_id": "QZ-RES-000013",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "Textbook explanations subsystem fetches chapter exercise problem sets and solutions from cloud REST API endpoints.",
+    "evidence_refs": [
+      "QZ-EVD-000017",
+      "QZ-EVD-000013"
+    ],
+    "resolution_status": "resolved"
+  },
+  {
+    "relationship_id": "REL-000062",
+    "source_resource_id": "QZ-RES-000019",
+    "target_resource_id": "QZ-RES-000007",
+    "relationship_type": "DEPENDS_ON",
+    "scope": "intra_app",
+    "description": "WorkManager background scheduler periodically invokes sync workers to drain and flush the offline action queue.",
+    "evidence_refs": [
+      "QZ-EVD-000019",
+      "QZ-EVD-000007"
+    ],
+    "resolution_status": "resolved"
+  }
+]

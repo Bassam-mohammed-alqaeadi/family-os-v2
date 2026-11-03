@@ -1,0 +1,849 @@
+[
+  {
+    "resource_id": "QZ-RES-000001",
+    "app_id": "quizlet",
+    "name": "Core Android Application Container & Manifest Foundation",
+    "category": "Android Platform Integration",
+    "description": "Base Android application host declaring 25 permissions and 147 components (96 activities, 23 services, 21 receivers, 7 providers) hosting Jetpack Compose and Navigation Graph.",
+    "source_refs": [
+      "QZ-SRC-000002",
+      "QZ-SRC-000003",
+      "QZ-SRC-000004"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000001"
+    ],
+    "technical_depth": "T1_structural",
+    "behavior_summary": "Initializes RootActivity with Jetpack Compose, registers URL deep links (quizlet:// and https://quizlet.com), configures network security, and sets up Dagger/Hilt dependency injection.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.quizletandroid.ui.RootActivity",
+        "com.quizlet.quizletandroid.QuizletApplication"
+      ],
+      "entry_points": [
+        "RootActivity.onCreate",
+        "QuizletApplication.onCreate"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Architectural reference for modern Android 16 targetSdk container with Compose root navigation."
+    },
+    "tags": [
+      "android",
+      "manifest",
+      "compose",
+      "root_activity",
+      "hilt"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000002",
+    "app_id": "quizlet",
+    "name": "Design System Tokens & Compose UI Theme",
+    "category": "UI Screens & Flows",
+    "description": "Comprehensive design system comprising 563 color tokens, typography scales, spacing units, and 328 pure SVG vector icons.",
+    "source_refs": [
+      "QZ-SRC-001507",
+      "QZ-SRC-001177",
+      "QZ-SRC-001511"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000002"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Provides semantic Indigo/Mint color tokens (#4255FF, #23B26D), Material3 adaptive navigation styling, 3D card flip animation transforms, and dark theme support.",
+    "implementation_details": {
+      "primary_language": "XML / JSON",
+      "key_classes": [
+        "com.quizlet.ui.theme.QuizletThemeKt",
+        "com.quizlet.ui.theme.ColorKt"
+      ],
+      "entry_points": [
+        "QuizletTheme"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct reference for Family OS education and smart flashcards theme (S5-01)."
+    },
+    "tags": [
+      "design_system",
+      "theme",
+      "colors",
+      "svg",
+      "compose"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000003",
+    "app_id": "quizlet",
+    "name": "Spaced Repetition & SuperMemo SM-2 Engine",
+    "category": "Algorithms",
+    "description": "Algorithmic spaced repetition memory engine utilizing SuperMemo SM-2, Leitner review boxes, and Ebbinghaus forgetting curve modeling.",
+    "source_refs": [
+      "QZ-SRC-033877",
+      "QZ-SRC-033871"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000003"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates dynamic Easiness Factor (EF), schedules expanding review intervals (1d, 3d, I_{n-1}*EF), and computes real-time retention probability R = exp(-t/S).",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "SpacedRepetitionAndMasteryEngine",
+        "CardMemoryState",
+        "MasteryLevel"
+      ],
+      "entry_points": [
+        "SpacedRepetitionAndMasteryEngine.processAnswer",
+        "SpacedRepetitionAndMasteryEngine.calculateRetentionProbability"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Core mathematical engine for Family OS cognitive calendar and exam preparation (S5-01 / S1-06)."
+    },
+    "tags": [
+      "spaced_repetition",
+      "sm2",
+      "leitner",
+      "ebbinghaus",
+      "memory_engine"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000004",
+    "app_id": "quizlet",
+    "name": "Adaptive Test Generation & Smart Distractor Engine",
+    "category": "Algorithms",
+    "description": "Assessment generation engine that synthesizes multiple-choice, true/false, matching matrix, and written recall questions with heuristic distractor weighting.",
+    "source_refs": [
+      "QZ-SRC-033870",
+      "QZ-SRC-033879"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000004"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Evaluates question bank difficulty, matches distractor lengths to prevent visual guessing, and prioritizes concepts where students previously erred.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "AdaptiveTestGenerationEngine",
+        "StudyModesOrchestratorEngine",
+        "GeneratedQuestion"
+      ],
+      "entry_points": [
+        "AdaptiveTestGenerationEngine.generateTest",
+        "AdaptiveTestGenerationEngine.evaluateTest"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Essential component for school test preparation and automated quiz synthesis in Family OS."
+    },
+    "tags": [
+      "adaptive_testing",
+      "mcq",
+      "distractors",
+      "assessment",
+      "quiz_engine"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000005",
+    "app_id": "quizlet",
+    "name": "Streaks, Streak Freezes & Gamification Engine",
+    "category": "Algorithms",
+    "description": "Micro-habit retention engine tracking daily consecutive study sessions, streak freeze consumable shields, and quadratic XP level progression.",
+    "source_refs": [
+      "QZ-SRC-033878",
+      "QZ-SRC-033871"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000005"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates local midnight boundaries, awards study activity XP, deducts streak freezes on 1-day lapses, and calculates user level L = floor(sqrt(XP/100)) + 1.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "StreaksAndGamificationEngine",
+        "StreakState",
+        "StreakUpdateResult"
+      ],
+      "entry_points": [
+        "StreaksAndGamificationEngine.recordStudySession",
+        "StreaksAndGamificationEngine.calculateLevel"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct integration model with Family OS Token Rewards and Screen Time incentives (S1-05)."
+    },
+    "tags": [
+      "streaks",
+      "gamification",
+      "streak_freeze",
+      "xp",
+      "retention"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000006",
+    "app_id": "quizlet",
+    "name": "Learning Mastery Tracking & Retention Progress",
+    "category": "Engines & Services",
+    "description": "Progress tracking subsystem managing three-state progression (Unseen, Still Learning, Mastered) and weighted set mastery computation.",
+    "source_refs": [
+      "QZ-SRC-033872",
+      "QZ-SRC-000008"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000006"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Maintains mastery state transitions based on consecutive correct recalls (threshold >= 2), determines due review counts, and outputs set completion percentages.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "LearningMasteryTrackingEngine",
+        "CardProgressRecord",
+        "SetMasteryOverview"
+      ],
+      "entry_points": [
+        "LearningMasteryTrackingEngine.updateCardStatus",
+        "LearningMasteryTrackingEngine.computeSetMastery"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Enables parent dashboard visibility over child study mastery and homework readiness."
+    },
+    "tags": [
+      "mastery",
+      "learning_progress",
+      "retention",
+      "metrics"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000007",
+    "app_id": "quizlet",
+    "name": "Offline-First Study & Action Queue Engine",
+    "category": "Local Storage",
+    "description": "Offline-first action buffer capturing study session events, recall outcomes, latency metrics, and star toggles into local persistent SQLite queue.",
+    "source_refs": [
+      "QZ-SRC-033874",
+      "QZ-SRC-033885"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000007"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Writes discrete study events to offline_action_queue table, prioritizes higher card mastery during offline conflict resolution, and bundles events for upload.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "OfflineStudySyncEngine",
+        "StudyEventRecord",
+        "SyncBatchPayload"
+      ],
+      "entry_points": [
+        "OfflineStudySyncEngine.prepareBatchPayload",
+        "OfflineStudySyncEngine.resolveConflict"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Critical for offline school commute study on school buses and offline family travel."
+    },
+    "tags": [
+      "offline_first",
+      "action_queue",
+      "event_sourcing",
+      "sqlite"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000008",
+    "app_id": "quizlet",
+    "name": "Offline Sync & Last-Write-Wins Conflict Resolution Engine",
+    "category": "Engines & Services",
+    "description": "Bi-directional cloud synchronization engine resolving data divergence between offline mobile study sets and server state using LWW and mastery preservation.",
+    "source_refs": [
+      "QZ-SRC-033875",
+      "QZ-SRC-033894"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000008"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Batches pending mutations, performs deterministic Last-Write-Wins (LWW) conflict merging, preserves user local edits, and computes exponential retry delays.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "OfflineSyncAndConflictResolutionEngine",
+        "OfflineMutation",
+        "CardConflictPayload"
+      ],
+      "entry_points": [
+        "OfflineSyncAndConflictResolutionEngine.buildSyncBatches",
+        "OfflineSyncAndConflictResolutionEngine.resolveCardConflict"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Reference synchronization architecture for multi-device family data sync."
+    },
+    "tags": [
+      "sync",
+      "conflict_resolution",
+      "lww",
+      "exponential_backoff"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000009",
+    "app_id": "quizlet",
+    "name": "Smart Grading & Arabic Diacritics Normalization Engine",
+    "category": "Algorithms",
+    "description": "Fuzzy text validation engine normalizing Unicode text, stripping Arabic Tashkeel/Tatweel, unifying Alef/Hamza variants, and applying Damerau-Levenshtein tolerance.",
+    "source_refs": [
+      "QZ-SRC-033876",
+      "QZ-SRC-033871"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000009"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Grades student written answers with semantic leniency, ignoring punctuation, case, and minor spelling slips while penalizing conceptual errors.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "SmartGradingAndFuzzyMatchingEngine",
+        "GradingVerdict",
+        "GradingResult"
+      ],
+      "entry_points": [
+        "SmartGradingAndFuzzyMatchingEngine.grade",
+        "SmartGradingAndFuzzyMatchingEngine.normalizeText"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Essential for Arabic educational curricula and children learning Arabic vocabulary without typo frustration."
+    },
+    "tags": [
+      "smart_grading",
+      "arabic_normalization",
+      "fuzzy_matching",
+      "levenshtein"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000010",
+    "app_id": "quizlet",
+    "name": "Match Game Physics, Tile Grid & Scoring Engine",
+    "category": "Features & Business Rules",
+    "description": "Interactive speed-matching game engine operating a 12-tile randomized grid with tap selection physics, error state feedback, and millisecond stopwatch scoring.",
+    "source_refs": [
+      "QZ-SRC-033873",
+      "QZ-SRC-037363"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000010"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Manages game lifecycle (READY -> RUNNING -> COMPLETED), validates term-definition tile pairs, applies +1.0s penalty on mismatch, and calculates high-score leaderboard times.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "MatchGamePhysicsAndScoringEngine",
+        "MatchTile",
+        "MatchGameState"
+      ],
+      "entry_points": [
+        "MatchGamePhysicsAndScoringEngine.startNewGame",
+        "MatchGamePhysicsAndScoringEngine.handleTileClick"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Highly engaging gamified study mode for child vocabulary and concept mastery."
+    },
+    "tags": [
+      "match_game",
+      "gamification",
+      "interactive_ui",
+      "physics",
+      "timer"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000011",
+    "app_id": "quizlet",
+    "name": "Text-to-Speech & Hands-Free Audio Playback Engine",
+    "category": "Engines & Services",
+    "description": "Multilingual audio synthesis and playback orchestration engine supporting automated language locale detection and structured inter-card pause timing.",
+    "source_refs": [
+      "QZ-SRC-033880",
+      "QZ-SRC-000003"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000011"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Detects language script from text content, orchestrates alternating speech and configurable silence pauses, and delegates to AudioPlaybackService for background listening.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "TextToSpeechAndAudioEngine",
+        "AudioConfig",
+        "PlaybackState"
+      ],
+      "entry_points": [
+        "TextToSpeechAndAudioEngine.detectLocale",
+        "TextToSpeechAndAudioEngine.buildPlaybackSequence"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Enables hands-free audio study on walks or before sleep for children and auditory learners."
+    },
+    "tags": [
+      "tts",
+      "audio",
+      "speech",
+      "multilingual",
+      "background_playback"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000012",
+    "app_id": "quizlet",
+    "name": "Room Database & Local Structured Schema Architecture",
+    "category": "Local Storage",
+    "description": "Persistence architecture comprising 9 Room SQLite tables, composite performance indices, foreign-key cascade rules, and external BLOB isolation.",
+    "source_refs": [
+      "QZ-SRC-033883",
+      "QZ-SRC-033884"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000012"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Stores study sets, flashcard terms, SRS mastery states, folders, classes, offline queues, and streaks; isolates binary media to disk files to protect SQLite CursorWindow.",
+    "implementation_details": {
+      "primary_language": "SQL / Kotlin",
+      "key_classes": [
+        "com.quizlet.db.AppDatabase",
+        "com.quizlet.db.dao.StudySetDao",
+        "com.quizlet.db.dao.StudiableItemDao"
+      ],
+      "entry_points": [
+        "AppDatabase.getInstance"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct schema blueprint for Family OS local SQLite / Drift storage layer."
+    },
+    "tags": [
+      "room",
+      "sqlite",
+      "database",
+      "indices",
+      "persistence"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000013",
+    "app_id": "quizlet",
+    "name": "Cloud REST API & HTTP Gateways Layer",
+    "category": "Network & API",
+    "description": "Comprehensive client network layer cataloging 195 unique REST endpoints across 4 base API hosts (v3, v4, Coach AI, WebAPI).",
+    "source_refs": [
+      "QZ-SRC-033886",
+      "QZ-SRC-033894"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000013"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Coordinates Retrofit/OkHttp requests, handles GZIP compressed payloads, manages authentication bearer tokens, and consumes NDJSON streams for AI Coach.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.remote.service.StudyService",
+        "com.quizlet.remote.service.CoachService"
+      ],
+      "entry_points": [
+        "StudyService.getStudySet",
+        "CoachService.streamChat"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "concept_adaptation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Contract model for cloud study set synchronization and streaming AI tutor interactions."
+    },
+    "tags": [
+      "network",
+      "api",
+      "retrofit",
+      "rest",
+      "endpoints",
+      "ndjson"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000014",
+    "app_id": "quizlet",
+    "name": "CameraX Document Scanner & Native OCR Preprocessing Core",
+    "category": "Features & Business Rules",
+    "description": "Document digitization subsystem integrating AndroidX CameraX with native JNI library libimage_processing_util_jni.so for hardware-accelerated image conversion.",
+    "source_refs": [
+      "QZ-SRC-033893",
+      "QZ-SRC-033891"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000014"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Converts YUV420 camera preview frames directly to Bitmaps in native C++ memory without GC allocation, facilitating instant OCR document scanning into flashcards.",
+    "implementation_details": {
+      "primary_language": "C++ / Java",
+      "key_classes": [
+        "androidx.camera.core.ImageProcessingUtil",
+        "com.quizlet.scandocument.ScanDocumentActivity"
+      ],
+      "entry_points": [
+        "ImageProcessingUtil.nativeConvertAndroid420ToBitmap"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "High-speed document scanner for digitizing physical school worksheets and book pages."
+    },
+    "tags": [
+      "ocr",
+      "camerax",
+      "native_so",
+      "jni",
+      "image_processing"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000015",
+    "app_id": "quizlet",
+    "name": "Approov Mobile App Attestation & Anti-Scraping Security",
+    "category": "Security & Cryptography",
+    "description": "Cryptographic client integrity subsystem utilizing Approov SDK in libapproov.so to verify device attestation and prevent unauthorized API scraping.",
+    "source_refs": [
+      "QZ-SRC-033893",
+      "QZ-SRC-033888"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000015"
+    ],
+    "technical_depth": "T3_engineering",
+    "behavior_summary": "Calculates binary memory hashes to detect Frida/Xposed hooks, signs outbound HTTPS requests with dynamic Approov-Token JWTs, and enforces API gateway authentication.",
+    "implementation_details": {
+      "primary_language": "C++ / Kotlin",
+      "key_classes": [
+        "com.quizlet.appattestation.ApproovManager",
+        "com.quizlet.remote.interceptor.ApproovInterceptor"
+      ],
+      "entry_points": [
+        "ApproovManager.fetchToken",
+        "ApproovInterceptor.intercept"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "architectural_reference",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "adaptable",
+      "notes": "Security pattern for safeguarding proprietary family educational models and API endpoints."
+    },
+    "tags": [
+      "security",
+      "approov",
+      "attestation",
+      "anti_scraping",
+      "jwt"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000016",
+    "app_id": "quizlet",
+    "name": "Realtime Classroom Competitions & Quizlet Live Protocol",
+    "category": "Realtime & Messaging",
+    "description": "Multi-player real-time gamification protocol enabling synchronized team quiz competitions via bi-directional WebSocket messaging.",
+    "source_refs": [
+      "QZ-SRC-033895",
+      "QZ-SRC-000003"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000016"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Handles 6-digit game PIN join handshakes, distributes complementary question-answer sets across team members, and broadcasts live leaderboard race state.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.quizletandroid.ui.live.QuizletLiveActivity",
+        "com.quizlet.quizletandroid.ui.live.LiveSocketManager"
+      ],
+      "entry_points": [
+        "QuizletLiveActivity.onCreate",
+        "LiveSocketManager.connect"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Model for Family Quiz Night and sibling friendly study challenges."
+    },
+    "tags": [
+      "quizlet_live",
+      "websocket",
+      "realtime",
+      "multiplayer",
+      "gamification"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000017",
+    "app_id": "quizlet",
+    "name": "Textbook Explanations & Step-by-Step Solutions Architecture",
+    "category": "Features & Business Rules",
+    "description": "Curriculum-aligned textbook solution viewer indexing millions of exercise problems by ISBN and rendering verified step-by-step mathematical explanations.",
+    "source_refs": [
+      "QZ-SRC-033886",
+      "QZ-SRC-001512"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000017"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Queries textbook metadata by ISBN, fetches chapter problem trees, renders LaTeX math formulas via KaTeX/MathML, and caches recent exercise solutions.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.explanations.ui.TextbookActivity",
+        "com.quizlet.explanations.ui.ExerciseDetailFragment"
+      ],
+      "entry_points": [
+        "TextbookActivity.onCreate"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Direct reference for Family OS homework assistance and step-by-step problem solver (S5-01)."
+    },
+    "tags": [
+      "textbooks",
+      "explanations",
+      "homework_help",
+      "math",
+      "katex"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000018",
+    "app_id": "quizlet",
+    "name": "Multi-Provider Authentication & Account Management",
+    "category": "Authentication & Authorization",
+    "description": "Identity subsystem supporting federated Single Sign-On (Google, Apple, Facebook), school account integration, COPPA age gating, and OAuth2 session tokens.",
+    "source_refs": [
+      "QZ-SRC-033886",
+      "QZ-SRC-000007"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000018"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Manages user credential flow, enforces child safety isolation (under-13 COPPA compliant profile), stores auth tokens in EncryptedSharedPreferences, and handles account deletion.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.login.ui.LoginActivity",
+        "com.quizlet.login.auth.AuthTokenManager"
+      ],
+      "entry_points": [
+        "LoginActivity.onCreate",
+        "AuthTokenManager.getValidToken"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Integrates directly with Family OS Unified Family Account & Child Identity (S1-02)."
+    },
+    "tags": [
+      "auth",
+      "sso",
+      "coppa",
+      "oauth2",
+      "account"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000019",
+    "app_id": "quizlet",
+    "name": "WorkManager Background Scheduling & FCM Retention Alerts",
+    "category": "Engines & Services",
+    "description": "Background execution and scheduling framework utilizing AndroidX WorkManager and Firebase Cloud Messaging for persistent maintenance and study reminders.",
+    "source_refs": [
+      "QZ-SRC-000005",
+      "QZ-SRC-033895"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000019"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Schedules periodic LRU cache pruning jobs, drains offline study event queues upon network recovery, and triggers urgent evening streak preservation push notifications.",
+    "implementation_details": {
+      "primary_language": "Kotlin",
+      "key_classes": [
+        "com.quizlet.background.SyncWorker",
+        "com.quizlet.background.CacheCleanupWorker",
+        "com.quizlet.quizletandroid.QuizletFirebaseMessagingService"
+      ],
+      "entry_points": [
+        "SyncWorker.doWork",
+        "QuizletFirebaseMessagingService.onMessageReceived"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Standard background execution pattern aligned with Android 14+ foreground service and WorkManager constraints."
+    },
+    "tags": [
+      "workmanager",
+      "fcm",
+      "push_notifications",
+      "background_sync",
+      "scheduling"
+    ]
+  },
+  {
+    "resource_id": "QZ-RES-000020",
+    "app_id": "quizlet",
+    "name": "Telemetry, ComScore Metrics & Event Logging Pipeline",
+    "category": "Analytics & Telemetry",
+    "description": "End-to-end telemetry subsystem collecting student study velocity, response latency, session duration, and retention analytics via native libcomScore.so and Snowplow.",
+    "source_refs": [
+      "QZ-SRC-033893",
+      "QZ-SRC-001512",
+      "QZ-SRC-033889"
+    ],
+    "evidence_refs": [
+      "QZ-EVD-000020"
+    ],
+    "technical_depth": "T2_functional",
+    "behavior_summary": "Batches structured behavioral telemetry events, records card flip timestamps, instruments ComScore audience measurement, and isolates COPPA-restricted child data.",
+    "implementation_details": {
+      "primary_language": "Kotlin / C++",
+      "key_classes": [
+        "com.quizlet.eventlogger.EventLogger",
+        "com.quizlet.snowplow.SnowplowTracker"
+      ],
+      "entry_points": [
+        "EventLogger.logEvent",
+        "SnowplowTracker.trackSelfDescribingEvent"
+      ]
+    },
+    "reusability_assessment": {
+      "legal_authorization": "standard_compliance",
+      "technical_reuse_strategy": "cleanroom_reimplementation",
+      "licensing_risk": "low",
+      "cleanroom_requirement": true,
+      "architectural_fit": "direct",
+      "notes": "Reference telemetry schema for privacy-compliant learning analytics in Family OS."
+    },
+    "tags": [
+      "telemetry",
+      "analytics",
+      "snowplow",
+      "comscore",
+      "event_logging"
+    ]
+  }
+]
