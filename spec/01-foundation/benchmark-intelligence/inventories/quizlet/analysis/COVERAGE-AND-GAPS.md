@@ -227,8 +227,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000003`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `POST /study/v1/learn/sessions (Sync)`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states.easiness_factor`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   تعتمد دقة الحساب على التزام الطالب بعدم الغش.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -253,8 +253,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000003`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states.next_review_due_at`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   الفاصل الزمني يُقاس بالأيام الكاملة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -279,8 +279,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000003`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states (interval_days, consecutive_correct)`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   تتكرر البطاقة حتى يجيب الطالب عنها مرتين متتاليتين بصورة صحيحة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -305,8 +305,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000003`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states (last_reviewed_at, interval_days)`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   نموذج رياضي تقريبي لسلوك الذاكرة البشرية.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -331,8 +331,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000012`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states (next_review_due_at)`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   إذا لم توجد بطاقات مستحقة يعرض التطبيق رسالة إتمام المراجعة اليومية.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_QUERY`
@@ -357,8 +357,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000004`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `GET /practice-tests/{practiceTestId}`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `studiable_items`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يتطلب وجود 4 بطاقات على الأقل في المجموعة لتوليد 3 مشتتات فريدة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_TEST_GEN`
@@ -383,8 +383,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000004`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `studiable_items`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يعتمد على توازن التوزيع العشوائي.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_TEST_GEN`
@@ -409,8 +409,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000004`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `studiable_items`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يتطلب واجهة تفاعلية تدعم السحب والربط.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_TEST_GEN`
@@ -435,8 +435,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000004`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `studiable_items`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يتطلب لوحة مفاتيح نشطة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_TEST_GEN`
@@ -461,8 +461,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000004`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `PUT /practice-tests/{id}/answers/{qid}`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `QuestionResult List`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   حفظ محلي فوري مع مزامنة سحابية اختيارية.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_EVALUATION`
@@ -643,8 +643,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000009`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `GradingResult`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يعمل محلياً بدون إنترنت.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_GRADING`
@@ -721,8 +721,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000009`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Text String`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   خاص بالنصوص العربية فقط.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ARABIC_ALGO`
@@ -747,8 +747,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000009`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Text String`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يدعم التسامح الإملائي في البيئات المدرسية العربية.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ARABIC_ALGO`
@@ -773,8 +773,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000009`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Distance Integer`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   لا ينطبق على الكلمات القصيرة (<= 4 أحرف).
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -799,8 +799,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000009`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Text String`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يسمح للطلاب بالإجابة بحرية دون التقيد بعلامات الترقيم.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_ALGORITHM`
@@ -877,8 +877,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000005`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `POST /achievements/eventAsync`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `daily_streaks (updated_at)`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   منحنى نمو تدريجي يمنع التضخم السريع للمستويات.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_GAMIFICATION`
@@ -1033,8 +1033,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000006`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `SetMasteryOverview`
-- **مستوى الإثبات (Evidence Level):** `Level B`
-- **حالة التغطية (Coverage Status):** `Derived`
+- **مستوى الإثبات (Evidence Level):** `Level A`
+- **حالة التغطية (Coverage Status):** `Confirmed`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   ميزة تكامل ممتازة لمنصة Family OS.
 - **القرار النهائي للتصرف (Final Disposition):** `DERIVED_PARENT_EXPORT`
@@ -1085,8 +1085,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000012`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `study_sets`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يحمي ذاكرة الهاتف من الامتلاء العشوائي.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_LRU_EVICTION`
@@ -1111,8 +1111,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000012`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `GET /audio/download`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Disk File Storage`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   تصميم معماري وقائي ضد انهيارات CursorWindowAllocationException.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_BLOB_ISOLATION`
@@ -1189,8 +1189,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000008`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `POST /study/v1/sessions/batch-sync`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `SyncBatchPayload`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يوفر كفاءة بيانات عالية للشبكات الضعيفة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_BATCH_COMPRESS`
@@ -1215,8 +1215,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000008`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `studiable_items`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   خوارزمية قياسية لفض النزاعات دون تعطيل المستخدم.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_LWW_ALGO`
@@ -1241,8 +1241,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000007`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `card_mastery_states.mastery_level`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   حماية تحفيزية لجهد الطالب عبر الأجهزة المتعددة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_MASTERY_MERGE`
@@ -1267,8 +1267,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000008`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `WorkManager Constraints`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يحمي خوادم المزامنة من هجمات Thundering Herd.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_BACKOFF`
@@ -1293,8 +1293,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000011`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `Locale String`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يتطلب توفر حزمة اللغة في محرك نصوص أندرويد TTS.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_LOCALE_DETECT`
@@ -1319,8 +1319,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000011`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `List<PlaybackStep>`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   يوفر تجربة استماع انسيابية بدون مقاطعة.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_AUDIO_SEQUENCE`
@@ -2229,8 +2229,8 @@ flowchart TD
 - **الدليل المادي المرتبط (Related Evidence):** `QZ-EVD-000015`
 - **اعتماديات الواجهات البرمجية (API Dependencies):** `None (Intercepts all API requests)`
 - **اعتمادية البيانات والتخزين (Data Dependencies):** `libapproov.so`
-- **مستوى الإثبات (Evidence Level):** `Level A`
-- **حالة التغطية (Coverage Status):** `Confirmed`
+- **مستوى الإثبات (Evidence Level):** `Level B`
+- **حالة التغطية (Coverage Status):** `Derived`
 - **القيود الهندسية والمسائل المعلقة (Limitations):**
   منفذ أصلياً بـ C++ JNI ويحمي الملكية الفكرية للمحتوى.
 - **القرار النهائي للتصرف (Final Disposition):** `CONFIRMED_SECURITY_ATTESTATION`
@@ -2296,14 +2296,14 @@ flowchart TD
 
 | حالة التغطية (Coverage Status) | مستوى الإثبات (Evidence Level) | العدد الفعلي | النسبة المئوية (%) | التفسير الهندسي والمعماري |
 |---|:---:|:---:|:---:|---|
-| **Confirmed** | **Level A** | **60** | **70.6%** | قدرات ووظائف مثبتة قطيعاً بالكود المصدري الأصلي المتاح محلياً (Kotlin, Java, C++ JNI, Room SQL). |
-| **Derived** | **Level B** | **20** | **23.5%** | نماذج هندسية مستنتجة ومطابقة من عقود الـ APIs ومخططات الـ DTOs والروابط العميقة والواجهات. |
-| **Partial** | **Level B/C** | **5** | **5.9%** | وظائف يبدأ تنفيذها في تطبيق العميل ولكن إتمامها النهائي يعتمد على خوادم سحابية مغلقة أو خدمات خارجية (FCM, Billing, Cloud Sync). |
+| **Confirmed** | **Level A** | **36** | **42.4%** | قدرات ووظائف مثبتة مباشرة في كود العميل الأصلي ومكونات المانيفست وواجهات Compose ومكتبات C++ الثنائية وقاعدة بيانات SQLite. |
+| **Derived** | **Level B** | **44** | **51.8%** | نماذج هندسية مستنتجة ومطابقة من نماذج إعادة البناء المعيارية (SM-2, Distractors, Arabic Normalizer) وعقود الـ APIs وبروتوكول WebSocket. |
+| **Partial** | **Level B/C** | **5** | **5.8%** | وظائف يبدأ تنفيذها في تطبيق العميل ولكن إتمامها النهائي يعتمد على خوادم سحابية خارجية (تنبيهات FCM، رفع الصوت، تسجيل SSO، حذف الحساب GDPR، فوترة Google Play). |
 | **Not Found** | — | **0** | **0.0%** | قدرات تم البحث عنها في النطاق المستهدف ولم يُعثر على أي أثر لها. |
-| **Unavailable** | **Level C** | **0** | **0.0%** | كود خادم مغلق غير متاح في حزمة العميل (لم تسجل كمرشحات وظيفية بدون شواهد). |
-| **الإجمالي الكلي (Total Records)** | — | **85** | **100.0%** | **تغطية شاملة ومطابقة تامة بين السجلات الفردية وجدول الإحصاء النهائي.** |
+| **Unavailable** | **Level C** | **0** | **0.0%** | ميزات سحابية بحتة لا تملك أي واجهة أو نموذج أو نقطة نهاية في حزمة العميل (لم تُدرج كمرشحات مستقلة). |
+| **الإجمالي الكلي (Total Records)** | — | **85** | **100.0%** | **تغطية شاملة ومطابقة تامة 100% بين السجلات الفردية وجدول الإحصاء النهائي.** |
 
 ### قواعد التحقق والنزاهة:
-1. **مجموع الحالات الخمس:** 60 (Confirmed) + 20 (Derived) + 5 (Partial) + 0 (Not Found) + 0 (Unavailable) = **85 دالة تفصيلية**.
+1. **مجموع الحالات الخمس:** 36 (Confirmed) + 44 (Derived) + 5 (Partial) + 0 (Not Found) + 0 (Unavailable) = **85 دالة تفصيلية**.
 2. **مطابقة الأسطر والمصادر:** كل مرجع سطر في الوثيقة يقابله ملف حقيقي موجود على القرص وتم التحقق من صحة أرقام بدايته ونهايته بنسبة 100%.
 3. **لا ادعاء للكمال الخارجي:** تم إعلان حدود الملكية بصرامة؛ فما ينفذه الخادم صُنّف كـ Derived أو Partial أو فجوة صريحة دون ادعاء امتلاك كود الخادم المغلق.
