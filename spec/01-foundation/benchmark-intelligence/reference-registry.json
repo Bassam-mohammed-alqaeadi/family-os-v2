@@ -113,7 +113,7 @@
         "Child Reward Integration Hook (S1-05)",
         "Study Activity Event Telemetry"
       ],
-      "notes": "Verified package name in AndroidManifest.xml is com.quizlet.quizletandroid. BIP-06 Full Inventory completed locally, quality gate passed 100% (READY FOR OWNER ACCEPTANCE)."
+      "notes": "Verified package name in AndroidManifest.xml is com.quizlet.quizletandroid. BIP-06 Full Inventory, Evidence Audit & Reconciliation completed and published: ACCEPTED WITH DOCUMENTED LIMITATIONS — PUBLISHED."
     },
     {
       "app_id": "famisafe",

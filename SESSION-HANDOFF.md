@@ -1,14 +1,14 @@
 # SESSION-HANDOFF.md
 
 ## آخر تحديث
-2026-11-03T22:30+03:00
+2026-11-03T22:45+03:00
 
 ## إغلاق تدقيق أصل الأدلة وحسم التغطية الوظيفية لـ BIP-06 — Quizlet Final Reconciliation & GitHub Publication
 - **حالة التنفيذ:** مكتمل بالكامل ومحقق ذاتياً وفق أمر المالك الصريح للتسوية الختامية وميثاق D-039، باعتماد حوكمي معلن القيود: **ACCEPTED WITH DOCUMENTED LIMITATIONS — PUBLISHED**.
 - **الـ Commit التأسيسي المفحوص:** `be65bd32b23d4c6f0770bf03e8fc1813e7107d87`.
 - **الـ Commit التصحيحي لتدقيق الأدلة:** `83fd20ba542b58225f8709f2c0dcebc63f4d52c7`.
-- **الـ Commit النهائي لحسم التغطية والاتساق:** جارٍ تسجيله ونشره إلى GitHub.
-- **سلامة Git ونقطة البداية:** تم إثبات أن Parent SHA للـ Commit يطابق نقطة البداية المعتمدة `81755ab2d4faa8de169f864a9b1e4118446a87e7` بنسبة 100%، وشجرة العمل نظيفة تماماً دون أي انحراف.
+- **الـ Commit النهائي لحسم التغطية والاتساق والنشر:** `252eb9e50f10025049de1d2e650392ad3460dbd5`.
+- **سلامة Git ونقطة البداية:** تم إثبات أن Parent SHA للـ Commit يطابق نقطة البداية المعتمدة `81755ab2d4faa8de169f864a9b1e4118446a87e7` بنسبة 100%، ونُشرت كافة التعديلات إلى الفرع البعيد `origin/feat/benchmark-intelligence-program` بنجاح عبر Fast-forward.
 - **مخرجات تدقيق أصل الأدلة (Evidence Provenance Findings):**
   - **إعادة تصنيف مستويات الإثبات (Level A / B / C):**
     - **Level A (مباشر من APK):** دليلان فقط (`QZ-EVD-000001` للـ Manifest، و `QZ-EVD-000002` لملف الألوان والرموز).
@@ -25,7 +25,7 @@
 - **التحقق والاختبارات:**
   - اجتياز أداة التحقق المستقلة `validate-program.py --app quizlet` بنجاح: صفر أخطاء (0 Errors) وتحذير واحد تنظيمي مقبول للمصادر الخام.
   - اجتياز فحص التنسيق `git diff --check` بنجاح تام (Zero whitespace errors).
-- **المرحلة التالية:** بانتظار توجيه المالك النهائي (Push / الانتقال إلى BIP-07).
+- **المرحلة التالية:** BIP-07 (FamiSafe) — تم إنجاز الفحص الاستكشافي المسبق (Preflight)، وجاهز لبدء الجرد الشامل في محادثة جديدة.
 - **الحالة الحوكمية:** التزام تام بقواعد قفل النطاق (Scope Lock) وميثاق D-039؛ مجلد `benchmarks/` للقراءة فقط بنسبة 100% دون مساس، ومواصفات الأنظمة الـ 44 (`spec/03..08`) لم تُعدل، ومخرجات التطبيقات السابقة (Telegram، FamilyWall، Life360، Qustodio) معزولة وسليمة 100%.
 - **مخرجات الجرد الشامل والاكتشاف الهندسي (T0–T3):**
   - **سجل المصادر (T0):** حصر شامل لـ **37,363 مصدراً** في `sources.json` بإجمالي حجم **205,886,274 بايت** (`~205.89 MB`) مع البصمات الرقمية SHA-256 وحجم ملفات Git Blob من HEAD للملفات المتتبعة (36 ملفاً متتبعاً، و37,327 ملفاً محلياً).
@@ -44,7 +44,39 @@
 - **التحقق والاختبارات:**
   - اجتياز أداة التحقق المستقلة `validate-program.py --app quizlet` بنجاح: صفر أخطاء (0 Errors) وتحذير واحد تنظيمي مقبول للمصادر الخام.
   - اجتياز فحص التنسيق `git diff --check` بنجاح تام (Zero whitespace errors).
-- **المرحلة التالية:** BIP-07 (FamiSafe) — بانتظار أمر البدء الصريح من المالك.
+- **المرحلة التالية:** BIP-07 (FamiSafe) — تم استكمال الفحص الاستكشافي المسبق (Preflight) وجاهز تماماً للتنفيذ فور صدور أمر المالك في محادثة جديدة.
+
+---
+
+## الفحص الاستكشافي المسبق وجاهزية BIP-07 — FamiSafe Preflight Summary
+- **الهوية المرجعية لتطبيق FamiSafe:**
+  - `app_id`: `famisafe`
+  - `display_name`: `FamiSafe`
+  - `package_name`: `com.wondershare.famisafe` (مثبت قطيعاً من `AndroidManifest.xml` و `apktool.yml`)
+  - `id_prefix`: `FS`
+  - `program_phase`: `BIP-07`
+  - `priority`: 6
+- **مسارات النظام:**
+  - مسار المصدر: `benchmarks/extracted/famisafe/` (موجود ويحتوي على 24,098 ملفاً بإجمالي حجم 303,995,568 بايت / ~304.00 MB / 289.91 MiB)
+  - مسار المانيفست: `benchmarks/extracted/famisafe/01_architecture_and_manifest/AndroidManifest.xml` (موجود، بحجم 40,038 بايت)
+  - مسار الإخراج المستهدف: `spec/01-foundation/benchmark-intelligence/inventories/famisafe/` (غير موجود حالياً — سيُنشأ عند بدء BIP-07)
+  - ملف التقرير المستهدف: `REP-FS-001`
+- **التشريح الأولي والخصائص التقنية (من APK & Manifest):**
+  - ملف الـ APK الأصلي: `famisafe-parental-control-app.apk`
+  - إصدار التطبيق: `versionCode: 9669`، `versionName: 7.2.5.9669`
+  - إصدارات الـ SDK: `minSdkVersion: 19`، `targetSdkVersion: 33`، `compileSdkVersion: 33`
+  - الأذونات: 29 إذناً للنظام (`uses-permission`)
+  - المكونات الإجمالية: 156 مكوناً (124 نشاطاً، 15 خدمة، 11 مستقبلاً، 6 موفرات محتوى)
+  - ملفات DEX: 4 ملفات DEX بحجم إجمالي 28,785,420 بايت (~28.79 MB): `classes.dex` (9.18 MB)، `classes2.dex` (7.85 MB)، `classes3.dex` (6.93 MB)، `classes4.dex` (4.82 MB)
+  - المكتبات الأصلية (SO): 21 مكتبة ثنائية C++ موزعة على 6 معماريات (`arm64-v8a`, `armeabi-v7a`, `armeabi`, `x86`, `x86_64`, `mips`) تضم: `libRSSupport.so`, `librsjni.so`, `librsjni_androidx.so`, `libmp3lame.so`, `libpl_droidsonroids_gif.so`
+  - الكود المصدري المستخرج: 15,853 ملف Java ملغى تجميعها، 10 ملفات Kotlin لنماذج خوارزمية مستخلصة في `04_extracted_algorithms/`، 4,273 ملف XML، 134 ملف JSON، و 11 ملف Markdown
+  - قواعد البيانات والنماذج: سكيما محلية `local_db_schema.sql` ونماذج TypeScript / Dart في `05_data_models_and_schemas/`
+- **تسلسل العلاقات العالمي:**
+  - آخر معرّف علاقات مستخدم حتى الآن: `REL-000062` (في Quizlet)
+  - أول معرّف علاقات سيبدأ به جرد FamiSafe: `REL-000063`
+- **حالة شجرة Git ونقطة البداية المقترحة لـ BIP-07:**
+  - الفرع: `feat/benchmark-intelligence-program`
+  - نقطة البداية (Base Commit): `252eb9e50f10025049de1d2e650392ad3460dbd5` (أو Commit تحديث السجلات الحالي)
 
 ---
 
