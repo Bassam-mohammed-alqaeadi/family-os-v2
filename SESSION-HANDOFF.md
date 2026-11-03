@@ -1,31 +1,28 @@
 # SESSION-HANDOFF.md
 
 ## آخر تحديث
-2026-11-03T01:00+03:00
+2026-11-03T18:30+03:00
 
-## إغلاق BIP-05 — Qustodio Exhaustive Functional Discovery & Post-Inventory Completion (مكتمل ومحقق محلياً بانتظار اعتماد المالك)
-- **حالة التنفيذ:** مكتمل بالكامل ومحقق ذاتياً وفق منهج BIP وميثاق D-039 وتوجيه المالك الصريح للاكتشاف الوظيفي الشامل (Completeness First — Functional Discovery Before Acceptance)، بانتظار أمر المالك الصريح للاعتماد والحفظ.
+## إغلاق تدقيق الجودة الختامي لـ BIP-05 — Qustodio (PASA) Post-Commit Quality Audit & Acceleration Protocol
+- **حالة التنفيذ:** مكتمل بالكامل ومحقق ذاتياً وفق أمر المالك الصريح للتدقيق الختامي وميثاق D-039، باعتماد رسمي معلن القيود: **ACCEPTED WITH DOCUMENTED LIMITATIONS**.
+- **الـ Commit التأسيسي:** `8a29a47` (`feat(bip-05): complete Qustodio full inventory and exhaustive functional discovery`).
+- **الـ Commit التصحيحي (Consistency & Quality Fix):** جارٍ تسجيله بعد اجتياز الفحص الآلي المستقل 100%.
 - **الحالة الحوكمية:** التزام تام بقواعد قفل النطاق (Scope Lock)؛ مجلد `benchmarks/` للقراءة فقط بنسبة 100% دون مساس، ومواصفات الأنظمة الـ 44 (`spec/03..08`) لم تُعدل، وتطبيقات Telegram وFamilyWall وLife360 معزولة وسليمة 100%.
-- **مخرجات الجرد الشامل والاكتشاف الوظيفي الموسع (T0–T3):**
-  - **سجل المصادر (T0):** حصر قطعي شامل لـ **16,643 مصدراً** في `sources.json` بإجمالي حجم **122,179,310 بايت** (`122.18 MB / 116.52 MiB`) مع البصمات الرقمية SHA-256 وحجم ملفات Git Blob من HEAD للملفات المتتبعة.
-  - **طبقات التخزين وحسم الـ Ignore:** 41 ملفاً متتبعاً في Git (`git_tracked`) و 16,602 ملفاً محلياً (`local_only`)، مع إثبات أن 100% من الملفات المحلية مستثناة أصولاً بقواعد `.gitignore` الحاكمة (0 شواذ).
-  - **تشريح المانيفست والحاويات (T1):** حصر 34 إذناً للنظام، 17 نشاطاً، 13 خدمة، 9 مستقبلات، و4 موفرات محتوى.
-  - **حسم طوبولوجيا تطبيق الوالد مقابل تطبيق الطفل (Parent/Kids Topology):** إثبات أن الحزمة المفحوصة `com.qustodio.family.parental.control.app.screentime` هي **PASA (Parent App Stand Alone)** حصراً عبر أدلة قطعية Level A في `ParentOrKidAppChoiceContainer.ts` (#L1-L35) و `WrongAppInstalledContainer.ts` (#L1-L43)، وتخلو تماماً من `DeviceAdminReceiver` أو `AccessibilityService` أو `VpnService` أو إذن `PACKAGE_USAGE_STATS`. وتُنفذ الأوامر الرقابية والحظر عن بعد عبر إرسال وتعديل السياسات عبر الـ Cloud Backend لتُدفع كـ Firebase FCM High-Priority messages نحو أجهزة الأطفال (Companion devices).
-  - **حسم واقع TypeScript المستعاد:** مجلد `recovered_typescript/` يحتوي على **2,332 ملفاً إجمالياً**، منها **1,994 ملف TypeScript** فعلي (1,122 `.ts` + 872 `.tsx`)، و20 ملف `.js`، و318 أصلاً بصرياً للويب (231 `.png` + 87 `.svg`).
-  - **حسم ملفات DEX و SO الأصلية:** إثبات وجود 0 ملفات DEX و0 ملفات SO فعلية على القرص في مسار الاستخراج الحالي، مع توثيق الحاويات الأربع و28 مكتبة أصلية (بما فيها `libsigner.so`) من السجلات التاريخية للـ Decompilation وفحص `native_so_analysis.md`.
-  - **حسم كتالوج الـ REST APIs:** حصر 96 مجموعة Endpoints في `qapi.ts` تستدعي دوال الـ HTTP عبر 130 استدعاءً لتمثيل **99 نقطة نهاية وظيفية فريدة (99 unique endpoints)** عبر 5 نطاقات رئيسية (`api.qustodio.com`, `auth.qustodio.com`, `family.qustodio.com`, `ff.qustodio.com`, `api.pro.qustodio.net`) مع 435 موقع استدعاء مباشر في TypeScript.
-  - **حسم قاعدة البيانات المحلية SQLite:** إثبات وجود 22 جدولاً في `local_db_schema.sql` تنقسم إلى 15 جدولاً لـ Firebase Firestore v16، و6 جداول لـ Google DataTransport v7، وجدول واحد لـ Cordova NativeStorage KV يخزن 26 مفتاحاً تشغيلياً تشمل لقطة حالة Redux الكاملة.
-  - **كتالوج الموارد المعمارية والوظيفية (T2):** توسيع وتوثيق **20 مورداً معمارياً ووظيفياً** في `resources.json` (`QU-RES-000001` إلى `QU-RES-000020`) شملت إضافة موارد منظومة المدارس Linewize، ومحرك تحليلات يوتيوب، ونظام مراقبة المكالمات والرسائل، ومحرك التراخيص والاشتراكات.
-  - **سجل الأدلة المادية (T3):** توسيع وتوثيق **20 سجل إثبات** في `evidence.json` (`QU-EVD-000001` إلى `QU-EVD-000020`) مفهرسة بأرقام الأسطر المادية مع الفصل الصارم بين الأدلة الأصلية (Level A)، والنماذج الهندسية المشتقة (Level B)، والتفويضات الخارجية كـ `[PARTIAL-EVIDENCE]` (Level C).
-  - **سجل العلاقات البينية:** توسيع وتوثيق **15 علاقة داخلية معزولة** (`intra_app`) في `relationships.json` بالمعرفات `REL-000033` إلى `REL-000047` دون أي تداخل مع السجلات السابقة.
-  - **مصفوفة الاكتشاف الوظيفي الشاملة (`COVERAGE-AND-GAPS.md`):** حصر وتتبع **82 دالة تفصيلية مكتشفة ومحققة بالكامل** (`QU-FUN-000001` إلى `QU-FUN-000082`) تغطي 15 مجالاً وظيفياً مع تتبع السلسلة السببية الكاملة من واجهة المستخدم وحتى السيرفر المحلي والبعيد:
-    $$\text{User Action} \rightarrow \text{UI/Entry Point} \rightarrow \text{Handler} \rightarrow \text{Business Logic} \rightarrow \text{Component/Service} \rightarrow \text{API/Local Op} \rightarrow \text{Data Transformation} \rightarrow \text{State Change} \rightarrow \text{Response/User Feedback}$$
-  - **تقرير التطبيق الإحصائي الديناميكي:** إصدار التقرير المعتمد `REP-QU-001` في `report.json` متطابقاً بنسبة 100% مع إعادة الحساب الآلي للسجلات.
+- **مخرجات تدقيق الجودة والتوحيد المعماري:**
+  - **التوحيد الهيكلي مع سوابق البرنامج (Commit `5e39398` Pattern):** إزالة ازدواجية تقارير Markdown من جذر `qustodio/` وقصرها على مجلد التحليل `analysis/` مع إبقاء `README.md` وملفات الـ JSON في الجذر.
+  - **مصفوفة التغطية الوظيفية الـ 82 وتصنيف الحالات الخمس:**
+    - **43 دالة مؤكدة قطيعاً بالكود (Confirmed — Level A):** وظائف تطبيق الوالد المباشرة والمصادقة والإعدادات المحلية.
+    - **24 دالة مشتقة من بيانات الخادم والواجهة (Derived — Level B):** الجداول الزمنية والتحليلات والخوارزميات المحلية.
+    - **15 دالة جزئية التنفيذ على الجهاز (Partial — Level B/C):** أوامر القفل والحظر التي يرسلها الوالد وتتطلب وكيل الطفل المستقل.
+    - **0 دالة غير موجودة (Not Found)** من أصل 82 قدرة مرصودة.
+  - **تفكيك دورة حياة أمر القفل الفوري (Instant Lock 6-Stage Trace):** إثبات المرحلتين الأولى والثانية بالكود (Requested & Accepted - Level A)، وتصنيف الإرسال السحابي كنموذج مشتق (Dispatched - Level B)، والمراحل اللاحقة (Delivered & Applied & Verified) كفجوات معمارية معلنة (Level C / Unavailable) لغياب كود الطفل وسجلات الخادم.
+  - **الصياغة القطعية لقواعد البيانات:** تثبيت العبارة المعتمدة حرفياً: *"No Qustodio-owned relational business tables were identified in the examined SQL schema."* مع توضيح حفظ حالة Redux المتسلسلة في `native_storage_kv` والسحابة.
+  - **حسم البايتات التراكمية الدقيقة:** تثبيت المجموع الحسابي الفعلي للأحجام على القرص: **1,759,545,191 بايت** عبر التطبيقات الخمسة، وشرح الفارق التقديري للمسودة السابقة (118,184 بايت) بشفافية تامة في `PROGRAM-STATUS.md`.
+  - **تقرير التدقيق الختامي المستقل:** إصدار وثيقة `POST-COMMIT-QUALITY-AUDIT.md` الشاملة للأقسام الـ 14 المطلوبة.
 - **التحقق والاختبارات:**
-  - اجتياز أداة التحقق المستقلة `validate-program.py --app qustodio` بنجاح: صفر أخطاء (0 Errors) وتحذير واحد تنظيمي للمصادر الاحتياطية.
-  - اجتياز فحص الانحدار على تطبيقات Telegram و FamilyWall و Life360 بنجاح تام 100%.
-  - اجتياز جميع اختبارات الوحدة الـ 29 في `test_validator.py` بنجاح 100%.
-- **المرحلة التالية:** جاهز لاعتماد المالك لإغلاق BIP-05 والانتقال إلى BIP-06.
+  - اجتياز أداة التحقق المستقلة `validate-program.py --app qustodio` بنجاح: صفر أخطاء (0 Errors) وتحذير واحد تنظيمي مقبول.
+  - اجتياز فحص التنسيق `git diff --check` بنجاح تام (Zero whitespace errors).
+- **المرحلة التالية:** BIP-06 (Quizlet) — بانتظار أمر البدء الصريح من المالك.
 
 ---
 

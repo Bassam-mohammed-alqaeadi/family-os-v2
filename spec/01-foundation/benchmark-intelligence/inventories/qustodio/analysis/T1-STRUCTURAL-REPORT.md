@@ -1,9 +1,9 @@
 # التقرير الهيكلي لتشريح الحزمة والمكونات — Qustodio (T1 Structural Analysis)
 
-> **المعرف:** `T1-QU-STRUCTURAL-001`  
-> **التطبيق:** Qustodio Parental Control (`com.qustodio.family.parental.control.app.screentime`)  
-> **الإصدار المستخرج:** `182.41.0` (Build `1824100`)  
-> **بيئة التشغيل:** Android minSdk 24 (Nougat 7.0) / targetSdk 34 (Android 14)  
+> **المعرف:** `T1-QU-STRUCTURAL-001`
+> **التطبيق:** Qustodio Parental Control (`com.qustodio.family.parental.control.app.screentime`)
+> **الإصدار المستخرج:** `182.41.0` (Build `1824100`)
+> **بيئة التشغيل:** Android minSdk 24 (Nougat 7.0) / targetSdk 34 (Android 14)
 > **المعمارية التقنية:** تطبيق هجين Apache Cordova مع محرك Ionic WebView (React / Redux / TypeScript)
 
 ---

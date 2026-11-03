@@ -1,10 +1,10 @@
 # وثيقة الاستكشاف الوظيفي الشامل وتحليل الفجوات المعمارية — Qustodio
 # Comprehensive Functional Discovery, Boundary Reconciliation & Gaps Analysis (BIP-05)
 
-> **المعرف:** `DOC-QU-COV-001`  
-> **التطبيق:** Qustodio Parental Control (`com.qustodio.family.parental.control.app.screentime`)  
-> **المرحلة:** BIP-05 — Post-Inventory Exhaustive Functional Discovery & Completion  
-> **تاريخ التوليد:** 2026-11-03  
+> **المعرف:** `DOC-QU-COV-001`
+> **التطبيق:** Qustodio Parental Control (`com.qustodio.family.parental.control.app.screentime`)
+> **المرحلة:** BIP-05 — Post-Inventory Exhaustive Functional Discovery & Completion
+> **تاريخ التوليد:** 2026-11-03
 > **حالة التحقق الآلي:** `PASSED (100% Schema & Referential Integrity Compliant)`
 
 ---
@@ -27,7 +27,14 @@
    - إثبات أن عزل العملية (`:service`) يحمي من انهيارات واجهة المستخدم ولكنه لا يعفي الخدمة من قيود إدارة طاقة أندرويد.
 4. **مبدأ الشمولية الوظيفية أولاً (Completeness First Standard):**
    - كل وظيفة يجب أن تُحدد بشكل منفرد، وتُفحص تقنياً، وتُصنف، وتُربط بأدلتها ومسارها الهندسي الكامل:
-     $$	ext{User Action} ightarrow 	ext{UI Entry} ightarrow 	ext{Handler} ightarrow 	ext{Business Logic} ightarrow 	ext{Component/Service} ightarrow 	ext{API/Local Op} ightarrow 	ext{State Mutation} ightarrow 	ext{User Feedback}$$
+     $$	ext{User Action}
+ightarrow 	ext{UI Entry}
+ightarrow 	ext{Handler}
+ightarrow 	ext{Business Logic}
+ightarrow 	ext{Component/Service}
+ightarrow 	ext{API/Local Op}
+ightarrow 	ext{State Mutation}
+ightarrow 	ext{User Feedback}$$
 
 ---
 
@@ -202,88 +209,88 @@ classDiagram
 
 | المعرف الوظيفي | المجال الوظيفي | اسم الوظيفة | نطاق الملكية | مستوى الإثبات | الحالة |
 |---|---|---|---|:---:|:---:|
-| `QU-FUN-000001` | المصادقة والهوية وإعداد التطبيق | تسجيل الدخول بالبريد الإلكتروني وكلمة المرور (Email/Password Login) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000002` | المصادقة والهوية وإعداد التطبيق | تسجيل حساب عائلة جديد والتهيئة الأولية (Account Registration & Initial Setup) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000003` | المصادقة والهوية وإعداد التطبيق | تبادل الرموز والتجديد الصامت للجلسة (Silent OAuth2 Token Refresh) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000004` | المصادقة والهوية وإعداد التطبيق | التحقق بخطوتين عبر SMS وتدرج خنق الطلبات (2FA SMS Gate & Throttle Cooldown) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000005` | المصادقة والهوية وإعداد التطبيق | بوابة التحقق الحيوي ببصمة الإصبع أو الوجه (Biometric Authentication Gate) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000006` | المصادقة والهوية وإعداد التطبيق | توليد رمز الدخول الموحد للوحة الويب (Single Sign-On Web Token Generation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000007` | المصادقة والهوية وإعداد التطبيق | فحص وتأكيد طوبولوجيا التطبيق الأحادية (Standalone Parent App Choice Gate) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000008` | المصادقة والهوية وإعداد التطبيق | إعادة التوجيه عند تثبيت التطبيق الخاطئ (Wrong App Installed Redirection & Kid App Link) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000009` | المصادقة والهوية وإعداد التطبيق | تسجيل الخروج وتطهير الجلسة والتخزين المحلي (Logout & Session Purge) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000010` | إدارة العائلة والملفات الشخصية للأطفال | إنشاء ملف طفل جديد (Child Profile Creation Wizard) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000011` | إدارة العائلة والملفات الشخصية للأطفال | تعديل بيانات الطفل وحساب العمر التلقائي (Profile Edit & Age Recalculation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000012` | إدارة العائلة والملفات الشخصية للأطفال | حذف ملف الطفل وإلغاء ارتباط الأجهزة السحابي (Child Profile Deletion) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000013` | إدارة العائلة والملفات الشخصية للأطفال | إدارة واختيار الصورة الرمزية للملف الشخصي (Profile Avatar Customization) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000014` | إدارة العائلة والملفات الشخصية للأطفال | دعوة شريك رعاية جديد للعائلة (Add Co-Parent / Guardian Invitation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000015` | إدارة العائلة والملفات الشخصية للأطفال | التحقق من تفويض إدارة الملف وقيود الأدوار (Delegated Profile Access & Role Validation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000016` | ربط الأجهزة وإدارتها | معالج ربط جهاز طفل جديد (Multi-Platform Device Linking & Pairing Link) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000017` | ربط الأجهزة وإدارتها | مراقبة وفحص حالة الجهاز وتنبيهات التلاعب (Device Status & Tamper Alert Ingestion) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000018` | ربط الأجهزة وإدارتها | تعيين وإلغاء ربط ملف الطفل بالجهاز (Profile-to-Device Assignment & Unassignment) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000019` | ربط الأجهزة وإدارتها | إلغاء تثبيت الجهاز وحذف وكيل الرقابة عن بعد (Remote Device Removal & Deregistration) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000020` | ربط الأجهزة وإدارتها | إعادة تفعيل فلتر الـ VPN عن بعد (Remote VPN Re-enable Dispatch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000021` | إدارة وقت الشاشة والحصص اليومية | تكوين الحصة الزمنية اليومية لكل أيام الأسبوع (Daily Screen Time Quota Config) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000022` | إدارة وقت الشاشة والحصص اليومية | حساب الحصص الافتراضية المقترحة وفق العمر (Age-Based Default Quota Presets) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000023` | إدارة وقت الشاشة والحصص اليومية | أمر القفل الفوري للجهاز وإيقاف الإنترنت (Instant Remote Lock / Pause Dispatch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000024` | إدارة وقت الشاشة والحصص اليومية | أمر إلغاء القفل الفوري واستئناف الاستخدام (Instant Remote Unpause / Resume Dispatch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000025` | إدارة وقت الشاشة والحصص اليومية | تكوين نوع القفل عند انتهاء الوقت (Lock Type Policy: Lock Device vs Block Navigation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000026` | إدارة وقت الشاشة والحصص اليومية | استقبال طلبات الوقت الإضافي من الطفل واعتمادها (Child Extra Time Request Approval) | مشترك (Parent / Child / Cloud) | `Level A` | `Confirmed` |
-| `QU-FUN-000027` | إدارة وقت الشاشة والحصص اليومية | الإيقاف الجماعي الفوري لكافة أجهزة العائلة (Family-Wide Instant Pause) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000028` | الجدولة والروتينات والأوقات المحظورة | مخطط الأوقات المحظورة الأسبوعي (Weekly Restricted Times Grid Scheduler) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000029` | الجدولة والروتينات والأوقات المحظورة | معالج إنشاء روتين زمني مخصص (Routine Creation Wizard: Bedtime / Study Presets) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000030` | الجدولة والروتينات والأوقات المحظورة | معالجة التفاف روتين النوم الليلي عبر منتصف الليل (Overnight Routine Rollover Theorem) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000031` | الجدولة والروتينات والأوقات المحظورة | محرك اكتشاف وتفادي تعارض الروتينات (Routine Overlap & Conflict Detection Engine) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000032` | الجدولة والروتينات والأوقات المحظورة | تعديل الروتين القائم ومزامنة السياسة (Routine Modification & Sync) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000033` | الجدولة والروتينات والأوقات المحظورة | حذف الروتين الزمني وتحرير الجدول (Routine Deletion & Policy Purge) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000034` | مراقبة التطبيقات والتحكم فيها | جرد التطبيقات المثبتة وتصنيفها التلقائي (Installed Apps Discovery & Categorization) | مشترك (Child reports / Parent views) | `Level A` | `Confirmed` |
-| `QU-FUN-000035` | مراقبة التطبيقات والتحكم فيها | تبديل حالة إتاحة التطبيق (Allow / Block Toggle per App) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000036` | مراقبة التطبيقات والتحكم فيها | تخصيص حصة زمنية يومية لتطبيق محدد (Per-App Daily Time Limit Allocation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000037` | مراقبة التطبيقات والتحكم فيها | المفتاح الرئيسي لتمكين/تعطيل قواعد التطبيقات (Master App Rules Policy Switch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000038` | مراقبة التطبيقات والتحكم فيها | تحليلات استخدام التطبيقات وتوصيات الأمان (App Usage Insights & Recommendations) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000039` | مراقبة التطبيقات والتحكم فيها | تنبيه حظر المتصفحات غير المدعومة (Unsupported Browser Blocking Alert Modal) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000040` | تصفية الويب والأمان الرقمي والبحث الآمن | تكوين قواعد فئات الويب الـ 29 (29-Category Web Content Filtering: Allow/Alert/Block) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000041` | تصفية الويب والأمان الرقمي والبحث الآمن | إدارة استثناءات المواقع المخصصة (Custom Website Exceptions Whitelist/Blacklist) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000042` | تصفية الويب والأمان الرقمي والبحث الآمن | فرض البحث الآمن الإجباري على محركات البحث (Enforce SafeSearch Switch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000043` | تصفية الويب والأمان الرقمي والبحث الآمن | سياسة حظر المتصفحات غير المتوافقة (Block Unsupported Browsers Policy Dispatch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000044` | تصفية الويب والأمان الرقمي والبحث الآمن | تنبيهات استعلامات البحث غير اللائقة (Search Terms Alerts Detection) | مشترك (Backend detection / Parent alerts) | `Level A` | `Confirmed` |
-| `QU-FUN-000045` | تصفية الويب والأمان الرقمي والبحث الآمن | إجراءات الحظر السريع للموقع من خلاصة النشاط (Web Activity Context Action Sheet) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000046` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | المفتاح الرئيسي لمراقبة وتتبع نشاط يوتيوب (YouTube Supervision Master Switch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000047` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | فرض وضع تقييد المحتوى الصارم على يوتيوب (YouTube Restricted Mode Enforcement) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000048` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | استعراض سجل الفيديوهات المشاهدة واستعلامات البحث (YouTube Watched History & Search Audit) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000049` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | حظر قنوات أو فيديوهات يوتيوب محددة (YouTube Channel/Video Blocking Exception) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000050` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | عرض خريطة العائلة اللحظية (Live Family Locator Map View) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000051` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | طلب تحديث موقع الجهاز الفوري عند الطلب (On-Demand Device GPS Refresh Request) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000052` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | استعراض سجل المسار الجغرافي والمسارات السابقة (Kid Historical Location Trail) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000053` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | إنشاء مكان وسياج جغرافي محمي (Geofenced Place Creation & Radius Limit) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000054` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | إشعارات الدخول والمغادرة من الأماكن المحمية (Geofence Enter/Exit Push Alerts) | مشترك (Backend detection / Parent alerts) | `Level A` | `Confirmed` |
-| `QU-FUN-000055` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | التحويل العكسي للإحداثيات إلى عناوين نصية (Reverse Geocoding Address Resolution) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000056` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | المفتاح الرئيسي لسياسة مراقبة المكالمات وSMS (Calls & SMS Policy Master Switch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000057` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | إدارة جهات الاتصال المحظورة والمسموحة (Supervised Contact Whitelist/Blacklist) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000058` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | استعراض سجل المكالمات الصادرة والواردة (Call Event Log & Duration Inspection) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000059` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | فحص نصوص الرسائل القصيرة وتنبيهات الكلمات المشبوهة (SMS Content Inspection & Keyword Alerts) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000060` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | تكوين زر الطوارئ وجهات الاتصال الموثوقة (Panic Button Rules & Trusted Contacts Setup) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000061` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | استقبال إشارة الاستغاثة الطارئة عالية الأولوية (SOS Crisis Ingestion with GPS Coordinates) | مشترك (Child triggers / Cloud dispatches / Parent receives) | `Level A` | `Confirmed` |
-| `QU-FUN-000062` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | شاشة الطوارئ المنبثقة وتوجيه الملاحة الفوري (Panic Alert Full-Screen Emergency Modal) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000063` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | تأكيد وإلغاء حالة الاستغاثة بعد زوال الخطر (Panic Alert Resolution Acknowledgement) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000064` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | خلاصة المخطط الزمني الموحد والتحميل التزايدي (Unified Activity Timeline & Pagination: Limit 15) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000065` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | تصفية أحداث المخطط الزمني حسب النوع (Activity Event Type Filtering) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000066` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | تصنيف شدة التنبيهات والتسلسل البصري (Alert Severity Classification: Critical / Warning / Info) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000067` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | محرك بطاقة الحالة الحية الموحدة للطفل (Unified Now Card Real-Time Engine) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000068` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | إدارة شارات التنبيهات غير المقروءة والتطهير (Timeline Unread Badging & Invalidation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000069` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | معالج ربط حساب المدرسة وملف الطالب (School/Linewize Student Profile Linking Wizard) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000070` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | اكتشاف أوقات الدوام المدرسي وتفويض الصلاحيات (In-School Period Detection & Policy Delegation) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000071` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | إنفاذ حدود خصوصية ومشاركة بيانات المدرسة (School Data Sharing Boundary Enforcement) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000072` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | استعراض أحداث الأمان الرقمي المدرسي وتواقيع التهديدات (Linewize Safety Events & Signatures) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000073` | التراخيص والاشتراكات والترقيات التجارية | فحص صلاحيات الترخيص ومصفوفة استحقاق الميزات (License Entitlements & Feature Matrix) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000074` | التراخيص والاشتراكات والترقيات التجارية | تدفق شراء الترقية داخل التطبيق (In-App Premium Upgrade & Google Play Billing) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000075` | التراخيص والاشتراكات والترقيات التجارية | تفعيل الفترة التجريبية اليدوية وتجديد التجربة (Manual Trial Activation & Retrial) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000076` | التراخيص والاشتراكات والترقيات التجارية | حملات التخفيض والعروض الخاصة للسنتين (Two-Year Promotional Campaign Modal) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000077` | الجسر الهجين ودورة حياة النظام والمزامنة | إدارة دورة حياة الجسر الهجين بين كوردوفا والويب (Cordova-to-JavaScript Lifecycle Bridge) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000078` | الجسر الهجين ودورة حياة النظام والمزامنة | اعتراض الروابط العميقة وإعادة توجيه المسار (Deep Link Intent Ingestion & Route Dispatch) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000079` | الجسر الهجين ودورة حياة النظام والمزامنة | استقبال وتوجيه إشعارات الـ FCM السحابية (Push Command Ingestion & Routing Pipeline) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000080` | الجسر الهجين ودورة حياة النظام والمزامنة | تسلسل حالة Redux واستعادتها دون اتصال (Redux State Snapshotting & Hydration) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000081` | الجسر الهجين ودورة حياة النظام والمزامنة | تخزين المستندات المؤقتة وطابور التعديلات دون اتصال (Firestore Offline Document Caching & Queue) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
-| `QU-FUN-000082` | الجسر الهجين ودورة حياة النظام والمزامنة | خط أنابيب التيليمتري والتشخيص وتشخيص الانهيارات (DataTransport Telemetry & Sentry Crash Reporting) | تطبيق الوالدين (Parent App) | `Level A` | `Confirmed` |
+| `QU-FUN-000001` | المصادقة والهوية وإعداد التطبيق | تسجيل الدخول بالبريد الإلكتروني وكلمة المرور (Email/Password Login) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000002` | المصادقة والهوية وإعداد التطبيق | تسجيل حساب عائلة جديد والتهيئة الأولية (Account Registration & Initial Setup) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000003` | المصادقة والهوية وإعداد التطبيق | تبادل الرموز والتجديد الصامت للجلسة (Silent OAuth2 Token Refresh) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000004` | المصادقة والهوية وإعداد التطبيق | التحقق بخطوتين عبر SMS وتدرج خنق الطلبات (2FA SMS Gate & Throttle Cooldown) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000005` | المصادقة والهوية وإعداد التطبيق | بوابة التحقق الحيوي ببصمة الإصبع أو الوجه (Biometric Authentication Gate) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000006` | المصادقة والهوية وإعداد التطبيق | توليد رمز الدخول الموحد للوحة الويب (Single Sign-On Web Token Generation) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000007` | المصادقة والهوية وإعداد التطبيق | فحص وتأكيد طوبولوجيا التطبيق الأحادية (Standalone Parent App Choice Gate) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000008` | المصادقة والهوية وإعداد التطبيق | إعادة التوجيه عند تثبيت التطبيق الخاطئ (Wrong App Installed Redirection & Kid App Link) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000009` | المصادقة والهوية وإعداد التطبيق | تسجيل الخروج وتطهير الجلسة والتخزين المحلي (Logout & Session Purge) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000010` | إدارة العائلة والملفات الشخصية للأطفال | إنشاء ملف طفل جديد (Child Profile Creation Wizard) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000011` | إدارة العائلة والملفات الشخصية للأطفال | تعديل بيانات الطفل وحساب العمر التلقائي (Profile Edit & Age Recalculation) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000012` | إدارة العائلة والملفات الشخصية للأطفال | حذف ملف الطفل وإلغاء ارتباط الأجهزة السحابي (Child Profile Deletion) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000013` | إدارة العائلة والملفات الشخصية للأطفال | إدارة واختيار الصورة الرمزية للملف الشخصي (Profile Avatar Customization) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000014` | إدارة العائلة والملفات الشخصية للأطفال | دعوة شريك رعاية جديد للعائلة (Add Co-Parent / Guardian Invitation) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000015` | إدارة العائلة والملفات الشخصية للأطفال | التحقق من تفويض إدارة الملف وقيود الأدوار (Delegated Profile Access & Role Validation) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000016` | ربط الأجهزة وإدارتها | معالج ربط جهاز طفل جديد (Multi-Platform Device Linking & Pairing Link) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000017` | ربط الأجهزة وإدارتها | مراقبة وفحص حالة الجهاز وتنبيهات التلاعب (Device Status & Tamper Alert Ingestion) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000018` | ربط الأجهزة وإدارتها | تعيين وإلغاء ربط ملف الطفل بالجهاز (Profile-to-Device Assignment & Unassignment) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000019` | ربط الأجهزة وإدارتها | إلغاء تثبيت الجهاز وحذف وكيل الرقابة عن بعد (Remote Device Removal & Deregistration) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000020` | ربط الأجهزة وإدارتها | إعادة تفعيل فلتر الـ VPN عن بعد (Remote VPN Re-enable Dispatch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000021` | إدارة وقت الشاشة والحصص اليومية | تكوين الحصة الزمنية اليومية لكل أيام الأسبوع (Daily Screen Time Quota Config) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000022` | إدارة وقت الشاشة والحصص اليومية | حساب الحصص الافتراضية المقترحة وفق العمر (Age-Based Default Quota Presets) | تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000023` | إدارة وقت الشاشة والحصص اليومية | أمر القفل الفوري للجهاز وإيقاف الإنترنت (Instant Remote Lock / Pause Dispatch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000024` | إدارة وقت الشاشة والحصص اليومية | أمر إلغاء القفل الفوري واستئناف الاستخدام (Instant Remote Unpause / Resume Dispatch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000025` | إدارة وقت الشاشة والحصص اليومية | تكوين نوع القفل عند انتهاء الوقت (Lock Type Policy: Lock Device vs Block Navigation) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000026` | إدارة وقت الشاشة والحصص اليومية | استقبال طلبات الوقت الإضافي من الطفل واعتمادها (Child Extra Time Request Approval) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000027` | إدارة وقت الشاشة والحصص اليومية | الإيقاف الجماعي الفوري لكافة أجهزة العائلة (Family-Wide Instant Pause) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000028` | الجدولة والروتينات والأوقات المحظورة | مخطط الأوقات المحظورة الأسبوعي (Weekly Restricted Times Grid Scheduler) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000029` | الجدولة والروتينات والأوقات المحظورة | معالج إنشاء روتين زمني مخصص (Routine Creation Wizard: Bedtime / Study Presets) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000030` | الجدولة والروتينات والأوقات المحظورة | معالجة التفاف روتين النوم الليلي عبر منتصف الليل (Overnight Routine Rollover Theorem) | تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000031` | الجدولة والروتينات والأوقات المحظورة | محرك اكتشاف وتفادي تعارض الروتينات (Routine Overlap & Conflict Detection Engine) | تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000032` | الجدولة والروتينات والأوقات المحظورة | تعديل الروتين القائم ومزامنة السياسة (Routine Modification & Sync) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000033` | الجدولة والروتينات والأوقات المحظورة | حذف الروتين الزمني وتحرير الجدول (Routine Deletion & Policy Purge) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000034` | مراقبة التطبيقات والتحكم فيها | جرد التطبيقات المثبتة وتصنيفها التلقائي (Installed Apps Discovery & Categorization) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000035` | مراقبة التطبيقات والتحكم فيها | تبديل حالة إتاحة التطبيق (Allow / Block Toggle per App) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000036` | مراقبة التطبيقات والتحكم فيها | تخصيص حصة زمنية يومية لتطبيق محدد (Per-App Daily Time Limit Allocation) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000037` | مراقبة التطبيقات والتحكم فيها | المفتاح الرئيسي لتمكين/تعطيل قواعد التطبيقات (Master App Rules Policy Switch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000038` | مراقبة التطبيقات والتحكم فيها | تحليلات استخدام التطبيقات وتوصيات الأمان (App Usage Insights & Recommendations) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000039` | مراقبة التطبيقات والتحكم فيها | تنبيه حظر المتصفحات غير المدعومة (Unsupported Browser Blocking Alert Modal) | تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000040` | تصفية الويب والأمان الرقمي والبحث الآمن | تكوين قواعد فئات الويب الـ 29 (29-Category Web Content Filtering: Allow/Alert/Block) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000041` | تصفية الويب والأمان الرقمي والبحث الآمن | إدارة استثناءات المواقع المخصصة (Custom Website Exceptions Whitelist/Blacklist) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000042` | تصفية الويب والأمان الرقمي والبحث الآمن | فرض البحث الآمن الإجباري على محركات البحث (Enforce SafeSearch Switch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000043` | تصفية الويب والأمان الرقمي والبحث الآمن | سياسة حظر المتصفحات غير المتوافقة (Block Unsupported Browsers Policy Dispatch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000044` | تصفية الويب والأمان الرقمي والبحث الآمن | تنبيهات استعلامات البحث غير اللائقة (Search Terms Alerts Detection) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000045` | تصفية الويب والأمان الرقمي والبحث الآمن | إجراءات الحظر السريع للموقع من خلاصة النشاط (Web Activity Context Action Sheet) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000046` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | المفتاح الرئيسي لمراقبة وتتبع نشاط يوتيوب (YouTube Supervision Master Switch) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000047` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | فرض وضع تقييد المحتوى الصارم على يوتيوب (YouTube Restricted Mode Enforcement) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000048` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | استعراض سجل الفيديوهات المشاهدة واستعلامات البحث (YouTube Watched History & Search Audit) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000049` | مراقبة منصة يوتيوب والبحث الآمن بالفيديو | حظر قنوات أو فيديوهات يوتيوب محددة (YouTube Channel/Video Blocking Exception) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000050` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | عرض خريطة العائلة اللحظية (Live Family Locator Map View) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000051` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | طلب تحديث موقع الجهاز الفوري عند الطلب (On-Demand Device GPS Refresh Request) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000052` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | استعراض سجل المسار الجغرافي والمسارات السابقة (Kid Historical Location Trail) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000053` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | إنشاء مكان وسياج جغرافي محمي (Geofenced Place Creation & Radius Limit) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000054` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | إشعارات الدخول والمغادرة من الأماكن المحمية (Geofence Enter/Exit Push Alerts) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000055` | تحديد الموقع الجغرافي والسياج الآمن والأماكن | التحويل العكسي للإحداثيات إلى عناوين نصية (Reverse Geocoding Address Resolution) | مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable) | `Level B` | `Partial` |
+| `QU-FUN-000056` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | المفتاح الرئيسي لسياسة مراقبة المكالمات وSMS (Calls & SMS Policy Master Switch) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000057` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | إدارة جهات الاتصال المحظورة والمسموحة (Supervised Contact Whitelist/Blacklist) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000058` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | استعراض سجل المكالمات الصادرة والواردة (Call Event Log & Duration Inspection) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000059` | مراقبة المكالمات والرسائل القصيرة والإشراف على جهات الاتصال | فحص نصوص الرسائل القصيرة وتنبيهات الكلمات المشبوهة (SMS Content Inspection & Keyword Alerts) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000060` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | تكوين زر الطوارئ وجهات الاتصال الموثوقة (Panic Button Rules & Trusted Contacts Setup) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000061` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | استقبال إشارة الاستغاثة الطارئة عالية الأولوية (SOS Crisis Ingestion with GPS Coordinates) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000062` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | شاشة الطوارئ المنبثقة وتوجيه الملاحة الفوري (Panic Alert Full-Screen Emergency Modal) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000063` | زر الطوارئ وإدارة أزمات الاستغاثة (SOS Panic Button) | تأكيد وإلغاء حالة الاستغاثة بعد زوال الخطر (Panic Alert Resolution Acknowledgement) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000064` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | خلاصة المخطط الزمني الموحد والتحميل التزايدي (Unified Activity Timeline & Pagination: Limit 15) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000065` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | تصفية أحداث المخطط الزمني حسب النوع (Activity Event Type Filtering) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000066` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | تصنيف شدة التنبيهات والتسلسل البصري (Alert Severity Classification: Critical / Warning / Info) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000067` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | محرك بطاقة الحالة الحية الموحدة للطفل (Unified Now Card Real-Time Engine) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000068` | المخطط الزمني وخلاصة الأنشطة والتنبيهات | إدارة شارات التنبيهات غير المقروءة والتطهير (Timeline Unread Badging & Invalidation) | تطبيق الوالدين (PASA) + السحابة | `Level A` | `Confirmed` |
+| `QU-FUN-000069` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | معالج ربط حساب المدرسة وملف الطالب (School/Linewize Student Profile Linking Wizard) | منظومة Linewize ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000070` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | اكتشاف أوقات الدوام المدرسي وتفويض الصلاحيات (In-School Period Detection & Policy Delegation) | منظومة Linewize ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000071` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | إنفاذ حدود خصوصية ومشاركة بيانات المدرسة (School Data Sharing Boundary Enforcement) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000072` | التكامل المجتمعي وشراكة المدارس الرقمية (Linewize Community) | استعراض أحداث الأمان الرقمي المدرسي وتواقيع التهديدات (Linewize Safety Events & Signatures) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000073` | التراخيص والاشتراكات والترقيات التجارية | فحص صلاحيات الترخيص ومصفوفة استحقاق الميزات (License Entitlements & Feature Matrix) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000074` | التراخيص والاشتراكات والترقيات التجارية | تدفق شراء الترقية داخل التطبيق (In-App Premium Upgrade & Google Play Billing) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000075` | التراخيص والاشتراكات والترقيات التجارية | تفعيل الفترة التجريبية اليدوية وتجديد التجربة (Manual Trial Activation & Retrial) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000076` | التراخيص والاشتراكات والترقيات التجارية | حملات التخفيض والعروض الخاصة للسنتين (Two-Year Promotional Campaign Modal) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000077` | الجسر الهجين ودورة حياة النظام والمزامنة | إدارة دورة حياة الجسر الهجين بين كوردوفا والويب (Cordova-to-JavaScript Lifecycle Bridge) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000078` | الجسر الهجين ودورة حياة النظام والمزامنة | اعتراض الروابط العميقة وإعادة توجيه المسار (Deep Link Intent Ingestion & Route Dispatch) | الخادم السحابي ← تطبيق الوالدين (PASA) | `Level B` | `Derived` |
+| `QU-FUN-000079` | الجسر الهجين ودورة حياة النظام والمزامنة | استقبال وتوجيه إشعارات الـ FCM السحابية (Push Command Ingestion & Routing Pipeline) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000080` | الجسر الهجين ودورة حياة النظام والمزامنة | تسلسل حالة Redux واستعادتها دون اتصال (Redux State Snapshotting & Hydration) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000081` | الجسر الهجين ودورة حياة النظام والمزامنة | تخزين المستندات المؤقتة وطابور التعديلات دون اتصال (Firestore Offline Document Caching & Queue) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
+| `QU-FUN-000082` | الجسر الهجين ودورة حياة النظام والمزامنة | خط أنابيب التيليمتري والتشخيص وتشخيص الانهيارات (DataTransport Telemetry & Sentry Crash Reporting) | تطبيق الوالدين (PASA) | `Level A` | `Confirmed` |
 
 ---
 
@@ -294,7 +301,7 @@ classDiagram
 
 ##### QU-FUN-000001: تسجيل الدخول بالبريد الإلكتروني وكلمة المرور (Email/Password Login)
 - **الوصف الوظيفي والمعماري:** تسجيل الدخول بالبريد الإلكتروني وكلمة المرور (Email/Password Login).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — مصادقة وتخزين محلي
 - **مسار تدفق المستخدم (User Workflow):**
   `شاشة الدخول (/login) ← إدخال البريد وكلمة المرور ← الضغط على زر الدخول`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -317,7 +324,7 @@ classDiagram
 
 ##### QU-FUN-000002: تسجيل حساب عائلة جديد والتهيئة الأولية (Account Registration & Initial Setup)
 - **الوصف الوظيفي والمعماري:** تسجيل حساب عائلة جديد والتهيئة الأولية (Account Registration & Initial Setup).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تسجيل وإنشاء الحساب
 - **مسار تدفق المستخدم (User Workflow):**
   `شاشة البدء (/initial) ← إدخال الاسم، البريد، كلمة المرور ← قبول الشروط`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -340,7 +347,7 @@ classDiagram
 
 ##### QU-FUN-000003: تبادل الرموز والتجديد الصامت للجلسة (Silent OAuth2 Token Refresh)
 - **الوصف الوظيفي والمعماري:** تبادل الرموز والتجديد الصامت للجلسة (Silent OAuth2 Token Refresh).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — إدارة الجلسة وتجديد التوكن
 - **مسار تدفق المستخدم (User Workflow):**
   `انتهاء صلاحية رمز الوصول (401 Unauthorized) ← تشغيل الاعتراض الصامت في الخلفية`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -363,7 +370,7 @@ classDiagram
 
 ##### QU-FUN-000004: التحقق بخطوتين عبر SMS وتدرج خنق الطلبات (2FA SMS Gate & Throttle Cooldown)
 - **الوصف الوظيفي والمعماري:** التحقق بخطوتين عبر SMS وتدرج خنق الطلبات (2FA SMS Gate & Throttle Cooldown).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — التحقق بخطوتين
 - **مسار تدفق المستخدم (User Workflow):**
   `محاولة تسجيل الدخول لحساب محمي بـ 2FA ← طلب إرسال رمز SMS ← إدخال الرمز`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -386,7 +393,7 @@ classDiagram
 
 ##### QU-FUN-000005: بوابة التحقق الحيوي ببصمة الإصبع أو الوجه (Biometric Authentication Gate)
 - **الوصف الوظيفي والمعماري:** بوابة التحقق الحيوي ببصمة الإصبع أو الوجه (Biometric Authentication Gate).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — الأمان البيومتري المحلي
 - **مسار تدفق المستخدم (User Workflow):**
   `فتح التطبيق بعد قفله أو الرجوع من الخلفية ← ظهور حوار البصمة الحيوي للمصادقة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -409,7 +416,7 @@ classDiagram
 
 ##### QU-FUN-000006: توليد رمز الدخول الموحد للوحة الويب (Single Sign-On Web Token Generation)
 - **الوصف الوظيفي والمعماري:** توليد رمز الدخول الموحد للوحة الويب (Single Sign-On Web Token Generation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — الدخول الموحد للويب
 - **مسار تدفق المستخدم (User Workflow):**
   `النقر على روابط الإدارة المتقدمة أو الدعم ← فتح لوحة المتصفح الخارجية دون إعادة إدخال كلمة المرور`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -432,7 +439,7 @@ classDiagram
 
 ##### QU-FUN-000007: فحص وتأكيد طوبولوجيا التطبيق الأحادية (Standalone Parent App Choice Gate)
 - **الوصف الوظيفي والمعماري:** فحص وتأكيد طوبولوجيا التطبيق الأحادية (Standalone Parent App Choice Gate).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — حراسة طوبولوجيا التطبيق
 - **مسار تدفق المستخدم (User Workflow):**
   `أول تشغيل للتطبيق بعد التثبيت ← ظهور شاشة اختيار نوع الجهاز: 'جهاز الوالد' أم 'جهاز الطفل'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -455,7 +462,7 @@ classDiagram
 
 ##### QU-FUN-000008: إعادة التوجيه عند تثبيت التطبيق الخاطئ (Wrong App Installed Redirection & Kid App Link)
 - **الوصف الوظيفي والمعماري:** إعادة التوجيه عند تثبيت التطبيق الخاطئ (Wrong App Installed Redirection & Kid App Link).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — حماية التثبيت الخاطئ
 - **مسار تدفق المستخدم (User Workflow):**
   `اختيار 'هذا جهاز الطفل' في شاشة الاختيار ← ظهور شاشة الخطأ والتوجيه`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -478,7 +485,7 @@ classDiagram
 
 ##### QU-FUN-000009: تسجيل الخروج وتطهير الجلسة والتخزين المحلي (Logout & Session Purge)
 - **الوصف الوظيفي والمعماري:** تسجيل الخروج وتطهير الجلسة والتخزين المحلي (Logout & Session Purge).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تسجيل الخروج وتطهير الحالة
 - **مسار تدفق المستخدم (User Workflow):**
   `الإعدادات ← المزيد ← تسجيل الخروج ← تأكيد الحوار`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -504,7 +511,7 @@ classDiagram
 
 ##### QU-FUN-000010: إنشاء ملف طفل جديد (Child Profile Creation Wizard)
 - **الوصف الوظيفي والمعماري:** إنشاء ملف طفل جديد (Child Profile Creation Wizard).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة العائلة ← إضافة طفل ← إدخال الاسم، سنة الميلاد، الجنس، الصورة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -527,7 +534,7 @@ classDiagram
 
 ##### QU-FUN-000011: تعديل بيانات الطفل وحساب العمر التلقائي (Profile Edit & Age Recalculation)
 - **الوصف الوظيفي والمعماري:** تعديل بيانات الطفل وحساب العمر التلقائي (Profile Edit & Age Recalculation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `الملف الشخصي للطفل ← تحرير ← تعديل الاسم أو تاريخ الميلاد ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -550,7 +557,7 @@ classDiagram
 
 ##### QU-FUN-000012: حذف ملف الطفل وإلغاء ارتباط الأجهزة السحابي (Child Profile Deletion)
 - **الوصف الوظيفي والمعماري:** حذف ملف الطفل وإلغاء ارتباط الأجهزة السحابي (Child Profile Deletion).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `الملف الشخصي للطفل ← خيارات متقدمة ← حذف الملف ← كتابة التأكيد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -573,7 +580,7 @@ classDiagram
 
 ##### QU-FUN-000013: إدارة واختيار الصورة الرمزية للملف الشخصي (Profile Avatar Customization)
 - **الوصف الوظيفي والمعماري:** إدارة واختيار الصورة الرمزية للملف الشخصي (Profile Avatar Customization).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — إدارة الأصول المرئية
 - **مسار تدفق المستخدم (User Workflow):**
   `إنشاء/تحرير الطفل ← النقر على الصورة ← اختيار صورة رمزية مدمجة أو رفع صورة جديدة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -596,7 +603,7 @@ classDiagram
 
 ##### QU-FUN-000014: دعوة شريك رعاية جديد للعائلة (Add Co-Parent / Guardian Invitation)
 - **الوصف الوظيفي والمعماري:** دعوة شريك رعاية جديد للعائلة (Add Co-Parent / Guardian Invitation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة العائلة ← إضافة ولي أمر ← إدخال البريد الإلكتروني ← إرسال الدعوة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -619,7 +626,7 @@ classDiagram
 
 ##### QU-FUN-000015: التحقق من تفويض إدارة الملف وقيود الأدوار (Delegated Profile Access & Role Validation)
 - **الوصف الوظيفي والمعماري:** التحقق من تفويض إدارة الملف وقيود الأدوار (Delegated Profile Access & Role Validation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — التحقق من الصلاحيات
 - **مسار تدفق المستخدم (User Workflow):**
   `فتح ملف طفل مخصص ← تقييم الصلاحيات المتاحة بناءً على نوع التفويض`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -645,7 +652,7 @@ classDiagram
 
 ##### QU-FUN-000016: معالج ربط جهاز طفل جديد (Multi-Platform Device Linking & Pairing Link)
 - **الوصف الوظيفي والمعماري:** معالج ربط جهاز طفل جديد (Multi-Platform Device Linking & Pairing Link).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `ملف الطفل ← إضافة جهاز ← اختيار نوع النظام (أندرويد، iOS، ويندوز، ماك، كرومبوك) ← إرسال الرابط أو مسح QR`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -668,7 +675,7 @@ classDiagram
 
 ##### QU-FUN-000017: مراقبة وفحص حالة الجهاز وتنبيهات التلاعب (Device Status & Tamper Alert Ingestion)
 - **الوصف الوظيفي والمعماري:** مراقبة وفحص حالة الجهاز وتنبيهات التلاعب (Device Status & Tamper Alert Ingestion).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `قائمة الأجهزة ← استعراض بطاقة الجهاز ← فحص حالة الاتصال، مستوى البطارية، وتنبيهات الأمان`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -684,14 +691,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تصنيف حالة الجهاز ضمن DEVICE_STATUS_TYPES (نشط، غير متصل، تم سحب الصلاحيات، وضع توفير الطاقة، قيد التلاعب).
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   تعتمد دقة مستوى البطارية وحالة الاتصال على تردد بث نبضات التيليمتري من جهاز الطفل.
 
 ##### QU-FUN-000018: تعيين وإلغاء ربط ملف الطفل بالجهاز (Profile-to-Device Assignment & Unassignment)
 - **الوصف الوظيفي والمعماري:** تعيين وإلغاء ربط ملف الطفل بالجهاز (Profile-to-Device Assignment & Unassignment).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `تفاصيل الجهاز ← تغيير المستخدم المرتبط ← اختيار طفل آخر أو فك التعيين ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -714,7 +721,7 @@ classDiagram
 
 ##### QU-FUN-000019: إلغاء تثبيت الجهاز وحذف وكيل الرقابة عن بعد (Remote Device Removal & Deregistration)
 - **الوصف الوظيفي والمعماري:** إلغاء تثبيت الجهاز وحذف وكيل الرقابة عن بعد (Remote Device Removal & Deregistration).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `إعدادات الجهاز ← إزالة الجهاز من الحساب ← تأكيد كلمة المرور`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -730,14 +737,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال أمر إلغاء التنشيط لجهاز الطفل لتعطيل صلاحيات Device Admin و VpnService وإتاحة حذفه محلياً دون حظر.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   إذا كان جهاز الطفل غير متصل، يتطلب إدخال كلمة مرور الوالد محلياً على جهاز الطفل لإلغاء التثبيت.
 
 ##### QU-FUN-000020: إعادة تفعيل فلتر الـ VPN عن بعد (Remote VPN Re-enable Dispatch)
 - **الوصف الوظيفي والمعماري:** إعادة تفعيل فلتر الـ VPN عن بعد (Remote VPN Re-enable Dispatch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `بطاقة الجهاز تظهر 'VPN معطل' ← النقر على زر 'إعادة تفعيل VPN'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -753,8 +760,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال أمر لحظي عالي الأولوية لجهاز الطفل لإعادة تشغيل خدمة Local VpnService واستعادة تصفية الويب وDNS.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يعتمد على قبول نظام التشغيل في جهاز الطفل لإعادة تشغيل الـ VPN دون طلب موافقة يدوية جديدة من المستخدم.
 
@@ -763,7 +770,7 @@ classDiagram
 
 ##### QU-FUN-000021: تكوين الحصة الزمنية اليومية لكل أيام الأسبوع (Daily Screen Time Quota Config)
 - **الوصف الوظيفي والمعماري:** تكوين الحصة الزمنية اليومية لكل أيام الأسبوع (Daily Screen Time Quota Config).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← الحصة اليومية ← ضبط المنزلق الزمني (من 0 إلى 1440 دقيقة) لكل يوم ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -786,7 +793,7 @@ classDiagram
 
 ##### QU-FUN-000022: حساب الحصص الافتراضية المقترحة وفق العمر (Age-Based Default Quota Presets)
 - **الوصف الوظيفي والمعماري:** حساب الحصص الافتراضية المقترحة وفق العمر (Age-Based Default Quota Presets).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — خوارزمية محلية
 - **مسار تدفق المستخدم (User Workflow):**
   `معالج الإعداد الأولي للطفل ← احتساب الحصة المقترحة تلقائياً فور إدخال سنة الميلاد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -802,14 +809,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   الأطفال دون 6 سنوات = 60 دقيقة؛ 6-9 سنوات = 90 دقيقة؛ 10-13 سنة = 120 دقيقة؛ 14+ = 180 دقيقة يومياً.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   اقتراح افتراضي قابل للتعديل والتحوير الكامل من قبل الوالد.
 
 ##### QU-FUN-000023: أمر القفل الفوري للجهاز وإيقاف الإنترنت (Instant Remote Lock / Pause Dispatch)
 - **الوصف الوظيفي والمعماري:** أمر القفل الفوري للجهاز وإيقاف الإنترنت (Instant Remote Lock / Pause Dispatch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة القيادة أو شاشة القفل ← النقر على 'إيقاف الإنترنت' أو 'قفل الأجهزة الآن'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -825,14 +832,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال حمولة FCM عاجلة بنوع PAUSE_PROFILE إلى كافة أجهزة الطفل المرتبطة لفرض القفل دون انتظار دورة المزامنة العادية.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يتطلب استقبال جهاز الطفل للإشعار عبر خدمات Google Play لفرضه فورياً.
 
 ##### QU-FUN-000024: أمر إلغاء القفل الفوري واستئناف الاستخدام (Instant Remote Unpause / Resume Dispatch)
 - **الوصف الوظيفي والمعماري:** أمر إلغاء القفل الفوري واستئناف الاستخدام (Instant Remote Unpause / Resume Dispatch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة القيادة تظهر الطفل مقفلاً ← النقر على 'استئناف الاستخدام'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -848,14 +855,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   حذف حالة الإيقاف المؤقت سحابياً، وبث إشارة إزالة القفل لأجهزة الطفل لإلغاء شاشة الحظر واستعادة الاتصال.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   إذا كانت الحصة اليومية مستهلكة بالكامل، سيبقى الجهاز مقفلاً بحكم نفاذ الحصة وليس القفل اليدوي.
 
 ##### QU-FUN-000025: تكوين نوع القفل عند انتهاء الوقت (Lock Type Policy: Lock Device vs Block Navigation)
 - **الوصف الوظيفي والمعماري:** تكوين نوع القفل عند انتهاء الوقت (Lock Type Policy: Lock Device vs Block Navigation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← نوع القفل ← الاختيار بين 'قفل الجهاز بالكامل' أو 'حظر الملاحة وتصفح الإنترنت'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -878,7 +885,7 @@ classDiagram
 
 ##### QU-FUN-000026: استقبال طلبات الوقت الإضافي من الطفل واعتمادها (Child Extra Time Request Approval)
 - **الوصف الوظيفي والمعماري:** استقبال طلبات الوقت الإضافي من الطفل واعتمادها (Child Extra Time Request Approval).
-- **نطاق الملكية والمسؤولية:** مشترك (Parent / Child / Cloud).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `وصول إشعار بطلب وقت إضافي ← فتح بطاقة التنبيه ← اختيار المدة (15، 30، 60 دقيقة) ← موافقة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -894,14 +901,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إضافة الدقائق المعتمدة مباشرة إلى الحصة المتبقية لليوم الحالي فقط وإعادة تصفيرها في منتصف الليل.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   الطلب يُنشأ من جهاز الطفل عند بلوغ حد القفل، ويُستقبل في تطبيق الوالد كإشعار FCM تفاعلي.
 
 ##### QU-FUN-000027: الإيقاف الجماعي الفوري لكافة أجهزة العائلة (Family-Wide Instant Pause)
 - **الوصف الوظيفي والمعماري:** الإيقاف الجماعي الفوري لكافة أجهزة العائلة (Family-Wide Instant Pause).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة العائلة ← النقر على زر 'إيقاف إنترنت العائلة' بالترويسة ← تأكيد القفل`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -917,8 +924,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال أمر موحد يضع جميع ملفات الأطفال النشطة في حالة PAUSE بطلب سحابي مفرد لتسهيل وقت العشاء أو الاجتماع الأسري.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   لا يؤثر على أجهزة الوالدين، ويقتصر على الأجهزة المسجلة تحت ملفات الأطفال.
 
@@ -927,7 +934,7 @@ classDiagram
 
 ##### QU-FUN-000028: مخطط الأوقات المحظورة الأسبوعي (Weekly Restricted Times Grid Scheduler)
 - **الوصف الوظيفي والمعماري:** مخطط الأوقات المحظورة الأسبوعي (Weekly Restricted Times Grid Scheduler).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← الأوقات المحظورة ← شبكة الأسبوع (7 أيام × 24 ساعة) ← تحديد خانات الحظر باللمس ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -950,7 +957,7 @@ classDiagram
 
 ##### QU-FUN-000029: معالج إنشاء روتين زمني مخصص (Routine Creation Wizard: Bedtime / Study Presets)
 - **الوصف الوظيفي والمعماري:** معالج إنشاء روتين زمني مخصص (Routine Creation Wizard: Bedtime / Study Presets).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `الروتينات ← إضافة روتين ← اختيار قالب (نوم، دراسة، مخصص) ← تحديد الأيام والوقت ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -973,7 +980,7 @@ classDiagram
 
 ##### QU-FUN-000030: معالجة التفاف روتين النوم الليلي عبر منتصف الليل (Overnight Routine Rollover Theorem)
 - **الوصف الوظيفي والمعماري:** معالجة التفاف روتين النوم الليلي عبر منتصف الليل (Overnight Routine Rollover Theorem).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — خوارزمية محلية
 - **مسار تدفق المستخدم (User Workflow):**
   `ضبط روتين يبدأ مساءً وينتهي صباح اليوم التالي (مثال: 21:30 إلى 06:30)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -989,14 +996,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   حساب التفاف منتصف الليل: إذا كان endTime < startTime، يُقسم المجال الحسابي إلى فترتين: [startTime, 1440) في اليوم الحالي، و [0, endTime] في اليوم التالي مع مراعاة التفاف الأحد إلى الاثنين (Sunday-to-Monday rollover).
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   خوارزمية مثبتة بالكامل رياضياً في الكود لحماية الجداول الليلية من الانهيار.
 
 ##### QU-FUN-000031: محرك اكتشاف وتفادي تعارض الروتينات (Routine Overlap & Conflict Detection Engine)
 - **الوصف الوظيفي والمعماري:** محرك اكتشاف وتفادي تعارض الروتينات (Routine Overlap & Conflict Detection Engine).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — خوارزمية محلية
 - **مسار تدفق المستخدم (User Workflow):**
   `محاولة حفظ روتين جديد يتداخل في الوقت مع روتين نوم أو دراسة قائم ← ظهور تحذير التعارض`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1012,14 +1019,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   دالة findEventOverlap(): فحص تقاطع الفترات الزمنية عبر الأيام المشتركة؛ منع الحفظ إذا تداخلت أكثر من 1 دقيقة وتقديم خيار دمج الروتينين أو تعديل الساعات.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يعمل محلياً في الواجهة لتفادي الأخطاء السحابية غير المعالجة.
 
 ##### QU-FUN-000032: تعديل الروتين القائم ومزامنة السياسة (Routine Modification & Sync)
 - **الوصف الوظيفي والمعماري:** تعديل الروتين القائم ومزامنة السياسة (Routine Modification & Sync).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `قائمة الروتينات ← اختيار روتين ← تعديل الأيام أو الأوقات ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1042,7 +1049,7 @@ classDiagram
 
 ##### QU-FUN-000033: حذف الروتين الزمني وتحرير الجدول (Routine Deletion & Policy Purge)
 - **الوصف الوظيفي والمعماري:** حذف الروتين الزمني وتحرير الجدول (Routine Deletion & Policy Purge).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `قائمة الروتينات ← التمرير على الروتين أو النقر على خيارات ← حذف ← تأكيد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1068,7 +1075,7 @@ classDiagram
 
 ##### QU-FUN-000034: جرد التطبيقات المثبتة وتصنيفها التلقائي (Installed Apps Discovery & Categorization)
 - **الوصف الوظيفي والمعماري:** جرد التطبيقات المثبتة وتصنيفها التلقائي (Installed Apps Discovery & Categorization).
-- **نطاق الملكية والمسؤولية:** مشترك (Child reports / Parent views).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← التحكم بالتطبيقات ← استعراض قائمة التطبيقات المثبتة على جهاز الطفل وتصنيفاتها`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1084,14 +1091,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تصنيف التطبيقات سحابياً (ألعاب، تواصل، تعليم، ترفيه)؛ اكتشاف التطبيقات الجديدة فور إبلاغ جهاز الطفل عنها.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   التطبيقات تظهر في القائمة بعد تشغيلها لأول مرة على جهاز الطفل وإبلاغ الوكيل عنها.
 
 ##### QU-FUN-000035: تبديل حالة إتاحة التطبيق (Allow / Block Toggle per App)
 - **الوصف الوظيفي والمعماري:** تبديل حالة إتاحة التطبيق (Allow / Block Toggle per App).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `قائمة التطبيقات ← النقر على مفتاح التبديل بجانب التطبيق ← اختيار 'حظر' أو 'سماح'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1107,14 +1114,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   حظر فوري: إدراج حزمة التطبيق (Package Name) في القائمة السوداء المحلية على جهاز الطفل؛ فور تشغيله تتدخل خدمة AccessibilityService لإغلاقه وعرض شاشة الحظر.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   تطبيقات النظام الأساسية (مثل الهاتف والإعدادات الأساسية) قد تُستثنى لمنع شل الجهاز.
 
 ##### QU-FUN-000036: تخصيص حصة زمنية يومية لتطبيق محدد (Per-App Daily Time Limit Allocation)
 - **الوصف الوظيفي والمعماري:** تخصيص حصة زمنية يومية لتطبيق محدد (Per-App Daily Time Limit Allocation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `تطبيق محدد (مثال: TikTok أو YouTube) ← تفعيل الحد الزمني ← تحديد الدقائق المسموحة (مثال: 30 دقيقة) ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1130,14 +1137,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تخصيص عداد زمني مستقل للتطبيق يخصم أثناء وجوده في الواجهة (Foreground) ويقفل التطبيق بمجرد استنفاذ وقته حتى اليوم التالي.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   ميزة تتطلب ترخيص Premium نشط.
 
 ##### QU-FUN-000037: المفتاح الرئيسي لتمكين/تعطيل قواعد التطبيقات (Master App Rules Policy Switch)
 - **الوصف الوظيفي والمعماري:** المفتاح الرئيسي لتمكين/تعطيل قواعد التطبيقات (Master App Rules Policy Switch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `صفحة قواعد التطبيقات ← الترويسة ← النقر على المفتاح الرئيسي لتفعيل أو إيقاف حظر التطبيقات بالكامل`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1153,14 +1160,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تعطيل المفتاح الرئيسي يوقف فرض جميع الحصص والحظر الفردي للتطبيقات مؤقتاً دون مسح التكوينات.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   إيقاف مفتاح التطبيقات لا يعطل قفل الجهاز الكلي أو قواعد الويب.
 
 ##### QU-FUN-000038: تحليلات استخدام التطبيقات وتوصيات الأمان (App Usage Insights & Recommendations)
 - **الوصف الوظيفي والمعماري:** تحليلات استخدام التطبيقات وتوصيات الأمان (App Usage Insights & Recommendations).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← بطاقة رؤى التطبيقات ← استعراض تقرير الأمان للتطبيقات الأكثر استخداماً`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1176,14 +1183,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تقييم مخاطر التطبيقات الشائعة وتقديم نصائح تربوية للوالد بناءً على تصنيف الفئات ومعدل الوقت المقضي.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   تتطلب اشتراكاً مدفوعاً؛ تعرض نافذة الترقية إذا كان الحساب مجانياً (AppInsightNeedsUpgrade).
 
 ##### QU-FUN-000039: تنبيه حظر المتصفحات غير المدعومة (Unsupported Browser Blocking Alert Modal)
 - **الوصف الوظيفي والمعماري:** تنبيه حظر المتصفحات غير المدعومة (Unsupported Browser Blocking Alert Modal).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تنبيه بالواجهة
 - **مسار تدفق المستخدم (User Workflow):**
   `محاولة الطفل فتح متصفح غير مدعوم على جهازه ← ظهور حظر محلي ووصول تنبيه للوالد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1199,8 +1206,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   حظر تشغيل المتصفحات التي لا تستطيع تقنية التصفية فحص روابطها (مثل المتصفحات المجهولة أو تور) لتفادي الالتفاف على الفلتر.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يتم الحظر الفعلي على جهاز الطفل عبر وكيل الرقابة.
 
@@ -1209,7 +1216,7 @@ classDiagram
 
 ##### QU-FUN-000040: تكوين قواعد فئات الويب الـ 29 (29-Category Web Content Filtering: Allow/Alert/Block)
 - **الوصف الوظيفي والمعماري:** تكوين قواعد فئات الويب الـ 29 (29-Category Web Content Filtering: Allow/Alert/Block).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← فلاتر الويب ← فئات المحتوى ← تحديد الإجراء لكل فئة (سماح، تنبيه، حظر) ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1232,7 +1239,7 @@ classDiagram
 
 ##### QU-FUN-000041: إدارة استثناءات المواقع المخصصة (Custom Website Exceptions Whitelist/Blacklist)
 - **الوصف الوظيفي والمعماري:** إدارة استثناءات المواقع المخصصة (Custom Website Exceptions Whitelist/Blacklist).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياسة
 - **مسار تدفق المستخدم (User Workflow):**
   `فلاتر الويب ← إضافة موقع مستثنى ← إدخال النطاق (مثال: wikipedia.org) ← اختيار 'سماح دائماً' أو 'حظر دائماً'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1255,7 +1262,7 @@ classDiagram
 
 ##### QU-FUN-000042: فرض البحث الآمن الإجباري على محركات البحث (Enforce SafeSearch Switch)
 - **الوصف الوظيفي والمعماري:** فرض البحث الآمن الإجباري على محركات البحث (Enforce SafeSearch Switch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `فلاتر الويب ← الإعدادات الإضافية ← تفعيل 'فرض البحث الآمن'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1271,14 +1278,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إعادة توجيه نطاقات محركات البحث الرئيسية (Google, Bing) إلى نطاقات SafeSearch الصارمة (مثل forcesafesearch.google.com عبر تحويل DNS المحلي).
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يتم الفرض الفعلي على جهاز الطفل في طبقة وكيل DNS المحلي.
 
 ##### QU-FUN-000043: سياسة حظر المتصفحات غير المتوافقة (Block Unsupported Browsers Policy Dispatch)
 - **الوصف الوظيفي والمعماري:** سياسة حظر المتصفحات غير المتوافقة (Block Unsupported Browsers Policy Dispatch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `فلاتر الويب ← الإعدادات الإضافية ← تفعيل 'حظر المتصفحات غير المدعومة'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1294,14 +1301,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   يقفل تلقائياً أي متصفح ويب على جهاز الطفل باستثناء المتصفحات الرسمية المعتمدة (Chrome, Firefox, Samsung Internet).
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يمنع الالتفاف على فلترة المواقع عبر متصفحات بديلة.
 
 ##### QU-FUN-000044: تنبيهات استعلامات البحث غير اللائقة (Search Terms Alerts Detection)
 - **الوصف الوظيفي والمعماري:** تنبيهات استعلامات البحث غير اللائقة (Search Terms Alerts Detection).
-- **نطاق الملكية والمسؤولية:** مشترك (Backend detection / Parent alerts).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `الطفل يبحث عن كلمات مشبوهة ← الخادم يحلل الاستعلام ← وصول تنبيه فوري أحمر في المخطط الزمني للوالد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1317,14 +1324,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   مطابقة كلمات البحث مع معجم مصطلحات الأزمات (إيذاء النفس، تنمر، محتوى غير لائق) وتصنيفها كـ Critical Alert.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يعتمد على تقنية استخلاص معلمات البحث من عناوين الـ URL في جهاز الطفل.
 
 ##### QU-FUN-000045: إجراءات الحظر السريع للموقع من خلاصة النشاط (Web Activity Context Action Sheet)
 - **الوصف الوظيفي والمعماري:** إجراءات الحظر السريع للموقع من خلاصة النشاط (Web Activity Context Action Sheet).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← استعراض زيارة موقع ← النقر على خيارات الحدث ← اختيار 'حظر هذا الموقع'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1340,8 +1347,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   استخراج نطاق الحدث مباشرة وإضافته فوراً للقائمة السوداء وتحديث حالة البطاقة في الواجهة لتصبح 'محظور'.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يوفر على الوالد الانتقال لصفحة القواعد لإضافة الاستثناء.
 
@@ -1350,7 +1357,7 @@ classDiagram
 
 ##### QU-FUN-000046: المفتاح الرئيسي لمراقبة وتتبع نشاط يوتيوب (YouTube Supervision Master Switch)
 - **الوصف الوظيفي والمعماري:** المفتاح الرئيسي لمراقبة وتتبع نشاط يوتيوب (YouTube Supervision Master Switch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← مراقبة يوتيوب ← تشغيل مفتاح المراقبة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1366,14 +1373,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تفعيل مراقبة موقع يوتيوب وتطبيق يوتيوب الرسمي على جهاز الطفل وتسجيل مقاطع الفيديو المشاهدة وعمليات البحث.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يتطلب تفعيل فحص الـ Accessibility Service على جهاز الطفل لرصد الفيديوهات داخل التطبيق الرسمي.
 
 ##### QU-FUN-000047: فرض وضع تقييد المحتوى الصارم على يوتيوب (YouTube Restricted Mode Enforcement)
 - **الوصف الوظيفي والمعماري:** فرض وضع تقييد المحتوى الصارم على يوتيوب (YouTube Restricted Mode Enforcement).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `مراقبة يوتيوب ← تفعيل 'الوضع المقيد ليوتيوب' ← حفظ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1389,14 +1396,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   حقن ترويسات HTTP / DNS الصارمة (مثل restrict.youtube.com عبر وكيل VPN) لإجبار موقع وتطبيق يوتيوب على قفل التعليقات وحجب المقاطع المصنفة للبالغين.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يمنع الطفل من إيقاف الوضع المقيد يدوياً من حسابه في يوتيوب.
 
 ##### QU-FUN-000048: استعراض سجل الفيديوهات المشاهدة واستعلامات البحث (YouTube Watched History & Search Audit)
 - **الوصف الوظيفي والمعماري:** استعراض سجل الفيديوهات المشاهدة واستعلامات البحث (YouTube Watched History & Search Audit).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← تصفية: يوتيوب ← استعراض قائمة الفيديوهات (العنوان، القناة، الصورة المصغرة، وقت المشاهدة)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1412,14 +1419,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تجميع وتلخيص نشاط الطفل على يوتيوب وعرض روابط مباشرة للمقاطع لتمكين الوالد من معاينتها بلمسة واحدة.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   ميزة خاصة باشتراك Premium.
 
 ##### QU-FUN-000049: حظر قنوات أو فيديوهات يوتيوب محددة (YouTube Channel/Video Blocking Exception)
 - **الوصف الوظيفي والمعماري:** حظر قنوات أو فيديوهات يوتيوب محددة (YouTube Channel/Video Blocking Exception).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `بطاقة فيديو يوتيوب في المخطط ← النقر على خيارات ← اختيار 'حظر هذه القناة'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1435,8 +1442,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إدراج معرف القناة أو الفيديو في قائمة الحظر السحابية وتمريرها لوكيل الطفل لمنع تشغيل أي فيديو تابع للقناة.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يعتمد على دقة استخلاص معرف القناة من واجهة تطبيق يوتيوب عبر Accessibility.
 
@@ -1445,7 +1452,7 @@ classDiagram
 
 ##### QU-FUN-000050: عرض خريطة العائلة اللحظية (Live Family Locator Map View)
 - **الوصف الوظيفي والمعماري:** عرض خريطة العائلة اللحظية (Live Family Locator Map View).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — عارض الواجهة
 - **مسار تدفق المستخدم (User Workflow):**
   `شريط التنقل ← محدد موقع العائلة (/familyLocator) ← استعراض الخريطة التفاعلية مع دبابيس الأطفال`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1468,7 +1475,7 @@ classDiagram
 
 ##### QU-FUN-000051: طلب تحديث موقع الجهاز الفوري عند الطلب (On-Demand Device GPS Refresh Request)
 - **الوصف الوظيفي والمعماري:** طلب تحديث موقع الجهاز الفوري عند الطلب (On-Demand Device GPS Refresh Request).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `خريطة الموقع ← النقر على زر التحديث الدائري بجانب اسم الطفل`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1484,14 +1491,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال أمر FCM Silent Push يستيقظ بموجبه وكيل الطفل بالخلفية لقراءة إحداثيات FusedLocationProvider ورفعها للسحابة فوراً.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   مكبوح بآلية Debounce لتفادي استنزاف بطارية جهاز الطفل من كثرة الاستعلامات المتلاحقة.
 
 ##### QU-FUN-000052: استعراض سجل المسار الجغرافي والمسارات السابقة (Kid Historical Location Trail)
 - **الوصف الوظيفي والمعماري:** استعراض سجل المسار الجغرافي والمسارات السابقة (Kid Historical Location Trail).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `ملف الطفل ← المواقع السابقة ← اختيار التاريخ ← استعراض مسار التحركات التاريخي على الخريطة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1507,14 +1514,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   توصيل النقاط الجغرافية المسجلة زمنياً وعرض طوابع الوصول والمغادرة لكل موقع توقف فيه الطفل لأكثر من 5 دقائق.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يحتفظ السجل التاريخي بالبيانات لمدة تصل إلى 30 يوماً لحسابات Premium.
 
 ##### QU-FUN-000053: إنشاء مكان وسياج جغرافي محمي (Geofenced Place Creation & Radius Limit)
 - **الوصف الوظيفي والمعماري:** إنشاء مكان وسياج جغرافي محمي (Geofenced Place Creation & Radius Limit).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `الأماكن ← إضافة مكان جديد ← البحث عن العنوان أو وضع الدبوس ← تحديد نصف القطر (100م - 1000م) ← تسمية المكان (المدرسة، المنزل)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1530,14 +1537,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   قيد الحد الأقصى للأماكن: LIMIT_OF_PLACES_CREATED_BY_THE_USER = 15 مكان. رسم دائرة السياج عبر Google Maps Plugin.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يحظر إنشاء أكثر من 15 مكاناً لكل عائلة.
 
 ##### QU-FUN-000054: إشعارات الدخول والمغادرة من الأماكن المحمية (Geofence Enter/Exit Push Alerts)
 - **الوصف الوظيفي والمعماري:** إشعارات الدخول والمغادرة من الأماكن المحمية (Geofence Enter/Exit Push Alerts).
-- **نطاق الملكية والمسؤولية:** مشترك (Backend detection / Parent alerts).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `وصول الطفل إلى المدرسة أو مغادرتها ← الخادم السحابي يقارن الإحداثيات بالسياج ← وصول إشعار فوري للوالد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1553,14 +1560,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   معالجة أحداث السياج الجغرافي (GEOFENCE_ENTER / GEOFENCE_EXIT)؛ تسجيل طابع وقت العبور بدقة وتوليد بطاقة حدث في Timeline.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يعتمد على كفاءة رصد الحدود الجغرافية في السحابة بناءً على نقاط GPS المرفوعة.
 
 ##### QU-FUN-000055: التحويل العكسي للإحداثيات إلى عناوين نصية (Reverse Geocoding Address Resolution)
 - **الوصف الوظيفي والمعماري:** التحويل العكسي للإحداثيات إلى عناوين نصية (Reverse Geocoding Address Resolution).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** مشترك (طلب الوالد Level A / التنفيذ على الجهاز Unavailable)
 - **مسار تدفق المستخدم (User Workflow):**
   `وضع الدبوس على الخريطة أثناء إنشاء مكان ← تحويل الإحداثيات تلقائياً إلى اسم الشارع والحي والمدينة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1576,8 +1583,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   استدعاء خدمة الترميز الجغرافي العكسي لترجمة Lat/Lng إلى عنوان بريدي مقروء للمستخدم.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Partial`
 - **القيود الهندسية والمسائل المعلقة:**
   يتطلب توفر اتصال بشبكة الإنترنت واستجابة خوادم خرائط Google.
 
@@ -1586,7 +1593,7 @@ classDiagram
 
 ##### QU-FUN-000056: المفتاح الرئيسي لسياسة مراقبة المكالمات وSMS (Calls & SMS Policy Master Switch)
 - **الوصف الوظيفي والمعماري:** المفتاح الرئيسي لسياسة مراقبة المكالمات وSMS (Calls & SMS Policy Master Switch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← المكالمات والرسائل ← تفعيل المفتاح الرئيسي للمراقبة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1602,14 +1609,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تفعيل مزامنة سجلات المكالمات والرسائل من هاتف أندرويد الخاص بالطفل؛ يتطلب تثبيت النسخة الكاملة من موقع Qustodio (تجاوز قيود متجر Google Play).
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   مقتصر حصراً على أجهزة أندرويد للطفل؛ غير مدعوم على أجهزة iOS بسبب قيود أبل الصارمة لخصوصية المكالمات.
 
 ##### QU-FUN-000057: إدارة جهات الاتصال المحظورة والمسموحة (Supervised Contact Whitelist/Blacklist)
 - **الوصف الوظيفي والمعماري:** إدارة جهات الاتصال المحظورة والمسموحة (Supervised Contact Whitelist/Blacklist).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المكالمات والرسائل ← جهات الاتصال ← إضافة جهة اتصال ← إدخال الرقم والاسم ← تعيين: 'حظر' أو 'سماح'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1625,14 +1632,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   قائمة الحظر تمنع استقبال أو إجراء مكالمات أو رسائل نصية مع الرقم المحظور محلياً على هاتف الطفل.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يتطلب صلاحيات READ_CALL_LOG و READ_SMS و ANSWER_PHONE_CALLS على جهاز الطفل.
 
 ##### QU-FUN-000058: استعراض سجل المكالمات الصادرة والواردة (Call Event Log & Duration Inspection)
 - **الوصف الوظيفي والمعماري:** استعراض سجل المكالمات الصادرة والواردة (Call Event Log & Duration Inspection).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← تصفية: المكالمات ← استعراض قائمة المكالمات (الاسم، الرقم، الاتجاه، المدة بالثواني، التوقيت)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1648,14 +1655,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   عرض سجل تفصيلي لجميع المكالمات، وتلوين المكالمات المحظورة باللون الأحمر لتمييزها فوراً.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   لا يتضمن تسجيل الصوت للمكالمات؛ يقتصر على البيانات الوصفية للمكالمة.
 
 ##### QU-FUN-000059: فحص نصوص الرسائل القصيرة وتنبيهات الكلمات المشبوهة (SMS Content Inspection & Keyword Alerts)
 - **الوصف الوظيفي والمعماري:** فحص نصوص الرسائل القصيرة وتنبيهات الكلمات المشبوهة (SMS Content Inspection & Keyword Alerts).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياج الجغرافي
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← تصفية: الرسائل ← قراءة محتوى الرسائل المتبادلة بين الطفل وجهات الاتصال`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1681,7 +1688,7 @@ classDiagram
 
 ##### QU-FUN-000060: تكوين زر الطوارئ وجهات الاتصال الموثوقة (Panic Button Rules & Trusted Contacts Setup)
 - **الوصف الوظيفي والمعماري:** تكوين زر الطوارئ وجهات الاتصال الموثوقة (Panic Button Rules & Trusted Contacts Setup).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تكوين السياج الجغرافي
 - **مسار تدفق المستخدم (User Workflow):**
   `القواعد ← زر الطوارئ ← تفعيل الميزة ← إضافة أرقام الهواتف الموثوقة لاستلام تنبيهات SMS عند الطوارئ`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1704,7 +1711,7 @@ classDiagram
 
 ##### QU-FUN-000061: استقبال إشارة الاستغاثة الطارئة عالية الأولوية (SOS Crisis Ingestion with GPS Coordinates)
 - **الوصف الوظيفي والمعماري:** استقبال إشارة الاستغاثة الطارئة عالية الأولوية (SOS Crisis Ingestion with GPS Coordinates).
-- **نطاق الملكية والمسؤولية:** مشترك (Child triggers / Cloud dispatches / Parent receives).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `الطفل يضغط زر SOS على هاتفه ← إرسال استغاثة سحابية عاجلة ← وصول إشعار إنذار فوري ومميز لهاتف الوالد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1720,14 +1727,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   معاملة الإشعار بأقصى درجات الأولوية (Priority High)؛ تجاوز وضع الصامت في جهاز الوالد وتشغيل نغمة إنذار متكررة مع إحداثيات GPS الدقيقة.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يرسل النظام أيضاً رسائل SMS مباشرة لجهات الاتصال الموثوقة من هاتف الطفل في حال انقطاع الإنترنت.
 
 ##### QU-FUN-000062: شاشة الطوارئ المنبثقة وتوجيه الملاحة الفوري (Panic Alert Full-Screen Emergency Modal)
 - **الوصف الوظيفي والمعماري:** شاشة الطوارئ المنبثقة وتوجيه الملاحة الفوري (Panic Alert Full-Screen Emergency Modal).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `النقر على إشعار الاستغاثة ← فتح نافذة الطوارئ الفورية الحمراء مع خريطة الموقع وزر اتصال فوري`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1743,14 +1750,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   تثبيت الدبوس على الخريطة في موقع الاستغاثة وتوفير زر ملاحة مباشر عبر Google Maps للوصول للطفل بأسرع وقت.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   تبقى الشاشة منبهة للمستخدم حتى يتم تأكيد استلام الإنذار أو إلغاؤه من قبل الطفل.
 
 ##### QU-FUN-000063: تأكيد وإلغاء حالة الاستغاثة بعد زوال الخطر (Panic Alert Resolution Acknowledgement)
 - **الوصف الوظيفي والمعماري:** تأكيد وإلغاء حالة الاستغاثة بعد زوال الخطر (Panic Alert Resolution Acknowledgement).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `شاشة الطوارئ ← النقر على 'تم الاطمئنان على الطفل وإلغاء الإنذار' ← إدخال التأكيد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1766,8 +1773,8 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   إرسال إشعار تأكيد لسحابة Qustodio وأجهزة العائلة بأن حالة الطوارئ تم التعامل معها بنجاح وأرشفتها في السجل.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   الحدث يظل مسجلاً في سجل المخطط الزمني للرجوع إليه مستقبلاً.
 
@@ -1776,7 +1783,7 @@ classDiagram
 
 ##### QU-FUN-000064: خلاصة المخطط الزمني الموحد والتحميل التزايدي (Unified Activity Timeline & Pagination: Limit 15)
 - **الوصف الوظيفي والمعماري:** خلاصة المخطط الزمني الموحد والتحميل التزايدي (Unified Activity Timeline & Pagination: Limit 15).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — فلترة محلية
 - **مسار تدفق المستخدم (User Workflow):**
   `فتح صفحة المخطط الزمني للطفل (/timeline) ← التمرير لأسفل لتحميل المزيد من الأحداث تلقائياً`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1799,7 +1806,7 @@ classDiagram
 
 ##### QU-FUN-000065: تصفية أحداث المخطط الزمني حسب النوع (Activity Event Type Filtering)
 - **الوصف الوظيفي والمعماري:** تصفية أحداث المخطط الزمني حسب النوع (Activity Event Type Filtering).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المخطط الزمني ← شريط التصفية العلوي ← اختيار: 'الكل'، 'الويب'، 'التطبيقات'، 'المكالمات'، 'المواقع'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1815,14 +1822,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   استخدام جدول المطابقة eventTypeToActivityEventFilterMapper لتطبيع أنواع الأحداث وتصفية العرض فورياً دون انتظار الخادم.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   إذا لم تكن الأحداث المصفاة محملة في الذاكرة، يتم إطلاق طلب سحابي بنوع الفلتر المحدد.
 
 ##### QU-FUN-000066: تصنيف شدة التنبيهات والتسلسل البصري (Alert Severity Classification: Critical / Warning / Info)
 - **الوصف الوظيفي والمعماري:** تصنيف شدة التنبيهات والتسلسل البصري (Alert Severity Classification: Critical / Warning / Info).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — إعدادات التفضيلات
 - **مسار تدفق المستخدم (User Workflow):**
   `استعراض أحداث المخطط ← تمييز التنبيهات الخطرة بشارات ملونة (أحمر للخطورة القصوى، برتقالي للتحذير)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1845,7 +1852,7 @@ classDiagram
 
 ##### QU-FUN-000067: محرك بطاقة الحالة الحية الموحدة للطفل (Unified Now Card Real-Time Engine)
 - **الوصف الوظيفي والمعماري:** محرك بطاقة الحالة الحية الموحدة للطفل (Unified Now Card Real-Time Engine).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — بنية الواجهة
 - **مسار تدفق المستخدم (User Workflow):**
   `لوحة القيادة الرئيسية للطفل ← أعلى الشاشة يعرض بطاقة فورية تلخص ما يفعله الطفل الآن وحالة قفل جهازه`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1868,7 +1875,7 @@ classDiagram
 
 ##### QU-FUN-000068: إدارة شارات التنبيهات غير المقروءة والتطهير (Timeline Unread Badging & Invalidation)
 - **الوصف الوظيفي والمعماري:** إدارة شارات التنبيهات غير المقروءة والتطهير (Timeline Unread Badging & Invalidation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) + السحابة
 - **مسار تدفق المستخدم (User Workflow):**
   `وصول أحداث جديدة بالخلفية ← ظهور رقم الشارة الحمراء على أيقونة الطفل ← فتح المخطط ← تصفير العداد`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1894,7 +1901,7 @@ classDiagram
 
 ##### QU-FUN-000069: معالج ربط حساب المدرسة وملف الطالب (School/Linewize Student Profile Linking Wizard)
 - **الوصف الوظيفي والمعماري:** معالج ربط حساب المدرسة وملف الطالب (School/Linewize Student Profile Linking Wizard).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** منظومة Linewize ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `المزيد ← ربط المدرسة (/onboarding-schools) ← اختيار مدرسة الطفل ← تأكيد البريد الأكاديمي ← ربط الملف`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1910,14 +1917,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   ربط جهاز المدرسة (Chromebook / iPad التعليمي) بحساب العائلة مع تفويض إدارة الحماية الرقمية لإدارة المدرسة خلال أوقات الدوام.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   يتطلب اشتراك مدرسة الطفل في برنامج Linewize Community / Qustodio for Schools.
 
 ##### QU-FUN-000070: اكتشاف أوقات الدوام المدرسي وتفويض الصلاحيات (In-School Period Detection & Policy Delegation)
 - **الوصف الوظيفي والمعماري:** اكتشاف أوقات الدوام المدرسي وتفويض الصلاحيات (In-School Period Detection & Policy Delegation).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** منظومة Linewize ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `أثناء ساعات المدرسة الرسمية ← لوحة الطفل تعرض شارة 'في المدرسة حالياً' مع تعطيل التحكم بالحصص`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1933,14 +1940,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   دالة isInSchoolPeriod(): مقارنة التوقيت الحالي بجدول المدرسة الرسمي؛ أثناء الدوام تُمنح صلاحيات الفلترة لسياسة المدرسة وتُعلق حصص الوالد الزمنية لتمكين الطفل من أداء واجباته.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   السياسة المنزلية تستأنف سريانها تلقائياً بمجرد انتهاء ساعات اليوم الدراسي أو في عطلات نهاية الأسبوع.
 
 ##### QU-FUN-000071: إنفاذ حدود خصوصية ومشاركة بيانات المدرسة (School Data Sharing Boundary Enforcement)
 - **الوصف الوظيفي والمعماري:** إنفاذ حدود خصوصية ومشاركة بيانات المدرسة (School Data Sharing Boundary Enforcement).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — إعدادات الإدارة المشتركة
 - **مسار تدفق المستخدم (User Workflow):**
   `محاولة عرض نشاط التصفح أثناء ساعات الدوام ← ظهور رسالة 'البيانات محمية وفق سياسة خصوصية المدرسة'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1963,7 +1970,7 @@ classDiagram
 
 ##### QU-FUN-000072: استعراض أحداث الأمان الرقمي المدرسي وتواقيع التهديدات (Linewize Safety Events & Signatures)
 - **الوصف الوظيفي والمعماري:** استعراض أحداث الأمان الرقمي المدرسي وتواقيع التهديدات (Linewize Safety Events & Signatures).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — عارض المحتوى
 - **مسار تدفق المستخدم (User Workflow):**
   `الجدول الزمني المدرسي (/school/timeline) ← استعراض بطاقات الأمان المكتشفة من خوادم Linewize`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -1989,7 +1996,7 @@ classDiagram
 
 ##### QU-FUN-000073: فحص صلاحيات الترخيص ومصفوفة استحقاق الميزات (License Entitlements & Feature Matrix)
 - **الوصف الوظيفي والمعماري:** فحص صلاحيات الترخيص ومصفوفة استحقاق الميزات (License Entitlements & Feature Matrix).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تهيئة النظام
 - **مسار تدفق المستخدم (User Workflow):**
   `التحقق الداخلي التلقائي عند فتح أي صفحة ميزات متقدمة (يوتيوب، الأماكن، تحديد الموقع، فلاتر التطبيقات)`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2012,7 +2019,7 @@ classDiagram
 
 ##### QU-FUN-000074: تدفق شراء الترقية داخل التطبيق (In-App Premium Upgrade & Google Play Billing)
 - **الوصف الوظيفي والمعماري:** تدفق شراء الترقية داخل التطبيق (In-App Premium Upgrade & Google Play Billing).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — كود Java الأصلي
 - **مسار تدفق المستخدم (User Workflow):**
   `شاشة الترقية (/upgrade) ← اختيار الخطة (سنوية / شهرية) ← النقر على 'ترقية الآن' ← حوار الدفع في Google Play`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2035,7 +2042,7 @@ classDiagram
 
 ##### QU-FUN-000075: تفعيل الفترة التجريبية اليدوية وتجديد التجربة (Manual Trial Activation & Retrial)
 - **الوصف الوظيفي والمعماري:** تفعيل الفترة التجريبية اليدوية وتجديد التجربة (Manual Trial Activation & Retrial).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — كود Java الأصلي
 - **مسار تدفق المستخدم (User Workflow):**
   `نافذة الترويج ← النقر على 'بدء التجربة المجانية لمدة 3 أيام' دون إدخال بطاقة ائتمان`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2058,7 +2065,7 @@ classDiagram
 
 ##### QU-FUN-000076: حملات التخفيض والعروض الخاصة للسنتين (Two-Year Promotional Campaign Modal)
 - **الوصف الوظيفي والمعماري:** حملات التخفيض والعروض الخاصة للسنتين (Two-Year Promotional Campaign Modal).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — عارض الواجهة
 - **مسار تدفق المستخدم (User Workflow):**
   `ظهور نافذة ترويجية منبثقة بعرض خصم خاص لاشتراك السنتين ← النقر على 'احصل على العرض'`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2084,7 +2091,7 @@ classDiagram
 
 ##### QU-FUN-000077: إدارة دورة حياة الجسر الهجين بين كوردوفا والويب (Cordova-to-JavaScript Lifecycle Bridge)
 - **الوصف الوظيفي والمعماري:** إدارة دورة حياة الجسر الهجين بين كوردوفا والويب (Cordova-to-JavaScript Lifecycle Bridge).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تفضيلات المستخدم
 - **مسار تدفق المستخدم (User Workflow):**
   `تشغيل التطبيق ← إقلاع MainActivity ← تهيئة WebViewLocalServer ← تحميل حزمة الويب ← إخطار الجسر`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2107,7 +2114,7 @@ classDiagram
 
 ##### QU-FUN-000078: اعتراض الروابط العميقة وإعادة توجيه المسار (Deep Link Intent Ingestion & Route Dispatch)
 - **الوصف الوظيفي والمعماري:** اعتراض الروابط العميقة وإعادة توجيه المسار (Deep Link Intent Ingestion & Route Dispatch).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** الخادم السحابي ← تطبيق الوالدين (PASA)
 - **مسار تدفق المستخدم (User Workflow):**
   `النقر على رابط qustodio:// أو رابط ويب خارجي https://*.qustodio.com/parents-app/* ← فتح التطبيق وتوجيهه للشاشة المحددة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2123,14 +2130,14 @@ classDiagram
 - **القواعد الخوارزمية ومنطق الأعمال (Business Rules & Algorithms):**
   التحقق من الرابط بنمط Regex دقيق؛ حقن كود جافاسكريبت javascript:handleOpenURL('...') في WebView للانتقال للشاشة المطلوبة فورياً.
 - **مستوى الإثبات وحالة التغطية:**
-  - **مستوى الإثبات:** `Level A`
-  - **حالة التغطية:** `Confirmed`
+  - **مستوى الإثبات:** `Level B`
+  - **حالة التغطية:** `Derived`
 - **القيود الهندسية والمسائل المعلقة:**
   محمي بالتحقق من النطاقات المعتمدة لمنع هجمات حقن الروابط الخبيثة.
 
 ##### QU-FUN-000079: استقبال وتوجيه إشعارات الـ FCM السحابية (Push Command Ingestion & Routing Pipeline)
 - **الوصف الوظيفي والمعماري:** استقبال وتوجيه إشعارات الـ FCM السحابية (Push Command Ingestion & Routing Pipeline).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — الفوترة والمشتريات
 - **مسار تدفق المستخدم (User Workflow):**
   `وصول إشعار سحابي من Firebase ← استقباله في الخلفية أو أثناء عمل التطبيق ← توجيهه للمكتبة المختصة`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2153,7 +2160,7 @@ classDiagram
 
 ##### QU-FUN-000080: تسلسل حالة Redux واستعادتها دون اتصال (Redux State Snapshotting & Hydration)
 - **الوصف الوظيفي والمعماري:** تسلسل حالة Redux واستعادتها دون اتصال (Redux State Snapshotting & Hydration).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — منطق الواجهة
 - **مسار تدفق المستخدم (User Workflow):**
   `إجراء أي تغيير في الحالة ← حفظ اللقطة تلقائياً في التخزين الدائم؛ وعند الإقلاع استعادة الحالة قبل جلب البيانات الحية`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2176,7 +2183,7 @@ classDiagram
 
 ##### QU-FUN-000081: تخزين المستندات المؤقتة وطابور التعديلات دون اتصال (Firestore Offline Document Caching & Queue)
 - **الوصف الوظيفي والمعماري:** تخزين المستندات المؤقتة وطابور التعديلات دون اتصال (Firestore Offline Document Caching & Queue).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — تخزين محلي
 - **مسار تدفق المستخدم (User Workflow):**
   `إجراء تعديل أثناء انقطاع الشبكة ← حفظ التعديل في طابور محلي ← إعادة الإرسال تلقائياً فور عودة الاتصال`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
@@ -2199,7 +2206,7 @@ classDiagram
 
 ##### QU-FUN-000082: خط أنابيب التيليمتري والتشخيص وتشخيص الانهيارات (DataTransport Telemetry & Sentry Crash Reporting)
 - **الوصف الوظيفي والمعماري:** خط أنابيب التيليمتري والتشخيص وتشخيص الانهيارات (DataTransport Telemetry & Sentry Crash Reporting).
-- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (Parent App).
+- **نطاق الملكية والمسؤولية:** تطبيق الوالدين (PASA) — خط أنابيب التيليمتري
 - **مسار تدفق المستخدم (User Workflow):**
   `حدوث استثناء برمجي أو حدث تشخيصي ← تسجيل الحدث في خط أنابيب النقل المحلي ← إرسال الدفعات في الخلفية`
 - **المسار البرمجي والهندسي الكامل (Technical Path):**
