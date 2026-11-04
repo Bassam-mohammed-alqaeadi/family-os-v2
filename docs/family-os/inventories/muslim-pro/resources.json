@@ -1,0 +1,659 @@
+[
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Full astronomical prayer-time computation on device: Julian dates, solar declination, equation of time, per-prayer solvers, polar resolution.",
+  "category": "Algorithms",
+  "description": "Port of batoulapps/adhan: AstronomicalMathKt (626 lines) + Calculator (3,228 lines) implementing getFajrTime/getIshaTime/getMaghribTime/getZohorTime/getAsrTime/getSunsetTime/getTahajjudTime/getIftarTime/getImsakTime/currentPrayer/nextPrayer/previousPrayer. Real code in smali (jadx showed stubs for KMP).",
+  "evidence_refs": [
+   "MP-EVD-000002"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "Calculator.currentPrayer()",
+    "Calculator.nextPrayer()"
+   ],
+   "key_classes": [
+    "calculator/Calculator.smali",
+    "calculator/AstronomicalMathKt.smali"
+   ],
+   "primary_language": "Kotlin (KMP)"
+  },
+  "name": "Astronomical Prayer Calculator Engine",
+  "resource_id": "MP-RES-000001",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "open_source_port",
+   "licensing_risk": "low",
+   "notes": "Biggest treasure: Family OS computes prayer times 100% on-device, no server needed.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-010960"
+  ],
+  "tags": [
+   "prayer",
+   "astronomy",
+   "offline-first"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "22 named calculation conventions with verified angle constants; sealed hierarchies for fajr/isha/maghrib/asr methods.",
+  "category": "Algorithms",
+  "description": "MWL (fajr 18/isha 17), ISNA, Egypt, EgyptBis, Makkah, Karachi, Tehran, Jafari, Diyanet, KEMENAG, MUIS, JAKIM, UOIF, Tunisia, Algeria, Basque, FR15, FR18, AwqafUAE, UIPTL, FixedIsha, Custom. FajrCalculationMethod(AngleBased/MinuteBased) etc.; UIPTL 365-day minute tables.",
+  "evidence_refs": [
+   "MP-EVD-000003"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "FajrCalculationMethod sealed hierarchy"
+   ],
+   "key_classes": [
+    "settings/FajrCalculationMethod.java",
+    "settings/IshaCalculationMethod.java",
+    "calculator/UiptlTablesKt"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Calculation Conventions (22)",
+  "resource_id": "MP-RES-000002",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Ready-made madhab coverage.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-122116"
+  ],
+  "tags": [
+   "prayer",
+   "conventions"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Clean geo model reused by prayer, qibla and region lookup.",
+  "category": "Data Models & Schemas",
+  "description": "GeoLocation{latitude, longitude, altitudeMeters, timeZoneId} — clean data class in the KMP library.",
+  "evidence_refs": [
+   "MP-EVD-000018"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "libs/prayertimes/location/GeoLocation.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "GeoLocation Model",
+  "resource_id": "MP-RES-000003",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Reuse as-is for any Family OS location service.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-122113"
+  ],
+  "tags": [
+   "location",
+   "model"
+  ],
+  "technical_depth": "T1_structural"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Server-updated index of calculation sources (mosques/authorities) with lat/long/radius; Room table + bundled JSON fallback for offline.",
+  "category": "Synchronization & Offline",
+  "description": "PrecalcRegionEntryDto{country_code,precalc_id,source,latitude,longitude,radius}; 1,143 entries in assets/content/precalc_sources.json; Room table precalc_region in PrayerDb; network fetch with bundled fallback.",
+  "evidence_refs": [
+   "MP-EVD-000002"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "PrecalcSourcesRepository (VolumeUpKt.smali)"
+   ],
+   "key_classes": [
+    "apimanager/remote/dto/PrecalcRegionEntryDto.java",
+    "prayer/data/local/entity/PrecalcRegionEntity.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Precalc Sources Index",
+  "resource_id": "MP-RES-000004",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Adapt: Yemen/Gulf region file first, no foreign API dependency.",
+   "technical_reuse_strategy": "adapt"
+  },
+  "source_refs": [
+   "MP-SRC-010960"
+  ],
+  "tags": [
+   "prayer",
+   "offline-first",
+   "regions"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Server pushes per-country calculation settings; device computes. Best of both worlds.",
+  "category": "Data Models & Schemas",
+  "description": "AutoSettingDto{angleFajr,angleIsha,convention,corrections[],countryCode,dst,hiLat,hijri,imsak,juristic,ramadanIshaDelay,isDefault}.",
+  "evidence_refs": [
+   "MP-EVD-000004"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "prayer/data/remote/dto/AutoSettingDto.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "AutoSettingDto (per-country config)",
+  "resource_id": "MP-RES-000005",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Copy the model; Family OS server pushes Yemen/Gulf settings.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-121708"
+  ],
+  "tags": [
+   "prayer",
+   "config"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Downloadable muezzin catalog; adhan plays as Notification.sound — no media player needed.",
+  "category": "Engines & Services",
+  "description": "AdhanDto{id,type,order,name,filename,checksum,preview_checksum,duration,flag,video_id,free_with_login_countries,is_default,updated_at,legacy_id}; 37 adhans; https://download.muslimpro.com/adhan/+filename to Download/Adhans; per-prayer notification/alarm prefs.",
+  "evidence_refs": [
+   "MP-EVD-000005"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "AdhanManager",
+    "AdhanSelectorActivity"
+   ],
+   "key_classes": [
+    "apimanager/remote/dto/AdhanDto.java",
+    "core/PrayerTimeNotificationReceiver.smali"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Adhan Catalog + Playback",
+  "resource_id": "MP-RES-000006",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Simplest reliable architecture; add Yemeni/Gulf muezzins to the same structure.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-090647"
+  ],
+  "tags": [
+   "adhan",
+   "audio"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Exact alarms that never miss: setExactAndAllowWhileIdle + reschedule on boot/timezone/time/locale changes + permission-revocation watch + user education screen.",
+  "category": "Android Platform Integration",
+  "description": "AlarmManager.setExactAndAllowWhileIdle with canScheduleExactAlarms() check; 5 system broadcasts + ADHAN_* events; watches SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED; AdhanAlarmPermissionActivity (Compose).",
+  "evidence_refs": [
+   "MP-EVD-000006"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "PrayerTimeNotificationReceiver",
+    "AlarmAndRemindersBroadcastReceiver"
+   ],
+   "key_classes": [
+    "core/PrayerTimeNotificationReceiver.smali",
+    "AdhanAlarmPermissionActivity"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Notification Reliability Package",
+  "resource_id": "MP-RES-000007",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Generalize to all Family OS reminders (meds, tasks, appointments).",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-085953"
+  ],
+  "tags": [
+   "notifications",
+   "reliability"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Great-circle bearing from Kaaba constants fused with accelerometer + magnetic field.",
+  "category": "Algorithms",
+  "description": "bearing=(toDegrees(atan2(y,x))+360)%360; Kaaba 21.4225/39.8262; sensors 1+2 with lifecycle-aware register/unregister; QiblaTroubleShootActivity for calibration.",
+  "evidence_refs": [
+   "MP-EVD-000007"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "QiblaViewModel"
+   ],
+   "key_classes": [
+    "qibla/QiblaViewModel.smali",
+    "QiblaActivity"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Qibla Bearing Engine",
+  "resource_id": "MP-RES-000008",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Copy the equation verbatim.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-020081"
+  ],
+  "tags": [
+   "qibla",
+   "sensors"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "NEGATIVE REFERENCE: no on-device Hijri math; dates come from server-downloaded encrypted hijri.json. Do not copy — build on-device Kuwaiti algorithm instead.",
+  "category": "Data Models & Schemas",
+  "description": "HijriCalendar.isRamadan() always returns false (stub); mHijrMap built from downloaded hijri.json. Server dependency + closed encryption for a daily calendar = architectural weakness.",
+  "evidence_refs": [
+   "MP-EVD-000008"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "libs/prayertimes/calendar/HijriCalendar.java (stub)"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Hijri Server-Data Model (negative)",
+  "resource_id": "MP-RES-000009",
+  "reusability_assessment": {
+   "architectural_fit": "rejected",
+   "cleanroom_requirement": false,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Explicitly rejected: use on-device Kuwaiti algorithm with adjustable offset.",
+   "technical_reuse_strategy": "explicitly_rejected"
+  },
+  "source_refs": [
+   "MP-SRC-074087"
+  ],
+  "tags": [
+   "hijri",
+   "negative-reference"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Chunked ZIP content packs with per-piece checksums/timestamps/sizes + free-gating + differential updates. The offline-content blueprint.",
+  "category": "Synchronization & Offline",
+  "description": "QuranRecitationDto{s3_path,s3_pathroot,checksums[],timestamps[],sizes[],is_free,is_default,reciter_image}; per-surah chunked download (115 checksums for 463MB pack); 8 reciters; 71 translations as quran-sql/<id>.sql.zip.",
+  "evidence_refs": [
+   "MP-EVD-000009"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "download.muslimpro.com"
+   ],
+   "key_classes": [
+    "apimanager/remote/dto/QuranRecitationDto.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Offline Content-Pack System",
+  "resource_id": "MP-RES-000010",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Copy the DTO shape verbatim for Quran, lessons, family audio.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-121201"
+  ],
+  "tags": [
+   "offline",
+   "content-packs"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Firestore-style DTOs sync user state cross-device; father can see children's progress live.",
+  "category": "Synchronization & Offline",
+  "description": "QuranProgressDto(quran_last_played_position,quran_last_read_position), QuranHighlightDto, QuranSettingsDto, QuranNoteDto, MemoriseStatus + generic SyncPayload(HashMap) engine.",
+  "evidence_refs": [
+   "MP-EVD-000010",
+   "MP-EVD-000012"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "syncmanager SyncPayload",
+    "MemoriseSyncViewModel"
+   ],
+   "key_classes": [
+    "quran/data/quran/local/db/*.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "User-State Sync DTOs",
+  "resource_id": "MP-RES-000011",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Pillar of Family OS cross-device visibility.",
+   "technical_reuse_strategy": "copy_verbatim"
+  },
+  "source_refs": [
+   "MP-SRC-121879",
+   "MP-SRC-121900"
+  ],
+  "tags": [
+   "sync",
+   "firestore"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Bundled SQLite files are custom-encrypted blobs decrypted in pure Java (no SQLCipher, no .so). Idea adaptable for paid-content protection.",
+  "category": "Security & Cryptography",
+  "description": "assets/quran.sqlite (7.2MB) + hisnul_v12.sqlite are not real SQLite; decrypted at runtime in pure Java.",
+  "evidence_refs": [
+   "MP-EVD-000010"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "(obfuscated decryptor)"
+   ],
+   "primary_language": "Java"
+  },
+  "name": "Custom Asset Encryption",
+  "resource_id": "MP-RES-000012",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Adapt the idea, not the closed implementation.",
+   "technical_reuse_strategy": "adapt"
+  },
+  "source_refs": [
+   "MP-SRC-121879"
+  ],
+  "tags": [
+   "security",
+   "assets"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "5 foreground audio services (Quran/Sura/Dua/Names/Qalbox) inheriting BaseMediaPlayer; android.media.MediaPlayer, not ExoPlayer.",
+  "category": "Engines & Services",
+  "description": "All audio services are foreground with mediaPlayback type; deliberate simplicity over ExoPlayer.",
+  "evidence_refs": [
+   "MP-EVD-000009"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "mediaplayer.BaseMediaPlayer"
+   ],
+   "key_classes": [
+    "quran/data/audioplayer/QuranAudioPlayer.smali"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Foreground Audio Services",
+  "resource_id": "MP-RES-000013",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Reference for Family OS audio (consider ExoPlayer for new build).",
+   "technical_reuse_strategy": "architectural_reference"
+  },
+  "source_refs": [
+   "MP-SRC-121201"
+  ],
+  "tags": [
+   "audio",
+   "foreground"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Per-ayah memorization status synced to server; player ViewModel for practice sessions.",
+  "category": "Features & Business Rules",
+  "description": "MemoriseStatus(id,status); AyaMemoriseStatusDto; MemoriseSyncViewModel; QuranMemorisePlayerViewModel; MemoriseTypeViewModel.",
+  "evidence_refs": [
+   "MP-EVD-000012"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "MemoriseSyncViewModel"
+   ],
+   "key_classes": [
+    "quran/data/quranmemorisation/remote/dto/MemoriseStatus.java"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Memorization Tracking",
+  "resource_id": "MP-RES-000014",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Adapt per-ayah granularity for kids' learning tracking.",
+   "technical_reuse_strategy": "adapt"
+  },
+  "source_refs": [
+   "MP-SRC-121900"
+  ],
+  "tags": [
+   "quran",
+   "learning"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Quran text/fonts/tajweed from Tarteel's open-source QUL — legally clean, kills the Quran-text IP problem.",
+  "category": "Features & Business Rules",
+  "description": "Strings.xml literally credits 'sourced from the Quranic Universal Library (QUL)... https://qul.tarteel.ai'; 8 tajweed rules documented in-app.",
+  "evidence_refs": [
+   "MP-EVD-000011"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "res/values/strings.xml"
+   ],
+   "primary_language": "XML"
+  },
+  "name": "QUL Open-Source Content",
+  "resource_id": "MP-RES-000015",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": false,
+   "legal_authorization": "open_source",
+   "licensing_risk": "low",
+   "notes": "Adopt legally — saves years and removes IP risk.",
+   "technical_reuse_strategy": "adopt_open_source"
+  },
+  "source_refs": [
+   "MP-SRC-004923"
+  ],
+  "tags": [
+   "quran",
+   "open-source",
+   "legal"
+  ],
+  "technical_depth": "T1_structural"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "Group khatam: create, claim juz segments, nudge readers, share, history, badges — the seed of a religious rewards engine for kids.",
+  "category": "Features & Business Rules",
+  "description": "NewKhatamRequest(name,endAt,physical), ClaimSegmentDto, JuzSegment/CompletedJuzSegment, NudgeRequest, ShareKhatamRequest/Response, BadgeModel/UserBadge.",
+  "evidence_refs": [
+   "MP-EVD-000012"
+  ],
+  "implementation_details": {
+   "entry_points": [],
+   "key_classes": [
+    "quran/data/khatam/model/api/"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Social Khatam",
+  "resource_id": "MP-RES-000016",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Core of the kids' religious rewards engine.",
+   "technical_reuse_strategy": "adapt"
+  },
+  "source_refs": [
+   "MP-SRC-121900"
+  ],
+  "tags": [
+   "khatam",
+   "social",
+   "rewards"
+  ],
+  "technical_depth": "T2_detailed"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "RAG religious assistant: answers cited to Quran/Hadith sources with confidence scores + feedback — the pattern for Family OS's father-agent.",
+  "category": "AI & Gamification",
+  "description": "QuranSource(page_content,confidence,sura_id,aya_id,translated_by) + HadithSource + Feedback; deep-linked from reader (ai_deen_aya_id/sura_id); AiDeenWidget in manifest.",
+  "evidence_refs": [
+   "MP-EVD-000013"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "AskAiDeenActivity",
+    "AskAbdullah"
+   ],
+   "key_classes": [
+    "QuranSource",
+    "HadithSource",
+    "Feedback"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "AskAbdullah RAG",
+  "resource_id": "MP-RES-000017",
+  "reusability_assessment": {
+   "architectural_fit": "direct",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Prevents fatwa hallucination; build the father-agent on this pattern.",
+   "technical_reuse_strategy": "adapt"
+  },
+  "source_refs": [
+   "MP-SRC-108320"
+  ],
+  "tags": [
+   "ai",
+   "rag"
+  ],
+  "technical_depth": "T3_deep"
+ },
+ {
+  "app_id": "muslim-pro",
+  "behavior_summary": "18 widgets incl. an AI widget — the reference widget-family architecture for Family OS.",
+  "category": "Android Platform Integration",
+  "description": "Prayer (all/current/horizontal/daily trackers), Quran (last-read/listened/daily-verse/deen/immerse/duas), tasbih, fasting, names99, qibla, inspiration, qalbox, AiDeenWidget; refreshed via NotificationCycleService.",
+  "evidence_refs": [
+   "MP-EVD-000001",
+   "MP-EVD-000013"
+  ],
+  "implementation_details": {
+   "entry_points": [
+    "widget.* providers"
+   ],
+   "key_classes": [
+    "widget/ (18 providers)"
+   ],
+   "primary_language": "Kotlin"
+  },
+  "name": "Widget Family (18)",
+  "resource_id": "MP-RES-000018",
+  "reusability_assessment": {
+   "architectural_fit": "adaptable",
+   "cleanroom_requirement": true,
+   "legal_authorization": "standard_compliance",
+   "licensing_risk": "low",
+   "notes": "Reference for family prayer-tracking widget.",
+   "technical_reuse_strategy": "architectural_reference"
+  },
+  "source_refs": [
+   "MP-SRC-000004",
+   "MP-SRC-108320"
+  ],
+  "tags": [
+   "widgets"
+  ],
+  "technical_depth": "T2_detailed"
+ }
+]
