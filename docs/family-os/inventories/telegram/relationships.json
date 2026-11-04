@@ -1,0 +1,170 @@
+[
+ {
+  "relationship_id": "TG-REL-100",
+  "source_resource_id": "TG-RES-000005",
+  "target_resource_id": "TG-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "The update ingress path deserializes via the JNI bridge's native buffers.",
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-101",
+  "source_resource_id": "TG-RES-000005",
+  "target_resource_id": "TG-RES-000002",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "All updates serialize through the central stageQueue DispatchQueue.",
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-102",
+  "source_resource_id": "TG-RES-000005",
+  "target_resource_id": "TG-RES-000015",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Ingress deserializes TLRPC.Updates via the schema corpus.",
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-103",
+  "source_resource_id": "TG-RES-000005",
+  "target_resource_id": "TG-RES-000014",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Updates persist into cache4.db and holes are tracked there.",
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-104",
+  "source_resource_id": "TG-RES-000005",
+  "target_resource_id": "TG-RES-000003",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Processed updates fan out to UI through the event bus.",
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-105",
+  "source_resource_id": "TG-RES-000004",
+  "target_resource_id": "TG-RES-000003",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Each account owns its own NotificationCenter instance.",
+  "evidence_refs": [
+   "TG-EVD-000004"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-106",
+  "source_resource_id": "TG-RES-000011",
+  "target_resource_id": "TG-RES-000002",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Media operations run on the dedicated fileUploadQueue.",
+  "evidence_refs": [
+   "TG-EVD-000011"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-107",
+  "source_resource_id": "TG-RES-000011",
+  "target_resource_id": "TG-RES-000007",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Media downloads ride the multiplexed download connections.",
+  "evidence_refs": [
+   "TG-EVD-000011"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-108",
+  "source_resource_id": "TG-RES-000012",
+  "target_resource_id": "TG-RES-000011",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Autodownload policy gates entry into the media pipeline.",
+  "evidence_refs": [
+   "TG-EVD-000012"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-109",
+  "source_resource_id": "TG-RES-000009",
+  "target_resource_id": "TG-RES-000001",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Push services are declared in the manifest.",
+  "evidence_refs": [
+   "TG-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-110",
+  "source_resource_id": "TG-RES-000009",
+  "target_resource_id": "TG-RES-000007",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Push complements the typed connection mesh as third delivery layer.",
+  "evidence_refs": [
+   "TG-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-111",
+  "source_resource_id": "TG-RES-000010",
+  "target_resource_id": "TG-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "E2E crypto (AES-IGE) executes through the native bridge.",
+  "evidence_refs": [
+   "TG-EVD-000010"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-112",
+  "source_resource_id": "TG-RES-000014",
+  "target_resource_id": "TG-RES-000013",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "cache4.db is accessed exclusively via the native SQLite wrapper.",
+  "evidence_refs": [
+   "TG-EVD-000014"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "TG-REL-113",
+  "source_resource_id": "TG-RES-000018",
+  "target_resource_id": "TG-RES-000002",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Deadlock watchdogs monitor the managed thread queues.",
+  "evidence_refs": [
+   "TG-EVD-000018"
+  ],
+  "resolution_status": "resolved"
+ }
+]

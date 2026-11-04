@@ -91,3 +91,7 @@
 ## 2026-11-04 — التوثيق العميق لـ Bark وFamilyWall مكتمل
 - **النتيجة:** `deep-dives/bark.md` + `deep-dives/familywall.md` + `inventories/bark/` + `inventories/familywall/` — مدفوعة.
 - **الأهم:** Bark Kids يحمل نماذج ONNX حقيقية (تصنيف صور 16.9MB + تصنيف نصوص 17.6MB + tokenizer) بعتبة 0.97 — أول ذكاء حقيقي على الجهاز في البرنامج كله، ويعكس ادعاء التقرير الأول (التصنيف خادمياً). FamilyWall: FWPermission طبقة UX لا محرك أدوار — المحرك الحقيقي خادمي (FamilyAdminRightEnum)؛ ومحرك مزامنة WriteBack بقاعدة بيانات محلية.
+
+## 2026-11-04 — التوثيق العميق لـ Telegram وLife360 مكتمل
+- **النتيجة:** `deep-dives/telegram.md` + `deep-dives/life360.md` + `inventories/telegram/` + `inventories/life360/` — مدفوعة.
+- **الأهم:** تيليجرام — مسار التحديثات الكامل (C++ ← ConnectionsManager ← stageQueue)، المزامنة بالفروق لا اللقطات، NotificationCenter = 348 حدثاً بالضبط، دفع مشفر AES-IGE، حدود E2E. Life360 — آلة حالات التصادم مفكوكة، كشف الحركة بلا GPS (بصمة WiFi)، الموقع الفوري عبر MQTT 5، السياج GMS-only (نحتاج المخصص لليمن).

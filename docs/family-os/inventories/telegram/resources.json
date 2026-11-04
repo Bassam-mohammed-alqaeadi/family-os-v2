@@ -1,0 +1,668 @@
+[
+ {
+  "resource_id": "TG-RES-000001",
+  "app_id": "telegram",
+  "name": "Manifest Foundation (20A/31S/26R/7P/71perm)",
+  "category": "Android Platform Integration",
+  "description": "Manifest (20 activities, 31 services, 26 receivers, 7 providers, 71 permissions); minSdk 23/targetSdk 36; requiredSplitTypes=base__abi proves native libs ship as separate split.",
+  "source_refs": [
+   "TG-SRC-000001"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000001"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Declares the full component surface; push/call/sync services and the permission reference list.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Manifest Foundation"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reference permission model and service topology for Family OS."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000002",
+  "app_id": "telegram",
+  "name": "DispatchQueue Managed-Thread Model",
+  "category": "Concurrency & Threading",
+  "description": "Thread+Looper+Handler per queue; CountDownLatch readiness gate; postRunnable/postToFrontRunnable/sendMessage/cancelRunnable/cleanupQueue/recycle; getLastTaskTime deadlock watchdog; thread-priority constructor; global index counter.",
+  "source_refs": [
+   "TG-SRC-000002"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000002"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "Every heavy workload gets a named queue with readiness contract and deadlock monitoring.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "DispatchQueue Managed-Thread Model"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Copy the 159-line class verbatim as the threading primitive of Family OS."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000003",
+  "app_id": "telegram",
+  "name": "NotificationCenter Event Bus (348 events)",
+  "category": "Realtime & Messaging",
+  "description": "348 measured event IDs; per-account + global instances; SparseArray observers; main-thread-only posting (DEBUG enforced); broadcast-deferred add/remove; 5017ms animation deferral; debounce dedup; heavy-ops gating; weak observer groups with leak logging.",
+  "source_refs": [
+   "TG-SRC-000003"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000003"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "Central pub/sub replacing callback webs between modules.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "NotificationCenter Event Bus"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt as the official inter-module bus; rename events for Family OS domains."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000004",
+  "app_id": "telegram",
+  "name": "Multi-Account Singleton Mesh (AccountInstance[4])",
+  "category": "Architecture & Modularity",
+  "description": "Instance[4] cap with double-checked locking; 18 getX() per-account singleton gates; BaseController.currentAccount; UserConfig per-account session state.",
+  "source_refs": [
+   "TG-SRC-000004"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000004"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Isolates per-user state (messages/settings/storage) inside one process.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Multi-Account Singleton Mesh"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "One unit per family member = one account; the indexed-singleton mesh is the isolation mechanism."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000005",
+  "app_id": "telegram",
+  "name": "Native Update Ingress Path (JNI->stageQueue->processUpdates)",
+  "category": "Network & API",
+  "description": "onUnparsedMessageReceived: NativeByteBuffer.wrap -> TLRPC.Updates.TLdeserialize -> KeepAliveJob.finishJob -> stageQueue -> MessagesController.processUpdates; Updates-typed responses routed to processUpdates; getDifference() on TL_updatesTooLong/seq gaps/session creation; freeResources() discipline.",
+  "source_refs": [
+   "TG-SRC-000005"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000005"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "The complete network-to-UI update pipeline with gap recovery.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Native Update Ingress Path"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "The mandatory blueprint for Family OS message sync: single ingress, one stage queue, diff on gaps."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000006",
+  "app_id": "telegram",
+  "name": "ConnectionsManager JNI Bridge (27+ native_*)",
+  "category": "Network & API",
+  "description": "27+ static native declarations (init/sendRequest/datacenter/proxy/network/DNS/lang); Java is a thin coordinator; C++ core absent (split).",
+  "source_refs": [
+   "TG-SRC-000006"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000006"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Thin JNI bridge pattern: critical networking in native, orchestration in Java.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "ConnectionsManager JNI Bridge"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt the bridge discipline: performance-critical code native, logic in Kotlin/Java."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000007",
+  "app_id": "telegram",
+  "name": "Connection Multiplexing (5 types, 8 download conns)",
+  "category": "Network & API",
+  "description": "Types Generic=1/Download=2/Download2=65538/Upload=4/Push=8; states Connecting=1/WaitingForNetwork=2/Connected=3/ConnectingToProxy=4/Updating=5; DownloadConnectionsCount=8; 12 request flags (NeedQuickAck, DownloadByteBudget...).",
+  "source_refs": [
+   "TG-SRC-000007"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000007"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Per-purpose connection multiplexing with declared request capabilities.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Connection Multiplexing"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Design the Family OS protocol client with typed connections and capability flags."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000008",
+  "app_id": "telegram",
+  "name": "DNS-over-HTTPS Failover + DC Management",
+  "category": "Network & API",
+  "description": "GoogleDnsLoadTask then MozillaDnsLoadTask fallback with 10s throttle; native_applyDnsConfig; test backend tapv3.stel.com; didUpdateConnectionState UI propagation.",
+  "source_refs": [
+   "TG-SRC-000008"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000008"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "DNS hijack resistance and datacenter mobility.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "DNS-over-HTTPS Failover + DC Management"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Copy for Yemen/region reliability where DNS is unreliable."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000009",
+  "app_id": "telegram",
+  "name": "Triple-Layer Push (native+FCM+Huawei, AES-IGE payloads)",
+  "category": "Realtime & Messaging",
+  "description": "Dedicated native push connection; FCM with AES-IGE-encrypted 'p' payload (FCM sees no content); Huawei type 13; KeepAliveJob keeps process alive during push handling then finishes.",
+  "source_refs": [
+   "TG-SRC-000009"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000009"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Redundant push with always-encrypted payloads and battery-efficient keep-alive.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Triple-Layer Push"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_adaptation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adapt to Family OS servers; keep the encrypted-payload principle."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000010",
+  "app_id": "telegram",
+  "name": "E2E Secret-Chat Crypto Boundary (AES-IGE, device-only keys)",
+  "category": "Security & Cryptography",
+  "description": "EncryptedChat{auth_key device-only, key_hash fingerprint, layer}; decryptWithMtProtoVersion; AES-IGE via JNI; acceptSecretChat (DH); enc_chats local-only.",
+  "source_refs": [
+   "TG-SRC-000010"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000010"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "Two-tier trust model: cloud-synced normal chats, device-only secret chats.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "E2E Secret-Chat Crypto Boundary"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_adaptation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Family 'secret mode': device key + AES-IGE + local-only storage; copy trust boundaries, not the protocol verbatim."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000011",
+  "app_id": "telegram",
+  "name": "Media Pipeline (FileLoader: 32K/128Kx4, prio queues)",
+  "category": "Engines & Services",
+  "description": "5 small + 5 large priority queues (per DC); upload cap 1+1; chunks 32KB/128KB, 10MB big threshold, 4 parallel requests; priorities LOW=0/NORMAL=0x10000/MAX=0x100000; loadFile() overloads per type.",
+  "source_refs": [
+   "TG-SRC-000011"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000011"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "Proven media download/upload engine numbers.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Media Pipeline"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Copy the numbers (32K/128K x4, 10MB) - battle-tested on billions of files."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000012",
+  "app_id": "telegram",
+  "name": "Autodownload Policy Engine (per-network bitmasks)",
+  "category": "Features & Business Rules",
+  "description": "Per-network bitmasks (mobile/roaming/wifi x media type); canDownloadMedia(Type) gates; server-synced config; DownloadRequestPacer; download_queue persistence.",
+  "source_refs": [
+   "TG-SRC-000012"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000012"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Data policy balancing UX and bandwidth per network.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Autodownload Policy Engine"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Family data policy ready-made, critical for Yemeni networks."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000013",
+  "app_id": "telegram",
+  "name": "Custom Native SQLite Wrapper (no ORM)",
+  "category": "Data Models & Schemas",
+  "description": "4 classes, 454 lines; opendb/beginTransaction/commitTransaction native; prepared statements; explainQuery diagnostics. Zero ORM.",
+  "source_refs": [
+   "TG-SRC-000013"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000013"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Raw-SQL performance discipline via prepared statements.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Custom Native SQLite Wrapper"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Local message DB with the same discipline: prepared statements, no ORM overhead."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000014",
+  "app_id": "telegram",
+  "name": "cache4.db Schema + Hole Tracking (WAL, ~80 tables)",
+  "category": "Data Models & Schemas",
+  "description": "Per-account WAL database; ~80 tables (messages/dialogs/chats/users/enc_chats/...); requested_holes+params = sync-gap tracking storage.",
+  "source_refs": [
+   "TG-SRC-000014"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000014"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "Durable local state with explicit gap accounting for resync.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "cache4.db Schema + Hole Tracking"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Copy the hole-tracking pattern for Family OS offline-first sync."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000015",
+  "app_id": "telegram",
+  "name": "TLRPC Schema Corpus (80k lines, 2043 ctors)",
+  "category": "Network & API",
+  "description": "80,043 lines / 2,043 TL classes with TLdeserialize/serializeToStream; TLClassStore constructor dispatch; NativeByteBuffer little-endian serialization.",
+  "source_refs": [
+   "TG-SRC-000015"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000015"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Complete binary protocol schema as design reference.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "TLRPC Schema Corpus"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "conceptual_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reference for graduated envelopes (updateShort*); do NOT copy the 80k lines."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000016",
+  "app_id": "telegram",
+  "name": "10M+ Scale Patterns Checklist (13 patterns)",
+  "category": "Architecture & Modularity",
+  "description": "Central serialization, connection multiplexing, diff resync, graduated envelopes, request flags, DNS failover, encrypted push, proven chunking, notification dedup, freeResources(), deadlock watchdog, WAL+prepared, native critical core.",
+  "source_refs": [
+   "TG-SRC-000016"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000016"
+  ],
+  "technical_depth": "T3_surgical",
+  "behavior_summary": "The distilled client-side scalability contract.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "10M+ Scale Patterns Checklist"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Mandatory checklist for the Family OS communication module."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000017",
+  "app_id": "telegram",
+  "name": "VoIP Native Bridge (36 native methods)",
+  "category": "Engines & Services",
+  "description": "NativeInstance: 36 native methods over WebRTC-derived lib (video capturers, incoming video outputs); Instance.java wrapper; OS telecom integration.",
+  "source_refs": [
+   "TG-SRC-000017"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000017"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Proven voice/video call architecture.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "VoIP Native Bridge"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reference for family calls later; do not build calls from scratch."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ },
+ {
+  "resource_id": "TG-RES-000018",
+  "app_id": "telegram",
+  "name": "Self-Monitoring (ANRDetector + getLastTaskTime)",
+  "category": "Quality & Reliability",
+  "description": "ANRDetector class; per-queue last-task timestamps; heavy-ops gating during animations.",
+  "source_refs": [
+   "TG-SRC-000018"
+  ],
+  "evidence_refs": [
+   "TG-EVD-000018"
+  ],
+  "technical_depth": "T2_structural",
+  "behavior_summary": "Built-in deadlock/stall detection as a quality gate.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "Self-Monitoring"
+   ],
+   "entry_points": [
+    "AccountInstance.getInstance(account)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "cleanroom_reimplementation",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt as the 'zero-hang' quality standard for Family OS."
+  },
+  "tags": [
+   "telegram",
+   "messaging",
+   "scale"
+  ]
+ }
+]
