@@ -87,3 +87,7 @@
 ## 2026-11-04 — التوثيق العميق لـ Muslim Pro مكتمل
 - **النتيجة:** `docs/family-os/deep-dives/muslim-pro.md` + `docs/family-os/inventories/muslim-pro/` (الصيغة الرسمية، معرفات MP-) — مدفوعة.
 - **تصحيح مهم:** أوقات الصلاة ليست جداول مُنزلة — بل محرك فلكي كامل على الجهاز (port من batoulapps/adhan)؛ الخادم يدفع إعدادات البلد فقط. القبلة بمعادلة الدائرة العظمى كاملة. لا حساب هجري محلي (ملف مشفر من الخادم). منصة قرآن: حزم صوتية مجزأة + quran.sqlite مشفرة تُفك بجافا خالصة. QUL/Tarteel مفتوح المصدر مذكور حرفياً — يحل مشكلة IP نص القرآن. AskAbdullah RAG بإجابات موثقة — نموذج لوكيل الأب.
+
+## 2026-11-04 — التوثيق العميق لـ Bark وFamilyWall مكتمل
+- **النتيجة:** `deep-dives/bark.md` + `deep-dives/familywall.md` + `inventories/bark/` + `inventories/familywall/` — مدفوعة.
+- **الأهم:** Bark Kids يحمل نماذج ONNX حقيقية (تصنيف صور 16.9MB + تصنيف نصوص 17.6MB + tokenizer) بعتبة 0.97 — أول ذكاء حقيقي على الجهاز في البرنامج كله، ويعكس ادعاء التقرير الأول (التصنيف خادمياً). FamilyWall: FWPermission طبقة UX لا محرك أدوار — المحرك الحقيقي خادمي (FamilyAdminRightEnum)؛ ومحرك مزامنة WriteBack بقاعدة بيانات محلية.
