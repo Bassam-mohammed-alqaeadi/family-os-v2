@@ -99,3 +99,8 @@
 ## 2026-11-04 — التوثيق العميق لـ Qustodio (أب) وBark Kids مكتمل
 - **النتيجة:** `deep-dives/qustodio.md` + `deep-dives/bark-kids.md` + `inventories/qustodio/` + `inventories/bark-kids/` — مدفوعة.
 - **الأهم:** Qustodio — جداول أسبوعية بترميز bitmask من 24 بت، الإيقاف المؤقت بصيغة RRULE القياسية، 7 أوامر FCM، 30 فئة فلترة مرقمة؛ ثغرة: التوكنات بنص صريح (مرفوضة). المفاجأة: الـ APK يحمل source maps كاملة — أُعيد بناء 2,086 ملف TypeScript أصلي (محفوظ في `~/workspace/rework/qustodio/ts-sources/`). Bark Kids — الـ ONNX مفصل: 3 نماذج (صور 16.1MB/عتبة 0.98، نصوص 17.6MB/عتبة 0.97، OTP)؛ مصنف النصوص يعمل في تطبيق GuardDog المرافق؛ VPN أصلي كامل مع اعتراض TLS؛ ثغرات معلنة (DEBUG_PASSWORD_BYPASS). المصنف إنجليزي فقط — نحتاج tokenizer عربي.
+
+## 2026-11-04 — التوثيق العميق لـ Quizlet وQustodio Kids مكتمل — البرنامج الكامل منجز ✅
+- **النتيجة:** `deep-dives/quizlet.md` + `deep-dives/qustodio-kids.md` + `inventories/quizlet/` + `inventories/qustodio-kids/` — مدفوعة.
+- **الأهم:** Quizlet — حُسم نهائياً أن SRS خادمي 100% (لا خوارزميات على الجهاز؛ الطلب SrsRequest يحمل personTimezone وpersonTestDate)؛ سجل الأوضاع الرسمي (12 مقطع URL + 26 وضعاً)؛ نظاما streak منفصلان (يومي/أسبوعي) أدق من Duolingo؛ لا XP ولا leaderboard (طبقة المكافآت تُصمم من الصفر). Qustodio Kids — أقوى نموذج تنفيذ في البرنامج (DeviceAdmin + Accessibility + VPN أصلي QProxy)؛ محرك QProxy مفكك (TLS MITM + block-pages + regexes لستة محركات بحث)؛ جدول أولويات الحظر من 7 قرارات؛ توقيع FCM شكلي فقط (نضيف HMAC-SHA256)؛ DeviceAdmin مجرد مرساة ضد الإزالة (لا DevicePolicyManager).
+- **البرنامج مكتمل:** 10 تطبيقات موثقة (8 أب + 3 أطفال − FamiSafe Jr مغطى ضمن famisafe) — كلها بتوثيق عميق + جرد رسمي + قسم دمج للمطورين.

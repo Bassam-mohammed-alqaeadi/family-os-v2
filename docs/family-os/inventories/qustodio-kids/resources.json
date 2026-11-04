@@ -1,0 +1,674 @@
+[
+ {
+  "resource_id": "QUK-RES-000001",
+  "app_id": "qustodio-kids",
+  "name": "Triple-Stack Enforcement Foundation",
+  "category": "Android Platform Integration",
+  "description": "Manifest declares the full triple enforcement stack on one child device: BIND_ACCESSIBILITY_SERVICE + BIND_VPN_SERVICE + BIND_DEVICE_ADMIN, plus a permanent foreground service and a NotificationListener keep-alive anchor.",
+  "source_refs": [
+   "QUK-SRC-000002"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000001"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Declares DeviceAdmin + AccessibilityService + VpnService + QustodioService(systemExempted) + RestartServiceNotification in one 307-line manifest.",
+  "implementation_details": {
+   "primary_language": "XML",
+   "key_classes": [
+    "AndroidManifest.xml",
+    "accessibility_config.xml",
+    "device_admin.xml"
+   ],
+   "entry_points": [
+    "QustodioService.onCreate",
+    "AccessibilityService.onServiceConnected",
+    "HttpEventVpnService.onStartCommand"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Component topology to mirror; replace hacks with Device Owner where available."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000002",
+  "app_id": "qustodio-kids",
+  "name": "DeviceAdmin Anti-Uninstall Anchor",
+  "category": "Tamper Defence",
+  "description": "DeviceAdminReceiver used purely as an anti-uninstall anchor: the OS blocks uninstall while admin is active; onDisableRequested shows a parental warning only when the device is paired (IS_ACCOUNT_CONFIGURED). Zero policies, zero DevicePolicyManager calls.",
+  "source_refs": [
+   "QUK-SRC-000003"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000002"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Stub receiver: onDisableRequested returns warning strings (device_admin_disable_warning{,2}) iff prefs i()==IS_ACCOUNT_CONFIGURED; onEnabled/onDisabled only log; onPasswordChanged empty.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "receiver.QustodioDeviceAdminReceiver",
+    "utils.n (IS_ACCOUNT_CONFIGURED)"
+   ],
+   "entry_points": [
+    "onDisableRequested"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Replace with DevicePolicyManager.setUninstallBlocked under Device Owner."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000003",
+  "app_id": "qustodio-kids",
+  "name": "Accessibility Event Pipeline",
+  "category": "Monitoring Infrastructure",
+  "description": "Two-layer accessibility service: a generic library (parcel-cloned events, single-flight coroutine processing, 29-parser registry) plus the kid-app subclass with tamper/block handlers.",
+  "source_refs": [
+   "QUK-SRC-000004",
+   "QUK-SRC-000005"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000003"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "onAccessibilityEvent clones each event via Parcel, buffers in a synchronized list, processes sequentially on one coroutine; R3.c registry builds parsers per enabled H3.e features; K3.a(type,data,time) events dispatched by category.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "com.qustodio.accessibility.AccessibilityService",
+    "com.qustodio.qustodioapp.accessibility.AccessibilityService",
+    "R3.c",
+    "K3.a",
+    "H3.e"
+   ],
+   "entry_points": [
+    "onAccessibilityEvent",
+    "Q(config)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Parcel-clone + single-flight pattern is directly reusable."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000004",
+  "app_id": "qustodio-kids",
+  "name": "UninstallLongClickParser + Password Gate",
+  "category": "Tamper Defence",
+  "description": "Anti-uninstall via accessibility: detects long-click on the app icon (Samsung launcher label or any view text matching the brand via X3.a) and MIUI uninstall dialogs by view-IDs, then opens the parental password gate.",
+  "source_refs": [
+   "QUK-SRC-000006"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000004"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "On TYPE_VIEW_LONG_CLICKED: read source text (or com.sec.android.app.launcher:id/label); match brand name via X3.a (not EditText); on com.miui.home: miui:id/parentPanel -> uninstall_dialog -> title. Emit UNINSTALL_LONG_CLICK; handler starts SettingsPasswordRequestActivity (NEW_TASK on SDK>26, PendingIntent below); 500ms dedupe in t0().",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "UninstallLongClickParser",
+    "X3.a",
+    "SettingsPasswordRequestActivity"
+   ],
+   "entry_points": [
+    "v(event,windows)",
+    "onUninstallLongClickTamperingEvent"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Best non-Device-Owner uninstall defence seen; superseded by setUninstallBlocked under DO."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000005",
+  "app_id": "qustodio-kids",
+  "name": "Tamper-Defence Parser Battery",
+  "category": "Tamper Defence",
+  "description": "Remaining tamper parsers: Settings, SplitScreen, PopUpView (generic/Samsung+14/Xiaomi), NotificationOverlay/ServicePanel, SamsungAppsEdge, PipScreen, DualApps — with gesture/back/home counter-responses.",
+  "source_refs": [
+   "QUK-SRC-000007"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000005"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Settings tampering -> password gate + double-back + re-evaluate block; split/PiP -> performToggleSplit + dispatchGesture swipe + PipBlockerActivity; notification panel tampering detected separately.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "SettingsParser",
+    "SplitScreenParser",
+    "PipScreenParser",
+    "PopUpView*Parser"
+   ],
+   "entry_points": [
+    "onSettingsTamperingEvent",
+    "onPipScreenTamperingEvent"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "OEM coverage list is the reusable asset."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000006",
+  "app_id": "qustodio-kids",
+  "name": "7-Decision Blocker Engine",
+  "category": "Enforcement Logic",
+  "description": "Prioritized blocking decision table: CLOSE_POPUP_VIEWS > BLOCK_DRAW_OVERLAY_SETTINGS > LOCK_SETTINGS > LOCK_DEVICE > BLOCKED_APP > DEVICE_TIME_OUT > APP_TIME_OUT, executed via WindowManager overlay (TYPE_APPLICATION_OVERLAY) or BlockerActivity.",
+  "source_refs": [
+   "QUK-SRC-000008"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000006"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "p224v4.c.p(foregroundApp, allApps)/q(...) evaluate in fixed priority and return p224v4.a; OverlayBlocker adds a MATCH_PARENT TYPE_APPLICATION_OVERLAY (2038) view with countdown timer; includes anti-tamper rule blocking the overlay-permission settings screen.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "p224v4.c",
+    "p224v4.a",
+    "OverlayBlocker",
+    "BlockerActivity"
+   ],
+   "entry_points": [
+    "p(foregroundApp,allAppsInForeground)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt the 7-decision priority table verbatim as the child-agent decision contract."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000007",
+  "app_id": "qustodio-kids",
+  "name": "QProxy Native VPN Stack",
+  "category": "Network Filtering",
+  "description": "Full native HTTP(S) proxy engine: Kotlin VpnService -> JNA VpnCLib -> JNI libvpn-lib -> libqproxy.so (QProxyServer/Worker, HTTP/1+HTTP/2, TLS MITM, embedded block page, search-query regexes, OpenSSL 1.1.1m static, shared with desktop builds).",
+  "source_refs": [
+   "QUK-SRC-000009",
+   "QUK-SRC-000010"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000007"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "HttpVpnService builds tun 10.1.10.1/32 + setHttpProxy(127.0.0.1:port) + addAllowedApplication per app; JNI init/start/stopQProxy + qProxy*Action callbacks; native handles sessions, cert generation, block/allow/defer verdicts; config JSON includes *.whatsapp.net->BAD_REQUEST_THEN_CLOSE; UA QustodioProxy/4.7.4.",
+  "implementation_details": {
+   "primary_language": "Kotlin/C++",
+   "key_classes": [
+    "com.qustodio.vpn.HttpVpnService",
+    "HttpEventVpnService",
+    "VpnCLib",
+    "libqproxy.so",
+    "libvpn-lib.so"
+   ],
+   "entry_points": [
+    "initQProxy",
+    "startQProxy",
+    "onHttpRequest/onHttpResponse"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "review_required",
+   "technical_reuse_strategy": "protocol_reimplementation",
+   "licensing_risk": "medium",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Do NOT copy the binary; reimplement the callback protocol on an open engine."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000008",
+  "app_id": "qustodio-kids",
+  "name": "TLS MITM Certificate Install Flow",
+  "category": "Network Filtering",
+  "description": "User CA install flow for TLS interception: KeyChain.createInstallIntent with the DER cert, plus installed-state detection; VPN setup start/stop via explicit intents.",
+  "source_refs": [
+   "QUK-SRC-000011"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000008"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "W7.c.f(activity): if not installed -> KeyChain.createInstallIntent() with name+CERT bytes; HttpEventDetectionSetup.isCertificateInstalled(); g()/h() start/stop HttpVpnService via com.qustodio.vpn.HttpVpnService.start|stop intents; X7.b{certificate,certificatePrivateKey,clientKey} fed to initQProxy.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "W7.c",
+    "X7.b",
+    "HttpEventDetectionSetup"
+   ],
+   "entry_points": [
+    "f(activity)",
+    "g()",
+    "h()"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Under Device Owner replace with silent installCaCert."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000009",
+  "app_id": "qustodio-kids",
+  "name": "Signed Command Interpreter (FCM)",
+  "category": "Command & Control",
+  "description": "FCM data-message command channel: FirebaseMessagingService -> HandlePushDataMessageJob -> MessageV1Interpreter with 7 named actions. The 'signature' field exists but is NOT cryptographically verified client-side.",
+  "source_refs": [
+   "QUK-SRC-000012"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000009"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Actions: update_location/update_policy/update_settings/update_application/enable_logging(604800s default)/upload_logs/disable_panic_mode; extras keys 'message'/'signature'; s() only checks non-empty; no HMAC anywhere.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "MessageV1Interpreter",
+    "HandlePushDataMessageJob",
+    "FirebaseMessagingService"
+   ],
+   "entry_points": [
+    "a(context,extras)",
+    "q(parser,raw)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reuse the 7-action vocabulary; ADD real HMAC-SHA256 verification (their gap)."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000010",
+  "app_id": "qustodio-kids",
+  "name": "Rule Contract Models",
+  "category": "Data Contracts",
+  "description": "Explicit rule data models: ApplicationRules with per-day quotas, TimeRestrictions with Day windows and 6 flags, plus Browser/SocialMonitoring/Contact/Location/PanicButton/SafeNetwork rules.",
+  "source_refs": [
+   "QUK-SRC-000013"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000010"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "ApplicationRules{action:Int,exe:String,platform:Int,monQuota..sunQuota:Int}; TimeRestrictions{Day,Day,isDailyLimit,isLockComputer,isLockNavigation,isReportAlerts,isWeekdaysQuota,isWeekendQuota}; Day{mon..sun:Int}.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "ApplicationRules",
+    "TimeRestrictions",
+    "Day",
+    "BrowserRules",
+    "SocialMonitoringRules"
+   ],
+   "entry_points": [
+    "api/network/model/rules/*"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt as the quota/schedule data model; cleaner than FamiSafe string encoding."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000011",
+  "app_id": "qustodio-kids",
+  "name": "Keep-Alive Package",
+  "category": "Reliability",
+  "description": "Multi-layer process survival: permanent foreground service (START_STICKY, systemExempted), empty NotificationListenerService anchor, boot receiver with wasForceStopped() check, persistent=true, dynamic connectivity/screen receivers, user-switch tracking.",
+  "source_refs": [
+   "QUK-SRC-000014"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000011"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "QustodioService.onCreate startForeground(12648430); DeviceBootReceiver restarts on BOOT_COMPLETED/MY_PACKAGE_REPLACED unless wasForceStopped() (API35+); RestartServiceNotification is a 7-line stub; UserSwitchReceiver tracks USER_FOREGROUND/BACKGROUND.",
+  "implementation_details": {
+   "primary_language": "Kotlin/XML",
+   "key_classes": [
+    "QustodioService",
+    "DeviceBootReceiver",
+    "RestartServiceNotification",
+    "UserSwitchReceiver"
+   ],
+   "entry_points": [
+    "onCreate",
+    "onStartCommand",
+    "onReceive"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reference for agent resilience; verify systemExempted/persistent grants."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000012",
+  "app_id": "qustodio-kids",
+  "name": "SMS/Call Monitoring",
+  "category": "Monitoring Infrastructure",
+  "description": "Max-priority SMS/call receivers feeding a central comms monitor: SmsOnReceived parses PDUs via p254y4.a into address->body and forwards to p234w4.b; CallOnProcess handles PHONE_STATE/NEW_OUTGOING_CALL.",
+  "source_refs": [
+   "QUK-SRC-000015"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000012"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "SmsOnReceived (exported, priority 2147483647, 5 SMS/MMS filters) processes SMS_RECEIVED only -> d(bundle) -> p254y4.a PDU parse -> p234w4.b.I(address,body); CallOnProcess mirrors for calls.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "SmsOnReceived",
+    "CallOnProcess",
+    "p234w4.b",
+    "p254y4.a"
+   ],
+   "entry_points": [
+    "onReceive",
+    "d(bundle)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "review_required",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "SMS/call content monitoring is policy-sensitive; confirm Family OS scope."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000013",
+  "app_id": "qustodio-kids",
+  "name": "Social Chat Scrapers (6 platforms)",
+  "category": "Monitoring Infrastructure",
+  "description": "Accessibility-based chat text scrapers for WhatsApp, Instagram, Line, TikTok, Snapchat, TwitterX, built on an abstract SocialMonitoringParser with selective enablement.",
+  "source_refs": [
+   "QUK-SRC-000016"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000013"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "SocialMonitoringParser extends R3.a (abstract A/E/H/J/N hooks); per-platform *ChatParser registered in R3.c; enabled/disabled via S3.a b(socialPlatforms)/d().",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "SocialMonitoringParser",
+    "WhatsAppChatParser",
+    "InstagramChatParser"
+   ],
+   "entry_points": [
+    "v(event,windows)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "review_required",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Fragile (per-app view-IDs); use as secondary layer behind server-side intelligence."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000014",
+  "app_id": "qustodio-kids",
+  "name": "YouTube Monitoring",
+  "category": "Monitoring Infrastructure",
+  "description": "YouTube watch/search monitoring via accessibility: app parser scrapes video title/channel view-IDs; browser parsers cover web YouTube in Chrome/Firefox.",
+  "source_refs": [
+   "QUK-SRC-000017"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000014"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "YoutubeAppParser reads com.google.android.youtube:id/title|channel|channel_title; YoutubeChromeParser/YoutubeFirefoxParser for web; emits YOUTUBE_SEARCH_APP/YOUTUBE_WATCH_VIDEO_APP/YOUTUBE_WATCH_VIDEO_WEB.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "YoutubeAppParser",
+    "YoutubeChromeParser",
+    "YoutubeFirefoxParser"
+   ],
+   "entry_points": [
+    "v(event,windows)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "review_required",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Same fragility caveat as social scrapers."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000015",
+  "app_id": "qustodio-kids",
+  "name": "Browser URL Parsers + Native Search Regexes",
+  "category": "Monitoring Infrastructure",
+  "description": "Dual web-visibility: accessibility URL-bar scrapers for 5 browsers plus native search-query regexes (Google/Bing/DuckDuckGo/Yahoo/Lycos/Yandex) embedded in libqproxy.",
+  "source_refs": [
+   "QUK-SRC-000018",
+   "QUK-SRC-000010"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000015"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "ChromeParser: com.android.chrome:id/url_bar|origin (Firefox/Samsung/Huawei/Silk analogous); GoogleSearchParser; native regexes extract q=/p=/text= params from search URLs for safe-search monitoring.",
+  "implementation_details": {
+   "primary_language": "Kotlin/C++",
+   "key_classes": [
+    "ChromeParser",
+    "BrowserParser",
+    "GoogleSearchParser"
+   ],
+   "entry_points": [
+    "q() (view-IDs)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "reimplement_clean",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Complements VPN filtering; native regex list is a ready safe-search spec."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000016",
+  "app_id": "qustodio-kids",
+  "name": "Location Reporting Stack",
+  "category": "Monitoring Infrastructure",
+  "description": "Layered location stack: reportCurrentLocation use-case (Y4.a) over a location repository (X4.a) backed by FusedLocationProviderClient (V4.a) + Geocoder; triggered by update_location push.",
+  "source_refs": [
+   "QUK-SRC-000019"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000016"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Y4.a(X4.a locationRepository) emits W4.b via Flow; V4.a provides FusedLocationProviderClient + Geocoder; FINE_LOCATION declared; intervals obfuscated (Partial).",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "Y4.a",
+    "X4.a",
+    "V4.a",
+    "W4.b"
+   ],
+   "entry_points": [
+    "a() (reportCurrentLocation)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Pattern is standard; cadence policy needs runtime confirmation."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000017",
+  "app_id": "qustodio-kids",
+  "name": "Panic Mode (Headset Trigger)",
+  "category": "Safety Feature",
+  "description": "Panic trigger via headset plug/unplug and wired-headset media button (keycodes 126/79 on ACTION_UP), driving a panic engine with alert worker and trusted-contacts UI.",
+  "source_refs": [
+   "QUK-SRC-000020"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000017"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "PanicButtonEventReceiver: HEADSET_PLUG state 1->e()/0->h(); MEDIA_BUTTON keycode 126/79 ACTION_UP->d(keyEvent); engine p225v5.a; PanicModeAlertsWorker; activities PanicButton/TrustedContacts/EmergencyCalls.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "PanicButtonEventReceiver",
+    "p225v5.a",
+    "PanicModeAlertsWorker"
+   ],
+   "entry_points": [
+    "onReceive"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Unconventional hardware panic button; evaluate as differentiator."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000018",
+  "app_id": "qustodio-kids",
+  "name": "Encrypted Remote Config (qinit)",
+  "category": "Configuration",
+  "description": "Remote configuration bundles shipped as encrypted binary JSON in assets/qinit/ (common, mobile, parents_app, sharedCommon, sso, marketing).",
+  "source_refs": [
+   "QUK-SRC-000021"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000018"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "assets/qinit/*.json are non-plaintext binary blobs; API hosts are not statically visible anywhere (Partial).",
+  "implementation_details": {
+   "primary_language": "Binary",
+   "key_classes": [
+    "assets/qinit/*"
+   ],
+   "entry_points": [
+    "QustodioApp init"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Family OS should prefer signed plaintext config over obscurity."
+  }
+ },
+ {
+  "resource_id": "QUK-RES-000019",
+  "app_id": "qustodio-kids",
+  "name": "Reporting Pipeline",
+  "category": "Telemetry",
+  "description": "Event reporting: typed event models (application/smscall/web/youtube), auto-reporting (ConfigDeviceReporter), feature-state reporting (DeviceOptionsReporter + FeaturesStateReportWorker), daily sync worker.",
+  "source_refs": [
+   "QUK-SRC-000022"
+  ],
+  "evidence_refs": [
+   "QUK-EVD-000019"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "reporter/{ConfigDeviceReporter,DeviceOptionsReporter,EventQueueKt,data/*}; workers/FeaturesStateReportWorker; DailyWorker pulls SafeNetworks/installedApps/license/location.",
+  "implementation_details": {
+   "primary_language": "Kotlin",
+   "key_classes": [
+    "ConfigDeviceReporter",
+    "DeviceOptionsReporter",
+    "DailyWorker",
+    "EventQueueKt"
+   ],
+   "entry_points": [
+    "setupAutoReporting",
+    "doWork"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Event taxonomy is a good starting spec for Family OS telemetry."
+  }
+ }
+]

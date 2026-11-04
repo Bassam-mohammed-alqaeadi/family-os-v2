@@ -1,0 +1,79 @@
+{
+ "report_id": "REP-QUK-001",
+ "app_id": "qustodio-kids",
+ "app_display_name": "Qustodio Kids App (Child Enforcement Agent)",
+ "packages": [
+  {
+   "com.qustodio.qustodioapp": {
+    "version": "680.78.1.2-family",
+    "role": "child_enforcement"
+   }
+  }
+ ],
+ "source_path": "rework/qustodio-kids/",
+ "program_phase": "Unified-Plan deep-doc series #4",
+ "pilot_flag": false,
+ "first_ever_child_inventory": false,
+ "inventory_summary": {
+  "total_files_discovered": 21835,
+  "total_bytes": 122540719,
+  "t0_inventory_count": 21835,
+  "counts_by_deepest_level": {},
+  "counts_by_storage_tier": {
+   "local_only": 21835
+  },
+  "counts_by_type": {
+   "log": 2,
+   "resource_xml": 691,
+   "other": 701,
+   "resource_config": 7,
+   "native_lib": 26,
+   "resource_image": 230,
+   "source_smali": 13261,
+   "source_java": 6917
+  }
+ },
+ "resource_summary": {
+  "total_resources_cataloged": 19,
+  "counts_by_category": {
+   "Android Platform Integration": 1,
+   "Tamper Defence": 3,
+   "Monitoring Infrastructure": 6,
+   "Enforcement Logic": 1,
+   "Network Filtering": 2,
+   "Command & Control": 1,
+   "Data Contracts": 1,
+   "Reliability": 1,
+   "Safety Feature": 1,
+   "Configuration": 1,
+   "Telemetry": 1
+  }
+ },
+ "evidence_summary": {
+  "total_evidence_records": 19,
+  "counts_by_tag": {
+   "REF": 19
+  }
+ },
+ "relationships_summary": {
+  "total_relationships": 16,
+  "counts_by_type": {
+   "DEPENDS_ON": 7,
+   "TRIGGERS": 2,
+   "KEEPS_ALIVE": 2,
+   "PROTECTS": 2,
+   "COMPLEMENTS": 1,
+   "FEEDS_INTO": 1,
+   "CONFIGURES": 1
+  }
+ },
+ "functional_coverage": {
+  "total_functions": 40,
+  "confirmed_level_a": 31,
+  "derived_level_b": 4,
+  "partial": 3,
+  "not_found": 2
+ },
+ "quality_gate_passed": true,
+ "generated_at": "2026-11-04T21:30:00Z"
+}

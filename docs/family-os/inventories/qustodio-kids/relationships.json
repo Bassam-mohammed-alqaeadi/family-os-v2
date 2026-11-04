@@ -1,0 +1,194 @@
+[
+ {
+  "relationship_id": "REL-000600",
+  "source_resource_id": "QUK-RES-000001",
+  "target_resource_id": "QUK-RES-000003",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Enforcement foundation relies on the accessibility event pipeline for foreground-app and tamper events.",
+  "evidence_refs": [
+   "QUK-EVD-000003"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000601",
+  "source_resource_id": "QUK-RES-000004",
+  "target_resource_id": "QUK-RES-000003",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "UninstallLongClickParser extends R3.a and is fed by the pipeline; its events drive the password gate.",
+  "evidence_refs": [
+   "QUK-EVD-000004"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000602",
+  "source_resource_id": "QUK-RES-000005",
+  "target_resource_id": "QUK-RES-000003",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "The tamper parser battery is fed by the same pipeline and its responses reuse its global actions.",
+  "evidence_refs": [
+   "QUK-EVD-000005"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000603",
+  "source_resource_id": "QUK-RES-000006",
+  "target_resource_id": "QUK-RES-000003",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "APPLICATION events from the pipeline feed the 7-decision blocker engine.",
+  "evidence_refs": [
+   "QUK-EVD-000006"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000604",
+  "source_resource_id": "QUK-RES-000006",
+  "target_resource_id": "QUK-RES-000010",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Blocker decisions are evaluated against the rule contract models (quotas, schedules).",
+  "evidence_refs": [
+   "QUK-EVD-000010"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000605",
+  "source_resource_id": "QUK-RES-000007",
+  "target_resource_id": "QUK-RES-000008",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "TLS MITM requires the user-installed CA from the certificate install flow.",
+  "evidence_refs": [
+   "QUK-EVD-000008"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000606",
+  "source_resource_id": "QUK-RES-000007",
+  "target_resource_id": "QUK-RES-000010",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "The navigation policy engine is fed by the pulled rule set (inferred link).",
+  "evidence_refs": [
+   "QUK-EVD-000007"
+  ],
+  "resolution_status": "open"
+ },
+ {
+  "relationship_id": "REL-000607",
+  "source_resource_id": "QUK-RES-000009",
+  "target_resource_id": "QUK-RES-000010",
+  "relationship_type": "TRIGGERS",
+  "scope": "intra_app",
+  "description": "update_policy triggers a rule pull into the rule contract models.",
+  "evidence_refs": [
+   "QUK-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000608",
+  "source_resource_id": "QUK-RES-000009",
+  "target_resource_id": "QUK-RES-000016",
+  "relationship_type": "TRIGGERS",
+  "scope": "intra_app",
+  "description": "update_location triggers immediate location reporting.",
+  "evidence_refs": [
+   "QUK-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000609",
+  "source_resource_id": "QUK-RES-000011",
+  "target_resource_id": "QUK-RES-000003",
+  "relationship_type": "KEEPS_ALIVE",
+  "scope": "intra_app",
+  "description": "The keep-alive package sustains the accessibility service process.",
+  "evidence_refs": [
+   "QUK-EVD-000011"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000610",
+  "source_resource_id": "QUK-RES-000011",
+  "target_resource_id": "QUK-RES-000007",
+  "relationship_type": "KEEPS_ALIVE",
+  "scope": "intra_app",
+  "description": "The keep-alive package sustains the VPN service process.",
+  "evidence_refs": [
+   "QUK-EVD-000011"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000611",
+  "source_resource_id": "QUK-RES-000002",
+  "target_resource_id": "QUK-RES-000001",
+  "relationship_type": "PROTECTS",
+  "scope": "intra_app",
+  "description": "DeviceAdmin protects the enforcement agent from uninstallation.",
+  "evidence_refs": [
+   "QUK-EVD-000002"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000612",
+  "source_resource_id": "QUK-RES-000004",
+  "target_resource_id": "QUK-RES-000002",
+  "relationship_type": "PROTECTS",
+  "scope": "intra_app",
+  "description": "The password gate guards the device-admin deactivation UI path.",
+  "evidence_refs": [
+   "QUK-EVD-000004"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000613",
+  "source_resource_id": "QUK-RES-000015",
+  "target_resource_id": "QUK-RES-000007",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Browser URL parsers complement VPN filtering as a second web-visibility layer.",
+  "evidence_refs": [
+   "QUK-EVD-000015"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000614",
+  "source_resource_id": "QUK-RES-000013",
+  "target_resource_id": "QUK-RES-000019",
+  "relationship_type": "FEEDS_INTO",
+  "scope": "intra_app",
+  "description": "Chat scrapers feed the typed reporting pipeline.",
+  "evidence_refs": [
+   "QUK-EVD-000013"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000615",
+  "source_resource_id": "QUK-RES-000018",
+  "target_resource_id": "QUK-RES-000010",
+  "relationship_type": "CONFIGURES",
+  "scope": "intra_app",
+  "description": "Encrypted remote config provisions rules/hosts (hosts not statically visible).",
+  "evidence_refs": [
+   "QUK-EVD-000018"
+  ],
+  "resolution_status": "open"
+ }
+]
