@@ -95,3 +95,7 @@
 ## 2026-11-04 — التوثيق العميق لـ Telegram وLife360 مكتمل
 - **النتيجة:** `deep-dives/telegram.md` + `deep-dives/life360.md` + `inventories/telegram/` + `inventories/life360/` — مدفوعة.
 - **الأهم:** تيليجرام — مسار التحديثات الكامل (C++ ← ConnectionsManager ← stageQueue)، المزامنة بالفروق لا اللقطات، NotificationCenter = 348 حدثاً بالضبط، دفع مشفر AES-IGE، حدود E2E. Life360 — آلة حالات التصادم مفكوكة، كشف الحركة بلا GPS (بصمة WiFi)، الموقع الفوري عبر MQTT 5، السياج GMS-only (نحتاج المخصص لليمن).
+
+## 2026-11-04 — التوثيق العميق لـ Qustodio (أب) وBark Kids مكتمل
+- **النتيجة:** `deep-dives/qustodio.md` + `deep-dives/bark-kids.md` + `inventories/qustodio/` + `inventories/bark-kids/` — مدفوعة.
+- **الأهم:** Qustodio — جداول أسبوعية بترميز bitmask من 24 بت، الإيقاف المؤقت بصيغة RRULE القياسية، 7 أوامر FCM، 30 فئة فلترة مرقمة؛ ثغرة: التوكنات بنص صريح (مرفوضة). المفاجأة: الـ APK يحمل source maps كاملة — أُعيد بناء 2,086 ملف TypeScript أصلي (محفوظ في `~/workspace/rework/qustodio/ts-sources/`). Bark Kids — الـ ONNX مفصل: 3 نماذج (صور 16.1MB/عتبة 0.98، نصوص 17.6MB/عتبة 0.97، OTP)؛ مصنف النصوص يعمل في تطبيق GuardDog المرافق؛ VPN أصلي كامل مع اعتراض TLS؛ ثغرات معلنة (DEBUG_PASSWORD_BYPASS). المصنف إنجليزي فقط — نحتاج tokenizer عربي.

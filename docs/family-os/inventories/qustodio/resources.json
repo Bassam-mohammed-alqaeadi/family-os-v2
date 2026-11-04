@@ -1,0 +1,649 @@
+[
+ {
+  "resource_id": "QUP-RES-000001",
+  "app_id": "qustodio",
+  "name": "Hybrid App Shell (Cordova + React SPA + in-APK source maps)",
+  "category": "Android Platform Integration",
+  "description": "Cordova wrapper around a 94MB React SPA; only 5 app-native Java files; full TypeScript sources recoverable from shipped .map files.",
+  "source_refs": [
+   "QUP-SRC-000001"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000001"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Hosts the entire parent dashboard; native layer is a thin bridge.",
+  "implementation_details": {
+   "primary_language": "TypeScript/JavaScript + Java",
+   "key_classes": [
+    "MainActivity.java",
+    "assets/www/index.html",
+    "static/js/main.df358784.js"
+   ],
+   "entry_points": [
+    "MainActivity.onCreate -> loadUrl(launchUrl)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Study the hybrid pattern; Family OS stays native but the JS logic is the IP source."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000002",
+  "app_id": "qustodio",
+  "name": "Deferred Deep-Link Bridge (QustodioPlugin)",
+  "category": "Android Platform Integration",
+  "description": "Cordova plugin buffering ACTION_VIEW intents until the web app signals readiness, then injecting javascript:handleOpenURL(url); accepts qustodio* schemes and https://*.qustodio.com/parents-app.",
+  "source_refs": [
+   "QUP-SRC-000016"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000016"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Solves cold-start deep links for hybrid apps.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "com.qustodio.pasa.QustodioPlugin"
+   ],
+   "entry_points": "execute(setWebAppReady) / onNewIntent"
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Copy verbatim for any WebView-based module; manifest scheme is qustodiofamily://."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000003",
+  "app_id": "qustodio",
+  "name": "Dual-Route Push Service (Braze/FCM)",
+  "category": "Android Platform Integration",
+  "description": "QustodioPushNotificationService extends FCMService: tries BrazeFirebaseMessagingService.handleBrazeRemoteMessage first, falls back to FCM.",
+  "source_refs": [
+   "QUP-SRC-000015"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000015"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Separates marketing push (Braze) from functional push (FCM) in one service.",
+  "implementation_details": {
+   "primary_language": "Java",
+   "key_classes": [
+    "com.qustodio.pasa.QustodioPushNotificationService"
+   ],
+   "entry_points": "onMessageReceived"
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Elegant pattern for dual push providers."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000004",
+  "app_id": "qustodio",
+  "name": "Redux + Epics + Records State Architecture",
+  "category": "Application Architecture",
+  "description": "Redux (redux-immutable) + redux-thunk + redux-observable epics + Immutable.js records with fromPayload/serialize contract per model; ~60 ducks, ~35 record domains.",
+  "source_refs": [
+   "QUP-SRC-000002",
+   "QUP-SRC-000009"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000009"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Single serialization contract per API model prevents client/server drift.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/*",
+    "src/records/*",
+    "src/epics/*"
+   ],
+   "entry_points": [
+    "store/setupStore.ts createStore"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt the fromPayload/serialize record pattern in Family OS data layer."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000005",
+  "app_id": "qustodio",
+  "name": "Route Map (~60 routes)",
+  "category": "Application Architecture",
+  "description": "react-router v3 hashHistory tree under /profiles/:profileId/: rules/*, routines, screen-time, activity-timeline, familyLocator, devices, upgrade.",
+  "source_refs": [
+   "QUP-SRC-000001"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000001"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Full IA of a parental-control dashboard; profile-centric nesting.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/routes.tsx"
+   ],
+   "entry_points": [
+    "AppRoutes"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Reference IA for Family OS parent dashboard navigation."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000006",
+  "app_id": "qustodio",
+  "name": "QApi Client (95 endpoint groups)",
+  "category": "Application Architecture",
+  "description": "Hand-rolled fetch client: endpoint() builder, request transformers, QApiCache TTL, 10s timeout, typed Endpoint groups for v1/v2 APIs.",
+  "source_refs": [
+   "QUP-SRC-000009"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000009"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Uniform REST access with caching and param swapping.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/lib/qapi.ts",
+    "src/lib/QApiCache"
+   ],
+   "entry_points": [
+    "api.*.get/post/put"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Model Family OS API client on endpoint-group + transformer pattern."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000007",
+  "app_id": "qustodio",
+  "name": "OAuth2 Session Subsystem",
+  "category": "Authentication & Authorization",
+  "description": "POST /v1/oauth2/access_token (form-urlencoded); silent refresh on 401 with single retry; refresh denial triggers logout callback.",
+  "source_refs": [
+   "QUP-SRC-000010"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000010"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Standard OAuth2 with transparent recovery.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/lib/qapi.ts#accessToken",
+    "src/lib/qapi.ts#refreshTokenIfNeeded"
+   ],
+   "entry_points": [
+    "QApi constructor"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "adapt_with_changes",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Copy flow; store tokens in secure storage, not localStorage."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000008",
+  "app_id": "qustodio",
+  "name": "Per-Platform Client Credentials",
+  "category": "Authentication & Authorization",
+  "description": "client_id/secret selected per AuthorizationApplication from qinit.tenant.parents_app.platforms.{android,ios,web}.",
+  "source_refs": [
+   "QUP-SRC-000010"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000010"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Multi-tenant OAuth client selection.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/helpers/globals.ts#getClientCredentials"
+   ],
+   "entry_points": [
+    "QApi.setClientCredentials"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "architectural_reference",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Use build-time tenant config; never hardcode secrets in source."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000009",
+  "app_id": "qustodio",
+  "name": "localStorage Persistence Model",
+  "category": "Authentication & Authorization",
+  "description": "Typed key registry (accessToken, refreshToken, parentDeviceId, onboardingTokenData...) persisted via persistentStorage duck; plaintext.",
+  "source_refs": [
+   "QUP-SRC-000010"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000010"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Simple key-value persistence; insecure for secrets.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/persistentStorage.ts"
+   ],
+   "entry_points": [
+    "storageSaveAll/storageLoadAll"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "security_reject",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "REJECT plaintext token storage; migrate to EncryptedSharedPreferences/Keystore."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000010",
+  "app_id": "qustodio",
+  "name": "Weekly Bitmask Schedule Codec",
+  "category": "Scheduling & Rules Engines",
+  "description": "isHourState: Boolean((1<<hour) & timeRanges.get(weekday)); 24-bit mask per weekday; wire keys mon..sun; UI day starts 5am.",
+  "source_refs": [
+   "QUP-SRC-000002"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000002"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Encodes a full week of hourly restrictions in 7 integers.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/helpers/dates.ts#isHourState",
+    "src/records/profileRules/index.ts#TimesRecord"
+   ],
+   "entry_points": [
+    "TimesRecord.fromPayload/serialize"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Copy codec verbatim for Family OS schedule engine."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000011",
+  "app_id": "qustodio",
+  "name": "TimeRestrictions Rule Contract",
+  "category": "Scheduling & Rules Engines",
+  "description": "TimeSettingsRecord: timeRanges masks + quotas (minutes) + flags isDailyLimit/isMultiDevices/isLockNavigation/isLockComputer/isReportAlerts; PUT per device.",
+  "source_refs": [
+   "QUP-SRC-000003"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000003"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Complete wire contract for device screen-time rules.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/records/profileRules/index.ts#TimeSettingsRecord"
+   ],
+   "entry_points": [
+    "api.timeLimits.put"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt as the device time-rule schema."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000012",
+  "app_id": "qustodio",
+  "name": "RRULE Calendar Restriction Engine",
+  "category": "Scheduling & Rules Engines",
+  "description": "One-shot pause as iCalendar RRULE (FREQ=DAILY;COUNT=1;UNTIL); restriction_type=3; anti-stacking delete-before-create.",
+  "source_refs": [
+   "QUP-SRC-000004"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000004"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Standards-based recurrence instead of custom encoding.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/pause/thunks.ts",
+    "src/records/calendarRestrictionsPause/CalendarRestrictionPause.ts"
+   ],
+   "entry_points": [
+    "api.calendarRestrictions.post"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Use RFC 5545 for all Family OS calendar restrictions."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000013",
+  "app_id": "qustodio",
+  "name": "Routines Engine (Routine/Schedule/Policy)",
+  "category": "Scheduling & Rules Engines",
+  "description": "Routine {type, icon, policy} -> Schedules {weekdays, start_time, duration_minutes, overrides} -> Policy {block_type 0/1/2, app_rules, web_rules}; full CRUD.",
+  "source_refs": [
+   "QUP-SRC-000006"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000006"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Cleanest scheduling model: explicit schedules + per-routine policy.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/records/routines/*"
+   ],
+   "entry_points": [
+    "api.routines*"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "adapt_with_changes",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Base Family OS routines on this; resolve conflict priority vs bitmask system."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000014",
+  "app_id": "qustodio",
+  "name": "Per-App Rules Model",
+  "category": "Scheduling & Rules Engines",
+  "description": "AppRule {id, exe, action 0/1/4, weekday quotas in minutes}; actions 2/3 unsupported; category-level blocking behind flag.",
+  "source_refs": [
+   "QUP-SRC-000008"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000008"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Per-app allow/block/always-allow with daily quotas.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/records/profileRules/index.ts#AppRuleRecord"
+   ],
+   "entry_points": [
+    "api.profileRules.put"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt action vocabulary 0/1/4 and minute quotas."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000015",
+  "app_id": "qustodio",
+  "name": "Web Filter Model + Category Taxonomy",
+  "category": "Scheduling & Rules Engines",
+  "description": "WebRulesRecord: 5 flags + 30 numeric categories + domain exceptions {host:0..3}; school-locked category subset.",
+  "source_refs": [
+   "QUP-SRC-000007"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000007"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Complete, shippable web-filter rule schema.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/records/profileRules/index.ts#WebRulesRecord",
+    "src/records/category.ts"
+   ],
+   "entry_points": [
+    "api.profileRules.put"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Copy category IDs and domain-action mapping verbatim."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000016",
+  "app_id": "qustodio",
+  "name": "Remote Command Vocabulary (7 FCM actions)",
+  "category": "Realtime & Messaging",
+  "description": "MessageV1Interpreter dispatches update_location/update_policy/update_settings/disable_panic_mode/enable_logging/upload_logs/update_application from {message, signature} bundle.",
+  "source_refs": [
+   "QUP-SRC-000011"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000011"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Minimal server-mediated command plane; no persistent socket.",
+  "implementation_details": {
+   "primary_language": "Kotlin/Java",
+   "key_classes": [
+    "com.qustodio.qustodioapp.service.messaging.interpreter.MessageV1Interpreter"
+   ],
+   "entry_points": [
+    "a(Context, Bundle)"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "adapt_with_changes",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt vocabulary; ADD HMAC signature verification (theirs is presence-only)."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000017",
+  "app_id": "qustodio",
+  "name": "Parent Push Command Channel",
+  "category": "Realtime & Messaging",
+  "description": "POST v1/accounts/{id}/devices/{deviceUId}/notifications {name}; used for update_location (8s debounce) and disable_panic_mode only.",
+  "source_refs": [
+   "QUP-SRC-000012"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000012"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Simplest possible command API: named notifications via server.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/devices.ts#requestLocationPush#panicPush"
+   ],
+   "entry_points": [
+    "api.pushNotification.post"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt named-notification command pattern + debounce."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000018",
+  "app_id": "qustodio",
+  "name": "Pairing Protocol",
+  "category": "Realtime & Messaging",
+  "description": "Download-link SMS -> device self-registration -> manual bind POST profiles/{pid}/devices {user_uid, mid}; unbind sets profile_id null. onboarding_token is dead code.",
+  "source_refs": [
+   "QUP-SRC-000013"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000013"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "No secrets on child device; explicit parent consent per bind.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/devices.ts"
+   ],
+   "entry_points": [
+    "api.deviceUserProfile.post"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "adapt_with_changes",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Adopt link+bind flow; ignore dead onboarding_token; consider adding QR as enhancement."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000019",
+  "app_id": "qustodio",
+  "name": "Notification Center + Alert Taxonomy",
+  "category": "Realtime & Messaging",
+  "description": "Pull-based center: items (15/page, 10s TTL), unread_count, mark_as_viewed; NotificationType 1..8 (ExtraTimeRequest, SocialAlert, AiChatbotAlert...).",
+  "source_refs": [
+   "QUP-SRC-000014"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000014"
+  ],
+  "technical_depth": "T3_engineering",
+  "behavior_summary": "Server-persisted alerts with typed cards.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/ducks/notificationCenter/*",
+    "src/constants/index.ts#NotificationType"
+   ],
+   "entry_points": [
+    "fetchNotificationCenterItems"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "adapt_with_changes",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "adaptable",
+   "notes": "Base Family OS alert cards on this taxonomy; feed to AI layer."
+  }
+ },
+ {
+  "resource_id": "QUP-RES-000020",
+  "app_id": "qustodio",
+  "name": "Places Geofence Model",
+  "category": "Data Models & Schemas",
+  "description": "Place {uid, name, latitude, longitude, radius default 100m, address}; CRUD v2/accounts/{uid}/places.",
+  "source_refs": [
+   "QUP-SRC-000020"
+  ],
+  "evidence_refs": [
+   "QUP-EVD-000020"
+  ],
+  "technical_depth": "T1_structural",
+  "behavior_summary": "Minimal geofence schema.",
+  "implementation_details": {
+   "primary_language": "TypeScript",
+   "key_classes": [
+    "src/records/place.ts"
+   ],
+   "entry_points": [
+    "api.places/api.place"
+   ]
+  },
+  "reusability_assessment": {
+   "legal_authorization": "standard_compliance",
+   "technical_reuse_strategy": "direct_copy",
+   "licensing_risk": "low",
+   "cleanroom_requirement": true,
+   "architectural_fit": "direct",
+   "notes": "Adopt schema; evaluate radius default for Family OS."
+  }
+ }
+]

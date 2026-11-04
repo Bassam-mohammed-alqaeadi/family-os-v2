@@ -1,0 +1,170 @@
+[
+ {
+  "relationship_id": "REL-000700",
+  "source_resource_id": "QUP-RES-000006",
+  "target_resource_id": "QUP-RES-000007",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "All QApi endpoint groups require OAuth2 bearer tokens.",
+  "evidence_refs": [
+   "QUP-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000701",
+  "source_resource_id": "QUP-RES-000004",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Ducks invoke QApi for every load/save side effect.",
+  "evidence_refs": [
+   "QUP-EVD-000009"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000702",
+  "source_resource_id": "QUP-RES-000010",
+  "target_resource_id": "QUP-RES-000011",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "The bitmask codec is wrapped by the TimeRestrictions wire contract.",
+  "evidence_refs": [
+   "QUP-EVD-000002"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000703",
+  "source_resource_id": "QUP-RES-000011",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "TimeRestrictions serialize via timeLimits.put.",
+  "evidence_refs": [
+   "QUP-EVD-000003"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000704",
+  "source_resource_id": "QUP-RES-000012",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "RRULE restrictions sent via calendarRestrictions.post.",
+  "evidence_refs": [
+   "QUP-EVD-000004"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000705",
+  "source_resource_id": "QUP-RES-000013",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Routines CRUD via routines* endpoint groups.",
+  "evidence_refs": [
+   "QUP-EVD-000006"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000706",
+  "source_resource_id": "QUP-RES-000014",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "App rules serialized inside profileRules.put.",
+  "evidence_refs": [
+   "QUP-EVD-000008"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000707",
+  "source_resource_id": "QUP-RES-000015",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Web filter serialized inside profileRules.put.",
+  "evidence_refs": [
+   "QUP-EVD-000007"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000708",
+  "source_resource_id": "QUP-RES-000017",
+  "target_resource_id": "QUP-RES-000016",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "cross_app",
+  "description": "Parent push channel feeds the child command vocabulary through the server.",
+  "evidence_refs": [
+   "QUP-EVD-000012"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000709",
+  "source_resource_id": "QUP-RES-000018",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Pairing uses device/profile/download_link endpoint groups.",
+  "evidence_refs": [
+   "QUP-EVD-000013"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000710",
+  "source_resource_id": "QUP-RES-000019",
+  "target_resource_id": "QUP-RES-000006",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Notification center pulls via notificationCenterItems group.",
+  "evidence_refs": [
+   "QUP-EVD-000014"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000711",
+  "source_resource_id": "QUP-RES-000002",
+  "target_resource_id": "QUP-RES-000005",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Deep links route into the SPA route map.",
+  "evidence_refs": [
+   "QUP-EVD-000016"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000712",
+  "source_resource_id": "QUP-RES-000003",
+  "target_resource_id": "QUP-RES-000019",
+  "relationship_type": "COMPLEMENTS",
+  "scope": "intra_app",
+  "description": "Incoming FCM is normalized and routed toward notification center.",
+  "evidence_refs": [
+   "QUP-EVD-000015"
+  ],
+  "resolution_status": "resolved"
+ },
+ {
+  "relationship_id": "REL-000713",
+  "source_resource_id": "QUP-RES-000008",
+  "target_resource_id": "QUP-RES-000007",
+  "relationship_type": "DEPENDS_ON",
+  "scope": "intra_app",
+  "description": "Per-platform credentials feed the OAuth2 flow.",
+  "evidence_refs": [
+   "QUP-EVD-000010"
+  ],
+  "resolution_status": "resolved"
+ }
+]

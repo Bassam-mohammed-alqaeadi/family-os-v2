@@ -1,0 +1,71 @@
+{
+ "report_id": "REP-QUP-001",
+ "app_id": "qustodio",
+ "app_display_name": "Qustodio Parents App (Parent Dashboard)",
+ "packages": [
+  "com.qustodio.family.parental.control.app.screentime"
+ ],
+ "child_package_reference": "com.qustodio.qustodioapp",
+ "source_path": "rework/qustodio/",
+ "program_phase": "Unified-Plan deep-doc series #3",
+ "pilot_flag": false,
+ "parent_app_only": true,
+ "version": "182.41.0 (versionCode 1824100)",
+ "inventory_summary": {
+  "total_files_discovered": 42621,
+  "total_bytes": 376231672,
+  "t0_inventory_count": 42621,
+  "counts_by_deepest_level": {
+   "T0": 42597,
+   "T1": 4,
+   "T3": 20
+  },
+  "counts_by_storage_tier": {
+   "local_only": 42621
+  },
+  "counts_by_type": {
+   "other": 32,
+   "manifest": 2,
+   "source_code": 41338,
+   "asset_vector": 111,
+   "asset_image": 559,
+   "config": 142,
+   "layout": 409,
+   "native_lib": 28
+  },
+  "reconstructed_www_sources": 2086
+ },
+ "resource_summary": {
+  "total_resources_cataloged": 20,
+  "counts_by_category": {
+   "Android Platform Integration": 3,
+   "Application Architecture": 3,
+   "Authentication & Authorization": 3,
+   "Scheduling & Rules Engines": 6,
+   "Realtime & Messaging": 4,
+   "Data Models & Schemas": 1
+  }
+ },
+ "evidence_summary": {
+  "total_evidence_records": 20,
+  "counts_by_tag": {
+   "REF": 20
+  }
+ },
+ "relationships_summary": {
+  "total_relationships": 14,
+  "counts_by_type": {
+   "DEPENDS_ON": 10,
+   "COMPLEMENTS": 4
+  }
+ },
+ "functional_coverage": {
+  "total_functions": 41,
+  "confirmed_level_a": 32,
+  "derived_level_b": 4,
+  "partial": 2,
+  "not_found": 3
+ },
+ "quality_gate_passed": true,
+ "generated_at": "2026-11-04T21:30:00Z"
+}
