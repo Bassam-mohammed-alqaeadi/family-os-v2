@@ -59,3 +59,9 @@
 - **القرار:** اختار المستخدم خيار "فهارس فقط" — الملفات الضخمة لمخرجات التفكيك (~6-8GB) تبقى محليًا في `~/workspace/rework/`، والمستودع يحتفظ بفهرس الملفات + بصمات SHA256 لكل ملف في `docs/family-os/extracted/`.
 - **السبب:** استحالة تقنية — قناة الرفع محدودة بـ 16MB للدفعة، وGitHub يرفض الملفات فوق 100MB، ومستودع بعدة جيجابايت يصبح غير قابل للاستخدام.
 - **الآلية:** سكريبت `~/workspace/tools/family-os/generate_manifests.py` يولّد `manifest-<app>.sha256` و`summary-<app>.md` لكل تطبيق؛ يُشغَّل ويُدفع عند اكتمال التفكيك فقط.
+
+## 2026-11-04 — تفكيك تطبيقات الأطفال (child-side)
+- **القرار:** وافق المستخدم على تحميل وتفكيك تطبيقي الأطفال بالكامل: Kids App Qustodio (`com.qustodio.qustodioapp` v680.78.1.2) وFamiSafe Jr / Fammy (`com.wondershare.famisafe.kids` v9.1.7.1023)، مع التحقيق في نموذج Bark for Kids.
+- **النتيجة:** اكتمل التفكيك (apktool + jadx) — Qustodio Kids: 13,261 smali / 6,917 java؛ FamiSafe Jr: 34,874 smali / 17,950 java. الجرد أظهر: Qustodio يستخدم الثلاثية الكاملة (DeviceAdmin + Accessibility + VPN مع libqproxy.so الأصلية ومضاد إلغاء تثبيت عبر accessibility)، بينما FamiSafe Jr ثنائي (DeviceAdmin + Accessibility، بلا VPN).
+- **Bark for Kids:** تطبيق منفصل يُحمَّل مباشرة من bark.us (أُزيل من Play Store) — غير متاح عبر APKPure؛ يتطلب تنزيلاً عبر المتصفح إن أراد المستخدم.
+- **ملاحظة استراتيجية:** المعمارية المرشحة طويلة المدى لجهاز الطفل في Family OS هي Device Owner (تثبيت عبر QR) — أقوى من أسلوب التطبيقات العادية؛ تفكيكات تطبيقات الأطفال تغذي التصميم في الحالتين.
