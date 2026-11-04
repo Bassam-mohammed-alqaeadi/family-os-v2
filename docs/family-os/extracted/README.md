@@ -12,3 +12,8 @@
 python3 ~/workspace/tools/family-os/generate_manifests.py
 ```
 تُنشر الفهارس هنا عند **اكتمال التفكيك** فقط — التفكيك جارٍ حاليًا في المحادثة الرئيسية.
+
+## ملاحظة عن الملفات المقسّمة
+بعض الفهارس تجاوزت حد 10MB لملف الواحد في موصل GitHub، فقُسّمت إلى أجزاء
+(`manifest-<app>.sha256.part00`, `.part01`, ...) — لإعادة تجميع أي فهرس:
+`cat manifest-<app>.sha256.part* > manifest-<app>.sha256`
