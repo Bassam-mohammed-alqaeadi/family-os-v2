@@ -197,7 +197,13 @@ sequenceDiagram
     participant الخادم as Ktor
     participant S103 as S103
     participant النظام as Owner
+    participant البوابة as ParentGate
     Father->>Hub: تعديل تحكم (control_key, value)
+    opt التحكم تبديل منح — بوابة الوالدين (Q-174)
+        Hub->>ParentGate: طلب PIN الأب أو بصمته — بلا تحدي خادم
+        ParentGate-->>Hub: مفتوح
+        Note over Hub,Ktor: تبديل المنح يُنفَّذ عبر S1-03 (POST /members/{memberId}/grants) بلا challenge_id/signature — لا عبر PATCH
+    end
     Hub->>Ktor: PATCH /families/{id}/settings/{system}
     Ktor->>S103: هل يملك مفتاح التحكم نفسه؟
     alt يملك المفتاح
