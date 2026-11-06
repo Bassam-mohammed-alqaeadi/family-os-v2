@@ -1,6 +1,6 @@
 # الأيقونات (Iconography)
 
-> الحالة: معتمد للتنفيذ | القرارات: D-016, D-018 | يعتمد على: color-tokens.md §6, spacing-and-grid.md §10, accessibility-and-localization.md
+> الحالة: معتمد للتنفيذ | القرارات: Q-070 | يعتمد على: color-tokens.md §6, spacing-and-grid.md §10, (مرجع مفقود: accessibility-and-localization.md)
 
 ## 1. المبادئ
 1. **الأيقونة تدعم النص ولا تحل محله** إلا في الأيقونات المتعارف عليها عالميًا وللأطفال الصغار، وكل أيقونة تفاعلية لها اسم قابل للقراءة آليًا.
@@ -39,22 +39,22 @@
 | المجال | أمثلة (المعرّف) |
 |---|---|
 | **التنقل** | `nav.home`, `nav.family`, `nav.chat`, `nav.controls`, `nav.more`, `nav.learn`, `nav.rewards`, `nav.me`, `nav.map` |
-| **الأدوار والأفراد** | `role.owner`, `role.adult`, `role.teen`, `role.child`, `member.add`, `member.invite`, `member.switch` |
+| **الأدوار والأفراد** | `role.owner`, `role.adult`, `role.teen`, `role.child`, `member.add`, `member.invite` |
 | **السلامة** | `safety.sos`, `safety.alert`, `safety.shield`, `safety.geofence`, `safety.check_in`, `safety.emergency_contact` |
 | **الموقع** | `location.pin`, `location.share`, `location.history`, `location.place_home`, `location.place_school` |
 | **التواصل** | `chat.message`, `chat.group`, `chat.attachment`, `chat.voice`, `chat.call`, `chat.video` |
 | **التحكم والإعدادات** | `control.settings`, `control.template`, `control.rule`, `control.schedule`, `control.lock`, `control.exception`, `control.audit`, `control.undo` |
-| **الحالات الصادقة (D-018)** | `status.available`, `status.unavailable_on_device`, `status.pending_approval`, `status.not_delegated`, `status.disabled_by_owner`, `status.requires_upgrade`, `status.coming_soon` |
+| **الحالات الصادقة (S1-09 §3/§6)** | `status.available`, `status.unavailable_on_device`, `status.pending_approval`, `status.not_delegated`, `status.disabled_by_owner`, `status.requires_upgrade`, `status.coming_soon` |
 | **الموافقات** | `approval.request`, `approval.approve`, `approval.deny`, `approval.expired` |
 | **الخدمات** | `service.screen_time`, `service.content`, `service.apps`, `service.rewards`, `service.tasks`, `service.calendar`, `service.ai`, `service.education`, `service.religion` |
 | **المكافآت** | `reward.star`, `reward.badge`, `reward.level`, `reward.gift`, `reward.points` |
 | **الحساب والدفع** | `account.profile`, `account.plan`, `account.privacy`, `account.language`, `account.export`, `account.delete` |
 | **الجهاز** | `device.phone`, `device.tablet`, `device.battery`, `device.offline`, `device.permission` |
 | **عام** | `action.add`, `action.edit`, `action.delete`, `action.search`, `action.filter`, `action.share`, `action.copy`, `action.close`, `action.back`, `info.help`, `info.why` |
-- **ملاحظة «لماذا؟»:** أيقونة `info.why` موحدة تفتح شرح مصدر القيمة (control-and-settings-architecture §4.4).
+- **ملاحظة «لماذا؟»:** أيقونة `info.why` موحدة تفتح شرح مصدر القيمة (مرجع مفقود: control-and-settings-architecture §4.4).
 
 ## 6. حساسية الدين والثقافة
-- أيقونات المحتوى الديني **محايدة بنيويًا** (كتاب، نجمة/هلال حيث يلزم لوحدة إسلامية، مصباح، قلب)، ولا تصوير لأشخاص دينيين أو رموز مقدسة في أيقونات الواجهة، ويُراجَع كل رمز مع مجلس المراجعة (AI-004).
+- أيقونات المحتوى الديني **محايدة بنيويًا** (كتاب، نجمة/هلال حيث يلزم لوحدة إسلامية، مصباح، قلب)، ولا تصوير لأشخاص دينيين أو رموز مقدسة في أيقونات الواجهة، ويُراجَع كل رمز مع مجلس المراجعة (Q-030).
 - وحدات المحتوى لأديان أخرى لاحقًا لها رموزها الخاصة بمراجعة محلية، لا تعميم رمز واحد.
 - اللباس والأشخاص في الأيقونات: تجريد (صور ظلية) أو متنوع، ولا نمطية أدوار (الأم/الأب).
 
@@ -77,7 +77,7 @@
 3. DS-IC-03: golden لكل أيقونة بالحالتين (خطّي/ممتلئ) واتجاهي RTL وLTR والوضعين.
 4. DS-IC-04: حزمة الأيقونات تحوي المستخدم فقط ويُقاس أثرها على الحجم.
 5. DS-IC-05: أيقونات الحالات الصادقة السبع موجودة وموحدة في كل المكوّنات (اختبار تغطية).
-6. DS-IC-06: مراجعة ثقافية ودينية موثقة قبل الإطلاق في كل دولة (ترتبط بـ B-003 وAI-004).
+6. DS-IC-06: مراجعة ثقافية ودينية موثقة قبل الإطلاق في كل دولة (ترتبط بـ B-003 وQ-030).
 7. DS-IC-07: حجم الأيقونات المتحركة ≤ الحد وتتوقف عند تقليل الحركة.
 
 ## 11. مسائل مفتوحة
