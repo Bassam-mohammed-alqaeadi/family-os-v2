@@ -1,7 +1,7 @@
 # بحث S1-06: آليات المهام والتقويم والروتين العائلي في التطبيقات المرجعية
 
 **التاريخ:** 2026-11-06
-**المنهج:** قراءة مباشرة للكود المفكك (`~/workspace/rework/<app>/jadx-out/sources/` + `apktool-out/smali*`) والوثائق المستخرجة (`~/workspace/repo-inspect/family-os-gov/benchmarks/extracted/<app>/`) ومواصفة الفرع القديم S1-06 (مرجع فقط).
+**المنهج:** قراءة مباشرة للكود المفكك (`~/workspace/rework/<app>/jadx-out/sources/` + `apktool-out/smali*`) والفهارس المستخرجة (`docs/family-os/extracted/manifest-<app>.sha256.*`) ومواصفة الفرع القديم S1-06 (مرجع فقط).
 **الخلاصة الصادقة مقدماً:** التطبيق الوحيد الذي فيه مهام عائلية حقيقية هو **FamilyWall**. لا تطبيق آخر فيه مهام/أعمال منزلية (chores) إطلاقاً. وكلمة "روتين" في Qustodio وFamiSafe تعني **قواعد حظر شاشة مجدولة** لا مهام. ولا تطبيق يتحقق آلياً من إنجاز مهمة، ولا تطبيق يربط المهام بنقاط أو بوقت شاشة.
 
 ---
@@ -61,7 +61,7 @@
 - **المناسبات (`family_milestones`):** أعياد ميلاد/ذكرى سنوية + `reminder_days_before` (افتراضي 7).
 - **الوجبات (`meal_plans`):** تخطيط وجبات أسبوعي + طبّاخ (`cook_member_id`).
 - **اشتراكات تقاويم خارجية:** Google / Outlook / Apple iCal عبر `webcal`/`.ics` (جدول `external_calendar_subscriptions`).
-- **مزامنة:** محرك Sync Adapter + `listforSync` برمز مزامنة؛ والوثيقة المستخرجة `benchmarks/extracted/familywall/04_extracted_algorithms/calendar_recurrence_engine.kt` هي **إعادة هندسة نظيفة بصيغة Family OS** (حزمة `com.familyos.calendar.engine`) لمحرك توليد نسخ RRULE — المنطق (تثبيت يوم البداية في الشهري/السنوي، حساب `count` من البداية الفعلية، استثناءات، أحداث عابرة لمنتصف الليل) سليم وقابل لإعادة الاستخدام، لكن الملف نفسه ليس كود FamilyWall حرفياً.
+- **مزامنة:** محرك Sync Adapter + `listforSync` برمز مزامنة؛ والوثيقة المستخرجة (مسار قديم محذوف من الفرع — Q-172: كان `benchmarks/extracted/familywall/04_extracted_algorithms/calendar_recurrence_engine.kt`؛ والتحقق من الشجرة المفككة محلياً `~/workspace/rework/familywall/` + فهرس `docs/family-os/extracted/manifest-familywall.sha256.*`) هي **إعادة هندسة نظيفة بصيغة Family OS** (حزمة `com.familyos.calendar.engine`) لمحرك توليد نسخ RRULE — المنطق (تثبيت يوم البداية في الشهري/السنوي، حساب `count` من البداية الفعلية، استثناءات، أحداث عابرة لمنتصف الليل) سليم وقابل لإعادة الاستخدام، لكن الملف نفسه ليس كود FamilyWall حرفياً.
 
 ---
 
@@ -69,7 +69,7 @@
 
 ### 2.1 Qustodio — محرك الجداول والروتين
 
-**المصدر:** `benchmarks/extracted/qustodio/04_extracted_algorithms/screen_time_and_app_blocker.kt` (مستخرج من `src/businessLogic/routines/routines.ts` + `src/ducks/familyPause/pause.ts`) و`05_data_models_and_schemas/offline_enforcement_rules.md` + `schema_catalog.md`.
+**المصدر (مسار قديم محذوف من الفرع — Q-172):** كان `benchmarks/extracted/qustodio/04_extracted_algorithms/screen_time_and_app_blocker.kt` (مستخرج من `src/businessLogic/routines/routines.ts` + `src/ducks/familyPause/pause.ts`)؛ والتحقق من الشجرة المفككة محلياً `~/workspace/rework/qustodio/` + فهرس `docs/family-os/extracted/manifest-qustodio.sha256.*`؛ و`05_data_models_and_schemas/offline_enforcement_rules.md` + `schema_catalog.md`.
 
 - `RoutineRecord{uid, name, type, isEnabled, isPaused, blockedAppCategories, allowedAlwaysApps}` حيث `RoutineType` = ‏`ROUTINE_TYPE_BLOCKED / BEDTIME / SCHOOL / STUDY / CUSTOM`.
 - `ScheduleEvent{uid, routineUid, routineName, day, startTime "HH:mm", durationMinutes, startWeekMinutes, endWeekMinutes}` — **حساب أسبوع دائري**: الدقيقة داخل الأسبوع 0–10080 (`day.weekOffsetMinutes + دقائق اليوم`)، مع كشف تعارضات بين الفترات.
@@ -79,7 +79,7 @@
 
 ### 2.2 FamiSafe — محرك الجدول الذكي
 
-**المصدر:** `benchmarks/extracted/famisafe/04_extracted_algorithms/screen_time_and_smart_schedule_engine.kt` (مستخرج من `com.wondershare.famisafe.parent.screenv5.screenlimit.*` + `.../schedule.*` + `.../supervised.block.*`).
+**المصدر (مسار قديم محذوف من الفرع — Q-172):** كان `benchmarks/extracted/famisafe/04_extracted_algorithms/screen_time_and_smart_schedule_engine.kt` (مستخرج من `com.wondershare.famisafe.parent.screenv5.screenlimit.*` + `.../schedule.*` + `.../supervised.block.*`)؛ والتحقق من الشجرة المفككة محلياً `~/workspace/rework/famisafe/` + فهرس `docs/family-os/extracted/manifest-famisafe.sha256.*`.
 
 - `TimeWindow{id, name, startTime, endTime, activeDaysBitmask (7 بت)، associatedGeofenceId?, isEnabled}` — نوافذ متكررة: نوم/مدرسة/**واجب منزلي (Homework)** + دعم الفترات العابرة لمنتصف الليل.
 - ⚠️ "Homework" هنا **نافذة زمنية تحظر الترفيه أثناء الواجب** — ليست مهمة واجب منزلي ولا قائمة مهام.
