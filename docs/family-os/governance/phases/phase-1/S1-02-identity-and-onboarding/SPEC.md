@@ -190,7 +190,7 @@ flowchart TD
 - **REQ-025:** حذف الحساب للبالغ نفسه: عبر `DELETE /api/v1/identity/me` بشرط مفتاح `identity.account.delete_self` (يُمنح تلقائياً عند الانضمام — الافتراضي السماح — والأب يلغيه فردياً) + إعادة مصادقة (بصمة/PIN)؛ حذف ناعم + فترة سماح 30 يوماً ثم حذف صلب؛ وإلغاء الحذف المعلق عبر `POST /api/v1/identity/me/deletion/cancel`؛ وإلغاء المفتاح أثناء السماح يُلغي الحذف المعلق. [Q-166 · DIRECT]
 - **REQ-026:** مغادرة العائلة للبالغ نفسه: عبر `POST /api/v1/identity/me/leave` بشرط مفتاح `identity.family.leave` (الافتراضي ممنوح عند الانضمام)؛ فورية؛ والمالك لا يغادر. [Q-166 · DIRECT]
 - **REQ-027:** التصدير: البالغ يصدّر بياناته عبر `POST /api/v1/identity/me/export`؛ والأب يصدّر بيانات قاصر عبر `POST /api/v1/identity/families/{id}/members/{memberId}/export`؛ الصيغة JSON + وسائط؛ مهمة غير متزامنة؛ رابط التنزيل 7 أيام. [Q-166 · DIRECT]
-- **REQ-028:** الحذف الناعم: `person` و`family` تحملان `deleted_at` + `scheduled_purge_at`؛ وكل طلب حذف يُسجَّل في `deletion_request` (النوع/الطالب/الوقت/موعد التطهير/الحالة). [Q-166 · DIRECT]
+- **REQ-028:** الحذف الناعم: `person` و`family` تحملان `deleted_at` + `scheduled_purge_at`؛ وكل طلب حذف يُسجَّل في `deletion_request` (العضوية/النوع/الطالب/الوقت/موعد التطهير/الحالة — و`membership_id` بدل `person_id` Q-169). [Q-166 · Q-169 · DIRECT]
 
 ## 4. الواجهات والعقود
 
@@ -232,7 +232,7 @@ flowchart TD
 | `child_profile` | `id`, `family_id`, `membership_id`, `nickname`, `avatar`, `color`, `birth_year` | بلا هاتف/بريد (D-006)؛ سنة فقط (Q-073)؛ `membership_id` يشير إلى صف عضوية الطفل — و`person_id` في ذلك الصف فارغ (Q-137) |
 | `device_pairing` | `id`, `family_id`, `device_id`, `pairing_code_hash`, `mode`, `paired_at`, `paired_by` | الوضع يُحدد عند الإقران (Q-062)؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168) |
 | `consent_record` | `id`, `family_id`, `type` (`joint_onboarding`), `granted_by`, `granted_at` | الموافقة المشتركة (G-006) |
-| `deletion_request` | `id`, `family_id`, `person_id`, `type` (`family`\|`member`\|`account`), `requested_by`, `requested_at`, `purge_at`, `status` (`pending`\|`completed`\|`cancelled`) | فترة السماح 30 يوماً (Q-166) |
+| `deletion_request` | `id`, `family_id`, `membership_id` (nullable — فارغ لحذف العائلة), `type` (`family`\|`member`\|`account`), `requested_by`, `requested_at`, `purge_at`, `status` (`pending`\|`completed`\|`cancelled`) | فترة السماح 30 يوماً (Q-166)؛ و`membership_id` بدل `person_id` (Q-169 — فالطفل بلا `person`) |
 
 **قاعدة ملزمة:** جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما جداول السجل العالمية فبلا `family_id` (صياغة S1-03 §5)؛ كل حدث هوية/إقران في `AuditEvent`.
 

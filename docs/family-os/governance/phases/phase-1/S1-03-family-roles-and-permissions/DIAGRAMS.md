@@ -106,6 +106,7 @@ erDiagram
         string grant_id PK
         string family_id FK
         string member_id FK
+        string grantee_type
         string permission_key FK
         string scope
         datetime valid_until
@@ -144,7 +145,7 @@ erDiagram
 ```
 
 - `template_key` مفتاحه المركب (`template_id`, `permission_key`) (§5-3).
-- المفتاح الأساسي الخارجي لـ `membership` هو `id` (S1-02 SPEC §5) — لا `member_id`؛ و`permission_grant.member_id` مفتاح أجنبي إلى `person` (S1-03 SPEC §5-4) — لا إلى `membership`.
+- **توحيد الهوية (Q-169):** `permission_grant.member_id` مفتاح أجنبي إلى `membership.id` (S1-03 SPEC §5-4) — لا إلى `person`؛ فالمراهق والطفل لهما عضوية وبلا `person` (Q-137). وعند منح الوكيل (`grantee_type='agent'`) يكون `member_id` فارغاً.
 - `scope` + `valid_until` إلزاميان في كل منح (Q-007 · Q-087)؛ `is_granted=false` رفض صريح وليس غياباً (Q-007).
 - `verification_method` قيمه `pin` / `biometric` — للمنح الحساس فقط (REQ-012)؛ و`auth_method` في نقل الملكية PIN أو بصمة (Q-093).
 

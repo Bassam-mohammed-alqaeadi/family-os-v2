@@ -131,7 +131,7 @@ flowchart TD
 |---|---|---|---|
 | `GET /permissions/keys` | سجل المفاتيح المركزي (REQ-008) | — | قائمة المفاتيح: `key` (`domain.action`) + العنوان العربي + الوصف + علامة "حساس" |
 | `GET /families/{id}/members/{memberId}/permissions` | الصلاحيات الفعلية لعضو (الأدوار + المنح المحلولة) | — | `{member_id, role, grants: [{key, scope, valid_until, is_granted}]}` |
-| `POST /families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", challenge_id, signature, at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)**؛ ويُسجَّل في التدقيق | `{grant_id, ...}` — `201` |
+| `POST /families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010؛ و`{memberId}` هو معرّف العضوية `membership.id` — Q-169) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", challenge_id, signature, at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)**؛ ويُسجَّل في التدقيق | `{grant_id, ...}` — `201` |
 | `PATCH /families/{id}/members/{memberId}/grants/{grantId}` | تعديل منح (النطاق/المدة) | `{scope?, valid_until?}` | المنح المعدَّل |
 | `DELETE /families/{id}/members/{memberId}/grants/{grantId}` | إلغاء منح — فوري (REQ-017) | — | `204` + دفع حدث إبطال لكل أجهزة العضو |
 | `POST /families/{id}/members/{memberId}/grants/apply-template` | تطبيق قالب (REQ-013/014) | `{template_id: "partner" \| "guardian" \| "observer"}` | المنح المنسوخة من القالب |
@@ -143,7 +143,7 @@ flowchart TD
 | `DELETE /families/{id}/members/{memberId}` | إزالة عضو (المالك فقط + PIN — `identity.member.remove` · Q-166) | — | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً؛ والرسائل تُجهَّل |
 | `POST /families/{id}/deletion/cancel` | إلغاء حذف عائلة/عضو معلَّق خلال السماح (المالك فقط — Q-166) | — | `{status: "active"}` — `200` |
 | `GET /families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&from&to` | قائمة الأحداث: `{actor, target, action, key?, at, result}` |
-| `POST /permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id, permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` |
+| `POST /permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id (معرّف العضوية `membership.id` — Q-169), permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` |
 
 ### 4-2. الأحداث (MQTT → وكيل الطفل)
 
@@ -198,7 +198,8 @@ flowchart TD
 |---|---|---|
 | `grant_id` | uuid (PK) | |
 | `family_id` | uuid (FK) | + RLS |
-| `member_id` | uuid (FK → `person`) | الممنوح له |
+| `member_id` | uuid (FK → `membership`, nullable) | الممنوح له — **صف العضوية لا `person`** (Q-169): فالمراهق والطفل لهما عضوية وبلا `person` (Q-137)؛ وNULL عند `grantee_type='agent'` |
+| `grantee_type` | text | `member` (افتراضي) / `agent` — للمنح الممنوحة للوكيل (Q-167): عند `agent` يكون `member_id` فارغاً ويُعرَّف الممنوح له بـ `family_id` (وكيل واحد لكل عائلة) |
 | `permission_key` | text (FK → `permission_key`) | |
 | `scope` | jsonb | إلزامي (Q-007) |
 | `valid_until` | timestamptz | إلزامي (Q-087) — بلا افتراضي |
@@ -208,6 +209,8 @@ flowchart TD
 | `verification_method` | text (nullable) | `pin` / `biometric` — للمنح الحساس (REQ-012)؛ ويُحفظ معه `challenge_id` والتوقيع في التدقيق (Q-164) |
 | `revoked_at` | timestamptz (nullable) | |
 | `revoked_by` | uuid (nullable) | |
+
+**قاعدة الهوية الموحدة (Q-169):** العضوية (`membership.id`) هي الهوية الوحيدة للممنوح له داخل العائلة — لا `person_id` في أي منح؛ و`granted_by` وحده يشير إلى `person` (المانح مالك بالغ دائماً).
 
 ### 5-5. `ownership_transfer` — نقل الملكية (REQ-016)
 | الحقل | النوع | ملاحظات |
@@ -297,7 +300,7 @@ flowchart TD
 
 ### 10-1. خطوات البناء بالترتيب
 1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (82 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) + `agent.*` ‏(7) — Ktor + PostgreSQL.
-2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer`) + RLS + فهارس (`member_id`, `permission_key`, `valid_until`).
+2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer`) + RLS + فهارس (`member_id`, `grantee_type`, `permission_key`, `valid_until`).
 3. **محرك التقييم الخادمي** (deny-override + حل المنح المتداخلة §6-3) + نقطة `POST /permissions/check`.
 4. **نقاط المنح والقوالب والتدقيق** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166).
 5. **مزامنة المنح** عبر MQTT (`permissions/sync` + `permissions/revoked` + `grant-expiring` عبر فحص يومي مجدول للمنح القريبة من الانتهاء) + اللقطة المحلية + قناة `MethodChannel` (`checkPermission`).

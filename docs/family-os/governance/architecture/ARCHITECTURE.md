@@ -188,6 +188,8 @@ erDiagram
     PERMISSION_GRANT {
         uuid id PK
         uuid family_id FK
+        uuid member_id FK
+        string grantee_type
         string domain_action
         string scope
         timestamp valid_until
@@ -402,6 +404,7 @@ graph TD
 | Q-021 (موجّه OTP) | §3 (OTP) · §6.4 |
 | Q-022 (MQTT أساسي) | §4 (4) · §5.1 · §7 |
 | Q-168 (مواصفة وسيط MQTT) | §4 (4) · §5.1 · §7 · MQTT-BROKER-SPEC.md |
+| Q-169 (توحيد الهوية على العضوية) | §5.3 (ERD) · S1-02 §5 (deletion_request) · S1-03 §5-4 |
 | Q-023 (فرز خفيف على الجهاز) | §5.1 (ChildAgent) |
 | Q-025 (محافظ اليمن / Play الخليج) | §3 (الدفع) · §5.2 (الفوترة) |
 | Q-030 (مجلس مراجعة ديني) | §2 C-11 · §5.2 (الدين) |
