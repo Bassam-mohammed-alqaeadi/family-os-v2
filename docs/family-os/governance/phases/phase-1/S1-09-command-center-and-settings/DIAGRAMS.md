@@ -101,9 +101,6 @@ erDiagram
     family ||--o{ dashboard_snapshot : "له لقطة واحدة"
     family ||--o{ alert : "له تنبيهات"
     dashboard_widget }o--|| permission_key : "رؤيتها بمفتاح required_key"
-    dashboard_widget }o--|| family : "ودجاتها تُعرض لعائلة"
-    control_surface }o--|| family : "أسطحها تُعرض لعائلة"
-    alert }o--|| permission_grant : "رؤيته تتبع المنح"
     alert }o--|| membership : "العضو المعني target_member_id"
     family }o--|| plan : "خطتها قراءة فقط من S1-04"
 
@@ -391,7 +388,7 @@ flowchart TD
     Audit --> Stay
 ```
 
-- ملاحظة: البطاقات السريعة تستخدم قوالب Q-089 المحكومة (شريك/وصي محدود/مراقب) (REQ-007)؛ و"دراسة / نوم / حر" أمثلة البطاقات من السيناريو 9-3. وتبديل الملفات غير موجود في أي مسار — مؤجل للمرحلة 2 (Q-063).
+- ملاحظة: البطاقات السريعة إعدادات وضع مسبقة يملكها نظام الحماية S1-10 — "دراسة / نوم / حر" أمثلة البطاقات من السيناريو 9-3 (REQ-007)؛ وتطبيق قالب صلاحيات Q-089 (شريك/وصي محدود/مراقب) إجراء منفصل في المركز، لا بطاقة سريعة. وتبديل الملفات غير موجود في أي مسار — مؤجل للمرحلة 2 (Q-063).
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
@@ -453,7 +450,7 @@ flowchart LR
     P5 -->|حفظ التنبيه| D4
     D4 -->|قائمة التنبيهات| P5
     P5 -->|التنبيهات في اللوحة| P1
-    MQTT -->|dashboard/updated + alerts/new| P1
+    MQTT -->|"family/{family_id}/dashboard/updated + family/{family_id}/alerts/new"| P1
     Father -->|تأكيد قراءة تنبيه| P5
     Father -->|عرض الخطة| P1
     S104 -->|الخطة + الاستخدام — قراءة فقط| P1
@@ -480,6 +477,8 @@ flowchart LR
         U5[تعديل في العرض المتقدم]
         U6[فتح قسم الخطة]
         U7([إغلاق المركز])
+        U8[تأكيد قراءة التنبيه]
+        U9[الضغط على ترقية]
     end
     subgraph Hub [المركز — Flutter]
         direction TB
@@ -493,6 +492,8 @@ flowchart LR
         H8["GET /families/{id}/plan — عرض فقط"]
         H9[الانتقال إلى S1-04 للترقية]
         H10["بطاقة «يتطلب انتباهك» — قرار بنقرة واحدة"]
+        H11[يفعّل / يلغي مفتاحاً واحداً لعضو واحد]
+        H12[تأكيد قراءة التنبيه — POST acknowledge]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
@@ -500,7 +501,7 @@ flowchart LR
         V2["PATCH /families/{id}/settings/{system}"]
         V3["POST /families/{id}/alerts/{alertId}/acknowledge"]
         V4["GET /families/{id}/plan"]
-        V5[MQTT: dashboard/updated + alerts/new]
+        V5["MQTT: family/{family_id}/dashboard/updated + family/{family_id}/alerts/new"]
         V6["POST /families/{id}/time-requests/{requestId}/decide + POST /families/{id}/tasks/{taskId}/approve"]
     end
     subgraph Systems [الأنظمة + S1-03]
@@ -523,7 +524,8 @@ flowchart LR
     V5 --> H4
     U2 --> U3
     U3 --> H5
-    U3 --> V3
+    U8 --> H12
+    H12 --> V3
     U2 --> H10
     H10 --> V6
     V6 --> H4
@@ -535,13 +537,14 @@ flowchart LR
     G2 --> G3
     U2 --> U5
     U5 --> H7
-    H7 --> V2
+    H7 --> H11
+    H11 --> V2
     U2 --> U6
     U6 --> H8
     H8 --> V4
-    H8 --> H9
+    H8 --> U9
+    U9 --> H9
     G4 --> H4
-    U7 --> H1
 ```
 
 - سحب منح بالغ مفوَّض أثناء عرضه اللوحة يخفي الأقسام في التحديث التالي فوراً (§7-11)؛ ولوحة فارغة (بلا أطفال أو بلا أنظمة مسجلة) تعرض رسالة إرشادية لا خطأ: "أضف طفلاً من الإعدادات لتبدأ" (§7-4)؛ وتنبيهات نظام أُلغي تسجيله تبقى ظاهرة مع اسم النظام كسجل تدقيق (§7-5).

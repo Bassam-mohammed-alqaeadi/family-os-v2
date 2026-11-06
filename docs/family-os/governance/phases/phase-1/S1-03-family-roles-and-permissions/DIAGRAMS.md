@@ -70,14 +70,15 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الخمسة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة والعضوية (`membership` — الدور + `is_owner`) من S1-02، و`AuditEvent` (النواة المشتركة). ملاحظتان: جداول السجل العام (`permission_key` و`role_template` و`template_key`) مشتركة لكل العائلات بلا `family_id` — نفس المفتاح والقالب يخدمان كل العائلات؛ وجدولا `permission_grant` و`ownership_transfer` يحملان `family_id` + عزل RLS (D-021). ولقطة المنح المحلية (REQ-006) مخزن عميل على الجهاز وليست جدول خادم، فلا تظهر جدولاً هنا.
+الجداول الخمسة من §5 كما هي، مع أربعة مراجع خارجية: العائلة والعضوية (`membership` — الدور + `is_owner`) والشخص (`person`) من S1-02، و`AuditEvent` (النواة المشتركة). ملاحظتان: جداول السجل العام (`permission_key` و`role_template` و`template_key`) مشتركة لكل العائلات بلا `family_id` — نفس المفتاح والقالب يخدمان كل العائلات؛ وجدولا `permission_grant` و`ownership_transfer` يحملان `family_id` + عزل RLS (D-021). ولقطة المنح المحلية (REQ-006) مخزن عميل على الجهاز وليست جدول خادم، فلا تظهر جدولاً هنا.
 
 ```mermaid
 erDiagram
     family ||--o{ permission_grant : "له منح"
     family ||--o{ ownership_transfer : "له نقل ملكية"
+    person ||--o{ ownership_transfer : "مالك حالي"
+    person ||--o{ ownership_transfer : "مالك جديد"
     membership ||--o{ permission_grant : "الممنوح له عضو"
-    membership ||--o{ ownership_transfer : "طرفا النقل عضوان"
     permission_key ||--o{ permission_grant : "مفتاح المنح"
     permission_key ||--o{ template_key : "مفاتيح القوالب"
     role_template ||--o{ template_key : "يحوي مفاتيح"
@@ -137,6 +138,9 @@ erDiagram
         uuid person_id FK
         text role
         boolean is_owner
+    }
+    person {
+        uuid id PK
     }
     AuditEvent {
         uuid id PK
@@ -298,8 +302,11 @@ sequenceDiagram
     alt المتلقي طفل أو مراهق
         Ktor-->>App: رفض — النقل للبالغين فقط (§7-11 · ACC-013)
     else المتلقي بالغ
-        Ktor->>البوابة: طلب تحقق — PIN أو بصمة (Q-093)
-        البوابة-->>Ktor: auth_method {pin | biometric}
+        Ktor->>App: تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
+        App->>البوابة: طلب تحقق — PIN أو بصمة (Q-093)
+        البوابة-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
+        App->>Ktor: verification {method, challenge_id, signature, at}
+        Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
         Ktor->>النقل: إنشاء نقل (status: pending, auth_method)
         Ktor->>Audit: تسجيل بدء النقل
         Ktor-->>App: {transfer_id, status: pending}

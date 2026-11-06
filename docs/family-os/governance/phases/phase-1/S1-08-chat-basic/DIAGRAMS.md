@@ -26,7 +26,8 @@ flowchart LR
         direction TB
         UC1(إرسال رسالة — نص / إيموجي / صورة / صوت)
         UC2(قراءة رسائل قناة)
-        UC3(إنشاء قناة ثنائية أو جماعية)
+        UC3(إنشاء قناة ثنائية)
+        UC3b(إنشاء قناة جماعية)
         UC4(فتح قناة الوالدين — PIN الأب)
         UC5(إرسال رسالة في قناة الوالدين — E2E)
         UC6(عرض محادثات القاصرين)
@@ -43,6 +44,7 @@ flowchart LR
     Father --> UC1
     Father --> UC2
     Father --> UC3
+    Father --> UC3b
     Father --> UC4
     Father --> UC5
     Father --> UC6
@@ -53,6 +55,7 @@ flowchart LR
     Adult --> UC1
     Adult --> UC2
     Adult --> UC3
+    Adult --> UC3b
     Adult --> UC4
     Adult --> UC5
     Adult --> UC9
@@ -484,7 +487,7 @@ flowchart LR
     A3 --> U2
     U2 --> U3
     U3 --> A4
-    A4 --> K1
+    A4 -->|قناة الوالدين فقط| K1
     K1 --> V1
     V1 --> V2
     V2 --> V3

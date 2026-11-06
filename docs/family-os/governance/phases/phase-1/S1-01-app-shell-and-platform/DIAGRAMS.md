@@ -61,14 +61,13 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الستة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` هو **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي (Q-164)** — لا يُحفظ PIN نصاً أبداً. و`parent_gate` **مخزن محلي على الجهاز** (Q-142): hash الـ PIN محفوظ في مخزن آمن مدعوم بالعتاد والتحقق يتم محلياً، والخادم لا يستلم PIN ولا hashه أبداً — يسجل إثبات التحقق + القفل فقط في التدقيق عبر Outbox. كل جدول يحمل `family_id` + عزل RLS (D-021).
+الجداول السبعة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` هو **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي (Q-164)** — لا يُحفظ PIN نصاً أبداً. و`parent_gate` **مخزن محلي على الجهاز** (Q-142): hash الـ PIN محفوظ في مخزن آمن مدعوم بالعتاد والتحقق يتم محلياً، والخادم لا يستلم PIN ولا hashه أبداً — يسجل إثبات التحقق + القفل فقط في التدقيق عبر Outbox. جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما السجلات العالمية (`shell_registry` كعرض قراءة، و`notification_registry`) وملف المنطقة (`country_profile`) فبلا `family_id`.
 
 ```mermaid
 erDiagram
     family ||--o{ device_mode : "له أجهزة"
     family ||--|| parent_gate : "له بوابة"
     family ||--o{ feature_flag : "له أعلام"
-    family ||--o{ shell_registry : "له سجلات"
     family }o--|| country_profile : "يتبع ملف منطقة"
     device_mode ||--o{ outbox_event : "يسجل أحداثاً"
     parent_gate ||--o{ AuditEvent : "محاولاته تُسجَّل"
@@ -86,6 +85,8 @@ erDiagram
         uuid id PK
         uuid family_id FK
         text pin_hash
+        text kdf_params
+        uuid device_key_id
         int failed_attempts
         timestamptz locked_until
         timestamptz updated_at
@@ -114,11 +115,14 @@ erDiagram
         text payment_routes
     }
     shell_registry {
-        uuid id PK
-        uuid family_id FK
         text registry
         text key
         text metadata
+    }
+    notification_registry {
+        text kind
+        text channel
+        text owner_system
     }
     family {
         uuid id PK

@@ -321,17 +321,17 @@ flowchart TD
     Do --> Submit[تسليم مع الإثبات المطلوب]
     Submit --> Who{من يتحقق؟}
     Who -->|الذكاء يستطيع| AIOK{مطابق للمطلوب؟}
-    AIOK -->|نعم| Deposit[إيداع النقاط — tasks.completed إلى S1-05]
+    AIOK -->|نعم| TeenCheck{مراهق؟}
     AIOK -->|لا — رفض| Notify[لا إيداع + إشعار الطفل بالسبب + الأب يرى الرفض]
     Who -->|الذكاء لا يستطيع| Pending[تبقى معلّقة — بطاقة S1-09]
     Pending --> FatherRev{الأب يراجع}
-    FatherRev -->|يعتمد| Deposit
+    FatherRev -->|يعتمد| TeenCheck
     FatherRev -->|يرفض مع ملاحظات| Back[تعود PENDING — يعيدها الطفل]
     Back --> Do
     Notify --> FatherRev
-    Deposit --> TeenCheck{مراهق؟}
     TeenCheck -->|نعم| NoEvent[تُسجَّل منجزة بلا نقاط — لا حدث كسب يصدر]
-    TeenCheck -->|لا| Streak[تحديث السلسلة + النقاط في المحفظة]
+    TeenCheck -->|لا| Deposit[إيداع النقاط — tasks.completed إلى S1-05]
+    Deposit --> Streak[تحديث السلسلة + النقاط في المحفظة]
     Streak --> Spend[يصرفها الطفل كوقت إضافي للتطبيق — سيناريو 6-6]
     NoEvent --> End([منجزة])
     Spend --> End
@@ -358,7 +358,7 @@ flowchart LR
         P1(1.0 إنشاء المهام والفئات وإلغاؤها)
         P2(2.0 التسليم والإثبات)
         P3(3.0 التحقق بالذكاء)
-        P4(4.0 مراجعة الأب — اعتماد / رفض / إلغاء تحقق)
+        P4(4.0 مراجعة الأب عند تعذّر التحقق أو اعتراضه — اعتماد / رفض / إلغاء تحقق)
         P5(5.0 التكرار والتقويم والتذكير)
         P6(6.0 المزامنة دون اتصال)
     end
@@ -387,11 +387,14 @@ flowchart LR
     P2 -->|tasks.submitted| S109
     P2 -->|الإثبات للتحقق| P3
     AI -->|نتيجة التحقق + السبب| P3
-    P3 -->|نجاح التحقق| P4
+    P3 -->|"نجاح التحقق: tasks.completed {source_system=S1-06}"| S105
+    P3 -->|نجاح التحقق: APPROVED| D1
     P3 -->|لا يستطيع التحقق| P4
+    P3 -->|"رفض التحقق (غير مطابق)"| P4
     Father -->|اعتماد / رفض / إلغاء| P4
-    P4 -->|APPROVED / PENDING / إلغاء| D1
-    P4 -->|"tasks.completed {source_system=S1-06}"| S105
+    P4 -->|اعتماد يدوي فقط: APPROVED| D1
+    P4 -->|"اعتماد يدوي فقط: tasks.completed {source_system=S1-06}"| S105
+    P4 -->|رفض: PENDING| D1
     P4 -->|tasks.verification-revoked| S105
     P4 -->|تسجيل كل حدث| Audit
     P1 -->|RRULE + استحقاق| P5
@@ -444,7 +447,7 @@ flowchart LR
         direction TB
         V1[حفظ المهمة PENDING]
         V2[حفظ التسليم SUBMITTED_BY_CHILD]
-        V3[تحديث الحالة APPROVED / PENDING]
+        V3[تحديث الحالة APPROVED]
         V4[حساب نسخ RRULE عند الطلب]
         V5[إنهاء نسخة اليوم الفائتة]
         V6[تسجيل AuditEvent]
@@ -467,14 +470,14 @@ flowchart LR
     A2 -->|لا يستطيع| F2
     A2 -->|نعم| A3
     A3 -->|مطابق| A4
-    A3 -->|غير مطابق| A4
-    A4 --> F2
+    A3 -->|غير مطابق| F2
+    A4 --> V3
+    V3 --> W2
     F2 --> F3
     F3 -->|يعتمد| F4
     F3 -->|يرفض| F5
     F4 --> V3
-    F5 --> V3
-    V3 --> W2
+    F5 --> C4
     V3 --> C4
     C4 --> C3
     F6 --> W3

@@ -51,7 +51,6 @@ flowchart LR
     Father --> UC6
     Father --> UC7
     Adult --> UC1
-    Adult --> UC5
     Adult --> UC10
     Minor -.->|403 — مخفية تماماً| UC1
     Agent --> UC14
@@ -455,6 +454,7 @@ flowchart LR
         V4[حارس الحصص — أفراد / SMS / ذكاء]
         V5[إصدار أحداث MQTT]
         V6[تسجيل AuditEvent]
+        V7[تعيين auto_renew=false — الميزات تبقى حتى نهاية الفترة]
     end
     subgraph Provider [مزودو الدفع]
         direction TB
@@ -486,13 +486,14 @@ flowchart LR
     R4 --> A4
     A4 --> V2
     V2 --> V3
+    V2 -->|تحقق الدفع — إضافة رصيد التعبئة| V4
     V3 --> V5
     V3 --> V6
     V3 --> A5
     V4 --> A6
     A6 --> F2
-    F4 --> V4
-    F5 --> V3
+    F4 --> V2
+    F5 --> V7
     G1 --> G2
     G2 --> G3
     G3 --> V3

@@ -71,7 +71,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول التسعة من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). كل جدول يحمل `family_id` + عزل RLS (D-021).
+الجداول العشرة من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما `person` و`phone_verification` و`session` فبلا `family_id`.
 
 ```mermaid
 erDiagram
@@ -84,6 +84,8 @@ erDiagram
     family ||--o{ child_profile : "لها ملفات أطفال"
     family ||--o{ device_pairing : "لها أجهزة مقترنة"
     family ||--o{ consent_record : "لها سجلات موافقة"
+    family ||--o{ deletion_request : "لها طلبات حذف"
+    membership ||--o{ deletion_request : "طلبات حذف عضو"
     membership ||--|| child_profile : "ملف الطفل يرجع إلى عضوية"
     invite_code }o--|| person : "أنشأه"
     device_pairing }o--|| person : "أقرانه"
@@ -98,6 +100,8 @@ erDiagram
         text email
         text display_name
         timestamptz created_at
+        timestamptz deleted_at
+        timestamptz scheduled_purge_at
     }
     phone_verification {
         uuid id PK
@@ -121,6 +125,8 @@ erDiagram
         text region
         text created_by FK
         timestamptz created_at
+        timestamptz deleted_at
+        timestamptz scheduled_purge_at
     }
     membership {
         uuid id PK
@@ -162,6 +168,17 @@ erDiagram
         text type
         text granted_by FK
         timestamptz granted_at
+    }
+    deletion_request {
+        uuid id PK
+        uuid family_id FK
+        uuid membership_id FK
+        %% membership_id فارغ لحذف العائلة (Q-166)
+        text type
+        text requested_by FK
+        timestamptz requested_at
+        timestamptz purge_at
+        text status
     }
     AuditEvent {
         uuid id PK
@@ -420,7 +437,7 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–7.0، والمخازن D1–D9 هي الجداول التسعة من §5. المخزن D2 يحفظ `code_hash` فقط، وD8 يحفظ `pairing_code_hash` فقط — لا رمز نصاً أبداً.
+العمليات مرقمة 1.0–7.0، والمخازن D1–D10 هي الجداول العشرة من §5. المخزن D2 يحفظ `code_hash` فقط، وD8 يحفظ `pairing_code_hash` فقط — لا رمز نصاً أبداً.
 
 - **تغطية نقاط §4:** كل نقاط §4.1 الإحدى عشرة مرسومة في §3 (otp request/verify، totp/enroll، sessions refresh/logout، families، invite، join، children، devices/pair، email/verify)؛ والتسلسلات تغطي التدفقات الأساسية فقط.
 
