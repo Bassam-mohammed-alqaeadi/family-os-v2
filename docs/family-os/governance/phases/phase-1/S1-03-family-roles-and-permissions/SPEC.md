@@ -121,7 +121,7 @@ flowchart TD
 - **REQ-017:** الإلغاء فوري في كل الأجهزة؛ إبطال جلسات العضو المعلق فوراً؛ يُسجَّل الإلغاء ويُشعَر العضو. [BR-PERM-005 · DERIVED]
 - **REQ-018:** سجل تدقيق كامل لكل منح/تعديل/إلغاء/رفض: من منح/لمن/متى/ينتهي/النتيجة — قابل للعرض على الأب. [Q-089 · DERIVED]
 - **REQ-019:** تعارض الوالدين: تعديلان متزامنان على منح عضو واحد — قفل تفاؤلي: التعديل الثاني يفشل ويُطلب إعادة تحميل أحدث حالة قبل إعادة المحاولة. [BR-PERM-003 · DERIVED]
-- **REQ-020:** الثوابت الصلبة: الفوترة والملكية وحذف العائلة للمالك حصراً غير قابلة للتفويض؛ لا إشراف للأطفال/المراهقين أبداً. [D-038 · DIRECT]
+- **REQ-020:** الثوابت الصلبة: الفوترة والملكية وحذف العائلة للمالك حصراً غير قابلة للتفويض؛ لا إشراف للأطفال/المراهقين أبداً. **حذف العائلة (Q-166):** عبر `DELETE /families/{id}` بشرط PIN/بصمة مثبَتة بالتحدي (Q-164)؛ وحذف ناعم + فترة سماح 30 يوماً ثم حذف صلب (إلغاؤه عبر `POST /families/{id}/deletion/cancel`)؛ وإزالة عضو عبر `DELETE /families/{id}/members/{memberId}` (المالك فقط + PIN — `identity.member.remove`)؛ والبروتوكول الكامل في `DELETION-EXPORT-PROTOCOL.md`. [D-038 · Q-166 · DIRECT]
 
 ## 4. الواجهات والعقود
 
@@ -139,6 +139,9 @@ flowchart TD
 | `POST /families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id}` — شرط النقل: PIN أو بصمة (Q-093) | `{transfer_id, status: "pending"}` |
 | `POST /families/{id}/ownership-transfer/{transferId}/accept` | قبول نقل الملكية (البالغ المتلقي — REQ-016) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق محلي (Q-093) **ويتحقق الخادم من التوقيع قبل القبول (Q-164)** | `{transfer_id, status: "accepted"}` — `200` |
 | `DELETE /families/{id}/ownership-transfer/{transferId}` | إلغاء نقل ملكية معلق (المالك فقط — REQ-016 · Q-162) | — | `{transfer_id, status: "cancelled"}` — `200` |
+| `DELETE /families/{id}` | حذف العائلة (المالك فقط — REQ-020 · Q-166) | PIN/بصمة مثبَتة بالتحدي (Q-164) | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً |
+| `DELETE /families/{id}/members/{memberId}` | إزالة عضو (المالك فقط + PIN — `identity.member.remove` · Q-166) | — | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً؛ والرسائل تُجهَّل |
+| `POST /families/{id}/deletion/cancel` | إلغاء حذف عائلة/عضو معلَّق خلال السماح (المالك فقط — Q-166) | — | `{status: "active"}` — `200` |
 | `GET /families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&from&to` | قائمة الأحداث: `{actor, target, action, key?, at, result}` |
 | `POST /permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id, permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` |
 
@@ -293,15 +296,16 @@ flowchart TD
 ## 10. خطة التنفيذ (Implementation Plan)
 
 ### 10-1. خطوات البناء بالترتيب
-1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (72 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(11) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) — Ktor + PostgreSQL.
+1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (75 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) — Ktor + PostgreSQL.
 2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer`) + RLS + فهارس (`member_id`, `permission_key`, `valid_until`).
 3. **محرك التقييم الخادمي** (deny-override + حل المنح المتداخلة §6-3) + نقطة `POST /permissions/check`.
-4. **نقاط المنح والقوالب والتدقيق** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق).
+4. **نقاط المنح والقوالب والتدقيق** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166).
 5. **مزامنة المنح** عبر MQTT (`permissions/sync` + `permissions/revoked` + `grant-expiring` عبر فحص يومي مجدول للمنح القريبة من الانتهاء) + اللقطة المحلية + قناة `MethodChannel` (`checkPermission`).
 6. **شاشات إدارة الأعضاء والقوالب** — تُبنى بعد مرحلة التصميم (§9)؛ هذه الخطة تعتمد على مخرجاتها.
+7. **بروتوكول الحذف والتصدير (Q-166)** — نقاط الحذف/الإلغاء/التصدير + مصفوفة الأثر + تطهير النسخ خلال 30 يوماً + TTL آخر موقع 7 أيام (S1-07) — `DELETION-EXPORT-PROTOCOL.md`.
 
 ### 10-2. الوحدات/المكونات
-- **الخادم (Ktor):** وحدة `permissions` (التقييم + المنح + القوالب + التدقيق)؛ وحدة `sync` (MQTT).
+- **الخادم (Ktor):** وحدة `permissions` (التقييم + المنح + القوالب + التدقيق + حذف العائلة/العضو Q-166)؛ وحدة `sync` (MQTT).
 - **العميل (Flutter):** شاشات إدارة الأعضاء (§9)؛ مخزن اللقطة المحلية.
 - **الأصلي (Kotlin):** الفحص المحلي O(1) عبر `MethodChannel`.
 
