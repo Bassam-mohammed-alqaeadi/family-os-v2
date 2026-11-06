@@ -115,7 +115,7 @@ flowchart TD
 - **REQ-013:** القوالب الثلاثة (شريك / وصي محدود / مراقب) كنقطة انطلاق + مصفوفة تفويض للتعديل الدقيق. [Q-085 · Q-089 · DIRECT]
 - **REQ-014:** تطبيق القالب ينسخ مفاتيحه إلى منح العضو؛ تعديل منح العضو بعدها لا يغير القالب ولا منح الأعضاء الآخرين. [Q-089 · DERIVED]
 - **REQ-015:** تفويض المراهق: صلاحيات غير إشرافية فقط يفوضها الأب (مثل إدارة مهامه الخاصة)؛ الثوابت الصلبة تمنع منحه أي إشراف/إدارة/إبطال رقابة. [Q-086 · D-038 · DIRECT]
-- **REQ-016:** نقل الملكية لبالغ فقط — يُمنع نقله لطفل أو مراهق؛ شرط النقل (PIN+OTP أم PIN أو بصمة) سؤال مفتوح (Q-093). [BR-PERM-004 · Q-093 · DIRECT]
+- **REQ-016:** نقل الملكية لبالغ فقط — يُمنع نقله لطفل أو مراهق؛ شرط النقل: PIN أو بصمة (Q-093). [BR-PERM-004 · Q-093 · DIRECT]
 
 ### الإلغاء والتدقيق
 - **REQ-017:** الإلغاء فوري في كل الأجهزة؛ إبطال جلسات العضو المعلق فوراً؛ يُسجَّل الإلغاء ويُشعَر العضو. [BR-PERM-005 · DERIVED]
@@ -136,7 +136,7 @@ flowchart TD
 | `DELETE /families/{id}/members/{memberId}/grants/{grantId}` | إلغاء منح — فوري (REQ-017) | — | `204` + دفع حدث إبطال لكل أجهزة العضو |
 | `POST /families/{id}/members/{memberId}/grants/apply-template` | تطبيق قالب (REQ-013/014) | `{template_id: "partner" \| "guardian" \| "observer"}` | المنح المنسوخة من القالب |
 | `GET /families/{id}/templates` | القوالب الثلاثة ومفاتيح كل منها | — | `[{template_id, title_ar, keys: [...]}]` |
-| `POST /families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id}` — شرط النقل سؤال مفتوح (Q-093) | `{transfer_id, status: "pending"}` |
+| `POST /families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id}` — شرط النقل: PIN أو بصمة (Q-093) | `{transfer_id, status: "pending"}` |
 | `GET /families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&from&to` | قائمة الأحداث: `{actor, target, action, key?, at, result}` |
 | `POST /permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id, permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` |
 
@@ -211,7 +211,7 @@ flowchart TD
 | `from_member_id` | uuid (FK → `person`) | المالك الحالي |
 | `to_member_id` | uuid (FK → `person`) | بالغ فقط |
 | `status` | text | `pending` / `completed` / `cancelled` |
-| `auth_method` | text (nullable) | شرط النقل — سؤال مفتوح (Q-093) |
+| `auth_method` | text (nullable) | شرط النقل: PIN أو بصمة (Q-093) |
 | `requested_at` / `completed_at` | timestamptz | |
 
 ### 5-6. `AuditEvent` — سجل التدقيق (النواة المشتركة — REQ-018)
