@@ -205,7 +205,7 @@ flowchart TD
 - `POST /api/v1/identity/families/{id}/invite` — يولّد رمز دعوة عشوائياً جديداً (استخدام واحد، 7 أيام) → `{invite_code, expires_at}` (للمالك/المفوَّض).
 - `POST /api/v1/identity/families/join` — body: `{invite_code}` → `{family_id, role: adult}`.
 - `POST /api/v1/identity/children` — body: `{nickname, avatar, color, birth_year}` → `{membership_id}` (الأب/المفوَّض فقط؛ بلا بيانات اتصال).
-- `POST /api/v1/identity/devices/pair` — body: `{pairing_code, device_cert}` → `{device_id, mode: child}`.
+- `POST /api/v1/identity/devices/pair` — body: `{pairing_code, device_cert, device_public_key}` → `{device_id, mode: child}`.
 - `POST /api/v1/identity/email/verify` — body: `{firebase_id_token}` → `{access_token, refresh_token}` (الخادم يتحقق من الـ ID Token عبر Firebase Admin SDK؛ البريد للبالغين فقط؛ بريد مسجل لحساب آخر يُرفض).
 - `DELETE /api/v1/identity/me` — حذف الحساب لنفسه (بالغ فقط؛ يتطلب `identity.account.delete_self` + إعادة مصادقة ببصمة/PIN) → `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً (Q-166).
 - `POST /api/v1/identity/me/leave` — مغادرة العائلة (بالغ فقط؛ يتطلب `identity.family.leave`) → `{status: "left"}` — فورية؛ والمالك لا يغادر (Q-166).
@@ -230,7 +230,7 @@ flowchart TD
 | `membership` | `id`, `family_id`, `person_id`, `role`, `is_owner` | (من النواة المشتركة)؛ `person_id` قابل لأن يكون فارغاً — للطفل يُترك فارغاً: صف عضوية بالملف فقط بلا حساب `person` (D-006 · Q-137) |
 | `invite_code` | `id`, `family_id`, `code`, `created_by`, `expires_at`, `uses` | عشوائي لكل طلب؛ استخدام واحد؛ 7 أيام (Q-076) |
 | `child_profile` | `id`, `family_id`, `membership_id`, `nickname`, `avatar`, `color`, `birth_year` | بلا هاتف/بريد (D-006)؛ سنة فقط (Q-073)؛ `membership_id` يشير إلى صف عضوية الطفل — و`person_id` في ذلك الصف فارغ (Q-137) |
-| `device_pairing` | `id`, `family_id`, `device_id`, `pairing_code_hash`, `mode`, `paired_at`, `paired_by` | الوضع يُحدد عند الإقران (Q-062)؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168) |
+| `device_pairing` | `id`, `family_id`, `device_id`, `pairing_code_hash`, `device_public_key`, `mode`, `paired_at`, `paired_by` | الوضع يُحدد عند الإقران (Q-062)؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168)؛ والمفتاح العام للتوقيع (ECDSA P-256) يُسجَّل مع الإقران (Q-164 · Q-181) |
 | `consent_record` | `id`, `family_id`, `type` (`joint_onboarding`), `granted_by`, `granted_at` | الموافقة المشتركة (G-006) |
 | `deletion_request` | `id`, `family_id`, `membership_id` (nullable — فارغ لحذف العائلة), `type` (`family`\|`member`\|`account`), `requested_by`, `requested_at`, `purge_at`, `status` (`pending`\|`completed`\|`cancelled`) | فترة السماح 30 يوماً (Q-166)؛ و`membership_id` بدل `person_id` (Q-169 — فالطفل بلا `person`) |
 

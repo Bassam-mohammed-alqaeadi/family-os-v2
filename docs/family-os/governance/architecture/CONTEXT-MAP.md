@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|---|---|
 | 1 | الهوية والعائلة | Identity & Family | العائلة، العضوية، الأدوار، الإقران، الإعداد | FamilyWall / Qustodio | 1 | **أساسي (Core)** | `Family` · `Membership` · `Device` · `Invitation` |
 | 2 | الصلاحيات | Permissions | محرك تقييم الصلاحيات الذرية | FamilyWall (FWPermission) | 1 | **نواة مشتركة** | `PermissionGrant` · `PolicyRule` |
-| 3 | الحماية والتحكم بالجهاز | Child Protection | ChildAgent، حظر التطبيقات، الجداول الأسبوعية، مقاومة الإزالة (S1-10 "الحماية والفرض" — Q-141؛ المواصفة قيد الكتابة) | Qustodio Kids / FamiSafe Jr / Bark Kids | 1 | **أساسي (Core)** | `ChildDevice` · `AppRule` · `WeeklySchedule` · `EnforcementState` |
+| 3 | الحماية والتحكم بالجهاز | Child Protection | ChildAgent، حظر التطبيقات، الجداول الأسبوعية، مقاومة الإزالة (S1-10 "الحماية والفرض" — Q-141؛ المواصفة معتمدة Q-146) | Qustodio Kids / FamiSafe Jr / Bark Kids | 1 | **أساسي (Core)** | `ChildDevice` · `AppRule` · `WeeklySchedule` · `EnforcementState` |
 | 4 | الموقع والسلامة | Location & Safety | تتبع الموقع، الأسوار الجغرافية، SOS | Life360 | 1 (أساسي: SOS + خريطة العائلة) / 5 (أسوار كاملة) | أساسي | `LocationReport` · `Geofence` · `SosAlert` |
 | 5 | الإشعارات والتوصيل | Notifications & Delivery | موجّه OTP، أوامر الأجهزة (FCM/MQTT/HMS)، إشعارات الأهل | — (بنية تحتية) | 1 | داعم | `OtpRequest` · `DeviceCommand` · `PushChannel` |
 | 6 | التواصل | Messaging | المحادثة العائلية، القنوات، الإشراف، الصلاحيات الإدارية الذرية | Telegram | 1 (أساسي) / 2 (توسيع) | أساسي | `Chat` · `Message` · `ChatRole` |
@@ -108,29 +108,36 @@ graph TD
     BILL[الفوترة - P1]
     NOTIF[الإشعارات والتوصيل<br/>P1]
     ID[الهوية والعائلة - P1]
+    PERM[الصلاحيات - P1]
     SHELL[S1-01 الغلاف - P1]
     HUB[S1-09 مركز الأوامر - P1]
+    %% عناصر عابرة (§2-أ): الغلاف والمركز يعبران كل السياقات — بلا سياق خاص
     SHELL -.-> PROT
     SHELL -.-> ID
     HUB -.-> PROT
     HUB -.-> MSG
     HUB -.-> LOC
     HUB -.-> BILL
-    PROT --> P
-    PROT --> F
+    %% علاقات §4 — عميل/مورّد: استعلام/قراءة
+    PROT --> PERM
+    PROT --> ID
     LOC --> PROT
-    MSG --> P
-    MSG --> F
-    EDU --> P
-    REL --> P
-    COORD --> P
-    AI -.-> PROT
-    AI -.-> MSG
-    AI -.-> EDU
-    BILL --> F
-    NOTIF -.-> PROT
-    NOTIF -.-> MSG
-    NOTIF -.-> LOC
+    MSG --> PERM
+    MSG --> ID
+    EDU --> PERM
+    REL --> PERM
+    COORD --> PERM
+    EDU --> ID
+    REL --> ID
+    COORD --> ID
+    %% علاقات §4 — "كل المجالات": الطلب من الذكاء / الإرسال عبر الإشعارات / الاستعلام من الفوترة
+    PROT & LOC & MSG & EDU & REL & COORD & BILL & NOTIF & ID & PERM --> AI
+    PROT & LOC & MSG & EDU & REL & COORD & BILL & AI & ID & PERM --> NOTIF
+    PROT & LOC & MSG & EDU & REL & COORD & AI & NOTIF & ID & PERM --> BILL
+    %% علاقات §4 — أحداث المجال: الهوية تبلّغ الفوترة؛ الحماية تبلّغ الموقع
+    ID --> BILL
+    PROT --> LOC
+    %% النواة المشتركة (§3): مفاهيم موحدة يستخدمها كل مجال كما هي — بلا أسهم علاقات في §4
 ```
 
 ## 7. القرارات المحسومة (حكم المالك 2026-11-05 — اعتمد كل توصيات Juno)
@@ -140,7 +147,7 @@ graph TD
 3. **Q-056 — الموقع:** الأساسي في المرحلة 1 (خريطة العائلة + SOS)؛ الأسوار الجغرافية الكاملة في المرحلة 5.
 4. **Q-057 — التسمية:** يُعدَّل اسمان فقط — "التنسيق العائلي" ← **"إدارة العائلة"**، و"الذكاء" ← **"الذكاء الاصطناعي"**؛ باقي الأسماء كما هي.
 5. **Q-062 / Q-063 — التطبيق والوضع:** تطبيق واحد بوضعين (S1-01 الغلاف، §2-أ)؛ وضع واحد ثابت لكل جهاز في المرحلة 1، والتبديل أولوية ملزمة في المرحلة 2.
-6. **Q-141 — الحماية والفرض:** نظام S1-10 جديد في المرحلة 1 يملك `AppRule` / `WeeklySchedule` / تقييم bitmask / الفرض دون اتصال / مقاومة الإزالة (سياق الحماية §2 صف 3)؛ مواصفته قيد الكتابة.
+6. **Q-141 — الحماية والفرض:** نظام S1-10 جديد في المرحلة 1 يملك `AppRule` / `WeeklySchedule` / تقييم bitmask / الفرض دون اتصال / مقاومة الإزالة (سياق الحماية §2 صف 3)؛ مواصفته معتمدة (Q-146).
 
 ## 8. التتبع
 

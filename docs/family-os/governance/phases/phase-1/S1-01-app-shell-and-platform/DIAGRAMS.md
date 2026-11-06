@@ -2,6 +2,7 @@
 
 - **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-06)؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
+- **السياق المحدد (Bounded Context):** بلا سياق خاص — عنصر عابر يعبر كل السياقات (الغلاف، `CONTEXT-MAP.md` §2-أ)
 - **القرارات الحاكمة:** Q-134 (هيكل الملف) · Q-062 · Q-063 · Q-065 · Q-067 · Q-068 · Q-070
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
@@ -137,7 +138,7 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-أربعة مخططات، كل واحد لتدفق واحد:
+خمسة مخططات، كل واحد لتدفق واحد:
 
 ### 3-أ. الإقلاع وتحديد الوضع (REQ-002/012/017)
 
@@ -229,6 +230,33 @@ sequenceDiagram
     end
 ```
 
+### 3-هـ. إثبات التحقق بتحدٍّ من الخادم (REQ-023 — §4.2 · Q-164)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor الأب as Father
+    participant الغلاف as Shell
+    participant Kotlin as K
+    participant الخادم as Ktor
+    Father->>Shell: عملية حساسة تتطلب إثباتاً خادمياً
+    Shell->>Ktor: POST /api/v1/shell/verification/challenge
+    Ktor-->>Shell: {challenge_id, nonce, expires_at} — صلاحية 5 دقائق، استخدام واحد
+    Shell->>K: طلب تحقق — PIN الأب أو بصمته (بوابة الوالدين Q-065)
+    K->>K: توقيع nonce بمفتاح التوقيع الجهازي (ECDSA P-256) بعد التحقق المحلي
+    K-->>Shell: signature
+    Shell->>Ktor: POST /api/v1/shell/verification/prove {challenge_id, signature, method}
+    Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام المسجَّل (Q-164)
+    alt التوقيع صالح
+        Ktor-->>Shell: {verified: true}
+        Shell-->>Father: تنفيذ العملية الحساسة
+    else بلا verification أو توقيع غير صالح أو تحدٍّ منتهٍ
+        Ktor-->>Shell: {verified: false} — رفض
+    end
+```
+
+- الإثبات القابل للتحقق **ليس** تحقق PIN خادمياً (Q-142 يبقى: لا نقطة PIN خادمية، ولا PIN ولا hash يغادران الجهاز أبداً) — بل إثبات توقيع: الخادم يتحقق من توقيع التحدي بمفتاح الجهاز العام المسجَّل قبل تنفيذ أي عملية حساسة. والمفتاح وُلد عند الإقران (S1-02 3-د) ومعرّفه `device_key_id` في `parent_gate` (§5).
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الأربعة (§2)
 
 ```mermaid
@@ -271,7 +299,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–6.0، والمخازن D1–D6. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد — **عدا D2 (`parent_gate`) فهو مخزن محلي على الجهاز (Q-142)**: hash الـ PIN مشفر على الجهاز ولا يغادر الجهاز أبداً، والخادم يسجل إثبات التحقق + القفل فقط عبر Outbox. ووضع النطاق المنخفض (Q-064 · REQ-010): الاستجابات مضغوطة Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية/مجدولة (P4).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج) · `POST /api/v1/shell/verification/challenge` (3-هـ) · `POST /api/v1/shell/verification/prove` (3-هـ). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
 
 ```mermaid
 flowchart LR
@@ -313,6 +341,10 @@ flowchart LR
     Child -->|محاولة إجراء مقيّد| P3
     P3 -->|التحقق محلياً من pin_hash المشفر| D2
     D2 -->|النتيجة + المحاولات| P3
+    P3 -->|POST /shell/verification/challenge| Ktor
+    Ktor -->|"{challenge_id, nonce} — 5 دقائق"| P3
+    P3 -->|"POST /shell/verification/prove {signature}"| Ktor
+    Ktor -->|"{verified}"| P3
     P3 -->|إثبات التحقق + القفل فقط — عبر Outbox| P4
     P3 -->|تسجيل المحاولات والقفل| Audit
     Child -->|فعل دون اتصال| P4
@@ -362,6 +394,7 @@ flowchart LR
         direction TB
         V1["GET /families/{id}/shell/config"]
         V3[POST /api/v1/shell/outbox/flush]
+        V4["POST /shell/verification/challenge + /prove — إثبات بتوقيع الجهاز (Q-164)"]
     end
 
     U1 --> S1
@@ -380,6 +413,8 @@ flowchart LR
     S5 --> K4
     K4 --> S6
     K4 -.->|إثبات التحقق + القفل يُحفظ في Outbox| V3
+    K4 --> V4
+    V4 --> S6
     S6 -->|مقبول| S7
     S6 -->|مرفوض| S7
     U2 --> U4

@@ -2,6 +2,7 @@
 
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06)؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط، حكم المالك 2026-11-06) · §9 في مرحلة التصميم
+- **السياق المحدد (Bounded Context):** #4 الموقع والسلامة (Location & Safety) — `CONTEXT-MAP.md` §2 صف 4
 - **القرارات الحاكمة:** Q-003 · Q-007 · Q-020 · Q-056 · Q-061 · Q-064 · Q-067 · Q-101 · Q-102 · Q-103 · Q-104 · Q-105 · Q-106 · D-021 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
@@ -67,7 +68,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الأربعة من §5 كما هي، مع ثلاثة مراجع خارجية: العضوية (S1-02)، وتنبيهات S1-09 (`alert`، النوع `sos`)، و`AuditEvent` (النواة المشتركة، النطاق `location`). ملاحظتان: بلاطات الخرائط دون اتصال (MBTiles) ونقاط الصندوق الصادر مخزنان عميل لا جداول خادم (§5-5)، و`last_known_location` صف واحد لكل عضو (PK = `member_id`). كل جدول يحمل `family_id` + عزل RLS (D-021)، وسجل المواقع يُحذف تلقائياً بعد 7 أيام (REQ-014).
+الجداول الأربعة من §5 كما هي، مع ثلاثة مراجع خارجية: العضوية (S1-02)، وتنبيهات S1-09 (`alert`، النوع `sos`)، و`AuditEvent` (النواة المشتركة، النطاق `location`). ملاحظتان: بلاطات الخرائط دون اتصال (MBTiles) ونقاط الصندوق الصادر مخزنان عميل لا جداول خادم (§5-5)، و`last_known_location` صف واحد لكل عضو (PK = `member_id`). كل جدول يحمل `family_id` + عزل RLS (D-021)، وسجل المواقع يُحذف تلقائياً بعد 7 أيام (REQ-014). و`last_known_location.expires_at` = آخر قراءة + 7 أيام — يُحذف تلقائياً (Q-166).
 
 ```mermaid
 erDiagram
@@ -102,6 +103,7 @@ erDiagram
         double accuracy
         int battery
         timestamptz at
+        timestamptz expires_at
     }
     sos_alert {
         uuid sos_id PK
@@ -141,7 +143,8 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-سبعة مخططات، كل واحد لتدفق واحد:
+ثمانية مخططات، كل واحد لتدفق واحد:
+- **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ وSOS (`sos/new` + الإقرار) QoS 1 + إقرار إلزامي؛ والموقع الحي (`location/updated`) QoS 0؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. لا `command_id` في هذا النظام — الأوامر ملك S1-10 (§4-3).
 
 ### 3-أ. التتبع التكيفي — الإبلاغ عن نقطة موقع (REQ-004/005/006 — §4-1 + §4-3)
 
@@ -158,7 +161,7 @@ sequenceDiagram
         خدمة->>الخادم: POST /families/{id}/locations {lat, lng, accuracy, battery, at}
         الخادم->>المخزن: حفظ location_point + تحديث last_known_location
         الخادم-->>خدمة: النقطة + server_seq
-        الخادم->>الخادم: نشر family/{family_id}/location/updated (MQTT)
+        الخادم->>الخادم: نشر family/{family_id}/location/updated (MQTT — QoS 0)
     else دون اتصال
         خدمة->>خدمة: حفظ النقطة في الصندوق الصادر (محلي)
         Note over خدمة,الخادم: تُزامَن عند عودة الاتصال بلا تكرار؛ نقاط أقدم من 7 أيام تُتجاهل
@@ -187,6 +190,7 @@ sequenceDiagram
 ```
 
 - الأب يرى الموقع الدقيق لكل قاصر — طفلاً كان أو مراهقاً (Q-102)؛ والبالغ المفوَّض يرى حسب منحِه فقط (REQ-012).
+- قناة المنصة (§4-3): `startLocationService()` تشغّل خدمة الموقع في الخلفية (التتبع التكيفي)؛ و`getLastKnownLocation() → {lat, lng, at}` تقرأ آخر موقع مخزن؛ و`triggerSos()` مرسومة في 3-ج (سطر 208).
 - حد قراءات p95 < 300ms مصدره **Q-061 في ARCHITECTURE.md** — نص S1-07 SPEC يذكر SOS <10s فقط (REQ-008)؛ والقيمة صحيحة per Q-061.
 
 ### 3-ج. SOS متصل — تنبيه في أقل من 10 ثوانٍ (REQ-007/008 — §4-1 + §4-2 + §4-3)
@@ -202,12 +206,12 @@ sequenceDiagram
     participant البالغون as Adults
     Child->>الغلاف: ضغط مطول 3 ثوانٍ على زر SOS (Q-067)
     الغلاف->>الموقع: triggerSos() — MethodChannel (§4-3)
-    الموقع->>الخادم: POST /families/{id}/sos {lat, lng, at}
+    الموقع->>الخادم: POST /families/{id}/sos {lat, lng, at} + ترويسة Idempotency-Key (UUID لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال)
     alt يوجد SOS نشط
         الخادم-->>الموقع: LOC_SOS_ALREADY_ACTIVE — تُعاد بيانات النشط بدل التكرار
     else لا SOS نشط
         الخادم->>الخادم: إنشاء sos_alert (status=active, channel=server)
-        الخادم->>البالغون: نشر family/{family_id}/sos/new (MQTT — أولوية عالية)
+        الخادم->>البالغون: نشر family/{family_id}/sos/new (MQTT — QoS 1 — أولوية عالية)
         الخادم->>التدقيق: AuditEvent (إطلاق SOS — النطاق location)
         الخادم-->>الموقع: {sos_id, at}
         البالغون-->>Child: التنبيه يصل للأب وكل البالغين في أقل من 10 ثوانٍ مع الموقع (Q-061 · Q-104)
@@ -228,10 +232,10 @@ sequenceDiagram
     Child->>الموقع: ضغط SOS 3 ثوانٍ — لا اتصال بالخادم
     الموقع->>الموقع: قرار الإرسال من مرآة الحصة المحلية (Q-163) — لا فحص خادمي دون اتصال
     alt الحصة متبقية
-        الموقع->>الوالدان: SMS موقّع بالإحداثيات مباشرة إلى هواتف الأب وكل البالغين وجهات الطوارئ (Q-138) (Q-103) (Q-163)
+        الموقع->>الوالدان: SMS موقّع HMAC-SHA256 (مقتطع إلى 10 أحرف) بمفتاح الجهاز فوق (العائلة، العضو، الوقت، الإحداثيات) — تطبيق الأب يتحقق من التوقيع قبل عرض التنبيه (REQ-017)
         الموقع->>الموقع: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
     else الحصة منتهية — الطوارئ الثلاث متبقية
-        الموقع->>الوالدان: SMS طارئ موقّع (1 من 3 في الدورة — SOS فقط) (Q-163)
+        الموقع->>الوالدان: SMS طارئ موقّع HMAC-SHA256 (10 أحرف — REQ-017) (1 من 3 في الدورة — SOS فقط) (Q-163)
         الموقع->>الوالدان: إشعار الأب فوراً بكل رسالة طارئة
     else الحصة والطوارئ الثلاث مستنفدة
         الموقع->>الموقع: SOS يبقى "معلقاً" على الجهاز — لا يُعرض كأنه أُرسل
@@ -241,7 +245,7 @@ sequenceDiagram
     end
 ```
 
-- كل SMS صادر يُحسب من حصة الخطة (Q-055)؛ والتعبئة وشراء الحزم عبر S1-04 (REQ-017 · Q-106)؛ وتجاوز الطوارئ الثلاث لا يُمنح إلا لـ SOS — لا OTP ولا غيره (§6-2)؛ وقرار الإرسال دون اتصال من مرآة الحصة المحلية، وكل SMS استغاثة موقّع (Q-163).
+- كل SMS صادر يُحسب من حصة الخطة (Q-055)؛ والتعبئة وشراء الحزم عبر S1-04 (REQ-017 · Q-106)؛ وتجاوز الطوارئ الثلاث لا يُمنح إلا لـ SOS — لا OTP ولا غيره (§6-2)؛ وقرار الإرسال دون اتصال من مرآة الحصة المحلية، وكل SMS استغاثة موقّع HMAC-SHA256 (مقتطع إلى 10 أحرف) بمفتاح الجهاز فوق (العائلة، العضو، الوقت، الإحداثيات) ويتحقق تطبيق الأب من التوقيع قبل العرض (REQ-017 · Q-163).
 - **حد الإشعار دون اتصال (صريح):** عند استنفاد الحصة + الطوارئ الثلاث لا توجد أي قناة لإشعار الأب "فوراً" — فإشعار النفاد يُحفَظ في طابور على الجهاز ويُسلَّم عند عودة الاتصال، ويُعرض محلياً للطفل فقط. (الحد نفسه خطر مقبول موثَّق بحكم المالك — Q-163.)
 - **مستلمو SMS دون اتصال (Q-138):** نفس مجموعة المستلمين — الأب + كل البالغين + جهات الطوارئ.
 
@@ -258,14 +262,14 @@ sequenceDiagram
     Father->>التطبيق: تأكيد استلام تنبيه SOS
     التطبيق->>الخادم: POST /families/{id}/sos/{sosId}/acknowledge
     الخادم->>الخادم: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
-    الخادم->>البالغون: نشر family/{family_id}/sos/acknowledged (MQTT)
+    الخادم->>البالغون: نشر family/{family_id}/sos/acknowledged (MQTT — QoS 1)
     الخادم->>التدقيق: AuditEvent (تأكيد SOS — النطاق location)
     الخادم-->>التطبيق: {sos_id, acknowledged_by, at}
     التطبيق-->>Father: مؤكد — ثم يتصل بالطفل
     Father->>التطبيق: حل التنبيه بعد التعامل معه (Q-136)
     التطبيق->>الخادم: POST /families/{id}/sos/{sosId}/resolve
     الخادم->>الخادم: sos_alert.status = resolved + resolved_by + resolved_at
-    الخادم->>البالغون: نشر family/{family_id}/sos/resolved (MQTT)
+    الخادم->>البالغون: نشر family/{family_id}/sos/resolved (MQTT — QoS 1)
     الخادم->>التدقيق: AuditEvent (حل SOS — النطاق location)
     الخادم-->>التطبيق: {sos_id, resolved_by, at, status: "resolved"}
 ```
@@ -321,6 +325,36 @@ sequenceDiagram
     end
 ```
 
+### 3-ح. سلم تصعيد SOS — مهلة إقرار 5 دقائق وإعادة دفع حتى الإقرار أو الحل (REQ-018 — §6-3)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant الخادم as Ktor
+    participant البالغون as Adults
+    participant التدقيق as Audit
+    participant الأب as Father
+    Ktor->>Adults: دفع تنبيه SOS فوراً — لكل البالغين (sos/new — أولوية عالية)
+    Ktor->>Ktor: مؤقت مهلة إقرار 5 دقائق
+    alt أقرّ أي بالغ خلال 5 دقائق
+        Adults-->>Ktor: POST .../sos/{sosId}/acknowledge
+        Ktor->>Ktor: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
+        Ktor->>Adults: نشر family/{family_id}/sos/acknowledged (MQTT)
+        Ktor->>Audit: AuditEvent (تأكيد SOS — النطاق location)
+    else بلا إقرار خلال 5 دقائق
+        loop إعادة الدفع والتذكير حتى الإقرار أو الحل
+            Ktor->>Adults: إعادة دفع التنبيه + تذكير (دفع + تنبيه)
+            Ktor->>Ktor: مؤقت 5 دقائق جديد
+        end
+    end
+    opt الأب أو المفوَّض يحل التنبيه (REQ-018)
+        Father->>Ktor: POST /families/{id}/sos/{sosId}/resolve
+        Ktor->>Ktor: sos_alert.status = resolved + resolved_by + resolved_at — يتوقف التصعيد
+        Ktor->>Adults: نشر family/{family_id}/sos/resolved (MQTT)
+        Ktor->>Audit: AuditEvent (حل SOS — النطاق location)
+    end
+```
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الستة (§2)
 
 ```mermaid
@@ -340,6 +374,7 @@ flowchart TD
     Quota -->|نعم| SMS["SMS بالإحداثيات إلى هواتف الأب وكل البالغين وجهات الطوارئ (Q-138)"]
     Quota -->|لا| Pending[SOS معلّق على الجهاز + إشعار النفاد في الطابور — لا يُعرض كأنه أُرسل]
     Online --> Ack[الأب يؤكد ويتصل بالطفل]
+    Ack --> Resolve[الأب يحل التنبيه بعد التعامل — يتوقف التصعيد + نشر sos/resolved]
     SMS --> Ack
     Pending --> Reconnect{عودة الاتصال؟}
     Reconnect -->|نعم| Online
@@ -352,7 +387,7 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–6.0، والمخازن D1–D4 جداول خادم (PostgreSQL) + مخزنان عميل (C1–C2) على الجهاز. الأحداث MQTT تنشر من 3.0 و4.0؛ وتنبيهات SOS وودجة الخريطة المصغرة تُسلَّمان إلى S1-09 (REQ-015/016).
+العمليات مرقمة 1.0–6.0، والمخازن D1–D4 جداول خادم (PostgreSQL) + ثلاثة مخازن عميل (C1–C3) على الجهاز. الأحداث MQTT تنشر من 1.0 و3.0 و4.0؛ وتنبيهات SOS وودجة الخريطة المصغرة تُسلَّمان إلى S1-09 (REQ-015/016).
 
 - **تغطية نقاط §4:** كل نقاط §4-1 الثماني مرسومة في §3 (locations قراءة/إبلاغ، sos إطلاق/تأكيد، emergency-contacts قراءة/إضافة/حذف)؛ والتسلسلات تغطي التدفقات الأساسية فقط.
 
@@ -369,7 +404,7 @@ flowchart LR
         P1(1.0 التتبع التكيفي — GPS + Kalman)
         P2(2.0 قراءة الخريطة والسجل — تصفية حسب المنح)
         P3(3.0 إطلاق SOS — تصعيد)
-        P4(4.0 تأكيد SOS)
+        P4(4.0 تأكيد وحل SOS)
         P5(5.0 إدارة جهات الطوارئ)
         P6(6.0 مزامنة الصندوق الصادر)
     end
@@ -381,16 +416,18 @@ flowchart LR
         D4[(D4 emergency_contact)]
         C1[(C1 نقاط الصندوق الصادر — محلي)]
         C2[(C2 بلاطات MBTiles دون اتصال — محلي)]
+        C3[(C3 مرآة الحصة المحلية — رصيد + طوارئ + نهاية الدورة — محلي)]
     end
 
     Ktor([خادم Ktor])
-    MQTT([أحداث MQTT])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
     SMS([بوابة SMS])
     Audit([AuditEvent])
 
     Child -->|قراءات GPS + بطارية| P1
     P1 -->|نقطة منعمّة| D1
     P1 -->|تحديث آخر موقع| D2
+    P1 -->|"family/{family_id}/location/updated — QoS 0"| MQTT
     P1 -->|دون اتصال: حفظ النقطة| C1
     C1 -->|عند عودة الاتصال| P6
     P6 -->|نقاط بلا تكرار| D1
@@ -405,7 +442,7 @@ flowchart LR
     S101 -->|ضغط SOS 3 ثوانٍ| P3
     Child -->|ضغط SOS 3 ثوانٍ| P3
     P3 -->|تنبيه SOS| D3
-    P3 -->|family/.../sos/new| MQTT
+    P3 -->|"family/{family_id}/sos/new — QoS 1"| MQTT
     MQTT -->|تنبيه < 10 ثوانٍ| Father
     P3 -->|دون اتصال: SMS بالإحداثيات| SMS
     SMS -->|إحداثيات| Father
@@ -413,9 +450,14 @@ flowchart LR
     P3 -->|تسجيل الإطلاق| Audit
     Father -->|تأكيد الاستلام| P4
     P4 -->|status = acknowledged| D3
-    P4 -->|family/.../sos/acknowledged| MQTT
+    P4 -->|"family/{family_id}/sos/acknowledged — QoS 1"| MQTT
+    P4 -->|"family/{family_id}/sos/resolved — QoS 1"| MQTT
     P4 -->|تسجيل التأكيد| Audit
     P4 -->|تنبيهات SOS تظهر في S1-09| S109
+    Father -->|"حل التنبيه (POST .../resolve)"| P4
+    P4 -->|status = resolved + resolved_by/at| D3
+    P4 -->|تسجيل الحل| Audit
+    P4 -->|إيقاف التصعيد + تحديث العرض| S109
     Father -->|إضافة / حذف جهة طوارئ| P5
     P5 -->|حفظ / حذف| D4
     D4 -->|هواتف جهات الطوارئ| P3
@@ -451,6 +493,7 @@ flowchart LR
         V3[إنشاء sos_alert + نشر sos/new]
         V4[حذف سجل أقدم من 7 أيام تلقائياً]
         V5[تأكيد SOS + نشر sos/acknowledged]
+        V6[حل SOS + نشر sos/resolved + إيقاف التصعيد]
     end
     subgraph Parent [الأب / البالغون]
         direction TB
@@ -477,7 +520,9 @@ flowchart LR
     U2 --> K7
     K7 --> V3
     V3 --> F5
+    V3 -->|بلا إقرار خلال 5 دقائق: إعادة دفع + تذكير حتى الإقرار أو الحل| V3
     F5 --> F6
+    F6 --> V6
     F1 --> F2
     F2 -->|نعم| F3
     F2 -->|لا| F4

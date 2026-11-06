@@ -2,6 +2,7 @@
 
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
+- **السياق المحدد (Bounded Context):** #9 إدارة العائلة (Family Management) — `CONTEXT-MAP.md` §2 صف 9
 - **القرارات الحاكمة:** Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · Q-064 · Q-054 · Q-058 · Q-022
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
@@ -165,7 +166,7 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-ستة مخططات، كل واحد لتدفق واحد:
+سبعة مخططات، كل واحد لتدفق واحد:
 
 ### 3-أ. إنشاء مهمة وإسنادها (REQ-001/002/003 — §4)
 
@@ -202,9 +203,14 @@ sequenceDiagram
     App->>Ktor: POST /families/{id}/tasks/{taskId}/submit
     Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (ALREADY_SUBMITTED إن تكرر)
     Ktor->>Ktor: حفظ proof_ref في MinIO + status=SUBMITTED_BY_CHILD
-    Ktor->>AI: تحقق من الإنجاز (بوابة Q-054)
-    AI-->>Ktor: مطابق للمطلوب
+    Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
+    alt دليل مباشر — منح تلقائي
+        AI-->>Ktor: مطابق للمطلوب (مباشر)
+    else دليل مقدَّم — تحقق ثم منح
+        AI-->>Ktor: مطابق للمطلوب (مقدَّم)
+    end
     Ktor->>Ktor: status=APPROVED + verified_by=ai
+    Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + طبقة الثقة
     Ktor->>S105: tasks.completed {source_system=S1-06} (Q-118)
     S105-->>Ktor: إيداع النقاط في المحفظة
     Ktor-->>App: تم — النقاط دخلت المحفظة وتحدّثت السلسلة
@@ -307,6 +313,37 @@ sequenceDiagram
     end
 ```
 
+### 3-ز. شك الذكاء — إحالة للأب بنقرة واحدة (REQ-017 — عقد Q-167 §4)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor الطفل as Child
+    actor الأب as Father
+    participant التطبيق as App
+    participant الخادم as Ktor
+    participant الذكاء as AI
+    participant المحفظة as S105
+    participant المركز as S109
+    Child->>App: تسليم المهمة مع الإثبات
+    App->>Ktor: POST /families/{id}/tasks/{taskId}/submit
+    Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
+    AI-->>Ktor: شك — الدليل غير حاسم (confidence_tier=مشكوك)
+    Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة + AgentActionLog (الشك + الدليل)
+    Ktor->>مركز: tasks.submitted → بطاقة "يتطلب انتباهك" — اعتماد بنقرة واحدة (REQ-015)
+    Father->>App: مراجعة الإثبات + الشك المسجل مع السبب
+    alt الأب يعتمد بنقرة واحدة
+        Father->>Ktor: POST /families/{id}/tasks/{taskId}/approve {APPROVE}
+        Ktor->>Ktor: status=APPROVED + verified_by=father
+        Ktor->>S105: tasks.completed {source_system=S1-06}
+        S105-->>Ktor: إيداع النقاط
+    else الأب يرفض
+        Father->>Ktor: POST /families/{id}/tasks/{taskId}/approve {REJECT_WITH_NOTES}
+        Ktor->>Ktor: status=PENDING + rejection_notes
+        Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
+    end
+```
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
 
 ```mermaid
@@ -324,6 +361,8 @@ flowchart TD
     AIOK -->|نعم| TeenCheck{مراهق؟}
     AIOK -->|لا — رفض| Notify[لا إيداع + إشعار الطفل بالسبب + الأب يرى الرفض]
     Who -->|الذكاء لا يستطيع| Pending[تبقى معلّقة — بطاقة S1-09]
+    Who -->|الذكاء يشك| Doubt[شك — يُحال للأب بنقرة واحدة]
+    Doubt --> FatherRev
     Pending --> FatherRev{الأب يراجع}
     FatherRev -->|يعتمد| TeenCheck
     FatherRev -->|يرفض مع ملاحظات| Back[تعود PENDING — يعيدها الطفل]
@@ -353,6 +392,7 @@ flowchart LR
     S105([محفظة النقاط S1-05])
     S109([مركز الأوامر S1-09])
     Kotlin([وحدة Kotlin — منبّهات])
+    AgentActionLog([سجل أفعال الوكيل — عقد Q-167 §3 — يُعرض في S1-09])
 
     subgraph Tasks [S1-06: المهام والتقويم]
         P1(1.0 إنشاء المهام والفئات وإلغاؤها)
@@ -386,10 +426,12 @@ flowchart LR
     P2 -->|proof_ref + SUBMITTED_BY_CHILD| D1
     P2 -->|tasks.submitted| S109
     P2 -->|الإثبات للتحقق| P3
-    AI -->|نتيجة التحقق + السبب| P3
+    AI -->|"نتيجة التحقق + الدليل + طبقة الثقة (مباشر/مقدَّم/مشكوك)"| P3
     P3 -->|"نجاح التحقق: tasks.completed {source_system=S1-06}"| S105
     P3 -->|نجاح التحقق: APPROVED| D1
     P3 -->|لا يستطيع التحقق| P4
+    P3 -->|شك — إحالة للأب بنقرة| P4
+    P3 -->|"سجل الفعل (المفتاح agent.task.verify + البوابة + الدليل)"| AgentActionLog
     P3 -->|"رفض التحقق (غير مطابق)"| P4
     Father -->|اعتماد / رفض / إلغاء| P4
     P4 -->|اعتماد يدوي فقط: APPROVED| D1

@@ -140,7 +140,7 @@ graph TD
 |---|---|---|
 | الهوية والعائلة | `FamilyService` · `MembershipService` · `PairingService` (رمز الجهاز) · `InvitationService` | 1 |
 | الصلاحيات | `PermissionEvaluator` (deny-override) · `GrantStore` · `ScopeChecker` | 1 |
-| الحماية | `CommandDispatcher` · `ScheduleEngine` (bitmask) · `EnforcementSync` · `DeviceState` — يملكها **S1-10 "الحماية والفرض"** (Q-141؛ المواصفة قيد الكتابة) | 1 |
+| الحماية | `CommandDispatcher` · `ScheduleEngine` (bitmask) · `EnforcementSync` · `DeviceState` — يملكها **S1-10 "الحماية والفرض"** (Q-141؛ المواصفة معتمدة Q-146) | 1 |
 | الموقع والسلامة | `LocationIngest` · `SosService` (يستشير `SmsLedger` في الفوترة قبل أي SMS عند الاتصال — Q-106؛ ودون اتصال تُستخدم مرآة الحصة المحلية — Q-163) · `GeofenceEngine` (المرحلة 5، Q-056) | 1 / 5 |
 | الإشعارات والتوصيل | `OtpRouter` · `PushChannel` (FCM/HMS) · `MqttBridge` | 1 |
 | التواصل | `ChatService` · `MessageService` · `ChatAdminService` (صلاحيات ذرية) | 1 (أساسي S1-08) / 2 (توسيع) |
@@ -229,7 +229,7 @@ erDiagram
 
 **ملاحظات نطاق ERD:**
 - هذا ERD **نواة + ملخص المرحلة 1** لا تفصيلها الكامل؛ جداول المرحلة 1 الكاملة تعيش في §5 لكل مواصفة نظام: الستة في S1-01، وجداول S1-02، ومحفظة النقاط/السجل في S1-05، والمهام/التقويم في S1-06، وجداول الدردشة/الوسائط في S1-08.
-- `APP_RULE` / `WEEKLY_SCHEDULE` يملكهما **S1-10 "الحماية والفرض"** (Q-141) — مواصفته قيد الكتابة، فلا تفصيل لهما هنا.
+- `APP_RULE` / `WEEKLY_SCHEDULE` يملكهما **S1-10 "الحماية والفرض"** (Q-141) — مواصفته معتمدة (Q-146)؛ والتفصيل في S1-10 §5.
 - `MEMBERSHIP.person_id`: سؤال مفتوح **Q-137** (هل عضوية الطفل تحمل `person_id` فارغاً؟).
 - `OWNERSHIP_TRANSFER`: طرفا النقل شخصان بالغان (`from_member_id`/`to_member_id` → `person` — Q-169)؛ ولا كيان `PERSON` في هذا الملخص — كما أن `MEMBERSHIP.person_id` مرجع بلا كيان. التفصيل في S1-03 §5-5 (Q-177).
 
