@@ -296,13 +296,14 @@ flowchart TD
 ## 10. خطة التنفيذ (Implementation Plan)
 
 ### 10-1. خطوات البناء بالترتيب
-1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (75 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) — Ktor + PostgreSQL.
+1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (82 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) + `agent.*` ‏(7) — Ktor + PostgreSQL.
 2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer`) + RLS + فهارس (`member_id`, `permission_key`, `valid_until`).
 3. **محرك التقييم الخادمي** (deny-override + حل المنح المتداخلة §6-3) + نقطة `POST /permissions/check`.
 4. **نقاط المنح والقوالب والتدقيق** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166).
 5. **مزامنة المنح** عبر MQTT (`permissions/sync` + `permissions/revoked` + `grant-expiring` عبر فحص يومي مجدول للمنح القريبة من الانتهاء) + اللقطة المحلية + قناة `MethodChannel` (`checkPermission`).
 6. **شاشات إدارة الأعضاء والقوالب** — تُبنى بعد مرحلة التصميم (§9)؛ هذه الخطة تعتمد على مخرجاتها.
 7. **بروتوكول الحذف والتصدير (Q-166)** — نقاط الحذف/الإلغاء/التصدير + مصفوفة الأثر + تطهير النسخ خلال 30 يوماً + TTL آخر موقع 7 أيام (S1-07) — `DELETION-EXPORT-PROTOCOL.md`.
+8. **مفاتيح الوكيل `agent.*` (Q-167)** — تُزرع في السجل المركزي (7 مفاتيح)؛ والممنوح له هو الوكيل نفسه ككيان مستقل بنطاق العائلة — `AI-VERIFICATION-CONTRACT.md`.
 
 ### 10-2. الوحدات/المكونات
 - **الخادم (Ktor):** وحدة `permissions` (التقييم + المنح + القوالب + التدقيق + حذف العائلة/العضو Q-166)؛ وحدة `sync` (MQTT).
