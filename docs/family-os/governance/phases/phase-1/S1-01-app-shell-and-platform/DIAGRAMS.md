@@ -1,13 +1,14 @@
 # S1-01: مخططات هندسة البرمجيات (DIAGRAMS)
 
-- **الحالة:** معتمدة — الأنواع الستة معتمدة (حكم المالك 2026-11-06) · المراجعة النهائية على GitHub
+- **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-06)؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **القرارات الحاكمة:** Q-134 (هيكل الملف) · Q-062 · Q-063 · Q-065 · Q-067 · Q-068 · Q-070
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
+- **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
 ## 1. حالات الاستخدام
 
-12 حالة استخدام من السيناريوهات الأربعة والمتطلبات (§2/§3): الأب والبالغ يفتحان اللوحة، كل الأدوار تضغط SOS، الطفل والمراهق يعملان دون اتصال، وأي إجراء مقيّد على جهاز طفل يتضمن بوابة PIN. والتسليم لنظام الموقع (S1-07) والإقران (S1-02) ممثلان كجهات خارجية.
+13 حالة استخدام من السيناريوهات الأربعة والمتطلبات (§2/§3): الأب والبالغ يفتحان اللوحة، كل الأدوار تضغط SOS، الطفل والمراهق يعملان دون اتصال، وأي إجراء مقيّد على جهاز طفل يتضمن بوابة PIN. والتسليم لنظام الموقع (S1-07) والإقران (S1-02) ممثلان كجهات خارجية.
 
 ```mermaid
 flowchart LR
@@ -60,7 +61,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الستة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` مشفر فقط — لا يُحفظ PIN نصاً أبداً. كل جدول يحمل `family_id` + عزل RLS (D-021).
+الجداول الستة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` مشفر فقط — لا يُحفظ PIN نصاً أبداً. و`parent_gate` **مخزن محلي على الجهاز** (Q-142): hash الـ PIN محفوظ مشفراً على الجهاز والتحقق يتم محلياً، والخادم لا يستلم PIN ولا hashه أبداً — يسجل إثبات التحقق + القفل فقط في التدقيق عبر Outbox. كل جدول يحمل `family_id` + عزل RLS (D-021).
 
 ```mermaid
 erDiagram
@@ -146,7 +147,7 @@ sequenceDiagram
     Father->>Shell: فتح التطبيق
     Shell->>Store: قراءة device_mode (الوضع)
     Store-->>Shell: mode = parent
-    Shell->>Ktor: GET /api/v1/shell/config?family_id
+    Shell->>Ktor: GET /families/{id}/shell/config
     Ktor-->>Shell: ShellConfig {region, planFlags, featureFlags}
     Shell->>Ktor: GET /api/v1/shell/registries/control
     Ktor-->>Shell: قائمة المفاتيح المسجلة
@@ -163,30 +164,28 @@ sequenceDiagram
     actor الطفل as Child
     participant الغلاف as Shell
     participant Kotlin as K
-    participant الخادم as Ktor
     participant التدقيق as Audit
     Child->>Shell: محاولة إجراء مقيّد (خروج / فك إقران / إعداد إداري)
     Shell->>K: requestParentGate(action)
     K-->>Shell: عرض لوحة PIN
     Child->>K: إدخال PIN
-    K->>Ktor: POST /shell/parent-gate/verify {family_id, pin_hash}
+    K->>K: التحقق محلياً مقابل pin_hash المشفر على الجهاز (Q-142 — لا PIN ولا hash يغادران الجهاز أبداً)
     alt PIN صحيح
-        Ktor-->>K: {granted: true}
         K-->>Shell: GateResult {granted}
+        K->>Audit: AuditEvent — إثبات تحقق ناجح (يُسلَّم عبر Outbox عند عدم الاتصال)
         Shell-->>Child: تنفيذ الإجراء
     else PIN خاطئ (أقل من 5)
-        Ktor-->>K: {granted: false, attemptsLeft}
-        K-->>Shell: GateResult {granted: false}
+        K-->>Shell: GateResult {granted: false, attemptsLeft}
         Shell-->>Child: رفض + المحاولات المتبقية
     else 5 أخطاء متتالية
-        Ktor-->>K: {granted: false, lockedUntil}
-        K->>Audit: AuditEvent (محاولة أثناء القفل تُسجَّل)
+        K->>K: قفل محلي 5 دقائق (locked_until)
+        K->>Audit: AuditEvent — إثبات القفل (يُسلَّم عبر Outbox عند عدم الاتصال)
         K-->>Shell: GateResult {lockedUntil}
         Shell-->>Child: البوابة مقفلة 5 دقائق
     end
 ```
 
-- التحقق من PIN يتم عبر الخادم (§4.2)؛ وحدة Kotlin تعرض اللوحة وتجمع PIN (§4.1). ولا سؤال حسابي في أي مسار (Q-065).
+- التحقق من PIN **محلي فقط** (Q-142): hash الـ PIN محفوظ مشفراً على الجهاز وتتحقق منه وحدة Kotlin محلياً؛ والخادم يسجل إثبات التحقق + القفل فقط في التدقيق (عبر Outbox عند عدم الاتصال) ولا يستلم PIN ولا hashه أبداً. ونقطة التحقق الخادمي من PIN **محذوفة** — لا مكالمة Ktor في هذا التدفق. ولا سؤال حسابي في أي مسار (Q-065).
 
 ### 3-ج. تفريغ طابور Outbox (REQ-009 — §4.2)
 
@@ -201,7 +200,7 @@ sequenceDiagram
     Shell->>OB: تسجيل الحدث (synced_status=0)
     Note over Shell,OB: عند عودة الاتصال
     Shell->>OB: قراءة الأحداث بترتيب زمني صارم
-    Shell->>Ktor: POST /shell/outbox/flush (Idempotency-Key) — دفعة مضغوطة
+    Shell->>Ktor: POST /api/v1/shell/outbox/flush (Idempotency-Key) — دفعة مضغوطة
     Ktor-->>Shell: FlushResult {accepted, rejected[]}
     Shell->>OB: تحديث synced_status=1 للمقبولة
     Shell-->>Child: مزامنة مكتملة
@@ -231,7 +230,10 @@ sequenceDiagram
 ```mermaid
 flowchart TD
     Start([فتح التطبيق — إقلاع بارد < 1.2s]) --> Read[قراءة وضع الجهاز من device_mode]
-    Read --> Mode{الوضع؟}
+    Read --> LowBW{وضع النطاق المنخفض — اليمن (Q-064 · REQ-010)؟}
+    LowBW -->|نعم| Compress[استجابات مضغوطة Brotli/Gzip + لا تحديثات تلقائية + مزامنة يدوية/مجدولة + قنوات OTP بديلة (Q-021)]
+    Compress --> Mode{الوضع؟}
+    LowBW -->|لا| Mode
     Mode -->|أهل| Config[تحميل الإعداد: region + planFlags + featureFlags]
     Config --> Render[عرض لوحة الأهل بقالب الدور]
     Render --> Hide[إخفاء الميزات خارج الخطة]
@@ -252,13 +254,20 @@ flowchart TD
     Count -->|لا| Retry[رفض + المحاولات المتبقية]
     Count -->|نعم| Lock[قفل 5 دقائق + تسجيل في AuditEvent]
     Exit -->|لا| Stay[البقاء في وضع الطفل]
+    Stay --> Switch{محاولة تبديل الوضع / الملف؟}
+    Switch -->|نعم| Refuse[رفض برسالة واضحة — بلا طلب PIN (REQ-018 · Q-063)]
+    Refuse --> Stay
+    Switch -->|لا| Stay
 ```
 
 - ملاحظة: تسجيل دخول الأب على جهاز طفل **لا** يبدّل الوضع — الوضع يتحدد بالإقران (REQ-002).
+- ملاحظة: أي محاولة لتبديل الوضع أو الملف في المرحلة 1 تُرفض برسالة واضحة **بلا طلب PIN** (REQ-018 · Q-063) — الوضع ثابت لكل جهاز ولا تبديل ملفات في المرحلة 1. ووضع النطاق المنخفض (Q-064 · REQ-010) إلزامي لليمن: ضغط Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية أو مجدولة، وقنوات OTP بديلة (Q-021).
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–6.0، والمخازن D1–D6. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد.
+العمليات مرقمة 1.0–6.0، والمخازن D1–D6. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد — **عدا D2 (`parent_gate`) فهو مخزن محلي على الجهاز (Q-142)**: hash الـ PIN مشفر على الجهاز ولا يغادر الجهاز أبداً، والخادم يسجل إثبات التحقق + القفل فقط عبر Outbox. ووضع النطاق المنخفض (Q-064 · REQ-010): الاستجابات مضغوطة Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية/مجدولة (P4).
+
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
 
 ```mermaid
 flowchart LR
@@ -298,8 +307,9 @@ flowchart LR
     P2 -->|قراءة السجلات| D6
     P2 -->|لوحة الأهل| Father
     Child -->|محاولة إجراء مقيّد| P3
-    P3 -->|التحقق من pin_hash| D2
+    P3 -->|التحقق محلياً من pin_hash المشفر| D2
     D2 -->|النتيجة + المحاولات| P3
+    P3 -->|إثبات التحقق + القفل فقط — عبر Outbox| P4
     P3 -->|تسجيل المحاولات والقفل| Audit
     Child -->|فعل دون اتصال| P4
     P4 -->|تسجيل الحدث| D4
@@ -342,12 +352,12 @@ flowchart LR
         K1[خدمة خلفية دائمة — وضع الطفل]
         K2[مراقبة الصحة]
         K3[تطبيق قواعد الفرض]
+        K4[التحقق المحلي من PIN — مقابل pin_hash المشفر على الجهاز (Q-142)]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V1[GET /shell/config]
-        V2[POST /shell/parent-gate/verify]
-        V3[POST /shell/outbox/flush]
+        V1[GET /families/{id}/shell/config]
+        V3[POST /api/v1/shell/outbox/flush]
     end
 
     U1 --> S1
@@ -363,8 +373,9 @@ flowchart LR
     K1 --> K3
     U2 --> U3
     U3 --> S5
-    S5 --> V2
-    V2 --> S6
+    S5 --> K4
+    K4 --> S6
+    K4 -.->|إثبات التحقق + القفل يُحفظ في Outbox| V3
     S6 -->|مقبول| S7
     S6 -->|مرفوض| S7
     U2 --> U4

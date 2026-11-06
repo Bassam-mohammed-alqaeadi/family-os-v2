@@ -1,6 +1,6 @@
 # S1-05: مخططات هندسة البرمجيات (DIAGRAMS)
 
-- **الحالة:** مسودة للمراجعة — الأنواع الستة مكتملة من SPEC المعتمد (§§1–8 + §10 معتمدة بالكامل في التخطيط)
+- **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط · §9 في مرحلة التصميم)
 - **القرارات الحاكمة:** Q-003 · Q-064 · Q-107 · Q-108 · Q-109 · Q-110 · Q-111 · Q-112 · Q-113 · Q-114 · Q-116 · Q-117 · Q-118 · Q-119 · Q-054
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
@@ -158,9 +158,11 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-خمسة مخططات، كل واحد لتدفق واحد:
+ستة مخططات، كل واحد لتدفق واحد — والتدفق السادس (3-و) قيد تعويضي لإلغاء التحقق:
 
-### 3-أ. كسب نقاط عبر تحقق الذكاء (REQ-004 / REQ-005 — §4: `earning/completed`)
+- **نقاط القراءة في §4 (لا تسلسل مستقل لها — قراءات مباشرة):** `GET /families/{id}/children/{childId}/wallet` (الرصيد + السلسلة + الطلبات المعلقة) · `GET /families/{id}/children/{childId}/wallet/ledger` (سجل حركات المحفظة) · `GET /families/{id}/rewards/settings` (ضوابط الأب) · `PATCH /families/{id}/rewards/settings` (ضبط المعاملات — UC6).
+
+### 3-أ. كسب نقاط عبر تحقق الذكاء (REQ-004 / REQ-005 — §4: `tasks.completed`)
 
 ```mermaid
 sequenceDiagram
@@ -174,14 +176,14 @@ sequenceDiagram
     S106->>AI: طلب تحقق — أُنجزت كما هو مطلوب؟
     alt الذكاء يتحقق — أُنجزت
         AI-->>S106: verified = true
-        S106->>Ktor: earning/completed {source_system, task_id, points}
+        S106->>Ktor: tasks.completed {source_system, task_id, points}
         Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس task_id
         Ktor->>Wallet: إيداع النقاط + سجل في points_ledger
         Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة
         Ktor-->>Child: wallet/updated — نقاط دخلت + احتفالية قصيرة
     else الذكاء يرفض — لم تُنجز كما هو مطلوب
         AI-->>S106: verified = false
-        S106->>Ktor: earning/completed {verified = false}
+        Note over S106,Ktor: لا يُصدر حدث tasks.completed — verified = false تعني لا إيداع
         Ktor-->>Child: لا إيداع + إشعار بالسبب
         Ktor->>Ktor: الأب يرى الرفض
     end
@@ -189,7 +191,7 @@ sequenceDiagram
 
 - تسليم الطفل الذاتي وحده لا يودع شيئاً (REQ-005/Q-110)؛ وإيداع مكرر لنفس `task_id` + `source_system` يعيد الإيداع الأصلي بلا مضاعفة (§7)؛ وحدث كسب من نظام غير مسجَّل يُرفض ويُسجَّل في التدقيق (§7/REQ-004).
 
-### 3-ب. صرف نقاط كوقت إضافي (REQ-008 / REQ-009 / REQ-010 — §4: `POST .../wallet/redeem`)
+### 3-ب. صرف نقاط كوقت إضافي (REQ-008 / REQ-009 / REQ-010 — §4: `POST /families/{id}/children/{childId}/wallet/redeem`)
 
 ```mermaid
 sequenceDiagram
@@ -199,7 +201,7 @@ sequenceDiagram
     participant الخادم as Ktor
     participant الفرض as S101
     Child->>Shell: صرف نقاط كوقت للتطبيق الذي نفد وقته
-    Shell->>Ktor: POST /wallet/redeem {app_package, points, client_request_id}
+    Shell->>Ktor: POST /families/{id}/children/{childId}/wallet/redeem {app_package, points, client_request_id}
     Ktor->>Ktor: معاملة ذرية — فحص الرصيد + الحد اليومي (60 دقيقة افتراضياً)
     alt الرصيد يكفي والحد لم يُبلغ
         Ktor->>Ktor: خصم النقاط — 10 نقاط = 10 دقائق
@@ -219,7 +221,7 @@ sequenceDiagram
 
 - سعر الصرف ثابت 1:1 (Q-111)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009)؛ والحد اليومي يُفرض على الخادم (Q-114).
 
-### 3-ج. طلب وقت إضافي وقرار الأب (REQ-012 / REQ-013 / REQ-014 — §4: `POST /time-requests` + `POST /time-requests/{requestId}/decide`)
+### 3-ج. طلب وقت إضافي وقرار الأب (REQ-012 / REQ-013 / REQ-014 — §4: `POST /families/{id}/children/{childId}/time-requests` + `POST /families/{id}/time-requests/{requestId}/decide`)
 
 ```mermaid
 sequenceDiagram
@@ -230,21 +232,21 @@ sequenceDiagram
     participant الأب as Father
     participant الأوامر as S109
     Child->>Shell: نفد وقت التطبيق — طلب وقت إضافي (من شاشة الحظر)
-    Shell->>Ktor: POST /time-requests {app_package, minutes_requested}
+    Shell->>Ktor: POST /families/{id}/children/{childId}/time-requests {app_package, minutes_requested}
     Ktor->>Ktor: طلب معلَّق لنفس التطبيق؟ أعد الأصلي
     Ktor->>Ktor: إنشاء time_request {status=PENDING}
     Ktor->>S109: time-request/new — بطاقة يتطلب انتباهك
     S109-->>Father: الطلب معروض — قرار بنقرة واحدة
     alt الأب يمنح مباشرة
-        Father->>Ktor: decide {APPROVED}
+        Father->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {APPROVED}
         Ktor->>Ktor: إنشاء granted_time {source=GRANT, ينتهي بنهاية اليوم}
         Ktor->>Ktor: سجل TIME_GRANTED + AuditEvent
         Ktor-->>Child: time-request/decided — التطبيق يستمر
     else الأب يرفض
-        Father->>Ktor: decide {REJECTED}
+        Father->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {REJECTED}
         Ktor-->>Child: time-request/decided — مرفوض
     else الأب يسند مهمة بدلاً من المنح
-        Father->>Ktor: decide {TASK_ASSIGNED, assigned_task_id}
+        Father->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {TASK_ASSIGNED, assigned_task_id}
         Ktor->>Ktor: الطلب يتحول إلى TASK_ASSIGNED
         Ktor-->>Child: المهمة تظهر فوراً مع قيمتها النقطية
         Note over Child,Ktor: عند إنجاز المهمة + تحقق الذكاء تُودع النقاط — انظر 3-أ
@@ -253,7 +255,7 @@ sequenceDiagram
 
 - طلب مكرر لنفس التطبيق وهو معلَّق يعيد الطلب الأصلي — لا طلبان معلَّقان لنفس التطبيق (§7)؛ والقرار على طلب سبق القرار عليه يعيد النتيجة الأصلية (`ALREADY_DECIDED` — §7)؛ والمنح المباشر قيد ليوم واحد وينتهي بنهايته (REQ-011).
 
-### 3-د. منح يدوي من الأب + تجميد السلسلة (REQ-006 / REQ-007 / REQ-011 — §4: `POST .../wallet/grant` + `POST .../streak/freeze`)
+### 3-د. منح يدوي من الأب + تجميد السلسلة (REQ-006 / REQ-007 / REQ-011 — §4: `POST /families/{id}/children/{childId}/wallet/grant` + `POST /families/{id}/children/{childId}/streak/freeze`)
 
 ```mermaid
 sequenceDiagram
@@ -262,11 +264,11 @@ sequenceDiagram
     participant الخادم as Ktor
     participant المحفظة as Wallet
     participant الطفل as Child
-    Father->>Ktor: POST /wallet/grant {points, note} — مكافأة استثنائية بلا مهمة
+    Father->>Ktor: POST /families/{id}/children/{childId}/wallet/grant {points, note} — مكافأة استثنائية بلا مهمة
     Ktor->>Wallet: إيداع فوري + سجل MANUAL_GRANT في points_ledger
     Ktor->>Ktor: AuditEvent (domain=rewards)
     Ktor-->>Child: wallet/updated — نقاط دخلت
-    Father->>Ktor: POST /streak/freeze — تجميد ليوم واحد (مرض / سفر)
+    Father->>Ktor: POST /families/{id}/children/{childId}/streak/freeze — تجميد ليوم واحد (مرض / سفر)
     Ktor->>Wallet: streak_frozen_until = الغد — التجميد يمدّد السلسلة يوماً واحداً
     Ktor-->>Father: السلسلة مجمَّدة — لن تنقطع
 ```
@@ -298,6 +300,30 @@ sequenceDiagram
 ```
 
 - المحفظة تعمل دون اتصال (مخزن محلي Drift) وتُزامَن عند عودة الاتصال عبر Outbox بلا خصم مكرر (REQ-003/Q-064)؛ والرصيد المعروض دون اتصال هو آخر رصيد معروف مع وقت صريح (§6).
+
+### 3-و. إلغاء تحقق — قيد تعويضي يعكس الإيداع (REQ-007/§6 — §4: `tasks.verification-revoked`)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor الأب as Father
+    participant المهام as S106
+    participant الخادم as Ktor
+    participant المحفظة as Wallet
+    participant الطفل as Child
+    Father->>S106: إلغاء تحقق مهمة سبق اعتمادها (POST /families/{id}/tasks/{taskId}/revoke-verification — S1-06 §4)
+    S106->>Ktor: tasks.verification-revoked {source_system=S1-06, task_id, points}
+    Ktor->>Ktor: البحث عن الإيداع الأصلي لنفس task_id + source_system
+    alt وُجد إيداع أصلي لم يُعكَس بعد
+        Ktor->>Wallet: قيد تعويضي سالب بنفس القيمة — الرصيد لا يقل عن صفر أبداً
+        Ktor->>Ktor: AuditEvent (domain=rewards)
+        Ktor-->>Child: wallet/updated — الرصيد الجديد بعد العكس
+    else لا إيداع أصلي / سبق عكسه
+        Ktor-->>Father: لا عكس — يعاد الإيداع الأصلي بلا مضاعفة (§7)
+    end
+```
+
+- الاشتراك في `tasks.verification-revoked` إلزامي: إلغاء التحقق في S1-06 يعوَّض الإيداع في S1-05 (S1-06 SPEC §4 `revoke-verification` و§6)؛ والقيد التعويضي سالب بنفس قيمة الإيداع الأصلي، والرصيد لا يقل عن صفر أبداً (§6)؛ وإلغاء مكرر لنفس `task_id` لا يعكس مرتين (§7 — نفس قاعدة عدم التكرار في 3-أ).
 
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثمانية (§2)
 
@@ -336,6 +362,8 @@ flowchart TD
 
 العمليات مرقمة 1.0–6.0، والمخازن D1–D5 جداول الخادم من §5، وD6–D7 مخزنان محليان على الجهاز (موثقان في §5: مرآة Drift + Outbox). كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards — §5).
 
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: نقاط القراءة `GET /families/{id}/children/{childId}/wallet` و`GET /families/{id}/children/{childId}/wallet/ledger` و`GET /families/{id}/rewards/settings` و`PATCH /families/{id}/rewards/settings` مذكورة في §3 (تُقرأ عبر P2/P6)؛ وبقية النقاط مرسومة في §3 (grant، redeem، time-requests، decide، streak/freeze).
+
 ```mermaid
 flowchart LR
     Father([الأب / البالغ المفوَّض])
@@ -368,7 +396,8 @@ flowchart LR
     Ktor([خادم Ktor — وحدة rewards])
     Audit([AuditEvent — domain=rewards])
 
-    S106 -->|earning/completed — source_system + task_id + نقاط| P1
+    S106 -->|tasks.completed {source_system=S1-06} — source_system + task_id + نقاط| P1
+    S106 -->|tasks.verification-revoked — قيد تعويضي يخصم النقاط (3-و)| P1
     AI -->|نتيجة التحقق — أُنجزت كما هو مطلوب؟| P1
     P1 -->|نظام غير مسجَّل: رفض + تسجيل| Audit
     P1 -->|إيداع موثَّق| P2
@@ -483,4 +512,5 @@ flowchart LR
 
 - المصدر: §2 (دورة المحفظة وحلقة §2 البصرية) · §3 (REQ-001…REQ-016) · §6/§7 (الثوابت والحالات الحدية).
 - ملاحظتان: يوم بلا كسب يقطع السلسلة إلا إذا جُمّدت، والتجميد بعد انقطاعها لا يعيدها (§7)؛ وتغيير الحد اليومي أثناء اليوم يطبق فوراً على ما تبقى من اليوم وما صُرف قبله لا يُسترجع (§7).
+- إلغاء التحقق (S1-06) يصدر `tasks.verification-revoked` فيعوَّض الإيداع بقيد سالب — انظر التسلسل 3-و.
 - كل منح/صرف/قرار مسجَّل في التدقيق (ACC-015)؛ ولا نقاط للمراهقين إطلاقاً (Q-109)؛ والصرف كوقت فقط في المرحلة 1 — لا كتالوج جوائز (Q-113).

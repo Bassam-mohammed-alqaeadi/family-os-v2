@@ -1,9 +1,10 @@
 # S1-03: مخططات هندسة البرمجيات (DIAGRAMS)
 
-- **الحالة:** مسودة تصميم — الأنواع الستة من المواصفة المعتمدة · للمراجعة على GitHub
+- **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **القرارات الحاكمة:** Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
+- **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
 ## 1. حالات الاستخدام
 
@@ -129,8 +130,9 @@ erDiagram
         string id PK
     }
     membership {
-        string member_id PK
+        string id PK
         string family_id FK
+        string person_id FK
         string role
         boolean is_owner
     }
@@ -141,6 +143,7 @@ erDiagram
 ```
 
 - `template_key` مفتاحه المركب (`template_id`, `permission_key`) (§5-3).
+- المفتاح الأساسي الخارجي لـ `membership` هو `id` (S1-02 SPEC §5) — لا `member_id`؛ و`permission_grant.member_id` مفتاح أجنبي إلى `person` (S1-03 SPEC §5-4) — لا إلى `membership`.
 - `scope` + `valid_until` إلزاميان في كل منح (Q-007 · Q-087)؛ `is_granted=false` رفض صريح وليس غياباً (Q-007).
 - `verification_method` قيمه `pin` / `biometric` — للمنح الحساس فقط (REQ-012)؛ و`auth_method` في نقل الملكية PIN أو بصمة (Q-093).
 
@@ -309,7 +312,7 @@ sequenceDiagram
     participant المنح as Grants
     actor الأب as Father
     S102->>Ktor: بلوغ الطفل 13 سنة (سنة الميلاد — Q-080)
-    Ktor->>Ktor: تحويل الدور child ← teen تلقائياً
+    Ktor->>Ktor: تحويل الدور child → teen تلقائياً
     Ktor->>المنح: مراجعة منح العضو غير الإشرافية عند التحول
     Ktor->>Father: إشعار الأب بالتحول ومراجعة المنح
     Ktor-->>S102: الدور الجديد teen — المنح الإشرافية ممنوعة أصلاً (D-038)
@@ -354,6 +357,8 @@ flowchart TD
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
 العمليات مرقمة 1.0–6.0، والمخازن D1–D5. المخزن D5 سجل التدقيق (النواة المشتركة)؛ واللقطة المحلية على جهاز الطفل مخزن عميل (ليست جدول خادم) وتُزامَن عبر MQTT.
+
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `PATCH /families/{id}/members/{memberId}/grants/{grantId}` (تعديل النطاق/المدة — REQ-010، يمر عبر P2) · `GET /families/{id}/members/{memberId}/permissions` (الصلاحيات الفعلية لعضو — REQ-004، تُقرأ عبر P4) · `GET /families/{id}/audit/permissions` (سجل التدقيق — REQ-018، يُقرأ من D5 عبر P6)؛ وبقية النقاط مرسومة في §3 (keys، grants إنشاء/إلغاء، templates، apply-template، check، ownership-transfer).
 
 ```mermaid
 flowchart LR

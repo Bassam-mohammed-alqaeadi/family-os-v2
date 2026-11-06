@@ -1,6 +1,6 @@
 # الأيقونات (Iconography)
 
-> الحالة: معتمد للتنفيذ | القرارات: Q-070 | يعتمد على: color-tokens.md §6, spacing-and-grid.md §10, (مرجع مفقود: accessibility-and-localization.md)
+> الحالة: معتمد للتنفيذ | القرارات: Q-070 | يعتمد على: color-tokens.md §6, spacing-and-grid.md §10, rtl-and-localization-ui.md, typography.md §7 (الوصول)، QUALITY-GATES.md §2 (إمكانية الوصول)
 
 ## 1. المبادئ
 1. **الأيقونة تدعم النص ولا تحل محله** إلا في الأيقونات المتعارف عليها عالميًا وللأطفال الصغار، وكل أيقونة تفاعلية لها اسم قابل للقراءة آليًا.
@@ -51,7 +51,7 @@
 | **الحساب والدفع** | `account.profile`, `account.plan`, `account.privacy`, `account.language`, `account.export`, `account.delete` |
 | **الجهاز** | `device.phone`, `device.tablet`, `device.battery`, `device.offline`, `device.permission` |
 | **عام** | `action.add`, `action.edit`, `action.delete`, `action.search`, `action.filter`, `action.share`, `action.copy`, `action.close`, `action.back`, `info.help`, `info.why` |
-- **ملاحظة «لماذا؟»:** أيقونة `info.why` موحدة تفتح شرح مصدر القيمة (مرجع مفقود: control-and-settings-architecture §4.4).
+- **ملاحظة «لماذا؟»:** أيقونة `info.why` موحدة تفتح شرح مصدر القيمة (S1-09 SPEC §5-2 `control_surface`؛ وsettings-patterns.md §8 «لماذا؟» والشفافية).
 
 ## 6. حساسية الدين والثقافة
 - أيقونات المحتوى الديني **محايدة بنيويًا** (كتاب، نجمة/هلال حيث يلزم لوحدة إسلامية، مصباح، قلب)، ولا تصوير لأشخاص دينيين أو رموز مقدسة في أيقونات الواجهة، ويُراجَع كل رمز مع مجلس المراجعة (Q-030).
