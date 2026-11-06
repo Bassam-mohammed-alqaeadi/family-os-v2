@@ -65,3 +65,4 @@
 | Q-160 | مفتاح مستقل لحل SOS: `location.sos.resolve` (الأب + المفوَّض حسب القالب)؛ القائمة الموحدة 72 مفتاحاً | 2026-11-06 |
 | Q-161 | حدث MQTT عند حل SOS: `family/{family_id}/sos/resolved` (`{sos_id, resolved_by, at}`) | 2026-11-06 |
 | Q-162 | إلغاء نقل الملكية: `DELETE /families/{id}/ownership-transfer/{transferId}` (المالك وحده؛ الحالة `cancelled`) | 2026-11-06 |
+| Q-163 | إبقاء حد 3 رسائل SOS طارئة بعد نفاد الحصة (Q-106) كخطر مقبول بقرار المالك + إغلاق أربع ثغرات: مرآة حصة محلية، توقيع SMS، تصعيد بمهلة إقرار 5 دقائق، مفتاح `Idempotency-Key` في `POST /sos` | 2026-11-06 |
