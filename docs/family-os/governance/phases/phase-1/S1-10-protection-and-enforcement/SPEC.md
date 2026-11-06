@@ -129,7 +129,7 @@ flowchart LR
 
 ### قواعد التطبيقات
 - **REQ-001:** قاعدة تطبيق واحدة لكل طفل ولكل تطبيق: إجراء `ALLOW` (سماح دائم) / `BLOCK` (حظر دائم) / `LIMIT` (حد دقائق يومي)؛ وحد الدقائق لكل يوم أسبوع (0–1440 دقيقة)؛ والتطبيق بلا قاعدة = سماح (لا حظر ضمني). [Q-002 · RE-Qustodio `AppRuleDto` · DIRECT]
-- **REQ-002:** الحصة اليومية الإجمالية لكل طفل ولكل يوم أسبوع (0–1440 دقيقة)؛ والمتبقي = الحصة + الإضافي − المستهلك (صيغة Qustodio المستخلصة)؛ والوقت الممنوح/المصروف من S1-05 يدخل في "الإضافي" لحساب المتبقي. [Q-002 · RE-Qustodio `screenTime.ts` · DIRECT]
+- **REQ-002:** الحصة اليومية الإجمالية لكل طفل ولكل يوم أسبوع (0–1440 دقيقة)؛ والمتبقي = الحصة + الإضافي − المستهلك (صيغة Qustodio المستخلصة)؛ والوقت الممنوح/المصروف من S1-05 يدخل في "الإضافي" لحساب المتبقي. [Q-002 · RE-Qustodio `screenTime.ts` · DIRECT — أُضيف جدول التخزين `daily_total_quota` بتعديل 2026-11-07 (Q-176)]
 - **REQ-003:** عند نفاد حد تطبيق تظهر شاشة الحظر فوراً: اسم التطبيق + الوقت المتبقي (صفر) + زر "اطلب وقتاً إضافياً" (→ S1-05 REQ-012)؛ ولا يفتح التطبيق بأي طريق آخر. [Q-002 · S1-05 REQ-012 · DERIVED]
 - **REQ-004:** تحذير قبل 5 دقائق من نفاد حد أي تطبيق (إشعار + اهتزاز خفيف)؛ والتحذير لكل تطبيق مرة واحدة في اليوم عند أول اقتراب من حده. [RE-Qustodio · DERIVED]
 - **REQ-005:** حظر فوري عند النفاد — بلا مهلة إضافية بعد التحذير؛ والحد يُعاد ضبطه منتصف الليل. [RE-Qustodio · DERIVED]
@@ -227,6 +227,7 @@ flowchart LR
 | الجدول | الحقول الرئيسية | ملاحظة |
 |---|---|---|
 | `app_rule` | `rule_id` (PK) · `family_id` · `child_id` (FK → membership) · `app_package` · `action` (`ALLOW`/`BLOCK`/`LIMIT`) · `minutes_by_weekday` int[7] (الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ كل قيمة 0–1440) · `created_by` · `created_at` · `updated_at` | قاعدة واحدة لكل (طفل، تطبيق) — قيد وحيد (REQ-001) |
+| `daily_total_quota` | `quota_id` (PK) · `family_id` · `child_id` (FK → membership) · `minutes_by_weekday` int[7] (الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ كل قيمة 0–1440) · `created_by` · `created_at` · `updated_at` | حصة واحدة لكل طفل (صف واحد لكل طفل) — مصدر الحصة في صيغة المتبقي (REQ-002)؛ أُضيف الجدول بتعديل 2026-11-07 (Q-176) |
 | `weekly_schedule` | `schedule_id` (PK) · `family_id` · `child_id` (FK → membership) · `windows` jsonb (قائمة 7 أيام: `[{day, start_time, end_time, kind: "sleep" \| "school"}]` — نمط FamiSafe) · `version` int (قفل تفاؤلي — REQ-006) · `updated_at` | جدول واحد لكل طفل؛ النوافذ المتداخلة في اليوم نفسه مرفوضة عند الحفظ (REQ-006) |
 | `rule_priority` | `priority_id` (PK) · `family_id` · `child_id` (nullable — فارغ = ترتيب العائلة الافتراضي) · `order` jsonb (مصفوفة الأنواع الأربعة: `["sleep","school","app_limit","total_quota"]` — الافتراضي Q-145) · `updated_by` · `updated_at` | صف العائلة (child_id فارغ) هو الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011) |
 | `enforcement_state` | `child_id` (PK) · `family_id` · `last_evaluated_at` · `active_rule_type` (nullable) · `remaining_by_app` jsonb · `next_boundary_at` (nullable) · `free_mode_until` (nullable) · `tamper_status` (`none`/`active`/`unresolved`) · `updated_at` | مرآة خادمية لحالة الجهاز (لقراءات S1-09) — ليست المرجع؛ تقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025) |

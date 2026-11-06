@@ -75,11 +75,12 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول السبعة من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: كل الجداول السبعة جداول عائلة تحمل `family_id` + عزل RLS (D-021) — ولا جداول سجل عالمية في هذا النظام. وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `string` لأن Mermaid لا يعرف jsonb — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5.
+الجداول الثمانية من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: كل الجداول الثمانية جداول عائلة تحمل `family_id` + عزل RLS (D-021) — ولا جداول سجل عالمية في هذا النظام. وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `string` لأن Mermaid لا يعرف jsonb — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5.
 
 ```mermaid
 erDiagram
     family ||--o{ app_rule : "له قواعد"
+    family ||--o{ daily_total_quota : "له حصص إجمالية"
     family ||--o{ weekly_schedule : "له جدول"
     family ||--o{ rule_priority : "له ترتيب"
     family ||--o{ enforcement_state : "له حالة فرض"
@@ -87,6 +88,7 @@ erDiagram
     family ||--o{ free_mode_session : "له جلسات وضع حر"
     family ||--o{ tamper_event : "له أحداث عبث"
     membership ||--o{ app_rule : "قواعد طفل"
+    membership ||--|| daily_total_quota : "حصة طفل"
     membership ||--o{ weekly_schedule : "جدول طفل"
     membership ||--o{ rule_priority : "ترتيب طفل أو العائلة"
     membership ||--|| enforcement_state : "حالة طفل"
@@ -95,6 +97,7 @@ erDiagram
     membership ||--o{ tamper_event : "عبث على جهاز طفل"
     granted_time }o--|| enforcement_state : "الممنوح يدخل في المتبقي"
     app_rule ||--o{ AuditEvent : "تغييراته تُسجَّل"
+    daily_total_quota ||--o{ AuditEvent : "تغييراتها تُسجَّل"
     weekly_schedule ||--o{ AuditEvent : "تغييراته تُسجَّل"
     rule_priority ||--o{ AuditEvent : "تغييراته تُسجَّل"
     free_mode_session ||--o{ AuditEvent : "تفعيله وانتهاؤه يُسجَّلان"
@@ -106,6 +109,15 @@ erDiagram
         string child_id FK
         string app_package
         string action
+        int minutes_by_weekday
+        string created_by
+        datetime created_at
+        datetime updated_at
+    }
+    daily_total_quota {
+        string quota_id PK
+        string family_id FK
+        string child_id FK
         int minutes_by_weekday
         string created_by
         datetime created_at
