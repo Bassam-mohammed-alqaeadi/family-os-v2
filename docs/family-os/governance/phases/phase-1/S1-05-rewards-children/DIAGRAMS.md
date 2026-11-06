@@ -89,65 +89,65 @@ erDiagram
     time_request ||--o{ AuditEvent : "قراراته تُسجَّل"
 
     child_wallet {
-        string child_id PK
-        string family_id FK
+        uuid child_id PK
+        uuid family_id FK
         int balance_points
         int total_earned_all_time
         int streak_days
-        datetime streak_frozen_until
+        timestamptz streak_frozen_until
         int daily_spent_minutes
-        datetime daily_spent_date
-        datetime updated_at
+        timestamptz daily_spent_date
+        timestamptz updated_at
     }
     points_ledger {
-        string ledger_id PK
-        string family_id FK
-        string child_id FK
-        string kind
+        uuid ledger_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text kind
         int amount
-        string source_system
-        string reference_id
+        text source_system
+        uuid reference_id
         int balance_after
-        datetime at
+        timestamptz at
     }
     time_request {
-        string request_id PK
-        string family_id FK
-        string child_id FK
-        string app_package
+        uuid request_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text app_package
         int minutes_requested
-        string status
-        string decided_by
-        datetime decided_at
-        string assigned_task_id
-        datetime created_at
+        text status
+        text decided_by
+        timestamptz decided_at
+        uuid assigned_task_id
+        timestamptz created_at
     }
     granted_time {
-        string grant_id PK
-        string family_id FK
-        string child_id FK
-        string app_package
+        uuid grant_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text app_package
         int minutes
-        string source
-        datetime expires_at
+        text source
+        timestamptz expires_at
         int used_minutes
-        string status
-        datetime created_at
+        text status
+        timestamptz created_at
     }
     rewards_settings {
-        string family_id PK
+        uuid family_id PK
         int daily_spend_cap_minutes
         int streak_bonus_points
-        string enabled_sources
+        text enabled_sources
     }
     family {
-        string id PK
+        uuid id PK
     }
     membership {
-        string child_id PK
+        uuid child_id PK
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
 ```
 

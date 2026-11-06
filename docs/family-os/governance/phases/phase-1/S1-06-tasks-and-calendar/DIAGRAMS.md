@@ -91,73 +91,73 @@ erDiagram
     task ||--|| MinIO_proof : "إثباتها صورة في"
 
     task {
-        string task_id PK
-        string family_id FK
-        string title_ar
-        string description_ar
-        string assigned_member_id FK
-        string category_id FK
+        uuid task_id PK
+        uuid family_id FK
+        text title_ar
+        text description_ar
+        uuid assigned_member_id FK
+        uuid category_id FK
         int reward_points
         date due_date
         time due_time
-        string rrule
-        string proof_method
-        string status
-        string proof_ref
-        datetime submitted_at
-        string verified_by
-        datetime verified_at
-        string approved_by
-        datetime approved_at
-        string rejection_notes
-        string created_by FK
-        datetime created_at
-        datetime updated_at
+        text rrule
+        text proof_method
+        text status
+        text proof_ref
+        timestamptz submitted_at
+        text verified_by
+        timestamptz verified_at
+        text approved_by
+        timestamptz approved_at
+        text rejection_notes
+        text created_by FK
+        timestamptz created_at
+        timestamptz updated_at
     }
     task_checklist {
-        string item_id PK
-        string task_id FK
-        string item_title_ar
+        uuid item_id PK
+        uuid task_id FK
+        text item_title_ar
         boolean is_completed
         int sort_order
     }
     task_category {
-        string category_id PK
-        string family_id FK
-        string name_ar
-        string color
-        string emoji
+        uuid category_id PK
+        uuid family_id FK
+        text name_ar
+        text color
+        text emoji
     }
     calendar_event {
-        string event_id PK
-        string family_id FK
-        string title_ar
-        string description_ar
-        string location_text
-        datetime start_time
-        datetime end_time
+        uuid event_id PK
+        uuid family_id FK
+        text title_ar
+        text description_ar
+        text location_text
+        timestamptz start_time
+        timestamptz end_time
         boolean is_all_day
-        string rrule
-        string attendee_member_id FK
+        text rrule
+        uuid attendee_member_id FK
         int reminder_minutes
-        string created_by FK
-        datetime created_at
-        datetime updated_at
+        text created_by FK
+        timestamptz created_at
+        timestamptz updated_at
     }
     family {
-        string id PK
+        uuid id PK
     }
     member {
-        string id PK
+        uuid id PK
     }
     points_ledger {
-        string id PK
+        uuid id PK
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
     MinIO_proof {
-        string proof_ref PK
+        text proof_ref PK
     }
 ```
 

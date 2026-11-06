@@ -75,59 +75,59 @@ erDiagram
     shell_registry }o--|| permission_key : "سجل الصلاحيات يرجع إلى"
 
     device_mode {
-        string id PK
-        string family_id FK
-        string device_id
-        string mode
-        datetime paired_at
-        string paired_by
+        uuid id PK
+        uuid family_id FK
+        uuid device_id
+        text mode
+        timestamptz paired_at
+        text paired_by
     }
     parent_gate {
-        string id PK
-        string family_id FK
-        string pin_hash
+        uuid id PK
+        uuid family_id FK
+        text pin_hash
         int failed_attempts
-        datetime locked_until
-        datetime updated_at
+        timestamptz locked_until
+        timestamptz updated_at
     }
     feature_flag {
-        string id PK
-        string family_id FK
-        string key
+        uuid id PK
+        uuid family_id FK
+        text key
         boolean enabled
-        datetime valid_until
+        timestamptz valid_until
     }
     outbox_event {
-        string id PK
-        string family_id FK
-        string device_id FK
-        string type
-        string payload
+        uuid id PK
+        uuid family_id FK
+        uuid device_id FK
+        text type
+        text payload
         int synced_status
-        datetime created_at
+        timestamptz created_at
     }
     country_profile {
-        string id PK
-        string region
+        uuid id PK
+        text region
         boolean low_bandwidth
-        string otp_channels
-        string payment_routes
+        text otp_channels
+        text payment_routes
     }
     shell_registry {
-        string id PK
-        string family_id FK
-        string registry
-        string key
-        string metadata
+        uuid id PK
+        uuid family_id FK
+        text registry
+        text key
+        text metadata
     }
     family {
-        string id PK
+        uuid id PK
     }
     permission_key {
-        string key PK
+        text key PK
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
 ```
 

@@ -75,7 +75,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الثمانية من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: كل الجداول الثمانية جداول عائلة تحمل `family_id` + عزل RLS (D-021) — ولا جداول سجل عالمية في هذا النظام. وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `string` لأن Mermaid لا يعرف jsonb — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5.
+الجداول الثمانية من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: كل الجداول الثمانية جداول عائلة تحمل `family_id` + عزل RLS (D-021) — ولا جداول سجل عالمية في هذا النظام. وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `text` (مفردات ERD الموحدة Q-177 — النوع الحقيقي `jsonb` في §5) — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5.
 
 ```mermaid
 erDiagram
@@ -104,93 +104,93 @@ erDiagram
     tamper_event ||--o{ AuditEvent : "كل حدث يُسجَّل"
 
     app_rule {
-        string rule_id PK
-        string family_id FK
-        string child_id FK
-        string app_package
-        string action
+        uuid rule_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text app_package
+        text action
         int minutes_by_weekday
-        string created_by
-        datetime created_at
-        datetime updated_at
+        text created_by
+        timestamptz created_at
+        timestamptz updated_at
     }
     daily_total_quota {
-        string quota_id PK
-        string family_id FK
-        string child_id FK
+        uuid quota_id PK
+        uuid family_id FK
+        uuid child_id FK
         int minutes_by_weekday
-        string created_by
-        datetime created_at
-        datetime updated_at
+        text created_by
+        timestamptz created_at
+        timestamptz updated_at
     }
     weekly_schedule {
-        string schedule_id PK
-        string family_id FK
-        string child_id FK
-        string windows
+        uuid schedule_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text windows
         int version
-        datetime updated_at
+        timestamptz updated_at
     }
     rule_priority {
-        string priority_id PK
-        string family_id FK
-        string child_id FK
-        string order
-        string updated_by
-        datetime updated_at
+        uuid priority_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text order
+        text updated_by
+        timestamptz updated_at
     }
     enforcement_state {
-        string child_id PK
-        string family_id FK
-        datetime last_evaluated_at
-        string active_rule_type
-        string remaining_by_app
-        datetime next_boundary_at
-        datetime free_mode_until
-        string tamper_status
-        datetime updated_at
+        uuid child_id PK
+        uuid family_id FK
+        timestamptz last_evaluated_at
+        text active_rule_type
+        text remaining_by_app
+        timestamptz next_boundary_at
+        timestamptz free_mode_until
+        text tamper_status
+        timestamptz updated_at
     }
     app_usage_daily {
-        string usage_id PK
-        string family_id FK
-        string child_id FK
-        string app_package
-        datetime usage_date
+        uuid usage_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text app_package
+        timestamptz usage_date
         int seconds_used
-        datetime updated_at
+        timestamptz updated_at
     }
     free_mode_session {
-        string session_id PK
-        string family_id FK
-        string child_id FK
-        string activated_by
-        datetime activated_at
-        datetime expires_at
-        datetime cancelled_at
-        string status
+        uuid session_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text activated_by
+        timestamptz activated_at
+        timestamptz expires_at
+        timestamptz cancelled_at
+        text status
     }
     tamper_event {
-        string event_id PK
-        string family_id FK
-        string child_id FK
-        string device_id
-        string kind
-        datetime detected_at
+        uuid event_id PK
+        uuid family_id FK
+        uuid child_id FK
+        uuid device_id
+        text kind
+        timestamptz detected_at
         boolean reactivation_attempted
-        datetime resolved_at
+        timestamptz resolved_at
         boolean notified
     }
     family {
-        string id PK
+        uuid id PK
     }
     membership {
-        string id PK
+        uuid id PK
     }
     granted_time {
-        string id PK
+        uuid id PK
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
 ```
 

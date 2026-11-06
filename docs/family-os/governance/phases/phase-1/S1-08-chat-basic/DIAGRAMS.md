@@ -109,8 +109,8 @@ erDiagram
     channel {
         uuid channel_id PK
         uuid family_id FK
-        string kind
-        string title
+        text kind
+        text title
         uuid created_by
         timestamptz created_at
         timestamptz closed_at
@@ -127,30 +127,30 @@ erDiagram
         uuid channel_id FK
         uuid family_id FK
         uuid sender_id
-        string client_message_id
+        uuid client_message_id
         bigint server_seq_id
-        string kind
-        jsonb payload
+        text kind
+        text payload
         uuid media_id FK
-        string status
+        text status
         timestamptz created_at
-        string deleted_for
+        text deleted_for
         timestamptz deleted_at
     }
     media {
         uuid media_id PK
         uuid family_id FK
-        string mime
+        text mime
         int size_bytes
-        string storage_ref
-        string thumbnail_ref
+        text storage_ref
+        text thumbnail_ref
         timestamptz created_at
     }
     parents_key_backup {
         uuid family_id PK
         uuid channel_id FK
         bytea encrypted_key
-        jsonb kdf_params
+        text kdf_params
         timestamptz updated_at
     }
     family {
@@ -160,7 +160,7 @@ erDiagram
         uuid id PK
     }
     permission_grant {
-        string key PK
+        text key PK
     }
     alert {
         uuid id PK

@@ -165,34 +165,35 @@ erDiagram
     DEVICE ||--o{ SOS_ALERT : sends
     FAMILY ||--o{ GEOFENCE : defines المرحلة 5 — Q-056
     FAMILY ||--o{ AUDIT_EVENT : logs
+    FAMILY ||--o{ OWNERSHIP_TRANSFER : has
     PLAN ||--o{ SUBSCRIPTION : defines
     FAMILY {
         uuid id PK
-        string region
-        timestamp created_at
+        text region
+        timestamptz created_at
     }
     MEMBERSHIP {
         uuid id PK
         uuid family_id FK
         uuid person_id FK
-        string role
+        text role
         boolean is_owner
     }
     DEVICE {
         uuid id PK
         uuid family_id FK
         uuid membership_id FK
-        string platform
-        string pairing_code
+        text platform
+        text pairing_code
     }
     PERMISSION_GRANT {
         uuid id PK
         uuid family_id FK
         uuid member_id FK
-        string grantee_type
-        string domain_action
-        string scope
-        timestamp valid_until
+        text grantee_type
+        text domain_action
+        text scope
+        timestamptz valid_until
         boolean is_granted
     }
     WEEKLY_SCHEDULE {
@@ -204,9 +205,20 @@ erDiagram
     AUDIT_EVENT {
         uuid id PK
         uuid family_id FK
-        string actor
-        string action
-        timestamp at
+        text actor
+        text action
+        timestamptz at
+    }
+    OWNERSHIP_TRANSFER {
+        uuid transfer_id PK
+        uuid family_id FK
+        uuid from_member_id FK
+        uuid to_member_id FK
+        text status
+        text auth_method
+        timestamptz expires_at
+        timestamptz requested_at
+        timestamptz accepted_at
     }
 ```
 
@@ -219,6 +231,7 @@ erDiagram
 - هذا ERD **نواة + ملخص المرحلة 1** لا تفصيلها الكامل؛ جداول المرحلة 1 الكاملة تعيش في §5 لكل مواصفة نظام: الستة في S1-01، وجداول S1-02، ومحفظة النقاط/السجل في S1-05، والمهام/التقويم في S1-06، وجداول الدردشة/الوسائط في S1-08.
 - `APP_RULE` / `WEEKLY_SCHEDULE` يملكهما **S1-10 "الحماية والفرض"** (Q-141) — مواصفته قيد الكتابة، فلا تفصيل لهما هنا.
 - `MEMBERSHIP.person_id`: سؤال مفتوح **Q-137** (هل عضوية الطفل تحمل `person_id` فارغاً؟).
+- `OWNERSHIP_TRANSFER`: طرفا النقل شخصان بالغان (`from_member_id`/`to_member_id` → `person` — Q-169)؛ ولا كيان `PERSON` في هذا الملخص — كما أن `MEMBERSHIP.person_id` مرجع بلا كيان. التفصيل في S1-03 §5-5 (Q-177).
 
 ### 5.4 سطح API (المبادئ — التفاصيل في مواصفات الأنظمة)
 

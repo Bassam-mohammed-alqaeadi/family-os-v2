@@ -93,78 +93,78 @@ erDiagram
     consent_record ||--o{ AuditEvent : "تُسجَّل"
 
     person {
-        string id PK
-        string phone
-        string email
-        string display_name
-        datetime created_at
+        uuid id PK
+        text phone
+        text email
+        text display_name
+        timestamptz created_at
     }
     phone_verification {
-        string id PK
-        string phone
-        string channel
-        string code_hash
+        uuid id PK
+        text phone
+        text channel
+        text code_hash
         int attempts
-        datetime expires_at
-        datetime verified_at
+        timestamptz expires_at
+        timestamptz verified_at
     }
     session {
-        string id PK
-        string person_id FK
-        string refresh_token_hash
-        datetime expires_at
-        datetime revoked_at
+        uuid id PK
+        uuid person_id FK
+        text refresh_token_hash
+        timestamptz expires_at
+        timestamptz revoked_at
     }
     family {
-        string id PK
-        string name
-        string region
-        string created_by FK
-        datetime created_at
+        uuid id PK
+        text name
+        text region
+        text created_by FK
+        timestamptz created_at
     }
     membership {
-        string id PK
-        string family_id FK
-        string person_id FK
+        uuid id PK
+        uuid family_id FK
+        uuid person_id FK
         %% person_id فارغ للطفل — صف عضوية بالملف فقط بلا حساب person (Q-137)
-        string role
+        text role
         boolean is_owner
     }
     invite_code {
-        string id PK
-        string family_id FK
-        string code
-        string created_by FK
-        datetime expires_at
+        uuid id PK
+        uuid family_id FK
+        text code
+        text created_by FK
+        timestamptz expires_at
         int uses
     }
     child_profile {
-        string id PK
-        string family_id FK
-        string membership_id FK
-        string nickname
-        string avatar
-        string color
+        uuid id PK
+        uuid family_id FK
+        uuid membership_id FK
+        text nickname
+        text avatar
+        text color
         int birth_year
     }
     device_pairing {
-        string id PK
-        string family_id FK
-        string device_id
-        string pairing_code_hash
-        string mode
-        datetime paired_at
-        string paired_by FK
+        uuid id PK
+        uuid family_id FK
+        uuid device_id
+        text pairing_code_hash
+        text mode
+        timestamptz paired_at
+        text paired_by FK
     }
     consent_record {
-        string id PK
-        string family_id FK
-        string type
-        string granted_by FK
-        datetime granted_at
+        uuid id PK
+        uuid family_id FK
+        text type
+        text granted_by FK
+        timestamptz granted_at
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
 ```
 

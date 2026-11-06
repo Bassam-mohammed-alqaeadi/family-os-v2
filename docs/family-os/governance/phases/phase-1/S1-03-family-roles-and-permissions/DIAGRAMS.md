@@ -85,62 +85,62 @@ erDiagram
     ownership_transfer ||--o{ AuditEvent : "نقله يُسجَّل"
 
     permission_key {
-        string key PK
-        string domain
-        string title_ar
-        string description_ar
+        text key PK
+        text domain
+        text title_ar
+        text description_ar
         boolean is_sensitive
-        datetime created_at
+        timestamptz created_at
     }
     role_template {
-        string template_id PK
-        string title_ar
-        string description_ar
+        uuid template_id PK
+        text title_ar
+        text description_ar
     }
     template_key {
-        string template_id FK
-        string permission_key FK
-        string default_scope
+        uuid template_id FK
+        text permission_key FK
+        text default_scope
     }
     permission_grant {
-        string grant_id PK
-        string family_id FK
-        string member_id FK
-        string grantee_type
-        string permission_key FK
-        string scope
-        datetime valid_until
+        uuid grant_id PK
+        uuid family_id FK
+        uuid member_id FK
+        text grantee_type
+        text permission_key FK
+        text scope
+        timestamptz valid_until
         boolean is_granted
-        string granted_by FK
-        datetime granted_at
-        string verification_method
-        datetime revoked_at
-        string revoked_by
+        text granted_by FK
+        timestamptz granted_at
+        text verification_method
+        timestamptz revoked_at
+        text revoked_by
     }
     ownership_transfer {
-        string transfer_id PK
-        string family_id FK
-        string from_member_id FK
-        string to_member_id FK
-        string status
-        string auth_method
-        datetime expires_at
-        datetime requested_at
-        datetime accepted_at
+        uuid transfer_id PK
+        uuid family_id FK
+        uuid from_member_id FK
+        uuid to_member_id FK
+        text status
+        text auth_method
+        timestamptz expires_at
+        timestamptz requested_at
+        timestamptz accepted_at
     }
     family {
-        string id PK
+        uuid id PK
     }
     membership {
-        string id PK
-        string family_id FK
-        string person_id FK
-        string role
+        uuid id PK
+        uuid family_id FK
+        uuid person_id FK
+        text role
         boolean is_owner
     }
     AuditEvent {
-        string id PK
-        string domain
+        uuid id PK
+        text domain
     }
 ```
 

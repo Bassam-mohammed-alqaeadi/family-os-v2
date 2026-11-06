@@ -89,73 +89,73 @@ erDiagram
     voucher ||--o{ AuditEvent : "استبداله يُسجَّل"
 
     plan {
-        string plan_id PK
-        string tier_level
-        string title_ar
-        string description_ar
-        string billing_interval
-        string flags
-        string quotas
+        uuid plan_id PK
+        text tier_level
+        text title_ar
+        text description_ar
+        text billing_interval
+        text flags
+        text quotas
         boolean is_active
     }
     plan_price {
-        string plan_id PK, FK
-        string market
+        uuid plan_id PK, FK
+        text market
         int price_cents
-        string currency
+        text currency
         boolean is_active
     }
     family_subscription {
-        string id PK
-        string family_id FK, UK
-        string plan_id FK
-        string status
-        string billing_provider
-        string provider_subscription_id
-        string provider_original_transaction_id
-        datetime current_period_start
-        datetime current_period_end
+        uuid id PK
+        uuid family_id FK, UK
+        uuid plan_id FK
+        text status
+        text billing_provider
+        uuid provider_subscription_id
+        uuid provider_original_transaction_id
+        timestamptz current_period_start
+        timestamptz current_period_end
         boolean auto_renew
         boolean trial_used
-        string purchased_by
+        text purchased_by
     }
     purchase_receipt {
-        string id PK
-        string family_id FK
-        string user_id FK
-        string provider
-        string product_id
-        string receipt_data
-        string validation_status
-        datetime server_verified_at
-        string raw_provider_response
+        uuid id PK
+        uuid family_id FK
+        uuid user_id FK
+        text provider
+        uuid product_id
+        text receipt_data
+        text validation_status
+        timestamptz server_verified_at
+        text raw_provider_response
     }
     voucher {
-        string voucher_id PK
-        string code
-        string plan_id FK
+        uuid voucher_id PK
+        text code
+        uuid plan_id FK
         int duration_months
-        string status
-        string issued_by
-        datetime issued_at
-        string redeemed_by_family_id FK
-        datetime redeemed_at
-        datetime expires_at
+        text status
+        text issued_by
+        timestamptz issued_at
+        uuid redeemed_by_family_id FK
+        timestamptz redeemed_at
+        timestamptz expires_at
     }
     quota_usage {
-        string family_id PK, FK
-        string period PK
+        uuid family_id PK, FK
+        text period PK
         int sms_sent
         int sms_emergency_used
         int ai_calls
         int topup_sms_balance
-        datetime updated_at
+        timestamptz updated_at
     }
     family {
-        string id PK
+        uuid id PK
     }
     AuditEvent {
-        string id PK
+        uuid id PK
     }
 ```
 

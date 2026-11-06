@@ -108,52 +108,52 @@ erDiagram
     family }o--|| plan : "خطتها قراءة فقط من S1-04"
 
     dashboard_widget {
-        string widget_id PK
-        string system
-        string title_ar
-        string kind
+        uuid widget_id PK
+        text system
+        text title_ar
+        text kind
         int order
-        string required_key FK
+        text required_key FK
     }
     control_surface {
-        string system PK
-        string control_key PK
-        string type
-        string default_value
-        string values
+        text system PK
+        text control_key PK
+        text type
+        text default_value
+        text values
         boolean available_android
         boolean available_ios
     }
     dashboard_snapshot {
-        string family_id PK
-        string snapshot
-        datetime updated_at
+        uuid family_id PK
+        text snapshot
+        timestamptz updated_at
     }
     alert {
-        string alert_id PK
-        string family_id FK
-        string kind
-        string system
-        string target_member_id
-        datetime at
+        uuid alert_id PK
+        uuid family_id FK
+        text kind
+        text system
+        uuid target_member_id
+        timestamptz at
         boolean read
-        string acknowledged_by
-        datetime acknowledged_at
+        text acknowledged_by
+        timestamptz acknowledged_at
     }
     family {
-        string id PK
+        uuid id PK
     }
     permission_key {
-        string key PK
+        text key PK
     }
     permission_grant {
-        string id PK
+        uuid id PK
     }
     membership {
-        string id PK
+        uuid id PK
     }
     plan {
-        string id PK
+        uuid id PK
     }
 ```
 
