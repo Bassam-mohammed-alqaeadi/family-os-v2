@@ -266,6 +266,7 @@ sequenceDiagram
     Father->>التطبيق: حل التنبيه بعد التعامل معه (Q-136)
     التطبيق->>الخادم: POST /families/{id}/sos/{sosId}/resolve
     الخادم->>الخادم: sos_alert.status = resolved + resolved_by + resolved_at
+    الخادم->>البالغون: نشر family/{family_id}/sos/resolved (MQTT)
     الخادم->>التدقيق: AuditEvent (حل SOS — النطاق location)
     الخادم-->>التطبيق: {sos_id, resolved_by, at, status: "resolved"}
 ```
