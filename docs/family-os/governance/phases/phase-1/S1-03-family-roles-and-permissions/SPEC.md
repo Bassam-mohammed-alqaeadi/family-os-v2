@@ -111,11 +111,11 @@ flowchart TD
 ### التفويض
 - **REQ-010:** المالك وحده ينشئ/يعدل/يلغي المنح؛ البالغ المفوَّض يمارس ما فُوِّض له فقط ولا يفوِّض غيره (لا تفويض متسلسل). [BR-PERM-001 · DERIVED]
 - **REQ-011:** كل منح يحمل `scope` + `valid_until` إلزاميين؛ بلا مدة افتراضية — المنح سارٍ حتى يلغيه الأب أو تنتهي مدته. [Q-007 · Q-087 · DIRECT]
-- **REQ-012:** المنح الحساس يتطلب PIN الأب أو بصمته عند كل منح حساس. [Q-088 · DIRECT]
+- **REQ-012:** المنح الحساس يتطلب PIN الأب أو بصمته عند كل منح حساس — **ويُثبَت بتحدٍّ من الخادم:** الخادم يصدر nonce (صلاحية 5 دقائق) فيوقّعه الجهاز بمفتاح التوقيع الجهازي بعد فتحه بـ PIN أو بصمة، ويتحقق الخادم من التوقيع قبل تنفيذ المنح (Q-164)؛ فلا منح حساس بادّعاء عميل. [Q-088 · Q-164 · DIRECT]
 - **REQ-013:** القوالب الثلاثة (شريك / وصي محدود / مراقب) كنقطة انطلاق + مصفوفة تفويض للتعديل الدقيق. [Q-085 · Q-089 · DIRECT]
 - **REQ-014:** تطبيق القالب ينسخ مفاتيحه إلى منح العضو؛ تعديل منح العضو بعدها لا يغير القالب ولا منح الأعضاء الآخرين. [Q-089 · DERIVED]
 - **REQ-015:** تفويض المراهق: صلاحيات غير إشرافية فقط يفوضها الأب (مثل إدارة مهامه الخاصة)؛ الثوابت الصلبة تمنع منحه أي إشراف/إدارة/إبطال رقابة. [Q-086 · D-038 · DIRECT]
-- **REQ-016:** نقل الملكية لبالغ فقط — يُمنع نقله لطفل أو مراهق؛ شرط النقل: PIN أو بصمة (Q-093). ويكتمل النقل بقبول البالغ المتلقي عبر `POST /families/{id}/ownership-transfer/{transferId}/accept` بتحقق PIN أو بصمة (Q-093)؛ وينتهي النقل بعد 7 أيام بلا قبول؛ والأب يلغي النقل المعلق في أي وقت. [BR-PERM-004 · Q-093 · Q-139 · DIRECT]
+- **REQ-016:** نقل الملكية لبالغ فقط — يُمنع نقله لطفل أو مراهق؛ شرط النقل: PIN أو بصمة (Q-093) **مثبتاً بتحدٍّ من الخادم** (توقيع nonce بمفتاح التوقيع الجهازي — Q-164). ويكتمل النقل بقبول البالغ المتلقي عبر `POST /families/{id}/ownership-transfer/{transferId}/accept` بتحقق PIN أو بصمة مثبَتٍ بالتحدي (Q-093 · Q-164)؛ وينتهي النقل بعد 7 أيام بلا قبول؛ والأب يلغي النقل المعلق في أي وقت. [BR-PERM-004 · Q-093 · Q-139 · Q-164 · DIRECT]
 
 ### الإلغاء والتدقيق
 - **REQ-017:** الإلغاء فوري في كل الأجهزة؛ إبطال جلسات العضو المعلق فوراً؛ يُسجَّل الإلغاء ويُشعَر العضو. [BR-PERM-005 · DERIVED]
@@ -131,13 +131,13 @@ flowchart TD
 |---|---|---|---|
 | `GET /permissions/keys` | سجل المفاتيح المركزي (REQ-008) | — | قائمة المفاتيح: `key` (`domain.action`) + العنوان العربي + الوصف + علامة "حساس" |
 | `GET /families/{id}/members/{memberId}/permissions` | الصلاحيات الفعلية لعضو (الأدوار + المنح المحلولة) | — | `{member_id, role, grants: [{key, scope, valid_until, is_granted}]}` |
-| `POST /families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) ويُسجَّل في التدقيق | `{grant_id, ...}` — `201` |
+| `POST /families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", challenge_id, signature, at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)**؛ ويُسجَّل في التدقيق | `{grant_id, ...}` — `201` |
 | `PATCH /families/{id}/members/{memberId}/grants/{grantId}` | تعديل منح (النطاق/المدة) | `{scope?, valid_until?}` | المنح المعدَّل |
 | `DELETE /families/{id}/members/{memberId}/grants/{grantId}` | إلغاء منح — فوري (REQ-017) | — | `204` + دفع حدث إبطال لكل أجهزة العضو |
 | `POST /families/{id}/members/{memberId}/grants/apply-template` | تطبيق قالب (REQ-013/014) | `{template_id: "partner" \| "guardian" \| "observer"}` | المنح المنسوخة من القالب |
 | `GET /families/{id}/templates` | القوالب الثلاثة ومفاتيح كل منها | — | `[{template_id, title_ar, keys: [...]}]` |
 | `POST /families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id}` — شرط النقل: PIN أو بصمة (Q-093) | `{transfer_id, status: "pending"}` |
-| `POST /families/{id}/ownership-transfer/{transferId}/accept` | قبول نقل الملكية (البالغ المتلقي — REQ-016) | `{verification: {method: "pin" \| "biometric", at}}` — التحقق محلي (Q-093) | `{transfer_id, status: "accepted"}` — `200` |
+| `POST /families/{id}/ownership-transfer/{transferId}/accept` | قبول نقل الملكية (البالغ المتلقي — REQ-016) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق محلي (Q-093) **ويتحقق الخادم من التوقيع قبل القبول (Q-164)** | `{transfer_id, status: "accepted"}` — `200` |
 | `DELETE /families/{id}/ownership-transfer/{transferId}` | إلغاء نقل ملكية معلق (المالك فقط — REQ-016 · Q-162) | — | `{transfer_id, status: "cancelled"}` — `200` |
 | `GET /families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&from&to` | قائمة الأحداث: `{actor, target, action, key?, at, result}` |
 | `POST /permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id, permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` |
@@ -202,7 +202,7 @@ flowchart TD
 | `is_granted` | boolean | `false` = رفض صريح (Q-007) |
 | `granted_by` | uuid (FK → `person`) | المالك حصراً (REQ-010) |
 | `granted_at` | timestamptz | |
-| `verification_method` | text (nullable) | `pin` / `biometric` — للمنح الحساس (REQ-012) |
+| `verification_method` | text (nullable) | `pin` / `biometric` — للمنح الحساس (REQ-012)؛ ويُحفظ معه `challenge_id` والتوقيع في التدقيق (Q-164) |
 | `revoked_at` | timestamptz (nullable) | |
 | `revoked_by` | uuid (nullable) | |
 

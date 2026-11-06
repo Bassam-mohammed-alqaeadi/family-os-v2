@@ -173,9 +173,12 @@ sequenceDiagram
     else المفتاح موجود
         App->>Ktor: POST /families/{id}/members/{memberId}/grants
         alt المفتاح حساس
-            Ktor->>البوابة: طلب تحقق — PIN الأب أو بصمته (Q-088)
-            البوابة-->>Ktor: verification {method: pin | biometric, at}
-            alt بلا verification
+            Ktor->>App: تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
+            App->>البوابة: طلب تحقق — PIN الأب أو بصمته (Q-088)
+            البوابة-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
+            App->>Ktor: verification {method, challenge_id, signature, at}
+            Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
+            alt بلا verification أو توقيع غير صالح
                 Ktor-->>App: رفض PERM_VERIFICATION_REQUIRED
             end
         end
@@ -192,7 +195,7 @@ sequenceDiagram
     end
 ```
 
-- التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) ويُسجَّل في التدقيق (§4-1)؛ ولو فشل التحقق 3 مرات يعود النظام لطلب PIN (سيناريو 2-4 · Q-072).
+- التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من توقيع التحدي بمفتاح الجهاز العام قبل التنفيذ (Q-164)** ويُسجَّل في التدقيق (§4-1)؛ ولو فشل التحقق 3 مرات يعود النظام لطلب PIN (سيناريو 2-4 · Q-072).
 - رموز الخطأ الموحدة (§4-4): `PERM_DENIED` · `PERM_HARD_INVARIANT` · `PERM_NOT_OWNER` · `PERM_VERIFICATION_REQUIRED` · `PERM_GRANT_EXPIRED` · `PERM_CONFLICT` — والأخير لتعديلين متزامنين على منح عضو واحد: الثاني يفشل ويُطلب إعادة تحميل أحدث حالة قبل إعادة المحاولة (REQ-019 · §7-8).
 
 ### 3-ب. تطبيق قالب على عضو (REQ-013/014 — §4-1)
