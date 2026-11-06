@@ -163,7 +163,7 @@ erDiagram
     DEVICE ||--o{ WEEKLY_SCHEDULE : has
     DEVICE ||--o{ LOCATION_REPORT : sends
     DEVICE ||--o{ SOS_ALERT : sends
-    FAMILY ||--o{ GEOFENCE : defines (المرحلة 5 — Q-056)
+    FAMILY ||--o{ GEOFENCE : defines المرحلة 5 — Q-056
     FAMILY ||--o{ AUDIT_EVENT : logs
     PLAN ||--o{ SUBSCRIPTION : defines
     FAMILY {

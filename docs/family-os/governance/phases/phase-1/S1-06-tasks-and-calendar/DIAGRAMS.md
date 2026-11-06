@@ -391,7 +391,7 @@ flowchart LR
     P3 -->|لا يستطيع التحقق| P4
     Father -->|اعتماد / رفض / إلغاء| P4
     P4 -->|APPROVED / PENDING / إلغاء| D1
-    P4 -->|tasks.completed {source_system=S1-06}| S105
+    P4 -->|"tasks.completed {source_system=S1-06}"| S105
     P4 -->|tasks.verification-revoked| S105
     P4 -->|تسجيل كل حدث| Audit
     P1 -->|RRULE + استحقاق| P5
@@ -451,7 +451,7 @@ flowchart LR
     end
     subgraph WalletHub [المحفظة S1-05 + مركز الأوامر S1-09]
         direction TB
-        W1[بطاقة "يتطلب انتباهك" — tasks.submitted]
+        W1["بطاقة «يتطلب انتباهك» — tasks.submitted"]
         W2[إيداع النقاط — tasks.completed]
         W3[قيد تعويضي — tasks.verification-revoked]
     end

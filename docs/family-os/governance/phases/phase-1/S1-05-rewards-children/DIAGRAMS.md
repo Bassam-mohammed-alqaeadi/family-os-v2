@@ -396,8 +396,8 @@ flowchart LR
     Ktor([خادم Ktor — وحدة rewards])
     Audit([AuditEvent — domain=rewards])
 
-    S106 -->|tasks.completed {source_system=S1-06} — source_system + task_id + نقاط| P1
-    S106 -->|tasks.verification-revoked — قيد تعويضي يخصم النقاط (3-و)| P1
+    S106 -->|"tasks.completed {source_system=S1-06} — source_system + task_id + نقاط"| P1
+    S106 -->|"tasks.verification-revoked — قيد تعويضي يخصم النقاط (3-و)"| P1
     AI -->|نتيجة التحقق — أُنجزت كما هو مطلوب؟| P1
     P1 -->|نظام غير مسجَّل: رفض + تسجيل| Audit
     P1 -->|إيداع موثَّق| P2

@@ -1,7 +1,7 @@
 # S1-02: الهوية والتهيئة العائلية (Identity & Onboarding)
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-05
-- **القرارات الحاكمة:** Q-001 · Q-002 · Q-005 · Q-006 · Q-007 · Q-008 · Q-021 · Q-022 · Q-062 · Q-063 · Q-065 · Q-068 · Q-070 · Q-071 · Q-072 · Q-073 · Q-074 · Q-075 · Q-076 · Q-077 · Q-079 · Q-080 · Q-084 · Q-106 · D-006 · D-007 · D-023 · D-038 · G-006 · G-011
+- **القرارات الحاكمة:** Q-001 · Q-002 · Q-005 · Q-006 · Q-007 · Q-008 · Q-021 · Q-022 · Q-062 · Q-063 · Q-065 · Q-068 · Q-070 · Q-071 · Q-072 · Q-073 · Q-074 · Q-075 · Q-076 · Q-077 · Q-079 · Q-080 · Q-084 · Q-106 · Q-137 · D-006 · D-007 · D-023 · D-038 · G-006 · G-011
 - **حالة المراجعة:** الأقسام 1–8 + §10 معتمدة بالكامل في التخطيط — حكم المالك 2026-11-06 · **§9 في مرحلة التصميم (Q-091)**.
 - **الأدلة المرجعية:** المواصفة القديمة S1-02 (مرجع فقط، G-009) · Deep-dives: Telegram (phone verification + SmsRetriever) · FamilyWall (family creation + child accounts w/o contact data) · Bark Kids (device-code pairing) · Qustodio (parent/child account model) · S1-01 (معتمد — الوضع يتحدد بالإقران)
 
@@ -194,9 +194,9 @@ flowchart TD
 | `phone_verification` | `id`, `phone`, `channel`, `code_hash`, `attempts`, `expires_at`, `verified_at` | `code_hash` فقط — لا يُحفظ الرمز نصاً |
 | `session` | `id`, `person_id`, `refresh_token_hash`, `expires_at`, `revoked_at` | دوران Refresh؛ الإبطال فوري |
 | `family` | `id`, `name`, `region`, `created_by`, `created_at` | عائلة واحدة لكل حساب (Q-008) |
-| `membership` | `id`, `family_id`, `person_id`, `role`, `is_owner` | (من النواة المشتركة) |
+| `membership` | `id`, `family_id`, `person_id`, `role`, `is_owner` | (من النواة المشتركة)؛ `person_id` قابل لأن يكون فارغاً — للطفل يُترك فارغاً: صف عضوية بالملف فقط بلا حساب `person` (D-006 · Q-137) |
 | `invite_code` | `id`, `family_id`, `code`, `created_by`, `expires_at`, `uses` | عشوائي لكل طلب؛ استخدام واحد؛ 7 أيام (Q-076) |
-| `child_profile` | `id`, `family_id`, `membership_id`, `nickname`, `avatar`, `color`, `birth_year` | بلا هاتف/بريد (D-006)؛ سنة فقط (Q-073) |
+| `child_profile` | `id`, `family_id`, `membership_id`, `nickname`, `avatar`, `color`, `birth_year` | بلا هاتف/بريد (D-006)؛ سنة فقط (Q-073)؛ `membership_id` يشير إلى صف عضوية الطفل — و`person_id` في ذلك الصف فارغ (Q-137) |
 | `device_pairing` | `id`, `family_id`, `device_id`, `pairing_code_hash`, `mode`, `paired_at`, `paired_by` | الوضع يُحدد عند الإقران (Q-062) |
 | `consent_record` | `id`, `family_id`, `type` (`joint_onboarding`), `granted_by`, `granted_at` | الموافقة المشتركة (G-006) |
 

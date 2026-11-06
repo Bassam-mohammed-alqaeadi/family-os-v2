@@ -31,7 +31,7 @@ flowchart TB
     end
 
     Ktor([خادم Ktor — PostgreSQL])
-    MQTT([MQTT-over-TLS — family/{family_id}/…])
+    MQTT(["MQTT-over-TLS — family/{family_id}/…"])
 
     Father -->|أمر / قرار بنقرة| S109
     Father -->|أمر / قرار بنقرة| S101
@@ -41,7 +41,7 @@ flowchart TB
 
     S109 -->|أمر الأب| MQTT
     S101 -->|أمر الأب| MQTT
-    MQTT -->|family/{family_id}/device/{device_id}/commands| Device
+    MQTT -->|"family/{family_id}/device/{device_id}/commands"| Device
     Device -->|إقرار ack — توصيل + إقرار < 5 ثوانٍ Q-061| MQTT
     Device -->|تطبيق القواعد| S110
     S110 -->|AppRule / WeeklySchedule / تقييم bitmask / فرض دون اتصال| Device

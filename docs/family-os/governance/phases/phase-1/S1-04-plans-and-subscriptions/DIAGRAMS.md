@@ -99,7 +99,7 @@ erDiagram
         boolean is_active
     }
     plan_price {
-        string plan_id PK_FK
+        string plan_id PK, FK
         string market
         int price_cents
         string currency
@@ -107,7 +107,7 @@ erDiagram
     }
     family_subscription {
         string id PK
-        string family_id FK_UK
+        string family_id FK, UK
         string plan_id FK
         string status
         string billing_provider
@@ -143,7 +143,7 @@ erDiagram
         datetime expires_at
     }
     quota_usage {
-        string family_id PK_FK
+        string family_id PK, FK
         string period PK
         int sms_sent
         int sms_emergency_used
@@ -449,7 +449,7 @@ flowchart LR
     end
     subgraph Server [الخادم — Ktor billing]
         direction TB
-        V1[GET /plans + GET /families/{id}/plan]
+        V1["GET /plans + GET /families/{id}/plan"]
         V2[تحقق S2S من الإيصال / القسيمة]
         V3[تفعيل الاشتراك + الاستحقاقات]
         V4[حارس الحصص — أفراد / SMS / ذكاء]

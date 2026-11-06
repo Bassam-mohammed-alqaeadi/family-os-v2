@@ -32,7 +32,7 @@ flowchart LR
         UC7(عرض سجل التدقيق)
         UC8(نقل الملكية لبالغ)
         UC9(فحص صلاحية خادمي)
-        UC10(فحص صلاحية محلي O(1) على جهاز الطفل)
+        UC10["فحص صلاحية محلي O(1) على جهاز الطفل"]
         UC11(إدارة المراهق لمهامه الخاصة)
         UC12(محاولة تصعيد — مرفوضة)
         UC13(مراجعة منح الطفل عند بلوغ 13)
@@ -123,8 +123,9 @@ erDiagram
         string to_member_id FK
         string status
         string auth_method
+        datetime expires_at
         datetime requested_at
-        datetime completed_at
+        datetime accepted_at
     }
     family {
         string id PK
@@ -379,11 +380,11 @@ flowchart LR
     end
 
     subgraph Stores [مخازن البيانات]
-        D1[(D1 permission_key)]
-        D2[(D2 role_template + template_key)]
-        D3[(D3 permission_grant)]
-        D4[(D4 ownership_transfer)]
-        D5[(D5 AuditEvent)]
+        D1[("D1 permission_key")]
+        D2[("D2 role_template + template_key")]
+        D3[("D3 permission_grant")]
+        D4[("D4 ownership_transfer")]
+        D5[("D5 AuditEvent")]
     end
 
     Ktor([خادم Ktor])
@@ -401,10 +402,10 @@ flowchart LR
     D1 -->|قائمة المفاتيح| P1
     P2 -->|التحقق من المفتاح في السجل| D1
     P2 -->|التحقق PIN / بصمة للمفتاح الحساس| S101
-    P2 -->|حفظ المنح (scope + valid_until)| D3
+    P2 -->|"حفظ المنح (scope + valid_until)"| D3
     P3 -->|قراءة مفاتيح القالب| D2
     P3 -->|نسخ المفاتيح إلى منح| D3
-    P2 -->|بدء نقل الملكية (PIN أو بصمة)| D4
+    P2 -->|"بدء نقل الملكية (PIN أو بصمة)"| D4
     Consumers -->|POST /permissions/check| P4
     P4 -->|قراءة المنح النشطة| D3
     D3 -->|المنح + is_granted + valid_until| P4
@@ -418,7 +419,7 @@ flowchart LR
     P5 -->|permissions/sync| MQTT
     P5 -->|permissions/revoked — إبطال فوري| MQTT
     MQTT -->|لقطة المنح| Snapshot
-    Snapshot -->|فحص محلي O(1) — checkPermission| Teen
+    Snapshot -->|"فحص محلي O(1) — checkPermission"| Teen
 ```
 
 - العملية 4.0 هي الحارس الوحيد: كل فحص صلاحية في المنصة يمر بها (§1).
@@ -449,7 +450,7 @@ flowchart LR
     end
     subgraph Device [جهاز الطفل — Kotlin]
         direction TB
-        K1[فحص محلي O(1) من اللقطة]
+        K1["فحص محلي O(1) من اللقطة"]
         K2{اللقطة سارية؟}
         K3[إعادة مزامنة كاملة — الفحص على الرفض حتى تكتمل]
     end

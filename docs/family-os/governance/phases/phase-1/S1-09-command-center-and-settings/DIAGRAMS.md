@@ -41,7 +41,7 @@ flowchart LR
         UC12(تسجيل نظام جديد في السجل المركزي — وقت النشر)
         UC13(إلغاء تسجيل نظام — إخفاء ودجاته وأسطح تحكمه فوراً)
         UC14(دفع تحديث اللوحة وتنبيه جديد)
-        UC15(بطاقة "يتطلب انتباهك" — قرار الأب بنقرة واحدة)
+        UC15["بطاقة «يتطلب انتباهك» — قرار الأب بنقرة واحدة"]
     end
 
     Father --> UC1
@@ -321,11 +321,11 @@ sequenceDiagram
 flowchart TD
     Start([فتح مركز الأوامر — قراءات p95 < 300ms]) --> Cached[عرض آخر حالة مخزنة فوراً]
     Cached --> Conn{اتصال؟}
-    Conn -->|نعم| Fetch[GET /families/{id}/dashboard — تصفية خادمية عبر required_key]
-    Conn -->|لا| Stamp[عرض اللقطة + وسم "آخر تحديث" الصريح]
+    Conn -->|نعم| Fetch["GET /families/{id}/dashboard — تصفية خادمية عبر required_key"]
+    Conn -->|لا| Stamp["عرض اللقطة + وسم «آخر تحديث» الصريح"]
     Fetch --> Dash[لوحة واحدة: مواقع + قواعد + تنبيهات]
     Stamp --> Dash
-    Dash --> Attn[بطاقة "يتطلب انتباهك" — مهام مسلَّمة + طلبات وقت]
+    Dash --> Attn["بطاقة «يتطلب انتباهك» — مهام مسلَّمة + طلبات وقت"]
     Attn --> Decide[قرار الأب بنقرة واحدة — منح / رفض / إسناد مهمة]
     Decide --> Dash
     Dash --> See{ما الذي يراه المستخدم؟}
@@ -435,23 +435,23 @@ flowchart LR
         direction TB
         H1[عرض اللقطة المخزنة فوراً]
         H2{اتصال؟}
-        H3[GET /families/{id}/dashboard + تصفية خادمية]
-        H4[عرض اللوحة + وسم "آخر تحديث"]
+        H3["GET /families/{id}/dashboard + تصفية خادمية"]
+        H4["عرض اللوحة + وسم «آخر تحديث»"]
         H5[الانتقال إلى النظام صاحب التنبيه]
         H6[تطبيق البطاقة — PATCH]
         H7[عرض شجرة الصلاحيات]
-        H8[GET /families/{id}/plan — عرض فقط]
+        H8["GET /families/{id}/plan — عرض فقط"]
         H9[الانتقال إلى S1-04 للترقية]
-        H10[بطاقة "يتطلب انتباهك" — قرار بنقرة واحدة]
+        H10["بطاقة «يتطلب انتباهك» — قرار بنقرة واحدة"]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V1[GET /families/{id}/dashboard]
-        V2[PATCH /families/{id}/settings/{system}]
-        V3[POST /families/{id}/alerts/{alertId}/acknowledge]
-        V4[GET /families/{id}/plan]
+        V1["GET /families/{id}/dashboard"]
+        V2["PATCH /families/{id}/settings/{system}"]
+        V3["POST /families/{id}/alerts/{alertId}/acknowledge"]
+        V4["GET /families/{id}/plan"]
         V5[MQTT: dashboard/updated + alerts/new]
-        V6[POST /families/{id}/time-requests/{requestId}/decide + POST /families/{id}/tasks/{taskId}/approve]
+        V6["POST /families/{id}/time-requests/{requestId}/decide + POST /families/{id}/tasks/{taskId}/approve"]
     end
     subgraph Systems [الأنظمة + S1-03]
         direction TB

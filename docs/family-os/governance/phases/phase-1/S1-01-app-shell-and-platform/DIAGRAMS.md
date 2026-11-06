@@ -230,8 +230,8 @@ sequenceDiagram
 ```mermaid
 flowchart TD
     Start([فتح التطبيق — إقلاع بارد < 1.2s]) --> Read[قراءة وضع الجهاز من device_mode]
-    Read --> LowBW{وضع النطاق المنخفض — اليمن (Q-064 · REQ-010)؟}
-    LowBW -->|نعم| Compress[استجابات مضغوطة Brotli/Gzip + لا تحديثات تلقائية + مزامنة يدوية/مجدولة + قنوات OTP بديلة (Q-021)]
+    Read --> LowBW{"وضع النطاق المنخفض — اليمن (Q-064 · REQ-010)؟"}
+    LowBW -->|نعم| Compress["استجابات مضغوطة Brotli/Gzip + لا تحديثات تلقائية + مزامنة يدوية/مجدولة + قنوات OTP بديلة (Q-021)"]
     Compress --> Mode{الوضع؟}
     LowBW -->|لا| Mode
     Mode -->|أهل| Config[تحميل الإعداد: region + planFlags + featureFlags]
@@ -255,7 +255,7 @@ flowchart TD
     Count -->|نعم| Lock[قفل 5 دقائق + تسجيل في AuditEvent]
     Exit -->|لا| Stay[البقاء في وضع الطفل]
     Stay --> Switch{محاولة تبديل الوضع / الملف؟}
-    Switch -->|نعم| Refuse[رفض برسالة واضحة — بلا طلب PIN (REQ-018 · Q-063)]
+    Switch -->|نعم| Refuse["رفض برسالة واضحة — بلا طلب PIN (REQ-018 · Q-063)"]
     Refuse --> Stay
     Switch -->|لا| Stay
 ```
@@ -352,11 +352,11 @@ flowchart LR
         K1[خدمة خلفية دائمة — وضع الطفل]
         K2[مراقبة الصحة]
         K3[تطبيق قواعد الفرض]
-        K4[التحقق المحلي من PIN — مقابل pin_hash المشفر على الجهاز (Q-142)]
+        K4["التحقق المحلي من PIN — مقابل pin_hash المشفر على الجهاز (Q-142)"]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V1[GET /families/{id}/shell/config]
+        V1["GET /families/{id}/shell/config"]
         V3[POST /api/v1/shell/outbox/flush]
     end
 

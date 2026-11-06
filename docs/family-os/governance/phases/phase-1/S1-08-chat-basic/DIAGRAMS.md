@@ -340,7 +340,7 @@ flowchart TD
     Check -->|سليم| Sent
     Classify -->|لا| Sent
     Sent --> FatherAct{الأب يرى محتوى غير مناسب؟}
-    FatherAct -->|حذف| Del[حذف للجميع — من الخادم وكل الأجهزة — "حُذفت هذه الرسالة"]
+    FatherAct -->|حذف| Del["حذف للجميع — من الخادم وكل الأجهزة — «حُذفت هذه الرسالة»"]
     FatherAct -->|إغلاق محادثة قاصر| Close[إغلاق المحادثة — أي إرسال لاحق CHAT_CLOSED]
     FatherAct -->|لا| Stay[البقاء في القناة — مؤشرات كتابة حية]
     TooBig --> Write
@@ -451,7 +451,7 @@ flowchart LR
         A4[حفظ محلي متفائل — client_message_id — علامة ساعة]
         A5[تحديث الحالة بـ server_seq_id]
         A6[عرض مؤشر كتابة حي]
-        A7[عرض "حُذفت هذه الرسالة"]
+        A7["عرض «حُذفت هذه الرسالة»"]
     end
     subgraph Kotlin [وحدة Kotlin]
         direction TB
