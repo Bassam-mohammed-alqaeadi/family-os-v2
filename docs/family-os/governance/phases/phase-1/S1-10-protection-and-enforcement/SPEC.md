@@ -212,8 +212,13 @@ flowchart LR
 | `family/{family_id}/protection/free-mode` | خادم → طفل | تفعيل/إلغاء/انتهاء الوضع الحر (REQ-019) |
 | `family/{family_id}/protection/tamper` | طفل → خادم | حدث عبث (REQ-021) → تنبيه فوري للأب + تنبيه `alert` نوع `system` في S1-09 |
 | `family/{family_id}/device/{device_id}/state` | طفل → خادم | حالة الفرض الدورية (S1-01 §4.3 — تُستهلك هنا مرآةً في `enforcement_state`) |
+| `family/{family_id}/devices/{device_id}/commands` | خادم → طفل | الأوامر (حظر/قاعدة/وضع حر) — QoS 1 + `command_id` + إقرار إلزامي (Q-168) |
+| `family/{family_id}/devices/{device_id}/acks` | طفل → خادم | إقرار تنفيذ أمر (`command_id` + النتيجة) — QoS 1 (Q-168) |
+| `family/{family_id}/devices/{device_id}/status` | طفل → خادم | حالة الاتصال — محفوظة (retained) + last will = `offline` (Q-168) |
 
 كل أمر يحمل `command_id` (idempotency)؛ والإقرار (ack) إلزامي؛ وتوصيل الأمر + الإقرار < 5 ثوانٍ (Q-061 — S1-01 REQ-022).
+
+**قواعد النقل (Q-168 — `MQTT-BROKER-SPEC.md`):** الأوامر وSOS والعبث والمنح QoS 1 + إقرار تطبيقي؛ والموقع الحي والحالة الدورية QoS 0؛ وبلا QoS 2 (التكرار يُغطيه `command_id`)؛ والجلسة دائمة (clean session = false)؛ واللقطات المحفوظة (retained) للمنح والقواعد وحالة الجهاز.
 
 ## 5. البيانات — النموذج
 
