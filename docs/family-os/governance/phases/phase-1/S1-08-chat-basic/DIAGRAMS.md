@@ -93,11 +93,12 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الخمسة من §5 كما هي، مع أربعة مراجع خارجية: العائلة والعضوية (S1-02)، ومفتاح الصلاحية (S1-03 — مفاتيح `chat.*`)، وتنبيهات المصنف (S1-09 — `alert`)، و`AuditEvent` (النواة المشتركة). ملاحظتان: النسخة المحلية من `channel` + `message` في Drift على العميل مخزن عميل لا جدول خادم (§5-6)، و`payload` في قناة الوالدين نص مشفر E2E فقط — الخادم لا يقرأ محتواها أبداً (REQ-011). كل جدول يحمل `family_id` + عزل RLS (D-021) عدا `channel_member` الذي يصل إلى العائلة عبر `channel`.
+الجداول الخمسة من §5 كما هي، مع أربعة مراجع خارجية: العائلة والعضوية (S1-02)، ومفتاح الصلاحية (S1-03 — مفاتيح `chat.*`)، وتنبيهات المصنف (S1-09 — `alert`)، و`AuditEvent` (النواة المشتركة). ملاحظتان: النسخة المحلية من `channel` + `message` في Drift على العميل مخزن عميل لا جدول خادم (§5-6)، و`payload` في قناة الوالدين نص مشفر E2E فقط — الخادم لا يقرأ محتواها أبداً (REQ-011). كل جدول يحمل `family_id` + عزل RLS (D-021) — بما فيه `channel_member` (§5-2).
 
 ```mermaid
 erDiagram
     family ||--o{ channel : "له قنوات"
+    family ||--o{ channel_member : "له أعضاء قنوات"
     family ||--o{ media : "له وسائط"
     family ||--|| parents_key_backup : "له نسخة مفاتيح"
     family ||--o{ membership : "له أعضاء"
@@ -124,6 +125,7 @@ erDiagram
     channel_member {
         uuid channel_id PK
         uuid member_id PK
+        uuid family_id FK
         timestamptz joined_at
         bigint last_read_seq
     }
@@ -135,7 +137,7 @@ erDiagram
         uuid client_message_id
         bigint server_seq_id
         text kind
-        text payload
+        jsonb payload
         uuid media_id FK
         text status
         timestamptz created_at
@@ -155,7 +157,7 @@ erDiagram
         uuid family_id PK
         uuid channel_id FK
         bytea encrypted_key
-        text kdf_params
+        jsonb kdf_params
         timestamptz updated_at
     }
     family {
@@ -175,12 +177,12 @@ erDiagram
     }
 ```
 
-- `channel.kind`: `lounge` / `parents` / `direct` / `group` (§5-1 — REQ-001/002) — قناة الوالدين واحدة تُنشأ مع العائلة ولا تُنشأ من نقطة الإنشاء (§6-2). `message.kind`: `text` / `emoji` / `image` / `voice` / `system` (§5-3 — REQ-005). `media.size_bytes`: الحد 10MB للصور / 5MB للرسائل الصوتية (Q-058). `message.status`: `sent` / `delivered` / `read` (§5-3 — REQ-007). `message.deleted_for`: `all` (الأب) أو `self` (العضو) (§5-3 — REQ-009). `payload`: الحمولة المعماة Envelope للقنوات العائلية (REQ-010) وE2E لقناة الوالدين (REQ-011).
+- `channel.kind`: `lounge` / `parents` / `direct` / `group` (§5-1 — REQ-001/002) — قناة الوالدين واحدة تُنشأ مع العائلة ولا تُنشأ من نقطة الإنشاء (§6-2). `message.kind`: `text` / `emoji` / `image` / `voice` / `system` (§5-3 — REQ-005). `media.size_bytes`: الحد 10MB للصور / 5MB للرسائل الصوتية (Q-058). `message.status`: `sent` / `delivered` / `read` (§5-3 — REQ-007) — بلا `pending` (قيمة عميل فقط في Drift، لا تُخزَّن على الخادم). `message.deleted_for`: `all` (الأب) أو `self` (العضو) (§5-3 — REQ-009). `payload`: الحمولة المعماة Envelope للقنوات العائلية (REQ-010) وE2E لقناة الوالدين (REQ-011).
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
 خمسة مخططات، كل واحد لتدفق واحد:
-- **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ ورسائل الدردشة (`family/{family_id}/chat/{channelId}/message` و`family/{family_id}/chat/{channelId}/typing` و`family/{family_id}/chat/{channelId}/deleted`) QoS 1؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. لا `command_id` في هذا النظام — عدم التكرار هنا بـ `client_message_id` (§4-1).
+- **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ ورسائل الدردشة (`family/{family_id}/chat/{channelId}/message` و`family/{family_id}/chat/{channelId}/typing` و`family/{family_id}/chat/{channelId}/deleted` و`family/{family_id}/chat/{channelId}/read` و`family/{family_id}/chat/{channelId}/created` و`family/{family_id}/chat/{channelId}/closed`) QoS 1 وبلا احتفاظ (retained=false — §4-2)؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. لا `command_id` في هذا النظام — عدم التكرار هنا بـ `client_message_id` (§4-1).
 
 ### 3-أ. إرسال رسالة فورياً — العرض المتفائل ثم المزامنة (REQ-006/007 — §4.1 + §4.2)
 
@@ -203,10 +205,12 @@ sequenceDiagram
     Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
     MQTT-->>Mother: دفع الرسالة فوراً
     Mother->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/read {last_read_seq}
-    Ktor-->>Father: تحديث الحالة (صحا القراءة)
+    Ktor-->>Mother: {ok: true}
+    Ktor->>MQTT: family/{family_id}/chat/{channelId}/read (QoS 1)
+    MQTT-->>Father: تحديث الحالة (صحا القراءة)
 ```
 
-- نفس `client_message_id` مرتين تُعيد الرسالة الأصلية بلا تكرار (§7-6)؛ والترتيب بـ `server_seq_id` لكل قناة (§6-3).
+- نفس `client_message_id` مرتين تُعيد الرسالة الأصلية بلا تكرار (§7-6)؛ والترتيب بـ `server_seq_id` لكل قناة (§6-3). عند إعادة الاتصال: كشف الفجوات وإصلاحها عبر `GET .../messages` بقاعدة §4-2 (مقارنة آخر `server_seq_id` مرئي) — QoS 1 وحده لا يغلق فجوة جلسة ساقطة.
 
 ### 3-ب. فتح قناة الوالدين وإرسال رسالة E2E (REQ-003/011 — §4.1)
 
@@ -224,7 +228,7 @@ sequenceDiagram
     K->>K: التحقق من PIN محلياً (بوابة الوالدين — Q-142)
     K->>Audit: AuditEvent — إثبات تحقق ناجح (يُسلَّم عبر Outbox عند عدم الاتصال)
     K-->>App: فتح القناة + مفاتيح E2E من Android Keystore
-    App->>Ktor: GET /api/v1/families/{id}/channels/{channelId}/messages
+    App->>Ktor: GET /api/v1/families/{id}/channels/{channelId}/messages ?before&limit (§4-1)
     Ktor-->>App: سجل الرسائل (نص مشفر E2E فقط)
     App->>App: فك التشفير محلياً — الخادم لا يرى المحتوى أبداً
     Father->>App: كتابة رسالة خاصة
@@ -287,6 +291,8 @@ sequenceDiagram
     App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/close {reason}
     Ktor->>Ktor: فحص chat.channel.close (Q-010) + closed_at / closed_by
     Ktor->>Audit: AuditEvent (نطاق chat)
+    Ktor->>MQTT: family/{family_id}/chat/{channelId}/closed (QoS 1)
+    MQTT-->>App: إغلاق متزامن على كل الأجهزة
     Ktor-->>App: {channel_id, closed: true}
     App-->>Father: المحادثة مغلقة
     Note over App,Ktor: أي إرسال لاحق فيها → CHAT_CLOSED + سبب الإغلاق (§7-3)
@@ -312,7 +318,7 @@ sequenceDiagram
     participant Device as الجهاز
     participant Ktor as الخادم
     Father->>Device: فتح قناة الوالدين على جهاز جديد
-    Device->>Ktor: مصادقة الأب (OTP إلى الخادم + PIN محلي لاشتقاق المفتاح)
+    Device->>Ktor: POST /api/v1/families/{id}/parents-channel/backup {otp} — مصادقة الأب (OTP إلى الخادم + PIN محلي لاشتقاق المفتاح — §4-1، بلا مفتاح chat.*)
     alt المصادقة ناجحة
         Ktor-->>Device: النسخة المشفرة (payload) + parents_key_backup.encrypted_key
         Device->>Device: اشتقاق مفتاح الاسترداد من PIN (Argon2id — kdf_params)
@@ -423,6 +429,8 @@ flowchart LR
     D3 -->|سجل الرسائل| P2
     P2 -->|"رسالة جديدة — family/{family_id}/chat/{channelId}/message — QoS 1"| MQTT
     P2 -->|"مؤشر كتابة — family/{family_id}/chat/{channelId}/typing — QoS 1"| MQTT
+    P2 -->|"إيصال قراءة — family/{family_id}/chat/{channelId}/read — QoS 1"| MQTT
+    P1 -->|"إنشاء/إغلاق قناة — family/{family_id}/chat/{channelId}/created | .../closed — QoS 1"| MQTT
     MQTT -->|دفع فوري| Father
     MQTT -->|دفع فوري| Minor
     P2 -->|وسائط| MinIO

@@ -130,26 +130,34 @@ flowchart TD
 
 ### 4-1. نقاط الوصول (REST — `/api/v1`)
 
-| الطريقة والمسار | الغرض | المدخل | المخرج |
-|---|---|---|---|
-| `GET /api/v1/families/{id}/channels` | قائمة القنوات (مصفاة حسب الرؤية والمنح) | — | `[{channel_id, kind, title, last_message_at}]` |
-| `POST /api/v1/families/{id}/channels` | إنشاء قناة (ثنائية أو جماعية) | `{kind, member_ids}` | القناة — قناة الوالدين تُنشأ مع العائلة لا هنا |
-| `GET /api/v1/families/{id}/channels/{channelId}/messages` | سجل الرسائل (ترقيم) | `?before&limit` | `[{message_id, sender, kind, payload, at, status}]` |
-| `POST /api/v1/families/{id}/channels/{channelId}/messages` | إرسال رسالة (نص/إيموجي/صورة/صوت) | `{client_message_id, kind, payload}` | الرسالة + `server_seq_id` — `client_message_id` يمنع التكرار |
-| `DELETE /api/v1/families/{id}/channels/{channelId}/messages/{messageId}` | حذف رسالة (الأب: للجميع؛ العضو: لنفسه) | — | `{message_id, deleted_for: all\|self}` |
-| `POST /api/v1/families/{id}/channels/{channelId}/close` | الأب يغلق محادثة قاصر | `{reason}` | `{channel_id, closed: true}` |
-| `POST /api/v1/families/{id}/channels/{channelId}/reopen` | الأب وحده يعيد فتح محادثة قاصر مغلقة (ليست قابلة للتفويض — Q-242؛ مفتاح `chat.channel.close` لا يكفي) | `{reason}` | `{channel_id, closed: false}` |
-| `POST /api/v1/families/{id}/channels/{channelId}/read` | تأكيد القراءة (صحا القراءة) | `{last_read_seq}` | `{ok: true}` |
+| الطريقة والمسار | الغرض | المدخل | المخرج | مفتاح الصلاحية | HTTP |
+|---|---|---|---|---|---|
+| `GET /api/v1/families/{id}/channels` | قائمة القنوات (مصفاة حسب الرؤية والمنح) | — | `[{channel_id, kind, title, last_message_at}]` | `chat.channel.view` | 200 |
+| `POST /api/v1/families/{id}/channels` | إنشاء قناة (ثنائية أو جماعية) | `{kind, member_ids, title?}` — `kind`: `direct` أو `group` فقط (أما `lounge`/`parents` فتُرفض بـ `CHAT_CHANNEL_KIND_INVALID`)؛ و`member_ids`: الأعضاء الآخرون دون المتصل — الثنائية عضو واحد بالضبط، والجماعية عضوان آخران على الأقل (3 أعضاء إجمالاً مع المتصل)؛ و`title` اختياري (للجماعية؛ وللثنائية يُشتق العرض من اسم العضو الآخر إن غاب)؛ وإنشاء ثنائية موجودة مع العضو نفسه يُعيد القناة الموجودة بدل إنشاء مكررة؛ وكل `member_id` يجب أن يكون عضواً في العائلة وإلا `CHAT_INVALID_MEMBER` | القناة — قناة الوالدين تُنشأ مع العائلة لا هنا | `chat.channel.create.direct` / `chat.channel.create.group` (حسب `kind`) | 201 (200 عند إرجاع ثنائية موجودة) |
+| `GET /api/v1/families/{id}/channels/{channelId}/messages` | سجل الرسائل (ترقيم) | `?before=<server_seq_id>&limit=<n>` — `before`: bigint حصري — تُعاد الرسائل ذات `server_seq_id < before` مرتبة تنازلياً بـ `server_seq_id` (الأحدث أولاً)؛ وإغفال `before` يعني الصفحة الأولى (الأحدث)؛ و`limit`: افتراضي 50، أقصى 100 (ما فوقه يُقصّ إلى 100) | `{messages: [{message_id, sender, kind, payload, at, status}], has_more: bool, next_before: <أصغر server_seq_id في الصفحة>}` — وتُستخدم `next_before` قيمةً لـ `before` في الصفحة التالية | `chat.channel.view` | 200 |
+| `POST /api/v1/families/{id}/channels/{channelId}/messages` | إرسال رسالة (نص/إيموجي/صورة/صوت) | `{client_message_id, kind, payload}` | الرسالة + `server_seq_id` — `client_message_id` يمنع التكرار | `chat.message.send` | 201 |
+| `DELETE /api/v1/families/{id}/channels/{channelId}/messages/{messageId}` | حذف رسالة (الأب: للجميع؛ العضو: لنفسه) | — | `{message_id, deleted_for: all\|self}` | `chat.message.delete.any` (للحذف للجميع)؛ والحذف لنفسي — بلا مفتاح مقرر بعد (سؤال B2 مفتوح — R2-S108-08) | 200 |
+| `POST /api/v1/families/{id}/channels/{channelId}/close` | الأب يغلق محادثة قاصر | `{reason}` | `{channel_id, closed: true}` | `chat.channel.close` | 200 |
+| `POST /api/v1/families/{id}/channels/{channelId}/reopen` | الأب وحده يعيد فتح محادثة قاصر مغلقة (ليست قابلة للتفويض — Q-242؛ مفتاح `chat.channel.close` لا يكفي) | `{reason}` | `{channel_id, closed: false}` | بلا مفتاح — الأب وحده (`is_owner` — Q-242) | 200 |
+| `POST /api/v1/families/{id}/channels/{channelId}/read` | تأكيد القراءة (صحا القراءة) | `{last_read_seq}` | `{ok: true}` | `chat.channel.view` | 200 |
+| `POST /api/v1/families/{id}/parents-channel/backup` | استرداد نسخة مفاتيح قناة الوالدين المشفرة على جهاز جديد (REQ-017) | `{otp}` — يتحقق الخادم من OTP (عبر S1-02) وأن المتصل هو الأب؛ والـ PIN لا يُرسل أبداً (اشتقاق محلي) | `{encrypted_key, kdf_params}` — النص المشفر فقط؛ والخادم لا يرى المحتوى أبداً | بلا مفتاح `chat.*` — بوابة الأب (PIN + OTP — §6-1)؛ وغير الأب يُرفض بـ `403` | 200 |
 
 ### 4-2. الأحداث (MQTT → الأجهزة)
 
 > **عقد الوسيط الملزم (Q-168):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على 8883 + mTLS؛ QoS 1؛ والإقرار التطبيقي إلزامي للأوامر وSOS فقط؛ والموقع الحي QoS 0؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. التفصيل الكامل: `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`. [Q-168 · Q-175]
 
-| الموضوع | الغرض |
-|---|---|
-| `family/{family_id}/chat/{channelId}/message` | رسالة جديدة (تُدفع فوراً) |
-| `family/{family_id}/chat/{channelId}/typing` | مؤشر كتابة حي |
-| `family/{family_id}/chat/{channelId}/deleted` | حذف رسالة (للمزامنة على كل الأجهزة) |
+| الموضوع | الحمولة | QoS | الناشر / المشتركون | الغرض |
+|---|---|---|---|---|
+| `family/{family_id}/chat/{channelId}/message` | `{channel_id, message_id, sender_id, kind, payload, server_seq_id, at}` | 1 | الناشر: الخادم / المشتركون: أعضاء القناة | رسالة جديدة (تُدفع فوراً) |
+| `family/{family_id}/chat/{channelId}/typing` | `{channel_id, member_id, at}` | 1 | الناشر: عميل عضو / المشتركون: أعضاء القناة | مؤشر كتابة حي (عمره 5 ثوانٍ من `at` — REQ-008) |
+| `family/{family_id}/chat/{channelId}/deleted` | `{channel_id, message_id, deleted_for, deleted_at}` | 1 | الناشر: الخادم / المشتركون: أعضاء القناة | حذف رسالة (للمزامنة على كل الأجهزة) |
+| `family/{family_id}/chat/{channelId}/read` | `{channel_id, reader_id, last_read_seq, at}` | 1 | الناشر: الخادم / المشتركون: أعضاء القناة | إيصال قراءة — يصل المشتركين في §4-2 فقط، لا برد مباشر (REQ-007) |
+| `family/{family_id}/chat/{channelId}/created` | `{channel_id, kind, title, member_ids, created_by, at}` | 1 | الناشر: الخادم / المشتركون: أعضاء القناة الجدد | إنشاء قناة — يصل الأعضاء بلا استطلاع (REQ-001/002) |
+| `family/{family_id}/chat/{channelId}/closed` | `{channel_id, closed_by, reason, closed_at}` | 1 | الناشر: الخادم / المشتركون: أعضاء القناة | إغلاق قناة — يُنشر فور تنفيذ `POST .../close` (REQ-004) |
+
+- **بلا احتفاظ:** كل مواضيع الدردشة QoS 1 و`retained=false` — الحالة تُستعاد عبر REST عند إعادة الاتصال (§4-1) لا من رسائل محتفَظة؛ ورسالة `closed` محتفَظة قد تُحيي إغلاقاً قديماً بعد إعادة الفتح (Q-242)، لذا لا احتفاظ لأي موضوع هنا.
+- **نشر الكتابة:** النشر على موضوع `typing` يتطلب عضوية القناة (`chat.channel.view`)؛ ولا يتطلب `chat.message.send` — مؤشر الكتابة إشارة حضور لا رسالة، ولا نقطة REST له (النشر MQTT فقط).
+- **إعادة الاتصال وإعادة المزامنة (REQ-006/007):** عند إعادة الاتصال يعيد العميل الاشتراك في مواضيع §4-2، ثم يسترجع الصفحة الأولى من `GET .../messages` لكل قناة ويواصل الترقيم بـ `before` حتى يصل إلى رسالة بـ `server_seq_id ≤` آخر تسلسل رآه (المخزن محلياً في Drift) أو تنتهي الصفحات؛ ويدمج حسب `server_seq_id` ويزيل التكرار بـ `client_message_id`. وQoS 1 وحده لا يغلق الفجوات عبر جلسة ساقطة — قاعدة إعادة المزامنة هذه هي التي تغلقها.
 
 ### 4-3. قناة المنصة (MethodChannel — Flutter ↔ Kotlin)
 
@@ -160,7 +168,19 @@ flowchart TD
 
 ### 4-4. صيغة الخطأ الموحدة
 
-`{code, message_ar, trace_id}` — كما في S1-02 §4. رموز هذا النظام: `CHAT_CHANNEL_NOT_FOUND` (قناة غير موجودة) · `CHAT_NOT_MEMBER` (ليس عضواً في القناة) · `CHAT_CLOSED` (قناة مغلقة بأمر الأب) · `CHAT_MEDIA_TOO_LARGE` (وسائط تتجاوز الحد: 10MB صور / 5MB صوت — Q-058) · `CHAT_E2E_REQUIRED` (حمولة غير مشفرة في قناة الوالدين تُرفض).
+`{code, message_ar, trace_id}` — كما في S1-02 §4. رموز هذا النظام: `CHAT_CHANNEL_NOT_FOUND` (قناة غير موجودة) · `CHAT_NOT_MEMBER` (ليس عضواً في القناة) · `CHAT_CLOSED` (قناة مغلقة بأمر الأب) · `CHAT_MEDIA_TOO_LARGE` (وسائط تتجاوز الحد: 10MB صور / 5MB صوت — Q-058) · `CHAT_E2E_REQUIRED` (حمولة غير مشفرة في قناة الوالدين تُرفض) · `CHAT_CHANNEL_KIND_INVALID` (نوع قناة غير قابل للإنشاء هنا) · `CHAT_INVALID_MEMBER` (عضو غير موجود في العائلة أو عدد أعضاء غير صالح).
+
+| الرمز | HTTP | المعنى |
+|---|---|---|
+| `CHAT_CHANNEL_NOT_FOUND` | 404 | قناة غير موجودة |
+| `CHAT_NOT_MEMBER` | 403 | ليس عضواً في القناة — ويُستخدم أيضاً للوصول المباشر لقناة الوالدين من قاصر (§7-9) |
+| `CHAT_CLOSED` | 403 | إرسال في قناة مغلقة بأمر الأب |
+| `CHAT_MEDIA_TOO_LARGE` | 413 | وسائط تتجاوز الحد (10MB صور / 5MB صوت) |
+| `CHAT_E2E_REQUIRED` | 400 | حمولة غير مشفرة في قناة الوالدين |
+| `CHAT_CHANNEL_KIND_INVALID` | 400 | `kind` ليس `direct` أو `group` (§4-1) |
+| `CHAT_INVALID_MEMBER` | 400 | `member_id` ليس عضواً في العائلة، أو عدد الأعضاء دون الحد (§4-1) |
+
+- إعادة فتح من غير الأب (§7-14) → `403` بلا رمز خاص (رفض صلاحية الأب وحده — Q-242).
 
 ## 5. البيانات — النموذج
 
@@ -183,8 +203,9 @@ flowchart TD
 | الحقل | النوع | ملاحظات |
 |---|---|---|
 | `channel_id` / `member_id` | uuid (PK مركب) | |
+| `family_id` | uuid (FK) | + RLS (D-021) — فجملة «كل جدول يحمل `family_id`» في §5 صحيحة كما هي مكتوبة |
 | `joined_at` | timestamptz | |
-| `last_read_seq` | bigint | آخر تسلسل قرأه العضو (صحا القراءة — REQ-007) |
+| `last_read_seq` | bigint | آخر تسلسل قرأه العضو (صحا القراءة — REQ-007) — يتقدم فقط عبر `POST .../read` صريح (§6-3) |
 
 ### 5-3. `message` — الرسائل
 | الحقل | النوع | ملاحظات |
@@ -193,12 +214,12 @@ flowchart TD
 | `channel_id` | uuid (FK) | |
 | `family_id` | uuid (FK) | + RLS |
 | `sender_id` | uuid | |
-| `client_message_id` | text | متفرد لكل مرسل — يمنع التكرار (REQ-006) |
+| `client_message_id` | uuid | يولّده العميل (uuid v4) — متفرد لكل مرسل — يمنع التكرار (REQ-006) |
 | `server_seq_id` | bigint | تسلسل الخادم لكل قناة (نمط Telegram SeqID) |
 | `kind` | text | `text` / `emoji` / `image` / `voice` / `system` |
-| `payload` | jsonb | الحمولة المعماة (Envelope)؛ وفي قناة الوالدين: نص مشفر E2E فقط — الخادم لا يقرأ محتواها؛ وتُحتفظ نسخة مشفرة للاسترداد (REQ-011) |
+| `payload` | jsonb | الحمولة المعماة (Envelope) — كائن JSON: `{alg, ciphertext}` حيث `ciphertext` نص base64 (و`alg` مثل `AES-256-GCM`)؛ وفي قناة الوالدين: نص مشفر E2E فقط — الخادم لا يقرأ محتواها ولا يفكك `ciphertext`؛ وتُحتفظ نسخة مشفرة للاسترداد (REQ-011) |
 | `media_id` | uuid (nullable, FK → `media`) | للصور والصوت |
-| `status` | text | `pending` / `sent` / `delivered` / `read` — (`pending`: حالة متفائلة محلية على العميل فقط — علامة الساعة قبل وصول الرسالة إلى الخادم؛ ولا تُخزَّن على الخادم) |
+| `status` | text | تعداد الخادم: `sent` / `delivered` / `read` — قيمة **مشتقة** من `channel_member.last_read_seq` لكل عضو آخر (§6-3)، لا مخزَّنة لكل مستلم؛ وتعداد العميل (Drift) يضيف `pending` (حالة متفائلة محلية — علامة الساعة قبل وصول الرسالة إلى الخادم؛ ولا تُخزَّن على الخادم أبداً) |
 | `created_at` | timestamptz | |
 | `deleted_for` / `deleted_at` | text / timestamptz (nullable) | `all` (الأب) أو `self` (العضو) — حذف برمجي (soft-delete): الصف يبقى مع الحمولة، وما يختفي هو العرض فقط (علامة «حُذفت هذه الرسالة»)؛ والتطهير الفيزيائي للحمولة/الوسائط بمدة تُحكم باستشارة Q-201 (G-S108-03 — انظر R2-S108-44) |
 
@@ -241,6 +262,8 @@ flowchart TD
 | `chat.parents.view` | عرض قناة الوالدين | البالغون فقط — أبداً للقاصرين |
 | `chat.minor.view` | رؤية محادثات القاصرين | الأب + البالغ المفوَّض حسب القالب (Q-089) |
 
+- **الاسترداد (REQ-017) بلا مفتاح `chat.*`:** استرداد نسخة مفاتيح قناة الوالدين (`POST .../parents-channel/backup` — §4-1) لا يخضع لأي مفتاح صلاحية — التفويض ببوابة الأب (PIN + OTP) لا بمنح قابل للتفويض؛ والسبب: الاسترداد يستعيد مفاتيح القناة نفسها، فلا يصح أن يخضع لمنح يُمنح ويُسحب؛ وغير الأب يُرفض بـ `403`. (لا مفتاح جديد هنا — فلا يتغير عدّ مفاتيح `chat.*` الثمانية ولا بذر S1-03 §10-1.)
+
 ### 6-2. الثوابت الصلبة (لا تُكسر أبداً)
 - محادثة أي قاصر مرئية للأب دائماً (Q-100 + D-038).
 - قناة الوالدين لا تظهر للقاصرين أبداً — لا وجودها ولا محتواها ولا عدد رسائلها (Q-100).
@@ -253,6 +276,7 @@ flowchart TD
 ### 6-3. قواعد التشغيل
 - **إنشاء القنوات:** الثنائية (`chat.channel.create.direct`) يبدؤها أي عضو مع أي عضو؛ والجماعية (`chat.channel.create.group`) ينشئها الأب أو البالغ المفوَّض.
 - **الترتيب:** ترتيب الرسائل بـ `server_seq_id` لكل قناة؛ والتكرار يُمنع بـ `client_message_id`.
+- **حالات التسليم/القراءة متعددة المستلمين (REQ-007):** `status` قيمة مشتقة لا مخزَّنة لكل مستلم — تُحسب من `channel_member.last_read_seq` لكل عضو آخر غير المرسل: `sent` عند إسناد `server_seq_id`؛ و`delivered` عند وصول الرسالة إلى جهاز مستلم واحد على الأقل (دفع MQTT أو جلب عبر `GET .../messages`)؛ و`read` عند بلوغ `last_read_seq` لكل الأعضاء الآخرين `server_seq_id` أو تجاوزه. **مثال:** مجموعة من 3 أعضاء (مرسل + عضوان) قرأ أحدهما ولم يقرأ الآخر: `status` = `delivered` — وصحا القراءة لا تظهران إلا بعد قراءة العضو الثاني أيضاً. وفي الثنائية: `read` عند `last_read_seq` للعضو الآخر ≥ `server_seq_id`. **تقدّم `last_read_seq`:** يتقدم فقط عبر `POST .../read` صريح من العضو نفسه (`last_read_seq` = أعلى تسلسل قرأه)؛ وفتح القناة أو التمرير وحده لا يقدّمه حتى يرسل العميل `POST .../read`؛ وقراءة الأب الإشرافية (CH-05 — بلا عضوية في القناة) لا تقدّم `last_read_seq` لأي عضو.
 - **الصندوق الصادر:** الرسائل دون اتصال تُسلَّم تسلسلياً بلا تكرار؛ والفاشلة تبقى معلقة حتى تنجح أو يحذفها مرسلها. **جدولة إعادة المحاولة (تراجع أسي):** 5 ثوانٍ ثم 10 ثم 20 ثم 40 ثم 80 ثم 160 ثم **5 دقائق كسقف** لكل محاولة تالية؛ وتُصفَّر الجدولة عند نجاح التسليم أو تغيّر حالة الاتصال. **بلا انتهاء زمني:** الرسالة المعلقة لا تنتهي صلاحيتها بالزمن أبداً — تبقى حتى تُسلَّم أو يحذفها مرسلها (مثال: رسالة فشلت 10 مرات تبقى معلقة، ومحاولتها التالية بعد 5 دقائق — السقف). **حد الصندوق:** 200 رسالة معلقة كحد أقصى لكل جهاز؛ وعند بلوغه يُرفض الإرسال الجديد برسالة صريحة داخل التطبيق («الصندوق الصادر ممتلئ — احذف رسائل معلقة أو انتظر عودة الاتصال») ولا يُحذف شيء بصمت. وإعادة المحاولة اليدوية من CH-09 تتجاوز الجدولة (محاولة فورية). (الثوابت — 5 ثوانٍ/السقف/200 — قيم أولية تُثبَّت في مختبر Q-027.)
 - **الاحتفاظ:** لا حذف تلقائي أبداً (Q-082).
 - **مؤشرات الكتابة:** تظهر فقط لأعضاء القناة؛ وعمر المؤشر 5 ثوانٍ من آخر نبضة (`typing` — §4-2)، مع إعادة نشر كل 3 ثوانٍ ما دام الكاتب يكتب؛ ويُمسح فور إرسال الرسالة أو انقطاع الناشر.
