@@ -386,7 +386,7 @@ flowchart TD
     Notify --> FatherRev
     TeenCheck -->|نعم| NoEvent[تُسجَّل منجزة بلا نقاط — لا حدث كسب يصدر]
     TeenCheck -->|لا| Deposit["إيداع النقاط — family/{family_id}/tasks.completed إلى S1-05"]
-    Deposit --> Streak[إيداع النقاط في المحفظة — السلسلة تُحدَّث في S1-05 (REQ-007)]
+    Deposit --> Streak["إيداع النقاط في المحفظة — السلسلة تُحدَّث في S1-05 (REQ-007)"]
     Streak --> Spend[يصرفها الطفل كوقت إضافي للتطبيق — سيناريو 6-6]
     NoEvent --> End([منجزة])
     Spend --> End
