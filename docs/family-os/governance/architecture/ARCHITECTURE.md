@@ -141,14 +141,14 @@ graph TD
 | الهوية والعائلة | `FamilyService` · `MembershipService` · `PairingService` (رمز الجهاز) · `InvitationService` | 1 |
 | الصلاحيات | `PermissionEvaluator` (deny-override) · `GrantStore` · `ScopeChecker` | 1 |
 | الحماية | `CommandDispatcher` · `ScheduleEngine` (bitmask) · `EnforcementSync` · `DeviceState` — يملكها **S1-10 "الحماية والفرض"** (Q-141؛ المواصفة معتمدة Q-146) | 1 |
-| الموقع والسلامة | `LocationIngest` · `SosService` (يستشير `SmsLedger` في الفوترة قبل أي SMS عند الاتصال — Q-106؛ ودون اتصال تُستخدم مرآة الحصة المحلية — Q-163) · `GeofenceEngine` (المرحلة 5، Q-056) | 1 / 5 |
+| الموقع والسلامة | `LocationIngest` · `SosService` (يستشير `SmsLedger` في الفوترة قبل أي SMS عند الاتصال — Q-106؛ ودون اتصال تُستخدم مرآة الحصة المحلية — Q-163؛ والمرآة مغلقة-عند-الفشل بعد 3 مع إشعار — Q-239) · `GeofenceEngine` (المرحلة 5، Q-056) | 1 / 5 |
 | الإشعارات والتوصيل | `OtpRouter` · `PushChannel` (FCM/HMS) · `MqttBridge` | 1 |
 | التواصل | `ChatService` · `MessageService` · `ChatAdminService` (صلاحيات ذرية) | 1 (أساسي S1-08) / 2 (توسيع) |
 | التعليم | `StudySetService` · `SrsEngine` (خادم) · `ProgressService` | 3 |
 | الدين | `PrayerService` (حساب على الجهاز) · `QuranService` · `ReviewQueue` (للمجلس) | 4 |
 | إدارة العائلة | `TaskService` · `CalendarService` · `RewardService` (أطفال فقط) | 1 (مهام/تقويم/مكافآت أساسية S1-05/S1-06) / 5 (كامل) |
 | الذكاء الاصطناعي | `AiGateway` · `BudgetLedger` · `KillSwitch` · `AiAgent` | 1 (عقد + `agent.task.verify` فقط — Q-167) / 6 (كامل) |
-| الفوترة | `PlanService` (أعلام + حصص) · `SubscriptionService` · `PaymentRouter` · `SmsLedger` (حارس حصة SMS يستشيره `SosService` — Q-106/Q-129: المجانية 20/شهر، المميزة 100/شهر، حزمة تعبئة 50، 3 رسائل SOS طارئة بعد النفاد في كل دورة — الحد خطر مقبول موثَّق Q-163؛ ومرآة الحصة المحلية + توقيع SMS + تصعيد 5 دقائق Q-163) | 1 (الحد الأدنى) |
+| الفوترة | `PlanService` (أعلام + حصص) · `SubscriptionService` · `PaymentRouter` · `SmsLedger` (حارس حصة SMS يستشيره `SosService` — Q-106/Q-129: المجانية 20/شهر، المميزة 100/شهر، حزمة تعبئة 50، 3 رسائل SOS طارئة بعد النفاد في كل دورة — الحد خطر مقبول موثَّق Q-163؛ ومرآة الحصة المحلية + توقيع SMS + تصعيد 5 دقائق Q-163) · **مالك مزامنة المرآة (Q-239): `SmsLedger` يملك بروتوكول المزامنة — `POST .../quota/mirror-sync` + الموضوع المحتفظ `family/{family_id}/billing/quota-mirror` بحمولة (رصيد، طوارئ متبقية، نهاية دورة، طابع خادم، `mirror_version`)؛ والخادم يفوز عند التعارض؛ والثلاث الطارئة لكل عائلة تُعد خادمياً عند المزامنة** | 1 (الحد الأدنى) |
 
 ### 5.3 نموذج البيانات الموحد (ERD — النواة + ملخص المرحلة 1)
 
@@ -294,8 +294,9 @@ sequenceDiagram
     S->>P: تنبيه فوري عبر الدفع (الخادم)
     alt الخادم غير reachable (Q-103)
         C->>C: قرار الإرسال من مرآة الحصة المحلية (Q-163) — لا فحص خادمي دون اتصال
-        C->>P: SMS موقّع بالإحداثيات — فقط عند تعذر الخادم؛ يُحسب من الحصة؛ 3 رسائل SOS طارئة بعد النفاد في كل دورة (خطر مقبول موثَّق — Q-163)
+        C->>P: SMS موقّع بالإحداثيات — فقط عند تعذر الخادم؛ يُحسب من الحصة؛ 3 رسائل SOS طارئة بعد النفاد في كل دورة (خطر مقبول موثَّق — Q-163)؛ والمرآة مغلقة-عند-الفشل بعد 3 مع إشعار (Q-239)
     end
+    C->>S: عند عودة الاتصال: مزامنة المرآة (POST .../quota/mirror-sync) — لقطة الخادم تفوز؛ والثلاث الطارئة لكل عائلة تُعد خادمياً (Q-239)
     alt لم يقرّ أي بالغ خلال 5 دقائق (Q-163)
         S->>P: إعادة الدفع والتذكير حتى الإقرار أو الحل
     end

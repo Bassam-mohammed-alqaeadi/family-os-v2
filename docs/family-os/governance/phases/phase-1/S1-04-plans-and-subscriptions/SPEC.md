@@ -1,7 +1,7 @@
 # S1-04: الخطط والاشتراكات (Plans & Subscriptions)
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-06
-- **القرارات الحاكمة:** Q-001 · Q-012 · Q-025 · Q-055 · Q-098 · Q-106 · Q-126 · Q-127 · Q-128 · Q-129 · Q-130 · Q-131 · D-021 · G-006 · G-011 · Q-163 · Q-056 · Q-007 · Q-251
+- **القرارات الحاكمة:** Q-001 · Q-012 · Q-025 · Q-055 · Q-098 · Q-106 · Q-126 · Q-127 · Q-128 · Q-129 · Q-130 · Q-131 · D-021 · G-006 · G-011 · Q-163 · Q-056 · Q-007 · Q-251 · Q-239
 - **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06) · §9 في مرحلة التصميم.
 - **الأدلة المرجعية:** المواصفة القديمة S1-04 (مرجع فقط، G-009) · Qustodio (ترخيص خادمي + حارس حصة + 3 مستويات) · FamiSafe (تجربة 7 أيام + تحقق خادمي من الإيصالات) · FamilyWall (مقعد عائلي واحد + قسائم) · Life360 (تدهور لبق)
 
@@ -135,6 +135,7 @@ flowchart LR
 | `family/{family_id}/billing/quota-warning` | 1 | لا | حصة على وشك النفاد |
 | `family/{family_id}/billing/sub-grace-period` | 1 | لا | دخول فترة السماح |
 | `family/{family_id}/billing/sub-renewed` | 1 | لا | تم التجديد |
+| `family/{family_id}/billing/quota-mirror` | 1 | نعم | لقطة مرآة الحصة المرجعية (الناشر: الفوترة `SmsLedger` — Q-239؛ الحمولة: `{quota_balance, sms_emergency_remaining, cycle_end, server_timestamp, mirror_version}` — تُدفع عند كل تغيير في `quota_usage`؛ والمشترك: كل أجهزة العائلة تستبدل مرآتها كاملةً باللقطة — الخادم يفوز دائماً) |
 
 - المصدر: الوسيط §6 — صف «لوحة/تقويم/فوترة»: QoS 1، Retained لا.
 
@@ -160,7 +161,7 @@ flowchart LR
 - `family_subscription` — اشتراك العائلة: `id` · `family_id` (UNIQUE + RLS) · `plan_id` · `status` (ACTIVE/TRIAL/IN_GRACE_PERIOD/EXPIRED/CANCELLED) · `billing_provider` (SYSTEM_FREE/GOOGLE_PLAY/APPLE_APP_STORE/WALLET/VOUCHER/MANUAL) · `provider_subscription_id` · `provider_original_transaction_id` · `current_period_start`/`current_period_end` · `auto_renew` · `trial_used` · `purchased_by`.
 - `purchase_receipt` — سجل تدقيق مالي: `id` · `family_id` · `user_id` · `provider` · `product_id` · `receipt_data` (حمولة مشفرة) · `validation_status` (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED) · `server_verified_at` · `raw_provider_response` (jsonb).
 - `voucher` — القسيمة: `voucher_id` · `code` (فريد) · `plan_id` · `duration_months` · `status` (ISSUED/REDEEMED/REVOKED/EXPIRED) · `issued_by` (الوكيل) · `issued_at` · `redeemed_by_family_id` · `redeemed_at` · `expires_at`.
-- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` · `sms_emergency_used` · `ai_calls` · `topup_sms_balance` · `updated_at`. (المفتاح: family_id + period.)
+- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` · `sms_emergency_used` · `ai_calls` · `topup_sms_balance` · `updated_at` · `mirror_version` (عدد صحيح رتيب أحادي لكل عائلة+دورة — يملكه الخادم ويُرفع عند كل تغيير في العدّاد؛ يُسلَّم في لقطة المرآة و`POST .../quota/mirror-sync` — S1-07 §4-1). (المفتاح: family_id + period.) **العدّاد مرجع خادمي لكل عائلة لا لكل جهاز:** `sms_emergency_used` يحسب رسائل الطوارئ الثلاث (Q-163) لكل عائلة في الدورة — تُجمع استخدامات كل أجهزة العائلة بعد إزالة التكرار عند المزامنة، فلا يعيد جهاز ثانٍ (Q-230) صرف ما صرفه الأول (Q-239).
 - `payment_confirmation` — سجل الدفع/التأكيد اليدوي (Q-251): `payment_id` · `family_id` (RLS) · `plan_id` · `channel` (WALLET/MANUAL — من `billing_provider`) · `provider` (ONECASH/MAHFATHATI — للمحفظة فقط؛ null لليدوي) · `reference` (الرقم المرجعي المعتم كما قدمه الأب — نص كما هو؛ null قبل التأكيد) · `status` (INITIATED/PENDING_VERIFICATION/VERIFIED/REJECTED) · `initiated_by` · `initiated_at` · `confirmed_at` · `verified_at`. (وعند `VERIFIED` يُكتب سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` — سجل التدقيق المالي.)
 
 **مراجع:** عدد الأعضاء من S1-02 (لحصة الأفراد)؛ وكل شراء/ترقية/إلغاء/استبدال يُسجَّل في AuditEvent (domain=billing)؛ والخطة تُقرأ في S1-09 عبر `GET /api/v1/families/{id}/plan`. **مخازن العميل (ليست جداول خادم):** الخطة المحفوظة + حالة الحصص (للقراءة دون اتصال).
