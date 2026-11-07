@@ -302,6 +302,7 @@ sequenceDiagram
     K->>K: منبّه محلي دقيق يعمل دون اتصال (REQ-014)
     K-->>Family: تذكير لكل العائلة قبل الموعد بساعة
     Ktor->>Family: family/{family_id}/calendar.event.reminder — تذكير حدث (لخدمة التنبيهات، §4)
+    Note over K,Family: التذكير الواحد لا يُعرض مرتين: المنبّه المحلي والحدث نسختا تسليم للتذكير نفسه (reminder_id واحد) — أول وصول يفوز ويُكتم الثاني (§6/§7)
 ```
 
 - تذكير حدث في الماضي يُتجاهل بصمت والحدث نفسه يبقى (§7)؛ وعرض التقويم 3 أشهر مقدماً كحد أقصى (REQ-010).
@@ -385,7 +386,7 @@ flowchart TD
     Notify --> FatherRev
     TeenCheck -->|نعم| NoEvent[تُسجَّل منجزة بلا نقاط — لا حدث كسب يصدر]
     TeenCheck -->|لا| Deposit["إيداع النقاط — family/{family_id}/tasks.completed إلى S1-05"]
-    Deposit --> Streak[تحديث السلسلة + النقاط في المحفظة]
+    Deposit --> Streak[إيداع النقاط في المحفظة — السلسلة تُحدَّث في S1-05 (REQ-007)]
     Streak --> Spend[يصرفها الطفل كوقت إضافي للتطبيق — سيناريو 6-6]
     NoEvent --> End([منجزة])
     Spend --> End
