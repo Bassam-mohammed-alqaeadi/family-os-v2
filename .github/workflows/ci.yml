@@ -24,6 +24,8 @@ jobs:
         run: python3 scripts/check-counts.py
       - name: Verify internal links
         run: python3 scripts/check-links.py
+      - name: Verify REQ coverage
+        run: python3 scripts/check-coverage.py
 
   server:
     name: Server build

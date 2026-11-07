@@ -1,0 +1,507 @@
+[
+ {
+  "system": "S1-01",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "`NotificationCenter` — حافلة أحداث داخلية مركزية لتحديث الواجهة",
+  "used_in": "قناة الأحداث الداخلية للغلاف (§4.1 EventChannel) + تحديث قوالب العرض (REQ-004)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "المزامنة المتسلسلة (Sequential Packets) — ترتيب صارم للأحداث",
+  "used_in": "طابور Outbox بترتيب زمني صارم (REQ-009)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "Bark Kids",
+  "source_app": "bark-kids",
+  "mechanism": "الإقران برمز جهاز يصدره الأب + مقاومة الإزالة برمز الأب",
+  "used_in": "فك الإقران وإلغاء التثبيت يتطلبان PIN الأب (REQ-006)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "محوّل الملفات (Avatar Switcher)",
+  "used_in": "نموذج الملفات وقوالب العرض حسب الدور (REQ-004)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "`FWPermission` — نموذج تسجيل الصلاحيات",
+  "used_in": "السجلات المركزية، وتحديداً `PermissionRegistry` (REQ-011)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "Quizlet",
+  "source_app": "quizlet",
+  "mechanism": "Offline Action Queue + WorkManager + LRU cache",
+  "used_in": "طابور Outbox + التخزين المؤقت وعرض البيانات دون اتصال (REQ-008/REQ-009)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "Life360",
+  "source_app": "life360",
+  "mechanism": "`devicehealth` — مراقبة صحة الجهاز والخدمات الصامتة",
+  "used_in": "مراقب صحة المنصة (REQ-013)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "FamiSafe (parent)",
+  "source_app": "famisafe",
+  "mechanism": "ترميز قائمة جدول أسبوعي `ScreenTimeTool` — قوائم أعداد صحيحة لـ 7 أيام (`allow_time`/`start_time`/`end_time`)؛ بلا عمليات bitmask موثقة",
+  "used_in": "ترميز قائمة الجدول الأسبوعي — يُحفظ ويُعرض عبر الغلاف؛ محرك تقييمه في نظام الحماية والفرض (S1-10 — Q-141)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-01",
+  "source_raw": "Qustodio Kids",
+  "source_app": "qustodio-kids",
+  "mechanism": "DeviceAdmin + Accessibility + VPN + مقاومة الإزالة عبر Accessibility",
+  "used_in": "حدود واجهة وحدة Kotlin للفرض (§4.1) — بنية الوكيل المرجعية",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "تدفق التحقق برقم الهاتف + قراءة SMS تلقائية (`SmsRetriever`)",
+  "used_in": "تسجيل الدخول + تعبئة OTP تلقائياً (REQ-001/REQ-004)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "مهلة OTP ذكية وتحويل تلقائي للقناة التالية",
+  "used_in": "موجّه OTP (REQ-002)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "إنشاء دائرة العائلة + حسابات أطفال دون بيانات اتصال",
+  "used_in": "تأسيس العائلة + ملفات الأطفال (REQ-007/REQ-011)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Bark Kids",
+  "source_app": "bark-kids",
+  "mechanism": "الإقران برمز جهاز يصدره الأب",
+  "used_in": "اقتران أجهزة الأطفال (REQ-014)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Qustodio",
+  "source_app": "qustodio",
+  "mechanism": "نموذج حساب الأهل + ملفات الأطفال المرتبطة",
+  "used_in": "بنية العضوية (REQ-007/REQ-011)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Qustodio Kids",
+  "source_app": "qustodio-kids",
+  "mechanism": "التحقق من سنة الميلاد كنطاق معقول (السنة الحالية − 99 … السنة الحالية) مع خطأ `error_birth_year_invalid`",
+  "used_in": "قاعدة التحقق من سنة الميلاد (REQ-021)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "Quizlet",
+  "source_app": "quizlet",
+  "mechanism": "بوابة «دون السن» — مطالبة بريد الأب عند التسجيل دون السن القانونية",
+  "used_in": "حد الدور 13: `child` حتى 12 / `teen` من 13 (REQ-013) — العتبة معيار COPPA؛ القرار في الخادم عند Quizlet",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-02",
+  "source_raw": "FamiSafe Jr",
+  "source_app": "famisafe-jr",
+  "mechanism": "الدخول/الإقران برمز إقران (`CodeLoginActivity`): إدخال يدوي عبر `VerificationCodeView` أو مسح QR بالكاميرا، مع تحقق خادمي (200 نجاح / 470 رمز خاطئ `wrong_pair_code`)",
+  "used_in": "اقتران أجهزة الأطفال برمز (REQ-014) + رسالة الرمز الخاطئ في الحالات الحدية (§7)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-03",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "`FWPermission` (تعداد أذونات Android): كل إذن يحمل أيقونة + عنوان مبرر + نص مبرر + أذونات Android المقابلة (`com/familywall/app/permissions/FWPermission.java`)",
+  "used_in": "كل مفتاح صلاحية في مصفوفة التفويض يحمل عنواناً عربياً ووصفاً يشرح ما يمنحه (§1، §3، §5)",
+  "kind": "asset",
+  "asset_kinds": [
+   "icon"
+  ],
+  "match": "category-only",
+  "match_category": "icons_images",
+  "match_category_count": 3639
+ },
+ {
+  "system": "S1-03",
+  "source_raw": "Qustodio",
+  "source_app": "qustodio",
+  "mechanism": "نموذج حساب الأهل + ملفات الأطفال المرتبطة به",
+  "used_in": "بنية الأدوار والعضوية (§1، §5)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Qustodio — مستويات وترخيص خادمي (`LicenseType` Free/Trial/Premium + `LicenseSubtype` premium_basic/premium_complete)",
+  "source_app": "qustodio",
+  "mechanism": "3 مستويات + الترخيص من الخادم لا من العميل",
+  "used_in": "§1/§3/§5",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Qustodio — حارس حصة الأجهزة (`license.maxDevices` مقابل `devicesCount` → حوار تجاوز لبق)",
+  "source_app": "qustodio",
+  "mechanism": "حارس الحصص + ترقية لبقة",
+  "used_in": "§3/§6",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Qustodio — `activateRetrial`",
+  "source_app": "qustodio",
+  "mechanism": "تجربة قابلة لإعادة التفعيل (معترف بها، غير معتمدة في م1 — التجربة مرة واحدة)",
+  "used_in": "§3",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "FamiSafe — Premium فقط + SKU دائم + 7 أيام تجربة + أول كوبون + Play Billing 9.1.0 + تحقق خادمي `payment/notify`",
+  "source_app": "famisafe",
+  "mechanism": "نموذج الاشتراك المميز + التجربة + التحقق الخادمي من الإيصالات",
+  "used_in": "§1/§3/§4",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "FamilyWall — Premium واحد للدائرة كاملة (`CircleInfo.isPremium`) + `Features.java` (شاشة دفع لكل ميزة) + `FizApiPremiumRequiredException` + رموز ترويجية",
+  "source_app": "familywall",
+  "mechanism": "مقعد عائلي واحد + حاجز الميزات + القسائم",
+  "used_in": "§1/§3/§5",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Life360 — 4 مستويات (Free/سيلفر/ذهبي/بلاتيني) + تجربة 7 أيام + تدهور لبق",
+  "source_app": "life360",
+  "mechanism": "تدرّج الخطط + التجربة + التراجع اللبق",
+  "used_in": "§1/§3/§6",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Telegram — Premium + Stars",
+  "source_app": "telegram",
+  "mechanism": "نموذج الاشتراك المميز",
+  "used_in": "§1",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Quizlet — Plus + Superwall (paywall SDK)",
+  "source_app": "quizlet",
+  "mechanism": "نمط شاشة الدفع",
+  "used_in": "§1",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "Muslim Pro — Premium + Crescents (عملة افتراضية)",
+  "source_app": "muslim-pro",
+  "mechanism": "عملة افتراضية (معترف بها، غير معتمدة في م1)",
+  "used_in": "§1",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-04",
+  "source_raw": "الفرع القديم S1-04 — وعد الأمان + تراجع لبق + تحقق خادمي من الإيصالات + سجل إيصالات",
+  "source_app": null,
+  "mechanism": "أساس المواصفة — مع إصلاحات: إرسال الـ PIN للخادم حُذف؛ وعدّاد الاستهلاك عُرّف في §5؛ وأسعار متناقضة حُسمت؛ وسجل المواقع 7 أيام (Q-105)؛ وحصة كتالوج الجوائز حُذفت (Q-113)",
+  "used_in": "§1/§3/§4/§5",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-05",
+  "source_raw": "Qustodio — Extra Time (`ducks/extraTime.ts` + `screenTime.ts:200-207`)",
+  "source_app": "qustodio",
+  "mechanism": "الطفل يطلب وقتاً إضافياً ← الأب يوافق على دقائق؛ والمنح قيد ليوم واحد ينتهي بنهايته؛ والصيغة: المتاح = الحد اليومي + الإضافي − المستهلك؛ وإضافة POST / إزالة PUT مع واجهة متفائلة وتراجع",
+  "used_in": "§1 (دورة المحفظة) · §3 REQ-011/012/014 · §4",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-05",
+  "source_raw": "Qustodio — نموذج الحصة لكل تطبيق (`TimeQuotaDto` + `AppRuleDto`)",
+  "source_app": "qustodio",
+  "mechanism": "حصة يومية إجمالية لكل يوم أسبوع + حد لكل تطبيق (ALLOW/BLOCK/LIMIT ودقائق لكل تطبيق)؛ والمتبقي = الحصة + الإضافي − المستهلك؛ وتحذير قبل 5 دقائق؛ وحظر فوري عند النفاد؛ وتسلسل الفرض: النوم > المدرسة > نفاد الحصة؛ ودون اتصال: نبضة خصم كل 60 ثانية + إعادة ضبط منتصف الليل",
+  "used_in": "§1 · §3 REQ-008/015 · §5 (`granted_time`)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-05",
+  "source_raw": "Quizlet — السلاسل والشارات (`usecase/streaks/*` + `remote/model/achievements/*`)",
+  "source_app": "quizlet",
+  "mechanism": "سلاسل يومية/أسبوعية من سجل تواريخ الخادم + 7 فئات شارات + شاشة احتفال + إشعار كسب",
+  "used_in": "§3 REQ-007 · §5 (`child_wallet.streak_days`)",
+  "kind": "asset",
+  "asset_kinds": [
+   "badge"
+  ],
+  "match": "category-only",
+  "match_category": "icons_images",
+  "match_category_count": 641
+ },
+ {
+  "system": "S1-05",
+  "source_raw": "FamilyWall — إسناد المهام (قوائم مشتركة + `list_items` بالإسناد والإنجاز)",
+  "source_app": "familywall",
+  "mechanism": "نمط إسناد مهمة لعضو + إنجازها — بلا نقاط وبلا موافقة أب في المصدر (النمط وحده هو المعاد استخدامه)",
+  "used_in": "§1 · §3 REQ-004/013",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-05",
+  "source_raw": "FamiSafe — تمديد مؤقت حتى منتصف الليل (`screen_limit_dialog_tip` + `ScreenTimeV5Bean.java`)",
+  "source_app": "famisafe",
+  "mechanism": "تمديد مؤقت ينتهي منتصف الليل (ليس رصيداً — \"Bonus Time\" علامة خطة/ترويج لا رصيد)",
+  "used_in": "§3 REQ-009 (انتهاء الوقت المصروف بنهاية اليوم)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — القوائم المشتركة (`TaskListBean` + `TaskListTypeEnum`)",
+  "source_app": "familywall",
+  "mechanism": "قوائم بأنواع (TODO/تسوق/أخرى) + مشاركة لأعضاء أو للجميع + حقوق لكل قائمة + عدّادات (الإجمالي/المتبقي)",
+  "used_in": "§1 · §3 REQ-002 · §5",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — الإسناد (`AssigneeBean`)",
+  "source_app": "familywall",
+  "mechanism": "إسناد لعدة أشخاص أو \"للجميع\" أو \"بلا إسناد\"؛ وعرض المهمة بلون العضو المُسند",
+  "used_in": "§1 · §3 REQ-001",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — الإنجاز الذاتي (`TaskBean` + `ITaskApi.markCompleted`)",
+  "source_app": "familywall",
+  "mechanism": "إنجاز بعلامة بوليانية + تاريخ + من أنجز؛ والتراجع عنه بنفس الدالة — كخطوة تسليم أولى لا كاعتماد نهائي",
+  "used_in": "§1 · §3 REQ-006",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — التكرار الكامل (`RecurrencyDescriptor`)",
+  "source_app": "familywall",
+  "mechanism": "نموذج iCalendar كامل: `rrule` + `byDay` + `byMonthDay` + `interval` + `endDate`/`endOccurence` + `exdate` + `rdate`",
+  "used_in": "§3 REQ-010 · §5",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — التذكير الموحد (`ReminderBean` + `ReminderBroadcastReceiver`)",
+  "source_app": "familywall",
+  "mechanism": "تذكير موحد للمهام والأحداث (قيمة + وحدة يوم/ساعة/دقيقة + نوع) بمنبّه محلي دقيق (AlarmManager + `SCHEDULE_EXACT_ALARM`)",
+  "used_in": "§3 REQ-014 · §4",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "FamilyWall — الاقتراحات والمزامنة (`getTaskSuggestions` + `listforSync`)",
+  "source_app": "familywall",
+  "mechanism": "اقتراحات عناصر من الخادم (قبول/رفض) + مزامنة دلتا برمز + معرّف عملية عميل لمنع التكرار",
+  "used_in": "§3 REQ-016 · §4",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "Qustodio — حساب الأسبوع الدائري (`routines.ts`)",
+  "source_app": "qustodio",
+  "mechanism": "دقيقة الأسبوع 0–10080 + كشف تعارضات + تسلسل حسم (نوم > مدرسة > حصة) — جدولة لا مهام",
+  "used_in": "§3 REQ-010 (محرك التكرار)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-06",
+  "source_raw": "الفرع القديم S1-06 (فكرة بعد المراجعة)",
+  "source_app": null,
+  "mechanism": "الاعتماد ثنائي الخطوة (يُعاد بناؤه حول Q-110) + عقد `family/{family_id}/tasks.completed` + أفق توليد 3 أشهر + التقويم المزدوج",
+  "used_in": "§1 · §3 · §4",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-07",
+  "source_raw": "Life360",
+  "source_app": "life360",
+  "mechanism": "تنعيم مسار GPS بمرشح Kalman Filter (منع القفزات الوهمية) + توفير بطارية تكيفي (خفض التردد عند السكون) + بروتوكول SOS",
+  "used_in": "§1، §3 (التتبع والاستغاثة)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-07",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "شاشة خريطة الأسرة التجميعية (الأعضاء + الحالة في مكان واحد)",
+  "used_in": "§1، §3 (الخريطة العائلية)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-08",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "عرض فوري محلي بـ `random_id` متفائل + صندوق صادر (Transactional Outbox) ثم مزامنة خلفية",
+  "used_in": "§1، §3 (إرسال دون انتظار الخادم)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-08",
+  "source_raw": "Telegram",
+  "source_app": "telegram",
+  "mechanism": "محادثات سحابية (تشفير خادم) + محادثات سرية E2E — نموذجان معاً في تطبيق واحد",
+  "used_in": "§1، §6 (Envelope للقنوات العائلية + E2E لقناة الوالدين)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-08",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "قنوات عائلية (مجلس + ثنائية)",
+  "used_in": "§1، §3",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-09",
+  "source_raw": "Life360",
+  "source_app": "life360",
+  "mechanism": "لوحة العائلة تجمع حالة الأعضاء (الخريطة + الحالة) في مكان واحد",
+  "used_in": "لوحة التحكم الموحدة (§1، §3)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-09",
+  "source_raw": "FamilyWall",
+  "source_app": "familywall",
+  "mechanism": "لوحة العائلة بأقسام (تقويم/مهام/موقع)",
+  "used_in": "مركز يجمع الأنظمة (§1، §3)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Qustodio — نموذج الحصة لكل تطبيق (`TimeQuotaDto` + `AppRuleDto`)",
+  "source_app": "qustodio",
+  "mechanism": "حصة يومية إجمالية لكل يوم أسبوع (0–1440 دقيقة) + حد لكل تطبيق (ALLOW/BLOCK/LIMIT ودقائق لكل تطبيق)؛ والمتبقي = الحصة + الإضافي − المستهلك؛ وتحذير قبل 5 دقائق؛ وحظر فوري عند النفاد؛ ودون اتصال: نبضة خصم كل 60 ثانية + إعادة ضبط منتصف الليل + ساعة رتيبة",
+  "used_in": "§3 REQ-001/002/004/005/015 · §5 (`app_rule` · `app_usage_daily`)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Qustodio — تسلسل الفرض (`screenTime.ts`)",
+  "source_app": "qustodio",
+  "mechanism": "تسلسل الفرض: النوم > المدرسة > نفاد الحصة",
+  "used_in": "§3 REQ-010 — **كالترتيب الافتراضي فقط** (Q-145)؛ وإعادة الترتيب بيد الأب تركيبنا",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Qustodio — الجدول الأسبوعي (RRULE + حساب دائري 10080 دقيقة/أسبوع)",
+  "source_app": "qustodio",
+  "mechanism": "جدول أسبوعي متكرر + كشف تعارض عند الحفظ",
+  "used_in": "§3 REQ-006 (الترميز قائمة 7 أيام نمط FamiSafe؛ وكشف التعارض)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "FamiSafe (parent) — ترميز قائمة الجدول الأسبوعي `ScreenTimeTool`",
+  "source_app": "famisafe",
+  "mechanism": "قوائم أعداد صحيحة لـ 7 أيام (`allow_time`/`start_time`/`end_time`) — بلا عمليات bitmask موثقة",
+  "used_in": "§5 (`weekly_schedule.windows` — قائمة، لا bitmask)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Qustodio Kids — DeviceAdmin + Accessibility + VPN + مقاومة الإزالة",
+  "source_app": "qustodio-kids",
+  "mechanism": "مقاومة الإزالة عبر Accessibility + خدمة خلفية دائمة + DeviceAdmin",
+  "used_in": "§3 REQ-021/022 · §4-1 (حدود وحدة Kotlin)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Bark Kids — رمز جهاز يصدره الأب",
+  "source_app": "bark-kids",
+  "mechanism": "إلغاء تثبيت وكيل الطفل يتطلب رمزاً يصدره الأب",
+  "used_in": "§3 REQ-023 (إلغاء التثبيت يتطلب PIN الأب — S1-01 REQ-006)",
+  "kind": "logic",
+  "match": "n/a-logic"
+ }
+]

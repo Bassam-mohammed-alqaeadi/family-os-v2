@@ -1,0 +1,274 @@
+{
+ "totals": {
+  "total_files": 23802,
+  "total_size_kb": 400247.3
+ },
+ "cat_totals": {
+  "icons_images": {
+   "count": 14372,
+   "size_kb": 79133.0
+  },
+  "animations": {
+   "count": 1011,
+   "size_kb": 867.7
+  },
+  "sounds_media": {
+   "count": 1719,
+   "size_kb": 141074.7
+  },
+  "fonts": {
+   "count": 196,
+   "size_kb": 19356.5
+  },
+  "other_assets": {
+   "count": 6499,
+   "size_kb": 159086.4
+  },
+  "ts_sources_assets": {
+   "count": 5,
+   "size_kb": 729
+  }
+ },
+ "per_app": {
+  "bark-kids": {
+   "total_files": 554,
+   "total_size_kb": 35729,
+   "categories": {
+    "icons_images": 476,
+    "animations": 56,
+    "sounds_media": 9,
+    "fonts": 10,
+    "other_assets": 3
+   }
+  },
+  "bark": {
+   "total_files": 385,
+   "total_size_kb": 3517,
+   "categories": {
+    "icons_images": 247,
+    "animations": 129,
+    "sounds_media": 5,
+    "fonts": 1,
+    "other_assets": 3
+   }
+  },
+  "familywall": {
+   "total_files": 3947,
+   "total_size_kb": 29348,
+   "categories": {
+    "icons_images": 3639,
+    "animations": 217,
+    "sounds_media": 81,
+    "fonts": 3,
+    "other_assets": 7
+   }
+  },
+  "famisafe-jr": {
+   "total_files": 2033,
+   "total_size_kb": 19434.7,
+   "categories": {
+    "icons_images": 1312,
+    "animations": 75,
+    "sounds_media": 9,
+    "fonts": 1,
+    "other_assets": 636
+   }
+  },
+  "famisafe": {
+   "total_files": 2341,
+   "total_size_kb": 54076,
+   "categories": {
+    "icons_images": 2173,
+    "animations": 108,
+    "sounds_media": 14,
+    "fonts": 1,
+    "other_assets": 45
+   }
+  },
+  "life360": {
+   "total_files": 4017,
+   "total_size_kb": 54618.0,
+   "categories": {
+    "icons_images": 2114,
+    "animations": 79,
+    "sounds_media": 134,
+    "fonts": 22,
+    "other_assets": 1668
+   }
+  },
+  "muslim-pro": {
+   "total_files": 5074,
+   "total_size_kb": 61236.4,
+   "categories": {
+    "icons_images": 2013,
+    "animations": 112,
+    "sounds_media": 520,
+    "fonts": 30,
+    "other_assets": 2399
+   }
+  },
+  "quizlet": {
+   "total_files": 2399,
+   "total_size_kb": 13443.2,
+   "categories": {
+    "icons_images": 641,
+    "animations": 102,
+    "sounds_media": 29,
+    "fonts": 74,
+    "other_assets": 1553
+   }
+  },
+  "qustodio-kids": {
+   "total_files": 562,
+   "total_size_kb": 3244,
+   "categories": {
+    "icons_images": 490,
+    "animations": 55,
+    "sounds_media": 11,
+    "fonts": 4,
+    "other_assets": 2
+   }
+  },
+  "qustodio": {
+   "total_files": 923,
+   "total_size_kb": 96151,
+   "categories": {
+    "icons_images": 368,
+    "animations": 31,
+    "sounds_media": 405,
+    "fonts": 17,
+    "other_assets": 97,
+    "ts_sources_assets": 5
+   }
+  },
+  "telegram": {
+   "total_files": 1567,
+   "total_size_kb": 29450,
+   "categories": {
+    "icons_images": 899,
+    "animations": 47,
+    "sounds_media": 502,
+    "fonts": 33,
+    "other_assets": 86
+   }
+  }
+ },
+ "re": {
+  "total": 55,
+  "logic": 53,
+  "asset": 2,
+  "matched_strong": 0,
+  "matched_category_only": 2,
+  "gap_a_none": 0,
+  "unknown_source": 0
+ },
+ "screens": {
+  "total": 131,
+  "gap_b": 4
+ },
+ "per_system": {
+  "S1-01": {
+   "re_total": 9,
+   "re_logic": 9,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 12,
+   "gap_b": 1
+  },
+  "S1-02": {
+   "re_total": 8,
+   "re_logic": 8,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 27,
+   "gap_b": 3
+  },
+  "S1-03": {
+   "re_total": 2,
+   "re_logic": 1,
+   "re_asset": 1,
+   "re_matched": 1,
+   "re_gap_a": 0,
+   "screens": 18,
+   "gap_b": 0
+  },
+  "S1-04": {
+   "re_total": 10,
+   "re_logic": 10,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 11,
+   "gap_b": 0
+  },
+  "S1-05": {
+   "re_total": 5,
+   "re_logic": 4,
+   "re_asset": 1,
+   "re_matched": 1,
+   "re_gap_a": 0,
+   "screens": 9,
+   "gap_b": 0
+  },
+  "S1-06": {
+   "re_total": 8,
+   "re_logic": 8,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 9,
+   "gap_b": 0
+  },
+  "S1-07": {
+   "re_total": 2,
+   "re_logic": 2,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 7,
+   "gap_b": 0
+  },
+  "S1-08": {
+   "re_total": 3,
+   "re_logic": 3,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 10,
+   "gap_b": 0
+  },
+  "S1-09": {
+   "re_total": 2,
+   "re_logic": 2,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 14,
+   "gap_b": 0
+  },
+  "S1-10": {
+   "re_total": 6,
+   "re_logic": 6,
+   "re_asset": 0,
+   "re_matched": 0,
+   "re_gap_a": 0,
+   "screens": 14,
+   "gap_b": 0
+  }
+ },
+ "audio_counts_exact_where_known": {
+  "bark-kids": 0,
+  "bark": 0,
+  "familywall": 0,
+  "famisafe-jr": 0,
+  "famisafe": 0,
+  "life360": 0,
+  "muslim-pro": 0,
+  "quizlet": 0,
+  "qustodio-kids": 0,
+  "qustodio": 0,
+  "telegram": 12
+ }
+}
