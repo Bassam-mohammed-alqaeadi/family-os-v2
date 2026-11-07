@@ -18,7 +18,7 @@
 
 ## 3. المصادقة — شهادة الجهاز
 
-- شهادة الجهاز تُتبادل عند الإقران (S1-02 REQ-014 — `device_cert` في `POST /devices/pair`)؛ واسم المستخدم = `device_id`.
+- شهادة الجهاز تُتبادل عند الإقران (S1-02 REQ-014 — `device_cert` في `POST /api/v1/identity/devices/pair`)؛ واسم المستخدم = `device_id`.
 - الخادم يتحقق من الشهادة ويطابقها مع `device_pairing`؛ وكل جهاز يصل فقط إلى مواضيع عائلته (ACL خادمي — §5).
 - محاولة جهاز الاشتراك في عائلة أخرى تُرفض وتُسجَّل في التدقيق.
 
@@ -42,28 +42,31 @@
 | `family/{family_id}/permissions/sync` | خادم → طفل | لقطة المنح — محفوظة (retained) | S1-03 |
 | `family/{family_id}/permissions/revoked` | خادم → طفل | إبطال منح | S1-03 |
 | `family/{family_id}/permissions/grant-expiring` | خادم → طفل | منح قريب من الانتهاء | S1-03 |
-| `family/{family_id}/sos/new` | طفل → خادم | تنبيه SOS | S1-07 |
+| `family/{family_id}/sos/new` | خادم → الكل | تنبيه SOS (ينشره الخادم بعد استلامه عبر REST — Q-163) | S1-07 |
 | `family/{family_id}/sos/acknowledged` | خادم/أب → الكل | إقرار SOS | S1-07 |
 | `family/{family_id}/sos/resolved` | خادم/أب → الكل | حل SOS | S1-07 |
-| `family/{family_id}/location/updated` | طفل → خادم | الموقع الحي | S1-07 |
-| `family/{family_id}/alerts/new` | خادم → أهل | تنبيه جديد | S1-09 |
+| `family/{family_id}/location/updated` | خادم → الكل | الموقع الحي (ينشره الخادم بعد استلامه عبر REST) | S1-07 |
+| `family/{family_id}/alerts/new` | خادم → أهل | تنبيه جديد (ومنها إشعارات الاسترداد — Q-210) | S1-09 |
 | `family/{family_id}/tasks.submitted` · `tasks.completed` · `tasks.verification-revoked` | طفل/خادم → الكل | دورة المهام والتحقق | S1-05/S1-06 |
 | `family/{family_id}/time-request/new` · `time-request/decided` | طفل/أب → الكل | طلب وقت إضافي وقراره | S1-05 |
 | `family/{family_id}/wallet/updated` | خادم → الكل | تغيّر رصيد المحفظة | S1-05 |
-| `family/{family_id}/chat/{channelId}` | الكل ↔ الكل | رسائل المحادثة | S1-08 |
+| `family/{family_id}/chat/{channelId}/message` | خادم → الكل | رسالة جديدة (QoS 1) | S1-08 |
+| `family/{family_id}/chat/{channelId}/typing` | الكل ↔ الكل | مؤشر كتابة حي (QoS 1) | S1-08 |
+| `family/{family_id}/chat/{channelId}/deleted` | خادم → الكل | حذف رسالة (QoS 1) | S1-08 |
 | `family/{family_id}/dashboard/updated` · `calendar.event.reminder` · `billing/*` | خادم → أهل | لوحة الأهل والتذكير والفوترة | S1-09/S1-06/الفوترة |
 
 ## 6. QoS والاحتفاظ — جدول ملزم
 
 | نوع الرسالة | QoS | Retained | الإقرار التطبيقي |
 |---|---|---|---|
-| الأوامر (`commands` / `rules-updated` / `free-mode`) | 1 | لا | إلزامي (ack + `command_id`) |
-| لقطة المنح والقواعد (`permissions/sync`) | 1 | **نعم** (آخر لقطة عند إعادة الاتصال) | — |
-| SOS (`sos/new` + الإقرار) | 1 | لا | إلزامي + تصعيد (Q-163) |
-| العبث والتنبيهات (`tamper` / `alerts/new`) | 1 | لا | — (Outbox عند الانقطاع) |
+| الأوامر (`family/{family_id}/devices/{device_id}/commands` / `family/{family_id}/protection/rules-updated` / `family/{family_id}/protection/free-mode`) | 1 | لا | إلزامي (ack + `command_id`) |
+| لقطة المنح والقواعد (`family/{family_id}/permissions/sync`) | 1 | **نعم** (آخر لقطة عند إعادة الاتصال) | — |
+| SOS (`family/{family_id}/sos/new` + الإقرار) | 1 | لا | إلزامي + تصعيد (Q-163) |
+| العبث والتنبيهات (`family/{family_id}/protection/tamper` / `family/{family_id}/alerts/new`) | 1 | لا | — (Outbox عند الانقطاع) |
 | الأحداث (`tasks.*` / `wallet` / `time-request` / `chat`) | 1 | لا | — |
-| الموقع الحي (`location/updated`) | 0 | لا | — (متكرر؛ والفقدان يُعوَّض بالتحديث التالي + سجل REST) |
-| حالة الجهاز الدورية (`device/state`) | 0 | **نعم** (آخر حالة) | — |
+| لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar.event.reminder` / `family/{family_id}/billing/*`) | 1 | لا | — |
+| الموقع الحي (`family/{family_id}/location/updated`) | 0 | لا | — (متكرر؛ والفقدان يُعوَّض بالتحديث التالي + سجل REST) |
+| حالة الجهاز الدورية (`family/{family_id}/device/{device_id}/state`) | 0 | **نعم** (آخر حالة) | — |
 | القياس والبطارية | 0 | لا | — |
 
 - **QoS 1 = تسليم مرة على الأقل + إزالة تكرار بـ `command_id`/`message_id`.**
