@@ -206,7 +206,7 @@ flowchart LR
 | `POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset}` | تطبيق إعداد مسبق (REQ-024) | `preset: "study" \| "sleep" \| "free"` (+ `duration_minutes` للحر) | القواعد المطبَّقة |
 | `GET /api/v1/families/{id}/audit/protection` | سجل تدقيق الحماية (REQ-026) | `?child_id&from&to` | قائمة الأحداث |
 
-الأخطاء: صيغة موحدة `{code, message_ar, trace_id}`؛ كل طلب يحمل سياق `family_id`؛ رفض أي طلب خارج العائلة (403). رموز هذا النظام (`PRT_*`): `RULE_NOT_FOUND` · `INVALID_RULE` (دقائق خارج 0–1440 أو حزمة غير معروفة) · `SCHEDULE_CONFLICT` (نوافذ متداخلة — REQ-006) · `FREE_MODE_NOT_OWNER` (التفعيل للمالك فقط — REQ-018) · `FREE_MODE_ACTIVE` (وضع حر سارٍ أصلاً) · `PRIORITY_INVALID` (نوع غير معروف أو مكرر في الترتيب) · `APP_NOT_MANAGED` (التطبيق خارج إدارة النظام) · `VERSION_CONFLICT` (قفل تفاؤلي — أعد التحميل).
+الأخطاء: صيغة موحدة `{code, message_ar, trace_id}`؛ كل طلب يحمل سياق `family_id`؛ رفض أي طلب خارج العائلة (403). رموز هذا النظام: `RULE_NOT_FOUND` · `INVALID_RULE` (دقائق خارج 0–1440 أو حزمة غير معروفة) · `SCHEDULE_CONFLICT` (نوافذ متداخلة — REQ-006) · `FREE_MODE_NOT_OWNER` (التفعيل للمالك فقط — REQ-018) · `FREE_MODE_ACTIVE` (وضع حر سارٍ أصلاً) · `PRIORITY_INVALID` (نوع غير معروف أو مكرر في الترتيب) · `APP_NOT_MANAGED` (التطبيق خارج إدارة النظام) · `VERSION_CONFLICT` (قفل تفاؤلي — أعد التحميل).
 
 ### 4-3. أحداث MQTT (البادئة الموحدة `family/{family_id}/` — D-021)
 
@@ -472,7 +472,6 @@ flowchart LR
 - **النصوص الدقيقة (مصدر الترجمة):**
   - `screens.s10-05.title` — «تطبيقات الدراسة»
   - `screens.s10-05.none_selected` — «لم تختر تطبيقات دراسة بعد — كل التطبيقات تُحظر في وقت المدرسة»
-  - `screens.s10-05.storage_pending` — «مكان حفظ هذه القائمة بانتظار الحكم»
 
 #### S10-06 — ترتيب أنواع القواعد مع المعاينة
 
