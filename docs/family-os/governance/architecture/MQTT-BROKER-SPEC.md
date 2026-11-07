@@ -29,13 +29,14 @@
 - شهادة خادم الوسيط تُدوَّر مع شهادات المنصة؛ وانتهاء شهادة جهاز يمنع اتصاله حتى التجديد — ويُشعَر الأب.
 
 ## 5. شجرة المواضيع — البادئة الموحدة `family/{family_id}/` (D-021)
+> **قاعدة التسمية (Q-195):** الجمع هو المرجع في كل المواضيع (`devices/...`)، باستثناء موضوع الحالة `device/{device_id}/state` الذي يبقى مفرداً (متفق عليه في كل مكان) — لا يُعاد تسميته إلى الجمع.
 
 | الموضوع | الاتجاه | الغرض | النظام المالك |
 |---|---|---|---|
 | `family/{family_id}/devices/{device_id}/commands` | خادم → طفل | الأوامر (حظر/قاعدة/وضع حر) — QoS 1 + `command_id` + إقرار | S1-10 §4-3 |
 | `family/{family_id}/devices/{device_id}/acks` | طفل → خادم | إقرار تنفيذ أمر (`command_id` + النتيجة) — QoS 1 | S1-10 §4-3 |
 | `family/{family_id}/devices/{device_id}/status` | طفل → خادم | حالة الاتصال — محفوظة (retained) + last will = `offline` | S1-10 §4-3 |
-| `family/{family_id}/device/{device_id}/state` | طفل → خادم | حالة الفرض الدورية (S1-01 §4.3) | S1-10 §4-3 |
+| `family/{family_id}/device/{device_id}/state` | طفل → خادم | حالة الفرض الدورية (S1-01 §4.3) — مفرد per Q-195 | S1-10 §4-3 |
 | `family/{family_id}/protection/rules-updated` | خادم → طفل | تغيّرت قاعدة/جدول/ترتيب | S1-10 §4-3 |
 | `family/{family_id}/protection/free-mode` | خادم → طفل | تفعيل/إلغاء/انتهاء الوضع الحر | S1-10 §4-3 |
 | `family/{family_id}/protection/tamper` | طفل → خادم | حدث عبث | S1-10 §4-3 |
@@ -66,7 +67,7 @@
 | الأحداث (`tasks.*` / `wallet` / `time-request` / `chat`) | 1 | لا | — |
 | لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar.event.reminder` / `family/{family_id}/billing/*`) | 1 | لا | — |
 | الموقع الحي (`family/{family_id}/location/updated`) | 0 | لا | — (متكرر؛ والفقدان يُعوَّض بالتحديث التالي + سجل REST) |
-| حالة الجهاز الدورية (`family/{family_id}/device/{device_id}/state`) | 0 | **نعم** (آخر حالة) | — |
+| حالة الجهاز الدورية (`family/{family_id}/device/{device_id}/state` — مفرد per Q-195) | 0 | **نعم** (آخر حالة) | — |
 | القياس والبطارية | 0 | لا | — |
 
 - **QoS 1 = تسليم مرة على الأقل + إزالة تكرار بـ `command_id`/`message_id`.**

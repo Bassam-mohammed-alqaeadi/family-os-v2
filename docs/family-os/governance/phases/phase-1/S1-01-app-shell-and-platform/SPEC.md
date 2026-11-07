@@ -3,7 +3,7 @@
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-05
 - **القرارات الحاكمة:** Q-001 · Q-002 · Q-003 · Q-005 · Q-006 · Q-007 · Q-008 · Q-011 · Q-022 · Q-031 · Q-054 · Q-055 · Q-056 · Q-061 · Q-062 · Q-063 · Q-064 · Q-065 · Q-066 · Q-067 · Q-068 · Q-069 · Q-070 · Q-141 · Q-142 · G-006 · G-007 · D-023 · D-024 · D-038 · Q-195
 - **حالة المراجعة:** الأقسام 1–8 + §10 معتمدة بالكامل في التخطيط — حكم المالك 2026-11-06 · **§9 في مرحلة التصميم (Q-091)**.
-- **الأدلة المرجعية:** المواصفة القديمة S1-01 (مرجع فقط، G-009) · Deep-dives: Telegram (NotificationCenter, single-activity shell) · Bark (shell FSM) · FamilyWall (profile switcher) · Quizlet (offline queue) · Life360 (devicehealth) · نظام التصميم (14 ملف Flutter) · `ARCHITECTURE.md` §5 · `CONTEXT-MAP.md`
+- **الأدلة المرجعية:** المواصفة القديمة S1-01 (مرجع فقط، G-009) · Deep-dives: Telegram (NotificationCenter, single-activity shell) · Bark (shell FSM) · FamilyWall (profile switcher) · Quizlet (offline queue) · Life360 (devicehealth) · نظام التصميم (15 ملف Markdown — بلا Dart) · `ARCHITECTURE.md` §5 · `CONTEXT-MAP.md`
 
 ## 1. الهدف والتحليل والنطاق
 
