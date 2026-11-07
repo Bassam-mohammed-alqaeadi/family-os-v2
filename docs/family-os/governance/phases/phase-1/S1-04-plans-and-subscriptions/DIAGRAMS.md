@@ -165,7 +165,7 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-خمسة مخططات، كل واحد لتدفق واحد:
+خمسة مخططات، كل واحد لتدفق واحد — زائد مخططا الدفع اليمني (3-و/3-ز، Q-251): سبعة مخططات بالمجموع.
 
 ### 3-أ. الترقية عبر المتجر — الخليج (REQ-005/007 — §4)
 
@@ -306,6 +306,64 @@ sequenceDiagram
 
 - الأعضاء الحاليون عند التراجع اللبق يبقون فعالين مع حظر إضافة جدد فقط (REQ-014)؛ وحد الأفراد: 5 / 10 / غير محدود (§1).
 
+### 3-و. بدء دفع محفظة يمنية والتحقق منه (REQ-006 — §4/§5 — Q-251)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant Adapter as محول مزوّد المحفظة
+    participant Audit as التدقيق
+    Father->>App: اختيار محفظة يمنية من S04-05
+    App->>Ktor: POST /api/v1/families/{id}/billing/wallet/initiate {plan_id, provider}
+    Ktor->>Ktor: إنشاء سجل دفع payment_confirmation (status=INITIATED)
+    Ktor-->>App: {payment_id, status: "initiated"}
+    Father->>App: إتمام الدفع في تطبيق المحفظة
+    App->>Ktor: POST /api/v1/families/{id}/billing/wallet/confirm {payment_id, wallet_reference}
+    alt رقم مرجعي مستخدم من قبل
+        Ktor-->>App: 409 REFERENCE_DUPLICATE
+    else رقم مرجعي جديد
+        Ktor->>Ktor: status=PENDING_VERIFICATION — بانتظار تحقق المزوّد
+        Ktor-->>App: {payment_id, status: "pending_verification"}
+        Adapter->>Ktor: تأكيد المزوّد عبر المحول — بلا تفاصيل API حتى عقد حقيقي
+        alt تأكيد صحيح
+            Ktor->>Ktor: status=VERIFIED + تفعيل الاشتراك + سجل purchase_receipt
+            Ktor->>Audit: AuditEvent (domain=billing)
+            Ktor-->>App: اشتراك ACTIVE
+        else رفض التحقق
+            Ktor->>Ktor: status=REJECTED
+            Ktor-->>App: PAYMENT_FAILED — الاشتراك الحالي يبقى حتى نهاية فترته
+        end
+    end
+```
+
+- الرقم المرجعي نص معتم ينقله الأب كما يظهر في تطبيق المحفظة — لا يُعتمد دليل دفع حتى تحقق المزوّد عبر `WalletProviderAdapter` (بلا تفاصيل API حتى عقد حقيقي)؛ ولا يُفعَّل الاشتراك قبل `VERIFIED` (REQ-007)؛ وتفاصيل تمرير المبلغ إلى تطبيق المحفظة من العقد الحقيقي — لا تُخترع هنا (§4).
+
+### 3-ز. تأكيد دفع يدوي مسبق (REQ-006 — §4/§5 — Q-251)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant Audit as التدقيق
+    Father->>App: إدخال الرقم المرجعي للدفع اليدوي المسبق
+    App->>Ktor: POST /api/v1/families/{id}/billing/manual/confirm {plan_id, reference}
+    alt رقم مرجعي مستخدم من قبل
+        Ktor-->>App: 409 REFERENCE_DUPLICATE
+    else رقم مرجعي جديد
+        Ktor->>Ktor: إنشاء سجل دفع payment_confirmation (status=PENDING_VERIFICATION)
+        Ktor->>Audit: AuditEvent (domain=billing)
+        Ktor-->>App: {payment_id, status: "pending_verification"}
+        Note over Ktor: لا يُفعَّل الاشتراك قبل التحقق الخادمي (REQ-007)؛ وقناة التحقق تُسمى عند إجراء حقيقي — بلا تفاصيل مخترعة
+    end
+```
+
+- الدفع اليدوي مسبق: الأب يدفع أولاً خارج التطبيق ثم يؤكد بالرقم المرجعي؛ والسجل يبقى «بانتظار التحقق» حتى يصل التحقق الخادمي؛ ولا تفعيل قبل `VERIFIED` (§4).
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
 
 ```mermaid
@@ -347,9 +405,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–7.0، والمخازن D1–D6 (جداول خادم PostgreSQL). المخزن D7 محفوظ محلياً على الجهاز (للقراءة دون اتصال) وليس جدول خادم.
+العمليات مرقمة 1.0–7.0، والمخازن D1–D6 وD8 (جداول خادم PostgreSQL). المخزن D7 محفوظ محلياً على الجهاز (للقراءة دون اتصال) وليس جدول خادم.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — تمر عبر P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — تُقرأ عبر P4) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — تمر عبر P7)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، voucher/redeem، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — تمر عبر P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — تُقرأ عبر P4) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — تمر عبر P7)؛ ونقاط الدفع اليمني الجديدة `POST /api/v1/families/{id}/billing/wallet/initiate` و`POST /api/v1/families/{id}/billing/wallet/confirm` و`POST /api/v1/families/{id}/billing/manual/confirm` تمر عبر P3 (3-و/3-ز — Q-251)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، voucher/redeem، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
 
 ```mermaid
 flowchart LR
@@ -381,6 +439,7 @@ flowchart LR
         D5[(D5 voucher)]
         D6[(D6 quota_usage)]
         D7[(D7 الخطة المحفوظة — محلي)]
+        D8[(D8 payment_confirmation)]
     end
 
     Ktor([خادم Ktor])
@@ -404,6 +463,7 @@ flowchart LR
     Wallet -->|تأكيد الدفع| P3
     Agent -->|إصدار قسيمة| D5
     P3 -->|التحقق من القسيمة| D5
+    P3 -->|حفظ سجل الدفع / التأكيد اليدوي| D8
     P3 -->|تفعيل الاشتراك| D3
     S102 -->|عدد الأعضاء| P4
     S107 -->|طلب SMS| P4

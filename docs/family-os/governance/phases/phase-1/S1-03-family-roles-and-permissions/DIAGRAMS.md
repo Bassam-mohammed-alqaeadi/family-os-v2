@@ -246,8 +246,11 @@ sequenceDiagram
     participant اللقطة as Snapshot
     participant K as Kotlin
     System->>Ktor: POST /api/v1/permissions/check {member_id, permission_key, scope?}
+    Ktor->>Ktor: قاعدة المالك أولاً (§6-3 — Q-232): adult + is_owner=true ← allowed
     Ktor->>Ktor: المنح النشط = revoked_at IS NULL و valid_until > now (§6-3)
-    alt رفض صريح نشط (is_granted=false)
+    alt المالك (is_owner=true)
+        Ktor-->>System: {allowed: true, reason: granted} — قاعدة المالك (Q-232)
+    else رفض صريح نشط (is_granted=false)
         Ktor-->>System: {allowed: false, reason: denied}
     else مفتاح غير معروف أو نطاق غامض
         Ktor-->>System: {allowed: false, reason: denied} — الغموض لصالح الحماية (REQ-005)
@@ -268,6 +271,7 @@ sequenceDiagram
     end
 ```
 
+- قاعدة المالك أولاً (§6-3 — Q-232): `adult` + `is_owner=true` → `allowed` بلا منح صريح؛ والتجاوز تقييم فقط — لا يشمل التدقيق أبداً ولا فحوص `PERM_HARD_INVARIANT` ولا يمتد لغير المالك. والمسار المحلي يطبق قاعدة المالك نفسها حين يكون العضو المفحوص مالكاً (§6-3).
 - أي رفض صريح نشط يفوز على أي منح سامح (§6-3 — deny-override)؛ وإلا يفوز أحدث منح نشط ويُؤخذ نطاقه.
 - الثابت الصلب يعطي `reason: "hard_invariant"` (§4-1)؛ والمنح المنتهي `valid_until` يُرفض فوراً (§7-9).
 
@@ -332,7 +336,7 @@ sequenceDiagram
     participant Ktor as الخادم
     participant المنح as Grants
     actor Father as الأب
-    S102->>Ktor: بلوغ الطفل 13 سنة — حدث member.turned-teen الداخلي (مهمة خادمية يومية عند منتصف الليل المحلي — Q-189؛ سنة الميلاد — Q-080)
+    S102->>Ktor: بلوغ الطفل 13 سنة — حدث member.turned-teen الداخلي (مهمة خادمية يومية عند منتصف الليل المحلي — Q-189؛ تُطلق 1 يناير من سنة بلوغ 13 — Q-235؛ سنة الميلاد — Q-080)
     Ktor->>Ktor: تحويل الدور child → teen تلقائياً
     Ktor->>المنح: مراجعة منح العضو غير الإشرافية عند التحول
     Ktor->>Father: إشعار الأب بالتحول ومراجعة المنح

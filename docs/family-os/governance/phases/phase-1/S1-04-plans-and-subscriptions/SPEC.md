@@ -1,7 +1,7 @@
 # S1-04: الخطط والاشتراكات (Plans & Subscriptions)
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-06
-- **القرارات الحاكمة:** Q-001 · Q-012 · Q-025 · Q-055 · Q-098 · Q-106 · Q-126 · Q-127 · Q-128 · Q-129 · Q-130 · Q-131 · D-021 · G-006 · G-011 · Q-163 · Q-056 · Q-007
+- **القرارات الحاكمة:** Q-001 · Q-012 · Q-025 · Q-055 · Q-098 · Q-106 · Q-126 · Q-127 · Q-128 · Q-129 · Q-130 · Q-131 · D-021 · G-006 · G-011 · Q-163 · Q-056 · Q-007 · Q-251
 - **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06) · §9 في مرحلة التصميم.
 - **الأدلة المرجعية:** المواصفة القديمة S1-04 (مرجع فقط، G-009) · Qustodio (ترخيص خادمي + حارس حصة + 3 مستويات) · FamiSafe (تجربة 7 أيام + تحقق خادمي من الإيصالات) · FamilyWall (مقعد عائلي واحد + قسائم) · Life360 (تدهور لبق)
 
@@ -91,7 +91,7 @@ flowchart LR
 
 ### الدفع
 - **REQ-005:** الخليج: Google Play Billing + بطاقات عبر الويب (Tap/Moyasar). [Q-025 · DIRECT]
-- **REQ-006:** اليمن: محافظ (OneCash/Mahfathati) + دفع يدوي مسبق + قسائم وكلاء. [Q-025 · DIRECT]
+- **REQ-006:** اليمن: محافظ (OneCash/Mahfathati) + دفع يدوي مسبق + قسائم وكلاء. [Q-025 · Q-251 · DIRECT]
 - **REQ-007:** التحقق الخادمي من المدفوعات (إيصالات المتاجر + قسائم الوكلاء) إلزامي (S2S)؛ ولا يُعتد بأي تأكيد محلي. [Q-025 · Q-217 · DERIVED]
 - **REQ-008:** القسيمة: كود لمرة واحدة يُتحقق منه خادمياً ثم يفعّل الاشتراك؛ وقابلة للإلغاء قبل الاستخدام. [Q-025 · DERIVED]
 
@@ -118,6 +118,9 @@ flowchart LR
 - `POST /api/v1/families/{id}/billing/purchase/verify-receipt` — تحقق خادمي من إيصال المتجر (بلا `father_pin` إطلاقاً — التحقق من الأب محلي على الجهاز؛ وإرسال الـ PIN للخادم ممنوع — إصلاح ثغرة المرجع القديم).
 - `POST /api/v1/families/{id}/billing/voucher/redeem` — استبدال كود قسيمة وكيل.
 - `POST /api/v1/families/{id}/billing/topup` — شراء حزمة تعبئة SMS.
+- `POST /api/v1/families/{id}/billing/wallet/initiate` — بدء دفع محفظة يمنية (الأب وحده — `billing.manage`): ينشئ سجل دفع (`payment_confirmation` — §5) بحالة `INITIATED`؛ المدخل `{plan_id, provider}` حيث `provider` اسم المحفظة فقط (`ONECASH` / `MAHFATHATI`)؛ والمخرج `{payment_id, status: "initiated"}`.
+- `POST /api/v1/families/{id}/billing/wallet/confirm` — تأكيد دفع محفظة برقم مرجعي (الأب وحده — `billing.manage`): المدخل `{payment_id, wallet_reference}` — الرقم المرجعي كما يظهر في تطبيق المحفظة (نص معتم ينقله الأب كما هو)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم يسجل التأكيد «بانتظار التحقق» ولا يفعّل الاشتراك قبل تحقق المزوّد (Q-251).
+- `POST /api/v1/families/{id}/billing/manual/confirm` — تأكيد دفع يدوي مسبق (الأب وحده — `billing.manage`): المدخل `{plan_id, reference}` — رقم مرجعي معتم كما يقدمه الأب (بلا صيغة مخترعة)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم ينشئ سجل دفع «بانتظار التحقق» ولا يفعّل الاشتراك قبل التحقق الخادمي (Q-251).
 - `GET /api/v1/families/{id}/billing/usage` — استهلاك الحصص (SMS/أفراد/ذكاء).
 - `POST /api/v1/families/{id}/plan/trial/start` — بدء التجربة 7 أيام.
 - `POST /api/v1/families/{id}/plan/cancel-renewal` — إلغاء التجديد التلقائي.
@@ -140,7 +143,14 @@ flowchart LR
 - `getCachedPlan` — الخطة المحفوظة محلياً (دون اتصال).
 
 ### رموز الخطأ (`BIL_*`)
-`PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED` · `QUOTA_EXCEEDED` · `TRIAL_ALREADY_USED` · `PAYMENT_FAILED` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
+`PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED` · `QUOTA_EXCEEDED` · `TRIAL_ALREADY_USED` · `PAYMENT_FAILED` · `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
+
+### التحقق من دفع المحفظة واليدوي (Q-251)
+
+- **محول المزوّد المسمى:** تأكيد المزوّد يصل عبر محول خادمي مسمى `WalletProviderAdapter` (محول مزوّد المحفظة) — واجهة تحقق خادمية بلا أي تفاصيل API للمزوّد حتى عقد حقيقي معه؛ وتفاصيل تمرير المبلغ إلى تطبيق المحفظة (رابط عميق/رمز/تعليمات) من العقد الحقيقي — لا تُخترع هنا.
+- **انتقالات الحالة:** `INITIATED` (بدأ الأب الدفع في المحفظة) ← تأكيد الأب بالرقم المرجعي → `PENDING_VERIFICATION` (بانتظار تحقق المزوّد) ← تأكيد المزوّد عبر المحول → `VERIFIED` (يُفعَّل الاشتراك فوراً + سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` + حدث `subscription-changed`)؛ أو رفض التحقق → `REJECTED` (بلا تفعيل — `PAYMENT_FAILED`).
+- **الدفع اليدوي:** السجل يبقى `PENDING_VERIFICATION` حتى يصل التحقق الخادمي عبر قناة تحقق تُسمى عند إجراء حقيقي — بلا تفاصيل مخترعة؛ ولا يُفعَّل الاشتراك قبل `VERIFIED` أبداً (REQ-007: لا يُعتد بأي تأكيد محلي).
+- **منع التكرار:** رقم مرجعي مستخدم من قبل → `409 REFERENCE_DUPLICATE`؛ وتأكيد دفع سبق تأكيده → `PAYMENT_ALREADY_CONFIRMED`؛ ورقم مرجعي فارغ → `WALLET_REFERENCE_REQUIRED`؛ وسجل دفع غير موجود → `PAYMENT_NOT_FOUND`.
 
 ## 5. البيانات — النموذج
 
@@ -151,6 +161,7 @@ flowchart LR
 - `purchase_receipt` — سجل تدقيق مالي: `id` · `family_id` · `user_id` · `provider` · `product_id` · `receipt_data` (حمولة مشفرة) · `validation_status` (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED) · `server_verified_at` · `raw_provider_response` (jsonb).
 - `voucher` — القسيمة: `voucher_id` · `code` (فريد) · `plan_id` · `duration_months` · `status` (ISSUED/REDEEMED/REVOKED/EXPIRED) · `issued_by` (الوكيل) · `issued_at` · `redeemed_by_family_id` · `redeemed_at` · `expires_at`.
 - `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` · `sms_emergency_used` · `ai_calls` · `topup_sms_balance` · `updated_at`. (المفتاح: family_id + period.)
+- `payment_confirmation` — سجل الدفع/التأكيد اليدوي (Q-251): `payment_id` · `family_id` (RLS) · `plan_id` · `channel` (WALLET/MANUAL — من `billing_provider`) · `provider` (ONECASH/MAHFATHATI — للمحفظة فقط؛ null لليدوي) · `reference` (الرقم المرجعي المعتم كما قدمه الأب — نص كما هو؛ null قبل التأكيد) · `status` (INITIATED/PENDING_VERIFICATION/VERIFIED/REJECTED) · `initiated_by` · `initiated_at` · `confirmed_at` · `verified_at`. (وعند `VERIFIED` يُكتب سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` — سجل التدقيق المالي.)
 
 **مراجع:** عدد الأعضاء من S1-02 (لحصة الأفراد)؛ وكل شراء/ترقية/إلغاء/استبدال يُسجَّل في AuditEvent (domain=billing)؛ والخطة تُقرأ في S1-09 عبر `GET /api/v1/families/{id}/plan`. **مخازن العميل (ليست جداول خادم):** الخطة المحفوظة + حالة الحصص (للقراءة دون اتصال).
 
@@ -181,6 +192,7 @@ flowchart LR
 - تنبيه للأب عند 80% (Q-216) من أي حصة.
 - تجاوز الطوارئ 3 رسائل SOS في الدورة (SOS فقط)؛ والأب يُشعَر فوراً بكل رسالة وعند النفاد.
 - الإيصالات المكررة تُرفض (409) وتُسجَّل كـ FRAUD_SUSPECT.
+- دفع المحفظة واليدوي (Q-251): البدء والتأكيد للأب وحده (`billing.manage` — بلا مفتاح جديد)؛ والرقم المرجعي نص معتم ينقله الأب كما هو — لا يُعتمد دليل دفع حتى تحقق المزوّد عبر `WalletProviderAdapter` (بلا تفاصيل API حتى عقد حقيقي)؛ ولا يُفعَّل الاشتراك قبل `VERIFIED`؛ ورقم مرجعي مكرر يُرفض (`409 REFERENCE_DUPLICATE`).
 
 ## 7. الحالات الحدية والأخطاء
 
@@ -373,9 +385,9 @@ flowchart LR
 #### S04-05 — الدفع اليمني: محفظة أو دفع يدوي
 
 - **المصدر:** REQ-006 + DS-ST-02/DS-ST-05/DS-MC-03/DS-RT-04.
-- **الحقول الرئيسية:** ملخص الخطة والسعر (سعر اليمن: نص «يُحدد قبل الإطلاق» بلا رقم — Q-132)؛ خيارا القناة: محفظة (OneCash / Mahfathati) أو دفع يدوي مسبق؛ زر «ادفع بالمحفظة»؛ تعليمات الدفع اليدوي (تُعرض كما يحددها الوكيل — آلية تأكيد الدفع اليدوي فجوة G-S04-07)؛ حالة التأكيد.
+- **الحقول الرئيسية:** ملخص الخطة والسعر (سعر اليمن: نص «يُحدد قبل الإطلاق» بلا رقم — Q-132)؛ خيارا القناة: محفظة (OneCash / Mahfathati) أو دفع يدوي مسبق؛ زر «ادفع بالمحفظة» (يبدأ الدفع عبر `POST .../billing/wallet/initiate` — Q-251)؛ حقل «الرقم المرجعي من المحفظة» + زر «تأكيد الدفع» (يؤكد الأب بالرقم المرجعي عبر `POST .../billing/wallet/confirm` — الخادم يسجله «بانتظار التحقق»)؛ وحقل مرجعي مماثل للدفع اليدوي المسبق (`POST .../billing/manual/confirm`)؛ حالة التأكيد: «بانتظار التحقق» حتى تحقق المزوّد عبر المحول — ولا تفعيل قبل التحقق.
 - **التنقل:** من: S04-03. إلى: S04-01 (عند نجاح التفعيل) / رجوع إلى S04-03.
-- **الحالات (DS-ST):** تحميل — انتظار تأكيد المحفظة؛ فارغة — لا تنطبق؛ خطأ — فشل الدفع: رسالة + إعادة محاولة (DS-ST-02)؛ بلا اتصال — الدفع معطّل بشرح (DS-ST-05)؛ نجاح — تفعيل فوري + Snackbar «تمت الترقية».
+- **الحالات (DS-ST):** تحميل — انتظار تأكيد المحفظة؛ **بانتظار التحقق:** بعد تأكيد الأب بالرقم المرجعي تظهر حالة «بانتظار التحقق» — لا يُفعَّل الاشتراك قبل تحقق المزوّد عبر المحول (Q-251)؛ فارغة — لا تنطبق؛ خطأ — فشل الدفع: رسالة + إعادة محاولة (DS-ST-02)؛ رقم مرجعي مكرر: `REFERENCE_DUPLICATE` — «هذا الرقم المرجعي مستخدم من قبل»؛ بلا اتصال — الدفع معطّل بشرح (DS-ST-05)؛ نجاح — تفعيل فوري بعد التحقق + Snackbar «تمت الترقية».
 - **وايرفريم ASCII:**
 ```
 ┌──────────────────────────────┐
@@ -392,6 +404,10 @@ flowchart LR
 - **النصوص الدقيقة (مصدر الترجمة):**
   - `screens.s04-05.title` — «الدفع في اليمن»
   - `screens.s04-05.pay_wallet` — «ادفع بالمحفظة»
+  - `screens.s04-05.wallet_reference` — «الرقم المرجعي من المحفظة»
+  - `screens.s04-05.confirm_payment` — «تأكيد الدفع»
+  - `screens.s04-05.pending_verification` — «بانتظار التحقق من المزوّد»
+  - `screens.s04-05.reference_duplicate` — «هذا الرقم المرجعي مستخدم من قبل»
   - `screens.s04-05.manual` — «دفع يدوي مسبق»
   - `screens.s04-05.yemen_price` — «سعر اليمن يُحدد قبل الإطلاق»
 
@@ -626,7 +642,7 @@ flowchart LR
 | G-S04-04: Q-201 (استشارة PDPL) بوابته «قبل التصميم» وما زال مفتوحاً | المالك | قبل التصميم | لا شاشة حذف/تصدير في هذا النظام؛ والقيد مسجَّل هنا لا مطبَّق تخميناً |
 | G-S04-05: هدف «24 ساعة» (Q-157) بلا مصدر | حوكمة | مرحلة التصميم | لا هدف زمني في أي شاشة |
 | G-S04-06: أصول الشعار والمرشد (Q-043) + الخط النهائي (Q-042) + درجات الألوان (Q-044) | المستخدم / تصميم | قبل التنفيذ البصري / نظام التصميم | علامة نصية «عائلتي» بألوان DS-BR فقط |
-| G-S04-07: آلية تأكيد الدفع اليدوي المسبق (من يؤكد الدفع وكيف يصل التأكيد للخادم) غير مفصلة في SPEC | حوكمة | قبل التنفيذ | S04-05 تعرض تعليمات بلا مسار تأكيد مخترع |
+| G-S04-07: آلية تأكيد الدفع اليدوي المسبق — **مغلقة — حُسمت بـ Q-251 (2026-11-08)**: الأب يؤكد برقم مرجعي (`POST .../billing/manual/confirm` و`POST .../billing/wallet/confirm`)؛ والخادم يسجل «بانتظار التحقق» (`PENDING_VERIFICATION`)؛ وتأكيد المزوّد عبر محول مسمى `WalletProviderAdapter` بلا تفاصيل حتى عقد حقيقي؛ ولا تفعيل قبل `VERIFIED` | حوكمة | **مغلقة — Q-251** | S04-05 تعرض حقل الرقم المرجعي وحالة «بانتظار التحقق» |
 | G-S04-08: سعر حزمة تعبئة SMS غير محكوم في SPEC (REQ-010 يثبت الحزمة 50 رسالة بلا سعر) | حوكمة | قبل التنفيذ | S04-07 يعرض السعر من كتالوج الخطة فقط؛ وإن غاب يظهر نص بلا رقم |
 | G-S04-09: توقيت الترقية/التخفيض (REQ-004: ترقية فورية عند الدفع؛ تخفيض بنهاية الفترة المدفوعة بلا استرداد جزئي) بلا مصدر محكوم — سؤال مفتوح | المالك | قبل التنفيذ | S04-03 يعرض التأكيد بالنص الحالي بلا مصدر محكوم |
 

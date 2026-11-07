@@ -80,7 +80,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول العشرة من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما `person` و`phone_verification` و`session` فبلا `family_id`.
+الجداول العشرة من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما `person` و`phone_verification` و`session` فبلا `family_id`. و`family.time_zone` المنطقة الزمنية للعائلة (IANA) — مرساة «منتصف الليل المحلي للعائلة» (Q-183)؛ وتُضبط عند إنشاء العائلة (REQ-007 · Q-236/D-18).
 
 ```mermaid
 erDiagram
@@ -132,6 +132,7 @@ erDiagram
         uuid id PK
         text name
         text region
+        text time_zone
         text created_by FK
         timestamptz created_at
         timestamptz deleted_at
@@ -227,9 +228,13 @@ sequenceDiagram
     Client->>Ktor: POST /api/v1/identity/otp/verify {phone, code}
     alt الرمز صحيح
         Ktor-->>Client: {access_token, refresh_token, totp_enrolled}
-        Client->>Ktor: POST /api/v1/identity/totp/enroll {}
-        Ktor-->>Client: {secret, qr}
-        Client-->>Father: دخول ناجح — جلسة 30 يوماً
+        alt totp_enrolled = true
+            Client-->>Father: دخول ناجح — جلسة 30 يوماً — بلا تسجيل TOTP جديد
+        else totp_enrolled = false
+            Client->>Ktor: POST /api/v1/identity/totp/enroll {}
+            Ktor-->>Client: {secret, qr}
+            Client-->>Father: دخول ناجح — جلسة 30 يوماً — سجّل TOTP — إلزامي بعد أول تحقق (Q-246)
+        end
     else الرمز خاطئ (أقل من 5)
         Ktor-->>Client: 401 رمز خاطئ
         Client-->>Father: رفض + المحاولات المتبقية
@@ -239,7 +244,7 @@ sequenceDiagram
     end
 ```
 
-- إعادة الإرسال بعد 60 ثانية؛ بعد 5 طلبات فاشلة 429 (§4.1)؛ عند فشل كل القنوات: رسالة واضحة «تعذر الإرسال — حاول لاحقاً» ولا يُعرض الرمز على الشاشة أبداً (§7/سيناريو 2-5)؛ ورسائل SMS الاحتياطية عبر الموجّه تُحسب من حصة SMS لخطة العائلة (Q-106 · REQ-002).
+- إعادة الإرسال بعد 60 ثانية؛ بعد 5 طلبات فاشلة 429 (§4.1)؛ عند فشل كل القنوات: رسالة واضحة «تعذر الإرسال — حاول لاحقاً» ولا يُعرض الرمز على الشاشة أبداً (§7/سيناريو 2-5)؛ ورسائل SMS الاحتياطية عبر الموجّه تُحسب من حصة SMS لخطة العائلة (Q-106 · REQ-002)؛ وعند صفر حصة يُرفض OTP SMS وينتقل الموجّه إلى مكالمة فائتة مع إعلام المستخدم بالسبب؛ وOTP لا يستهلك رسائل الطوارئ أبداً — تجاوز Q-106 SOS فقط (Q-247).
 
 ### 3-ب. تسجيل الدخول بالبريد الإلكتروني (REQ-022/023/024 — §4.1/§4.2)
 

@@ -290,7 +290,16 @@ sequenceDiagram
     Ktor-->>App: {channel_id, closed: true}
     App-->>Father: المحادثة مغلقة
     Note over App,Ktor: أي إرسال لاحق فيها → CHAT_CLOSED + سبب الإغلاق (§7-3)
+    Father->>App: إعادة فتح المحادثة المغلقة
+    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/reopen {reason}
+    Ktor->>Ktor: فحص الأب وحده (is_owner — Q-242)؛ ليست مفتاحاً قابلاً للتفويض — مفتاح chat.channel.close لا يكفي
+    Ktor->>Ktor: closed_at / closed_by = null + reopened_at / reopened_by
+    Ktor->>Audit: AuditEvent (نطاق chat)
+    Ktor-->>App: {channel_id, closed: false}
+    App-->>Father: أُعيد فتح المحادثة — عودة الإرسال
 ```
+
+- محاولة إعادة فتح من بالغ مفوَّض (أو مراهق/طفل) → `403` + تسجيل في التدقيق (§7-14)؛ وإعادة الفتح لا تعيد رسائل محذوفة — الحذف دائم بلا تراجع، والإغلاق وحده قابل للعكس (Q-242).
 
 - العضو يحذف رسائله لنفسه فقط (`deleted_for = self`)؛ وحذف رسالة محذوفة أصلاً يُعيد النتيجة نفسها (idempotent — §7-8).
 
