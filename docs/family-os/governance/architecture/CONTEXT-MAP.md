@@ -15,16 +15,18 @@
 | # | المجال | الاسم الإنجليزي | الغرض | التطبيق المرجعي | المرحلة | النوع | المجاميع الرئيسية (Aggregates) |
 |---|---|---|---|---|---|---|---|
 | 1 | الهوية والعائلة | Identity & Family | العائلة، العضوية، الأدوار، الإقران، الإعداد | FamilyWall / Qustodio | 1 | **أساسي (Core)** | `Family` · `Membership` · `Device` · `Invitation` |
-| 2 | الصلاحيات | Permissions | محرك تقييم الصلاحيات الذرية | FamilyWall (FWPermission) | 1 | **نواة مشتركة** | `PermissionGrant` · `PolicyRule` |
+| 2 | الصلاحيات | Permissions | محرك تقييم الصلاحيات الذرية | FamilyWall (FWPermission) | 1 | **نواة مشتركة** | `PermissionGrant` · `PermissionKey` |
 | 3 | الحماية والتحكم بالجهاز | Child Protection | ChildAgent، حظر التطبيقات، الجداول الأسبوعية، مقاومة الإزالة (S1-10 "الحماية والفرض" — Q-141؛ المواصفة معتمدة Q-146) | Qustodio Kids / FamiSafe Jr / Bark Kids | 1 | **أساسي (Core)** | `ChildDevice` · `AppRule` · `WeeklySchedule` · `EnforcementState` |
 | 4 | الموقع والسلامة | Location & Safety | تتبع الموقع، الأسوار الجغرافية، SOS | Life360 | 1 (أساسي: SOS + خريطة العائلة) / 5 (أسوار كاملة) | أساسي | `LocationReport` · `Geofence` · `SosAlert` |
-| 5 | الإشعارات والتوصيل | Notifications & Delivery | موجّه OTP، أوامر الأجهزة (FCM/MQTT/HMS)، إشعارات الأهل | — (بنية تحتية) | 1 | داعم | `OtpRequest` · `DeviceCommand` · `PushChannel` |
-| 6 | التواصل | Messaging | المحادثة العائلية، القنوات، الإشراف، الصلاحيات الإدارية الذرية | Telegram | 1 (أساسي) / 2 (توسيع) | أساسي | `Chat` · `Message` · `ChatRole` |
+| 5 | الإشعارات والتوصيل | Notifications & Delivery | موجّه OTP، أوامر الأجهزة (FCM/MQTT/HMS)، إشعارات الأهل | — (بنية تحتية) | 1 | داعم | `PhoneVerification` · `DeviceCommand` · `PushChannel` |
+| 6 | التواصل | Messaging | المحادثة العائلية، القنوات، الإشراف، الصلاحيات الإدارية الذرية | Telegram | 1 (أساسي) / 2 (توسيع) | أساسي | `Chat` · `Message` · `ChannelMember` |
 | 7 | التعليم | Education | أوضاع الدراسة، التكرار المتباعد، التقدم | Quizlet | 3 | أساسي | `StudySet` · `StudySession` · `SrsCard` |
 | 8 | الدين | Religion | مواقيت الصلاة (على الجهاز)، القبلة، القرآن، المراجعة الشرعية | Muslim Pro | 4 | أساسي | `PrayerSettings` · `QuranBookmark` |
 | 9 | إدارة العائلة | Family Management | المهام، التقويم، القوائم، المكافآت | FamilyWall | 1 (مهام/تقويم/مكافآت أساسية) / 5 (كامل) | أساسي | `Task` · `CalendarEvent` · `PointsWallet` |
 | 10 | الذكاء الاصطناعي | AI Services | بوابة الذكاء، الفرز على الخادم (Q-165)، AiAgent، الميزانيات | Bark Kids (ONNX) | 6 (كامل)؛ عقد البوابة + الميزانية من 1 | داعم | `AgentCapability` · `AiBudget` · `AgentActionLog` |
 | 11 | الفوترة والاشتراكات | Billing & Subscriptions | الخطط، الحصص، مسارات الدفع (محافظ/Play/بطاقات) | — (بنية تجارية) | 1 (الحد الأدنى) | عام | `Plan` · `Subscription` · `PaymentRoute` |
+
+**ملاحظة مجاميع (R5-14):** `PermissionKey` = سجل المفاتيح المركزي (S1-03 §5-1)؛ `ChannelMember` = أعضاء القناة (S1-08 §5-2)؛ `PhoneVerification` = سجل طلبات OTP المخزَّن (S1-02 §5)؛ `DeviceCommand` = رسالة أمر MQTT عابرة، ليست جدولاً مخزَّناً — تحمل `command_id` وتتطلب إقراراً إلزامياً (QoS 1) (S1-10 §4-3).
 
 **ملاحظة التتبع:** نوع كل مجال (أساسي/داعم/عام) وصفٌ معماري لا قرار منتج؛ أي تغيير في نوع مجال يُسجَّل كقرار.
 
@@ -81,7 +83,7 @@
 | **العائلة (Family)** | FamilyWall: أسرة بأدوار · Life360: "دائرة" (Circle) · Telegram: مجموعة | **أسرة واحدة بحساب واحد**: مالك + بالغون + مراهقون + أطفال (Q-008: عائلة واحدة لكل حساب في MVP) |
 | **العضو (Member)** | لكل تطبيق تعريف عضوية مختلف | شخص ينتمي لعائلة عبر `Membership` بدور واحد واضح |
 | **الصلاحية (Permission)** | FamilyWall: أدوار جامدة · Qustodio: قواعد جهاز | **منح ذري** `domain.action` بنطاق ومدة؛ المنع يغلب (Q-007) |
-| **الجدول (Schedule)** | FamiSafe: ترميز خاص للجدول الأسبوعي | **جدول أسبوعي بقناع بت (bitmask)** موحد — يُحسب على الجهاز والخادم بنفس المنطق |
+| **الجدول (Schedule)** | FamiSafe: ترميز خاص للجدول الأسبوعي | **جدول أسبوعي بقائمة 7 أيام (نمط FamiSafe)**؛ والتقييم يبني قناعاً يومياً (bitmask) في الذاكرة (S1-10 SPEC §5: `weekly_schedule.windows`؛ REQ-006/REQ-008) |
 | **المجموعة (Group)** | Telegram: مجموعة محادثة · Life360: دائرة موقع | **لا يوجد "Group" عام** — كل سياق يسمّي تجميعه باسمه (محادثة / دائرة موقع / عائلة) |
 | **المكافأة (Reward)** | Quizlet: نقاط/شارات · Qustodio: مكافآت أطفال | مكافآت **للأطفال فقط** (D-012)؛ للمراهق "تقدير" غير مادي لاحقاً إن ثبتت الحاجة (Q-009) |
 | **AiAgent** | — (جديد في المنصة) | ذكاء اصطناعي بقدرات ذرية يفوّضها الأب؛ الافتراضي أضيق نطاق (Q-003) |
@@ -111,7 +113,7 @@ graph TD
     PERM[الصلاحيات - P1]
     SHELL[S1-01 الغلاف - P1]
     HUB[S1-09 مركز الأوامر - P1]
-    %% عناصر عابرة (§2-أ): الغلاف والمركز يعبران كل السياقات — بلا سياق خاص
+    %% عناصر عابرة (§2-أ): الغلاف والمركز يعبران كل السياقات — بلا سياق خاص؛ والحواف المنقطة أمثلة لا حصر (لا تغطي كل السياقات)
     SHELL -.-> PROT
     SHELL -.-> ID
     HUB -.-> PROT

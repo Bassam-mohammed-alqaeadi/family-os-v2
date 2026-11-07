@@ -3,7 +3,7 @@
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط، حكم المالك 2026-11-05 · §9 في مرحلة التصميم)
 - **السياق المحدد (Bounded Context):** بلا سياق خاص — عنصر عابر يعبر كل السياقات (مركز الأوامر، `CONTEXT-MAP.md` §2-أ)
-- **القرارات الحاكمة:** Q-003 · Q-007 · Q-055 · Q-061 · Q-063 · Q-064 · Q-065 · Q-089 · Q-092 · Q-094 · Q-095 · Q-096 · Q-097 · Q-098 · D-021 · D-038 · G-006 · G-011
+- **القرارات الحاكمة:** Q-001 · Q-003 · Q-007 · Q-055 · Q-061 · Q-063 · Q-064 · Q-065 · Q-089 · Q-092 · Q-094 · Q-095 · Q-096 · Q-097 · Q-098 · D-021 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -12,6 +12,7 @@
 ## 1. حالات الاستخدام
 
 16 حالة استخدام من السيناريوهات الستة والمتطلبات (§2/§3): الأب يرى كل شيء، والبالغ المفوَّض يرى فقط ما فُوِّض به (القسم غير المفوَّض به مخفي تماماً لا مغلقاً برمز)، والأنظمة الأخرى ممثلة كجهات خارجية لأن المركز يجمع ولا يملك (REQ-002)، والتسجيل في السجل المركزي يتم وقت النشر لا وقت التشغيل (§4-1).
+- مفاتيح هذا النظام (§6-1 — REQ-004): `hub.dashboard.view` (عرض اللوحة) · `hub.settings.view` (عرض مركز الإعدادات) · `hub.settings.edit` (تعديل تحكم — مع مفتاح التحكم نفسه) · `hub.alerts.view` (عرض التنبيهات) · `hub.alerts.acknowledge` (تأكيد قراءة تنبيه) · `hub.plan.view` (عرض الخطة والاستخدام) — للأب + البالغ المفوَّض (يُصفى حسب منحِه)؛ و`hub.settings.edit` وحده لا يمنح حق التعديل.
 
 ```mermaid
 flowchart LR
@@ -25,6 +26,8 @@ flowchart LR
     S108([نظام المحادثة S1-08])
     S105([نظام المكافآت S1-05])
     S106([نظام المهام S1-06])
+    S110([نظام الحماية S1-10])
+    S101([الغلاف S1-01])
     Kotlin([وحدة Kotlin — اللقطة])
 
     subgraph S109 [S1-09: مركز الأوامر والإعدادات]
@@ -34,7 +37,7 @@ flowchart LR
         UC3(الضغط على تنبيه والانتقال إلى النظام صاحبه)
         UC4(فتح مركز الإعدادات — العرض السريع)
         UC5(تطبيق بطاقة سريعة بنقرة واحدة)
-        UC6(فتح العرض المتقدم وتعديل شجرة الصلاحيات)
+        UC6(فتح العرض المتقدم وتعديل شجرة الصلاحيات — REQ-006)
         UC7(تعديل تحكم نظام)
         UC8(عرض اللوحة دون اتصال — آخر حالة + وسم زمني)
         UC9(عرض الخطة والاستخدام — قراءة فقط)
@@ -43,7 +46,7 @@ flowchart LR
         UC12(تسجيل نظام جديد في السجل المركزي — وقت النشر)
         UC13(إلغاء تسجيل نظام — إخفاء ودجاته وأسطح تحكمه فوراً)
         UC14(دفع تحديث اللوحة وتنبيه جديد)
-        UC15["بطاقة «يتطلب انتباهك» — قرار الأب بنقرة واحدة"]
+        UC15["بطاقة «يتطلب انتباهك» — قرار الأب بنقرة واحدة — REQ-017"]
         UC16[عرض سجل أفعال الوكيل — شفافية الذكاء]
     end
 
@@ -73,13 +76,15 @@ flowchart LR
     UC2 -.->|يجمع حالة| S108
     UC2 -.->|يجمع حالة| S105
     UC2 -.->|يجمع حالة| S106
-    S106 -.->|tasks.submitted| UC15
-    S105 -.->|time-request/new| UC15
+    UC5 -.->|تطبيق وضع مسبق — دراسة/نوم/حر| S110
+    S106 -.->|"family/{family_id}/tasks.submitted"| UC15
+    S105 -.->|"family/{family_id}/time-request/new"| UC15
     UC15 -.->|قرار بنقرة — منح / رفض / إسناد مهمة| S105
     UC15 -.->|قرار بنقرة — اعتماد / رفض| S106
     UC16 -.->|قراءة السجل| Server
     UC3 -.->|ينقل إلى| S103
     UC6 -.->|يُسجَّل التعديل في تدقيق| S103
+    UC6 -.->|"بوابة الوالدين — PIN الأب أو بصمته (Q-174)"| S101
     UC7 -.->|يفحص مفتاح التحكم| S103
     UC10 -.->|إدارة الفوترة| S104
     UC9 -.->|قراءة فقط| S104
@@ -90,8 +95,9 @@ flowchart LR
 ```
 
 - البالغ المفوَّض لا يظهر له UC5 وUC6 وUC7 وUC10 إلا إن ملك مفتاح كل عنصر (REQ-004 · Q-096)؛ والمركز لا يمنح صلاحيات — تعديل أي تحكم يتطلب مفتاح التحكم نفسه عبر S1-03 (§6-2).
-- بطاقة "يتطلب انتباهك" (UC15): تستهلك `family/{family_id}/tasks.submitted` (S1-06 REQ-015) و`family/{family_id}/time-request/new` (S1-05 REQ-014)؛ والأب يقرر بنقرة واحدة (منح / رفض / إسناد مهمة لطلب الوقت؛ اعتماد / رفض لمهمة مسلَّمة) — انظر التسلسل 3-و.
+- بطاقة "يتطلب انتباهك" (UC15 — REQ-017): تستهلك `family/{family_id}/tasks.submitted` (S1-06 REQ-015) و`family/{family_id}/time-request/new` (S1-05 REQ-014)؛ والأب يقرر بنقرة واحدة (منح / رفض / إسناد مهمة لطلب الوقت؛ اعتماد / رفض لمهمة مسلَّمة) — انظر التسلسل 3-و.
 - سجل أفعال الوكيل (UC16): يعرض `AgentActionLog` كاملاً للأب؛ والبالغ المفوَّض يرى منه ما يخص ما فُوِّض به (REQ-004)؛ والطفل يرى منه ما يخصه فقط (G-006) — انظر التسلسل 3-ز.
+- الغلاف S1-01 يستضيف المركز (SPEC §1: «يعتمد على» + مخطط السياق)؛ والبطاقات السريعة (UC5) أوضاع S1-10 مسبقة (REQ-007) — تُطبَّق عبر التسلسل 3-ب.
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -166,17 +172,17 @@ erDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant المركز as Hub
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant Hub as المركز
+    participant Ktor as الخادم
     participant S103 as S103
-    participant Kotlin as K
+    participant K as Kotlin
     Father->>Hub: فتح مركز الأوامر
     Hub->>K: getCachedDashboard()
     K-->>Hub: اللقطة المخزنة + وسمها الزمني
     Hub-->>Father: عرض آخر حالة فوراً (قراءات p95 < 300ms — Q-061)
-    Hub->>Ktor: GET /families/{id}/dashboard?since
-    Ktor->>S103: فحص المنح — تصفية الودجات عبر required_key
+    Hub->>Ktor: GET /api/v1/families/{id}/dashboard?since
+    Ktor->>S103: فحص hub.dashboard.view — تصفية الودجات عبر required_key
     S103-->>Ktor: المفاتيح المملوكة فقط
     Ktor-->>Hub: {children, rules, alerts, updated_at}
     Hub->>K: حفظ اللقطة الجديدة محلياً
@@ -190,30 +196,36 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant المركز as Hub
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant Hub as المركز
+    participant Ktor as الخادم
     participant S103 as S103
-    participant النظام as Owner
-    participant البوابة as ParentGate
+    participant Owner as النظام
+    participant ParentGate as البوابة
     Father->>Hub: تعديل تحكم (control_key, value)
     opt التحكم تبديل منح — بوابة الوالدين (Q-174)
         Hub->>ParentGate: طلب PIN الأب أو بصمته — بلا تحدي خادم
         ParentGate-->>Hub: مفتوح
-        Note over Hub,Ktor: تبديل المنح يُنفَّذ عبر S1-03 (POST /members/{memberId}/grants) بلا challenge_id/signature — لا عبر PATCH
+        Note over Hub,Ktor: تبديل المنح يُنفَّذ عبر S1-03 (POST /api/v1/families/{id}/members/{memberId}/grants) بلا challenge_id/signature — لا عبر PATCH
     end
-    Hub->>Ktor: PATCH /families/{id}/settings/{system}
-    Ktor->>S103: هل يملك مفتاح التحكم نفسه؟
-    alt يملك المفتاح
-        S103-->>Ktor: مسموح
-        Ktor->>Owner: تمرير التعديل إلى النظام صاحب التحكم
-        Owner-->>Ktor: التحكم المعدَّل
-        Ktor-->>Hub: التحكم المعدَّل
-        Hub-->>Father: تم التعديل
-    else لا يملك المفتاح
-        S103-->>Ktor: مرفوض
-        Ktor-->>Hub: 403
-        Hub-->>Father: رفض + تسجيل المحاولة في التدقيق (§7-8)
+    Hub->>Ktor: PATCH /api/v1/families/{id}/settings/{system}
+    alt النظام غير مسجل في السجل المركزي (§7-1)
+        Ktor-->>Hub: HUB_SYSTEM_NOT_REGISTERED + قائمة الأنظمة المسجلة
+    else التحكم غير موجود في سطح النظام (§7-2)
+        Ktor-->>Hub: HUB_CONTROL_NOT_FOUND
+    else النظام والتحكم موجودان
+        Ktor->>S103: هل يملك مفتاح التحكم نفسه؟
+        alt يملك المفتاح
+            S103-->>Ktor: مسموح
+            Ktor->>Owner: تمرير التعديل إلى النظام صاحب التحكم
+            Owner-->>Ktor: التحكم المعدَّل
+            Ktor-->>Hub: التحكم المعدَّل
+            Hub-->>Father: تم التعديل
+        else لا يملك المفتاح
+            S103-->>Ktor: مرفوض
+            Ktor-->>Hub: 403
+            Hub-->>Father: رفض + تسجيل المحاولة في التدقيق (§7-8)
+        end
     end
 ```
 
@@ -225,9 +237,9 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant النظام as Owner
-    participant الخادم as Ktor
-    participant المركز as Hub
-    actor الأب as Father
+    participant Ktor as الخادم
+    participant Hub as المركز
+    actor Father as الأب
     النظام->>Ktor: حدث يستحق تنبيهاً (SOS / تصعيد / انتهاء منح)
     Ktor->>Ktor: إنشاء alert {kind, system, at, read: false}
     Ktor->>Hub: MQTT family/{family_id}/alerts/new
@@ -235,8 +247,9 @@ sequenceDiagram
     Father->>Hub: الضغط على التنبيه
     Hub->>Father: الانتقال إلى النظام صاحبه
     Father->>Hub: تأكيد القراءة
-    Hub->>Ktor: POST /families/{id}/alerts/{alertId}/acknowledge
+    Hub->>Ktor: POST /api/v1/families/{id}/alerts/{alertId}/acknowledge
     Ktor-->>Hub: {alert_id, read: true}
+    Note over Hub,Ktor: تأكيد القراءة يفحص hub.alerts.acknowledge عبر S1-03؛ وعرض التنبيهات يفحص hub.alerts.view (§6-1)
 ```
 
 - تنبيه SOS يصل دون اتصال متأخراً عند عودة الاتصال مع وسمه الزمني الأصلي — لا يُعرض كأنه الآن (§7-10).
@@ -246,10 +259,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant المركز as Hub
-    participant Kotlin as K
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant Hub as المركز
+    participant K as Kotlin
+    participant Ktor as الخادم
     Father->>Hub: فتح مركز الأوامر دون اتصال
     Hub->>K: getCachedDashboard()
     alt توجد لقطة مخزنة
@@ -274,31 +287,32 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant المركز as Hub
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant Hub as المركز
+    participant Ktor as الخادم
     participant S104 as S104
     Father->>Hub: فتح قسم الخطة
-    Hub->>Ktor: GET /families/{id}/plan
+    Hub->>Ktor: GET /api/v1/families/{id}/plan
     Ktor->>S104: قراءة الخطة والاستخدام (قراءة فقط)
     S104-->>Ktor: {plan, usage: {members, devices}}
     Ktor-->>Hub: الخطة الحالية + الاستخدام
+    Note over Hub,Ktor: عرض الخطة يفحص hub.plan.view عبر S1-03 (§6-1)
     Hub-->>Father: عرض فقط — لا إدارة فوترة هنا
     Father->>Hub: الضغط على "ترقية"
     Hub->>S104: الانتقال إلى نظام الفوترة S1-04
     Note over Hub,Ktor: أي محاولة تعديل للخطة من المركز → HUB_READ_ONLY + رابط الانتقال إلى S1-04 (§7-3)
 ```
 
-### 3-و. بطاقة "يتطلب انتباهك" — قرار الأب بنقرة واحدة (S1-05 REQ-014 · S1-06 REQ-015 — §4-2)
+### 3-و. بطاقة "يتطلب انتباهك" — قرار الأب بنقرة واحدة (REQ-017 · S1-05 REQ-014 · S1-06 REQ-015 — §4-2)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant المهام as S106
-    participant المكافآت as S105
-    participant الخادم as Ktor
-    participant المركز as Hub
-    actor الأب as Father
+    participant S106 as المهام
+    participant S105 as المكافآت
+    participant Ktor as الخادم
+    participant Hub as المركز
+    actor Father as الأب
     S106->>Ktor: family/{family_id}/tasks.submitted — مهمة سُلّمت للتحقق
     S105->>Ktor: family/{family_id}/time-request/new — طلب وقت إضافي جديد
     Ktor->>Ktor: إنشاء alert في بطاقة "يتطلب انتباهك" (kind=system)
@@ -306,40 +320,40 @@ sequenceDiagram
     Hub-->>Father: البطاقة تعرض العنصر — قرار بنقرة واحدة
     alt طلب وقت — الأب يمنح
         Father->>Hub: منح بنقرة واحدة
-        Hub->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {APPROVED}
-        Ktor-->>Hub: time-request/decided — التطبيق يستمر
+        Hub->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {APPROVED}
+        Ktor-->>Hub: family/{family_id}/time-request/decided — التطبيق يستمر
     else طلب وقت — الأب يرفض
         Father->>Hub: رفض بنقرة واحدة
-        Hub->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {REJECTED}
-        Ktor-->>Hub: time-request/decided — مرفوض
+        Hub->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {REJECTED}
+        Ktor-->>Hub: family/{family_id}/time-request/decided — مرفوض
     else طلب وقت — الأب يسند مهمة
         Father->>Hub: إسناد مهمة بنقرة واحدة
-        Hub->>Ktor: POST /families/{id}/time-requests/{requestId}/decide {TASK_ASSIGNED, assigned_task_id}
+        Hub->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {TASK_ASSIGNED, assigned_task_id}
         Ktor-->>Hub: المهمة تظهر للطفل مع قيمتها النقطية
     else مهمة مسلَّمة — الأب يعتمد / يرفض
         Father->>Hub: فتح المهمة من البطاقة
-        Hub->>Ktor: POST /families/{id}/tasks/{taskId}/approve {APPROVE / REJECT_WITH_NOTES}
+        Hub->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {APPROVE / REJECT_WITH_NOTES}
         Ktor-->>Hub: القرار يُسلَّم للمهمة (S1-06)
     end
     Hub-->>Father: البطاقة تُحدَّث — العنصر يُزال بعد القرار
 ```
 
-- المصدران: S1-05 REQ-014 (طلب الوقت الإضافي يظهر في البطاقة؛ والأب يقرر بنقرة واحدة) وS1-06 REQ-015 (`tasks.submitted` → البطاقة)؛ والبطاقة نفسها تُعرض في S1-09 وتُدفع أحداثها عبر `family/{family_id}/alerts/new` (§4-2). والبالغ المفوَّض يرى في البطاقة فقط ما فُوِّض به (Q-096) — الباقي مخفي تماماً.
+- المصدران: S1-05 REQ-014 (طلب الوقت الإضافي يظهر في البطاقة؛ والأب يقرر بنقرة واحدة) وS1-06 REQ-015 (`family/{family_id}/tasks.submitted` → البطاقة)؛ والبطاقة نفسها تُعرض في S1-09 وتُدفع أحداثها عبر `family/{family_id}/alerts/new` (§4-2). والبالغ المفوَّض يرى في البطاقة فقط ما فُوِّض به (Q-096) — الباقي مخفي تماماً.
 
 ### 3-ز. عرض سجل أفعال الوكيل — شفافية الذكاء (REQ-018 — §4-1)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    actor البالغ as Adult
-    actor الطفل as Child
-    participant المركز as Hub
-    participant الخادم as Ktor
-    participant الأدوار as S103
+    actor Father as الأب
+    actor Adult as البالغ
+    actor Child as الطفل
+    participant Hub as المركز
+    participant Ktor as الخادم
+    participant S103 as الأدوار
     Father->>Hub: فتح سجل أفعال الوكيل
-    Hub->>Ktor: GET /families/{id}/agent-actions
-    Ktor->>S103: فحص hub.dashboard.view + تصفية حسب المنح (deny-override)
+    Hub->>Ktor: GET /api/v1/families/{id}/agent-actions
+    Ktor->>S103: فحص hub.dashboard.view + تصفية حسب المنح (deny-override — Q-007)
     S103-->>Ktor: مسموح / 403
     Ktor-->>Hub: الأفعال — [{action_id, agent_key, gate, approval, result, at, evidence, reverse}]
     Hub-->>Father: السجل كاملاً — كل فعل مع مفتاحه وبوابته ودليله ونتيجته ومسار تراجعه
@@ -350,7 +364,7 @@ sequenceDiagram
     opt الأب يتراجع عن منح ذكاء
         Father->>Hub: تراجع عن المنح من السجل
         Hub->>Ktor: POST .../wallet/grants/{grantId}/reverse (S1-05)
-        Ktor-->>Hub: قيد تعويضي — حدث tasks.verification-revoked
+        Ktor-->>Hub: قيد تعويضي — حدث family/{family_id}/tasks.verification-revoked
     end
 ```
 
@@ -362,7 +376,7 @@ sequenceDiagram
 flowchart TD
     Start([فتح مركز الأوامر — قراءات p95 < 300ms]) --> Cached[عرض آخر حالة مخزنة فوراً]
     Cached --> Conn{اتصال؟}
-    Conn -->|نعم| Fetch["GET /families/{id}/dashboard — تصفية خادمية عبر required_key"]
+    Conn -->|نعم| Fetch["GET /api/v1/families/{id}/dashboard — تصفية خادمية عبر required_key"]
     Conn -->|لا| Stamp["عرض اللقطة + وسم «آخر تحديث» الصريح"]
     Fetch --> Dash[لوحة واحدة: مواقع + قواعد + تنبيهات]
     Stamp --> Dash
@@ -375,7 +389,7 @@ flowchart TD
     All --> Act{ماذا يفعل؟}
     Only --> Act
     Act -->|ضغط تنبيه| Nav[الانتقال إلى النظام صاحبه]
-    Act -->|عرض سريع| Quick[بطاقات جاهزة بنقرة — دراسة / نوم / حر]
+    Act -->|عرض سريع| Quick[بطاقات أوضاع S1-10 بنقرة — دراسة / نوم / حر]
     Quick --> Apply[تُطبَّق القواعد فوراً على أجهزة الأطفال]
     Act -->|عرض متقدم| Adv[شجرة صلاحيات تفصيلية لكل فرد]
     Adv --> Edit[تفعيل / إلغاء مفتاح واحد لعضو واحد]
@@ -395,14 +409,14 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D4. المخزنان D1 وD2 سجلان مشتركان بلا `family_id`؛ والمخزنان D3 وD4 يحملان `family_id` + عزل RLS (D-021). التسجيل في السجل يتم وقت النشر من تعريف §9 لكل نظام — لا نقطة تسجيل وقت التشغيل (§4-1).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `GET /families/{id}/alerts` (قائمة التنبيهات — REQ-003، تُقرأ عبر P5) · `GET /families/{id}/settings/registry` (السجل المركزي — REQ-005، تُقرأ عبر P3) · `GET /families/{id}/settings/{system}` (سطح تحكم نظام واحد — REQ-008، تُقرأ عبر P3) · `GET /families/{id}/agent-actions` (سجل أفعال الوكيل — REQ-018، تُقرأ عبر P7)؛ وبقية النقاط مرسومة في §3 (dashboard، settings PATCH، plan، alerts acknowledge).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `GET /api/v1/families/{id}/alerts` (قائمة التنبيهات — REQ-003، تُقرأ عبر P5) · `GET /api/v1/families/{id}/settings/registry` (السجل المركزي — REQ-005، تُقرأ عبر P3) · `GET /api/v1/families/{id}/settings/{system}` (سطح تحكم نظام واحد — REQ-008، تُقرأ عبر P3) · `GET /api/v1/families/{id}/agent-actions` (سجل أفعال الوكيل — REQ-018، تُقرأ عبر P7)؛ وبقية النقاط مرسومة في §3 (dashboard، settings PATCH، plan، alerts acknowledge).
 
 ```mermaid
 flowchart LR
     Father([الأب / البالغ المفوَّض])
     S103([نظام الأدوار S1-03])
     S104([نظام الفوترة S1-04])
-    Systems([الأنظمة S1-05/06/07/08])
+    Systems([الأنظمة S1-05/06/07/08/10])
     Kotlin([وحدة Kotlin — اللقطة])
 
     subgraph Hub [مركز الأوامر S1-09]
@@ -439,14 +453,14 @@ flowchart LR
     P6 -->|refreshDashboard عند عودة الاتصال| Ktor
     Father -->|فتح مركز الإعدادات| P3
     P3 -->|قراءة الأسطح المسجلة| D2
-    D2 -->|الأسطح + التوفر Android/iOS| P3
+    D2 -->|"الأسطح + التوفر Android/iOS (REQ-009)"| P3
     P3 -->|العرض السريع ثم المتقدم| Father
     Father -->|تعديل تحكم| P4
     P4 -->|فحص مفتاح التحكم| S103
     S103 -->|مسموح / 403| P4
     P4 -->|تمرير التعديل| Systems
     Systems -->|التنبيهات والأحداث| P5
-    Systems -->|family/.../tasks.submitted + family/.../time-request/new — بطاقة يتطلب انتباهك| P5
+    Systems -->|"family/{family_id}/tasks.submitted + family/{family_id}/time-request/new — بطاقة يتطلب انتباهك (REQ-017)"| P5
     P5 -->|عناصر بطاقة يتطلب انتباهك| P1
     P5 -->|حفظ التنبيه| D4
     D4 -->|قائمة التنبيهات| P5
@@ -485,25 +499,27 @@ flowchart LR
         direction TB
         H1[عرض اللقطة المخزنة فوراً]
         H2{اتصال؟}
-        H3["GET /families/{id}/dashboard + تصفية خادمية"]
+        H3["GET /api/v1/families/{id}/dashboard + تصفية خادمية"]
         H4["عرض اللوحة + وسم «آخر تحديث»"]
         H5[الانتقال إلى النظام صاحب التنبيه]
-        H6[تطبيق البطاقة — PATCH]
+        H6[تطبيق بطاقة S1-10 — PATCH]
         H7[عرض شجرة الصلاحيات]
-        H8["GET /families/{id}/plan — عرض فقط"]
+        H8["GET /api/v1/families/{id}/plan — عرض فقط"]
         H9[الانتقال إلى S1-04 للترقية]
         H10["بطاقة «يتطلب انتباهك» — قرار بنقرة واحدة"]
         H11[يفعّل / يلغي مفتاحاً واحداً لعضو واحد]
         H12[تأكيد قراءة التنبيه — POST acknowledge]
+        H13[رفض — HUB_SYSTEM_NOT_REGISTERED أو HUB_CONTROL_NOT_FOUND]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V1["GET /families/{id}/dashboard"]
-        V2["PATCH /families/{id}/settings/{system}"]
-        V3["POST /families/{id}/alerts/{alertId}/acknowledge"]
-        V4["GET /families/{id}/plan"]
+        V1["GET /api/v1/families/{id}/dashboard"]
+        V2["PATCH /api/v1/families/{id}/settings/{system}"]
+        V3["POST /api/v1/families/{id}/alerts/{alertId}/acknowledge"]
+        V4["GET /api/v1/families/{id}/plan"]
         V5["MQTT: family/{family_id}/dashboard/updated + family/{family_id}/alerts/new"]
-        V6["POST /families/{id}/time-requests/{requestId}/decide + POST /families/{id}/tasks/{taskId}/approve"]
+        V6["POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide + POST /api/v1/families/{id}/tasks/{taskId}/approve"]
+        V7{النظام مسجل والتحكم موجود؟}
     end
     subgraph Systems [الأنظمة + S1-03]
         direction TB
@@ -522,6 +538,7 @@ flowchart LR
     G1 --> V1
     V1 --> H4
     H4 --> U2
+    H4 --> U7
     V5 --> H4
     U2 --> U3
     U3 --> H5
@@ -533,7 +550,9 @@ flowchart LR
     U2 --> U4
     U4 --> H6
     H6 --> V2
-    V2 --> G1
+    V2 --> V7
+    V7 -->|نعم| G1
+    V7 -->|لا| H13
     G1 --> G2
     G2 --> G3
     U2 --> U5

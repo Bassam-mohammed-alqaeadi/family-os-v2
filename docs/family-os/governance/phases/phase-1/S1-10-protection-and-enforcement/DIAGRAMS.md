@@ -3,7 +3,7 @@
 - **الحالة:** مسودة — بانتظار مراجعة Juno واعتماد المالك؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **السياق المحدد (Bounded Context):** #3 الحماية والتحكم بالجهاز (Child Protection) — `CONTEXT-MAP.md` §2 صف 3
-- **القرارات الحاكمة:** Q-134 (هيكل الملف) · Q-002 · Q-031 · Q-061 · Q-065 · Q-067 · Q-106 · Q-141 · Q-142 · Q-143 · Q-144 · Q-145 · Q-146
+- **القرارات الحاكمة:** Q-001 · Q-007 · Q-134 (هيكل الملف) · Q-002 · Q-031 · Q-061 · Q-065 · Q-067 · Q-106 · Q-141 · Q-142 · Q-143 · Q-144 · Q-145 · Q-146
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -109,7 +109,8 @@ erDiagram
         uuid child_id FK
         text app_package
         text action
-        int minutes_by_weekday
+        int[7] minutes_by_weekday
+        boolean is_study_app
         text created_by
         timestamptz created_at
         timestamptz updated_at
@@ -118,7 +119,7 @@ erDiagram
         uuid quota_id PK
         uuid family_id FK
         uuid child_id FK
-        int minutes_by_weekday
+        int[7] minutes_by_weekday
         text created_by
         timestamptz created_at
         timestamptz updated_at
@@ -196,8 +197,8 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-ثمانية مخططات، كل واحد لتدفق واحد:
-- **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ والأوامر (`commands` / `rules-updated` / `free-mode`) QoS 1 + إقرار تطبيقي إلزامي؛ والعبث (`tamper`) QoS 1؛ والحالة الدورية (`device/state`) QoS 0 + محفوظة؛ وبلا QoS 2 — التكرار يُغطيه `command_id`؛ وكل أمر يحمل `command_id` (idempotency)؛ والجلسة دائمة (clean session = false)؛ وlast will على `devices/{device_id}/status` = `offline`.
+تسعة مخططات، كل واحد لتدفق واحد:
+- **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ والأوامر (`family/{family_id}/devices/{device_id}/commands` / `family/{family_id}/protection/rules-updated` / `family/{family_id}/protection/free-mode`) QoS 1 + إقرار تطبيقي إلزامي؛ والعبث (`family/{family_id}/protection/tamper`) QoS 1؛ والحالة الدورية (`family/{family_id}/device/{device_id}/state`) QoS 0 + محفوظة؛ وبلا QoS 2 — التكرار يُغطيه `command_id`؛ وكل أمر يحمل `command_id` (idempotency)؛ والجلسة دائمة (clean session = false)؛ وlast will على `family/{family_id}/devices/{device_id}/status` = `offline`.
 - **قنوات المنصة (§4-1 — `MethodChannel("familyos/enforcement")` و`EventChannel("familyos/enforcement/events")`):** الطرق الخمس الجديدة: `applySchedule(schedule: WeeklySchedule) -> void` (دفع الجدول الأسبوعي) · `applyPriority(order: List<RuleType>) -> void` (دفع ترتيب الأنواع) · `getEnforcementState() -> EnforcementState` (حالة الفرض للعرض) · `activateFreeMode(until: timestamp) -> void` (تفعيل الوضع الحر) · `evaluateNow() -> EnforcementDecision` (تقييم فوري عند فتح تطبيق)؛ والأحداث: `enforcement_state` (موروثة) + `rule_blocked` و`tamper_detected` و`free_mode_changed`.
 
 ### 3-أ. إنشاء قاعدة تطبيق + دفع عبر MQTT (REQ-001/026 — §4-2 + §4-3)
@@ -205,13 +206,13 @@ erDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant لوحة الأهل as Flutter
-    participant الخادم as Ktor
-    participant وحدة Kotlin as K
-    participant التدقيق as Audit
+    actor Father as الأب
+    participant Flutter as "لوحة الأهل"
+    participant Ktor as الخادم
+    participant K as "وحدة Kotlin"
+    participant Audit as التدقيق
     Father->>Flutter: إنشاء قاعدة لتطبيق عمر — ALLOW أو BLOCK أو LIMIT + دقائق لكل يوم أسبوع
-    Flutter->>Ktor: POST /families/{id}/children/{childId}/app-rules {app_package, action, minutes_by_weekday}
+    Flutter->>Ktor: POST /api/v1/families/{id}/children/{childId}/app-rules {app_package, action, minutes_by_weekday}
     Ktor->>Ktor: فحص protection.rule.create عبر S1-03 — deny-override (Q-007)
     Ktor-->>Flutter: 201 {rule_id, ...}
     Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
@@ -228,12 +229,13 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant لوحة الأهل as Flutter
-    participant الخادم as Ktor
-    participant وحدة Kotlin as K
+    actor Father as الأب
+    participant Flutter as "لوحة الأهل"
+    participant Ktor as الخادم
+    participant K as "وحدة Kotlin"
+    participant Shell as الغلاف
     Father->>Flutter: حفظ جدول أسبوعي — نوافذ نوم ومدرسة لكل يوم
-    Flutter->>Ktor: PUT /families/{id}/children/{childId}/weekly-schedule {windows, version}
+    Flutter->>Ktor: PUT /api/v1/families/{id}/children/{childId}/weekly-schedule {windows, version}
     alt نوافذ متداخلة في اليوم نفسه
         Ktor-->>Flutter: 409 SCHEDULE_CONFLICT + رسالة واضحة
         Flutter-->>Father: صحح التداخل
@@ -245,6 +247,8 @@ sequenceDiagram
     end
     Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
     K->>K: إعادة بناء القناع اليومي
+    K->>K: إعادة تقييم فورية — إن صار الوقت الحالي محظوراً يُطبَّق الحظر فوراً دون انتظار الحد التالي (REQ-009)
+    K->>Shell: إغلاق التطبيق المفتوح المخالف + شاشة الحظر
     K-->>Ktor: إقرار (ack) — QoS 1 < 5 ثوانٍ (Q-061)
     Ktor-->>Flutter: الجدول المحفوظ
 ```
@@ -256,9 +260,9 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الطفل as Child
-    participant الغلاف as Shell
-    participant وحدة Kotlin as K
+    actor Child as الطفل
+    participant Shell as الغلاف
+    participant K as "وحدة Kotlin"
     Child->>Shell: فتح تطبيق
     Shell->>K: evaluateNow() — MethodChannel("familyos/enforcement")
     K->>K: قراءة موضع القناع اليومي O(1) (REQ-008)
@@ -266,7 +270,7 @@ sequenceDiagram
     alt أول نوع مطابق = نوم
         K->>Shell: شاشة حظر — وقت نوم
     else أول نوع مطابق = مدرسة والتطبيق ليس من تطبيقات الدراسة
-        K->>Shell: شاشة حظر — وقت مدرسة، تطبيقات الدراسة فقط
+        K->>Shell: شاشة حظر — وقت مدرسة، تطبيقات الدراسة فقط (REQ-007)
     else أول نوع مطابق = حد تطبيق والمتبقي صفر
         K->>Shell: شاشة حظر + زر اطلب وقتاً إضافياً (إلى 3-د)
     else أول نوع مطابق = حصة إجمالية والمتبقي صفر
@@ -278,6 +282,7 @@ sequenceDiagram
     Note over K,Shell: عند أي حظر — بث rule_blocked عبر EventChannel("familyos/enforcement/events")
 ```
 
+- صيغة المتبقي عند التقييم (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota`، والإضافي من S1-05، والمستهلك من `app_usage_daily`.
 - الترتيب الافتراضي يعمل بلا إعداد؛ والأب يعيد ترتيب الأنواع لكل عائلة ولكل طفل (REQ-011)؛ والوقت المكتسب أو الممنوح يضيف دقائق إلى حد التطبيق فقط — ولا يفتح تطبيقاً في وقت نوم أو مدرسة (REQ-012). وزر SOS لا يُحظر أبداً (Q-067) — خارج هذا التدفق.
 
 ### 3-د. نفاد الحد — شاشة الحظر وطلب وقت (REQ-003/004/005 + S1-05)
@@ -285,11 +290,11 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الطفل as Child
-    participant وحدة Kotlin as K
-    participant المحفظة as S105
-    participant مركز الأوامر as S109
-    actor الأب as Father
+    actor Child as الطفل
+    participant K as "وحدة Kotlin"
+    participant S105 as المحفظة
+    participant S109 as "مركز الأوامر"
+    actor Father as الأب
     Child->>K: استخدام اللعبة — بقي 5 دقائق من حدها
     K-->>Child: تحذير بقي 5 دقائق — إشعار + اهتزاز خفيف (REQ-004)
     Child->>K: استمرار الاستخدام حتى النفاد
@@ -313,12 +318,12 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant لوحة الأهل as Flutter
-    participant الخادم as Ktor
-    participant وحدة Kotlin as K
+    actor Father as الأب
+    participant Flutter as "لوحة الأهل"
+    participant Ktor as الخادم
+    participant K as "وحدة Kotlin"
     Father->>Flutter: ضغط بطاقة وضع حر + اختيار المدة بالدقائق
-    Flutter->>Ktor: POST /families/{id}/children/{childId}/free-mode {duration_minutes}
+    Flutter->>Ktor: POST /api/v1/families/{id}/children/{childId}/free-mode {duration_minutes}
     alt المفعّل ليس المالك
         Ktor-->>Flutter: 403 FREE_MODE_NOT_OWNER (Q-143 — بأمر الأب فقط)
     else وضع حر سارٍ أصلاً
@@ -342,17 +347,22 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الطفل as Child
-    participant وحدة Kotlin as K
-    participant الخادم as Ktor
-    participant مركز الأوامر as S109
-    actor الأب as Father
+    actor Child as الطفل
+    participant K as "وحدة Kotlin"
+    participant Ktor as الخادم
+    participant S109 as "مركز الأوامر"
+    actor Father as الأب
     Child->>K: تعطيل خدمة Accessibility من إعدادات النظام
     K->>K: كشف فوري — مستمع حالة الخدمة
     K->>Ktor: family/{family_id}/protection/tamper (MQTT — QoS 1) — حدث عبث
     K->>K: بث tamper_detected عبر EventChannel("familyos/enforcement/events")
     Ktor->>S109: تنبيه alert نوع system نظام S1-10
     S109-->>Father: تنبيه فوري — محاولة تعطيل الحماية
+    alt محاولة إلغاء تثبيت وكيل الطفل
+        K->>K: حدث عبث UNINSTALL_ATTEMPT — يُحفظ في Outbox دون اتصال بأولوية قصوى
+        K->>K: بوابة الوالدين (S1-01 REQ-006) — إلغاء التثبيت يتطلب PIN الأب (REQ-023)
+        K-->>Child: رفض إلغاء التثبيت بلا PIN الأب
+    end
     K->>K: محاولة إعادة تفعيل تلقائية فوراً
     alt نجحت إعادة التفعيل
         K->>Ktor: تسجيل النجاح في tamper_event
@@ -370,22 +380,22 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الطفل as Child
-    participant وحدة Kotlin as K
-    participant Outbox as OB
-    participant الخادم as Ktor
-    actor الأب as Father
+    actor Child as الطفل
+    participant K as "وحدة Kotlin"
+    participant OB as Outbox
+    participant Ktor as الخادم
+    actor Father as الأب
     Child->>K: استخدام التطبيقات — لا اتصال يومان
     K->>K: فرض من آخر إعداد مزامَن (REQ-014)
     Note over K: نبضة خصم كل 60 ثانية بالساعة الرتيبة — تغيير الساعة يدوياً لا يؤثر (REQ-015)
-    K->>K: إعادة ضبط الحصص منتصف الليل
+    K->>K: إعادة ضبط الحصص منتصف الليل (Q-183)
     K->>OB: تسجيل أحداث الاستخدام محلياً
     Father->>Ktor: تغيير قاعدة أثناء انقطاع عمر
     Ktor->>Ktor: التغيير ينتظر على الخادم — عمر يفرض الإعداد القديم حتى يتصل (REQ-017)
     Note over K,OB: عند عودة الاتصال
     K->>OB: قراءة الأحداث
     K->>Ktor: تفريغ Outbox — idempotent بمفتاح الطفل + التطبيق + التاريخ — لا خصم مكرر (REQ-016)
-    Ktor-->>K: rules-updated — القواعد الجديدة
+    Ktor-->>K: family/{family_id}/protection/rules-updated — القواعد الجديدة
     K->>K: إعادة بناء القناع اليومي وتطبيق القواعد الجديدة
 ```
 
@@ -396,7 +406,7 @@ sequenceDiagram
     autonumber
     participant الخادم as Ktor
     participant الوسيط as Mosquitto
-    participant وحدة Kotlin as K
+    participant K as "وحدة Kotlin"
     Note over الخادم,الوسيط: الوسيط Eclipse Mosquitto 2.x — TLS 1.2+ على 8883 + mTLS (Q-168)
     الخادم->>الوسيط: family/{family_id}/devices/{device_id}/commands (MQTT — QoS 1 + command_id)
     الوسيط->>K: تسليم الأمر — مرة على الأقل (إزالة تكرار بـ command_id)
@@ -405,6 +415,29 @@ sequenceDiagram
     الوسيط->>الخادم: إقرار التنفيذ — توصيل الأمر + الإقرار < 5 ثوانٍ (Q-061)
     K->>الوسيط: family/{family_id}/device/{device_id}/state (MQTT — QoS 0 — محفوظة)
     K->>الوسيط: family/{family_id}/devices/{device_id}/status (MQTT — محفوظة + last will = offline)
+```
+
+### 3-ط. تطبيق إعداد مسبق (REQ-024 — §4-2 POST .../mode-presets/{preset})
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Father as الأب
+    participant S109 as "مركز الأوامر"
+    participant Ktor as الخادم
+    participant K as "وحدة Kotlin"
+    Father->>S109: ضغط بطاقة إعداد مسبق — دراسة / نوم / حر
+    S109->>Ktor: POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset} {preset, duration_minutes?}
+    Ktor->>Ktor: تطبيق الحزمة ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء (REQ-024)
+    alt فشل التطبيق
+        Ktor->>Ktor: إعادة الحالة السابقة بلا تغيير جزئي
+        Ktor-->>S109: خطأ — لم يُطبَّق شيء
+    else نجح التطبيق
+        Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
+        K->>K: إعادة بناء القناع اليومي
+        K-->>Ktor: إقرار (ack) < 5 ثوانٍ (Q-061)
+        Ktor->>Ktor: تسجيل التغيير في AuditEvent (domain=protection)
+    end
 ```
 
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
@@ -420,7 +453,7 @@ flowchart TD
     FAct -->|ترتيب| FOrd[إعادة ترتيب أنواع القواعد — مع معاينة النتيجة بلغة صريحة قبل الحفظ]
     FOrd --> FSave
     FAct -->|وضع حر| FFree[تفعيل وضع حر — المالك وحده + مدة محددة]
-    FFree --> FFreeSave[إنشاء جلسة وضع حر + تدقيق + دفع free-mode MQTT — تعليق كل القواعد، بلا بناء قناع]
+    FFree --> FFreeSave["إنشاء جلسة وضع حر + تدقيق + دفع family/{family_id}/protection/free-mode MQTT — تعليق كل القواعد، بلا بناء قناع"]
     FSave --> Sync[الجهاز يبني القناع اليومي]
     Sync --> COpen([الطفل يفتح تطبيقاً])
     COpen --> CConn{اتصال؟}
@@ -431,7 +464,7 @@ flowchart TD
     CFree -->|نعم| CAllow[سماح — الاستخدام يُحسب ولا يُحدَّد]
     CFree -->|لا| CMatch{أول نوع مطابق؟}
     CMatch -->|نوم| CBlockN[حظر — وقت نوم]
-    CMatch -->|مدرسة والتطبيق ليس دراسة| CBlockS[حظر — وقت مدرسة، تطبيقات الدراسة فقط]
+    CMatch -->|"مدرسة والتطبيق ليس دراسة (REQ-007)"| CBlockS[حظر — وقت مدرسة، تطبيقات الدراسة فقط]
     CMatch -->|حد تطبيق أو حصة والمتبقي صفر| CBlockQ[حظر فوري + شاشة الحظر]
     CMatch -->|بقي رصيد| CWarn{بقي 5 دقائق؟}
     CWarn -->|نعم| CWarn2[تحذير بقي 5 دقائق — مرة في اليوم]
@@ -445,7 +478,7 @@ flowchart TD
     CGrant --> CEval
     FDec -->|يسند مهمة| CTask[يكمل المهمة — تحقق الذكاء — نقاط — صرفها كوقت]
     CTask --> CEval
-    COpen --> CTamper{محاولة تعطيل الحماية؟}
+    Sync --> CTamper{مراقبة مستمرة — محاولة تعطيل الحماية؟}
     CTamper -->|نعم| CTAlert[تنبيه فوري للأب + محاولة إعادة تفعيل تلقائية]
     CTAlert --> COpen
 ```
@@ -456,9 +489,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–7.0، والمخازن D1–D7 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء.
+العمليات مرقمة 1.0–8.0، والمخازن D1–D8 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء. وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `POST .../mode-presets/{preset}` (P1+P2 ذرّياً) · `GET .../audit/protection` (التدفقات إلى AuditEvent).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `POST .../mode-presets/{preset}` (P1+P2 ذرّياً — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
 
 ```mermaid
 flowchart LR
@@ -476,6 +509,7 @@ flowchart LR
         P5(5.0 الوضع الحر)
         P6(6.0 كشف العبث وإعادة التفعيل)
         P7(7.0 مزامنة دون اتصال)
+        P8(8.0 إدارة الحصة الإجمالية اليومية)
     end
 
     subgraph ServerStores [مخازن الخادم — PostgreSQL]
@@ -486,6 +520,7 @@ flowchart LR
         D5[(D5 app_usage_daily)]
         D6[(D6 free_mode_session)]
         D7[(D7 tamper_event)]
+        D8[(D8 daily_total_quota)]
     end
 
     subgraph ClientStores [مخازن العميل — على جهاز الطفل]
@@ -506,6 +541,9 @@ flowchart LR
     Father -->|إعادة ترتيب| P3
     P3 -->|حفظ الترتيب| D3
     P3 -->|"family/{family_id}/protection/rules-updated — QoS 1"| MQTT
+    Father -->|"تعيين الحصة (الأب وحده — Q-184)"| P8
+    P8 -->|حفظ الحصة| D8
+    P8 -->|"family/{family_id}/protection/rules-updated — QoS 1"| MQTT
     Father -->|تفعيل أو إلغاء وضع حر| P5
     P5 -->|حفظ الجلسة| D6
     P5 -->|"family/{family_id}/protection/free-mode — QoS 1"| MQTT
@@ -515,9 +553,11 @@ flowchart LR
     L1 -->|القواعد + القناع اليومي| P4
     S101 -->|قناة familyos/enforcement — evaluateNow / getEnforcementState| P4
     S105 -->|الممنوح يدخل في الإضافي| P4
+    D8 -->|الحصة اليومية الإجمالية| P4
     Child -->|فتح تطبيق| P4
     P4 -->|قرار سماح أو حظر| Child
     P4 -->|حالة الفرض| D4
+    P4 -->|حالة الفرض + المتبقي| S105
     D4 -->|حالة الفرض| S109
     P4 -->|أحداث استخدام| L2
     L2 -->|تفريغ idempotent| P7
@@ -532,7 +572,7 @@ flowchart LR
     P1 -->|تسجيل التغيير| Audit
     P2 -->|تسجيل التغيير| Audit
     P3 -->|تسجيل التغيير| Audit
-    P5 -->|تسجيل التفعيل والانتهاء| Audit
+    P5 -->|تسجيل التفعيل والانتهاء والإلغاء المبكر| Audit
     P6 -->|تسجيل العبث| Audit
 ```
 
@@ -577,7 +617,7 @@ flowchart LR
         V2[PUT .../weekly-schedule]
         V3[PUT .../rule-priority]
         V4[POST .../free-mode]
-        V5[MQTT rules-updated / free-mode]
+        V5["MQTT family/{family_id}/protection/rules-updated / family/{family_id}/protection/free-mode"]
         V6[تسجيل التدقيق]
         V7[تنبيه عبث إلى S1-09]
     end
@@ -616,6 +656,7 @@ flowchart LR
     V7 --> F6
     K9 -->|نجحت| K2
     K9 -->|فشلت| F6
+    F6 --> F7
 ```
 
 - عند انتهاء الوضع الحر يعود التقييم فوراً — والتطبيق المفتوح المخالف يُغلق مع شاشة الحظر (REQ-019/004).

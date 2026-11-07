@@ -3,13 +3,13 @@
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **السياق المحدد (Bounded Context):** #2 الصلاحيات (Permissions) — `CONTEXT-MAP.md` §2 صف 2
-- **القرارات الحاكمة:** Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
+- **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
 ## 1. حالات الاستخدام
 
-15 حالة استخدام من السيناريوهات الستة والمتطلبات (§2/§3): المالك وحده يمنح ويلغي ويطبق القوالب وينقل الملكية ويحذف العائلة ويزيل الأعضاء؛ البالغ المفوَّض يمارس ما فُوِّض له فقط ولا يفوِّض غيره؛ المراهق يدير مهامه الخاصة فقط؛ وكل فحص صلاحية في المنصة يمر بمحرك التقييم (deny-override). وبوابة الوالدين (S1-01) والعضوية (S1-02) ممثلتان كجهات خارجية، والأنظمة المستهلكة لمفاتيح الصلاحيات (S1-05/S1-06/S1-07/S1-08/S1-09) تسأل المحرك.
+15 حالة استخدام من السيناريوهات الستة والمتطلبات (§2/§3): المالك وحده يمنح ويلغي ويطبق القوالب وينقل الملكية ويحذف العائلة ويزيل الأعضاء؛ البالغ المفوَّض يمارس ما فُوِّض له فقط ولا يفوِّض غيره؛ المراهق يدير مهامه الخاصة فقط؛ وكل فحص صلاحية في المنصة يمر بمحرك التقييم (deny-override — Q-007). وبوابة الوالدين (S1-01) والعضوية (S1-02) ممثلتان كجهات خارجية، والأنظمة المستهلكة لمفاتيح الصلاحيات (S1-05/S1-06/S1-07/S1-08/S1-09) تسأل المحرك.
 
 ```mermaid
 flowchart LR
@@ -34,7 +34,7 @@ flowchart LR
         UC8(نقل الملكية لبالغ)
         UC9(فحص صلاحية خادمي)
         UC10["فحص صلاحية محلي O(1) على جهاز الطفل"]
-        UC11(إدارة المراهق لمهامه الخاصة)
+        UC11(إدارة المراهق لمهامه الخاصة — REQ-015)
         UC12(محاولة تصعيد — مرفوضة)
         UC13(مراجعة منح الطفل عند بلوغ 13)
         UC14(حذف العائلة — يتضمن إلغاء الحذف المعلق)
@@ -46,12 +46,14 @@ flowchart LR
     Father --> UC3
     Father --> UC4
     Father --> UC5
+    Father --> UC6
     Father --> UC7
     Father --> UC8
     Father --> UC13
     Father --> UC14
     Father --> UC15
     Adult --> UC5
+    Adult --> UC6
     Adult --> UC7
     Teen --> UC11
     Teen --> UC12
@@ -71,12 +73,12 @@ flowchart LR
 ```
 
 - المنح والتعديل والإلغاء وتطبيق القالب ونقل الملكية حصراً للمالك (REQ-010/016)؛ البالغ المفوَّض لا يفوِّض غيره (لا تفويض متسلسل).
-- حذف العائلة وإزالة عضو حصراً للمالك (REQ-020 · Q-166) — غير قابلين للتفويض؛ وحذف العائلة بشرط PIN/بصمة مثبَتة بالتحدي (Q-164)، وإزالة العضو بشرط مفتاح `identity.member.remove` + PIN؛ وكلاهما حذف ناعم + سماح 30 يوماً ثم حذف صلب، والإلغاء خلال السماح عبر `POST /families/{id}/deletion/cancel`.
-- `roles.grant.create` و`roles.grant.edit` و`roles.grant.revoke` و`roles.template.apply` و`roles.ownership.transfer` للمالك حصراً (§6-1)؛ `roles.key.view` و`roles.audit.view` قابلان للتفويض.
+- حذف العائلة وإزالة عضو حصراً للمالك (REQ-020 · Q-166) — غير قابلين للتفويض؛ وحذف العائلة بشرط PIN/بصمة مثبَتة بالتحدي (Q-164)، وإزالة العضو بشرط مفتاح `identity.member.remove` + PIN؛ وكلاهما حذف ناعم + سماح 30 يوماً ثم حذف صلب، والإلغاء خلال السماح عبر `POST /api/v1/families/{id}/deletion/cancel`.
+- `roles.grant.create` و`roles.grant.edit` و`roles.grant.revoke` و`roles.template.apply` و`roles.ownership.transfer` للمالك حصراً (§6-1)؛ `roles.key.view` و`roles.audit.view` قابلان للتفويض. (سجل المفاتيح الذرية — Q-010)
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الخمسة من §5 كما هي، مع أربعة مراجع خارجية: العائلة والعضوية (`membership` — الدور + `is_owner`) والشخص (`person`) من S1-02، و`AuditEvent` (النواة المشتركة). ملاحظتان: جداول السجل العام (`permission_key` و`role_template` و`template_key`) مشتركة لكل العائلات بلا `family_id` — نفس المفتاح والقالب يخدمان كل العائلات؛ وجدولا `permission_grant` و`ownership_transfer` يحملان `family_id` + عزل RLS (D-021). ولقطة المنح المحلية (REQ-006) مخزن عميل على الجهاز وليست جدول خادم، فلا تظهر جدولاً هنا.
+الجداول الخمسة من §5 كما هي، مع أربعة مراجع خارجية: العائلة والعضوية (`membership` — الدور {`adult`، `teen`، `child`} + `is_owner` — سنة الميلاد تحدد الدور: دون 13 → `child`؛ 13–17 → `teen` — REQ-001 · Q-006/Q-080) والشخص (`person`) من S1-02، و`AuditEvent` (النواة المشتركة). ملاحظتان: جداول السجل العام (`permission_key` و`role_template` و`template_key`) مشتركة لكل العائلات بلا `family_id` — نفس المفتاح والقالب يخدمان كل العائلات؛ وجدولا `permission_grant` و`ownership_transfer` يحملان `family_id` + عزل RLS (D-021). ولقطة المنح المحلية (REQ-006) مخزن عميل على الجهاز وليست جدول خادم، فلا تظهر جدولاً هنا.
 
 ```mermaid
 erDiagram
@@ -91,6 +93,7 @@ erDiagram
     permission_grant ||--o{ AuditEvent : "منحه يُسجَّل"
     ownership_transfer ||--o{ AuditEvent : "نقله يُسجَّل"
 
+    %% REQ-008 — سجل المفاتيح المركزي
     permission_key {
         text key PK
         text domain
@@ -168,21 +171,21 @@ erDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
+    actor Father as الأب
+    participant App as التطبيق
     participant البوابة as S101
-    participant الخادم as Ktor
+    participant Ktor as الخادم
     participant السجل as Keys
     participant المنح as Grants
-    participant التدقيق as Audit
+    participant Audit as التدقيق
     Father->>App: اختيار عضو + مفتاح + scope + valid_until
-    App->>السجل: GET /permissions/keys — التحقق أن المفتاح في السجل
+    App->>السجل: GET /api/v1/permissions/keys — التحقق أن المفتاح في السجل
     alt المفتاح غير موجود في السجل
         السجل-->>App: غير موجود
         App->>Audit: تسجيل الرفض (لا يُنشأ مفتاح ضمنياً — §7-1)
         App-->>Father: رفض PERM_DENIED
     else المفتاح موجود
-        App->>Ktor: POST /families/{id}/members/{memberId}/grants
+        App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants
         alt المفتاح حساس
             Ktor->>App: تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
             App->>البوابة: طلب تحقق — PIN الأب أو بصمته (Q-088)
@@ -214,17 +217,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
     participant القوالب as Templates
     participant المنح as Grants
-    participant التدقيق as Audit
+    participant Audit as التدقيق
     Father->>App: اختيار عضو + قالب (partner | guardian | observer)
-    App->>Ktor: GET /families/{id}/templates — عرض القوالب ومفاتيحها
+    App->>Ktor: GET /api/v1/families/{id}/templates — عرض القوالب ومفاتيحها
     Ktor-->>App: [{template_id, title_ar, keys}]
     Father->>App: تطبيق القالب
-    App->>Ktor: POST /families/{id}/members/{memberId}/grants/apply-template {template_id}
+    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants/apply-template {template_id}
     Ktor->>القوالب: قراءة مفاتيح القالب (template_key + default_scope)
     Ktor->>المنح: نسخ مفاتيح القالب إلى منح العضو (valid_until يحدده الأب)
     Ktor->>Audit: تسجيل تطبيق القالب
@@ -238,11 +241,11 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor النظام as System
-    participant الخادم as Ktor
+    actor System as النظام
+    participant Ktor as الخادم
     participant اللقطة as Snapshot
-    participant Kotlin as K
-    System->>Ktor: POST /permissions/check {member_id, permission_key, scope?}
+    participant K as Kotlin
+    System->>Ktor: POST /api/v1/permissions/check {member_id, permission_key, scope?}
     Ktor->>Ktor: المنح النشط = revoked_at IS NULL و valid_until > now (§6-3)
     alt رفض صريح نشط (is_granted=false)
         Ktor-->>System: {allowed: false, reason: denied}
@@ -257,7 +260,7 @@ sequenceDiagram
     System->>K: checkPermission({key, scope}) عبر MethodChannel
     K->>اللقطة: قراءة لقطة المنح المحلية (O(1))
     alt اللقطة قديمة أو تالفة
-        اللقطة-->>K: إعادة مزامنة كاملة عبر permissions/sync
+        اللقطة-->>K: إعادة مزامنة كاملة عبر family/{family_id}/permissions/sync
         K-->>System: الفحص يتوقف على الرفض حتى تكتمل المزامنة (§7-13)
     else اللقطة سارية
         اللقطة-->>K: نفس نتيجة الخادم (ACC-004)
@@ -273,16 +276,16 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
     participant المنح as Grants
     participant الجلسات as S102
     participant الوسيط as MQTT
     participant الجهاز as Device
-    participant التدقيق as Audit
+    participant Audit as التدقيق
     Father->>App: إلغاء المنح من إدارة الأعضاء
-    App->>Ktor: DELETE /families/{id}/members/{memberId}/grants/{grantId}
+    App->>Ktor: DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}
     Ktor->>المنح: revoked_at = now (المفتاح يتوقف لحظياً)
     Ktor->>الجلسات: إبطال جلسات العضو المعلق فوراً (BR-PERM-005)
     Ktor->>الوسيط: family/{family_id}/permissions/revoked — دفع إبطال فوري
@@ -297,14 +300,14 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
+    actor Father as الأب
+    participant App as التطبيق
     participant البوابة as S101
-    participant الخادم as Ktor
+    participant Ktor as الخادم
     participant النقل as Transfer
-    participant التدقيق as Audit
+    participant Audit as التدقيق
     Father->>App: اختيار بالغ لنقل الملكية إليه
-    App->>Ktor: POST /families/{id}/ownership-transfer {to_member_id}
+    App->>Ktor: POST /api/v1/families/{id}/ownership-transfer {to_member_id}
     alt المتلقي طفل أو مراهق
         Ktor-->>App: رفض — النقل للبالغين فقط (§7-11 · ACC-013)
     else المتلقي بالغ
@@ -325,11 +328,11 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant العضوية as S102
-    participant الخادم as Ktor
+    participant S102 as العضوية
+    participant Ktor as الخادم
     participant المنح as Grants
-    actor الأب as Father
-    S102->>Ktor: بلوغ الطفل 13 سنة (سنة الميلاد — Q-080)
+    actor Father as الأب
+    S102->>Ktor: بلوغ الطفل 13 سنة — حدث member.turned-teen الداخلي (مهمة خادمية يومية عند منتصف الليل المحلي — Q-189؛ سنة الميلاد — Q-080)
     Ktor->>Ktor: تحويل الدور child → teen تلقائياً
     Ktor->>المنح: مراجعة منح العضو غير الإشرافية عند التحول
     Ktor->>Father: إشعار الأب بالتحول ومراجعة المنح
@@ -341,15 +344,15 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
-    participant الهوية as S102
-    participant التدقيق as Audit
-    participant الوسيط as MQTT
-    participant الجهاز as Device
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant S102 as الهوية
+    participant Audit as التدقيق
+    participant MQTT as الوسيط
+    participant Device as الجهاز
     Father->>App: حذف العائلة / إزالة عضو من إدارة الأعضاء
-    App->>Ktor: DELETE /families/{id} — أو DELETE /families/{id}/members/{memberId}
+    App->>Ktor: DELETE /api/v1/families/{id} — أو DELETE /api/v1/families/{id}/members/{memberId}
     alt حذف العائلة
         Ktor->>App: تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
         App->>Ktor: verification {method: pin | biometric, challenge_id, signature, at}
@@ -366,7 +369,7 @@ sequenceDiagram
     Ktor-->>App: {status: "pending_deletion", purge_at}
     alt إلغاء خلال السماح
         Father->>App: إلغاء حذف معلَّق
-        App->>Ktor: POST /families/{id}/deletion/cancel
+        App->>Ktor: POST /api/v1/families/{id}/deletion/cancel (عائلة) أو POST /api/v1/families/{id}/members/{memberId}/deletion/cancel (عضو)
         Ktor->>S102: إعادة التفعيل — حذف سجل الحذف المعلق
         Ktor-->>App: {status: "active"}
     else بلا إلغاء بعد 30 يوماً
@@ -381,14 +384,14 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor المتلقي as Recipient
-    participant التطبيق as App
+    actor Recipient as المتلقي
+    participant App as التطبيق
     participant البوابة as S101
-    participant الخادم as Ktor
+    participant Ktor as الخادم
     participant النقل as Transfer
-    participant التدقيق as Audit
+    participant Audit as التدقيق
     Recipient->>App: قبول نقل الملكية {transfer_id}
-    App->>Ktor: POST /families/{id}/ownership-transfer/{transferId}/accept
+    App->>Ktor: POST /api/v1/families/{id}/ownership-transfer/{transferId}/accept
     alt المتلقي بالغ
         Ktor->>App: تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
         App->>البوابة: طلب تحقق — PIN أو بصمة (Q-093)
@@ -448,7 +451,7 @@ flowchart TD
     Challenge --> SoftDel[حذف ناعم + سماح 30 يوماً]
     PinCheck --> SoftDel
     SoftDel --> CancelQ{إلغاء خلال السماح؟}
-    CancelQ -->|نعم| CancelDel["POST /families/{id}/deletion/cancel — عودة نشطاً"]
+    CancelQ -->|نعم| CancelDel["POST /api/v1/families/{id}/deletion/cancel — عودة نشطاً"]
     CancelDel --> End
     CancelQ -->|لا — بعد 30 يوماً| HardDel[حذف صلب — تجهيل رسائل العضو + تطهير النسخ خلال 30 يوماً]
     HardDel --> End
@@ -461,7 +464,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D5. المخزن D5 سجل التدقيق (النواة المشتركة)؛ واللقطة المحلية على جهاز الطفل مخزن عميل (ليست جدول خادم) وتُزامَن عبر MQTT.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `PATCH /families/{id}/members/{memberId}/grants/{grantId}` (تعديل النطاق/المدة — REQ-010، يمر عبر P2) · `GET /families/{id}/members/{memberId}/permissions` (الصلاحيات الفعلية لعضو — REQ-004، تُقرأ عبر P4) · `GET /families/{id}/audit/permissions` (سجل التدقيق — REQ-018، يُقرأ من D5 عبر P6)؛ وبقية النقاط مرسومة في §3 (keys، grants إنشاء/إلغاء، templates، apply-template، check، ownership-transfer، حذف العائلة/العضو وإلغاء الحذف — 3-ز).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `PATCH /api/v1/families/{id}/members/{memberId}/grants/{grantId}` (تعديل النطاق/المدة — REQ-010، يمر عبر P2) · `GET /api/v1/families/{id}/members/{memberId}/permissions` (الصلاحيات الفعلية لعضو — REQ-004، تُقرأ عبر P4) · `GET /api/v1/families/{id}/audit/permissions` (سجل التدقيق — REQ-018، يُقرأ من D5 عبر P6)؛ وبقية النقاط مرسومة في §3 (keys، grants إنشاء/إلغاء، templates، apply-template، check، ownership-transfer — قبول النقل في 3-ح، حذف العائلة/العضو وإلغاء الحذف — 3-ز)؛ وإلغاء نقل الملكية المعلق عبر P7 في DFD.
 
 ```mermaid
 flowchart LR
@@ -509,13 +512,13 @@ flowchart LR
     S102 -->|بلوغ 13 — تحول الدور| P2
     P1 -->|مفتاح + عنوان عربي + وصف + حساس| D1
     D1 -->|قائمة المفاتيح| P1
-    P2 -->|التحقق من المفتاح في السجل| D1
+    P2 -->|"التحقق من المفتاح في السجل (REQ-009)"| D1
     P2 -->|التحقق PIN / بصمة للمفتاح الحساس| S101
     P2 -->|"حفظ المنح (scope + valid_until)"| D3
     P3 -->|قراءة مفاتيح القالب| D2
     P3 -->|نسخ المفاتيح إلى منح| D3
     P2 -->|"بدء نقل الملكية (PIN أو بصمة)"| D4
-    Consumers -->|POST /permissions/check| P4
+    Consumers -->|POST /api/v1/permissions/check| P4
     P4 -->|قراءة المنح النشطة| D3
     D3 -->|المنح + is_granted + valid_until| P4
     P4 -->|allowed / denied / hard_invariant| Consumers
@@ -525,13 +528,22 @@ flowchart LR
     D5 -->|سجل قابل للعرض على الأب| Father
     P6 -->|تنبيه الأب عند رفض / تصعيد| Father
     P2 -->|تغيير منح| P5
-    P5 -->|permissions/sync| MQTT
-    P5 -->|permissions/revoked — إبطال فوري| MQTT
+    P5 -->|"family/{family_id}/permissions/sync"| MQTT
+    P5 -->|"family/{family_id}/permissions/revoked — إبطال فوري"| MQTT
+    P6 -->|"family/{family_id}/permissions/grant-expiring — فحص يومي (Q-227)"| MQTT
     MQTT -->|لقطة المنح| Snapshot
     Snapshot -->|"فحص محلي O(1) — checkPermission"| Teen
+    P2 -->|"POST grants + ownership-transfer + accept (3-أ/3-هـ/3-ح)"| Ktor
+    Ktor -->|"grant_id / transfer_id — pending / accepted (3-أ/3-هـ/3-ح)"| P2
+    P3 -->|"POST /api/v1/families/{id}/members/{memberId}/grants/apply-template (3-ب)"| Ktor
+    Ktor -->|"المنح المنسوخة من القالب (3-ب)"| P3
+    P4 -->|"POST /api/v1/permissions/check (3-ج)"| Ktor
+    Ktor -->|"allowed / denied / hard_invariant (3-ج)"| P4
+    P7 -->|"DELETE /api/v1/families/{id} + DELETE /api/v1/families/{id}/members/{memberId} + POST /api/v1/families/{id}/deletion/cancel + POST /api/v1/families/{id}/members/{memberId}/deletion/cancel (3-ز)"| Ktor
+    Ktor -->|"pending_deletion + purge_at / active (3-ز)"| P7
 ```
 
-- العملية 4.0 هي الحارس الوحيد: كل فحص صلاحية في المنصة يمر بها (§1).
+- العملية 4.0 هي الحارس الوحيد: كل فحص صلاحية في المنصة يمر بها (§1) — «لا عملية بلا مفتاح» (REQ-009).
 - سجل المفاتيح D1 مشترك لكل العائلات بلا `family_id`؛ وD3 وD4 يحملان `family_id` + RLS (D-021).
 
 ## 6. مخطط النشاط (Activity) — دورة حياة المنح والفحص
@@ -573,11 +585,13 @@ flowchart LR
         V5[مراجعة المنح عند بلوغ 13]
         V6[حذف ناعم + سماح 30 يوماً + سجل deletion_request عبر S1-02 + إبطال الجلسات + تجهيل رسائل العضو]
         V7[إلغاء حذف معلَّق خلال السماح]
+        V8["فحص يومي مجدول — منح قريبة من الانتهاء (7 أيام — Q-227)"]
     end
     subgraph Bus [وسيط MQTT]
         direction TB
-        Q1[permissions/sync — لقطة المنح]
-        Q2[permissions/revoked — إبطال فوري]
+        Q1["family/{family_id}/permissions/sync — لقطة المنح"]
+        Q2["family/{family_id}/permissions/revoked — إبطال فوري"]
+        Q3["family/{family_id}/permissions/grant-expiring — تنبيه انتهاء منح قريب"]
     end
 
     F1 --> F2
@@ -595,7 +609,7 @@ flowchart LR
     Q2 --> K1
     F8 --> V1
     F9 --> F5
-    F5 --> V1
+    F5 --> V6
     V1 --> V6
     F9 --> V7
     V7 --> V6
@@ -608,7 +622,10 @@ flowchart LR
     M3 --> V3
     V3 --> F1
     V5 --> F1
+    V8 --> Q3
+    Q3 -->|تنبيه عبر S1-09| F1
 ```
 
 - عند بلوغ الطفل 13 يتحول دوره تلقائياً وتُراجع منحُه غير الإشرافية ويُشعَر الأب (REQ-003) — المسار V5 إلى F1.
 - المنح بلا شبكة لا يُنفَّذ محلياً: الخادم هو المرجع، ويُحفظ الطلب في صندوق الصادر ويُعاد عند عودة الاتصال (§7-12 — نمط S1-01).
+- الفحص اليومي للمنح القريبة من الانتهاء (V8) يصدر `family/{family_id}/permissions/grant-expiring` (عتبة 7 أيام — Q-227)؛ ويستهلكه S1-09 لتنبيهات `grant_expiring` (§4-2).

@@ -3,7 +3,7 @@
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06)؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط، حكم المالك 2026-11-06 · §9 في مرحلة التصميم)
 - **السياق المحدد (Bounded Context):** #11 الفوترة والاشتراكات (Billing & Subscriptions) — `CONTEXT-MAP.md` §2 صف 11
-- **القرارات الحاكمة:** Q-025 (قنوات الدفع لعالمين) · Q-055 (الخطط أعلام وحصص بلا كود) · Q-106 (عدّاد SMS وتجاوز الطوارئ) · Q-126 (3 خطط) · Q-127 (أسعار الخليج) · Q-129 (حصص SMS) · Q-130 (تجربة 7 أيام) · Q-131 (سماح 3 أيام) · Q-132 (سعر اليمن — مفتوح، بلا رقم) · Q-012 (ميزانية الذكاء) · Q-098 (الخطة للقراءة فقط في S1-09) · Q-105 (سجل المواقع 7 أيام)
+- **القرارات الحاكمة:** Q-001 · Q-025 (قنوات الدفع لعالمين) · Q-055 (الخطط أعلام وحصص بلا كود) · Q-106 (عدّاد SMS وتجاوز الطوارئ) · Q-126 (3 خطط) · Q-127 (أسعار الخليج) · Q-129 (حصص SMS) · Q-130 (تجربة 7 أيام) · Q-131 (سماح 3 أيام) · Q-132 (سعر اليمن — مفتوح، بلا رقم) · Q-012 (ميزانية الذكاء) · Q-098 (الخطة للقراءة فقط في S1-09) · Q-105 (سجل المواقع 7 أيام) · Q-163 (تجاوز طوارئ SOS — 3 رسائل بعد نفاد الحصة) · Q-056 (الموقع الأساسي في المرحلة 1 — خريطة العائلة + SOS) · Q-007 (رفض-يتغلب — المنع يغلب)
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -40,7 +40,7 @@ flowchart LR
         UC12(تجاوز طوارئ SOS)
         UC13(تعديل أعلام وحصص خطة بلا كود)
         UC14(إصدار قسيمة)
-        UC15(تنبيه 80% من الحصة ودخول السماح)
+        UC15(تنبيه 80% من الحصة ودخول السماح — Q-216)
         UC16(تراجع لبق للمجانية)
     end
 
@@ -69,7 +69,7 @@ flowchart LR
 ```
 
 - ملاحظة: الترقية فورية عند الدفع، والتخفيض يسري بنهاية الفترة المدفوعة (REQ-004)؛ والتجربة مرة واحدة لكل عائلة وغير قابلة للتحويل (§6).
-- الأسعار (Q-127): الخليج — المميزة 19.99 ر.س شهرياً / 179.99 سنوياً، الأساسية 9.99 ر.س شهرياً / 89.99 سنوياً (خصم سنوي ~25%)؛ والمجانية 0 ر.س. سعر اليمن بالريال اليمني مفتوح (Q-132) — لم يُحدد بعد، ولا رقم مخترع هنا.
+- الأسعار (Q-127 · REQ-003): الخليج — المميزة 19.99 ر.س شهرياً / 179.99 سنوياً، الأساسية 9.99 ر.س شهرياً / 89.99 سنوياً (خصم سنوي ~25%)؛ والمجانية 0 ر.س. سعر اليمن بالريال اليمني مفتوح (Q-132) — لم يُحدد بعد، ولا رقم مخترع هنا.
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -161,7 +161,7 @@ erDiagram
 
 - `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / VOUCHER / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ وحالة القسيمة: ISSUED / REDEEMED / REVOKED / EXPIRED (§5).
 - `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5).
-- مصفوفة الخطط (§1): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء: المجانية تحقق المهام فقط، الأساسية تحقق + مساعد محدود، المميزة كاملة.
+- مصفوفة الخطط (§1 · REQ-001): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء: المجانية تحقق المهام فقط، الأساسية تحقق + مساعد محدود، المميزة كاملة.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
@@ -172,17 +172,17 @@ erDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant Kotlin as K
-    participant الخادم as Ktor
-    participant المتجر as Store
-    participant التدقيق as Audit
+    actor Father as الأب
+    participant App as التطبيق
+    participant K as Kotlin
+    participant Ktor as الخادم
+    participant Store as المتجر
+    participant Audit as التدقيق
     Father->>App: اختيار المميزة من شاشة المقارنة
     App->>K: launchStorePurchase
     K->>Store: فتح ورقة شراء Google Play
     Store-->>K: إيصال الشراء
-    K->>Ktor: POST /families/{id}/billing/purchase/verify-receipt {receipt_data}
+    K->>Ktor: POST /api/v1/families/{id}/billing/purchase/verify-receipt {receipt_data}
     Note over Ktor: تحقق خادمي S2S فقط — لا يُعتد بأي تأكيد محلي
     Ktor->>Store: تحقق S2S من الإيصال
     Store-->>Ktor: الإيصال صحيح
@@ -203,12 +203,12 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
-    participant التدقيق as Audit
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant Audit as التدقيق
     Father->>App: إدخال كود القسيمة
-    App->>Ktor: POST /families/{id}/billing/voucher/redeem {code}
+    App->>Ktor: POST /api/v1/families/{id}/billing/voucher/redeem {code}
     Ktor->>Ktor: تحقق خادمي من القسيمة
     alt قسيمة صادرة وغير مستخدمة
         Ktor->>Ktor: تفعيل الاشتراك المميز فوراً + status=REDEEMED
@@ -228,13 +228,13 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
-    participant الحارس as Guard
-    participant الموقع as S107
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant Guard as الحارس
+    participant S107 as الموقع
     Father->>App: شراء حزمة تعبئة 50 رسالة
-    App->>Ktor: POST /families/{id}/billing/topup
+    App->>Ktor: POST /api/v1/families/{id}/billing/topup
     Ktor->>Ktor: تحقق الدفع خادمياً + إضافة 50 إلى topup_sms_balance
     Ktor-->>App: الرصيد أُضيف فوراً لرصيد الشهر
     Note over Ktor: رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم
@@ -254,19 +254,19 @@ sequenceDiagram
     end
 ```
 
-- الحصص تُفرض على الخادم عند كل استخدام؛ وعرض العميل استرشادي فقط (§6)؛ وتنبيه للأب عند 80% من أي حصة (§6)؛ وحصة SMS حسب الخطة: 20 / 50 / 100 شهرياً (Q-129)؛ وتجاوز الطوارئ 3 رسائل SOS في كل دورة (Q-106).
+- الحصص تُفرض على الخادم عند كل استخدام؛ وعرض العميل استرشادي فقط (§6)؛ وتنبيه للأب عند 80% (Q-216) من أي حصة (§6)؛ وحصة SMS حسب الخطة: 20 / 50 / 100 شهرياً (Q-126)؛ وتجاوز الطوارئ 3 رسائل SOS في كل دورة (Q-106).
 
 ### 3-د. التجربة ثم السماح ثم التراجع اللبق (REQ-012/013/014 — §4/§6)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
-    participant المجدول as Sched
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant Sched as المجدول
     Father->>App: بدء التجربة 7 أيام للمميزة
-    App->>Ktor: POST /families/{id}/plan/trial/start
+    App->>Ktor: POST /api/v1/families/{id}/plan/trial/start
     alt لم تُستخدم التجربة من قبل
         Ktor->>Ktor: status=TRIAL + trial_used=true — 7 أيام
         Ktor-->>App: تجربة مفعّلة
@@ -275,7 +275,7 @@ sequenceDiagram
     end
     Note over Sched: عند انتهاء التجربة بلا تجديد
     Sched->>Ktor: دخول فترة السماح — status=IN_GRACE_PERIOD — 3 أيام
-    Ktor->>Father: حدث billing/sub-grace-period — الميزات تبقى
+    Ktor->>Father: حدث family/{family_id}/billing/sub-grace-period — الميزات تبقى
     Note over Sched: عند انتهاء السماح بلا تجديد
     Sched->>Ktor: تراجع لبق — status=EXPIRED ثم المجانية ACTIVE
     Ktor-->>Father: بلا قفل وبلا حذف بيانات — الأعضاء الحاليون يبقون
@@ -288,10 +288,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor الأب as Father
-    participant التطبيق as App
-    participant الخادم as Ktor
-    participant الهوية as S102
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant S102 as الهوية
     Father->>App: إضافة العضو السادس (الخطة المجانية — الحد 5)
     App->>Ktor: طلب إضافة عضو
     Ktor->>S102: عدد الأعضاء الحاليين
@@ -300,7 +300,7 @@ sequenceDiagram
     Ktor-->>App: QUOTA_EXCEEDED + بطاقة ترقية لبقة
     App-->>Father: بطاقة ترقية لبقة (لا حظر قاسٍ)
     Father->>App: الترقية للأساسية (حتى 10 أفراد)
-    App->>Ktor: POST /families/{id}/plan/upgrade
+    App->>Ktor: POST /api/v1/families/{id}/plan/upgrade
     Ktor-->>App: ترقية فورية — إضافة العضو تنجح
 ```
 
@@ -310,7 +310,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    Start([عائلة جديدة تُنشأ]) --> Free[بدء تلقائي على المجانية ACTIVE — 0 ر.س]
+    Start([عائلة جديدة تُنشأ]) --> Free[بدء تلقائي على المجانية ACTIVE — 0 ر.س — REQ-002]
     Free --> View[عرض الخطة والاستهلاك — الأب أو البالغ المفوَّض]
     View --> Choice{يريد ترقية؟}
     Choice -->|لا| Stay[البقاء على المجانية — الأمان كاملاً]
@@ -327,7 +327,8 @@ flowchart TD
     Verify -->|مزور / مكرر| Reject[رفض 409 + تسجيل FRAUD_SUSPECT]
     Active --> Use[استخدام الميزات على كل أجهزة العائلة]
     Use --> Quota{تجاوز حصة؟}
-    Quota -->|أفراد / SMS / ذكاء| Card[بطاقة ترقية لبقة]
+    Quota -->|أفراد / SMS| Card[بطاقة ترقية لبقة]
+    Quota -->|"ذكاء — نفاد الميزانية أو مفتاح الإيقاف (REQ-016)"| AIOff[إيقاف مزايا الذكاء — السلامة مستمرة]
     Card --> Upgrade[ترقية فورية]
     Upgrade --> Use
     Quota -->|لا| End1([مستمر])
@@ -348,7 +349,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D6 (جداول خادم PostgreSQL). المخزن D7 محفوظ محلياً على الجهاز (للقراءة دون اتصال) وليس جدول خادم.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /families/{id}/billing/restore` (استعادة المشتريات — تمر عبر P2) · `POST /families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — تُقرأ عبر P4) · `PATCH /admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — تمر عبر P7)؛ وبقية النقاط مرسومة في §3 (plans، plan قراءة/ترقية، verify-receipt، voucher/redeem، topup، trial/start).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — تمر عبر P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — تُقرأ عبر P4) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — تمر عبر P7)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، voucher/redeem، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
 
 ```mermaid
 flowchart LR
@@ -390,6 +391,7 @@ flowchart LR
     P1 -->|قراءة الخطط والأسعار| D1
     P1 -->|قراءة الأسعار لكل سوق| D2
     P1 -->|قراءة الاشتراك والاستحقاق| D3
+    P1 -->|إلغاء تجديد → auto_renew=false| P5
     P1 -->|الخطة + الاستهلاك| Father
     P1 -->|الخطة — قراءة فقط| S109
     S109 -->|زر إدارة| P1
@@ -410,8 +412,8 @@ flowchart LR
     P4 -->|نفاد SMS → 3 طوارئ SOS فقط| S107
     P5 -->|انتهاء تجربة / سماح| D3
     P5 -->|تحديث الحالة| D3
-    P6 -->|billing/subscription-changed و quota-warning و sub-grace-period و sub-renewed| Ktor
-    P6 -->|تنبيه 80% وإشعار طوارئ فوري| Father
+    P6 -->|"family/{family_id}/billing/subscription-changed و family/{family_id}/billing/quota-warning و family/{family_id}/billing/sub-grace-period و family/{family_id}/billing/sub-renewed"| Ktor
+    P6 -->|"تنبيه 80% (Q-216) وإشعار طوارئ فوري"| Father
     Admin -->|تعديل أعلام / حصص| P7
     P7 -->|حفظ بلا تغيير مخطط| D1
     P1 -->|نسخة محفوظة دون اتصال| D7
@@ -421,7 +423,7 @@ flowchart LR
     P5 -->|كل تراجع| Audit
 ```
 
-- ملاحظة: Webhook المتجر للتجديد التلقائي يُعالج idempotent بمفتاح المعاملة — لا ترقية مزدوجة (§7)؛ وفشل التحقق من الإيصال لعطل اتصال بالمتجر يعطي سماحاً مؤقتاً 24 ساعة ثم إعادة محاولة (§7).
+- ملاحظة: Webhook المتجر للتجديد التلقائي يُعالج idempotent بمفتاح المعاملة — لا ترقية مزدوجة (§7)؛ وفشل التحقق من الإيصال لعطل اتصال بالمتجر يعطي سماحاً مؤقتاً 24 ساعة (Q-215) ثم إعادة محاولة (§7).
 
 ## 6. مخطط النشاط (Activity) — دورة حياة الاشتراك
 
@@ -436,7 +438,7 @@ flowchart LR
         F3[الدفع أو إدخال قسيمة]
         F4[شراء تعبئة SMS]
         F5[إلغاء التجديد التلقائي]
-        F6([استلام إشعار 80% أو طارئ])
+        F6(["استلام إشعار 80% (Q-216) أو طارئ"])
     end
     subgraph App [التطبيق — Flutter + Kotlin]
         direction TB
@@ -449,7 +451,7 @@ flowchart LR
     end
     subgraph Server [الخادم — Ktor billing]
         direction TB
-        V1["GET /plans + GET /families/{id}/plan"]
+        V1["GET /api/v1/plans + GET /api/v1/families/{id}/plan"]
         V2[تحقق S2S من الإيصال / القسيمة]
         V3[تفعيل الاشتراك + الاستحقاقات]
         V4[حارس الحصص — أفراد / SMS / ذكاء]
@@ -470,6 +472,7 @@ flowchart LR
         G2[سماح 3 أيام]
         G3[تراجع لبق للمجانية]
         G4[تصفير الحصص ببداية الفترة]
+        G5["انتهاء الفترة المدفوعة بلا تجديد (auto_renew=false)"]
     end
 
     F1 --> A1
@@ -487,7 +490,7 @@ flowchart LR
     R4 --> A4
     A4 --> V2
     V2 --> V3
-    V2 -->|تحقق الدفع — إضافة رصيد التعبئة| V4
+    V2 -->|"تحقق الدفع — إضافة رصيد التعبئة (Q-180)"| V4
     V3 --> V5
     V3 --> V6
     V3 --> A5
@@ -498,6 +501,7 @@ flowchart LR
     G1 --> G2
     G2 --> G3
     G3 --> V3
+    G5 --> G3
     G4 --> V4
     V5 --> F6
     V4 --> F6
