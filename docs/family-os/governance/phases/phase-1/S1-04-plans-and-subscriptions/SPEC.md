@@ -22,11 +22,13 @@
 | الأفراد | حتى 5 | حتى 10 | غير محدود |
 | رسائل SMS شهرياً | 20 | 50 | 100 |
 | تحقق الذكاء من المهام | ✅ | ✅ | ✅ |
-| ميزانية الذكاء الشهرية | تحقق المهام فقط | تحقق + مساعد محدود | كاملة |
+| ميزانية الذكاء الشهرية | 300 وحدة — تحقق المهام فقط | 1,000 وحدة — تحقق + مساعد محدود | 3,000 وحدة — كاملة |
 | سجل المواقع | 7 أيام | 7 أيام | 7 أيام |
 | التجربة المجانية | — | — | 7 أيام تجربة |
 
 **حصص SMS لكل خطة (Q-261 — تصديق):** مجانية 20 / أساسية 50 / مميزة 100 رسالة/شهر؛ وحزمة التعبئة 50 رسالة منفصلة عن حصة الأساسية (Q-129/REQ-010) — لا يُكتب «50» عارية أبداً.
+
+**ميزانية الذكاء لكل خطة (Q-336 — D-10):** الوحدة = استدعاء ذكاء واحد عبر البوابة؛ مجانية 300 / أساسية 1,000 / مميزة 3,000 وحدة/شهر — قيم بداية قابلة للتعديل بلا كود (Q-055)؛ والمصنف معفى من ميزانية العائلة ويعمل دائماً (Q-335).
 
 **الأسعار (Q-127/Q-128):** الخليج 19.99 ر.س شهرياً / 179.99 سنوياً للمميزة؛ وأسعار الأساسية 9.99/89.99 (REQ-003 — Q-271)؛ واليمن سعر محلي مخفّض بالريال يُحدد قبل الإطلاق (Q-132).
 
@@ -149,7 +151,7 @@ flowchart LR
 
 ### التكامل
 - **REQ-015:** الخطة للقراءة فقط في مركز الأوامر S1-09 (الخطة الحالية + الاستهلاك)؛ و"إدارة" تنقل إلى S1-04. [Q-098 · DIRECT]
-- **REQ-016:** ميزانية ذكاء لكل عائلة حسب خطتها + مفتاح إيقاف؛ ونفاد الميزانية يوقف مزايا الذكاء دون أن يمس السلامة. [Q-012 · DIRECT]
+- **REQ-016:** ميزانية ذكاء لكل عائلة حسب خطتها + مفتاح إيقاف؛ ونفاد الميزانية يوقف مزايا الذكاء دون أن يمس السلامة. [Q-012 · DIRECT] [ملاحظة D-10 — 2026-11-08 (Q-335/Q-336): المصنف معفى من ميزانية العائلة ويعمل دائماً؛ والميزانية تحكم تحقق المهام + المساعد فقط؛ والوحدة = استدعاء ذكاء واحد عبر البوابة؛ والأرقام: مجانية 300 / أساسية 1,000 / مميزة 3,000 وحدة/شهر.]
 - **REQ-017:** قراءة استهلاك الحصص (`GET /api/v1/families/{id}/billing/usage` — §4): يعيد لكل حصة المستخدم/الحد، وهوية الفترة (شهر تقويمي YYYY-MM — Q-252)، ورصيد التعبئة، والطوارئ المتبقية؛ ودون اتصال تُعرض آخر قراءة محفوظة مع عمرها صراحةً (لا أرقام تُقدَّم كحية وهي قديمة). [Q-252 · DIRECT]
 
 ### الإصدار الإداري
@@ -181,6 +183,7 @@ flowchart LR
 - `POST /api/v1/admin/vouchers` — إصدار قسيمة (مشغّل المنصة وحده — لوحة إدارية خارج التطبيق؛ ولا عائلة تصدر قسيمة أبداً في المرحلة 1) — المفتاح: `billing.plan.edit` (Q-260 — مالك المنصة وحده؛ غيره 403). الطلب: `{plan_id, duration_months, expires_at}`. الرد: `{voucher_id, code, plan_id, status: "ISSUED", duration_months, expires_at}`. الأخطاء: `PLAN_NOT_FOUND` · `VALIDATION_FAILED`. (REQ-018 · Q-258.)
 - `POST /api/v1/admin/vouchers/{code}/revoke` — إلغاء قسيمة صادرة قبل استخدامها (مشغّل المنصة وحده — لوحة إدارية خارج التطبيق) — المفتاح: `billing.plan.edit` (Q-260). الطلب: `{}`. الرد: `{code, status: "REVOKED"}`. الأخطاء: `VOUCHER_INVALID` · `VOUCHER_USED`. (REQ-018 · Q-258.)
 - `POST /api/v1/families/{id}/billing/ai/kill-switch` — قلب مفتاح إيقاف الذكاء (R2-S104-01 — Q-012/Q-221) — المفتاح: `billing.manage` (الأب وحده). الطلب: `{enabled: boolean}`. الرد: `{enabled, updated_at}` — وكل قلب للمفتاح يُسجَّل في `AuditEvent` (domain=billing)؛ والحالة تُكتب في موضع واحد (وحدة الفوترة) وتُقرأ منها بوابة الذكاء (ARCH §6.5)؛ والعميل يقرأ الحالة من `GET .../plan` (لا نسخة عميل مستقلة). الأخطاء: `SUBSCRIPTION_NOT_FOUND` · `VALIDATION_FAILED`. (REQ-016.)
+- `POST /api/v1/admin/ai/kill-switch` — قلب مفتاح إيقاف الذكاء على مستوى المنصة (Q-338 — D-10 — مشغّل المنصة وحده) — المفتاح: `billing.plan.edit` (Q-260 — مالك المنصة وحده؛ وكل من عداه يُرفض بـ 403). الطلب: `{enabled: boolean}`. الرد: `{enabled, updated_at}` — وكل قلب للمفتاح يُسجَّل في `AuditEvent` (domain=billing)؛ وعند بلوغ السقف الشهري 100% توقف البوابة الذكاء غير الآمن تلقائياً (Q-337)؛ والاستئناف يحتاج موافقة كتابية جديدة. الأخطاء: `VALIDATION_FAILED`. (REQ-016.)
 - `POST /api/v1/families/{id}/plan/renew` — تجديد الآن (R2-S104-29 — زر S04-09 «جدّد الآن») — المفتاح: `billing.manage`. الطلب: `{plan_id}` — الخطة نفسها (تجديد الفترة نفسها؛ واختيار خطة أخرى يكون من S04-02). الرد: `{plan_id, status: "ACTIVE", current_period_start, current_period_end}` — بعد إتمام الدفع عبر قناة الخطة (S04-04/S04-05). الأخطاء: `PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-013.)
 
 ### 4-2. أحداث MQTT
@@ -213,7 +216,7 @@ flowchart LR
 ## 5. البيانات — النموذج
 
 **جداول النظام:**
-- `plan` — الخطة: `plan_id` · `tier_level` (FREE/BASIC/PREMIUM) · `title_ar` · `description_ar` · `billing_interval` (LIFETIME_FREE/MONTHLY/ANNUAL) · `flags` (jsonb — أعلام المزايا) · `quotas` (jsonb — max_members/sms_monthly/ai_budget_monthly) · `is_active`. (الأعلام والحصص jsonb = تعديل بلا كود ولا تغيير مخطط — Q-055.)
+- `plan` — الخطة: `plan_id` · `tier_level` (FREE/BASIC/PREMIUM) · `title_ar` · `description_ar` · `billing_interval` (LIFETIME_FREE/MONTHLY/ANNUAL) · `flags` (jsonb — أعلام المزايا) · `quotas` (jsonb — max_members/sms_monthly/ai_budget_monthly) · `is_active`. (الأعلام والحصص jsonb = تعديل بلا كود ولا تغيير مخطط — Q-055.) [ملاحظة D-10 — 2026-11-08 (Q-336): وحدة `ai_budget_monthly` = استدعاء ذكاء واحد في الشهر.]
 - `plan_price` — سعر الخطة لكل سوق: `plan_id` · `market` (gulf/yemen) · `price_cents` · `currency` (SAR/YER) · `is_active`. (المفتاح المركب: `plan_id` + `market` — سعر لكل سوق؛ فيتعايش صف خليجي وصف يمني لنفس `plan_id`.)
 - `topup_product` — منتج حزمة التعبئة: `product_id` · `market` (gulf/yemen) · `pack_messages` (50 — REQ-010) · `price_cents` · `currency` (SAR/YER) · `is_active`. (المفتاح المركب: `product_id` + `market` — منتج لكل سوق؛ ويُقرأ من كتالوج الخطط `GET /api/v1/plans`.) **صفوف البذرة تنتظر حكم G-S04-08 (قيمة السعر قرار المالك — Q-270): لا صف بذرة بسعر فارغ ولا بسعر مخترع — الجدول يُنشأ بلا صفوف بذرة حتى الحكم.**
 - `family_subscription` — اشتراك العائلة: `id` · `family_id` (UNIQUE + RLS) · `plan_id` · `status` (ACTIVE/TRIAL/IN_GRACE_PERIOD/EXPIRED/CANCELLED) · `billing_provider` (SYSTEM_FREE/GOOGLE_PLAY/APPLE_APP_STORE/WALLET/VOUCHER/MANUAL) · `provider_subscription_id` (text — معرّف اشتراك معتم من المزوّد) · `provider_original_transaction_id` (text — معرّف معاملة أصلي معتم من المزوّد) · `current_period_start`/`current_period_end` · `trial_started_at`/`trial_ends_at` (nullable — نافذة التجربة 7 أيام — Q-130) · `grace_started_at`/`grace_ends_at` (nullable — نافذة السماح 3 أيام — Q-131) · `auto_renew` · `trial_used` · `purchased_by` (uuid — FK إلى المستخدم (البالغ) الذي اشترى — نفس هوية `purchase_receipt.user_id` — S1-02).
