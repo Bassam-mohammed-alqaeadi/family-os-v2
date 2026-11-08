@@ -43,8 +43,8 @@ Plus the R2-CI-03 extensions (2026-11-08):
      a REQ by meaning) is explicitly out of scope here.
 
 Run from the repo root:  python3 scripts/check-coverage.py
-Expected grand total: 204 REQ
-(188 with a screen, 16 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave).
+Expected grand total: 205 REQ
+(188 with a screen, 17 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave) + REQ-019 in S1-04 (AUD-014 follow-up, Q-334).
 """
 import glob
 import re
@@ -212,8 +212,8 @@ for path in sorted(glob.glob(
             acc_entries.append(current)
 
 print(f"coverage: total={grand_total} screen={grand_screen} no-ui={grand_no_ui}")
-if grand_total != 204:
-    FAIL.append(f"grand total is {grand_total}, expected 204")
+if grand_total != 205:
+    FAIL.append(f"grand total is {grand_total}, expected 205")
 
 # --- second pass: cross-file REQ refs (needs every SPEC's defined set) ---
 global_defined = set()
