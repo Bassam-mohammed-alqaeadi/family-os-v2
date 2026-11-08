@@ -680,6 +680,16 @@
   "gap": false
  },
  {
+  "system": "S1-04",
+  "id": "S04-12",
+  "name": "سجل الإيصالات (قراءة فقط)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
   "system": "S1-05",
   "id": "S05-01",
   "name": "محفظة الطفل",

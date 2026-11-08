@@ -183,8 +183,8 @@
  },
  "identity_grand_total": 649,
  "re_matching": {
-  "total": 55,
-  "logic": 53,
+  "total": 51,
+  "logic": 49,
   "asset": 2,
   "matched_strong": 0,
   "matched_category_only": 2,
@@ -214,7 +214,7 @@
    "system": "S1-01",
    "source_raw": "Bark Kids",
    "source_app": "bark-kids",
-   "mechanism": "الإقران برمز جهاز يصدره الأب + مقاومة الإزالة برمز الأب",
+   "mechanism": "مقاومة الإزالة برمز الأب (آلية الإقران نفسها مملوكة لـ S1-02 — REQ-014، Q-071)",
    "used_in": "فك الإقران وإلغاء التثبيت يتطلبان PIN الأب (REQ-006)",
    "kind": "logic",
    "match": "n/a-logic"
@@ -223,8 +223,8 @@
    "system": "S1-01",
    "source_raw": "FamilyWall",
    "source_app": "familywall",
-   "mechanism": "محوّل الملفات (Avatar Switcher)",
-   "used_in": "نموذج الملفات وقوالب العرض حسب الدور (REQ-004)",
+   "mechanism": "محوّل الملفات (Avatar Switcher) — **مؤجل إلى المرحلة 2 (Q-063: لا تبديل ملفات في المرحلة 1)**",
+   "used_in": "نموذج الملفات وقوالب العرض حسب الدور فقط — تعيين ثابت حسب الدور (REQ-004)",
    "kind": "logic",
    "match": "n/a-logic"
   },
@@ -259,8 +259,8 @@
    "system": "S1-01",
    "source_raw": "FamiSafe (parent)",
    "source_app": "famisafe",
-   "mechanism": "ترميز قائمة جدول أسبوعي `ScreenTimeTool` — قوائم أعداد صحيحة لـ 7 أيام (`allow_time`/`start_time`/`end_time`)؛ بلا عمليات bitmask موثقة",
-   "used_in": "ترميز قائمة الجدول الأسبوعي — يُحفظ ويُعرض عبر الغلاف؛ محرك تقييمه في نظام الحماية والفرض (S1-10 — Q-141)",
+   "mechanism": "عرض قائمة الجدول الأسبوعي فقط — الترميز (`ScreenTimeTool`) مملوك لـ S1-10 (انظر ملحق S1-10)",
+   "used_in": "يُعرض عبر الغلاف (عرض فقط)؛ الترميز والتقييم مملوكان لنظام الحماية والفرض (S1-10 — Q-141)",
    "kind": "logic",
    "match": "n/a-logic"
   },
@@ -350,7 +350,7 @@
    "source_raw": "FamilyWall",
    "source_app": "familywall",
    "mechanism": "`FWPermission` (تعداد أذونات Android): كل إذن يحمل أيقونة + عنوان مبرر + نص مبرر + أذونات Android المقابلة (`com/familywall/app/permissions/FWPermission.java`)",
-   "used_in": "كل مفتاح صلاحية في مصفوفة التفويض يحمل عنواناً عربياً ووصفاً يشرح ما يمنحه (§1، §3، §5)",
+   "used_in": "كل مفتاح صلاحية في مصفوفة التفويض يحمل عنواناً عربياً ووصفاً يشرح ما يمنحه (§1، §3، §5)؛ والأيقونة من النمط الأصلي غير محددة في شاشات §9 — مؤجلة إلى مرحلة التصميم (لا حقل أيقونة في R03-02/R03-05)، ليست محذوفة بقرار",
    "kind": "asset",
    "asset_kinds": [
     "icon"
@@ -358,15 +358,6 @@
    "match": "category-only",
    "match_category": "icons_images",
    "match_category_count": 3639
-  },
-  {
-   "system": "S1-03",
-   "source_raw": "Qustodio",
-   "source_app": "qustodio",
-   "mechanism": "نموذج حساب الأهل + ملفات الأطفال المرتبطة به",
-   "used_in": "بنية الأدوار والعضوية (§1، §5)",
-   "kind": "logic",
-   "match": "n/a-logic"
   },
   {
    "system": "S1-04",
@@ -419,33 +410,6 @@
    "source_app": "life360",
    "mechanism": "تدرّج الخطط + التجربة + التراجع اللبق",
    "used_in": "§1/§3/§6",
-   "kind": "logic",
-   "match": "n/a-logic"
-  },
-  {
-   "system": "S1-04",
-   "source_raw": "Telegram — Premium + Stars",
-   "source_app": "telegram",
-   "mechanism": "نموذج الاشتراك المميز",
-   "used_in": "§1",
-   "kind": "logic",
-   "match": "n/a-logic"
-  },
-  {
-   "system": "S1-04",
-   "source_raw": "Quizlet — Plus + Superwall (paywall SDK)",
-   "source_app": "quizlet",
-   "mechanism": "نمط شاشة الدفع",
-   "used_in": "§1",
-   "kind": "logic",
-   "match": "n/a-logic"
-  },
-  {
-   "system": "S1-04",
-   "source_raw": "Muslim Pro — Premium + Crescents (عملة افتراضية)",
-   "source_app": "muslim-pro",
-   "mechanism": "عملة افتراضية (معترف بها، غير معتمدة في م1)",
-   "used_in": "§1",
    "kind": "logic",
    "match": "n/a-logic"
   },
@@ -557,17 +521,8 @@
    "system": "S1-06",
    "source_raw": "FamilyWall — الاقتراحات والمزامنة (`getTaskSuggestions` + `listforSync`)",
    "source_app": "familywall",
-   "mechanism": "اقتراحات عناصر من الخادم (قبول/رفض) + مزامنة دلتا برمز + معرّف عملية عميل لمنع التكرار",
+   "mechanism": "مزامنة دلتا (نمط `listforSync`) مجسدة كمخزن Drift محلي + Outbox؛ واقتراحات `getTaskSuggestions` **غير مستخدمة — لا REQ يطبقها**",
    "used_in": "§3 REQ-016 · §4",
-   "kind": "logic",
-   "match": "n/a-logic"
-  },
-  {
-   "system": "S1-06",
-   "source_raw": "Qustodio — حساب الأسبوع الدائري (`routines.ts`)",
-   "source_app": "qustodio",
-   "mechanism": "دقيقة الأسبوع 0–10080 + كشف تعارضات + تسلسل حسم (نوم > مدرسة > حصة) — جدولة لا مهام",
-   "used_in": "§3 REQ-010 (محرك التكرار)",
    "kind": "logic",
    "match": "n/a-logic"
   },
@@ -584,7 +539,7 @@
    "system": "S1-07",
    "source_raw": "Life360",
    "source_app": "life360",
-   "mechanism": "تنعيم مسار GPS بمرشح Kalman Filter (منع القفزات الوهمية) + توفير بطارية تكيفي (خفض التردد عند السكون) + بروتوكول SOS",
+   "mechanism": "تنعيم مسار GPS بمرشح Kalman Filter (منع القفزات الوهمية) + توفير بطارية تكيفي (خفض التردد عند السكون)",
    "used_in": "§1، §3 (التتبع والاستغاثة)",
    "kind": "logic",
    "match": "n/a-logic"
@@ -593,7 +548,7 @@
    "system": "S1-07",
    "source_raw": "FamilyWall",
    "source_app": "familywall",
-   "mechanism": "شاشة خريطة الأسرة التجميعية (الأعضاء + الحالة في مكان واحد)",
+   "mechanism": "شاشة خريطة الأسرة التجميعية (الأعضاء + الحالة في مكان واحد) — نمط واجهة مرجعي، لا آلية مُعاد استخدامها",
    "used_in": "§1، §3 (الخريطة العائلية)",
    "kind": "logic",
    "match": "n/a-logic"
@@ -626,10 +581,19 @@
    "match": "n/a-logic"
   },
   {
+   "system": "S1-08",
+   "source_raw": "Brotli (تركيبنا — لا مصدر مفكك)",
+   "source_app": null,
+   "mechanism": "ضغط دفعات الصندوق الصادر للنطاق المنخفض",
+   "used_in": "§3 REQ-014 · §2 (8-5) · DIAGRAMS §3-c",
+   "kind": "logic",
+   "match": "n/a-logic"
+  },
+  {
    "system": "S1-09",
    "source_raw": "Life360",
    "source_app": "life360",
-   "mechanism": "لوحة العائلة تجمع حالة الأعضاء (الخريطة + الحالة) في مكان واحد",
+   "mechanism": "لوحة العائلة تجمع حالة الأعضاء (الخريطة + الحالة) في مكان واحد — نمط مرجعي (تركيبنا)، لا آلية مُعاد استخدامها",
    "used_in": "لوحة التحكم الموحدة (§1، §3)",
    "kind": "logic",
    "match": "n/a-logic"
@@ -638,7 +602,7 @@
    "system": "S1-09",
    "source_raw": "FamilyWall",
    "source_app": "familywall",
-   "mechanism": "لوحة العائلة بأقسام (تقويم/مهام/موقع)",
+   "mechanism": "لوحة العائلة بأقسام (تقويم/مهام/موقع) — نمط مرجعي (تركيبنا)، لا آلية مُعاد استخدامها",
    "used_in": "مركز يجمع الأنظمة (§1، §3)",
    "kind": "logic",
    "match": "n/a-logic"
@@ -699,7 +663,7 @@
   }
  ],
  "screens": {
-  "total": 131,
+  "total": 132,
   "gap_b_count": 4,
   "gap_b": [
    {
@@ -1426,6 +1390,16 @@
    "gap": false
   },
   {
+   "system": "S1-04",
+   "id": "S04-12",
+   "name": "سجل الإيصالات (قراءة فقط)",
+   "need": "generic-icons",
+   "asset_available": true,
+   "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+   "basket": "B",
+   "gap": false
+  },
+  {
    "system": "S1-05",
    "id": "S05-01",
    "name": "محفظة الطفل",
@@ -2076,8 +2050,8 @@
    "gap_b": 3
   },
   "S1-03": {
-   "re_total": 2,
-   "re_logic": 1,
+   "re_total": 1,
+   "re_logic": 0,
    "re_asset": 1,
    "re_matched": 1,
    "re_gap_a": 0,
@@ -2085,12 +2059,12 @@
    "gap_b": 0
   },
   "S1-04": {
-   "re_total": 10,
-   "re_logic": 10,
+   "re_total": 7,
+   "re_logic": 7,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,
-   "screens": 11,
+   "screens": 12,
    "gap_b": 0
   },
   "S1-05": {
@@ -2103,8 +2077,8 @@
    "gap_b": 0
   },
   "S1-06": {
-   "re_total": 8,
-   "re_logic": 8,
+   "re_total": 7,
+   "re_logic": 7,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,
@@ -2121,8 +2095,8 @@
    "gap_b": 0
   },
   "S1-08": {
-   "re_total": 3,
-   "re_logic": 3,
+   "re_total": 4,
+   "re_logic": 4,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,

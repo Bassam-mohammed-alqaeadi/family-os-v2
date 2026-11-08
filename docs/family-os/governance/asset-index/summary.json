@@ -154,8 +154,8 @@
   }
  },
  "re": {
-  "total": 55,
-  "logic": 53,
+  "total": 51,
+  "logic": 49,
   "asset": 2,
   "matched_strong": 0,
   "matched_category_only": 2,
@@ -163,7 +163,7 @@
   "unknown_source": 0
  },
  "screens": {
-  "total": 131,
+  "total": 132,
   "gap_b": 4
  },
  "per_system": {
@@ -186,8 +186,8 @@
    "gap_b": 3
   },
   "S1-03": {
-   "re_total": 2,
-   "re_logic": 1,
+   "re_total": 1,
+   "re_logic": 0,
    "re_asset": 1,
    "re_matched": 1,
    "re_gap_a": 0,
@@ -195,12 +195,12 @@
    "gap_b": 0
   },
   "S1-04": {
-   "re_total": 10,
-   "re_logic": 10,
+   "re_total": 7,
+   "re_logic": 7,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,
-   "screens": 11,
+   "screens": 12,
    "gap_b": 0
   },
   "S1-05": {
@@ -213,8 +213,8 @@
    "gap_b": 0
   },
   "S1-06": {
-   "re_total": 8,
-   "re_logic": 8,
+   "re_total": 7,
+   "re_logic": 7,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,
@@ -231,8 +231,8 @@
    "gap_b": 0
   },
   "S1-08": {
-   "re_total": 3,
-   "re_logic": 3,
+   "re_total": 4,
+   "re_logic": 4,
    "re_asset": 0,
    "re_matched": 0,
    "re_gap_a": 0,
