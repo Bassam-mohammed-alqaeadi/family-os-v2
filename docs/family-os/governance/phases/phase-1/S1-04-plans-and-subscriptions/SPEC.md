@@ -164,7 +164,7 @@ flowchart LR
 - `POST /api/v1/families/{id}/billing/wallet/initiate` — بدء دفع محفظة يمنية (الأب وحده — `billing.manage`): ينشئ سجل دفع (`payment_confirmation` — §5) بحالة `INITIATED`؛ المدخل `{plan_id, provider}` حيث `provider` اسم المحفظة فقط (`ONECASH` / `MAHFATHATI`)؛ والمخرج `{payment_id, status: "initiated"}`. الأخطاء: `PLAN_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-006 · Q-251.)
 - `POST /api/v1/families/{id}/billing/wallet/confirm` — تأكيد دفع محفظة برقم مرجعي (الأب وحده — `billing.manage`): المدخل `{payment_id, wallet_reference}` — الرقم المرجعي كما يظهر في تطبيق المحفظة (نص معتم ينقله الأب كما هو)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم يسجل التأكيد «بانتظار التحقق» ولا يفعّل الاشتراك قبل تحقق المزوّد (Q-251). الأخطاء: `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED`. (REQ-006 · Q-251.)
 - `POST /api/v1/families/{id}/billing/manual/confirm` — تأكيد دفع يدوي مسبق (الأب وحده — `billing.manage`): المدخل `{plan_id, reference}` — رقم مرجعي معتم كما يقدمه الأب (بلا صيغة مخترعة)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم ينشئ سجل دفع «بانتظار التحقق» ولا يفعّل الاشتراك قبل التحقق الخادمي (Q-251). الأخطاء: `PLAN_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED`. (REQ-006 · Q-251.)
-- `GET /api/v1/families/{id}/billing/usage` — استهلاك الحصص (SMS/أفراد/ذكاء) — المفتاح: `billing.view`. الرد: `{period, sms: {sent, limit, otp_used, emergency_used}, members: {used, limit}, ai: {calls, budget}, topup_sms_balance, sms_emergency_remaining}` — و`period` كما في §5 (YYYY-MM)؛ وتعريف «الفترة» نفسه (شهر تقويمي مقابل ذكرى فوترة) مفتوح (R2-S104-13 — مبوَّبة). الأخطاء: `SUBSCRIPTION_NOT_FOUND`. (REQ-009.)
+- `GET /api/v1/families/{id}/billing/usage` — استهلاك الحصص (SMS/أفراد/ذكاء) — المفتاح: `billing.view`. الرد: `{period, sms: {sent, limit, otp_used, emergency_used}, members: {used, limit}, ai: {calls, budget}, topup_sms_balance, sms_emergency_remaining}` — و`period` شهر تقويمي (YYYY-MM — Q-252 — فترة الحصة مستقلة عن فترة الاشتراك المدفوعة `current_period_start/end`). الأخطاء: `SUBSCRIPTION_NOT_FOUND`. (REQ-009.)
 - `POST /api/v1/families/{id}/plan/trial/start` — بدء التجربة 7 أيام — المفتاح: `billing.manage`. الطلب: `{}`. الرد: `{status: "TRIAL", trial_started_at, trial_ends_at}`. الأخطاء: `TRIAL_ALREADY_USED`. (REQ-012.)
 - `POST /api/v1/families/{id}/plan/cancel-renewal` — إلغاء التجديد التلقائي — المفتاح: `billing.manage`. الطلب: `{}`. الرد: `{auto_renew: false, current_period_end}` — والميزات تبقى حتى نهاية الفترة المدفوعة ثم تراجع لبق. الأخطاء: `SUBSCRIPTION_NOT_FOUND`. (REQ-004.)
 - `POST /api/v1/families/{id}/billing/restore` — استعادة المشتريات من متجر المنصة نفسه — المفتاح: `billing.manage`. الطلب: `{provider (GOOGLE_PLAY/APPLE_APP_STORE)}` — متجر منصة الجهاز. الرد: `{restored: true, plan_id, status}` — أو `{restored: false}` عند غياب مشتريات سابقة (بلا تفعيل وبلا خطأ)؛ والاستعادة idempotent بمفتاح المعاملة (بلا تفعيل مكرر — §7). الأخطاء: `RECEIPT_INVALID` (إيصال مستعاد غير صالح). (REQ-005.)
@@ -207,7 +207,7 @@ flowchart LR
 - `family_subscription` — اشتراك العائلة: `id` · `family_id` (UNIQUE + RLS) · `plan_id` · `status` (ACTIVE/TRIAL/IN_GRACE_PERIOD/EXPIRED/CANCELLED) · `billing_provider` (SYSTEM_FREE/GOOGLE_PLAY/APPLE_APP_STORE/WALLET/VOUCHER/MANUAL) · `provider_subscription_id` (text — معرّف اشتراك معتم من المزوّد) · `provider_original_transaction_id` (text — معرّف معاملة أصلي معتم من المزوّد) · `current_period_start`/`current_period_end` · `trial_started_at`/`trial_ends_at` (nullable — نافذة التجربة 7 أيام — Q-130) · `grace_started_at`/`grace_ends_at` (nullable — نافذة السماح 3 أيام — Q-131) · `auto_renew` · `trial_used` · `purchased_by` (uuid — FK إلى المستخدم (البالغ) الذي اشترى — نفس هوية `purchase_receipt.user_id` — S1-02).
 - `purchase_receipt` — سجل تدقيق مالي: `id` · `family_id` · `user_id` · `provider` · `product_id` (text — معرّف منتج معتم من المزوّد) · `receipt_data` (حمولة مشفرة) · `validation_status` (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED) · `server_verified_at` · `raw_provider_response` (jsonb).
 - `voucher` — القسيمة: `voucher_id` · `code` (فريد) · `plan_id` · `duration_months` · `status` (ISSUED/REDEEMED/REVOKED/EXPIRED) · `issued_by` (الوكيل) · `issued_at` · `redeemed_by_family_id` · `redeemed_at` · `expires_at`.
-- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` (إجمالي SMS الصادرة) · `sms_emergency_used` (SOS فقط) · `sms_otp_used` (رسائل OTP الاحتياطية فقط — منفصل عن SOS) · `ai_calls` · `topup_sms_balance` · `updated_at` · `mirror_version` (عدد صحيح رتيب أحادي لكل عائلة+دورة — يملكه الخادم ويُرفع عند كل تغيير في العدّاد؛ يُسلَّم في لقطة المرآة و`POST .../quota/mirror-sync` — S1-07 §4-1). (المفتاح: family_id + period.) **العدّاد مرجع خادمي لكل عائلة لا لكل جهاز:** `sms_emergency_used` يحسب رسائل الطوارئ الثلاث (Q-163) لكل عائلة في الدورة — تُجمع استخدامات كل أجهزة العائلة بعد إزالة التكرار عند المزامنة، فلا يعيد جهاز ثانٍ (Q-230) صرف ما صرفه الأول (Q-239). ومرآة S1-07 تحمل التقسيم نفسه (OTP مقابل SOS) عند تحديثها — متابعة عبر-أنظمة خارج نطاق هذا التغيير.
+- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` (إجمالي SMS الصادرة) · `sms_emergency_used` (SOS فقط) · `sms_otp_used` (رسائل OTP الاحتياطية فقط — منفصل عن SOS) · `ai_calls` · `topup_sms_balance` · `updated_at` · `mirror_version` (عدد صحيح رتيب أحادي لكل عائلة+دورة — يملكه الخادم ويُرفع عند كل تغيير في العدّاد؛ يُسلَّم في لقطة المرآة و`POST .../quota/mirror-sync` — S1-07 §4-1). (المفتاح: family_id + period.) **العدّاد مرجع خادمي لكل عائلة لا لكل جهاز:** `sms_emergency_used` يحسب رسائل الطوارئ الثلاث (Q-163) لكل عائلة في الدورة — تُجمع استخدامات كل أجهزة العائلة بعد إزالة التكرار عند المزامنة، فلا يعيد جهاز ثانٍ (Q-230) صرف ما صرفه الأول (Q-239). ومرآة S1-07 تحمل التقسيم نفسه (OTP مقابل SOS) عند تحديثها — متابعة عبر-أنظمة خارج نطاق هذا التغيير. **فترة الحصة (Q-252):** شهر تقويمي (YYYY-MM) — تُصفَّر الحصص أول كل شهر، وينتهي رصيد التعبئة بنهاية الشهر، وتبدأ دورة رسائل SOS الـ 3 أول الشهر؛ وهي مستقلة عن فترة الاشتراك المدفوعة (`current_period_start`/`current_period_end` في `family_subscription`) التي تتبع تاريخ الفوترة.
 - `payment_confirmation` — سجل الدفع/التأكيد اليدوي (Q-251): `payment_id` · `family_id` (RLS) · `plan_id` · `channel` (WALLET/MANUAL — من `billing_provider`) · `provider` (ONECASH/MAHFATHATI — للمحفظة فقط؛ null لليدوي) · `reference` (الرقم المرجعي المعتم كما قدمه الأب — نص كما هو؛ null قبل التأكيد) · `status` (INITIATED/PENDING_VERIFICATION/VERIFIED/REJECTED) · `initiated_by` · `initiated_at` · `confirmed_at` · `verified_at`. (وعند `VERIFIED` يُكتب سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` — سجل التدقيق المالي.)
 
 **مراجع:** عدد الأعضاء من S1-02 (لحصة الأفراد)؛ وكل شراء/ترقية/إلغاء/استبدال يُسجَّل في AuditEvent (domain=billing)؛ والخطة تُقرأ في S1-09 عبر `GET /api/v1/families/{id}/plan`. **مخازن العميل (ليست جداول خادم):** الخطة المحفوظة + حالة الحصص (للقراءة دون اتصال).
@@ -236,9 +236,9 @@ flowchart LR
 ### قواعد التشغيل
 - الترقية فورية؛ والتخفيض بنهاية الفترة المدفوعة.
 - التجديد التلقائي عبر Webhook المتجر؛ واليدوي/القسيمة بلا تجديد تلقائي (تجديد يدوي).
-- الحصص تُصفَّر ببداية كل فترة؛ ورصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم.
-- تنبيه للأب عند 80% (Q-216) من أي حصة.
-- تجاوز الطوارئ 3 رسائل SOS في الدورة (SOS فقط)؛ والأب يُشعَر فوراً بكل رسالة وعند النفاد.
+- الحصص تُصفَّر أول كل شهر تقويمي (YYYY-MM — Q-252)؛ ورصيد التعبئة ينتهي بنهاية الشهر التقويمي ولا يتراكم.
+- تنبيه للأب عند 80% (Q-216) من أي حصة في الشهر التقويمي.
+- تجاوز الطوارئ 3 رسائل SOS في كل شهر تقويمي (Q-252 — SOS فقط)؛ والأب يُشعَر فوراً بكل رسالة وعند النفاد.
 - الإيصالات المكررة تُرفض (409) وتُسجَّل كـ FRAUD_SUSPECT.
 - دفع المحفظة واليدوي (Q-251): البدء والتأكيد للأب وحده (`billing.manage` — بلا مفتاح جديد)؛ والرقم المرجعي نص معتم ينقله الأب كما هو — لا يُعتمد دليل دفع حتى تحقق المزوّد عبر `WalletProviderAdapter` (بلا تفاصيل API حتى عقد حقيقي)؛ ولا يُفعَّل الاشتراك قبل `VERIFIED`؛ ورقم مرجعي مكرر يُرفض (`409 REFERENCE_DUPLICATE`).
 
@@ -250,7 +250,7 @@ flowchart LR
 - قسيمة ملغاة أو منتهية → VOUCHER_REVOKED / VOUCHER_INVALID.
 - تجربة ثانية لنفس العائلة → TRIAL_ALREADY_USED.
 - تجاوز حصة الأفراد (عضو سادس في المجانية) → QUOTA_EXCEEDED + بطاقة ترقية لبقة.
-- نفاد SMS أثناء SOS → 3 رسائل طوارئ (SOS فقط) ثم حظر حتى التعبئة/التجديد.
+- نفاد SMS أثناء SOS → 3 رسائل طوارئ (SOS فقط) في الشهر التقويمي ثم حظر حتى التعبئة أو بداية الشهر التقويمي التالي (Q-252).
 - فشل الدفع (بطاقة مرفوضة) → PAYMENT_FAILED؛ والاشتراك الحالي يبقى حتى نهاية فترته.
 - إلغاء التجديد → الميزات تبقى حتى نهاية الفترة المدفوعة ثم تراجع لبق.
 - Webhook متأخر أو مكرر → معالجة idempotent بمفتاح المعاملة (لا ترقية مزدوجة).
@@ -321,7 +321,7 @@ flowchart LR
 
 #### S04-01 — حالة الخطة والاستهلاك
 
-- **الحقول الرئيسية:** اسم الخطة الحالية (مجانية/أساسية/مميزة)؛ الحالة (`ACTIVE`/`TRIAL`/`IN_GRACE_PERIOD`/`EXPIRED`/`CANCELLED`)؛ نهاية الفترة الحالية (بطابع الخادم)؛ عدّاد الأفراد (الحالي/الحد: 5 / 10 / غير محدود)؛ عدّاد SMS الشهري (المُرسَل/الحصة: 20 / 50 / 100) + رصيد التعبئة؛ رسائل الطوارئ المتبقية (من 3)؛ ميزانية الذكاء حسب الخطة (تحقق المهام فقط / تحقق + مساعد محدود / كاملة) + مفتاح إيقاف الذكاء؛ تنبيه اقتراب 80% (Q-216) من أي حصة؛ زر «عرض الخطط»؛ زر «إدارة الاشتراك»؛ رابط سجل الإيصالات (قراءة فقط).
+- **الحقول الرئيسية:** اسم الخطة الحالية (مجانية/أساسية/مميزة)؛ الحالة (`ACTIVE`/`TRIAL`/`IN_GRACE_PERIOD`/`EXPIRED`/`CANCELLED`)؛ نهاية الفترة الحالية (بطابع الخادم)؛ عدّاد الأفراد (الحالي/الحد: 5 / 10 / غير محدود)؛ عدّاد SMS الشهري (المُرسَل/الحصة: 20 / 50 / 100) + رصيد التعبئة؛ رسائل الطوارئ المتبقية (من 3 في الشهر التقويمي — Q-252)؛ ميزانية الذكاء حسب الخطة (تحقق المهام فقط / تحقق + مساعد محدود / كاملة) + مفتاح إيقاف الذكاء؛ تنبيه اقتراب 80% (Q-216) من أي حصة؛ زر «عرض الخطط»؛ زر «إدارة الاشتراك»؛ رابط سجل الإيصالات (قراءة فقط).
 - **التنقل:** من: ويدجت الخطة في S1-09 (REQ-015) / مركز الإعدادات «الخطة والفوترة» / S04-10. إلى: S04-02 (عرض الخطط) / S04-07 (تعبئة) / S04-11 (إدارة الاشتراك) / S04-08 (التجربة، إن لم تُستخدم) / S04-12 (سجل الإيصالات).
 - **الحالات (DS-ST):** تحميل — هيكل Skeleton من الكاش المحلي فوراً (DS-ST-01، DS-CC-08)؛ فارغة — لا تنطبق (كل عائلة لها خطة تلقائياً — REQ-002)؛ خطأ — بطاقة خطأ داخل الشاشة مع إعادة محاولة وباقي الشاشة يعمل (DS-ST-06)؛ بلا اتصال — عرض الخطة المحفوظة مع وقت صريح وعمر البيانات (DS-ST-05)؛ نجاح — تحديث العدّادات + Snackbar قصير عند أي تغيير (DS-ST-01)؛ جزئي — فشل عدّاد واحد (مثلاً الذكاء) لا يعطّل بقية الشاشة (DS-ST-06).
 - **وايرفريم ASCII:**
@@ -492,7 +492,7 @@ flowchart LR
 
 #### S04-07 — تعبئة SMS
 
-- **الحقول الرئيسية:** الرصيد الحالي (الحصة الشهرية 20 / 50 / 100 + رصيد التعبئة)؛ حزمة التعبئة: 50 رسالة (حزمة واحدة محكومة — REQ-010)؛ سعر الحزمة: بلا رقم محكوم — يُعرض من كتالوج الخطة (`GET /api/v1/plans`) ولا يُخترع هنا (فجوة G-S04-08 إن لم يظهر في الكتالوج)؛ زر «اشترِ حزمة 50 رسالة»؛ عدّاد رسائل الطوارئ (3 في الدورة — SOS فقط)؛ تنبيه 80% (Q-216) من الحصة؛ ملاحظة «رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم».
+- **الحقول الرئيسية:** الرصيد الحالي (الحصة الشهرية 20 / 50 / 100 + رصيد التعبئة)؛ حزمة التعبئة: 50 رسالة (حزمة واحدة محكومة — REQ-010)؛ سعر الحزمة: بلا رقم محكوم — يُعرض من كتالوج الخطة (`GET /api/v1/plans`) ولا يُخترع هنا (فجوة G-S04-08 إن لم يظهر في الكتالوج)؛ زر «اشترِ حزمة 50 رسالة»؛ عدّاد رسائل الطوارئ (3 في الشهر التقويمي — SOS فقط — Q-252)؛ تنبيه 80% (Q-216) من الحصة؛ ملاحظة «رصيد التعبئة ينتهي بنهاية الشهر التقويمي ولا يتراكم».
 - **التنقل:** من: S04-01 / S04-10. إلى: S04-04 أو S04-05 (إتمام الدفع حسب السوق) / رجوع إلى S04-01.
 - **الحالات (DS-ST):** تحميل — Skeleton للرصيد؛ فارغة — رصيد صفر: حالة فارغة مع إجراء «اشترِ حزمة» (DS-ST-07)؛ خطأ — فشل الشراء: Snackbar + إعادة محاولة (DS-ST-02)؛ بلا اتصال — الشراء معطّل بشرح؛ الرصيد من الكاش مع عمره (DS-ST-05)؛ نجاح — «أُضيفت 50 رسالة إلى رصيد هذا الشهر فوراً».
 - **وايرفريم ASCII:**
@@ -507,7 +507,7 @@ flowchart LR
 │ │ [اشترِ الحزمة]           │ │
 │ └──────────────────────────┘ │
 │ رصيد التعبئة ينتهي بنهاية     │
-│ الفترة ولا يتراكم             │
+│ الشهر التقويمي ولا يتراكم     │
 └──────────────────────────────┘
 ```
 - **رموز DS المستخدمة:** DS-CM-09، DS-ST-02، DS-MC-04، DS-CC-04، DS-ST-07.
@@ -515,7 +515,7 @@ flowchart LR
   - `screens.s04-07.title` — «تعبئة SMS»
   - `screens.s04-07.buy_pack` — «اشترِ حزمة 50 رسالة»
   - `screens.s04-07.added` — «أُضيفت 50 رسالة إلى رصيد هذا الشهر فوراً»
-  - `screens.s04-07.no_rollover` — «رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم»
+  - `screens.s04-07.no_rollover` — «رصيد التعبئة ينتهي بنهاية الشهر التقويمي ولا يتراكم»
   - `screens.s04-07.emergency_left` — «رسائل الطوارئ المتبقية»
 
 #### S04-08 — التجربة المجانية

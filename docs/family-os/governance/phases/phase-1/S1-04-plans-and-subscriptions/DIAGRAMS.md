@@ -179,7 +179,7 @@ erDiagram
 ```
 
 - `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / VOUCHER / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ وحالة القسيمة: ISSUED / REDEEMED / REVOKED / EXPIRED؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET / MANUAL (§5).
-- `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5).
+- `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5) — فترة الحصة شهر تقويمي (Q-252)، مستقلة عن فترة الاشتراك المدفوعة (`current_period_start`/`current_period_end`).
 - مصفوفة الخطط (§1 · REQ-001): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء: المجانية تحقق المهام فقط، الأساسية تحقق + مساعد محدود، المميزة كاملة.
 
 ## 3. التسلسل (Sequence) — من عقود §4
@@ -259,7 +259,7 @@ sequenceDiagram
         App->>Ktor: POST /api/v1/families/{id}/billing/topup
         Ktor->>Ktor: تحقق الدفع خادمياً + إضافة 50 إلى topup_sms_balance
         Ktor-->>App: الرصيد أُضيف فوراً لرصيد الشهر
-        Note over Ktor: رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم
+        Note over Ktor: رصيد التعبئة ينتهي بنهاية الشهر التقويمي ولا يتراكم (Q-252)
     end
     rect rgb(255, 243, 224)
         Note over S107,Guard: تجاوز طوارئ SOS
@@ -268,7 +268,7 @@ sequenceDiagram
         alt رصيد متاح
             Guard-->>S107: سماح بالإرسال
         else الحصة نفدت — رسالة SOS
-            Guard->>Guard: فحص sms_emergency_used < 3 في الدورة
+            Guard->>Guard: فحص sms_emergency_used < 3 في الشهر التقويمي (Q-252)
             alt أقل من 3
                 Guard-->>S107: سماح — رسالة طوارئ (SOS فقط)
                 Guard->>Broker: نشر family/{family_id}/billing/quota-warning
@@ -574,7 +574,7 @@ flowchart LR
         G1[انتهاء التجربة 7 أيام]
         G2[سماح 3 أيام]
         G3[تراجع لبق للمجانية]
-        G4[تصفير الحصص ببداية الفترة]
+        G4["تصفير الحصص أول كل شهر تقويمي (Q-252)"]
         G5["انتهاء الفترة المدفوعة بلا تجديد (auto_renew=false)"]
     end
 
