@@ -477,7 +477,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | R03-02 | صلاحيات عضو | أهل | المالك | الصلاحيات الفعلية لعضو واحد: شجرة المفاتيح + القيمة الفعالة + المصدر | REQ-004، REQ-008، REQ-009، REQ-010 | DS-SE-03، DS-CM-02، DS-ST-03 |
 | R03-03 | منح صلاحية / تعديل منح | أهل | المالك | منح مفتاح مفرد أو تعديل نطاقه/مدته، مع step-up للحساس | REQ-008، REQ-010، REQ-011، REQ-012، REQ-015، REQ-019 | DS-SE-05، DS-SE-06، DS-SE-07، DS-CM-05 |
 | R03-04 | إلغاء منح | أهل | المالك | تأكيد الإلغاء الفوري + إبطال الجلسات + إشعار العضو | REQ-017 | DS-SE-05، DS-ST-01، DS-MC-03 |
-| R03-05 | سجل المفاتيح المركزي | أهل | المالك (+ مفوَّض قراءة) | تصفح/بحث المفاتيح الذرية الـ 82: العنوان العربي + الوصف + «حساس» | REQ-008، REQ-009 | DS-SE-01، DS-SE-08، DS-NV-09 |
+| R03-05 | سجل المفاتيح المركزي | أهل | المالك (+ مفوَّض قراءة) | تصفح/بحث المفاتيح الذرية الـ 92: العنوان العربي + الوصف + «حساس» | REQ-008، REQ-009 | DS-SE-01، DS-SE-08، DS-NV-09 |
 | R03-06 | القوالب الثلاثة | أهل | المالك | عرض قوالب شريك / وصي محدود / مراقب ومفاتيح كل منها | REQ-013 | DS-SE-04، DS-CM-02 |
 | R03-07 | تطبيق قالب على عضو | أهل | المالك | تطبيق قالب بنقرة مع معاينة فرق دقيقة + تحديد `valid_until` | REQ-010، REQ-011، REQ-013، REQ-014 | DS-SE-04، DS-SE-06، DS-CM-02 |
 | R03-08 | تعديل نسخة القالب المطبقة | أهل | المالك | إضافة/إزالة مفاتيح من نسخة العضو بعد تطبيق القالب | REQ-014 | DS-SE-04، DS-SE-06، DS-SE-12 |
@@ -636,15 +636,15 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 ### R03-05 — سجل المفاتيح المركزي
 
 - **الوضع:** أهل. **الأدوار المستهدفة:** المالك؛ وبالغ مفوَّض بمفتاح `roles.key.view` (قراءة فقط).
-- **الغرض:** تصفح/بحث سجل المفاتيح الذرية الـ 82 (`domain.action` + العنوان العربي + الوصف + «حساس») — مصدرها `GET /api/v1/permissions/keys` (§4-1)؛ وكل مفتاح يحمل مبرره (نمط `FWPermission` — RE، ملحق أ).
+- **الغرض:** تصفح/بحث سجل المفاتيح الذرية الـ 92 (`domain.action` + العنوان العربي + الوصف + «حساس») — مصدرها `GET /api/v1/permissions/keys` (§4-1)؛ وكل مفتاح يحمل مبرره (نمط `FWPermission` — RE، ملحق أ).
 - **REQ:** REQ-008 (السجل المركزي)، REQ-009 (كل عملية إدارية لها مفتاح ذري — اكتمال السجل هو ما تعرضه الشاشة).
-- **الحقول الرئيسية:** بحث شامل (تطبيع عربي DS-RT-05 + مرادفات DS-SE-08)؛ تصفية بالنطاق (`domain`: 11 مجموعة نطاقات / 12 بادئة — انظر §9-3)؛ تصفية «حساس فقط»؛ صف كل مفتاح: `domain.action` (معزول LTR — DS-RT-04) + العنوان العربي + الوصف + شارة «حساس»؛ عدّاد «82 مفتاحاً».
+- **الحقول الرئيسية:** بحث شامل (تطبيع عربي DS-RT-05 + مرادفات DS-SE-08)؛ تصفية بالنطاق (`domain`: 11 مجموعة نطاقات / 12 بادئة — انظر §9-3)؛ تصفية «حساس فقط»؛ صف كل مفتاح: `domain.action` (معزول LTR — DS-RT-04) + العنوان العربي + الوصف + شارة «حساس»؛ عدّاد «92 مفتاحاً».
 - **التنقل:** من: R03-02 (رابط «عرض السجل»)؛ R03-03 (منتقي المفتاح يفتح السجل). إلى: R03-03 (اختيار مفتاح لمنحه).
 - **الحالات (DS-ST):** تحميل: Skeleton لقائمة المفاتيح؛ فارغة: لا نتائج بحث — «لا نتائج لـ {query}» + «مسح المرشحات» (DS-ST-07)؛ خطأ: بطاقة خطأ قسمية مع إعادة محاولة (DS-ST-06)؛ بلا اتصال: آخر نسخة مخزنة من السجل + وسم عمرها (DS-ST-05)؛ نجاح: القائمة الكاملة.
 - **وايرفريم:**
 ```text
 ┌─────────────────────────────────┐
-│ سجل المفاتيح — 82 مفتاحاً       │
+│ سجل المفاتيح — 92 مفتاحاً       │
 │ [بحث: ابحث عن مفتاح…]           │
 │ [كل النطاقات ▼] [حساس فقط ☐]    │
 ├─────────────────────────────────┤
@@ -1088,9 +1088,9 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 
 ## 9-3. سطح التحكم (Q-092) — قلب سطح التحكم مع S1-09
 
-### (أ) جرد المفاتيح الذرية (`domain.action` — 82 مفتاحاً)
+### (أ) جرد المفاتيح الذرية (`domain.action` — 92 مفتاحاً)
 
-المصدر: SPEC §10-1 (بذرة المفاتيح الموحدة). المفاتيح الـ 82 موزعة على 11 مجموعة نطاقات (12 بادئة — `tasks.*` و`calendar.*` بادئتان منفصلتان)؛ أسماء المفاتيح الفردية لكل نطاق مصدرها مواصفة نظامها (لا تُخترع هنا)؛ وما يُعرض في شاشات §9 هو العنوان العربي + الوصف + «حساس» من جدول `permission_key` (REQ-008 — شاشة R03-05).
+المصدر: SPEC §10-1 (بذرة المفاتيح الموحدة). المفاتيح الـ 92 موزعة على 11 مجموعة نطاقات (12 بادئة — `tasks.*` و`calendar.*` بادئتان منفصلتان)؛ أسماء المفاتيح الفردية لكل نطاق مصدرها مواصفة نظامها (لا تُخترع هنا)؛ وما يُعرض في شاشات §9 هو العنوان العربي + الوصف + «حساس» من جدول `permission_key` (REQ-008 — شاشة R03-05).
 
 | النطاق | عدد المفاتيح | المصدر | شاشة العرض |
 |---|---|---|---|
@@ -1098,14 +1098,14 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | S1-02 (الهوية) | 14 | S1-03 SPEC §10-1 | R03-05 |
 | `roles.*` (هذا النظام) | 7 | S1-03 SPEC §6-1 — مسماة أدناه | R03-02 / R03-05 |
 | `billing.*` (الفوترة) | 4 | S1-03 SPEC §10-1 | R03-05 |
-| `rewards.*` (المكافآت) | 6 | S1-03 SPEC §10-1 | R03-05 |
+| `rewards.*` (المكافآت) | 12 | S1-03 SPEC §10-1 | R03-05 |
 | `tasks.*` / `calendar.*` (المهام والتقويم) | 9 | S1-03 SPEC §10-1 | R03-05 |
 | `location.*` (الموقع) | 6 | S1-03 SPEC §10-1 | R03-05 |
 | `chat.*` (المحادثة) | 8 | S1-03 SPEC §10-1 | R03-05 |
 | `hub.*` (مركز الأوامر) | 6 | S1-03 SPEC §10-1؛ مسماة في S1-09 §6-1 | R03-05 |
-| `protection.*` (الحماية) | 9 | S1-03 SPEC §10-1 | R03-05 |
+| `protection.*` (الحماية) | 13 | S1-03 SPEC §10-1 | R03-05 |
 | `agent.*` (الوكيل) | 7 | S1-03 SPEC §10-1؛ عقد التحقق Q-167 | R03-05 |
-| **المجموع** | **82** | | |
+| **المجموع** | **92** | | |
 
 مفاتيح `roles.*` السبعة (SPEC §6-1 — الأسماء حرفياً من المواصفة):
 
@@ -1125,7 +1125,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 |---|---|---|
 | **الشاشات** | R03-06 (القوالب الثلاثة) + R03-07 (تطبيق قالب + معاينة فرق) | R03-02 (شجرة المفاتيح الكاملة) + R03-13 (سجل التدقيق) + R03-03 (تعارض `PERM_CONFLICT` — سجل التضارب يظهر كحالة في R03-03 وحدث في R03-13) |
 | **لمن** | الأب الذي يريد قراراً بنقرة واحدة (سيناريوهات 2-1/2-2) | الأب الذي يريد ضبطاً دقيقاً (سيناريو 9-4 في S1-09؛ §2-مخطط دورة الصلاحية) |
-| **القاعدة** | قوالب Q-089 الثلاثة نقطة انطلاق (DS-SE-04: معاينة فرق) | كل مفتاح من الـ 82 بمبدّل مستقل + القيمة الفعالة + شارة المصدر (DS-SE-03) |
+| **القاعدة** | قوالب Q-089 الثلاثة نقطة انطلاق (DS-SE-04: معاينة فرق) | كل مفتاح من الـ 92 بمبدّل مستقل + القيمة الفعالة + شارة المصدر (DS-SE-03) |
 | **السلوك** | تطبيق القالب ينسخ مفاتيحه إلى منح العضو (REQ-014) | تعديل نسخة العضو لا يغيّر القالب ولا منح الآخرين (REQ-014 — شاشة R03-08) |
 
 ### (ج) من يتحكم بماذا
@@ -1176,7 +1176,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | REQ-006 | **بلا واجهة** | فحص محلي O(1) بلا شاشة — مخزن عميل على الجهاز (§5)؛ أثره: الرفض يعمل دون شبكة، ويظهر في R03-02 كوسم «آخر لقطة» عند انقطاع الاتصال |
 | REQ-007 | R03-13، R03-18 | الرفض الحساس والتصعيد مسجلان + تنبيه للأب |
 | REQ-008 | R03-05، R03-02، R03-03 | السجل المركزي + العنوان/الوصف/«حساس» في كل صف مفتاح |
-| REQ-009 | R03-05، R03-02 | اكتمال السجل (82 مفتاحاً) هو ما تعرضه الشاشة؛ والقاعدة «لا عملية بلا مفتاح» قاعدة خلفية |
+| REQ-009 | R03-05، R03-02 | اكتمال السجل (92 مفتاحاً) هو ما تعرضه الشاشة؛ والقاعدة «لا عملية بلا مفتاح» قاعدة خلفية |
 | REQ-010 | R03-01، R03-02، R03-03، R03-07 | المنح حصراً للمالك — الشاشات نفسها لا تظهر لغير المالك |
 | REQ-011 | R03-03، R03-07 | `scope` + `valid_until` إلزاميان في نموذج المنح وتطبيق القالب |
 | REQ-012 | R03-03 | step-up للمفتاح الحساس |
@@ -1215,7 +1215,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 ## 10. خطة التنفيذ (Implementation Plan)
 
 ### 10-1. خطوات البناء بالترتيب
-1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (82 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) + `agent.*` ‏(7) — Ktor + PostgreSQL.
+1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (92 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(12) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(13) + `agent.*` ‏(7) — Ktor + PostgreSQL.
 2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer` + `permission_request`) + RLS + فهارس (`member_id`, `grantee_type`, `permission_key`, `valid_until`).
 3. **محرك التقييم الخادمي** (deny-override + حل المنح المتداخلة §6-3) + نقطة `POST /api/v1/permissions/check`.
 4. **نقاط المنح والقوالب والتدقيق وطلبات التعديل** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166/طلبات تعديل R03-17).
@@ -1238,9 +1238,9 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 - **قبول:** ACC-001…018 — كل معيار له اختبار آلي.
 - **أداء:** الفحص المحلي O(1) — زمن الاستجابة يُقاس في مختبر Q-027 (هدف: فوري دون شبكة).
 
-### 10-5. قائمة بذرة المفاتيح الكاملة (82 مفتاحاً — حرفياً من مواصفات الأنظمة)
+### 10-5. قائمة بذرة المفاتيح الكاملة (92 مفتاحاً — حرفياً من مواصفات الأنظمة)
 
-كل اسم أدناه حرفي من §6 في مواصفة نظامه (لا يُخترع هنا)؛ والمجموع 82 = 6 + 14 + 7 + 4 + 6 + 9 + 6 + 8 + 6 + 9 + 7 (§10-1). وأي مفتاح جديد في أي نظام يُضاف هنا أولاً قبل زرعه (REQ-009).
+كل اسم أدناه حرفي من §6 في مواصفة نظامه (لا يُخترع هنا)؛ والمجموع 92 = 6 + 14 + 7 + 4 + 12 + 9 + 6 + 8 + 6 + 13 + 7 (§10-1). وأي مفتاح جديد في أي نظام يُضاف هنا أولاً قبل زرعه (REQ-009).
 
 | النطاق | المفاتيح |
 |---|---|
@@ -1248,12 +1248,12 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | S1-02 (14) | `identity.login`، `identity.email.login`، `identity.family.create`، `identity.family.invite`، `identity.family.join`، `identity.child.create`، `identity.child.profile.edit`، `identity.device.pair`، `identity.device.unpair`، `identity.session.revoke`، `identity.biometric.enable`، `identity.member.remove`، `identity.account.delete_self`، `identity.family.leave` |
 | `roles.*` (7) | `roles.key.view`، `roles.grant.create`، `roles.grant.edit`، `roles.grant.revoke`، `roles.template.apply`، `roles.ownership.transfer`، `roles.audit.view` |
 | `billing.*` (4) | `billing.view`، `billing.manage`، `billing.topup.buy`، `billing.voucher.redeem` |
-| `rewards.*` (6) | `rewards.wallet.view`، `rewards.grant.create`، `rewards.time_request.decide`، `rewards.settings.edit`، `rewards.streak.freeze`، `rewards.ledger.view` |
+| `rewards.*` (12) | `rewards.wallet.view`، `rewards.grant.create`، `rewards.time_request.decide`، `rewards.settings.edit`، `rewards.streak.freeze`، `rewards.ledger.view`، `rewards.grant.reverse`، `rewards.objection.create`، `rewards.objection.decide`، `rewards.wallet.redeem`، `rewards.time_request.create`، `rewards.settings.view` |
 | `tasks.*` / `calendar.*` (9) | `tasks.create`، `tasks.view`، `tasks.submit`، `tasks.approve`، `tasks.revoke`، `tasks.cancel`، `tasks.category.create`، `calendar.event.create`، `calendar.view` |
 | `location.*` (6) | `location.view`، `location.history.view`، `location.sos.trigger`، `location.sos.acknowledge`، `location.sos.resolve`، `location.emergency.manage` |
 | `chat.*` (8) | `chat.channel.create.direct`، `chat.channel.create.group`، `chat.channel.view`، `chat.message.send`، `chat.message.delete.any`، `chat.channel.close`، `chat.parents.view`، `chat.minor.view` |
 | `hub.*` (6) | `hub.dashboard.view`، `hub.settings.view`، `hub.settings.edit`، `hub.alerts.view`، `hub.alerts.acknowledge`، `hub.plan.view` |
-| `protection.*` (9) | `protection.rule.view`، `protection.rule.create`، `protection.rule.edit`، `protection.rule.delete`، `protection.schedule.edit`، `protection.priority.edit`، `protection.free_mode.activate`، `protection.tamper.view`، `protection.state.view` |
+| `protection.*` (13) | `protection.rule.view`، `protection.rule.create`، `protection.rule.edit`، `protection.rule.delete`، `protection.schedule.edit`، `protection.priority.edit`، `protection.free_mode.activate`، `protection.tamper.view`، `protection.state.view`، `protection.quota.edit`، `protection.mode_preset.apply`، `protection.audit.view`، `protection.tamper.resolve` |
 | `agent.*` (7) | `agent.summary.read`، `agent.plan.create`، `agent.task.verify`، `agent.rule.change`، `agent.message.send`، `agent.payment.execute`، `agent.data.delete` |
 
 **ملاحظة:** مفتاح `tasks.own.manage` الوارد في وايرفريم R03-09 فقط لا يظهر هنا — لأنه غير موجود في §6 لأي نظام (R2-S103-01 — B2)؛ ولا يُزرع حتى يُحكم.

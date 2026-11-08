@@ -202,19 +202,19 @@ flowchart LR
 | `DELETE /api/v1/families/{id}/children/{childId}/app-rules/{ruleId}` | حذف قاعدة (الأب + البالغ المفوَّض حسب القالب — Q-146) | — | `204` + دفع `rules-updated` |
 | `GET /api/v1/families/{id}/children/{childId}/weekly-schedule` | الجدول الأسبوعي | — | `{schedule_id, windows, version}` |
 | `PUT /api/v1/families/{id}/children/{childId}/weekly-schedule` | استبدال الجدول (REQ-006) | `{windows, version}` — قفل تفاؤلي: `version` قديم → `409` | الجدول المحفوظ |
-| `GET /api/v1/families/{id}/children/{childId}/daily-total-quota` | قراءة الحصة اليومية الإجمالية (REQ-002) | — | `{minutes_by_weekday}` — الصف مزروع عند الإقران بقيم 60؛ ولا 404 أبداً بعد الإقران |
-| `PUT /api/v1/families/{id}/children/{childId}/daily-total-quota` | تعيين الحصة اليومية الإجمالية (REQ-002) | `{minutes_by_weekday, version}` — المالك (الأب) فقط؛ وقفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` (والمالك على جهازين قد يتصادم — القاعدة مصرح بها لا مستحيلة) | الحصة المحفوظة + دفع `rules-updated` |
-| `GET /api/v1/families/{id}/rule-priority` | ترتيب الأنواع الحالي (ترتيب العائلة) | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
-| `PUT /api/v1/families/{id}/rule-priority` | إعادة ترتيب الأنواع للعائلة (REQ-011) | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
-| `GET /api/v1/families/{id}/children/{childId}/rule-priority` | ترتيب الأنواع لطفل (تجاوز عن ترتيب العائلة — REQ-011) | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
-| `PUT /api/v1/families/{id}/children/{childId}/rule-priority` | إعادة ترتيب الأنواع لطفل (REQ-011) | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
-| `POST /api/v1/families/{id}/children/{childId}/free-mode` | تفعيل الوضع الحر (REQ-018/019) | `{duration_minutes}` — المالك فقط | `{session_id, expires_at}` — `201` |
-| `POST /api/v1/families/{id}/children/{childId}/free-mode/cancel` | إلغاء مبكر للوضع الحر | — | `{session_id, status: "cancelled"}` |
-| `GET /api/v1/families/{id}/children/{childId}/enforcement-state` | حالة الفرض (REQ-025) | — | `{active_rule_type, remaining_by_app, next_boundary_at, free_mode_until, tamper_status}` |
+| `GET /api/v1/families/{id}/children/{childId}/daily-total-quota` | قراءة الحصة اليومية الإجمالية (REQ-002) — المفتاح `protection.rule.view` | — | `{minutes_by_weekday}` — الصف مزروع عند الإقران بقيم 60؛ ولا 404 أبداً بعد الإقران |
+| `PUT /api/v1/families/{id}/children/{childId}/daily-total-quota` | تعيين الحصة اليومية الإجمالية (REQ-002) | `{minutes_by_weekday, version}` — المالك (الأب) فقط — المفتاح `protection.quota.edit` (Q-184)؛ وقفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` (والمالك على جهازين قد يتصادم — القاعدة مصرح بها لا مستحيلة) | الحصة المحفوظة + دفع `rules-updated` |
+| `GET /api/v1/families/{id}/rule-priority` | ترتيب الأنواع الحالي (ترتيب العائلة) — المفتاح `protection.rule.view` | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
+| `PUT /api/v1/families/{id}/rule-priority` | إعادة ترتيب الأنواع للعائلة (REQ-011) — المفتاح `protection.priority.edit` | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
+| `GET /api/v1/families/{id}/children/{childId}/rule-priority` | ترتيب الأنواع لطفل (تجاوز عن ترتيب العائلة — REQ-011) — المفتاح `protection.rule.view` | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
+| `PUT /api/v1/families/{id}/children/{childId}/rule-priority` | إعادة ترتيب الأنواع لطفل (REQ-011) — المفتاح `protection.priority.edit` | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
+| `POST /api/v1/families/{id}/children/{childId}/free-mode` | تفعيل الوضع الحر (REQ-018/019) | `{duration_minutes}` — المالك فقط — المفتاح `protection.free_mode.activate` (Q-143) | `{session_id, expires_at}` — `201` |
+| `POST /api/v1/families/{id}/children/{childId}/free-mode/cancel` | إلغاء مبكر للوضع الحر — المفتاح `protection.free_mode.activate` (Q-143) | — | `{session_id, status: "cancelled"}` |
+| `GET /api/v1/families/{id}/children/{childId}/enforcement-state` | حالة الفرض (REQ-025) — المفتاح `protection.state.view` | — | `{active_rule_type, remaining_by_app, next_boundary_at, free_mode_until, tamper_status}` |
 | `GET /api/v1/families/{id}/children/{childId}/tamper-events` | قائمة أحداث العبث (REQ-021/022) — مصدر شاشة S10-11؛ والمفتاح `protection.tamper.view` (بلاه يستطيع طفل تعداد سجل عبث طفل آخر) | `?child_id&from&to&limit&before` (الترقيم: `limit` افتراضي 50 وأقصى 100، والأحدث أولاً، و`next_cursor` للصفحة التالية — نمط S1-08 `?before&limit`) | `{events: [{event_id, kind, detected_at, reactivation_attempted, resolved_at, notified}], next_cursor}` |
-| `POST /api/v1/families/{id}/children/{childId}/tamper-events/{eventId}/resolve` | حلّ حدث عبث بعد تدخل الأب (REQ-022 — زر «حُلّ» في S10-11) | — | `{event_id, resolved_at}` — والمفتاح: يُربط في تمريرة العدّ النهائية مع R2-S110-22/23/24 (إذ يغيّر عدّ المفاتيح 82)؛ وحتى ذلك الحين يُفحص بملكية الأب (`is_owner`) وحدها |
-| `POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset}` | تطبيق إعداد مسبق (REQ-024) | `{duration_minutes?}` (للحر — ويدخل في جدول REQ-024؛ و`preset` في المسار وحده — بلا تكرار في الجسم، فالمسار حاكم) | القواعد المطبَّقة |
-| `GET /api/v1/families/{id}/audit/protection` | سجل تدقيق الحماية (REQ-026) | `?child_id&from&to&limit&before` (الترقيم: `limit` افتراضي 50 وأقصى 100، والأحدث أولاً، و`next_cursor` للصفحة التالية — نمط S1-08 `?before&limit`؛ ونفس اتفاقية ترقيم تنبيهات S1-09) | `{events: [{event_id, actor, action, target, at}], next_cursor}` |
+| `POST /api/v1/families/{id}/children/{childId}/tamper-events/{eventId}/resolve` | حلّ حدث عبث بعد تدخل الأب (REQ-022 — زر «حُلّ» في S10-11) | — | `{event_id, resolved_at}` — والمفتاح `protection.tamper.resolve` (المالك وحده — R2-S110-24) |
+| `POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset}` | تطبيق إعداد مسبق (REQ-024) | `{duration_minutes?}` (للحر — ويدخل في جدول REQ-024؛ و`preset` في المسار وحده — بلا تكرار في الجسم، فالمسار حاكم) | القواعد المطبَّقة — المفتاح `protection.mode_preset.apply` (دراسة/نوم)؛ والحر `protection.free_mode.activate` (Q-143) |
+| `GET /api/v1/families/{id}/audit/protection` | سجل تدقيق الحماية (REQ-026) — المفتاح `protection.audit.view` | `?child_id&from&to&limit&before` (الترقيم: `limit` افتراضي 50 وأقصى 100، والأحدث أولاً، و`next_cursor` للصفحة التالية — نمط S1-08 `?before&limit`؛ ونفس اتفاقية ترقيم تنبيهات S1-09) | `{events: [{event_id, actor, action, target, at}], next_cursor}` |
 
 الأخطاء: صيغة موحدة `{code, message_ar, trace_id}`؛ كل طلب يحمل سياق `family_id`؛ رفض أي طلب خارج العائلة (403). رموز هذا النظام: `RULE_NOT_FOUND` · `INVALID_RULE` (دقائق خارج 0–1440 أو حزمة غير معروفة أو `LIMIT` بلا `minutes_by_weekday` أو دقائق مع `ALLOW`/`BLOCK` — §4-2) · `SCHEDULE_CONFLICT` (نوافذ متداخلة — REQ-006) · `FREE_MODE_NOT_OWNER` (التفعيل للمالك فقط — REQ-018) · `FREE_MODE_ACTIVE` (وضع حر سارٍ أصلاً) · `PRIORITY_INVALID` (نوع غير معروف أو مكرر في الترتيب) · `APP_NOT_MANAGED` (التطبيق خارج إدارة النظام) · `VERSION_CONFLICT` (قفل تفاؤلي — أعد التحميل).
 
@@ -264,6 +264,10 @@ flowchart LR
 - `protection.free_mode.activate` — تفعيل/إلغاء الوضع الحر (المالك وحده — Q-143 "بأمر الأب فقط").
 - `protection.tamper.view` — عرض أحداث العبث (الأب + البالغ المفوَّض حسب القالب).
 - `protection.state.view` — عرض حالة الفرض والمتبقي (الأب + البالغ المفوَّض حسب القالب؛ والطفل يرى حالته في الغلاف بلا مفتاح — شاشة الحظر تعرضها بطبيعتها).
+- `protection.quota.edit` — تعيين الحصة اليومية الإجمالية (المالك وحده — Q-184؛ R2-S110-22).
+- `protection.mode_preset.apply` — تطبيق إعداد مسبق للدراسة/النوم (الأب + البالغ المفوَّض حسب القالب؛ والحر للمالك وحده عبر `protection.free_mode.activate` — Q-143؛ R2-S110-23).
+- `protection.audit.view` — عرض سجل تدقيق الحماية (الأب + البالغ المفوَّض حسب القالب؛ R2-S110-24).
+- `protection.tamper.resolve` — حلّ حدث عبث بعد تدخل الأب (المالك وحده — REQ-022؛ R2-S110-24).
 
 ### ثوابت صلبة (لا تُكسر)
 - زر SOS لا يُحظر أبداً — بأي قاعدة، وفي أي نافذة، وفي الوضع الحر (Q-067).
@@ -713,16 +717,16 @@ flowchart LR
 |---|---|---|---|---|---|
 | `protection.app_rule.action` | `choice` | بلا قاعدة = سماح (REQ-001)؛ وعند الإنشاء يختار الأب الإجراء — بلا إجراء افتراضي محكوم | ALLOW / BLOCK / LIMIT | `protection.rule.create` (إنشاء) / `protection.rule.edit` (تعديل) / `protection.rule.delete` (حذف) — بحسب العملية | الأب + البالغ المفوَّض حسب القالب |
 | `protection.app_rule.minutes_by_weekday` | `number`/`duration` | بلا قيمة افتراضية محكومة — يحددها الأب عند اختيار LIMIT | 0–1440 دقيقة لكل يوم أسبوع | `protection.rule.edit` (دقائق الحد جزء من تعديل القاعدة) | الأب + البالغ المفوَّض حسب القالب |
-| `protection.total_quota.minutes_by_weekday` | `number`/`duration` | 60 دقيقة لكل يوم أسبوع (Q-223 — Q-114)؛ نقطة التعيين `PUT .../daily-total-quota` (Q-184) | 0–1440 دقيقة لكل يوم أسبوع | يُحدد في تمريرة العدّ النهائية (R2-S110-22) — اليوم: المالك وحده (Q-184) بلا مفتاح مسمّى | الأب وحده (Q-184) |
+| `protection.total_quota.minutes_by_weekday` | `number`/`duration` | 60 دقيقة لكل يوم أسبوع (Q-223 — Q-114)؛ نقطة التعيين `PUT .../daily-total-quota` (Q-184) | 0–1440 دقيقة لكل يوم أسبوع | `protection.quota.edit` — المالك وحده (Q-184) | الأب وحده (Q-184) |
 | `protection.schedule.windows` | `schedule` | فارغ (بلا نوافذ) حتى يعرّفه الأب — G-S10-06 مغلقة (Q-222) | نوافذ نوم/مدرسة لكل يوم أسبوع | `protection.schedule.edit` | الأب + البالغ المفوَّض حسب القالب |
 | `protection.study_apps.list` | `member_set` | بلا قائمة افتراضية محكومة — التخزين وسم `is_study_app` في `app_rule` (Q-190) | تطبيقات الجهاز المثبتة | `protection.rule.edit` (الوسم حقل في `app_rule`) | الأب + البالغ المفوَّض حسب القالب |
 | `protection.priority.order` | `list` (ترتيب) | النوم > المدرسة > حدود التطبيقات > الحصة الإجمالية (Q-145) | أي تبديل للأنواع الأربعة | `protection.priority.edit` | الأب + البالغ المفوَّض حسب القالب (Q-146) |
 | `protection.free_mode.duration` | `duration` | بلا مدة افتراضية — بلا مدة لا تفعيل (REQ-019) | مدة بالدقائق يحددها الأب — التفعيل لكل طفل على حدة (لا تفعيل عائلي) | `protection.free_mode.activate` | المالك وحده (`protection.free_mode.activate` — Q-143) |
-| `protection.mode_preset` | `choice` | — (إجراء لحظي) | study / sleep / free (+ مدة للحر — لكل طفل على حدة) | الحر: `protection.free_mode.activate` (Q-143)؛ ودراسة/نوم: يُحدد في تمريرة العدّ النهائية (R2-S110-23) | الأب؛ والبالغ المفوَّض حسب القالب (التطبيق؛ والحر للمالك وحده) |
+| `protection.mode_preset` | `choice` | — (إجراء لحظي) | study / sleep / free (+ مدة للحر — لكل طفل على حدة) | الحر: `protection.free_mode.activate` (Q-143)؛ ودراسة/نوم: `protection.mode_preset.apply` | الأب؛ والبالغ المفوَّض حسب القالب (التطبيق؛ والحر للمالك وحده) |
 | `protection.tamper.view` | `read` | — | عرض أحداث العبث وحالة إعادة التفعيل | `protection.tamper.view` | الأب + البالغ المفوَّض حسب القالب |
 | `protection.state.view` | `read` | — | عرض حالة الفرض والمتبقي | `protection.state.view` | الأب + البالغ المفوَّض حسب القالب؛ والطفل يرى حالته في الغلاف بلا مفتاح |
 
-**ملاحظة النطاقين:** `control_key` هنا نطاق أسطح التحكم (Q-092 — ما يُعرض في مركز الإعدادات)؛ ومفاتيح §6 نطاق الصلاحيات (`protection.*`) — والعمود «المفتاح الحاكم» يربط كل سطح بمفتاحه (أو مفاتيحه بحسب العملية)؛ وسطح بلا مفتاح مسمّى (الحصة؛ وإعدادا دراسة/نوم) صفته مكتوبة لا مضمرة — يُربط في تمريرة العدّ (R2-S110-22/23) لا بالتخمين هنا.
+**ملاحظة النطاقين:** `control_key` هنا نطاق أسطح التحكم (Q-092 — ما يُعرض في مركز الإعدادات)؛ ومفاتيح §6 نطاق الصلاحيات (`protection.*`) — والعمود «المفتاح الحاكم» يربط كل سطح بمفتاحه (أو مفاتيحه بحسب العملية)؛ وكل سطح هنا مربوط بمفتاحه المسمّى (الحصة: `protection.quota.edit` — R2-S110-22؛ وإعدادا دراسة/نوم: `protection.mode_preset.apply` — R2-S110-23؛ وحلّ العبث: `protection.tamper.resolve` — R2-S110-24).
 
 #### (ب) العرض المزدوج
 
@@ -732,7 +736,7 @@ flowchart LR
 #### (ج) من يتحكم بماذا
 
 - **الأب (المالك):** كل شيء — القواعد والجدول والترتيب والحصة والوضع الحر والأوضاع المسبقة والعبث.
-- **البالغ المفوَّض:** حسب القالب (S1-03) — إنشاء/تعديل/حذف قاعدة (`protection.rule.*`)، تعديل الجدول، إعادة الترتيب (Q-146)؛ **لا** الوضع الحر (للمالك وحده — Q-143)؛ وعرض العبث وحالة الفرض حسب القالب.
+- **البالغ المفوَّض:** حسب القالب (S1-03) — إنشاء/تعديل/حذف قاعدة (`protection.rule.*`)، تعديل الجدول، إعادة الترتيب (Q-146)، وتطبيق إعدادي الدراسة/النوم (`protection.mode_preset.apply`)، وعرض سجل تدقيق الحماية (`protection.audit.view`)؛ **لا** الوضع الحر (للمالك وحده — Q-143) ولا تعيين الحصة (`protection.quota.edit` — للمالك وحده Q-184) ولا حلّ العبث (`protection.tamper.resolve` — للمالك وحده)؛ وعرض العبث وحالة الفرض حسب القالب.
 - **الطفل/المراهق:** لا يعدّل أي طفل قواعده بنفسه (D-038) — يرى شاشة الحظر والتحذير فقط، ويطلب وقتاً إضافياً عبر S1-05؛ ولا يرى قواعد طفل آخر.
 
 #### (د) مصفوفة التوفر الصادقة — Android مقابل iOS (Q-005)
@@ -824,7 +828,7 @@ flowchart LR
 8. **مقاومة الإزالة** (مستمعات العبث + إعادة التفعيل + تنبيهات `family/{family_id}/protection/tamper` + تنبيه S1-09 نوع `system`).
 9. **تكامل حالة الفرض** (مرآة `enforcement_state` + ودجة S1-09 + استهلاك S1-05 للمتبقي).
 10. **الشاشات** — تُبنى بعد مرحلة التصميم (§9)؛ هذه الخطة تعتمد على مخرجاتها.
-11. **بذر المفاتيح** — بذر مفاتيح `protection.*` التسعة في السجل المركزي (S1-03 §10-1) عند النشر — لا منح لمفتاح غير مزروع (S1-03 REQ-009).
+11. **بذر المفاتيح** — بذر مفاتيح `protection.*` الثلاثة عشر في السجل المركزي (S1-03 §10-1) عند النشر — لا منح لمفتاح غير مزروع (S1-03 REQ-009).
 
 ### 10-2. الوحدات/المكونات
 - **الخادم (Ktor):** وحدة `protection` (القواعد + الجدول + الترتيب + التقييم + الوضع الحر + العبث + التدقيق)؛ ووحدة `sync` (MQTT).
