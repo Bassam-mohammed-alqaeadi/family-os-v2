@@ -163,10 +163,12 @@ erDiagram
     invite_code {
         uuid id PK
         uuid family_id FK
-        text code
+        text code_hash
         text created_by FK
         timestamptz expires_at
         int uses
+        text status
+        timestamptz revoked_at
     }
     child_profile {
         uuid id PK
