@@ -49,7 +49,7 @@ flowchart LR
 | محرك الفرض (حظر/جداول/VPN/Accessibility) | لا — غير موجود | نعم — وحدة Kotlin للتنفيذ، خدمة خلفية دائمة (تقييم القواعد/الجداول ملك S1-10 — Q-141) |
 | زر SOS الدائم | نعم | نعم |
 | بوابة الوالدين (PIN) | لا تُطلب (المستخدم مصادق عليه كأب) | تُطلب للخروج من وضع الطفل / فك الإقران / فتح أي إعداد إداري |
-| خدمة الخلفية | دفع فقط (FCM/HMS) | دائمة (MQTT + فرض) |
+| خدمة الخلفية | دفع فقط (FCM/HMS/APNs — §4.4) | دائمة (MQTT + فرض) |
 | الإشعار الدائم | معلومات نافعة (حالة العائلة) | معلومات نافعة (الوقت المتبقي) — لا عبارة رقابية (G-006) |
 | تبديل الملفات | لا (مؤجل للمرحلة 2 — أولوية، Q-063) | لا (مؤجل للمرحلة 2 — أولوية، Q-063) |
 | الوصول لإعدادات النظام | نعم (للأب) | لا — يتطلب PIN الأب |
@@ -214,14 +214,22 @@ flowchart TD
   - `getDeviceHealth() -> DeviceHealth {memoryMb, batteryPct, connectivity}`
   - `requestParentGate(action: String) -> GateResult {granted, attemptsLeft, lockedUntil}`
   - التحقق من PIN محلي بالكامل (Q-142): يُقارَن الـ PIN المدخل مع الـ hash المخزن على الجهاز — **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي، في مخزن آمن مدعوم بالعتاد (Q-164)**؛ لا يُرسَل PIN ولا hash إلى الخادم أبداً؛ إثبات التحقق + القفل فقط يُرسَلان إلى الخادم عبر Outbox. **والعمليات الحساسة تُثبَت بتحدٍّ من الخادم:** توقيع nonce الخادم بمفتاح الجهاز (REQ-023) — لا ادّعاء عميل.
-- `EventChannel("familyos/enforcement/events")`: streams `enforcement_state`, `sos_triggered`, `connectivity_changed`.
+- `EventChannel("familyos/enforcement/events")` — البثوث الثلاثة (الحمولات أدناه؛ وS1-10 يضيف `rule_blocked` و`tamper_detected` و`free_mode_changed` على القناة نفسها — S1-10 §4-1):
+
+| البث | الحمولة | متى يُبث |
+|---|---|---|
+| `enforcement_state` | `{active: boolean, mode: parent\|child, updated_at: timestamptz}` | عند تغيّر حالة الفرض (تفعيل/تعطيل) |
+| `sos_triggered` | `{event_id: uuid, family_id: uuid, device_id: uuid, membership_id: uuid, triggered_at: timestamptz, idempotency_key: uuid}` (= `event_id` — مخطط حدث SOS §4.3) | عند الضغط المطول 3 ثوانٍ على زر SOS |
+| `connectivity_changed` | `{connected: boolean, transport: wifi\|cellular\|none, low_bandwidth: boolean, changed_at: timestamptz}` | عند تغيّر الاتصال |
+
+وقناة EventChannel تحمل التسليم داخل الجهاز (الغلاف → S1-07)؛ وتوصيل SOS إلى الخادم/الأهل ملك S1-07 عبر MQTT/SMS — لا ازدواج: القناة تسليم محلي، وMQTT نقل خادمي (Q-234).
 
 ### 4.2 عقود الخادم (Ktor REST — `/api/v1/shell/`)
 
-- `GET /api/v1/families/{id}/shell/config` → `ShellConfig {region, planFlags, featureFlags, countryProfile}` (200; 403 خارج العائلة).
-- `POST /api/v1/shell/outbox/flush` — body: `OutboxBatch {events: [...]}` → `FlushResult {accepted, rejected[]}`; idempotency key إلزامي في الترويسة `Idempotency-Key`.
-- لا نقطة تحقق PIN خادمية — التحقق محلي بالكامل (Q-142)؛ الخادم يستقبل إثبات التحقق + القفل عبر Outbox فقط. **لكن الإثبات القابل للتحقق له نقطتان (Q-164):** `POST /api/v1/shell/verification/challenge` → `{challenge_id, nonce, expires_at}` (صلاحية 5 دقائق، استخدام واحد)؛ و`POST /api/v1/shell/verification/prove` ← `{challenge_id, signature, method}` → `{verified}` — الخادم يتحقق من التوقيع بمفتاح الجهاز العام المسجَّل قبل تنفيذ أي عملية حساسة؛ ولا يُرسَل PIN ولا hashه في أيٍّ منهما.
-- `GET /api/v1/shell/registries/{registry}` → قائمة المفاتيح المسجلة (قراءة سجل عالمي — بلا نطاق عائلة).
+- `GET /api/v1/families/{id}/shell/config` → `ShellConfig {region: string (تعداد S1-02 §5), planFlags: object (خطة → bool — Q-055), featureFlags: object (مفتاح → bool), countryProfile: object {region, low_bandwidth, otp_channels, payment_routes} (§5), update: {minimum_version: string (semver), latest_version: string (semver), forced_update: boolean}}` (200؛ أخطاء: 401 غير مصادق، 403 خارج العائلة؛ المفتاح: `shell.config.view`؛ المصادقة: جلسة صالحة + سياق عائلة). **وسلوك العميل لحقول التحديث:** `forced_update=true` → شاشة التحديث الإلزامي (SCR-12) بلا مسار تجاوز؛ وإصدار الجهاز < `minimum_version` → حث على التحديث (SCR-12)؛ وإلا تحديث عادي عبر المتجر. ودون اتصال: يُؤجَّل الفحص؛ ويبقى التطبيق يعمل ومسار SOS يعمل — ولا تحجب بوابة تحديثٍ ميزة سلامة.
+- `POST /api/v1/shell/outbox/flush` — body: `OutboxBatch {events: OutboxEvent[]}` — عنصر الحدث: `{id: uuid, family_id: uuid, device_id: uuid, type: string, payload: object, priority: critical|high|normal, idempotency_key: uuid, retry_count: int, next_retry_at: timestamptz, created_at: timestamptz}` (§5) → `FlushResult {accepted: string[] (ids), rejected: [{id, code, message_ar}]}`؛ وترويسة `Idempotency-Key` إلزامية لمستوى الدفعة + مفتاح عدم تكرار لكل حدث (§5 — إزالة التكرار لكل حدث)؛ أخطاء: 400 طلب غير صالح، 401، 403، 409 تعارض نسخة؛ المفتاح: `shell.view` (جهاز مقترن بجلسة صالحة؛ والأحداث نفسها صُدّق عليها عند إنشائها).
+- لا نقطة تحقق PIN خادمية — التحقق محلي بالكامل (Q-142)؛ الخادم يستقبل إثبات التحقق + القفل عبر Outbox فقط. **لكن الإثبات القابل للتحقق له نقطتان (Q-164):** `POST /api/v1/shell/verification/challenge` ← `{operation: string (الإجراء الحساس — من تعداد REQ-006)}` → `{challenge_id: uuid, nonce: string, expires_at: timestamptz}` (صلاحية 5 دقائق، استخدام واحد؛ أخطاء: 400/401/403؛ المفتاح: `shell.admin.access`)؛ و`POST /api/v1/shell/verification/prove` ← `{challenge_id: uuid, signature: string, method: pin|biometric}` → `{verified: boolean}` (أخطاء: 400 تحدٍّ منتهٍ أو مستخدم، 401، 403؛ المفتاح: `shell.admin.access`) — الخادم يتحقق من التوقيع بمفتاح الجهاز العام المسجَّل قبل تنفيذ أي عملية حساسة؛ ولا يُرسَل PIN ولا hashه في أيٍّ منهما.
+- `GET /api/v1/shell/registries/{registry}` — و`{registry}` ∈ {`control`, `permission`, `widget`, `notification`} → `{registry: string, keys: [{key: string, title_ar: string, description_ar: string}]}` (أخطاء: 400 سجل غير معروف، 401، 403؛ المفتاح: `shell.config.view`؛ قراءة سجل عالمي — بلا نطاق عائلة).
 - الأخطاء: صيغة موحدة `{code, message_ar, trace_id}`؛ كل طلب يحمل سياق `family_id`؛ رفض أي طلب خارج العائلة (403).
 
 ### 4.3 أحداث MQTT (وكيل الطفل — وضع الطفل فقط)
@@ -229,20 +237,53 @@ flowchart TD
 - الاشتراك: `family/{family_id}/devices/{device_id}/commands`؛ النشر: `family/{family_id}/device/{device_id}/state` (الحالة الدورية)؛ والإقرار على `family/{family_id}/devices/{device_id}/acks` (Q-195).
 - كل أمر يحمل `command_id` (idempotency)؛ الإقرار (ack) إلزامي؛ إعادة المحاولة بتراجع أسّي.
 - توصيل الأمر + الإقرار < 5 ثوانٍ (REQ-022 — Q-061) — للمتصل فقط؛ ودون اتصال يُصفّ الأمر في Outbox بلا وعد زمني.
+- **حمولة `state`:** `{device_id: uuid, family_id: uuid, mode: parent|child, battery_pct: int, connectivity: online|offline, enforcement_active: boolean, app_version: string, updated_at: timestamptz}` — وتُستهلك مرآةً في S1-10 (`enforcement_state` — S1-10 §5). **الإيقاع:** عند كل تغيّر حالة فوراً + نبضة دورية كل 5 دقائق في وضع الطفل النشط (معامل تقني مثبت هنا).
+- **حمولة الأوامر:** كل أمر `{command_id: uuid (مفتاح عدم التكرار)، command_type: string (من التعداد أدناه)، family_id: uuid, device_id: uuid, issued_by: uuid (عضوية المصدر)، issued_at: timestamptz, expires_at: timestamptz (nullable — وأمر منتهٍ يُرفض ولا يُنفَّذ)، payload: object}` — وحمولة كل نوع يملكها نظامه المالك (S1-10 §5 / S1-05 §5)؛ ولا أمر بلا `command_type`. **تعداد `command_type`:** `enforcement.rule.apply` (S1-10: تطبيق قاعدة حظر/سماح/حد) · `enforcement.schedule.apply` (S1-10: دفع الجدول الأسبوعي) · `enforcement.free_mode.set` (S1-10: ضبط الوضع الحر) · `rewards.time.grant` (S1-05: منح وقت يصل للفرض عبر S1-10). والتعداد مفتوح بأنظمة مالكة فقط — لا نوع جديد دون نظام مالك.
+- **مخطط حدث SOS (التعريف الوحيد):** `SosEvent {event_id: uuid (= مفتاح عدم التكرار)، family_id: uuid, device_id: uuid, membership_id: uuid, triggered_at: timestamptz}` — والتسليم داخل الجهاز عبر EventChannel (`sos_triggered` — §4.1)؛ والموقع (`lat`/`lng`) يلحقه S1-07 عند `POST /api/v1/families/{id}/sos` (S1-07 §4-1: `{lat, lng, at}` + ترويسة `Idempotency-Key` = `event_id`)؛ وS1-07 يستهلك هذا المخطط كما هو ولا يعيد تعريفه (ويقابله `sos_alert.member_id` = `membership_id` في S1-07 §5-3). **متصلاً/دون اتصال:** الصيغة واحدة؛ ومتصلاً يُرسل فوراً؛ ودون اتصال يسلَّم لـ S1-07 فوراً داخل الجهاز ويقرر S1-07 الوسيلة (Q-234) — وOutbox مخزن تأجيل لا نقل بديل.
+- الأوامر تصل عبر MQTT أولاً، والاسترجاع REST عند إعادة الاتصال؛ والاستخدام الأصلي لـ MQTT هو الأوامر الفورية. ومقاومة الأوامر الصادرة دون اتصال تُدار بالسجل الموحد (Q-192). وكل الأوامر عبر TLS وموضوعات تحمل `family_id` (Q-199). وخدمة الفرض الخلفية تتطلب `shell.config.view` قبل بدء أي جولة دفع أوامر.
+
+### 4.4 الدفع الخلفي (Push) — لوحة الأهل فقط
+
+- **المزود:** FCM حيث خدمات Google Play موجودة؛ HMS حيث HMS فقط (بلا Play)؛ APNs على iOS — خلف واجهة `PushChannel` موحدة (ARCH §5 — قناة إشعارات موحدة)؛ ولا اختيار مزود في التطبيق — المزود يتبع المنصة.
+- **التسجيل:** العميل يسجل رمز الدفع عند تسجيل الدخول/الإقران: `POST /api/v1/shell/push/register` ← `{device_id: uuid, provider: fcm|hms|apns, token: string}` → `{registered: boolean}` (أخطاء: 400/401/403؛ المفتاح: `shell.view`)؛ ويُخزَّن الرمز لكل جهاز في `device_mode` (§5: `push_token` + `push_provider`)؛ ويُستبدل الرمز عند تجديده ويمسح عند فك الإقران.
+- **حمولة الإشعار:** `{event_type: string, family_id: uuid, ref_id: uuid?, title_ar: string, body_ar: string, deep_link: string?}` — إشعار عرض فقط: بلا محتوى رسائل وبلا موقع دقيق في الحمولة؛ وفتح الإشعار يفتح التطبيق على شاشته (deep_link) فيسحب التفاصيل عبر MQTT/REST.
+- **الاحتياط عند تعذر الدفع:** الدفع غير متاح (بلا Play/HMS، رمز غير صالح، شبكة يمنية متقطعة) → قناة تنبيهات MQTT `family/{family_id}/alerts/new` (Q-210) بديلاً للنقل + سحب عند فتح التطبيق. والدفع إشعار فقط — لا يحمل أمراً ولا يغني عن MQTT؛ والأوامر عبر MQTT دائماً (§4.3).
+
+### 4.5 تعيين مفاتيح الصلاحيات للعمليات (كل عملية في §4)
+
+| العملية | المفتاح المطلوب |
+|---|---|
+| `MethodChannel.isEnforcementActive()` | بلا مفتاح — قراءة حالة محلية داخل الجهاز |
+| `MethodChannel.applyAppRules(rules)` | بلا مفتاح مستقل — القواعد نفسها صُدّق عليها في S1-10 عند إصدارها؛ والمنفذ المحلي لا يعيد التقييم |
+| `MethodChannel.getDeviceHealth()` | `shell.config.view` |
+| `MethodChannel.requestParentGate(action)` | مفتاح العملية المطلوبة نفسها — يُفحص بعد فتح البوابة بـ PIN؛ والبوابة نفسها بلا مفتاح (الـ PIN هو الاعتماد) |
+| `EventChannel` البثوث الثلاثة (`enforcement_state`، `sos_triggered`، `connectivity_changed`) | بلا مفتاح — أحداث محلية داخل الجهاز؛ و`sos_triggered` مفتاحه `location.sos.trigger` في S1-07 |
+| `GET …/shell/config` | `shell.config.view` |
+| `POST …/outbox/flush` | `shell.view` — جهاز مقترن؛ والأحداث نفسها صُدّق عليها عند إنشائها |
+| `POST …/verification/challenge` | `shell.admin.access` |
+| `POST …/verification/prove` | `shell.admin.access` |
+| `GET …/registries/{registry}` | `shell.config.view` |
+| `POST …/push/register` | `shell.view` |
+| MQTT اشتراك `…/commands` | مصادقة الجهاز (شهادة mTLS — Q-168)؛ ومفتاح الأمر نفسه يُفحص عند إصداره خادمياً |
+| MQTT نشر `…/state` و`…/acks` | مصادقة الجهاز (شهادة mTLS — Q-168) |
 
 ## 5. البيانات — النموذج
 
 | الجدول | الحقول الرئيسية | ملاحظة |
 |---|---|---|
-| `device_mode` | `id`, `family_id`, `device_id`, `mode` (`parent`/`child`), `paired_at`, `paired_by` | وضع واحد ثابت لكل جهاز في المرحلة 1 (Q-063) |
+| `device_mode` | `id`, `family_id`, `device_id`, `mode` (`parent`/`child`), `paired_at`, `paired_by`, `push_token` (رمز الدفع — nullable)، `push_provider` (`fcm`/`hms`/`apns` — nullable) | وضع واحد ثابت لكل جهاز في المرحلة 1 (Q-063)؛ ورمز الدفع يُسجَّل عند تسجيل الدخول/الإقران (§4.4) ويُستبدل عند تجديده ويمسح عند فك الإقران |
 | `parent_gate` | `id`, `family_id`, `pin_hash`, `kdf_params`, `device_key_id`, `failed_attempts`, `locked_until`, `updated_at` | مخزن محلي فقط (SQLite على الجهاز) — ليس جدول خادم؛ `pin_hash` **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي** في مخزن آمن مدعوم بالعتاد (Q-164)؛ و`kdf_params` معاملات التجزئة؛ و`device_key_id` معرّف مفتاح التوقيع الجهازي (REQ-023)؛ ولا يُحفظ PIN نصاً أبداً، ولا يُزامَن ولا يُرسَل إلى الخادم أبداً (Q-142)؛ **قاعدة الساعة (Q-236/D-18):** كل الطوابع UTC مخزنة؛ و`locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال؛ وتُعاد تثبيت المرساة عند كل اتصال. و`family.time_zone` معرَّف في S1-02 §5 (سجل العائلة) — مرساة «منتصف الليل المحلي للعائلة» (Q-183) دون مسّ دلالتها |
 | `feature_flag` | `id`, `family_id`, `key`, `enabled`, `valid_until` | تُحمَّل عند الإقلاع وتُحفظ محلياً |
-| `outbox_event` | `id`, `family_id`, `device_id`, `type`, `payload`, `synced_status`, `created_at` | محلي (SQLite) على الجهاز؛ يُفرَّغ دفعة واحدة |
+| `outbox_event` | `id`, `family_id`, `device_id`, `type`, `payload`, `priority` (`critical`/`high`/`normal` — SOS = `critical` دائماً ويُفرَّغ أولاً)، `idempotency_key` (uuid لكل حدث — إزالة التكرار لكل حدث)، `retry_count`, `next_retry_at`, `version` (int — نسخة أحادية رتيبة؛ يرفعها الكاتب عند كل كتابة)، `synced_status`, `created_at` | محلي (SQLite) على الجهاز؛ يُفرَّغ دفعة واحدة؛ **آلية عدم التكرار لكل حدث:** كل حدث يحمل `idempotency_key` (uuid يولده العميل ويثبت عبر إعادات المحاولة)؛ والخادم يزيل التكرار على (`family_id`, `idempotency_key`) ويعيد نتيجة الإرسال الأصلية عند إعادة التشغيل — وتُطبَّق الآلية نفسها على كل الأنظمة (ومنها صرف المكافآت `queueRedeem` في S1-05)؛ و**الاحتفاظ:** لا يسقط حدث قبل إقرار الخادم أبداً — بلا TTL زمني يسقط حدثاً غير مُقر؛ وإعادة المحاولة بتراجع أسّي (`retry_count` + `next_retry_at`)؛ وأحداث SOS (`critical`) لا تُسقط أبداً قبل الإقرار |
 | `country_profile` | `id`, `region`, `low_bandwidth`, `otp_channels`, `payment_routes` | ملف المنطقة (Q-005)؛ والـ `region` من تعداد S1-02 §5 (`YE`/`SA`/`AE`/`QA`/`KW`/`BH`/`OM`) |
 | `shell_registry` | `registry` (`control`/`permission`/`widget`/`notification`), `key`, `metadata` | عرض قراءة (READ VIEW) فوق السجلات العالمية — بلا `family_id`؛ للقراءة فقط (REQ-011) |
 | `notification_registry` | `kind`, `channel`, `owner_system` | سجل عالمي لقنوات التنبيه — بلا `family_id` (REQ-011) |
 
 **قاعدة ملزمة:** جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما جداول السجل العالمية (`shell_registry` كعرض قراءة، و`notification_registry`) فبلا `family_id`؛ كل حدث رقابي/إداري في `AuditEvent`.
+
+**سجل التدقيق `AuditEvent` (النواة المشتركة):** التعريف القانوني الوحيد في S1-03 §5-6: `{actor, target_member, action, permission_key?, at, result}` — وأحداث هذا النظام تستخدم الصيغة نفسها بنطاق `domain = "shell"` وأفعال: `parent_gate.open` / `parent_gate.failed` / `parent_gate.locked` / `parent_gate.pin_changed` / `shell.config.changed` / `shell.mode.refused`؛ وكل فعل يُسجَّل بفاعله ونتيجته ووقته UTC. (لا مخطط ثانٍ هنا.)
+
+**حقل `version`:** تحمله `outbox_event` (محلياً) وسجلات الخادم المزامنة؛ ويرفعه الكاتب عند كل كتابة؛ وقاعدة §7 تشير إليه.
 
 ## 6. القواعد والصلاحيات
 
@@ -257,6 +298,8 @@ flowchart TD
 
 مفتاح SOS الوحيد هو `location.sos.trigger` (نظام الموقع S1-07) — لا مفتاح SOS في هذا النظام.
 
+**تعيين كل عملية في §4 إلى مفتاحها في §4.5.**
+
 **ثوابت صلبة:** deny-override (Q-007)؛ لا صلاحيات إشرافية للأطفال/المراهقين (D-038)؛ الغموض يُفسَّر لصالح حماية الطفل؛ `scope` و`valid_until` إلزاميان في كل منح.
 
 **قاعدة الساعة (Q-236/D-18):** كل الطوابع الزمنية UTC مخزنة؛ و`locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال، وتُعاد تثبيت المرساة عند كل اتصال؛ و`expires_at` للتحدي (REQ-023/§4.2) انتهاء صادر من الخادم (UTC، صلاحية 5 دقائق، استخدام واحد). و`family.time_zone` معرَّف في S1-02 §5 (سجل العائلة) — مرساة «منتصف الليل المحلي للعائلة» (Q-183) دون مسّ دلالتها.
@@ -264,12 +307,12 @@ flowchart TD
 ## 7. الحالات الحدية والأخطاء
 
 - **بلا اتصال عند الإقلاع:** يفتح التطبيق ويعرض البيانات المحفوظة + شريط حالة؛ لا شاشة خطأ؛ الأفعال تُسجَّل في Outbox (REQ-008/REQ-009).
-- **SOS دون اتصال:** S1-07 يملك النقل؛ الغلاف يسلّم `sos_triggered` إلى S1-07 فوراً (Q-234/D-6)؛ ووسيلة النقل — ومنها SMS — يقررها S1-07 وحده؛ وOutbox ليس نقلاً بديلاً لـ SOS.
+- **SOS دون اتصال:** S1-07 يملك النقل؛ الغلاف يسلّم `sos_triggered` إلى S1-07 فوراً (Q-234/D-6)؛ ووسيلة النقل — ومنها SMS — يقررها S1-07 وحده؛ وOutbox ليس نقلاً بديلاً لـ SOS؛ ومخطط حدث SOS §4.3.
 - **قتل التطبيق قسراً:** تُحفظ حالة الواجهة فوراً (SharedPreferences/MMKV)؛ عند إعادة الفتح يعود المستخدم لنفس الشاشة والمدخلات.
 - **جهاز < 2GB RAM:** تعطيل الانتقالات الثقيلة تلقائياً (REQ-013).
 - **PIN خاطئ 5 مرات:** قفل 5 دقائق (معتمد؛ التحقق محلي — Q-142)؛ **تغيير PIN** يتطلب PIN الحالي ويعيد اشتقاق مفتاح الاسترداد وإعادة تغليف نسخة مفاتيح قناة الوالدين (Q-164)؛ **لا إعادة تعيين PIN محلياً عند النسيان أبداً** — الاسترداد فقط عبر جهة الاسترداد الموثوقة + انتظار 7 أيام (Q-077) من لوحة أهل مصادق عليها، وإن تعذرت المصادقة القديمة فالسجل القديم غير قابل للاسترداد (حد صادق).
 - **قاعدة الساعة (Q-236/D-18):** كل الطوابع UTC مخزنة؛ `locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال، وتُعاد تثبيت المرساة عند كل اتصال؛ و`expires_at` للتحدي انتهاء صادر من الخادم (UTC، صلاحية 5 دقائق، استخدام واحد).
-- **تضارب مزامنة بين أجهزة:** إصدارات أحادية الاتجاه (Monotonic Versioning)؛ يُعتمد الأحدث مع إشعار المستخدم عند الدمج.
+- **تضارب مزامنة بين أجهزة:** إصدارات أحادية الاتجاه (Monotonic Versioning) على حقل `version` (§5)؛ يُعتمد الأحدث (`version` الأكبر) مع إشعار المستخدم عند الدمج؛ ونسخة أقدم لا تكتب فوق نسخة أحدث أبداً.
 - **محاولة تبديل الوضع/الملف:** تُرفض برسالة واضحة (Q-063).
 - **وضع غير متطابق (جهاز طفل يسجّل فيه أب):** يبقى الوضع وضع الطفل؛ الوضع يتحدد بالإقران لا بتسجيل الدخول (REQ-002).
 
@@ -290,6 +333,7 @@ flowchart TD
 - **ACC-013:** مفتاح تحكم غير مسجل يُرفض عند الاستدعاء برمز `UNREGISTERED_CONTROL` ولا يُنفَّذ؛ وفحص الإقلاع يرفض عرض تحكم غير مسجل. [REQ-011]
 - **ACC-014:** على جهاز دون 2GB RAM تُعطَّل الانتقالات الثقيلة تلقائياً؛ وزمن الإطار p95 ≤ 16.7ms في جلسة 60 ثانية في مختبر Q-027 (60 إطاراً/ثانية)؛ وقراءات الذاكرة والاتصال والبطارية ظاهرة في SCR-11. [REQ-013]
 - **ACC-015:** مسح الاعتماديات في CI يجد صفر مكتبات إعلانية أو أدوات تتبع في الحزمة؛ ولا حدث تحليلي واحد لحساب طفل قبل حسم Q-046. [REQ-016]
+- **ACC-016:** تعارض مزامنة بين جهازين: يُعتمد السجل ذو `version` الأكبر؛ والنسخة الأقدم لا تكتب فوق الأحدث؛ ويُشعر المستخدم عند الدمج. [REQ-009]
 
 ## 9. قائمة الشاشات
 
@@ -874,7 +918,7 @@ flowchart TD
 - **بذرة المفاتيح:** مفاتيح S1-01 الستة (§6 — بعد حذف `shell.sos.trigger`) تُزرع في سجل `permission_key` المركزي (S1-03 §10-1 — القائمة الموحدة 82 مفتاحاً).
 - **الوحدات:** وحدة Flutter باسم `shell` (وضعان + قوالب + بوابة + زر SOS + شريط عدم الاتصال)؛ ووحدة Kotlin باسم `enforcement` (DeviceAdmin + Accessibility + VPN + خدمة خلفية + صحة)؛ ووحدة Ktor باسم `shell` (config + outbox flush + registries + نقطتا التحدي والإثبات — بلا نقطة تحقق PIN خادمية، Q-142 · Q-164).
 - **الاعتماديات:** S1-02 (الإقران يحدد الوضع) · S1-03 (الأدوار والقوالب والصلاحيات) · S1-07 (توصيل SOS) · S1-04 (أعلام الخطط) · S1-10 (تقييم القواعد/الجداول — Q-141، المواصفة معتمدة (Q-146)) · Q-022 (MQTT) · Q-054 (هيكل بوابة الذكاء) · مختبر Q-027.
-- **الاختبارات:** وحدة (تحديد الوضع/قفل البوابة/ترتيب Outbox/عتبات الصحة) · تكامل (إقران ← وضع؛ وفرض عبر القنوات؛ تفريغ Outbox idempotent) · قبول ACC-001…015 · أداء (إقلاع بارد < 1.2s؛ قراءات لوحة الأهل p95 < 300ms؛ توصيل الأمر + الإقرار < 5 ثوانٍ — REQ-022 — في مختبر Q-027).
+- **الاختبارات:** وحدة (تحديد الوضع/قفل البوابة/ترتيب Outbox/عتبات الصحة) · تكامل (إقران ← وضع؛ وفرض عبر القنوات؛ تفريغ Outbox idempotent) · قبول ACC-001…016 · أداء (إقلاع بارد < 1.2s؛ قراءات لوحة الأهل p95 < 300ms؛ توصيل الأمر + الإقرار < 5 ثوانٍ — REQ-022 — في مختبر Q-027).
 
 ## أسئلة مفتوحة (من هذه المواصفة)
 

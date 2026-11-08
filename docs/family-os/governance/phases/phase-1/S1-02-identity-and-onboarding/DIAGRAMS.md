@@ -80,7 +80,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول العشرة من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما `person` و`phone_verification` و`session` فبلا `family_id`. و`family.time_zone` المنطقة الزمنية للعائلة (IANA) — مرساة «منتصف الليل المحلي للعائلة» (Q-183)؛ وتُضبط عند إنشاء العائلة (REQ-007 · Q-236/D-18).
+الجداول الأحد عشر من §5 كما هي، مع مرجع خارجي واحد: `AuditEvent` (النواة المشتركة — كل حدث هوية/إقران يُسجَّل فيه). ملاحظات: `code_hash` و`pairing_code_hash` و`refresh_token_hash` مشفرة فقط — لا يُحفظ أي رمز نصاً أبداً؛ `person` بلا هاتف ولا بريد للطفل إطلاقاً (D-006)؛ `child_profile` بلا بيانات اتصال وسنة ميلاد فقط (Q-073). جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما `person` و`phone_verification` و`session` فبلا `family_id`. و`family.time_zone` المنطقة الزمنية للعائلة (IANA) — مرساة «منتصف الليل المحلي للعائلة» (Q-183)؛ وتُضبط عند إنشاء العائلة (REQ-007 · Q-236/D-18).
 
 ```mermaid
 erDiagram
@@ -94,7 +94,10 @@ erDiagram
     family ||--o{ device_pairing : "لها أجهزة مقترنة"
     family ||--o{ consent_record : "لها سجلات موافقة"
     family ||--o{ deletion_request : "لها طلبات حذف"
+    family ||--o{ recovery_request : "لها طلبات استرداد"
     membership ||--o{ deletion_request : "طلبات حذف عضو"
+    membership ||--o{ recovery_request : "طلبات استرداد عضو"
+    consent_record }o--|| membership : "تأكيد الطفل"
     membership ||--|| child_profile : "ملف الطفل يرجع إلى عضوية"
     invite_code }o--|| person : "أنشأه"
     device_pairing }o--|| person : "أقرانه"
@@ -124,15 +127,19 @@ erDiagram
     session {
         uuid id PK
         uuid person_id FK
+        uuid device_id
+        text device_label
         text refresh_token_hash
         timestamptz expires_at
         timestamptz revoked_at
+        timestamptz last_active_at
     }
     family {
         uuid id PK
         text name
         text region
         text time_zone
+        uuid trusted_recovery_contact_id FK
         text created_by FK
         timestamptz created_at
         timestamptz deleted_at
@@ -168,6 +175,7 @@ erDiagram
         uuid family_id FK
         uuid device_id
         text pairing_code_hash
+        text device_cert
         text device_public_key
         text mode
         timestamptz paired_at
@@ -179,6 +187,21 @@ erDiagram
         text type
         text granted_by FK
         timestamptz granted_at
+        uuid child_membership_id FK
+        timestamptz child_assented_at
+        text assent_method
+    }
+    recovery_request {
+        uuid id PK
+        uuid family_id FK
+        uuid person_id FK
+        text new_phone
+        uuid trusted_contact_membership_id FK
+        text status
+        timestamptz requested_at
+        timestamptz confirmed_at
+        timestamptz wait_until
+        timestamptz completed_at
     }
     deletion_request {
         uuid id PK
@@ -200,7 +223,7 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-ثمانية مخططات، كل واحد لتدفق واحد:
+تسعة مخططات، كل واحد لتدفق واحد — وتاسعها (3-ط) لعمليات الإدارة (NEW-S102-08):
 
 ### 3-أ. تسجيل الدخول بالهاتف + OTP (REQ-001/002/003/004/005 — §4.1)
 
@@ -228,6 +251,10 @@ sequenceDiagram
     Client->>Ktor: POST /api/v1/identity/otp/verify {phone, code}
     alt الرمز صحيح
         Ktor-->>Client: {access_token, refresh_token, totp_enrolled}
+        alt الدخول حساس ويتطلب TOTP (REQ-005)
+            Client->>Ktor: POST /api/v1/identity/totp/verify {code}
+            Ktor-->>Client: {verified: true}
+        end
         alt totp_enrolled = true
             Client-->>Father: دخول ناجح — جلسة 30 يوماً — بلا تسجيل TOTP جديد
         else totp_enrolled = false
@@ -306,7 +333,7 @@ sequenceDiagram
     Client-->>Mother: انضمت للعائلة — بلا صلاحيات إشرافية حتى يفوّضها الأب (Q-007)
 ```
 
-- المالك يلغي أي رمز دعوة معلق في أي وقت (REQ-010)؛ رمز منتهٍ/غير صالح يُرفض دون كشف إن كان موجوداً أصلاً (§7).
+- المالك يلغي أي رمز دعوة معلق في أي وقت (REQ-010) — النقطة: `POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke`؛ رمز منتهٍ/غير صالح يُرفض دون كشف إن كان موجوداً أصلاً (§7).
 
 ### 3-د. ملف طفل + اقتران جهاز + موافقة مشتركة (REQ-011/012/013/014/017 — §4.1)
 
@@ -328,7 +355,7 @@ sequenceDiagram
     Ktor->>Ktor: تحديد الدور والقالب: دون 7 child/minimal، 7–12 child/standard، 13–17 teen/standard
     Ktor-->>ParentApp: {membership_id}
     Father->>ParentApp: طلب رمز جهاز (6 أحرف)
-    ParentApp->>Ktor: إصدار رمز إقران (صالح 15 دقيقة)
+    ParentApp->>Ktor: POST /api/v1/identity/devices/pairing-code {membership_id} — إصدار رمز إقران (صالح 15 دقيقة)
     Ktor-->>ParentApp: رمز الجهاز
     Child->>ChildApp: إدخال رمز الجهاز على جهازه
     ChildApp->>ChildApp: توليد مفتاح توقيع (ECDSA P-256) مربوط بالعتاد (Q-164)
@@ -382,17 +409,17 @@ sequenceDiagram
     participant Ktor as الخادم
     participant MQTT as إشعار — family/{family_id}/alerts/new
     Father->>Client: طلب استرداد من جهاز جديد برقم جديد
-    Client->>Ktor: طلب استرداد — جهة الاسترداد الموثوقة (بالغ حدده الأب مسبقاً)
+    Client->>Ktor: POST /api/v1/identity/recovery/request — جهة الاسترداد الموثوقة (بالغ حدده الأب مسبقاً)
     Ktor->>Trusted: طلب تأكيد الاسترداد
-    Trusted->>Ktor: تأكيد الطلب
+    Trusted->>Ktor: POST /api/v1/identity/recovery/{id}/confirm — تأكيد الطلب
     Ktor->>Ktor: بدء فترة انتظار 7 أيام
     Ktor->>MQTT: إشعار كل أجهزة العائلة بالطلب — family/{family_id}/alerts/new (Q-022 · Q-210)
     MQTT-->>Father: إشعار لكل جهاز في العائلة — family/{family_id}/alerts/new (Q-210)
     alt اعتراض أي بالغ خلال الانتظار
-        Ktor->>Ktor: إلغاء الطلب فوراً
+        Ktor->>Ktor: إلغاء الطلب فوراً (POST /api/v1/identity/recovery/{id}/object)
         Ktor-->>Father: أُلغي طلب الاسترداد
     else لا اعتراض بعد 7 أيام
-        Ktor-->>Father: استرداد الحساب بالرقم الجديد
+        Ktor-->>Father: استرداد الحساب بالرقم الجديد (POST /api/v1/identity/recovery/{id}/complete)
     end
 ```
 
@@ -472,6 +499,37 @@ sequenceDiagram
 
 - تغيير بصمة الأب يُبطل مفتاح توقيع الجهاز (REQ-016)؛ وإعادة التسجيل بـ PIN قبل أي عملية حساسة (Q-164). والبصمة لا تفتح وضع الطفل أبداً ولا تتجاوز بوابة الوالدين. (S101 = بوابة الوالدين في S1-01 — نفس تسمية S1-03.)
 
+### 3-ط. عمليات الإدارة: جلسات ودعوات وملفات وفك إقران وموافقة (NEW-S102-08 — §4.1)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Father as الأب
+    participant Client as العميل
+    participant Ktor as الخادم
+    Father->>Client: عرض الجلسات
+    Client->>Ktor: GET /api/v1/identity/sessions
+    Ktor-->>Client: {sessions: [{session_id, device_id, device_label, last_active_at, expires_at, is_current}]}
+    Father->>Client: إبطال جلسة واحدة
+    Client->>Ktor: POST /api/v1/identity/sessions/{sessionId}/revoke
+    Ktor-->>Client: {session_id, status: "revoked"}
+    Note over Client,Ktor: الإبطال يبطل رموز تلك الجلسة فقط؛ وأي أثر عابر للأنظمة معلَّق على NEW-S103-08 المبوَّب
+    Father->>Client: إلغاء رمز دعوة معلق
+    Client->>Ktor: POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke
+    Ktor-->>Client: {invite_id, status: "revoked"}
+    Father->>Client: تعديل ملف طفل
+    Client->>Ktor: PATCH /api/v1/identity/children/{membershipId}
+    Ktor-->>Client: {membership_id}
+    Father->>Client: فك إقران جهاز (PIN)
+    Client->>Ktor: POST /api/v1/identity/devices/{deviceId}/unpair
+    Ktor-->>Client: {device_id, status: "unpaired"}
+    Father->>Client: تسجيل موافقة مشتركة
+    Client->>Ktor: POST /api/v1/identity/consent
+    Ktor-->>Client: {consent_id}
+```
+
+- عمليات الإدارة الست في مخطط واحد؛ وكل منها يظهر أيضاً في شاشته (§9: S102-18 للجلسات، S102-09 للدعوات، S102-12 للملفات، S102-27 لفك الإقران، S102-15 للموافقة).
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثمانية (§2)
 
 ```mermaid
@@ -546,9 +604,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–8.0، والمخازن D1–D10 هي الجداول العشرة من §5. المخزن D2 يحفظ `code_hash` فقط، وD8 يحفظ `pairing_code_hash` فقط — لا رمز نصاً أبداً.
+العمليات مرقمة 1.0–8.0، والمخازن D1–D11 هي الجداول الأحد عشر من §5. المخزن D2 يحفظ `code_hash` فقط، وD8 يحفظ `pairing_code_hash` فقط — لا رمز نصاً أبداً.
 
-- **تغطية نقاط §4:** كل نقاط §4.1 السبع عشرة مرسومة في §3 (otp request/verify، totp/enroll، sessions refresh/logout، families، invite، join، children، devices/pair، devices/{deviceId}/public-key، email/verify، DELETE /api/v1/identity/me، POST /api/v1/identity/me/leave، POST /api/v1/identity/me/deletion/cancel، POST /api/v1/identity/me/export، POST /api/v1/identity/families/{id}/members/{memberId}/export)؛ والتسلسلات تغطي التدفقات الأساسية فقط.
+- **تغطية نقاط §4:** كل نقاط §4.1 الواحدة والثلاثون مرسومة في §3 (otp request/verify، totp/enroll، totp/verify، sessions refresh/logout، GET sessions، sessions/{id}/revoke، recovery request/confirm/object/complete/trusted-contact + GET recovery/{id}، families، invite، invites/{inviteId}/revoke، join، children، PATCH children، consent، devices/pairing-code، devices/pair، devices/{deviceId}/unpair، devices/{deviceId}/public-key، email/verify، DELETE /api/v1/identity/me، POST /api/v1/identity/me/leave، POST /api/v1/identity/me/deletion/cancel، POST /api/v1/identity/me/export، POST /api/v1/identity/families/{id}/members/{memberId}/export)؛ والتسلسلات تغطي التدفقات الأساسية فقط.
 
 ```mermaid
 flowchart LR
@@ -581,6 +639,7 @@ flowchart LR
         D8[(D8 device_pairing)]
         D9[(D9 consent_record)]
         D10[(D10 deletion_request)]
+        D11[(D11 recovery_request)]
     end
 
     Ktor([خادم Ktor])
@@ -623,6 +682,7 @@ flowchart LR
     P4 -->|الدور is_owner / adult| S103
     Father -->|طلب استرداد برقم جديد| P7
     P7 -->|تأكيد جهة موثوقة + انتظار 7 أيام| D4
+    P7 -->|حفظ طلب الاسترداد| D11
     P7 -->|"إشعار كل أجهزة العائلة — family/{family_id}/alerts/new"| MQTT
     P7 -->|تسجيل طلب الاسترداد| Audit
     Adult -->|طلب حذف حسابه / مغادرة / تصدير| P8
@@ -638,15 +698,15 @@ flowchart LR
     Ktor -->|"رموز الجلسة — access_token + refresh_token (3-أ)"| P1
     P2 -->|"POST /api/v1/identity/email/verify (3-ب)"| Ktor
     Ktor -->|"رموز الجلسة — access_token + refresh_token (3-ب)"| P2
-    P3 -->|"POST /api/v1/identity/sessions/refresh + /logout (3-هـ)"| Ktor
-    Ktor -->|"رموز جلسة مدوَّرة أو تأكيد الخروج (3-هـ)"| P3
-    P4 -->|"POST /api/v1/identity/families + /invite + /join (3-ج)"| Ktor
-    Ktor -->|"family_id + invite_code / role: adult (3-ج)"| P4
-    P5 -->|"POST /api/v1/identity/children (3-د)"| Ktor
-    Ktor -->|"membership_id (3-د)"| P5
-    P6 -->|"POST /api/v1/identity/devices/pair + public-key (3-د/3-ح)"| Ktor
-    Ktor -->|"device_id + mode: child (3-د)"| P6
-    P7 -->|"طلب استرداد — جهة موثوقة (3-و)"| Ktor
+    P3 -->|"POST /api/v1/identity/sessions/refresh + /logout (3-هـ) + GET /api/v1/identity/sessions + POST /api/v1/identity/sessions/{sessionId}/revoke (3-ط)"| Ktor
+    Ktor -->|"رموز جلسة مدوَّرة أو تأكيد الخروج (3-هـ) + قائمة الجلسات / تأكيد الإبطال (3-ط)"| P3
+    P4 -->|"POST /api/v1/identity/families + /invite + /join (3-ج) + POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke (3-ط)"| Ktor
+    Ktor -->|"family_id + invite_code / role: adult (3-ج) + تأكيد إلغاء الرمز (3-ط)"| P4
+    P5 -->|"POST /api/v1/identity/children (3-د) + PATCH /api/v1/identity/children/{membershipId} (3-ط)"| Ktor
+    Ktor -->|"membership_id (3-د/3-ط)"| P5
+    P6 -->|"POST /api/v1/identity/devices/pairing-code (3-د) + POST /api/v1/identity/devices/pair + public-key (3-د/3-ح) + POST /api/v1/identity/devices/{deviceId}/unpair + POST /api/v1/identity/consent (3-ط)"| Ktor
+    Ktor -->|"device_id + mode: child (3-د) + تأكيد فك الإقران / consent_id (3-ط)"| P6
+    P7 -->|"POST /api/v1/identity/recovery/request + /{id}/confirm + /{id}/object + /{id}/complete + /recovery/trusted-contact + GET /api/v1/identity/recovery/{id} (3-و)"| Ktor
     Ktor -->|"استرداد الحساب بالرقم الجديد بعد 7 أيام (3-و)"| P7
     P8 -->|"DELETE /api/v1/identity/me + POST /api/v1/identity/me/leave + /api/v1/identity/me/export (3-ز)"| Ktor
     Ktor -->|"pending_deletion + purge_at / left / export_id (3-ز)"| P8

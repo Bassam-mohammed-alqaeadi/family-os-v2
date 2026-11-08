@@ -66,7 +66,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول السبعة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` هو **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي (Q-164)** — لا يُحفظ PIN نصاً أبداً. و`parent_gate` **مخزن محلي على الجهاز** (Q-142): hash الـ PIN محفوظ في مخزن آمن مدعوم بالعتاد والتحقق يتم محلياً، والخادم لا يستلم PIN ولا hashه أبداً — يسجل إثبات التحقق + القفل فقط في التدقيق عبر Outbox. جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما السجلات العالمية (`shell_registry` كعرض قراءة، و`notification_registry`) وملف المنطقة (`country_profile`) فبلا `family_id`؛ والسجلات المركزية الأربعة (`ControlRegistry`/`PermissionRegistry`/`WidgetRegistry`/`NotificationRegistry` — قيم `shell_registry.registry`: `control`/`permission`/`widget`/`notification`) — ولا مفتاح تحكم يعمل دون تسجيل (REQ-011). **قاعدة الساعة (Q-236/D-18):** كل الطوابع UTC مخزنة؛ و`locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال؛ وتُعاد تثبيت المرساة عند كل اتصال. و`family.time_zone` معرَّف في S1-02 §5 (سجل العائلة) — مرساة «منتصف الليل المحلي للعائلة» (Q-183) دون مسّ دلالتها.
+الجداول السبعة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، ومفتاح الصلاحية (S1-03)، و`AuditEvent` (النواة المشتركة — صيغته في S1-03 §5-6 بنطاق `shell` — SPEC §5). ملاحظتان: `outbox_event` محلي على الجهاز (SQLite) وليس جدول خادم، و`pin_hash` هو **Argon2id (m=64MiB، t=3، p=1) مع ملح عشوائي (Q-164)** — لا يُحفظ PIN نصاً أبداً. و`parent_gate` **مخزن محلي على الجهاز** (Q-142): hash الـ PIN محفوظ في مخزن آمن مدعوم بالعتاد والتحقق يتم محلياً، والخادم لا يستلم PIN ولا hashه أبداً — يسجل إثبات التحقق + القفل فقط في التدقيق عبر Outbox. جداول العائلة تحمل `family_id` + عزل RLS (D-021)؛ أما السجلات العالمية (`shell_registry` كعرض قراءة، و`notification_registry`) وملف المنطقة (`country_profile`) فبلا `family_id`؛ والسجلات المركزية الأربعة (`ControlRegistry`/`PermissionRegistry`/`WidgetRegistry`/`NotificationRegistry` — قيم `shell_registry.registry`: `control`/`permission`/`widget`/`notification`) — ولا مفتاح تحكم يعمل دون تسجيل (REQ-011). **قاعدة الساعة (Q-236/D-18):** كل الطوابع UTC مخزنة؛ و`locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال؛ وتُعاد تثبيت المرساة عند كل اتصال. و`family.time_zone` معرَّف في S1-02 §5 (سجل العائلة) — مرساة «منتصف الليل المحلي للعائلة» (Q-183) دون مسّ دلالتها.
 
 ```mermaid
 erDiagram
@@ -109,6 +109,11 @@ erDiagram
         uuid device_id FK
         text type
         text payload
+        text priority
+        text idempotency_key
+        int retry_count
+        timestamptz next_retry_at
+        int version
         int synced_status
         timestamptz created_at
     }
@@ -210,12 +215,14 @@ sequenceDiagram
     Child->>Shell: فعل دون اتصال
     Shell->>OB: تسجيل الحدث (synced_status=0)
     Note over Shell,OB: عند عودة الاتصال
-    Shell->>OB: قراءة الأحداث بترتيب زمني صارم
-    Shell->>Ktor: POST /api/v1/shell/outbox/flush (Idempotency-Key) — دفعة مضغوطة
+    Shell->>OB: قراءة الأحداث بترتيب الأولوية ثم الزمن (critical أولاً)
+    Shell->>Ktor: POST /api/v1/shell/outbox/flush (Idempotency-Key) — دفعة مضغوطة — مفتاح عدم تكرار لكل حدث (idempotency_key)
     Ktor-->>Shell: FlushResult {accepted, rejected[]}
     Shell->>OB: تحديث synced_status=1 للمقبولة
     Shell-->>Child: مزامنة مكتملة
 ```
+
+- كل حدث يحمل `idempotency_key` (§5)؛ والخادم يزيل التكرار على (`family_id`, `idempotency_key`)؛ ولا يسقط حدث قبل إقرار الخادم أبداً.
 
 ### 3-د. زر SOS (REQ-007 — §4.1/§4.3)
 
@@ -226,7 +233,7 @@ sequenceDiagram
     participant Shell as الغلاف
     participant S107 as الموقع
     Child->>Shell: ضغط مطول 3 ثوانٍ (اهتزاز تصاعدي)
-    Shell->>S107: تسليم حدث SOS فوراً (EventChannel: sos_triggered)
+    Shell->>S107: تسليم حدث SOS فوراً (EventChannel: sos_triggered — SosEvent §4.3)
     Note over Shell,S107: S1-07 يملك النقل؛ الغلاف يسلّم sos_triggered إلى S1-07 فوراً (Q-234/D-6)؛ وOutbox ليس نقلاً بديلاً لـ SOS
     alt متصل
         S107-->>Shell: إقرار (ack)
@@ -283,18 +290,21 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant Shell as الغلاف
+    participant Ktor as الخادم
     participant Store as المتجر
-    Shell->>Store: التحقق من إصدار التطبيق
+    Shell->>Ktor: GET /api/v1/families/{id}/shell/config
+    Ktor-->>Shell: ShellConfig.update {minimum_version, latest_version, forced_update}
     alt تحديث عادي
+        Shell->>Store: فتح المتجر للتحديث
         Store-->>Shell: تحديث عبر المتجر
-    else إصدار أمني حرج
-        Shell->>Shell: تحديث إجباري داخل التطبيق
+    else إصدار أمني حرج (forced_update)
+        Shell->>Shell: تحديث إجباري داخل التطبيق — بلا مسار تجاوز
     else دون الحد الأدنى للإصدار المدعوم
         Shell->>Shell: حث المستخدم على التحديث
     end
 ```
 
-- التحديثات العادية عبر المتجر؛ والتحديث الإجباري داخل التطبيق للإصدارات الأمنية الحرجة فقط؛ والأجهزة دون الحد الأدنى للإصدار المدعوم تُحث على التحديث (REQ-020 · Q-069).
+- التحديثات العادية عبر المتجر؛ والتحديث الإجباري داخل التطبيق للإصدارات الأمنية الحرجة فقط؛ والأجهزة دون الحد الأدنى للإصدار المدعوم تُحث على التحديث (REQ-020 · Q-069). ودون اتصال: يُؤجَّل الفحص؛ ويبقى التطبيق يعمل ومسار SOS يعمل (SCR-12).
 
 ### 3-ح. توصيل أمر الأب + الإقرار (REQ-022 — §4.3 · Q-061)
 
@@ -305,7 +315,7 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Agent as "وكيل الطفل"
     participant Shell as الغلاف
-    Father->>Ktor: إصدار أمر (command_id)
+    Father->>Ktor: إصدار أمر (command_id + command_type)
     Ktor->>Agent: نشر الأمر على family/{family_id}/devices/{device_id}/commands
     Agent->>Shell: تنفيذ الأمر
     Shell-->>Agent: إقرار الاستلام (ack)
@@ -357,7 +367,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D6. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد — **عدا D2 (`parent_gate`) فهو مخزن محلي على الجهاز (Q-142)**: hash الـ PIN مشفر على الجهاز ولا يغادر الجهاز أبداً، والخادم يسجل إثبات التحقق + القفل فقط عبر Outbox. ووضع النطاق المنخفض (Q-064 · REQ-010): الاستجابات مضغوطة Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية/مجدولة (P4).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج) · `POST /api/v1/shell/verification/challenge` (3-هـ) · `POST /api/v1/shell/verification/prove` (3-هـ) · أوامر MQTT `family/{family_id}/devices/{device_id}/commands` + الإقرار على `family/{family_id}/devices/{device_id}/acks` (3-ح · P7). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج) · `POST /api/v1/shell/verification/challenge` (3-هـ) · `POST /api/v1/shell/verification/prove` (3-هـ) · `POST /api/v1/shell/push/register` (§4.4 — استدعاء واحد عند تسجيل الدخول/الإقران، بلا تسلسل مستقل) · أوامر MQTT `family/{family_id}/devices/{device_id}/commands` + الإقرار على `family/{family_id}/devices/{device_id}/acks` (3-ح · P7). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
 
 ```mermaid
 flowchart LR
@@ -388,6 +398,7 @@ flowchart LR
 
     Ktor([خادم Ktor])
     Audit([AuditEvent])
+    Push(["موفر الدفع — FCM / HMS / APNs"])
 
     S102 -->|بيانات الإقران| P1
     P1 -->|حفظ وضع الجهاز| D1
@@ -415,6 +426,8 @@ flowchart LR
     Child -->|ضغط SOS 3 ثوانٍ| P6
     P6 -->|حدث SOS| S107
     Ktor -->|"أمر الأب — family/{family_id}/devices/{device_id}/commands"| P7
+    Ktor -->|"إشعار (payload — §4.4)"| Push
+    Push -->|"دفع للوحة الأهل — احتياطه قناة تنبيهات MQTT (Q-210)"| P2
     P7 -->|تنفيذ الأمر| Shell
     Shell -->|"إقرار الاستلام (ack) < 5 ثوانٍ"| P7
     P7 -->|"نشر الإقرار — family/{family_id}/devices/{device_id}/acks"| Ktor
