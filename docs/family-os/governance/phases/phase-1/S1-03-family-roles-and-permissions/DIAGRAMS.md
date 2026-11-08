@@ -609,7 +609,7 @@ flowchart LR
     Consumers -->|POST /api/v1/permissions/check| P4
     P4 -->|قراءة المنح النشطة| D3
     D3 -->|المنح + is_granted + valid_until| P4
-    P4 -->|allowed / denied / hard_invariant| Consumers
+    P4 -->|allowed / denied / hard_invariant / unknown_key| Consumers
     P4 -->|رفض حساس أو تصعيد| P6
     P2 -->|منح / تعديل / إلغاء| P6
     P6 -->|أحداث التدقيق| D5
@@ -626,7 +626,7 @@ flowchart LR
     P3 -->|"POST /api/v1/families/{id}/members/{memberId}/grants/apply-template (3-ب)"| Ktor
     Ktor -->|"المنح المنسوخة من القالب (3-ب)"| P3
     P4 -->|"POST /api/v1/permissions/check (3-ج)"| Ktor
-    Ktor -->|"allowed / denied / hard_invariant (3-ج)"| P4
+    Ktor -->|"allowed / denied / hard_invariant / unknown_key (3-ج)"| P4
     P7 -->|"DELETE /api/v1/families/{id} + DELETE /api/v1/families/{id}/members/{memberId} + POST /api/v1/families/{id}/deletion/cancel + POST /api/v1/families/{id}/members/{memberId}/deletion/cancel (3-ز)"| Ktor
     Ktor -->|"pending_deletion + purge_at / active (3-ز)"| P7
 ```

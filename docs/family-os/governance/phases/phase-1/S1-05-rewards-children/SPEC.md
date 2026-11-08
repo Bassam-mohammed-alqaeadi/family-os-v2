@@ -196,6 +196,7 @@ flowchart LR
 | `family/{family_id}/wallet/updated` | 1 | لا | `{child_id, balance_points, ledger_id, at}` | وحدة المكافآت (Ktor rewards) | التطبيق (واجهة المحفظة — 3-أ/3-ب) |
 | `family/{family_id}/time-request/new` | 1 | لا | `{request_id, child_id, app_package, minutes_requested, created_at}` | وحدة المكافآت | S1-09 (بطاقة «يتطلب انتباهك» — REQ-014) |
 | `family/{family_id}/time-request/decided` | 1 | لا | `{request_id, decision (APPROVED/REJECTED/TASK_ASSIGNED), decided_by, decided_at}` | وحدة المكافآت | التطبيق (الطفل — حالة الطلب)؛ وS1-09 (إزالة البطاقة) |
+| `family/{family_id}/time/granted` | 1 | نعم | `{child_id, minutes_granted, source (redeem/grant/decision), granted_at}` — دقائق ممنوحة تدخل في «الإضافي» لحساب المتبقي (S1-10 REQ-002) | وحدة المكافآت (Ktor rewards) | التطبيق (واجهة الطفل — المتبقي)؛ وS1-10 (حساب المتبقي — REQ-002) |
 | `family/{family_id}/tasks.completed` | 1 | لا | `{source_system, task_id, points}` — حدث الكسب العام الذي تستهلكه المحفظة (من أي نظام مسجَّل) | النظام المُسند (S1-06 أولاً — Q-118) | S1-05 (مستهلك الكسب — REQ-004) |
 | `family/{family_id}/tasks.verification-revoked` | 1 | لا | `{source_system, task_id, points}` — إلغاء تحقق (قيد تعويضي يخصم النقاط المودعة) | S1-06 (`revoke-verification`) | S1-05 (قيد تعويضي — REQ-018) |
 | `family/{family_id}/tasks.submitted` | 1 | لا | `{event_id, task_id, occurrence_id, submitted_by, submitted_at, proof_ref?}` — معرَّفة مرة واحدة في S1-06 §4 (الناشر) — لا تكرار هنا | S1-06 (الخادم) | S1-09 (بطاقة «يتطلب انتباهك») — حدث مرجعي في تسلسل 3-أ (فرع الشك)؛ وS1-05 لا يستهلكه (لا إيداع حتى يقرر الأب) |
@@ -205,7 +206,7 @@ flowchart LR
 ### قناة MethodChannel (Kotlin)
 - `getCachedWallet` — رصيد المحفظة المحفوظ محلياً (دون اتصال).
 - `queueTimeRequest` — طلب وقت إضافي دون اتصال (يُحفظ في Outbox ويُرسَل عند عودة الاتصال).
-- `queueRedeem` — صرف دون اتصال: يُحفظ `{app_package, points, client_request_id}` في Outbox؛ ومفتاح عدم التكرار هو `client_request_id` نفسه — يُرسَل في ترويسة `Idempotency-Key` عند تفريغ Outbox (آلية S1-01 نفسها — S1-01 §4.2 `POST /shell/outbox/flush` + `command_id` لكل أمر — S1-01 §4.3؛ ولا آلية ثانية مختلفة في هذا النظام)؛ وعند عودة الاتصال إن كان الرصيد لا يكفي يُرفض مع إشعار؛ والصرف المكرر بنفس المفتاح يُعاد نتيجته الأصلية بلا خصم جديد. (وعندما يلتزم عامل S1-01 تعريف حقل مفتاح عدم التكرار لكل حدث — NEW-S101-07 — يستخدم `queueRedeem` ذلك الحقل بالاسم نفسه.)
+- `queueRedeem` — صرف دون اتصال: يُحفظ `{app_package, points, client_request_id}` في Outbox؛ ومفتاح عدم التكرار هو `client_request_id` نفسه — يُرسَل في ترويسة `Idempotency-Key` عند تفريغ Outbox (آلية S1-01 نفسها — S1-01 §4.2 `POST /shell/outbox/flush` + `command_id` لكل أمر — S1-01 §4.3؛ ولا آلية ثانية مختلفة في هذا النظام)؛ وعند عودة الاتصال إن كان الرصيد لا يكفي يُرفض مع إشعار؛ والصرف المكرر بنفس المفتاح يُعاد نتيجته الأصلية بلا خصم جديد. (وقد عرّف S1-01 مفتاح عدم التكرار لكل حدث — NEW-S101-07: `idempotency_key`؛ و`client_request_id` في `queueRedeem` هو قيمة ذلك المفتاح لهذا الحدث.)
 - `queueObjection` — اعتراض دون اتصال: يُحفظ `{subject_type, subject_id, objection_text}` في Outbox ويُرسَل عند عودة الاتصال؛ ويُشعَر الأب عند وصوله لا قبلها (S05-06).
 
 ### رموز الخطأ (`REW_*`)
