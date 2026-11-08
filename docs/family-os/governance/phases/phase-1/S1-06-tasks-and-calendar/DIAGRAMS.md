@@ -61,6 +61,7 @@ flowchart LR
     Teen --> UC11
     Teen --> UC12
     Teen --> UC13
+    Teen --> UC3
     Father --> UC10
     Father --> UC11
     Adult --> UC10
@@ -78,7 +79,7 @@ flowchart LR
     UC12 -.->|تسليم بلا نقاط Q-109| UC4
 ```
 
-- ملاحظة: إلغاء التحقق (UC8) للأب وحده (§6 `tasks.revoke`)، وإضافة الفئة (UC2) للأب وحده (§6 `tasks.category.create`) — البالغ المفوَّض لا يملكهما. والمهمة الشخصية للمراهق (UC12) تُسلَّم وتُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب (§7).
+- ملاحظة: إلغاء التحقق (UC8) للأب وحده (§6 `tasks.revoke`)، وإضافة الفئة (UC2) للأب وحده (§6 `tasks.category.create`) — البالغ المفوَّض لا يملكهما. والمهمة الشخصية للمراهق (UC12) تُسلَّم وتُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب (§7). وإلغاء المهمة (UC3) للأب لأي مهمة، وللمراهق لمهامه التي أنشأها بنفسه فقط (Q-253).
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -284,9 +285,10 @@ sequenceDiagram
     Father->>App: رفض تسليم مع ملاحظات
     App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}
     Ktor->>Ktor: status=PENDING + rejection_notes
+    Note over Ktor: سجل التحقق يُغلق «مرفوض» (مُسجَّل في التدقيق — Q-254)
     Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
     Child->>App: إعادة التسليم بإثبات جديد
-    Note over Father,S105: إلغاء تحقق بعد الإيداع (الأب وحده)
+    Note over Father,S105: إلغاء تحقق بعد الإيداع (الأب وحده — في اليوم نفسه فقط — Q-254)
     Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification {client_request_id}
     Ktor->>S105: family/{family_id}/tasks.verification-revoked → قيد تعويضي يخصم النقاط
     Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
