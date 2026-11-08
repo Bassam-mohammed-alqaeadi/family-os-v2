@@ -157,7 +157,7 @@ flowchart LR
 - **السياق:** جهاز طفل يُراد فك إقرانه (بيع/استبدال).
 - **التدفق:**
   1. يفتح المالك فك الإقران (S102-27)؛ ويدخل PIN الأب.
-  2. يُفك الإقران (`POST …/devices/{deviceId}/unpair`)؛ ويمسح رمز الدفع للجهاز؛ ويُتاح إقرانه لعائلة أخرى.
+  2. يُفك الإقران (`POST …/devices/{deviceId}/unpair`)؛ ويمسح رمز الدفع للجهاز؛ **وتُبطل كل جلسات الجهاز فوراً (Q-257)**؛ ويُتاح إقرانه لعائلة أخرى.
 - **النتيجة:** الجهاز بلا وضع طفل وبلا حماية؛ وإقرانه الجديد ممكن.
 
 ### سيناريو 2-13: تعديل ملف طفل
@@ -174,7 +174,7 @@ flowchart LR
 - **التدفق:**
   1. يفتح المستخدم الجلسات (S102-18)؛ ويضغط «إبطال» على الجلسة.
   2. تُبطل رموز تلك الجلسة فقط (`POST …/sessions/{sessionId}/revoke`)؛ وبقية الجلسات تعمل.
-- **النتيجة:** جلسة مبطلة فوراً؛ بلا أثر على جلسات أخرى. (أي أثر عابر للأنظمة معلَّق على NEW-S103-08 المبوَّب.)
+- **النتيجة:** جلسة مبطلة فوراً؛ بلا أثر على جلسات أخرى. (النطاق محكوم Q-257: الإبطال الصريح يبطل تلك الجلسة فقط؛ وإلغاء منح لا يبطل أي جلسة.)
 
 ### سيناريو 2-15: تصدير بيانات (بالغ يصدّر بياناته؛ أب يصدّر بيانات قاصر)
 - **الممثل:** بالغ / الأب.
@@ -302,9 +302,10 @@ flowchart TD
 - `POST /api/v1/identity/totp/enroll` — body: `{}` → `{secret, qr}` (بعد أول تحقق ناجح).
 - `POST /api/v1/identity/totp/verify` — body: `{code}` → `{verified: boolean}` (200؛ 401 رمز خاطئ؛ 423 مقفل مؤقتاً 15 دقيقة بعد 5 رموز خاطئة — Q-079؛ وعمليات الدخول التي تتطلبه في REQ-005).
 - `POST /api/v1/identity/sessions/refresh` — body: `{refresh_token}` → `{access_token, refresh_token, expires_in: 900}` (دوران: القديم يُبطل؛ ويُحدَّث `last_active_at` عند كل تحديث ناجح — §5).
-- `POST /api/v1/identity/sessions/logout` — يبطل كل رموز الجلسة فوراً.
+- `POST /api/v1/identity/sessions/logout` — يبطل كل رموز **الجلسة الحالية فقط** (تسجيل خروج هذا الجهاز — Q-257).
 - `GET /api/v1/identity/sessions` — قائمة جلساتي → `{sessions: [{session_id, device_id, device_label, last_active_at, expires_at, is_current}]}` (S102-18).
-- `POST /api/v1/identity/sessions/{sessionId}/revoke` — إبطال جلسة واحدة → `{session_id, status: "revoked"}` (صاحب الجلسة أو المالك — S102-18). **النطاق:** يبطل رموز تلك الجلسة فقط؛ وأي أثر عابر للأنظمة (منح S1-03) معلَّق على NEW-S103-08 المبوَّب — لم يُحسم هنا.
+- `POST /api/v1/identity/sessions/{sessionId}/revoke` — إبطال جلسة واحدة → `{session_id, status: "revoked"}` (صاحب الجلسة أو المالك — S102-18). **النطاق (Q-257):** يبطل رموز تلك الجلسة فقط؛ وبلا أثر على أي جلسة أخرى وبلا تتالٍ صامت إلى المنح (إلغاء منح لا يبطل أي جلسة — S1-03 REQ-017).
+- `POST /api/v1/identity/sessions/revoke-all` — إبطال كل جلساتي (فعل منفصل صريح — Q-257): يبطل كل جلسات الشخص المصدَّق عليه على كل أجهزته → `{revoked_count}`؛ ويتطلب بوابة الأب (PIN — Q-065)؛ وبلا تتالٍ صامت إلى جلسات أي عضو آخر ولا إلى المنح (S102-18 — زر «تسجيل الخروج من كل الأجهزة»).
 - `POST /api/v1/identity/recovery/request` — body: `{new_phone, trusted_contact_id?}` → `{recovery_id, status: "pending_confirmation"}` (من جهاز جديد برقم جديد؛ والجهة الموثوقة المحددة مسبقاً — S102-19).
 - `POST /api/v1/identity/recovery/{recoveryId}/confirm` — تأكيد جهة الاسترداد الموثوقة → `{recovery_id, status: "waiting", wait_until}` (يبدأ انتظار 7 أيام + إشعار كل الأجهزة).
 - `POST /api/v1/identity/recovery/{recoveryId}/object` — اعتراض أي بالغ → `{recovery_id, status: "cancelled"}` (يلغي الطلب فوراً).
@@ -320,7 +321,7 @@ flowchart TD
 - `POST /api/v1/identity/consent` — body: `{type: "joint_onboarding", family_id, father_person_id, child_membership_id, father_granted_at, child_assented_at}` → `{consent_id}` (تسجيل الموافقة المشتركة — S102-15؛ وانظر R2-S102-04 لحقلي الطرفين).
 - `POST /api/v1/identity/devices/pairing-code` — body: `{membership_id}` → `{pairing_code, expires_at}` (يصدر الأب/المفوَّض رمز جهاز 6 أحرف؛ صالح 15 دقيقة — S102-13).
 - `POST /api/v1/identity/devices/pair` — body: `{pairing_code, device_cert, device_public_key}` → `{device_id, mode: child}`.
-- `POST /api/v1/identity/devices/{deviceId}/unpair` — فك إقران جهاز (المالك فقط + PIN — REQ-015؛ S102-27) → `{device_id, status: "unpaired"}`.
+- `POST /api/v1/identity/devices/{deviceId}/unpair` — فك إقران جهاز (المالك فقط + PIN — REQ-015؛ S102-27) → `{device_id, status: "unpaired"}`. **النطاق (Q-257):** إلغاء الإقران يبطل كل جلسات ذلك الجهاز فوراً؛ وبلا أثر على جلسات أجهزة أخرى وبلا تتالٍ صامت إلى المنح.
 - `POST /api/v1/identity/devices/{deviceId}/public-key` — body: `{device_public_key}` → المفتاح العام الجديد مسجَّل؛ تتطلب فتح PIN/بصمة + توقيع تحدٍّ خادم (Q-164) — إعادة التسجيل بعد تغيير البصمة (Q-225).
 - `POST /api/v1/identity/email/verify` — body: `{firebase_id_token, device_id?, device_label?}` → `{access_token, refresh_token, expires_in: 900}` (الخادم يتحقق من الـ ID Token عبر Firebase Admin SDK؛ البريد للبالغين فقط؛ بريد مسجل لحساب آخر يُرفض).
 - `DELETE /api/v1/identity/me` — حذف الحساب لنفسه (بالغ فقط؛ يتطلب `identity.account.delete_self` + إعادة مصادقة ببصمة/PIN) → `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً (Q-166).
@@ -1138,8 +1139,8 @@ flowchart TD
 
 ### S102-18 — الجلسات وتسجيل الخروج
 
-- **الوضع:** أهل · **الأدوار:** صاحب الجلسة أو المالك (`identity.session.revoke`) · **الغرض:** عرض الجلسات؛ إبطال جلسة؛ تسجيل خروج يبطل كل الرموز فوراً.
-- **REQ:** REQ-006 (Access Token قصير + Refresh Token بدوران آمن؛ مدة الجلسة 30 يوماً؛ تسجيل الخروج يبطل كل الرموز فوراً) (القائمة: `GET /api/v1/identity/sessions`؛ الإبطال: `POST /api/v1/identity/sessions/{sessionId}/revoke`) · **DS:** DS-SE-01 (صفحة إعدادات تتولد من السجل)، DS-ST-01، DS-ST-05، DS-ST-07
+- **الوضع:** أهل · **الأدوار:** صاحب الجلسة أو المالك (`identity.session.revoke`) · **الغرض:** عرض الجلسات؛ إبطال جلسة؛ تسجيل خروج (هذا الجهاز) يبطل رموز الجلسة الحالية فقط؛ «تسجيل الخروج من كل الأجهزة» فعل منفصل صريح ببوابة الأب (Q-257).
+- **REQ:** REQ-006 (Access Token قصير + Refresh Token بدوران آمن؛ مدة الجلسة 30 يوماً؛ تسجيل الخروج يبطل كل رموز الجلسة الحالية فوراً) (القائمة: `GET /api/v1/identity/sessions`؛ الإبطال: `POST /api/v1/identity/sessions/{sessionId}/revoke`؛ إبطال الكل: `POST /api/v1/identity/sessions/revoke-all` ببوابة الأب — Q-257) · **DS:** DS-SE-01 (صفحة إعدادات تتولد من السجل)، DS-ST-01، DS-ST-05، DS-ST-07
 - **الحقول الرئيسية:** بطاقة «جلستي الحالية» (الجهاز + آخر نشاط + «تنتهي بعد 30 يوماً» — مدة الجلسة لا عدّاد يومي مخترع)؛ قائمة الجلسات الأخرى (الجهاز + آخر نشاط) مع زر «إبطال» لكل جلسة؛ زر «تسجيل الخروج من كل الأجهزة» (تأكيد)؛ زر «تسجيل الخروج» (هذا الجهاز).
 - **التنقل:** من: الإعدادات (مركز الإعدادات S1-09 — «الجلسات») · إلى: S102-01 (بعد تسجيل الخروج) · رجوع: إلى الإعدادات.
 - **الحالات (DS-ST):** تحميل: Skeleton لقائمة الجلسات · فارغة: «لا جلسات أخرى» (جلسة واحدة فقط) · خطأ: فشل الإبطال («لم نتمكن من إبطال الجلسة. حاول مجدداً.») · بلا اتصال: قراءة من الكاش؛ أزرار الإبطال معطَّلة بشرح (DS-ST-05) · نجاح: «تم إبطال الجلسة» / «تم تسجيل الخروج».
@@ -1519,7 +1520,7 @@ flowchart TD
 | `control_key` | النوع | القيمة الافتراضية | القيم المتاحة / من يملكها | الشاشة |
 |---|---|---|---|---|
 | `identity.biometric.enable` | toggle | معطَّل (Q-219 — opt-in صريح من الأب) | الأب؛ وضع الأهل فقط؛ لا يتجاوز Parent Gate ولا يفتح وضع الطفل | S102-16 (الفتح)؛ مفتاح التفعيل في إعدادات الأمان (S1-09 §9) |
-| `identity.session.revoke` | action (لكل جلسة) + action (خروج من كل الأجهزة) | الجلسات نشطة حتى الإبطال أو انتهاء 30 يوماً | صاحب الجلسة أو المالك | S102-18 |
+| `identity.session.revoke` | action (لكل جلسة) + action (خروج من كل الأجهزة — `POST …/sessions/revoke-all` ببوابة الأب، Q-257) | الجلسات نشطة حتى الإبطال أو انتهاء 30 يوماً | صاحب الجلسة أو المالك | S102-18 |
 | `identity.recovery.trusted_contact` | member_set (إعداد — ليس مفتاح `domain.action` في SPEC §6) | بلا جهة حتى يحددها الأب مسبقاً | بالغ في العائلة | S102-19 |
 | `identity.account.delete_self` | permission-gated action | ممنوح عند الانضمام (Q-166 — بذرة تلقائية، لا عبر القوالب) | البالغ نفسه إن منحه الأب؛ المالك مستثنى (نقل ملكية أو حذف عائلة كاملة) | S102-23 |
 | `identity.family.leave` | permission-gated action | ممنوح عند الانضمام (Q-166 — بذرة تلقائية، لا عبر القوالب) | البالغ نفسه إن منحه الأب؛ المالك لا يُمنح أبداً | S102-24 |

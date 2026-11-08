@@ -522,7 +522,11 @@ sequenceDiagram
     Father->>Client: إبطال جلسة واحدة
     Client->>Ktor: POST /api/v1/identity/sessions/{sessionId}/revoke
     Ktor-->>Client: {session_id, status: "revoked"}
-    Note over Client,Ktor: الإبطال يبطل رموز تلك الجلسة فقط؛ وأي أثر عابر للأنظمة معلَّق على NEW-S103-08 المبوَّب
+    Note over Client,Ktor: الإبطال الصريح يبطل رموز تلك الجلسة فقط؛ وبلا تتالٍ صامت إلى المنح — إلغاء منح لا يبطل أي جلسة (Q-257)
+    Father->>Client: إبطال كل جلساتي — فعل منفصل ببوابة الأب
+    Client->>Ktor: POST /api/v1/identity/sessions/revoke-all — PIN بوابة الأب (Q-065)
+    Ktor-->>Client: {revoked_count}
+    Note over Client,Ktor: إبطال الكل يبطل جلسات الشخص نفسه فقط على كل أجهزته؛ وبلا أثر على جلسات أي عضو آخر ولا على المنح (Q-257)
     Father->>Client: إلغاء رمز دعوة معلق
     Client->>Ktor: POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke
     Ktor-->>Client: {invite_id, status: "revoked"}
@@ -532,6 +536,7 @@ sequenceDiagram
     Father->>Client: فك إقران جهاز (PIN)
     Client->>Ktor: POST /api/v1/identity/devices/{deviceId}/unpair
     Ktor-->>Client: {device_id, status: "unpaired"}
+    Note over Client,Ktor: إلغاء الإقران يبطل كل جلسات ذلك الجهاز فوراً؛ وبلا أثر على جلسات أجهزة أخرى (Q-257)
     Father->>Client: تسجيل موافقة مشتركة
     Client->>Ktor: POST /api/v1/identity/consent
     Ktor-->>Client: {consent_id}

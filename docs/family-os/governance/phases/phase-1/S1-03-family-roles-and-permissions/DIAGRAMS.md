@@ -310,7 +310,7 @@ sequenceDiagram
 - أي رفض صريح نشط يفوز على أي منح سامح (§6-3 — deny-override)؛ وإلا يفوز أحدث منح نشط ويُؤخذ نطاقه.
 - الثابت الصلب يعطي `reason: "hard_invariant"` (§4-1)؛ والمنح المنتهي `valid_until` يُرفض فوراً (§7-9). والمسار المحلي يميز `unknown_key` بالمفتاح الغائب من نسخة السجل المخزنة على الجهاز (R03-05) — كالخادم في التسمية، ورفض في الأثر. والثابت الصلب يُفحص قبل lookup المنح — خادمياً ومحلياً (§6-3)؛ فلا منح يغطي ثابتاً صلباً.
 
-### 3-د. إلغاء منح — فوري مع إبطال الجلسات (REQ-017 — §4-1/§4-2)
+### 3-د. إلغاء منح — فوري بلا إبطال جلسات (REQ-017 — §4-1/§4-2 · Q-257)
 
 ```mermaid
 sequenceDiagram
@@ -319,20 +319,20 @@ sequenceDiagram
     participant App as التطبيق
     participant Ktor as الخادم
     participant Grants as المنح
-    participant S102 as الجلسات
     participant MQTT as الوسيط
     participant Device as الجهاز
     participant Audit as التدقيق
     Father->>App: إلغاء المنح من إدارة الأعضاء
     App->>Ktor: DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}
     Ktor->>Grants: revoked_at = now (المفتاح يتوقف لحظياً)
-    Ktor->>S102: إبطال جلسات العضو المعلق فوراً (BR-PERM-005)
     Ktor->>MQTT: family/{family_id}/permissions/revoked — دفع إبطال فوري
     MQTT->>Device: تحديث اللقطة المحلية — المفتاح متوقف
     Ktor->>Audit: تسجيل الإلغاء (من ألغى / لمن / متى)
     Ktor-->>App: 204 + إشعار العضو بالإلغاء
     App-->>Father: أُلغي المنح — لا فترة سماح
 ```
+
+- إلغاء المنح لا يبطل أي جلسة (Q-257): الجلسات تُبطل فقط بالعمليات الصريحة في S1-02 §4.1 — وتبقى جلسات العضو عاملة لباقي صلاحياتها بعد الإلغاء.
 
 ### 3-هـ. نقل الملكية لبالغ (REQ-016 — §4-1 · Q-093)
 
