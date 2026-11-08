@@ -73,7 +73,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الستة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، وعدد الأعضاء من S1-02 لحصة الأفراد، و`AuditEvent` (النواة المشتركة — كل شراء/ترقية/إلغاء/استبدال يُسجَّل فيه domain=billing). ملاحظتان: الخطة المحفوظة وحالة الحصص مخزنان على العميل وليستا جدولَي خادم (§5)، و`family_subscription` اشتراك واحد لكل عائلة (`family_id` UNIQUE + RLS).
+الجداول السبعة من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، وعدد الأعضاء من S1-02 لحصة الأفراد، و`AuditEvent` (النواة المشتركة — كل شراء/ترقية/إلغاء/استبدال يُسجَّل فيه domain=billing). ملاحظتان: الخطة المحفوظة وحالة الحصص مخزنان على العميل وليستا جدولَي خادم (§5)، و`family_subscription` اشتراك واحد لكل عائلة (`family_id` UNIQUE + RLS).
 
 ```mermaid
 erDiagram
@@ -82,6 +82,8 @@ erDiagram
     plan ||--o{ plan_price : "أسعارها لكل سوق"
     plan ||--o{ voucher : "قسائمها"
     family ||--o{ purchase_receipt : "إيصالاتها"
+    family ||--o{ payment_confirmation : "مدفوعاتها"
+    payment_confirmation ||--o{ purchase_receipt : "عند التحقق يُكتب إيصال"
     family ||--o{ quota_usage : "عدّاداتها"
     family ||--o{ voucher : "يستبدلها"
     family_subscription ||--o{ AuditEvent : "أحداثها تُسجَّل"
@@ -94,13 +96,13 @@ erDiagram
         text title_ar
         text description_ar
         text billing_interval
-        text flags
-        text quotas
+        jsonb flags
+        jsonb quotas
         boolean is_active
     }
     plan_price {
         uuid plan_id PK, FK
-        text market
+        text market PK
         int price_cents
         text currency
         boolean is_active
@@ -111,24 +113,41 @@ erDiagram
         uuid plan_id FK
         text status
         text billing_provider
-        uuid provider_subscription_id
-        uuid provider_original_transaction_id
+        text provider_subscription_id
+        text provider_original_transaction_id
         timestamptz current_period_start
         timestamptz current_period_end
+        timestamptz trial_started_at
+        timestamptz trial_ends_at
+        timestamptz grace_started_at
+        timestamptz grace_ends_at
         boolean auto_renew
         boolean trial_used
-        text purchased_by
+        uuid purchased_by FK
     }
     purchase_receipt {
         uuid id PK
         uuid family_id FK
         uuid user_id FK
         text provider
-        uuid product_id
+        text product_id
         text receipt_data
         text validation_status
         timestamptz server_verified_at
-        text raw_provider_response
+        jsonb raw_provider_response
+    }
+    payment_confirmation {
+        uuid payment_id PK
+        uuid family_id FK
+        uuid plan_id FK
+        text channel
+        text provider
+        text reference
+        text status
+        uuid initiated_by
+        timestamptz initiated_at
+        timestamptz confirmed_at
+        timestamptz verified_at
     }
     voucher {
         uuid voucher_id PK
@@ -147,6 +166,7 @@ erDiagram
         text period PK
         int sms_sent
         int sms_emergency_used
+        int sms_otp_used
         int ai_calls
         int topup_sms_balance
         timestamptz updated_at
@@ -159,7 +179,7 @@ erDiagram
     }
 ```
 
-- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / VOUCHER / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ وحالة القسيمة: ISSUED / REDEEMED / REVOKED / EXPIRED (§5).
+- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / VOUCHER / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ وحالة القسيمة: ISSUED / REDEEMED / REVOKED / EXPIRED؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET / MANUAL (§5).
 - `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5).
 - مصفوفة الخطط (§1 · REQ-001): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء: المجانية تحقق المهام فقط، الأساسية تحقق + مساعد محدود، المميزة كاملة.
 

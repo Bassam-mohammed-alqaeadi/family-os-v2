@@ -156,57 +156,90 @@ flowchart LR
 ### الطلب
 - **REQ-012:** عند نفاد وقت التطبيق يطلب الطفل وقتاً إضافياً من الأب (من شاشة الحظر). [Q-107 · DERIVED]
 - **REQ-013:** الأب يرفض المنح فيسند مهمة بدلاً منه؛ والمهمة تظهر للطفل فوراً مع قيمتها النقطية. [Q-115/Q-118 · DIRECT]
-- **REQ-014:** طلبات الوقت الإضافي تظهر في بطاقة "يتطلب انتباهك" في S1-09؛ والأب يقرر بنقرة واحدة (منح/رفض/إسناد مهمة). [S1-09 · DERIVED]
+- **REQ-014:** طلبات الوقت الإضافي تظهر في بطاقة "يتطلب انتباهك" في S1-09؛ والأب يقرر بنقرة واحدة (منح/رفض/إسناد مهمة). [S1-09 REQ-017 · DERIVED] (حمولة البطاقة في §4.)
 
 ### التكامل
 - **REQ-015:** فرض حدود الوقت والحظر محرك S1-10 (مواصفته معتمدة (Q-146))؛ وS1-05 يستهلك حدوده وأرصدته (المتبقي) ولا يملك الفرض. [S1-10 · DERIVED]
-- **REQ-016:** ودجة S1-09 تعرض رصيد المحفظة + السلسلة + الطلبات المعلقة. [S1-09 · DERIVED]
+- **REQ-016:** ودجة S1-09 تعرض رصيد المحفظة + السلسلة + الطلبات المعلقة. [S1-09 REQ-001/002 · DERIVED] (حمولة الودجة في §4.)
 - **REQ-017:** كل فعل ذكاء في المكافآت يمر بمفتاح قدرة `agent.*` ممنوح + بوابة موافقته (عقد التحقق Q-167)؛ ومنح النقاط بتحقق المهام هو الاستثناء الوحيد المصرَّح به من قاعدة «لا يكافئ الوكيل من تلقاء نفسه» — مقصور على `agent.task.verify` وقابل للتراجع. [Q-167 · DIRECT]
 - **REQ-018:** التراجع عن منح ذكاء: الأب يلغي أي منح ذكاء عبر `POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse` فيُخصم بقيد تعويضي (حدث `family/{family_id}/tasks.verification-revoked`)؛ واعتراض الطفل على منح أو رفض يُرسَل عبر `POST /api/v1/families/{id}/children/{childId}/objections` (الموضوع منح محدد `grantId` أو قرار تحقق؛ والنص إدخال محدود) فيُسجَّل ويُشعَر به الأب فوراً عبر تنبيه S1-09 القائم (Q-193). [Q-167 · Q-193 · DIRECT]
 
 ## 4. الواجهات والعقود
 
 ### نقاط الوصول REST
-- `GET /api/v1/families/{id}/children/{childId}/wallet` — الرصيد + السلسلة + الطلبات المعلقة.
-- `POST /api/v1/families/{id}/children/{childId}/wallet/grant` — منح يدوي من الأب (نقاط + ملاحظة).
-- `POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse` — الأب يلغي منح ذكاء (قيد تعويضي يخصم النقاط — REQ-018 · Q-167).
-- `POST /api/v1/families/{id}/children/{childId}/objections` — الطفل يعترض على منح أو رفض — body: `{subject_type (grant | verification_decision), subject_id, objection_text}` — يُسجَّل الاعتراض ويُشعَر الأب فوراً عبر تنبيه S1-09 (REQ-018 · Q-193).
-- `POST /api/v1/families/{id}/children/{childId}/wallet/redeem` — صرف نقاط كوقت إضافي لتطبيق محدد (بمفتاح عدم تكرار `client_request_id`).
-- `GET /api/v1/families/{id}/children/{childId}/wallet/ledger` — سجل حركات المحفظة.
-- `POST /api/v1/families/{id}/children/{childId}/time-requests` — الطفل يطلب وقتاً إضافياً (التطبيق + الدقائق المطلوبة).
-- `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide` — الأب يقرر: منح / رفض / إسناد مهمة (تُنشأ المهمة عبر `S1-06 POST /api/v1/families/{id}/tasks` بقيمة نقطية يحددها الأب — REQ-013).
-- `POST /api/v1/families/{id}/children/{childId}/streak/freeze` — الأب يجمّد السلسلة ليوم واحد.
-- `GET /api/v1/families/{id}/rewards/settings` — ضوابط الأب (الحد اليومي، مصادر الكسب المفعّلة، مكافأة السلسلة).
-- `PATCH /api/v1/families/{id}/rewards/settings` — الأب يضبط المعاملات.
+
+كل عملية تحمل مفتاحها الذري (§6 — S1-03 REQ-009: لا عملية بلا مفتاح).
+
+- `GET /api/v1/families/{id}/children/{childId}/wallet` — الرصيد + السلسلة + الطلبات المعلقة — المفتاح: `rewards.wallet.view`. الرد: `{child_id, balance_points, streak_days, pending_requests: [{request_id, app_package, minutes_requested, status}]}`. الأخطاء: `REW_WALLET_NOT_FOUND`.
+- `POST /api/v1/families/{id}/children/{childId}/wallet/grant` — منح يدوي من الأب (نقاط + ملاحظة) — المفتاح: `rewards.grant.create`. الطلب: `{points (int > 0), note?}`. الرد: `{ledger_id, balance_points}`. الأخطاء: `REW_VALIDATION_FAILED` (نقاط ≤ 0) · `REW_WALLET_NOT_FOUND`.
+- `POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse` — الأب يلغي منح ذكاء (قيد تعويضي يخصم النقاط — REQ-018 · Q-167) — المفتاح: `rewards.grant.reverse`. الطلب: `{}`. الرد: `{reversal_ledger_id, balance_points}`. و`{walletGrantId}` هو `points_ledger.ledger_id` للإيداع الأصلي (لا `granted_time.grant_id` — انظر §5)؛ والقيد التعويضي يربط بالإيداع الأصلي (`reference_id` = `ledger_id` الأصلي)؛ والعكس المكرر لنفس المنح يُعاد نتيجته الأصلية بلا خصم ثانٍ (§6/§7). الأخطاء: `REW_GRANT_NOT_FOUND`.
+- `POST /api/v1/families/{id}/children/{childId}/objections` — الطفل يعترض على منح أو رفض — المفتاح: `rewards.objection.create`. الطلب: `{subject_type (grant | verification_decision), subject_id, objection_text}` — ويُسجَّل الاعتراض ويُشعَر الأب فوراً عبر تنبيه S1-09 (REQ-018 · Q-193). الرد: `{objection_id, status: "PENDING", created_at}`. الأخطاء: `REW_VALIDATION_FAILED` (نوع موضوع غير صالح أو نص فارغ) · `REW_GRANT_NOT_FOUND` (موضوع المنح غير موجود).
+- `POST /api/v1/families/{id}/children/{childId}/objections/{objectionId}/decide` — الأب يقرر على الاعتراض (قبول → تراجع عن المنح؛ رفض → مع السبب) — المفتاح: `rewards.objection.decide`. الطلب: `{decision (ACCEPTED | REJECTED), reason?}` — و`reason` إلزامي عند REJECTED (يُكتب في `decision_reason` — §5). الرد: `{objection_id, status, decided_by, decided_at, decision_reason}`. والقرار يكتب صف `objection` نفسه (لا يستدعي العكس فقط)؛ وعند القبول يُنفَّذ التراجع عبر `POST .../wallet/grants/{walletGrantId}/reverse` (انظر 3-ز). الأخطاء: `REW_OBJECTION_NOT_FOUND` · `REW_ALREADY_DECIDED` (تُعاد النتيجة الأصلية).
+- `POST /api/v1/families/{id}/children/{childId}/wallet/redeem` — صرف نقاط كوقت إضافي لتطبيق محدد — المفتاح: `rewards.wallet.redeem`. الطلب: `{app_package, points (int > 0), client_request_id}` — ومبلغ الصرف `points` عدد صحيح؛ والخطوة/الحد الأدنى/الأقصى مفتوحة (R2-S105-08 — بانتظار حكم المالك)؛ والسعر 1:1 محكوم (Q-111). الرد: `{grant_id, minutes, expires_at (نهاية اليوم), balance_points}`. الأخطاء: `REW_INSUFFICIENT_POINTS` · `REW_DAILY_CAP_REACHED` · `REW_INVALID_APP` · `REW_WALLET_NOT_FOUND`.
+- `GET /api/v1/families/{id}/children/{childId}/wallet/ledger` — سجل حركات المحفظة — المفتاح: `rewards.ledger.view`. الرد: `{entries: [{ledger_id, kind, amount, source_system, reference_id, evidence, balance_after, at}]}` — مرتبة بالأحدث أولاً. الأخطاء: `REW_WALLET_NOT_FOUND`.
+- `POST /api/v1/families/{id}/children/{childId}/time-requests` — الطفل يطلب وقتاً إضافياً (التطبيق + الدقائق المطلوبة) — المفتاح: `rewards.time_request.create`. الطلب: `{app_package, minutes_requested (int > 0)}`. الرد: `{request_id, status: "PENDING", created_at}` — وطلب معلَّق لنفس التطبيق وهو معلَّق يُعاد الطلب الأصلي (§7). الأخطاء: `REW_INVALID_APP` · `REW_VALIDATION_FAILED`.
+- `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide` — الأب يقرر: منح / رفض / إسناد مهمة (تُنشأ المهمة عبر `S1-06 POST /api/v1/families/{id}/tasks` بقيمة نقطية يحددها الأب — REQ-013) — المفتاح: `rewards.time_request.decide`. الطلب: `{decision (APPROVED | REJECTED | TASK_ASSIGNED), assigned_task_id?}` — وبلا حقل دقائق في القرار: الدقائق الممنوحة مفتوحة (R2-S105-09 — بانتظار حكم المالك — لا يُفترض هنا أن المنح يساوي المطلوب أو يختلف عنه). الرد: `{request_id, status, decided_by, decided_at}` — وعند المنح يُنشأ `granted_time` (مصدر GRANT). الأخطاء: `REW_REQUEST_NOT_FOUND` · `REW_ALREADY_DECIDED` (تُعاد النتيجة الأصلية).
+- `POST /api/v1/families/{id}/children/{childId}/streak/freeze` — الأب يجمّد السلسلة ليوم واحد — المفتاح: `rewards.streak.freeze`. الطلب: `{}`. الرد: `{streak_frozen_until}` — ويُسجَّل التجميد في `streak_freeze` (§5). الأخطاء: `REW_ALREADY_FROZEN` (تجميد ثانٍ أثناء تجميد نشط).
+- `GET /api/v1/families/{id}/rewards/settings` — ضوابط الأب (الحد اليومي، مصادر الكسب المفعّلة، مكافأة السلسلة) — المفتاح: `rewards.settings.view`. الرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources}`. الأخطاء: بلا أخطاء مسماة.
+- `PATCH /api/v1/families/{id}/rewards/settings` — الأب يضبط المعاملات — المفتاح: `rewards.settings.edit`. الطلب: `{daily_spend_cap_minutes?, streak_bonus_points?, enabled_sources?, version}` — و`version` النسخة المتوقعة (تفاؤل — §5)؛ والرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources, version}` (تزيد `version` عند كل PATCH ناجح). الأخطاء: `REW_VERSION_CONFLICT` · `REW_VALIDATION_FAILED`.
+
+### عقد بطاقة «يتطلب انتباهك» وودجة S1-09 (R2-S105-21)
+
+- **حمولة البطاقة** (S1-09 REQ-017): `{request_id, child_id, app_package, minutes_requested, status, created_at}` — من `time_request` (§5)؛ والمستهلك S1-09 (بطاقة «يتطلب انتباهك» — REQ-014).
+- **حمولة الودجة** (S1-09 REQ-001/002): `{balance_points, streak_days, pending_requests_count}` — من `GET .../wallet`؛ والمستهلك S1-09 (ودجة المكافآت — REQ-016).
+- العقد يُعرَّف مرة واحدة هنا (جانب المنتج — S1-05)؛ وS1-09 تشير إليه (جانب المستهلك).
 
 ### أحداث MQTT
 
-| الموضوع | QoS | Retained | الوصف |
-|---|---|---|---|
-| `family/{family_id}/wallet/updated` | 1 | لا | تغيّر الرصيد (إيداع/خصم/منح) |
-| `family/{family_id}/time-request/new` | 1 | لا | طلب وقت إضافي جديد (للأب فوراً) |
-| `family/{family_id}/time-request/decided` | 1 | لا | قرار الأب على الطلب |
-| `family/{family_id}/tasks.completed` | 1 | لا | **حدث الكسب العام الذي تستهلكه المحفظة** (من أي نظام مسجَّل: `source_system` + المهمة + قيمة النقاط + تحقق الذكاء) |
-| `family/{family_id}/tasks.verification-revoked` | 1 | لا | إلغاء تحقق (قيد تعويضي يخصم النقاط المودعة) |
+| الموضوع | QoS | Retained | الحمولة | الناشر | المشترك |
+|---|---|---|---|---|---|
+| `family/{family_id}/wallet/updated` | 1 | لا | `{child_id, balance_points, ledger_id, at}` | وحدة المكافآت (Ktor rewards) | التطبيق (واجهة المحفظة — 3-أ/3-ب) |
+| `family/{family_id}/time-request/new` | 1 | لا | `{request_id, child_id, app_package, minutes_requested, created_at}` | وحدة المكافآت | S1-09 (بطاقة «يتطلب انتباهك» — REQ-014) |
+| `family/{family_id}/time-request/decided` | 1 | لا | `{request_id, decision (APPROVED/REJECTED/TASK_ASSIGNED), decided_by, decided_at}` | وحدة المكافآت | التطبيق (الطفل — حالة الطلب)؛ وS1-09 (إزالة البطاقة) |
+| `family/{family_id}/tasks.completed` | 1 | لا | `{source_system, task_id, points}` — حدث الكسب العام الذي تستهلكه المحفظة (من أي نظام مسجَّل) | النظام المُسند (S1-06 أولاً — Q-118) | S1-05 (مستهلك الكسب — REQ-004) |
+| `family/{family_id}/tasks.verification-revoked` | 1 | لا | `{source_system, task_id, points}` — إلغاء تحقق (قيد تعويضي يخصم النقاط المودعة) | S1-06 (`revoke-verification`) | S1-05 (قيد تعويضي — REQ-018) |
+| `family/{family_id}/tasks.submitted` | 1 | لا | `{event_id, task_id, occurrence_id, submitted_by, submitted_at, proof_ref?}` — معرَّفة مرة واحدة في S1-06 §4 (الناشر) — لا تكرار هنا | S1-06 (الخادم) | S1-09 (بطاقة «يتطلب انتباهك») — حدث مرجعي في تسلسل 3-أ (فرع الشك)؛ وS1-05 لا يستهلكه (لا إيداع حتى يقرر الأب) |
 
 - المصدر: الوسيط §6 — صف «الأحداث»: QoS 1، Retained لا.
 
 ### قناة MethodChannel (Kotlin)
 - `getCachedWallet` — رصيد المحفظة المحفوظ محلياً (دون اتصال).
 - `queueTimeRequest` — طلب وقت إضافي دون اتصال (يُحفظ في Outbox ويُرسَل عند عودة الاتصال).
+- `queueRedeem` — صرف دون اتصال: يُحفظ `{app_package, points, client_request_id}` في Outbox؛ ومفتاح عدم التكرار هو `client_request_id` نفسه — يُرسَل في ترويسة `Idempotency-Key` عند تفريغ Outbox (آلية S1-01 نفسها — S1-01 §4.2 `POST /shell/outbox/flush` + `command_id` لكل أمر — S1-01 §4.3؛ ولا آلية ثانية مختلفة في هذا النظام)؛ وعند عودة الاتصال إن كان الرصيد لا يكفي يُرفض مع إشعار؛ والصرف المكرر بنفس المفتاح يُعاد نتيجته الأصلية بلا خصم جديد. (وعندما يلتزم عامل S1-01 تعريف حقل مفتاح عدم التكرار لكل حدث — NEW-S101-07 — يستخدم `queueRedeem` ذلك الحقل بالاسم نفسه.)
+- `queueObjection` — اعتراض دون اتصال: يُحفظ `{subject_type, subject_id, objection_text}` في Outbox ويُرسَل عند عودة الاتصال؛ ويُشعَر الأب عند وصوله لا قبلها (S05-06).
 
 ### رموز الخطأ (`REW_*`)
-`WALLET_NOT_FOUND` · `INSUFFICIENT_POINTS` · `DAILY_CAP_REACHED` · `REQUEST_NOT_FOUND` · `ALREADY_DECIDED` · `INVALID_APP` · `EARNING_NOT_VERIFIED` · `TIME_EXPIRED` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
+
+جدول قانوني واحد: الرمز + العملية التي ترفعه + تعيين HTTP. لا رمز عارٍ خارج هذا الجدول.
+
+| الرمز | يرفعه | HTTP |
+|---|---|---|
+| `REW_WALLET_NOT_FOUND` | `GET .../wallet` · `GET .../wallet/ledger` · `POST .../wallet/grant` · `POST .../wallet/redeem` (بلا صف محفظة) | 404 |
+| `REW_INSUFFICIENT_POINTS` | `POST .../wallet/redeem` (رصيد غير كافٍ — بلا رصيد سالب أبداً) | 409 |
+| `REW_DAILY_CAP_REACHED` | `POST .../wallet/redeem` (بلغ الحد اليومي — يُرفض حتى الغد) | 409 |
+| `REW_REQUEST_NOT_FOUND` | `POST .../time-requests/{requestId}/decide` (طلب غير موجود) | 404 |
+| `REW_ALREADY_DECIDED` | `POST .../time-requests/{requestId}/decide` · `POST .../objections/{objectionId}/decide` (قرار مكرر — تُعاد النتيجة الأصلية) | 409 |
+| `REW_INVALID_APP` | `POST .../wallet/redeem` · `POST .../time-requests` (تطبيق غير موجود أو غير خاضع للحد) | 400 |
+| `REW_EARNING_NOT_VERIFIED` | مستهلك حدث `tasks.completed` يرفض إيداعاً بلا تحقق صالح (REQ-005 — حدث، بلا HTTP) | — (حدث) |
+| `REW_TIME_EXPIRED` | محرك S1-10 عند تطبيق وقت ممنوح منتهٍ (`granted_time` الحالة EXPIRED — REQ-009/REQ-015 — بلا HTTP في هذا النظام) | — (S1-10) |
+| `REW_GRANT_NOT_FOUND` | `POST .../wallet/grants/{walletGrantId}/reverse` · `POST .../objections` (منح موضوع غير موجود) | 404 |
+| `REW_OBJECTION_NOT_FOUND` | `POST .../objections/{objectionId}/decide` (اعتراض غير موجود) | 404 |
+| `REW_ALREADY_FROZEN` | `POST .../streak/freeze` (تجميد ثانٍ أثناء تجميد نشط) | 409 |
+| `REW_VERSION_CONFLICT` | `PATCH .../rewards/settings` (نسخة قديمة — §5 `version`) | 409 |
+| `REW_VALIDATION_FAILED` | أي endpoint (حقول غير صالحة: نقاط ≤ 0، نوع موضوع غير صالح، نص فارغ) | 400 |
+
+- وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
 
 ## 5. البيانات — النموذج
 
 **جداول النظام (تحمل `family_id` + RLS):**
-- `child_wallet` — محفظة الطفل: `child_id` (PK) · `family_id` · `balance_points` (≥ 0) · `total_earned_all_time` · `streak_days` · `streak_frozen_until` (nullable) · `daily_spent_minutes` (دقائق الصرف من النقاط في اليوم — مصدر REDEEM فقط؛ انظر §6) · `daily_spent_date` (تاريخ اليوم الذي يخصه العدّاد — حد اليوم = منتصف الليل بالتوقيت المحلي للعائلة — Q-183) · `updated_at`.
-- `points_ledger` — سجل كل حركة: `ledger_id` · `family_id` · `child_id` · `kind` (TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED) · `amount` (+/−) · `source_system` (nullable — النظام الذي جاءت منه النقاط، Q-118) · `reference_id` (task_id / request_id) · `evidence` (text, nullable — الدليل؛ null لصفوف العكس/القيد التعويضي، Q-185) · `balance_after` · `at`.
+- `child_wallet` — محفظة الطفل: `child_id` (PK) · `family_id` · `balance_points` (≥ 0) · `total_earned_all_time` · `streak_days` · `last_earning_date` (date — تاريخ آخر كسب موثَّق؛ مصدر حقيقة «أول كسب في اليوم» — §6) · `streak_frozen_until` (nullable) · `daily_spent_minutes` (دقائق الصرف من النقاط في اليوم — مصدر REDEEM فقط؛ انظر §6) · `daily_spent_date` (تاريخ اليوم الذي يخصه العدّاد — حد اليوم = منتصف الليل بالتوقيت المحلي للعائلة — Q-183) · `updated_at`.
+- `points_ledger` — سجل كل حركة: `ledger_id` · `family_id` · `child_id` · `kind` (TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED / REVERSAL — قيد تعويضي يعكس إيداعاً) · `amount` (+/−) · `source_system` (nullable — النظام الذي جاءت منه النقاط، Q-118) · `reference_id` (task_id / request_id — ولصفوف REVERSAL: `ledger_id` الإيداع الأصلي) · `evidence` (text, nullable — الدليل؛ null لصفوف العكس/القيد التعويضي، Q-185) · `balance_after` · `at`.
 - `time_request` — طلب وقت إضافي: `request_id` · `family_id` · `child_id` · `app_package` · `minutes_requested` · `status` (PENDING / APPROVED / REJECTED / TASK_ASSIGNED) · `decided_by` · `decided_at` · `assigned_task_id` (nullable) · `created_at`.
 - `objection` — اعتراض الطفل على منح أو رفض: `objection_id` · `family_id` · `child_id` · `subject_type` (`grant` / `verification_decision`) · `subject_id` · `objection_text` (إدخال محدود للطفل) · `status` (PENDING / ACCEPTED / REJECTED) · `decided_by` · `decided_at` · `decision_reason` (nullable — سبب الرفض) · `created_at` (Q-193).
-- `granted_time` — الوقت الممنوح: `grant_id` · `family_id` · `child_id` · `app_package` · `minutes` · `source` (REDEEM من النقاط / GRANT منح مباشر من الأب) · `expires_at` (نهاية اليوم) · `used_minutes` · `status` (ACTIVE / EXPIRED / EXHAUSTED) · `created_at`.
-- `rewards_settings` — ضوابط الأب: `family_id` (PK) · `daily_spend_cap_minutes` (افتراضي 60) · `streak_bonus_points` (افتراضي 50 — قابل للتغيير من الأب) · `enabled_sources` (jsonb — الأنظمة المسموح لها بالكسب، افتراضي: كل الأنظمة المسجلة).
+- `granted_time` — الوقت الممنوح: `grant_id` · `family_id` · `child_id` · `app_package` · `minutes` · `source` (REDEEM من النقاط / GRANT منح مباشر من الأب) · `expires_at` (نهاية اليوم) · `used_minutes` · `status` (ACTIVE / EXPIRED / EXHAUSTED) · `created_at`. (`grant_id` هنا معرّف الوقت الممنوح (دقائق لتطبيق) — لا يُستخدم في العكس؛ ومعرّف العكس `{walletGrantId}` هو `points_ledger.ledger_id` للإيداع الأصلي — انظر §4.)
+- `rewards_settings` — ضوابط الأب: `family_id` (PK) · `daily_spend_cap_minutes` (افتراضي 60) · `streak_bonus_points` (افتراضي 50 — قابل للتغيير من الأب) · `enabled_sources` (jsonb — الأنظمة المسموح لها بالكسب، افتراضي: كل الأنظمة المسجلة) · `version` (int — عداد نسخة للتفاؤل؛ يزيد عند كل PATCH ناجح؛ وPATCH يحمل `version` المتوقعة — 409 `REW_VERSION_CONFLICT` عند عدم التطابق).
+- `streak_freeze` — سجل التجميد: `freeze_id` · `family_id` · `child_id` · `frozen_by` · `frozen_at` · `frozen_until` · `created_at`. (كل تجميد يُسجَّل هنا — §6؛ والحد الأقصى لعدد التجميدات في فترة مفتوح — R2-S105-20.)
 
 **مراجع:** عضوية الطفل من S1-02 (membership)؛ حدود التطبيقات والمتبقي من محرك S1-10 (مواصفته معتمدة (Q-146))؛ كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards). **مخازن العميل (ليست جداول خادم):** مرآة المحفظة في Drift + Outbox للطلبات دون اتصال.
 
@@ -219,6 +252,12 @@ flowchart LR
 - `rewards.settings.edit` — تعديل ضوابط النظام (الأب وحده — مالك العائلة).
 - `rewards.streak.freeze` — تجميد السلسلة (الأب وحده).
 - `rewards.ledger.view` — عرض سجل الحركات (الأب + البالغ المفوَّض حسب القالب).
+- `rewards.grant.reverse` — إلغاء منح ذكاء بقيد تعويضي (الأب وحده).
+- `rewards.objection.create` — اعتراض الطفل على منح أو رفض (الطفل — اعتراضاته هو فقط).
+- `rewards.objection.decide` — القرار على الاعتراض (الأب وحده).
+- `rewards.wallet.redeem` — صرف نقاط كوقت إضافي (الطفل — محفظته فقط).
+- `rewards.time_request.create` — طلب وقت إضافي (الطفل — طلباته هو فقط).
+- `rewards.settings.view` — عرض ضوابط المكافآت (الأب وحده).
 
 ### ثوابت صلبة (لا تُكسر)
 - الرصيد لا يقل عن صفر أبداً — والفرض على الخادم لا على العميل.
@@ -232,16 +271,20 @@ flowchart LR
 
 ### قواعد التشغيل
 - الصرف ذرّي: فحص الرصيد + الخصم في معاملة واحدة؛ والصرف المكرر بنفس `client_request_id` يُعاد نتيجته الأصلية بلا خصم جديد.
-- السلسلة: أول كسب موثَّق في اليوم يطيل السلسلة؛ والتجميد يمدّدها يوماً واحداً بإذن الأب في كل مرة.
+- السلسلة: أول كسب موثَّق في اليوم يطيل السلسلة — يُحسم بـ `last_earning_date`: كسب تاريخه ≠ `last_earning_date` يطيل السلسلة يوماً ويحدّث `last_earning_date` إلى تاريخ اليوم (حد اليوم = منتصف الليل بالتوقيت المحلي للعائلة — Q-183)؛ والكاتب الوحيد للحقل معاملة الإيداع نفسها؛ وإيداع مكرر لنفس المهمة لا يطيل السلسلة مرتين؛ والتجميد يمدّدها يوماً واحداً بإذن الأب في كل مرة.
+- التجميد: كل تجميد يُسجَّل في `streak_freeze` (§5 — من جمّد ومتى)؛ وتجميد ثانٍ أثناء تجميد نشط يُرفض (`REW_ALREADY_FROZEN`)؛ والحد الأقصى لعدد التجميدات في فترة مفتوح (R2-S105-20 — بانتظار حكم المالك) — لا رقم يُفترض هنا.
 - المنح المباشر من الأب قيد ليوم واحد وينتهي بنهايته (نمط Qustodio).
 - عند إسناد مهمة بدلاً من المنح: الطلب يتحول إلى TASK_ASSIGNED؛ وعند إنجاز المهمة + تحقق الذكاء تُودع النقاط ويُشعَر الطفل ليصرفها.
-- دون اتصال: الصرف والطلب يُحفظان في Outbox؛ والرصيد المعروض هو آخر رصيد معروف مع وقت صريح.
+- دون اتصال: الصرف والطلب والاعتراض يُحفظون في Outbox (`queueRedeem` / `queueTimeRequest` / `queueObjection` — §4.3)؛ والرصيد المعروض هو آخر رصيد معروف مع وقت صريح.
+- عملية عكس واحدة (R2-S105-14): كل عكس — من S1-06 (`revoke-verification`) أو من S1-05 (`reverse`) — يكتب قيداً تعويضياً واحداً (`kind=REVERSAL`) مرتبطاً بالإيداع الأصلي (`reference_id` = `ledger_id` الأصلي)؛ والعكس المكرر لنفس الإيداع يُعاد نتيجته الأصلية بلا خصم ثانٍ؛ ومفتاح عدم التكرار للإيداع نفسه (`task_id` + `source_system`).
 - عند بلوغ 13 تُجمَّد محفظة الطفل (`child_wallet` — Q-237): يبقى `balance_points` محفوظاً بلا مصادرة لكنه غير قابل للكسب أو الصرف، ويُشعَر الأب بالتجميد، ويرى الأب الرصيد المجمَّد؛ وتحويل الرصيد اختياري بقرار الأب وحده. ويتم التجميد تبعاً لتغير الدور (S1-03 يعالج حدث `member.turned-teen`)؛ ويُشعَر الأب عبر إشعار تغير الدور (S1-03 REQ-003) — وS1-05 ليس مشتركاً في الحدث (Q-189).
 
 ## 7. الحالات الحدية والأخطاء
 
-- صرف بلا رصيد كافٍ → يُرفض مع الرصيد الحالي (INSUFFICIENT_POINTS)؛ ولا رصيد سالب أبداً.
+- صرف بلا رصيد كافٍ → يُرفض مع الرصيد الحالي (`REW_INSUFFICIENT_POINTS`)؛ ولا رصيد سالب أبداً.
 - صرف مكرر بنفس `client_request_id` → تُعاد النتيجة الأصلية بلا خصم جديد.
+- عكس مكرر لنفس المنح → تُعاد نتيجة العكس الأصلية بلا خصم ثانٍ (§6 — عملية عكس واحدة).
+- تجميد ثانٍ أثناء تجميد نشط → يُرفض (`REW_ALREADY_FROZEN`)؛ والحد الأقصى لعدد التجميدات مفتوح (R2-S105-20).
 - حدث كسب من نظام غير مسجَّل → يُرفض ويُسجَّل في التدقيق.
 - تحقق الذكاء يرفض المهمة (لم تُنجز كما هو مطلوب) → لا إيداع + إشعار الطفل بالسبب + الأب يرى الرفض.
 - الطفل يطلب وقتاً لتطبيق غير موجود أو غير خاضع للحد → INVALID_APP.
@@ -251,7 +294,7 @@ flowchart LR
 - الوقت الممنوح ينتهي بنهاية اليوم → الحالة EXPIRED؛ وما تبقى منه لا يُسترد.
 - مراهق يحاول كسب أو صرف نقاط → مرفوض (لا محفظة للمراهقين) ويُسجَّل.
 - طفل يبلغ 13 ولديه رصيد في المحفظة → تُجمَّد المحفظة: الرصيد يبقى محفوظاً بلا مصادرة لكنه غير قابل للكسب أو الصرف، ويُشعَر الأب بالتجميد، وتحويل الرصيد اختياري بقرار الأب وحده (Q-237 — انظر §6 قواعد التشغيل).
-- دون اتصال: صرف يُحفظ في Outbox؛ وعند عودة الاتصال إن كان الرصيد لا يكفي (صُرف من جهاز آخر) → يُرفض مع إشعار.
+- دون اتصال: صرف يُحفظ في Outbox عبر `queueRedeem` (بمفتاح عدم التكرار `client_request_id` — آلية S1-01 — §4.3)؛ وعند عودة الاتصال إن كان الرصيد لا يكفي (صُرف من جهاز آخر) → يُرفض مع إشعار.
 - تغيير الحد اليومي من الأب أثناء اليوم → يطبق فوراً على ما تبقى من اليوم؛ وما صُرف قبله لا يُسترجع.
 - إيداع مكرر لنفس المهمة (نفس `task_id` + `source_system`) → يُعاد الإيداع الأصلي بلا مضاعفة.
 - منح مباشر 30 دقيقة ثم صرف 30 دقيقة → «صرفت اليوم» 30 لا 60؛ والمنح المباشر لا يستهلك الحد اليومي (Q-114 — §6).
@@ -317,7 +360,7 @@ flowchart LR
 - **الوضع:** طفل (عرض الطفل) / أهل (عرض الأب والبالغ المفوَّض — نفس الشاشة بملف تجربة مختلف).
 - **الأدوار:** `child` (مالك المحفظة فقط)؛ `owner` + `adult` المفوَّض (`rewards.wallet.view` + `rewards.ledger.view`).
 - **الغرض:** الرصيد ظاهر للطفل وللأب في كل وقت مع سجل الحركات والسلسلة (REQ-002).
-- **الحقول الرئيسية:** الرصيد الحالي (`balance_points`، لا يقل عن صفر — REQ-001)؛ السلسلة (`streak_days`)؛ إجمالي ما كُسب (`total_earned_all_time`)؛ سجل الحركات (`points_ledger`: النوع TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED + المبلغ + المصدر `source_system` + الرصيد بعد الحركة + الوقت)؛ حالة الاتصال وعمر آخر رصيد معروف (دون اتصال — REQ-003).
+- **الحقول الرئيسية:** الرصيد الحالي (`balance_points`، لا يقل عن صفر — REQ-001)؛ السلسلة (`streak_days`)؛ إجمالي ما كُسب (`total_earned_all_time`)؛ سجل الحركات (`points_ledger`: النوع TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED / REVERSAL + المبلغ + المصدر `source_system` + الرصيد بعد الحركة + الوقت)؛ حالة الاتصال وعمر آخر رصيد معروف (دون اتصال — REQ-003).
 - **التنقل:** من: تبويب «مكافآتي» في وضع الطفل (DS-NV-03: جدول تنقل child)؛ من ودجة المكافآت في S1-09 (DS-CC-04)؛ من شاشة صرف الوقت S05-02 (رجوع). إلى: S05-02 (صرف)؛ S05-05 (السلاسل)؛ S05-03 (طلب وقت)؛ تفصيل حركة (ورقة سفلية تعرض الدليل `evidence` — REQ-005).
 - **الحالات (DS-ST):**
   - تحميل: Skeleton بشكل الرصيد والسجل (DS-ST-01)؛ يُعرض الكاش المحلي فوراً ثم يُحدَّث (DS-ST-05).
@@ -369,8 +412,8 @@ flowchart LR
 - **الحالات (DS-ST):**
   - تحميل: مؤشر داخل زر الصرف مع منع النقر المزدوج (DS-CM-01).
   - فارغة: لا تنطبق (الشاشة لا تُفتح بلا تطبيق نافد) — يُذكر صراحةً.
-  - خطأ: رصيد غير كافٍ — `INSUFFICIENT_POINTS` مترجمة «نقاطك لا تكفي — رصيدك الحالي {points}» + إجراء «اطلب من بابا» (DS-ST-02، DS-MC-03)؛ والرصيد لا يقل عن صفر أبداً.
-  - خطأ الحد: `DAILY_CAP_REACHED` — «وصلت حدك اليوم ({cap} دقيقة) — يمكنك الصرف غداً» (REQ-010) بلا زر صرف.
+  - خطأ: رصيد غير كافٍ — `REW_INSUFFICIENT_POINTS` مترجمة «نقاطك لا تكفي — رصيدك الحالي {points}» + إجراء «اطلب من بابا» (DS-ST-02، DS-MC-03)؛ والرصيد لا يقل عن صفر أبداً.
+  - خطأ الحد: `REW_DAILY_CAP_REACHED` — «وصلت حدك اليوم ({cap} دقيقة) — يمكنك الصرف غداً» (REQ-010) بلا زر صرف.
   - بلا اتصال: الصرف يُحفظ في Outbox بشارة «ستُرسل عند الاتصال»؛ وعند عودة الاتصال إن كان الرصيد لا يكفي يُرفض مع إشعار (DS-ST-05).
   - نجاح: خصم ذري + «أصبح لديك {minutes} دقيقة إضافية في {app}» + الرصيد الجديد؛ والوقت المصروف ينتهي بنهاية اليوم (منتصف الليل بالتوقيت المحلي للعائلة — Q-183) وما لم يُستخدم لا يُسترد (REQ-009).
 - **وايرفريم ASCII:**
@@ -451,7 +494,7 @@ flowchart LR
 - **الحالات (DS-ST):**
   - تحميل: مؤشر في زر المنح + منع النقر المزدوج.
   - فارغة: لا تنطبق (نموذج لا قائمة) — يُذكر صراحةً.
-  - خطأ: تحقق — قيمة غير صالحة (صفر أو سالبة) خطأ مضمَّن بجانب الحقل (DS-ST-02: `VALIDATION_FAILED`).
+  - خطأ: تحقق — قيمة غير صالحة (صفر أو سالبة) خطأ مضمَّن بجانب الحقل (DS-ST-02: `REW_VALIDATION_FAILED`).
   - بلا اتصال: المنح يحتاج الخادم — يُعطَّل بشرح صادق (لا Outbox للمنح في §4 — لا نقطة `queueGrant` محكومة)؛ فجوة؟ لا — السلوك المحكوم: المنح إجراء خادم؛ دون اتصال يظهر معطّلاً مع شرح. يُسجَّل كسلوك لا كفجوة.
   - نجاح: إيداع فوري + Snackbar «منحت {child} {points} نقطة» + تراجع فوري 10 ثوانٍ (DS-MT-07) حيث ينطبق التراجع على الإجراء (التراجع المحكوم للمنح هو عبر S05-09 — REQ-018؛ تراجع Snackbar هنا للإجراء البسيط فقط ولا يلغي الإيداع بلا قيد تعويضي).
 - **وايرفريم ASCII:**
@@ -565,7 +608,7 @@ flowchart LR
 - **الحالات (DS-ST):**
   - تحميل: Skeleton لصفوف الإعدادات.
   - فارغة: لا تنطبق (كل تحكم له قيمة افتراضية محكومة) — يُذكر صراحةً.
-  - خطأ: تعارض نسخة `VERSION_CONFLICT` — عرض الفرق وخيارات بلا فقدان صامت (DS-ST-04).
+  - خطأ: تعارض نسخة `REW_VERSION_CONFLICT` — عرض الفرق وخيارات بلا فقدان صامت (DS-ST-04).
   - بلا اتصال: التغييرات تُحفظ وتُسوّى عند عودة الاتصال (DS-ST-05)؛ وتغيير الحد أثناء اليوم يطبق فوراً على ما تبقى من اليوم وما صُرف قبله لا يُسترجع (§7) — يُعرض ذلك نصاً في الشاشة.
   - نجاح: تغيير ظاهر + Snackbar مع تراجع فوري 10 ثوانٍ (DS-MT-07)؛ وكل تغيير ينتج `AuditEntry` (DS-SE-12).
 - **وايرفريم ASCII:**
@@ -780,7 +823,7 @@ flowchart LR
 ## 10. خطة التنفيذ
 
 - **ترتيب البناء:** الجداول + RLS ← REST + MQTT (مستهلك حدث الكسب) ← منطق المحفظة (صرف ذرّي + سجل + محرك سلاسل) ← ربط تحقق الذكاء (هيكل Q-054) ← دون اتصال (Drift + Outbox + MethodChannel) ← تكامل ودجة S1-09 وبطاقة الطلبات ← الشاشات بعد مرحلة التصميم.
-- **بذر المفاتيح في السجل المركزي:** مفاتيح `rewards.*` الستة (§6: `rewards.wallet.view` · `rewards.grant.create` · `rewards.time_request.decide` · `rewards.settings.edit` · `rewards.streak.freeze` · `rewards.ledger.view`) تُزرع في جدول `permission_key` المركزي (S1-03 §10-1) وقت النشر — لا منح لمفتاح غير مزروع (S1-03 REQ-009)؛ وكل فحص صلاحية يمر بمحرك S1-03 (رفض-يتغلب — Q-007): الغموض يُحسم لصالح الحماية (Q-191).
+- **بذر المفاتيح في السجل المركزي:** مفاتيح `rewards.*` الاثنا عشر (§6: `rewards.wallet.view` · `rewards.grant.create` · `rewards.time_request.decide` · `rewards.settings.edit` · `rewards.streak.freeze` · `rewards.ledger.view` · `rewards.grant.reverse` · `rewards.objection.create` · `rewards.objection.decide` · `rewards.wallet.redeem` · `rewards.time_request.create` · `rewards.settings.view`) تُزرع في جدول `permission_key` المركزي (S1-03 §10-1) وقت النشر — لا منح لمفتاح غير مزروع (S1-03 REQ-009)؛ وكل فحص صلاحية يمر بمحرك S1-03 (رفض-يتغلب — Q-007): الغموض يُحسم لصالح الحماية (Q-191). **ملاحظة مزامنة:** بذرة S1-03 §10-1 وسجل `permission_key` المركزي ما زالا على العدد القديم (6 — المجموع 82)؛ وتزامنهما (6 ← 12؛ المجموع 82 ← 88) متابعة عبر-أنظمة خارج نطاق هذا التغيير (S1-03) — لا يُبنى منح على مفتاح جديد قبل زرعه.
 - **الوحدات:** وحدة Ktor باسم `rewards`؛ وشاشات Flutter للمحفظة والطلبات + مرآة Drift؛ ووحدة Kotlin للمزامنة الخلفية والـ Outbox.
 - **الاعتماديات:** S1-10 (محرك الفرض + حدود التطبيقات — مواصفته معتمدة (Q-146)) · S1-02 (العضوية) · S1-03 (مفاتيح الصلاحيات) · S1-09 (الودجة + بطاقة الطلبات) · S1-06 (عقد `family/{family_id}/tasks.completed` — أول مصدر كسب) · Q-022 (MQTT) · Q-054 (هيكل بوابة الذكاء) · مختبر Q-027.
 - **الاختبارات:** وحدة (صرف ذرّي/عدم تكرار/محرك سلاسل/انتهاء الوقت) · تكامل (حدث كسب ← إيداع؛ طلب ← قرار ← إيداع؛ مزامنة دون اتصال) · قبول ACC-001…015 · دون اتصال (اليمن).

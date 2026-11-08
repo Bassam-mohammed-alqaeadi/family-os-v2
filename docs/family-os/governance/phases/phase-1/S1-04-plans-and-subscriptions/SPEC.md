@@ -142,7 +142,7 @@ flowchart LR
 
 ### التجربة والسماح والتراجع
 - **REQ-012:** تجربة مجانية 7 أيام للمميزة — مرة واحدة لكل عائلة. [Q-130 · DIRECT]
-- **REQ-013:** فترة سماح 3 أيام بعد انتهاء الاشتراك بلا تجديد — الميزات تبقى. [Q-131 · DIRECT]
+- **REQ-013:** فترة سماح 3 أيام بعد انتهاء الاشتراك بلا تجديد — الميزات تبقى؛ وخلال السماح يستطيع الأب التجديد الآن (`POST /api/v1/families/{id}/plan/renew` — S04-09) فيعود الاشتراك ACTIVE فوراً. [Q-131 · DIRECT]
 - **REQ-014:** التراجع اللبق: عودة للمجانية بلا قفل وبلا حذف بيانات؛ والأعضاء الحاليون يبقون فعالين مع حظر إضافة جدد فقط. [Q-131 · DERIVED]
 
 ### التكامل
@@ -152,39 +152,45 @@ flowchart LR
 ## 4. الواجهات والعقود
 
 ### نقاط الوصول REST
-- `GET /api/v1/plans` — كتالوج الخطط (عام).
-- `GET /api/v1/families/{id}/plan` — الخطة الحالية + الاستهلاك (قراءة فقط؛ وتستخدمه S1-09).
-- `POST /api/v1/families/{id}/plan/upgrade` — بدء ترقية (يعيد تفاصيل الدفع حسب القناة).
-- `POST /api/v1/families/{id}/billing/purchase/verify-receipt` — تحقق خادمي من إيصال المتجر (بلا `father_pin` إطلاقاً — التحقق من الأب محلي على الجهاز؛ وإرسال الـ PIN للخادم ممنوع — إصلاح ثغرة المرجع القديم).
-- `POST /api/v1/families/{id}/billing/voucher/redeem` — استبدال كود قسيمة وكيل.
-- `POST /api/v1/families/{id}/billing/topup` — شراء حزمة تعبئة SMS.
-- `POST /api/v1/families/{id}/billing/wallet/initiate` — بدء دفع محفظة يمنية (الأب وحده — `billing.manage`): ينشئ سجل دفع (`payment_confirmation` — §5) بحالة `INITIATED`؛ المدخل `{plan_id, provider}` حيث `provider` اسم المحفظة فقط (`ONECASH` / `MAHFATHATI`)؛ والمخرج `{payment_id, status: "initiated"}`.
-- `POST /api/v1/families/{id}/billing/wallet/confirm` — تأكيد دفع محفظة برقم مرجعي (الأب وحده — `billing.manage`): المدخل `{payment_id, wallet_reference}` — الرقم المرجعي كما يظهر في تطبيق المحفظة (نص معتم ينقله الأب كما هو)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم يسجل التأكيد «بانتظار التحقق» ولا يفعّل الاشتراك قبل تحقق المزوّد (Q-251).
-- `POST /api/v1/families/{id}/billing/manual/confirm` — تأكيد دفع يدوي مسبق (الأب وحده — `billing.manage`): المدخل `{plan_id, reference}` — رقم مرجعي معتم كما يقدمه الأب (بلا صيغة مخترعة)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم ينشئ سجل دفع «بانتظار التحقق» ولا يفعّل الاشتراك قبل التحقق الخادمي (Q-251).
-- `GET /api/v1/families/{id}/billing/usage` — استهلاك الحصص (SMS/أفراد/ذكاء).
-- `POST /api/v1/families/{id}/plan/trial/start` — بدء التجربة 7 أيام.
-- `POST /api/v1/families/{id}/plan/cancel-renewal` — إلغاء التجديد التلقائي.
-- `POST /api/v1/families/{id}/billing/restore` — استعادة المشتريات.
-- `PATCH /api/v1/admin/plans/{planId}` — تعديل أعلام/حصص الخطة من اللوحة بلا كود (إداري فقط).
+
+كل نقطة تحمل مفتاحها (R2-S104-04 — §6)؛ وأي نقطة بلا مفتاح مسمى تُذكر صراحةً كعامة أو كمبوَّبة.
+
+- `GET /api/v1/plans` — كتالوج الخطط (**عام — بلا مصادقة**). الرد: `{plans: [{plan_id, tier_level, title_ar, flags, quotas, prices: [{market, price_cents, currency}]}]}`. الأخطاء: بلا أخطاء مسماة (كتالوج عام). (REQ-001.)
+- `GET /api/v1/families/{id}/plan` — الخطة الحالية + الاستهلاك (قراءة فقط؛ وتستخدمه S1-09) — المفتاح: `billing.view`. الرد: `{plan_id, tier_level, status, current_period_end, members_used, members_limit, sms_used, sms_limit, topup_sms_balance, sms_emergency_remaining, ai_budget}`. الأخطاء: `SUBSCRIPTION_NOT_FOUND` · `PLAN_NOT_FOUND`. (REQ-015.)
+- `POST /api/v1/families/{id}/plan/upgrade` — بدء ترقية (يعيد تفاصيل الدفع حسب القناة) — المفتاح: `billing.manage`. الطلب: `{plan_id, billing_interval (MONTHLY/ANNUAL)}`. الرد: `{plan_id, channel (store/card/wallet/manual/voucher), payment_details}` — وتفاصيل الدفع حسب القناة (من عقد القناة الحقيقي)؛ والتفعيل نفسه لا يتم هنا بل بعد التحقق الخادمي (REQ-007). الأخطاء: `PLAN_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-004.)
+- `POST /api/v1/families/{id}/billing/purchase/verify-receipt` — تحقق خادمي من إيصال المتجر (بلا `father_pin` إطلاقاً — التحقق من الأب محلي على الجهاز؛ وإرسال الـ PIN للخادم ممنوع — إصلاح ثغرة المرجع القديم) — المفتاح: `billing.manage`. الطلب: `{provider (GOOGLE_PLAY/APPLE_APP_STORE), receipt_data}` — و`receipt_data` حمولة معتمة من المزوّد بلا شكل مخترع (التحقق من شكلها في مختبر Q-027). الرد: `{validation_status (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED), plan_id, status}`. الأخطاء: `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `SUBSCRIPTION_NOT_FOUND`. (REQ-007.)
+- `POST /api/v1/families/{id}/billing/voucher/redeem` — استبدال كود قسيمة وكيل — المفتاح: `billing.voucher.redeem`. الطلب: `{code}`. الرد: `{plan_id, status: "ACTIVE", duration_months, expires_at}`. الأخطاء: `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED`. (REQ-008.)
+- `POST /api/v1/families/{id}/billing/topup` — شراء حزمة تعبئة SMS (الحزمة الواحدة المحكومة — 50 رسالة — REQ-010) — المفتاح: `billing.topup.buy`. الطلب: `{channel (store/card/wallet/manual)}` — ويُستكمل الدفع عبر مسار القناة (S04-04/S04-05)؛ وسعر الحزمة من الكتالوج عند وجود جدول المنتج (R2-S104-11 — مبوَّبة — بلا رقم مخترع هنا). الرد: `{added_messages: 50, topup_sms_balance}`. الأخطاء: `PAYMENT_FAILED` · `SUBSCRIPTION_NOT_FOUND`. (REQ-010.)
+- `POST /api/v1/families/{id}/billing/wallet/initiate` — بدء دفع محفظة يمنية (الأب وحده — `billing.manage`): ينشئ سجل دفع (`payment_confirmation` — §5) بحالة `INITIATED`؛ المدخل `{plan_id, provider}` حيث `provider` اسم المحفظة فقط (`ONECASH` / `MAHFATHATI`)؛ والمخرج `{payment_id, status: "initiated"}`. الأخطاء: `PLAN_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-006 · Q-251.)
+- `POST /api/v1/families/{id}/billing/wallet/confirm` — تأكيد دفع محفظة برقم مرجعي (الأب وحده — `billing.manage`): المدخل `{payment_id, wallet_reference}` — الرقم المرجعي كما يظهر في تطبيق المحفظة (نص معتم ينقله الأب كما هو)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم يسجل التأكيد «بانتظار التحقق» ولا يفعّل الاشتراك قبل تحقق المزوّد (Q-251). الأخطاء: `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED`. (REQ-006 · Q-251.)
+- `POST /api/v1/families/{id}/billing/manual/confirm` — تأكيد دفع يدوي مسبق (الأب وحده — `billing.manage`): المدخل `{plan_id, reference}` — رقم مرجعي معتم كما يقدمه الأب (بلا صيغة مخترعة)؛ والمخرج `{payment_id, status: "pending_verification"}` — الخادم ينشئ سجل دفع «بانتظار التحقق» ولا يفعّل الاشتراك قبل التحقق الخادمي (Q-251). الأخطاء: `PLAN_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED`. (REQ-006 · Q-251.)
+- `GET /api/v1/families/{id}/billing/usage` — استهلاك الحصص (SMS/أفراد/ذكاء) — المفتاح: `billing.view`. الرد: `{period, sms: {sent, limit, otp_used, emergency_used}, members: {used, limit}, ai: {calls, budget}, topup_sms_balance, sms_emergency_remaining}` — و`period` كما في §5 (YYYY-MM)؛ وتعريف «الفترة» نفسه (شهر تقويمي مقابل ذكرى فوترة) مفتوح (R2-S104-13 — مبوَّبة). الأخطاء: `SUBSCRIPTION_NOT_FOUND`. (REQ-009.)
+- `POST /api/v1/families/{id}/plan/trial/start` — بدء التجربة 7 أيام — المفتاح: `billing.manage`. الطلب: `{}`. الرد: `{status: "TRIAL", trial_started_at, trial_ends_at}`. الأخطاء: `TRIAL_ALREADY_USED`. (REQ-012.)
+- `POST /api/v1/families/{id}/plan/cancel-renewal` — إلغاء التجديد التلقائي — المفتاح: `billing.manage`. الطلب: `{}`. الرد: `{auto_renew: false, current_period_end}` — والميزات تبقى حتى نهاية الفترة المدفوعة ثم تراجع لبق. الأخطاء: `SUBSCRIPTION_NOT_FOUND`. (REQ-004.)
+- `POST /api/v1/families/{id}/billing/restore` — استعادة المشتريات من متجر المنصة نفسه — المفتاح: `billing.manage`. الطلب: `{provider (GOOGLE_PLAY/APPLE_APP_STORE)}` — متجر منصة الجهاز. الرد: `{restored: true, plan_id, status}` — أو `{restored: false}` عند غياب مشتريات سابقة (بلا تفعيل وبلا خطأ)؛ والاستعادة idempotent بمفتاح المعاملة (بلا تفعيل مكرر — §7). الأخطاء: `RECEIPT_INVALID` (إيصال مستعاد غير صالح). (REQ-005.)
+- `PATCH /api/v1/admin/plans/{planId}` — تعديل أعلام/حصص الخطة من اللوحة بلا كود (لوحة إدارية خارج التطبيق؛ لا يملك الأب هذا الإجراء) — المفتاح: **بلا مفتاح محكوم — يتطلب حكم مالك (R2-S104-02 — مصعَّد: لا دور إداري ولا مفتاح `admin.*` في النموذج المحكوم)**. الطلب: `{flags?, quotas?}` (jsonb — Q-055). الرد: `{plan_id, flags, quotas}`. الأخطاء: `PLAN_NOT_FOUND` · `VALIDATION_FAILED`. (REQ-001 · Q-055.)
+- `POST /api/v1/families/{id}/billing/ai/kill-switch` — قلب مفتاح إيقاف الذكاء (R2-S104-01 — Q-012/Q-221) — المفتاح: `billing.manage` (الأب وحده). الطلب: `{enabled: boolean}`. الرد: `{enabled, updated_at}` — وكل قلب للمفتاح يُسجَّل في `AuditEvent` (domain=billing)؛ والحالة تُكتب في موضع واحد (وحدة الفوترة) وتُقرأ منها بوابة الذكاء (ARCH §6.5)؛ والعميل يقرأ الحالة من `GET .../plan` (لا نسخة عميل مستقلة). الأخطاء: `SUBSCRIPTION_NOT_FOUND` · `VALIDATION_FAILED`. (REQ-016.)
+- `POST /api/v1/families/{id}/plan/renew` — تجديد الآن (R2-S104-29 — زر S04-09 «جدّد الآن») — المفتاح: `billing.manage`. الطلب: `{plan_id}` — الخطة نفسها (تجديد الفترة نفسها؛ واختيار خطة أخرى يكون من S04-02). الرد: `{plan_id, status: "ACTIVE", current_period_start, current_period_end}` — بعد إتمام الدفع عبر قناة الخطة (S04-04/S04-05). الأخطاء: `PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-013.)
 
 ### أحداث MQTT
 
-| الموضوع | QoS | Retained | الوصف |
-|---|---|---|---|
-| `family/{family_id}/billing/subscription-changed` | 1 | لا | تغيّرت الخطة (لكل الأنظمة) |
-| `family/{family_id}/billing/quota-warning` | 1 | لا | حصة على وشك النفاد |
-| `family/{family_id}/billing/sub-grace-period` | 1 | لا | دخول فترة السماح |
-| `family/{family_id}/billing/sub-renewed` | 1 | لا | تم التجديد |
-| `family/{family_id}/billing/quota-mirror` | 1 | نعم | لقطة مرآة الحصة المرجعية (الناشر: الفوترة `SmsLedger` — Q-239؛ الحمولة: `{quota_balance, sms_emergency_remaining, cycle_end, server_timestamp, mirror_version}` — تُدفع عند كل تغيير في `quota_usage`؛ والمشترك: كل أجهزة العائلة تستبدل مرآتها كاملةً باللقطة — الخادم يفوز دائماً) |
+| الموضوع | QoS | Retained | الحمولة | الناشر | المشترك |
+|---|---|---|---|---|---|
+| `family/{family_id}/billing/subscription-changed` | 1 | لا | `{family_id, plan_id, tier_level, status, effective_at}` — حالة خطة فقط، بلا أسعار ولا تفاصيل دفع | وحدة الفوترة (Ktor billing) | S1-09 (تحديث العرض)؛ وS1-07 وS1-10 (إعادة قراءة الاستحقاق عبر `GET /families/{id}/plan`) |
+| `family/{family_id}/billing/quota-warning` | 1 | لا | `{family_id, quota (members/sms/ai), used, limit, threshold_percent: 80}` — تنبيه 80% (Q-216) | حارس الحصص (Billing) | S1-09 (إشعار الأب) |
+| `family/{family_id}/billing/sub-grace-period` | 1 | لا | `{family_id, plan_id, grace_started_at, grace_ends_at}` | المجدول (Billing) | S1-09 (إشعار دخول السماح) |
+| `family/{family_id}/billing/sub-renewed` | 1 | لا | `{family_id, plan_id, period_start, period_end, provider}` | وحدة الفوترة (معالج Webhook) | S1-09 |
+| `family/{family_id}/billing/quota-mirror` | 1 | نعم | `{quota_balance, sms_emergency_remaining, cycle_end, server_timestamp, mirror_version}` — تُدفع عند كل تغيير في `quota_usage`؛ والمشترك يستبدل مرآته كاملةً باللقطة — الخادم يفوز دائماً | الفوترة `SmsLedger` (Q-239) | كل أجهزة العائلة |
 
 - المصدر: الوسيط §6 — صف «لوحة/تقويم/فوترة»: QoS 1، Retained لا.
+- **خصوصية الحمولات:** حمولات الفوترة حالة خطة/استخدام فقط — بلا أسعار ولا تفاصيل دفع ولا أرقام مرجعية؛ وأي حمولة تشمل تفاصيل فوترة تُعد تسرباً في ناقل الأحداث.
 
 ### قناة MethodChannel (Kotlin)
 - `launchStorePurchase` — فتح ورقة شراء المتجر.
 - `getCachedPlan` — الخطة المحفوظة محلياً (دون اتصال).
 
 ### رموز الخطأ (`BIL_*`)
-`PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED` · `QUOTA_EXCEEDED` · `TRIAL_ALREADY_USED` · `PAYMENT_FAILED` · `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
+`PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED` · `QUOTA_EXCEEDED` · `TRIAL_ALREADY_USED` · `PAYMENT_FAILED` · `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED` · `VALIDATION_FAILED` (طلب غير صالح — 400 عام) — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
 
 ### التحقق من دفع المحفظة واليدوي (Q-251)
 
@@ -197,11 +203,11 @@ flowchart LR
 
 **جداول النظام:**
 - `plan` — الخطة: `plan_id` · `tier_level` (FREE/BASIC/PREMIUM) · `title_ar` · `description_ar` · `billing_interval` (LIFETIME_FREE/MONTHLY/ANNUAL) · `flags` (jsonb — أعلام المزايا) · `quotas` (jsonb — max_members/sms_monthly/ai_budget_monthly) · `is_active`. (الأعلام والحصص jsonb = تعديل بلا كود ولا تغيير مخطط — Q-055.)
-- `plan_price` — سعر الخطة لكل سوق: `plan_id` · `market` (gulf/yemen) · `price_cents` · `currency` (SAR/YER) · `is_active`.
-- `family_subscription` — اشتراك العائلة: `id` · `family_id` (UNIQUE + RLS) · `plan_id` · `status` (ACTIVE/TRIAL/IN_GRACE_PERIOD/EXPIRED/CANCELLED) · `billing_provider` (SYSTEM_FREE/GOOGLE_PLAY/APPLE_APP_STORE/WALLET/VOUCHER/MANUAL) · `provider_subscription_id` · `provider_original_transaction_id` · `current_period_start`/`current_period_end` · `auto_renew` · `trial_used` · `purchased_by`.
-- `purchase_receipt` — سجل تدقيق مالي: `id` · `family_id` · `user_id` · `provider` · `product_id` · `receipt_data` (حمولة مشفرة) · `validation_status` (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED) · `server_verified_at` · `raw_provider_response` (jsonb).
+- `plan_price` — سعر الخطة لكل سوق: `plan_id` · `market` (gulf/yemen) · `price_cents` · `currency` (SAR/YER) · `is_active`. (المفتاح المركب: `plan_id` + `market` — سعر لكل سوق؛ فيتعايش صف خليجي وصف يمني لنفس `plan_id`.)
+- `family_subscription` — اشتراك العائلة: `id` · `family_id` (UNIQUE + RLS) · `plan_id` · `status` (ACTIVE/TRIAL/IN_GRACE_PERIOD/EXPIRED/CANCELLED) · `billing_provider` (SYSTEM_FREE/GOOGLE_PLAY/APPLE_APP_STORE/WALLET/VOUCHER/MANUAL) · `provider_subscription_id` (text — معرّف اشتراك معتم من المزوّد) · `provider_original_transaction_id` (text — معرّف معاملة أصلي معتم من المزوّد) · `current_period_start`/`current_period_end` · `trial_started_at`/`trial_ends_at` (nullable — نافذة التجربة 7 أيام — Q-130) · `grace_started_at`/`grace_ends_at` (nullable — نافذة السماح 3 أيام — Q-131) · `auto_renew` · `trial_used` · `purchased_by` (uuid — FK إلى المستخدم (البالغ) الذي اشترى — نفس هوية `purchase_receipt.user_id` — S1-02).
+- `purchase_receipt` — سجل تدقيق مالي: `id` · `family_id` · `user_id` · `provider` · `product_id` (text — معرّف منتج معتم من المزوّد) · `receipt_data` (حمولة مشفرة) · `validation_status` (VALIDATED_SUCCESS/FRAUD_SUSPECT/EXPIRED) · `server_verified_at` · `raw_provider_response` (jsonb).
 - `voucher` — القسيمة: `voucher_id` · `code` (فريد) · `plan_id` · `duration_months` · `status` (ISSUED/REDEEMED/REVOKED/EXPIRED) · `issued_by` (الوكيل) · `issued_at` · `redeemed_by_family_id` · `redeemed_at` · `expires_at`.
-- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` · `sms_emergency_used` · `ai_calls` · `topup_sms_balance` · `updated_at` · `mirror_version` (عدد صحيح رتيب أحادي لكل عائلة+دورة — يملكه الخادم ويُرفع عند كل تغيير في العدّاد؛ يُسلَّم في لقطة المرآة و`POST .../quota/mirror-sync` — S1-07 §4-1). (المفتاح: family_id + period.) **العدّاد مرجع خادمي لكل عائلة لا لكل جهاز:** `sms_emergency_used` يحسب رسائل الطوارئ الثلاث (Q-163) لكل عائلة في الدورة — تُجمع استخدامات كل أجهزة العائلة بعد إزالة التكرار عند المزامنة، فلا يعيد جهاز ثانٍ (Q-230) صرف ما صرفه الأول (Q-239).
+- `quota_usage` — عدّاد الاستهلاك (كان مذكوراً بلا تعريف في المرجع القديم — يُعرَّف هنا): `family_id` · `period` (YYYY-MM) · `sms_sent` (إجمالي SMS الصادرة) · `sms_emergency_used` (SOS فقط) · `sms_otp_used` (رسائل OTP الاحتياطية فقط — منفصل عن SOS) · `ai_calls` · `topup_sms_balance` · `updated_at` · `mirror_version` (عدد صحيح رتيب أحادي لكل عائلة+دورة — يملكه الخادم ويُرفع عند كل تغيير في العدّاد؛ يُسلَّم في لقطة المرآة و`POST .../quota/mirror-sync` — S1-07 §4-1). (المفتاح: family_id + period.) **العدّاد مرجع خادمي لكل عائلة لا لكل جهاز:** `sms_emergency_used` يحسب رسائل الطوارئ الثلاث (Q-163) لكل عائلة في الدورة — تُجمع استخدامات كل أجهزة العائلة بعد إزالة التكرار عند المزامنة، فلا يعيد جهاز ثانٍ (Q-230) صرف ما صرفه الأول (Q-239). ومرآة S1-07 تحمل التقسيم نفسه (OTP مقابل SOS) عند تحديثها — متابعة عبر-أنظمة خارج نطاق هذا التغيير.
 - `payment_confirmation` — سجل الدفع/التأكيد اليدوي (Q-251): `payment_id` · `family_id` (RLS) · `plan_id` · `channel` (WALLET/MANUAL — من `billing_provider`) · `provider` (ONECASH/MAHFATHATI — للمحفظة فقط؛ null لليدوي) · `reference` (الرقم المرجعي المعتم كما قدمه الأب — نص كما هو؛ null قبل التأكيد) · `status` (INITIATED/PENDING_VERIFICATION/VERIFIED/REJECTED) · `initiated_by` · `initiated_at` · `confirmed_at` · `verified_at`. (وعند `VERIFIED` يُكتب سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` — سجل التدقيق المالي.)
 
 **مراجع:** عدد الأعضاء من S1-02 (لحصة الأفراد)؛ وكل شراء/ترقية/إلغاء/استبدال يُسجَّل في AuditEvent (domain=billing)؛ والخطة تُقرأ في S1-09 عبر `GET /api/v1/families/{id}/plan`. **مخازن العميل (ليست جداول خادم):** الخطة المحفوظة + حالة الحصص (للقراءة دون اتصال).
@@ -221,7 +227,8 @@ flowchart LR
 - الـ PIN لا يغادر الجهاز أبداً.
 - الحصص تُفرض على الخادم؛ وعرض العميل استرشادي فقط.
 - اشتراك واحد لكل عائلة.
-- التراجع اللبق: بلا قفل وبلا حذف؛ والأعضاء الحاليون يبقون.
+- التراجع اللبق: انتقال واحد — الصف يصبح `status=ACTIVE` على الخطة المجانية (`plan_id` = خطة FREE)؛ وانتهاء الخطة المدفوعة يُسجَّل في AuditEvent (لا حالة EXPIRED انتقالية على الصف نفسه — R2-S104-21)؛ وبلا قفل وبلا حذف؛ والأعضاء الحاليون يبقون.
+- اشتقاق الحالة من الطوابع (R2-S104-10): `TRIAL` من `trial_started_at`/`trial_ends_at`؛ و`IN_GRACE_PERIOD` من `grace_started_at`/`grace_ends_at`؛ و`current_period_start`/`current_period_end` فترة الاشتراك المدفوعة وحدها — لا تُستخدم لحساب التجربة أو السماح؛ وعند انتهاء التجربة يبدأ السماح بـ `grace_started_at`؛ وعند انتهاء السماح يقع التراجع اللبق.
 - التجربة مرة واحدة لكل عائلة وغير قابلة للتحويل.
 - القسيمة لمرة واحدة؛ ولا استرداد لها عبر التطبيق.
 - الفوترة مخفية تماماً عن الأطفال والمراهقين (لا تُعرض ولا تُذكر).
@@ -534,7 +541,7 @@ flowchart LR
 #### S04-09 — فترة السماح والتراجع اللبق
 
 - **المصدر:** REQ-013/REQ-014 + DS-ST-01/DS-MC-04/DS-CC-04/DS-ST-07.
-- **الحقول الرئيسية:** الحالة الحالية (`IN_GRACE_PERIOD` أو تراجع للمجانية)؛ الأيام المتبقية في السماح (3 أيام)؛ نص الطمأنة: «الميزات تبقى» أثناء السماح؛ «بلا قفل وبلا حذف بيانات؛ والأعضاء الحاليون يبقون» عند التراجع؛ ما يُحظر فقط: إضافة أعضاء جدد فوق حد المجانية؛ زر «جدّد الآن» (إلى S04-02)؛ زر «ترقية» (ينهي السماح فوراً ويُفعّل الخطة الجديدة — SPEC §7).
+- **الحقول الرئيسية:** الحالة الحالية (`IN_GRACE_PERIOD` أو تراجع للمجانية)؛ الأيام المتبقية في السماح (3 أيام)؛ نص الطمأنة: «الميزات تبقى» أثناء السماح؛ «بلا قفل وبلا حذف بيانات؛ والأعضاء الحاليون يبقون» عند التراجع؛ ما يُحظر فقط: إضافة أعضاء جدد فوق حد المجانية؛ زر «جدّد الآن» (يستدعي `POST /api/v1/families/{id}/plan/renew` — تجديد الخطة نفسها لفترة جديدة مع خطوة دفع حسب القناة؛ لا مجرد تنقل إلى S04-02)؛ زر «ترقية» (ينهي السماح فوراً ويُفعّل الخطة الجديدة — SPEC §7).
 - **التنقل:** من: إشعار دخول السماح (`family/{family_id}/billing/sub-grace-period`) / S04-01. إلى: S04-02 (تجديد/ترقية) / S04-01.
 - **الحالات (DS-ST):** تحميل — Skeleton؛ فارغة — لا تنطبق (تظهر فقط عند دخول السماح أو بعد التراجع)؛ خطأ — فشل تحميل الحالة: بطاقة خطأ + إعادة محاولة (DS-ST-02)؛ بلا اتصال — عرض الحالة المحفوظة مع وقت صريح (DS-ST-05)؛ نجاح — عرض حالة السماح/التراجع كاملة؛ جزئي — لا ينطبق.
 - **وايرفريم ASCII:**

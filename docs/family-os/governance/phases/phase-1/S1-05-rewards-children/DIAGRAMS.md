@@ -73,7 +73,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الستة من §5 كما هي، مع ثلاثة مراجع خارجية موثقة في §5: عضوية الطفل (S1-02)، و`AuditEvent` (النواة المشتركة، domain=rewards)، والعائلة (حاملة `family_id` + RLS). ملاحظتان: مرآة المحفظة في Drift وOutbox مخزنان محليان على الجهاز (ليستا جدولَي خادم)؛ و`enabled_sources` من نوع jsonb في §5 وتظهر هنا كسلسلة نصية لأن مخطط ERD لا يميز jsonb.
+الجداول السبعة من §5 كما هي، مع ثلاثة مراجع خارجية موثقة في §5: عضوية الطفل (S1-02)، و`AuditEvent` (النواة المشتركة، domain=rewards)، والعائلة (حاملة `family_id` + RLS). ملاحظتان: مرآة المحفظة في Drift وOutbox مخزنان محليان على الجهاز (ليستا جدولَي خادم)؛ و`enabled_sources` من نوع jsonb في §5 وتظهر هنا كسلسلة نصية لأن مخطط ERD لا يميز jsonb.
 
 ```mermaid
 erDiagram
@@ -86,8 +86,11 @@ erDiagram
     child_wallet ||--o{ points_ledger : "حركاتها تُسجَّل"
     child_wallet ||--o{ time_request : "يطلب وقتاً"
     child_wallet ||--o{ granted_time : "يُمنح وقتاً"
+    child_wallet ||--o{ objection : "اعتراضاته"
+    child_wallet ||--o{ streak_freeze : "تجميداته تُسجَّل"
     child_wallet ||--o{ AuditEvent : "منحها وصرفها يُسجَّلان"
     time_request ||--o{ AuditEvent : "قراراته تُسجَّل"
+    objection ||--o{ AuditEvent : "قراراته تُسجَّل"
 
     child_wallet {
         uuid child_id PK
@@ -95,6 +98,7 @@ erDiagram
         int balance_points
         int total_earned_all_time
         int streak_days
+        date last_earning_date
         timestamptz streak_frozen_until
         int daily_spent_minutes
         timestamptz daily_spent_date
@@ -154,6 +158,16 @@ erDiagram
         int daily_spend_cap_minutes
         int streak_bonus_points
         text enabled_sources
+        int version
+    }
+    streak_freeze {
+        uuid freeze_id PK
+        uuid family_id FK
+        uuid child_id FK
+        text frozen_by
+        timestamptz frozen_at
+        timestamptz frozen_until
+        timestamptz created_at
     }
     family {
         uuid id PK
@@ -166,8 +180,8 @@ erDiagram
     }
 ```
 
-- المصدر: §5 كاملاً (الجداول الستة وحقولها) · §6 (الثوابت الصلبة).
-- `balance_points` لا يقل عن صفر أبداً — والفرض على الخادم لا على العميل (§6)؛ و`kind` في `points_ledger` إحدى: TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED (§5)؛ و`status` في `time_request` إحدى: PENDING / APPROVED / REJECTED / TASK_ASSIGNED (§5)؛ و`status` في `granted_time` إحدى: ACTIVE / EXPIRED / EXHAUSTED (§5)؛ و`source` في `granted_time` إحدى: REDEEM / GRANT (§5).
+- المصدر: §5 كاملاً (الجداول السبعة وحقولها) · §6 (الثوابت الصلبة).
+- `balance_points` لا يقل عن صفر أبداً — والفرض على الخادم لا على العميل (§6)؛ و`kind` في `points_ledger` إحدى: TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED / REVERSAL (قيد تعويضي — §5)؛ و`status` في `time_request` إحدى: PENDING / APPROVED / REJECTED / TASK_ASSIGNED (§5)؛ و`status` في `granted_time` إحدى: ACTIVE / EXPIRED / EXHAUSTED (§5)؛ و`source` في `granted_time` إحدى: REDEEM / GRANT (§5)؛ و`version` في `rewards_settings` عداد نسخة للتفاؤل (§5 — 409 `REW_VERSION_CONFLICT`).
 - القيم الافتراضية المحكومة: `daily_spend_cap_minutes` = 60 دقيقة (Q-114) · `streak_bonus_points` = 50 نقطة (قابلة للتغيير من الأب — §5) · `enabled_sources` افتراضياً كل الأنظمة المسجلة (Q-118).
 - لا محفظة للمراهقين إطلاقاً (Q-109) — فلا صف `child_wallet` لمراهق؛ وكل جدول يحمل `family_id` + عزل RLS (عائلة واحدة لكل حساب في المرحلة 1).
 
@@ -311,13 +325,18 @@ sequenceDiagram
     Ktor->>Ktor: AuditEvent (domain=rewards)
     Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت
     Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/streak/freeze — تجميد ليوم واحد (مرض / سفر)
-    Ktor->>Wallet: streak_frozen_until = الغد — التجميد يمدّد السلسلة يوماً واحداً
-    Ktor-->>Father: السلسلة مجمَّدة — لن تنقطع
+    alt لا تجميد نشط
+        Ktor->>Wallet: streak_frozen_until = الغد — التجميد يمدّد السلسلة يوماً واحداً
+        Ktor->>Ktor: سجل التجميد في streak_freeze (§5)
+        Ktor-->>Father: السلسلة مجمَّدة — لن تنقطع
+    else تجميد نشط موجود
+        Ktor-->>Father: REW_ALREADY_FROZEN — تجميد واحد نشط في كل مرة
+    end
 ```
 
 - المنح اليدوي بلا مهمة (Q-107/REQ-006)؛ والتجميد بإذن الأب فقط وليوم واحد في كل مرة (§6)؛ والتجميد بعد انقطاع السلسلة لا يعيدها (§7)؛ وسلسلة 7 أيام تكسب مكافأة السلسلة (50 نقطة افتراضياً — §5) مع شارة (§2: 5-5).
 
-### 3-هـ. العمل دون اتصال والمزامنة (REQ-003 — §4: `getCachedWallet` + `queueTimeRequest`)
+### 3-هـ. العمل دون اتصال والمزامنة (REQ-003 — §4: `getCachedWallet` + `queueTimeRequest` + `queueRedeem` + `queueObjection`)
 
 ```mermaid
 sequenceDiagram
@@ -330,8 +349,12 @@ sequenceDiagram
     Shell->>K: getCachedWallet
     K-->>Shell: آخر رصيد معروف + وقت صريح
     Shell-->>Child: الرصيد المعروض — آخر رصيد معروف مع وقته
-    Child->>Shell: طلب وقت / صرف دون اتصال
+    Child->>Shell: طلب وقت دون اتصال
     Shell->>K: queueTimeRequest — يُحفظ في Outbox
+    Child->>Shell: صرف دون اتصال
+    Shell->>K: queueRedeem {app_package, points, client_request_id} — يُحفظ في Outbox (مفتاح عدم التكرار client_request_id — آلية S1-01)
+    Child->>Shell: اعتراض دون اتصال
+    Shell->>K: queueObjection {subject_type, subject_id, objection_text} — يُحفظ في Outbox
     Note over Shell,K: عند عودة الاتصال
     Shell->>Ktor: إرسال Outbox بترتيب زمني
     alt الرصيد يكفي
@@ -363,11 +386,11 @@ sequenceDiagram
         Ktor->>Ktor: AuditEvent (domain=rewards)
         Ktor-->>Child: family/{family_id}/wallet/updated — الرصيد الجديد بعد العكس
     else لا إيداع أصلي / سبق عكسه
-        Ktor-->>Father: لا عكس — يعاد الإيداع الأصلي بلا مضاعفة (§7)
+        Ktor-->>Father: لا عكس — سبق عكسه / لا إيداع أصلي؛ وتُعاد نتيجة العكس الأصلية إن وُجدت بلا خصم ثانٍ (§7 — عملية عكس واحدة)
     end
 ```
 
-- الاشتراك في `family/{family_id}/tasks.verification-revoked` إلزامي: إلغاء التحقق في S1-06 يعوَّض الإيداع في S1-05 (S1-06 SPEC §4 `revoke-verification` و§6)؛ والقيد التعويضي سالب بنفس قيمة الإيداع الأصلي، والرصيد لا يقل عن صفر أبداً (§6)؛ وإلغاء مكرر لنفس `task_id` لا يعكس مرتين (§7 — نفس قاعدة عدم التكرار في 3-أ).
+- الاشتراك في `family/{family_id}/tasks.verification-revoked` إلزامي: إلغاء التحقق في S1-06 يعوَّض الإيداع في S1-05 (S1-06 SPEC §4 `revoke-verification` و§6)؛ والقيد التعويضي سالب بنفس قيمة الإيداع الأصلي، والرصيد لا يقل عن صفر أبداً (§6)؛ وإلغاء مكرر لنفس `task_id` لا يعكس مرتين (§7 — نفس قاعدة عدم التكرار في 3-أ)؛ ومسارا العكس (S1-06 `revoke-verification` وS1-05 `reverse`) يكتبان قيداً تعويضياً واحداً لنفس الإيداع — لا قيدين (§6).
 
 ### 3-ز. اعتراض الطفل على منح أو رفض + تراجع S1-05 (REQ-018 — §4)
 
@@ -383,6 +406,8 @@ sequenceDiagram
     App->>Ktor: POST /api/v1/families/{id}/children/{childId}/objections — اعتراض الطفل (يُشعَر به الأب فوراً — REQ-018 · Q-193)
     Ktor->>Father: إشعار فوري بالاعتراض + الدليل (AgentActionLog)
     Father->>App: مراجعة المنح/الرفض
+    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/objections/{objectionId}/decide {ACCEPTED | REJECTED, reason?}
+    Ktor->>Ktor: كتابة صف الاعتراض (status / decided_by / decided_at / decision_reason)
     alt الأب يقبل الاعتراض (تراجع عن المنح)
         Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse
         Ktor->>Wallet: قيد تعويضي — حدث family/{family_id}/tasks.verification-revoked
@@ -428,9 +453,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–6.0، والمخازن D1–D5 جداول الخادم من §5، وD6–D7 مخزنان محليان على الجهاز (موثقان في §5: مرآة Drift + Outbox). كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards — §5).
+العمليات مرقمة 1.0–6.0، والمخازن D1–D5 وD8 جداول الخادم من §5، وD6–D7 مخزنان محليان على الجهاز (موثقان في §5: مرآة Drift + Outbox). كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards — §5).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: نقاط القراءة `GET /api/v1/families/{id}/children/{childId}/wallet` و`GET /api/v1/families/{id}/children/{childId}/wallet/ledger` و`GET /api/v1/families/{id}/rewards/settings` و`PATCH /api/v1/families/{id}/rewards/settings` مذكورة في §3 (تُقرأ عبر P2/P6)؛ وبقية النقاط مرسومة في §3 (grant، redeem، time-requests، decide، streak/freeze)؛ ونقطة `POST …/wallet/grants/{walletGrantId}/reverse` (REQ-018 · Q-167) مرسومة في 3-ز؛ ونقطة `POST …/children/{childId}/objections` (REQ-018 · Q-193) مرسومة في 3-ز.
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: نقاط القراءة `GET /api/v1/families/{id}/children/{childId}/wallet` و`GET /api/v1/families/{id}/children/{childId}/wallet/ledger` و`GET /api/v1/families/{id}/rewards/settings` و`PATCH /api/v1/families/{id}/rewards/settings` مذكورة في §3 (تُقرأ عبر P2/P6)؛ وبقية النقاط مرسومة في §3 (grant، redeem، time-requests، decide، streak/freeze)؛ ونقطة `POST …/wallet/grants/{walletGrantId}/reverse` (REQ-018 · Q-167) مرسومة في 3-ز؛ ونقطة `POST …/children/{childId}/objections` (REQ-018 · Q-193) مرسومة في 3-ز؛ ونقطة `POST …/objections/{objectionId}/decide` (REQ-018) مرسومة في 3-ز وتكتب في D8.
 
 ```mermaid
 flowchart LR
@@ -459,6 +484,7 @@ flowchart LR
         D5[(D5 rewards_settings)]
         D6[(D6 مرآة المحفظة Drift — محلي)]
         D7[(D7 Outbox — محلي)]
+        D8[(D8 objection)]
     end
 
     Ktor([خادم Ktor — وحدة rewards])
@@ -489,6 +515,11 @@ flowchart LR
     P4 -->|القرار + assigned_task_id| D3
     P4 -->|منح مباشر — قيد ليوم واحد| D4
     P4 -->|"family/{family_id}/time-request/decided"| Child
+    Child -->|اعتراض على منح أو رفض| P4
+    P4 -->|حفظ الاعتراض PENDING| D8
+    Father -->|قرار على الاعتراض: قبول / رفض + السبب| P4
+    P4 -->|القرار + السبب| D8
+    P4 -->|قبول الاعتراض → عكس المنح| P2
     P2 -->|أول كسب موثَّق اليوم| P5
     P5 -->|السلسلة + التجميد| D1
     Father -->|تجميد يوم واحد| P5
@@ -505,7 +536,7 @@ flowchart LR
     P4 -->|كل قرار| Audit
 ```
 
-- المصدر: §4 (REST + MQTT + MethodChannel) · §5 (الجداول الستة + مخزنا العميل) · §6 (الصلاحيات والثوابت).
+- المصدر: §4 (REST + MQTT + MethodChannel) · §5 (الجداول السبعة + مخزنا العميل) · §6 (الصلاحيات والثوابت).
 - الحد اليومي الذي يفحصه P3 حد الصرف من النقاط فقط (مصدر REDEEM)؛ والمنح المباشر (مصدر GRANT) لا يستهلكه (§6 — Q-114).
 - S1-05 يستهلك حدود S1-10 وأرصدته ولا يملك الفرض (REQ-015) — فلا عملية فرض في هذا المخطط؛ والفرض والحظر يبقيان في S1-10.
 
