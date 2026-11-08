@@ -60,7 +60,7 @@ flowchart LR
     UC10 --> UC11
     S106 --> UC11
     Other --> UC11
-    AI --> UC11
+    AI -.->|تحقق| UC11
     UC11 -.->|يتضمن| UC12
     UC9 --> S110
     UC8 --> S109
@@ -276,7 +276,7 @@ sequenceDiagram
     end
 ```
 
-- سعر الصرف ثابت 1:1 (Q-111)؛ والصرف بخطوات ثابتة 10 نقاط: الحد الأدنى 10، والحد الأقصى = الرصيد، ومبلغ ليس من مضاعفات 10 يُرفض بـ `REW_VALIDATION_FAILED` (Q-273)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009 · Q-183)؛ والحد اليومي يُفرض على الخادم (Q-114)؛ والحد اليومي هنا حد الوقت الإضافي كله: المنح المباشر (مصدر GRANT) يزيد `daily_spent_minutes` ويستهلك الحد مثل الصرف (Q-272 — §6).
+- سعر الصرف ثابت 1:1 للأبد في المرحلة 1 (Q-111 · Q-279)؛ والصرف بخطوات ثابتة 10 نقاط: الحد الأدنى 10، والحد الأقصى = الرصيد، ومبلغ ليس من مضاعفات 10 يُرفض بـ `REW_VALIDATION_FAILED` (Q-273)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009 · Q-183)؛ والحد اليومي يُفرض على الخادم (Q-114)؛ والحد اليومي هنا حد الوقت الإضافي كله: المنح المباشر (مصدر GRANT) يزيد `daily_spent_minutes` ويستهلك الحد مثل الصرف (Q-272 — §6).
 
 ### 3-ج. طلب وقت إضافي وقرار الأب (REQ-012 / REQ-013 / REQ-014 — §4: `POST /api/v1/families/{id}/children/{childId}/time-requests` + `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide`)
 
@@ -326,6 +326,7 @@ sequenceDiagram
     Ktor->>Wallet: إيداع فوري + سجل MANUAL_GRANT في points_ledger
     Ktor->>Ktor: AuditEvent (domain=rewards)
     Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت
+    Ktor-->>Father: Snackbar «منحت {child} {points} نقطة» + تراجع 10 ثوانٍ (Q-275 — العكس السريع عبر S05-09 بقيد تعويضي — REQ-018)
     Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/streak/freeze — تجميد ليوم واحد (مرض / سفر)
     alt تجميد نشط موجود
         Ktor-->>Father: REW_ALREADY_FROZEN — تجميد واحد نشط في كل مرة
