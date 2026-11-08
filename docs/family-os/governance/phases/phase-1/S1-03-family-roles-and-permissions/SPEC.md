@@ -2,7 +2,7 @@
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-07
 - **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · Q-139 · Q-162 · Q-164 · Q-166 · Q-174 · Q-189 · Q-201 · Q-204 · Q-227 · Q-232 · Q-235 · Q-248 · Q-250 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
-- **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط — حكم المالك 2026-11-05 (§1 · §2 سيناريوهات (12 سيناريواً) · §3 المتطلبات (20 متطلباً) · §4 العقود (17 نقطة + 3 أحداث + طريقتان) · §5 البيانات (5 جداول + مرجعان) · §6 القواعد والصلاحيات (7 مفاتيح) · §7 الحالات الحدية (16 حالة) · §8 القبول (14 معياراً) · §10 خطة التنفيذ) · **§9 في مرحلة التصميم (Q-091)**.
+- **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط — حكم المالك 2026-11-05 (§1 · §2 سيناريوهات (12 سيناريواً) · §3 المتطلبات (20 متطلباً) · §4 العقود (20 نقطة + 4 مواضيع — 3 مملوكة + مرجع `alerts/new` — + طريقتان) · §5 البيانات (6 جداول + مرجعان) · §6 القواعد والصلاحيات (7 مفاتيح) · §7 الحالات الحدية (17 حالة) · §8 القبول (14 معياراً) · §10 خطة التنفيذ) · **§9 في مرحلة التصميم (Q-091)**.
 - **الأدلة المرجعية:** المواصفة القديمة S1-03 (مرجع فقط، G-009) · Deep-dives: FamilyWall (`FWPermission`) · Qustodio (نموذج حساب الأهل + ملفات الأطفال) · S1-01 (معتمد) · S1-02 (معتمد)
 
 ## 1. الهدف والتحليل والنطاق
@@ -230,33 +230,58 @@ flowchart TD
 
 ### 4-1. نقاط الوصول (REST — `/api/v1`)
 
-| الطريقة والمسار | الغرض | المدخل | المخرج |
-|---|---|---|---|
-| `GET /api/v1/permissions/keys` | سجل المفاتيح المركزي (REQ-008) | — | قائمة المفاتيح: `key` (`domain.action`) + العنوان العربي + الوصف + علامة "حساس" |
-| `GET /api/v1/families/{id}/members/{memberId}/permissions` | الصلاحيات الفعلية لعضو (الأدوار + المنح المحلولة) | — | `{member_id, role, grants: [{key, scope, valid_until, is_granted}]}` |
-| `POST /api/v1/families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010؛ و`{memberId}` هو معرّف العضوية `membership.id` — Q-169) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", challenge_id, signature, at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)** — **عدا تبديل المنح من S1-09 (Q-174): يُقبل `verification: {method, at}` بلا `challenge_id`/`signature`**؛ ويُسجَّل في التدقيق | `{grant_id, ...}` — `201` |
-| `PATCH /api/v1/families/{id}/members/{memberId}/grants/{grantId}` | تعديل منح (النطاق/المدة) | `{scope?, valid_until?}` | المنح المعدَّل |
-| `DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}` | إلغاء منح — فوري (REQ-017) | — | `204` + دفع حدث إبطال لكل أجهزة العضو |
-| `POST /api/v1/families/{id}/members/{memberId}/grants/apply-template` | تطبيق قالب (REQ-013/014) | `{template_id: "partner" \| "guardian" \| "observer"}` | المنح المنسوخة من القالب |
-| `GET /api/v1/families/{id}/templates` | القوالب الثلاثة ومفاتيح كل منها | — | `[{template_id, title_ar, keys: [...]}]` |
-| `PATCH /api/v1/families/{id}/templates/{templateId}` | تعديل تعريف قالب (المالك فقط — Q-089 · Q-205) | `{title_ar?, description_ar?, keys?}` — المفاتيح مجموعة `template_key` (§5-3) | القالب المعدَّل |
-| `POST /api/v1/families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id}` — شرط النقل: PIN أو بصمة (Q-093) | `{transfer_id, status: "pending"}` |
-| `POST /api/v1/families/{id}/ownership-transfer/{transferId}/accept` | قبول نقل الملكية (البالغ المتلقي — REQ-016) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق محلي (Q-093) **ويتحقق الخادم من التوقيع قبل القبول (Q-164)** | `{transfer_id, status: "accepted"}` — `200` |
-| `DELETE /api/v1/families/{id}/ownership-transfer/{transferId}` | إلغاء نقل ملكية معلق (المالك فقط — REQ-016 · Q-162) | — | `{transfer_id, status: "cancelled"}` — `200` |
-| `DELETE /api/v1/families/{id}` | حذف العائلة (المالك فقط — REQ-020 · Q-166) | PIN/بصمة مثبَتة بالتحدي (Q-164) | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً |
-| `DELETE /api/v1/families/{id}/members/{memberId}` | إزالة عضو (المالك فقط + PIN — `identity.member.remove` · Q-166) | — | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً؛ والرسائل تُجهَّل |
-| `POST /api/v1/families/{id}/deletion/cancel` | إلغاء حذف عائلة معلَّق خلال السماح (المالك فقط — Q-166 · Q-204) | — | `{status: "active"}` — `200` |
-| `POST /api/v1/families/{id}/members/{memberId}/deletion/cancel` | إلغاء حذف عضو معلَّق خلال السماح (المالك فقط — Q-166 · Q-204) | — | `{status: "active"}` — `200` |
-| `GET /api/v1/families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&from&to` | قائمة الأحداث: `{actor, target, action, key?, at, result}` |
-| `POST /api/v1/permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id (معرّف العضوية `membership.id` — Q-169), permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant"}` — وللمالك (`adult` + `is_owner=true`): `{allowed: true, reason: "granted"}` بقاعدة المالك (§6-3 — Q-232)؛ وتسمية القاعدة بقيمة `reason` مستقلة تتبع في B4 (لمسة عقد النقطة) |
+| الطريقة والمسار | الغرض | المدخل | المخرج | التفويض |
+|---|---|---|---|---|
+| `GET /api/v1/permissions/keys` | سجل المفاتيح المركزي (REQ-008) | — | قائمة المفاتيح: `key` (`domain.action`) + العنوان العربي + الوصف + علامة "حساس"  | `roles.key.view` — المالك ضمناً (Q-232)؛ والبالغ المفوَّض الحامل للمفتاح |
+| `GET /api/v1/families/{id}/members/{memberId}/permissions` | الصلاحيات الفعلية لعضو (الأدوار + المنح المحلولة) | — | `{member_id, role, grants: [{key, scope, valid_until, is_granted}]}`  | المالك؛ أو العضو نفسه لمنحه (R03-17) — بلا مفتاح (قراءة بيانات النفس) |
+| `POST /api/v1/families/{id}/members/{memberId}/grants` | إنشاء منح (المالك فقط — REQ-010؛ و`{memberId}` هو معرّف العضوية `membership.id` — Q-169) | `{permission_key, scope, valid_until, verification?: {method: "pin" \| "biometric", challenge_id, signature, at}}` — المفتاح الحساس بلا `verification` يُرفض (REQ-012)؛ التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)** — **عدا تبديل المنح من S1-09 (Q-174): يُقبل `verification: {method, at}` بلا `challenge_id`/`signature`**؛ ويُسجَّل في التدقيق | `{grant_id, ...}` — `201`  | `roles.grant.create` — المالك حصراً (REQ-010) |
+| `PATCH /api/v1/families/{id}/members/{memberId}/grants/{grantId}` | تعديل منح (النطاق/المدة) | `{scope?, valid_until?}` + ترويسة `If-Match: <version>` (إلزامية — REQ-019) | المنح المعدَّل (مع `version` الجديد)  | `roles.grant.edit` — المالك حصراً (REQ-010) |
+| `DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}` | إلغاء منح — فوري (REQ-017) | — | `204` + دفع حدث إبطال لكل أجهزة العضو  | `roles.grant.revoke` — المالك حصراً (REQ-010) |
+| `POST /api/v1/families/{id}/members/{memberId}/grants/apply-template` | تطبيق قالب (REQ-013/014) | `{template_id: "partner" \| "guardian" \| "observer", valid_until}` — `valid_until` واحد يطبَّق على كل المنح المنسوخة؛ وبلا افتراضي على مستوى القالب (Q-087) | المنح المنسوخة من القالب  | `roles.template.apply` — المالك حصراً (REQ-010) |
+| `GET /api/v1/families/{id}/templates` | القوالب الثلاثة ومفاتيح كل منها | — | `[{template_id, title_ar, keys: [...]}]`  | المالك فقط (عرض القوالب — R03-06) — بلا مفتاح منفصل |
+| `PATCH /api/v1/families/{id}/templates/{templateId}` | تعديل تعريف قالب (المالك فقط — Q-089 · Q-205) | `{title_ar?, description_ar?, keys?}` — المفاتيح مجموعة `template_key` (§5-3)؛ و`keys` **تستبدل المجموعة كاملة** (الغائب عنها يُزال؛ وفارغة تمسحها؛ ومفتاح غير معروف فيها → `400` + `PERM_DENIED` بلا تطبيق جزئي — §7-17) | القالب المعدَّل  | المالك فقط (Q-089 · Q-205) — بلا مفتاح ذري |
+| `POST /api/v1/families/{id}/ownership-transfer` | بدء نقل الملكية (لبالغ فقط — REQ-016) | `{to_member_id, verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق مثبَت بالتحدي (Q-093 · Q-164)؛ ويُصدر التحدي عبر `POST /api/v1/shell/verification/challenge` (S1-01 — §4-1-أ) | `{transfer_id, status: "pending"}`  | `roles.ownership.transfer` — المالك حصراً (REQ-016) |
+| `POST /api/v1/families/{id}/ownership-transfer/{transferId}/accept` | قبول نقل الملكية (البالغ المتلقي — REQ-016) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق محلي (Q-093) **ويتحقق الخادم من التوقيع قبل القبول (Q-164)** | `{transfer_id, status: "accepted"}` — `200`  | البالغ المتلقي نفسه (جلسة مصادق عليها + هوية المتلقي) — بلا مفتاح |
+| `DELETE /api/v1/families/{id}/ownership-transfer/{transferId}` | إلغاء نقل ملكية معلق (المالك فقط — REQ-016 · Q-162) | — | `{transfer_id, status: "cancelled"}` — `200`  | `roles.ownership.transfer` — المالك حصراً (REQ-016 · Q-162) |
+| `DELETE /api/v1/families/{id}` | حذف العائلة (المالك فقط — REQ-020 · Q-166) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق مثبَت بالتحدي (Q-164) | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً  | المالك فقط — ثابت صلب (D-038)، بلا مفتاح |
+| `DELETE /api/v1/families/{id}/members/{memberId}` | إزالة عضو (المالك فقط + PIN — `identity.member.remove` · Q-166) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق مثبَت بالتحدي (Q-164) | `{status: "pending_deletion", purge_at}` — حذف ناعم + سماح 30 يوماً؛ والرسائل تُجهَّل  | `identity.member.remove` + المالك + PIN (REQ-020 · Q-166) |
+| `POST /api/v1/families/{id}/deletion/cancel` | إلغاء حذف عائلة معلَّق خلال السماح (المالك فقط — Q-166 · Q-204) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق مثبَت بالتحدي (Q-164) | `{status: "active"}` — `200`  | المالك فقط (Q-166 · Q-204) — بلا مفتاح |
+| `POST /api/v1/families/{id}/members/{memberId}/deletion/cancel` | إلغاء حذف عضو معلَّق خلال السماح (المالك فقط — Q-166 · Q-204) | `{verification: {method: "pin" \| "biometric", challenge_id, signature, at}}` — التحقق مثبَت بالتحدي (Q-164) | `{status: "active"}` — `200`  | المالك فقط (Q-166 · Q-204) — بلا مفتاح |
+| `GET /api/v1/families/{id}/audit/permissions` | سجل التدقيق (REQ-018) | `?member_id&action&from&to&limit=50&cursor` — `limit` افتراضي 50 وأقصى 100؛ و`action` من قيم `action` في §5-6 | قائمة الأحداث: `{actor, target_member, action, permission_key?, at, valid_until?, family_id, result}`  | `roles.audit.view` — المالك ضمناً (Q-232) |
+| `POST /api/v1/permissions/check` | فحص صلاحية خادمي (للوحة الأهل والخادم) | `{member_id (معرّف العضوية `membership.id` — Q-169), permission_key, scope?}` | `{allowed: bool, reason: "granted" \| "denied" \| "not_granted" \| "hard_invariant" \| "unknown_key"}` — وللمالك (`adult` + `is_owner=true`): `{allowed: true, reason: "granted"}` بقاعدة المالك (§6-3 — Q-232)؛ والمفتاح غير المعروف أو النطاق الغامض يعطي `reason: "unknown_key"` — رفض في الأثر، مميز في التسمية (REQ-005 · §6-3)  | فحص خادمي للأنظمة — جلسة/خدمة مصادق عليها؛ بلا مفتاح (القارئ يفحص مفتاحاً آخر) |
+| `POST /api/v1/families/{id}/permission-requests` | إنشاء طلب تعديل صلاحية (مراهق/بالغ مفوَّض — R03-17) | `{member_id (معرّف العضوية — Q-169), permission_key, scope?, reason?}` — طلب معلق واحد لكل (عضو، مفتاح)؛ وطلب ثانٍ لنفس المفتاح وهو معلق → `409` | `{request_id, status: "pending"}` — `201` | العضو الطالب نفسه (جلسة مصادق عليها) — بلا مفتاح |
+| `GET /api/v1/families/{id}/permission-requests` | قائمة طلبات التعديل (للمالك — قراره في R03-17) | `?member_id&status` | `[{request_id, member_id, permission_key, scope?, reason?, status, at}]` | المالك فقط — بلا مفتاح |
+| `POST /api/v1/families/{id}/permission-requests/{requestId}/decide` | قرار الأب على الطلب (REQ-010) | `{decision: "approve" \| "deny", scope?, valid_until?, verification?}` — الموافقة تنشئ المنح (فيتطلب `scope` + `valid_until` — REQ-011؛ والمفتاح الحساس يتطلب `verification` — REQ-012) | `{request_id, status: "approved" \| "denied", grant_id?}` | `roles.grant.create` — المالك حصراً (الموافقة تنشئ منحاً) |
+
+### 4-1-أ. إصدار التحدي (إعادة استخدام S1-01 — Q-164)
+
+لا نقطة إصدار تحدي أصلية في هذا النظام: كل خطوات التحدي في §4-1 تستهلك نقطتي S1-01 (§4.2 — `S101/SPEC.md:155`):
+
+| النقطة (S1-01) | الاتجاه | المخرج |
+|---|---|---|
+| `POST /api/v1/shell/verification/challenge` | إصدار تحدٍّ | `{challenge_id, nonce, expires_at}` — صلاحية 5 دقائق، استخدام واحد |
+| `POST /api/v1/shell/verification/prove` | إثبات التحقق | `{challenge_id, signature, method}` → `{verified}` — الخادم يتحقق من التوقيع بمفتاح الجهاز العام المسجَّل |
+
+تستهلك `challenge_id` خطوات هذا النظام: إنشاء منح حساس (`POST …/grants` — REQ-012)، وبدء نقل الملكية (`POST …/ownership-transfer` — REQ-016)، وقبول النقل (`POST …/ownership-transfer/{transferId}/accept` — REQ-016)، وحذف العائلة/العضو وإلغاء الحذف (`DELETE …` و`POST …/deletion/cancel` — REQ-020). ولا يُقبل nonce صادر من تدفق في تدفق آخر — `challenge_id` مربوط بعملية واحدة. **الاستثناء Q-174:** تبديل المنح من مركز التحكم S1-09 يكتفي بـ PIN/بصمة الأب عبر بوابة الوالدين — بلا `challenge_id` وبلا توقيع جهازي؛ وهذا الاستثناء لا ينطبق على أي نقطة في §4-1.
 
 ### 4-2. الأحداث (MQTT → وكيل الطفل)
 
-| الموضوع | الغرض | QoS | Retained |
-|---|---|---|---|
-| `family/{family_id}/permissions/sync` | مزامنة لقطة المنح إلى جهاز الطفل (للفحص المحلي O(1) — REQ-006) | 1 | نعم |
-| `family/{family_id}/permissions/revoked` | دفع إبطال فوري عند أي إلغاء (REQ-017) | 1 | لا |
-| `family/{family_id}/permissions/grant-expiring` | تنبيه انتهاء منح قريب (7 أيام قبل الانتهاء — Q-227): يصدره فحص يومي مجدول للمنح القريبة من الانتهاء؛ يستهلكه S1-09 لتنبيهات `grant_expiring` | 1 | لا |
+| الموضوع | الغرض | QoS | Retained | الحمولة | الناشر | المشترك |
+|---|---|---|---|---|---|---|
+| `family/{family_id}/permissions/sync` | مزامنة لقطة المنح إلى جهاز الطفل (للفحص المحلي O(1) — REQ-006) | 1 | نعم | `{family_id, grants: [{permission_key, scope, valid_until, is_granted}], snapshot_version, at}` | الخادم Ktor — عند كل تغيير منح | جهاز الطفل (اللقطة المحلية) |
+| `family/{family_id}/permissions/revoked` | دفع إبطال فوري عند أي إلغاء (REQ-017) | 1 | لا | `{family_id, member_id, grant_id, permission_key, revoked_at}` | الخادم Ktor — عند الإلغاء | كل أجهزة العضو (إبطال اللقطة) |
+| `family/{family_id}/permissions/grant-expiring` | تنبيه انتهاء منح قريب (7 أيام قبل الانتهاء — Q-227): يصدره فحص يومي مجدول للمنح القريبة من الانتهاء؛ يستهلكه S1-09 لتنبيهات `grant_expiring` | 1 | لا | `{family_id, member_id, grant_id, permission_key, valid_until, days_left}` | فحص يومي مجدول (الخادم — Q-227) | S1-09 (تنبيهات `grant_expiring`) |
+| `family/{family_id}/alerts/new` (مرجع — مالكه S1-09) | دفع تنبيه رفض حساس / محاولة تصعيد إلى الأب (REQ-007) — النوع `escalation` | 1 | لا | `{family_id, alert_id, kind: "escalation", system: "S1-03", target_member_id, at}` | الخادم Ktor — عند الرفض الحساس أو التصعيد | S1-09 (بطاقة «يتطلب انتباهك» + R03-18) |
+
+QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168): اللقطة QoS 1 + retained؛ والأحداث QoS 1 بلا retained. وموضوع `alerts/new` مالكه S1-09 (§4-2) — يُذكر هنا مرجعاً فقط لأن REQ-007 يعتمد عليه؛ ولا يُعاد تعريفه هنا.
+
+### 4-2-أ. حدث داخلي: `member.turned-teen` (بلا موضوع MQTT — Q-189)
+
+- **الاسم:** `member.turned-teen` — حدث خادم داخلي، **بلا موضوع MQTT** (Q-189)؛ وتسميته وحمولته كما تصدرهما S1-02 (REQ-013) — لا تعريف ثانٍ مختلف.
+- **الناشر:** مهمة S1-02 الخادمية اليومية عند منتصف الليل المحلي للعائلة (Q-183)؛ وتُطلق 1 يناير من سنة بلوغ 13 (Q-235).
+- **الحمولة:** `{family_id, member_id (معرّف العضوية `membership.id` — Q-169), birth_year, new_role: "teen", effective_at}`.
+- **المشتركان:** S1-03 (يراجع المنح غير الإشرافية عند التحول ويُشعَر الأب — REQ-003؛ التسلسلية 3-و) وS1-10 (تبقى قواعد الطفل سارية ويُشعَر الأب — S1-10 REQ-027).
+- **كاتب الدور:** مهمة S1-02 اليومية نفسها — هي مالكة `membership.role` (S1-02 REQ-013)؛ ومعالج S1-03 لا يكتب الدور أبداً، يراجع المنح ويُشعَر الأب فقط.
 
 QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168): اللقطة QoS 1 + retained؛ والأحداث QoS 1 بلا retained.
 
@@ -311,6 +336,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | `scope` | jsonb | إلزامي (Q-007) |
 | `valid_until` | timestamptz | إلزامي (Q-087) — بلا افتراضي |
 | `is_granted` | boolean | `false` = رفض صريح (Q-007) |
+| `version` | integer | رقم نسخة المنح — يبدأ 1 ويزيد عند كل تغيير على **هذا المنح** (نطاق النسخة: المنح نفسه لا مجموعة منح العضو — REQ-019)؛ و`PATCH …/grants/{grantId}` يتطلب ترويسة `If-Match: <version>`؛ ونسخة قديمة → `412` + `PERM_CONFLICT` (§4-4 · §7-8) |
 | `granted_by` | uuid (FK → `person`) | المالك حصراً (REQ-010) |
 | `granted_at` | timestamptz | |
 | `verification_method` | text (nullable) | `pin` / `biometric` — للمنح الحساس (REQ-012)؛ ويُحفظ معه `challenge_id` والتوقيع في التدقيق (Q-164) |
@@ -328,11 +354,25 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 | `to_member_id` | uuid (FK → `person`) | بالغ فقط |
 | `status` | text | `pending` / `accepted` / `cancelled` / `expired` (Q-139) |
 | `auth_method` | text (nullable) | شرط النقل: PIN أو بصمة (Q-093) |
-| `expires_at` | timestamptz | `requested_at` + 7 أيام — بلا قبول ينتهي النقل (Q-139) |
+| `expires_at` | timestamptz | `requested_at` + 7 أيام — بلا قبول ينتهي النقل (Q-139)؛ ويقلب فحص يومي مجدول (مهمة انتهاء النقل — §7-14) كل نقل `pending` تجاوز `expires_at` إلى `expired` |
 | `requested_at` / `accepted_at` | timestamptz (nullable) | |
 
 ### 5-6. `AuditEvent` — سجل التدقيق (النواة المشتركة — REQ-018)
-حدث تدقيق مشترك (من خريطة السياقات) بنطاق `domain = "permissions"`: `{actor, target_member, action (grant/modify/revoke/deny), permission_key?, at, result}` — قابل للعرض على الأب.
+حدث تدقيق مشترك (من خريطة السياقات) بنطاق `domain = "permissions"`: `{actor, target_member, action (grant/modify/revoke/deny), permission_key?, at, result, valid_until?, family_id}` — قابل للعرض على الأب. و`valid_until` من المنح المعني (لاغٍ في الرفض)؛ و`family_id` من سياق العائلة — فيستطيع ACC-012 اختبار «ينتهي» من السجل وحده (REQ-018). والحقلان الجديدان في نواة `AuditEvent` المشتركة — يُنسَّقان عبر خريطة السياقات، بلا نسخة خاصة بالصلاحيات.
+
+### 5-7. `permission_request` — طلبات تعديل الصلاحية (REQ-002/004/015 — R03-17)
+| الحقل | النوع | ملاحظات |
+|---|---|---|
+| `request_id` | uuid (PK) | |
+| `family_id` | uuid (FK) | + RLS |
+| `member_id` | uuid (FK → `membership`) | الطالب — معرّف العضوية (Q-169) |
+| `permission_key` | text (FK → `permission_key`) | المفتاح المطلوب |
+| `scope` | jsonb (nullable) | النطاق المطلوب |
+| `reason` | text (nullable) | سبب الطلب كما كتبه الطالب |
+| `status` | text | `pending` / `approved` / `denied` |
+| `requested_at` | timestamptz | |
+| `decided_at` | timestamptz (nullable) | |
+| `decided_by` | uuid (nullable — FK → `person`) | الأب الذي قرر (المالك حصراً) |
 
 **ملاحظة:** لقطة المنح المحلية (REQ-006 — الفحص O(1)) مخزن عميل على الجهاز (ليست جدول خادم): تُزامَن عبر `family/{family_id}/permissions/sync` وتُبطل عبر `family/{family_id}/permissions/revoked`.
 
@@ -360,6 +400,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 
 ### 6-3. قواعد التقييم
 - **قاعدة المالك** (Q-232 — أول قاعدة تقييم): العضو `adult` + `is_owner=true` → `allowed` لأي مفتاح بلا منح صريح. **نطاق التجاوز تقييم فقط:** لا يشمل التدقيق أبداً (أفعال المالك وفحوصه تُسجَّل في سجل التدقيق كغيرها)؛ ولا يشمل فحوص `PERM_HARD_INVARIANT` (الثوابت الصلبة تبقى مرفوضة — فمحاولة منح ثابت صلب تُرفض حتى حين يطلبها المالك)؛ ولا يمتد لغير المالك (بالغ مفوَّض بلا منح = مرفوض — REQ-002).
+- **المفتاح غير المعروف:** مفتاح غير موجود في السجل أو نطاق غامض → `{allowed: false, reason: "unknown_key"}` — رفض في الأثر كالرفض الصريح، مميز في التسمية (REQ-005)؛ والرفض الصريح النشط وحده يبقى `reason: "denied"`.
 - **المنح النشط** = `revoked_at IS NULL` و`valid_until > now`.
 - **المنح المتداخلة** (أكثر من منح نشط لنفس العضو ونفس المفتاح — كُشف في مراجعة §5): أي رفض صريح نشط (`is_granted=false`) يفوز → مرفوض (Q-007 deny-override)؛ وإلا يفوز أحدث منح نشط (ويُؤخذ نطاقه).
 - منح بذرة Q-166 معفاة صراحة من `valid_until` (Q-248)؛ التقييم يعامل غياب `valid_until` فيها كمنح سارٍ مربوط بالعضوية.
@@ -374,16 +415,17 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 4. **`valid_until` في الماضي:** منح بمدة منتهية أصلاً → يُرفض (`400`)؛ لا منح منتهي الصلاحية منذ ولادته.
 5. **منح حساس بلا تحقق:** مفتاح حساس بلا `verification` → يُرفض (`PERM_VERIFICATION_REQUIRED`)؛ التحقق لا يُستنتج من الجلسة وحدها.
 6. **منح من غير المالك:** بالغ مفوَّض يحاول منح غيره → يُرفض (`PERM_NOT_OWNER`)؛ لا تفويض متسلسل (REQ-010).
-7. **منح ثابت صلب:** محاولة منح مفتاح فوترة/ملكية/حذف أو إشراف لطفل → يُرفض (`PERM_HARD_INVARIANT`) ويُنبَّه الأب (سيناريو 2-6).
-8. **تعارض متفائل:** تعديلان متزامنان على منح عضو → الثاني يفشل (`PERM_CONFLICT`)؛ يُعاد تحميل أحدث حالة قبل إعادة المحاولة (REQ-019).
+7. **منح ثابت صلب:** محاولة منح مفتاح فوترة/ملكية/حذف أو إشراف لطفل → يُرفض (`PERM_HARD_INVARIANT`) ويُنبَّه الأب (سيناريو 2-6) — ويُرسل التنبيه عبر `family/{family_id}/alerts/new` (النوع `escalation` — S1-09 §4-2) ويُعرض تفصيله في R03-18 (REQ-007).
+8. **تعارض متفائل:** تعديلان متزامنان على منح عضو → الثاني يفشل (`PERM_CONFLICT`)؛ يُعاد تحميل أحدث حالة قبل إعادة المحاولة (REQ-019)؛ ويُكتشف التعارض عبر `version` المنح + ترويسة `If-Match` (§5-4 · §4-1).
 9. **انتهاء مدة منح أثناء الاستخدام:** `valid_until` تنتهي والعضو يستخدم الصلاحية → الفحص يرفض فوراً؛ اللقطة المحلية تُحدَّث عند المزامنة التالية.
 10. **إلغاء منح أثناء جلسة نشطة:** إلغاء منح عضو لديه جلسة نشطة → تُبطل الجلسة فوراً (REQ-017)؛ أي طلب لاحق يُرفض.
 11. **نقل ملكية إلى غير بالغ:** طلب نقل الملكية لطفل أو مراهق → يُرفض؛ النقل للبالغين فقط (REQ-016).
 12. **فقدان الاتصال أثناء منح:** انقطاع الشبكة أثناء إنشاء منح → المنح لا يُنفَّذ محلياً (الخادم هو المرجع)؛ يُحفظ في صندوق الصادر ويُعاد عند عودة الاتصال (نمط S1-01).
 13. **لقطة محلية قديمة أو تالفة:** لقطة المنح على جهاز الطفل أقدم من نسخة الخادم أو تالفة → إعادة مزامنة كاملة عبر `family/{family_id}/permissions/sync`؛ الفحص يتوقف على الرفض حتى تكتمل المزامنة (الغموض لصالح الحماية — REQ-005).
-14. **قبول نقل ملكية منتهٍ:** قبول بعد 7 أيام من الطلب → يُرفض؛ النقل `expired` ولا يُقبل بعده (REQ-016 · Q-139).
+14. **قبول نقل ملكية منتهٍ:** قبول بعد 7 أيام من الطلب → يُرفض؛ النقل `expired` ولا يُقبل بعده (REQ-016 · Q-139). **ولا يُترك الانتهاء للصدفة:** فحص يومي مجدول (مهمة انتهاء النقل اليومية — مالكها خادم S1-03) يقلب كل نقل `pending` تجاوز `expires_at` إلى `expired`، ويُشعَر الأب والمتلقي عبر `family/{family_id}/alerts/new`؛ والقبول بعد الانتهاء يُرفض حتى قبل قلب الحالة (التقييم عند القبول يفحص `expires_at` أولاً)؛ وقلب الحالة عملية غير مكررة (idempotent) — إعادة تشغيل المهمة على نقل `expired` لا تغير شيئاً.
 15. **إلغاء الأب لنقل معلق:** الأب يلغي نقل ملكية معلقاً عبر `DELETE /api/v1/families/{id}/ownership-transfer/{transferId}` (المالك فقط — Q-162) → `cancelled`؛ والمتلقي لا يستطيع قبوله بعد الإلغاء (REQ-016 · Q-139 · Q-162).
 16. **قبول من غير المتلقي أو بتحقق خاطئ:** قبول نقل ملكية من بالغ غير المتلقي المحدد، أو بتحقق PIN/بصمة خاطئ → يُرفض؛ النقل يبقى معلقاً حتى قبوله الصحيح أو انتهائه أو إلغائه (REQ-016 · Q-093 · Q-139).
+17. **تعديل قالب بمجموعة مفاتيح جزئية:** `PATCH …/templates/{templateId}` بمصفوفة `keys` **تستبدل** مجموعة `template_key` كاملة — فالمفتاح الغائب عن المصفوفة يُزال من القالب؛ ومصفوفة فارغة تمسح المجموعة؛ ومفتاح غير معروف في المصفوفة → يُرفض الطلب كاملاً (`400` + `PERM_DENIED` — §7-1) بلا تطبيق جزئي؛ وعلى العميل إرسال المجموعة الكاملة المقصودة في كل مرة (Q-089 · Q-205).
 
 ## 8. معايير القبول
 
@@ -856,7 +898,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 - **الوضع:** أهل. **الأدوار المستهدفة:** المالك؛ وبالغ مفوَّض بمفتاح `roles.audit.view` (قراءة فقط — يرى منح الأعضاء الآخرين — Q-226).
 - **الغرض:** سجل تدقيق كامل لكل منح/تعديل/إلغاء/رفض: من منح/لمن/متى/ينتهي/النتيجة — قابل للعرض على الأب (REQ-018)؛ وكل رفض حساس أو محاولة تصعيد يُسجَّل هنا ويُنبَّه الأب (REQ-007). مصدرها `GET /api/v1/families/{id}/audit/permissions?member_id&from&to` (§4-1)؛ والعرض `FosAuditTimeline` (components §3.12).
 - **REQ:** REQ-007، REQ-018.
-- **الحقول الرئيسية:** خط زمني للأحداث (بصياغة مبسطة — DS-CM-02 في components §3.12): الفاعل + الهدف + الفعل (منح/تعديل/إلغاء/رفض) + المفتاح + الوقت + النتيجة؛ تصفية (بالعضو + بالفعل + بالفترة)؛ زر «تراجع» حيث ممكن (DS-CM-02 §3.12)؛ رابط «عرض صلاحيات العضو» من كل حدث.
+- **الحقول الرئيسية:** خط زمني للأحداث (بصياغة مبسطة — DS-CM-02 في components §3.12): الفاعل + الهدف + الفعل (منح/تعديل/إلغاء/رفض) + المفتاح + الوقت + النتيجة؛ وكل حدث يحمل `valid_until` للمنح المعني و`family_id` (§5-6 — REQ-018)؛ تصفية (بالعضو + بالفعل + بالفترة) — والتصفية بالفعل تستخدم معامل `action` في `GET …/audit/permissions` (§4-1: `limit` افتراضي 50 وأقصى 100)؛ زر «تراجع» حيث ممكن (DS-CM-02 §3.12)؛ رابط «عرض صلاحيات العضو» من كل حدث.
 - **التنقل:** من: R03-01؛ R03-02؛ R03-18 (من تنبيه رفض إلى حدثه). إلى: R03-02 (صلاحيات عضو)؛ R03-18 (تفصيل رفض).
 - **الحالات (DS-ST):** تحميل: Skeleton للخط الزمني؛ فارغة: لا أحداث بعد — «لا أحداث تدقيق بعد» (DS-ST-07)؛ أو لا نتائج تصفية — «لا نتائج لـ {filter}»؛ خطأ: بطاقة خطأ مع إعادة محاولة (DS-ST-06)؛ بلا اتصال: آخر نسخة مخزنة + وسم عمرها (DS-ST-05)؛ نجاح: الخط الزمني + تحميل المزيد عند التمرير.
 - **وايرفريم:**
@@ -988,7 +1030,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 - **الغرض:** عرض قراءة لمنحي أنا فقط (مصدرها `GET /api/v1/families/{id}/members/{memberId}/permissions` لنفسي) + زر «اطلب تعديلاً» للمقفل/المرفوض (DS-SE-10: صفحة المراهق تعرض الشفافية وطلب التعديل؛ وchild-mode-ui §9: المراهق له قناة اعتراض/نقاش تُرسَل للأب). لا صفحة إدارية للطفل أبداً (DS-SE-10) — الطفل دون 13 لا يرى هذه الشاشة (انظر §9-4).
 - **REQ:** REQ-002 (أرى أنني بدأت بلا منح عدا منحي بذرة Q-166 حتى منحني الأب — إن كنت بلا منح تظهر الحالة الفارغة)، REQ-004 (أرى ما مُنح لي صراحة فقط — غير الممنوح لا يظهر كممنوح)، REQ-015 (المراهق يرى منح إدارة مهامه الخاصة فقط).
 - **الحقول الرئيسية:** رأسي (اسمي + دوري)؛ قائمة منحي (المفتاح + العنوان العربي + النطاق + `valid_until` + شارة المصدر)؛ حالة `not_delegated` للمقفل مع زر «اطلب من الأب» (DS-ST-03 — صياغة DS-MC-04: «لم يمنحك [الأب] صلاحية هذا الإعداد. يمكنك أن تطلبها منه.»)؛ بلا أي زر منح/إلغاء (المنح حصراً للمالك — REQ-010).
-- **التنقل:** من: «أنا/الحساب» / صفحة الشفافية (DS-SE-10). إلى: طلب تعديل (ApprovalRequest — يظهر في بطاقة «يتطلب انتباهك» عند الأب، S1-09)؛ لا انتقال إلى أي شاشة إدارة.
+- **التنقل:** من: «أنا/الحساب» / صفحة الشفافية (DS-SE-10). إلى: طلب تعديل عبر `POST /api/v1/families/{id}/permission-requests` — يظهر في بطاقة «يتطلب انتباهك» عند الأب (S1-09)؛ لا انتقال إلى أي شاشة إدارة.
 - **الحالات (DS-ST):** تحميل: Skeleton؛ فارغة: بلا أي منح — «لم يمنحك الأب أي صلاحية بعد» + زر «اطلب صلاحية» (DS-ST-07)؛ خطأ: بطاقة خطأ مع إعادة محاولة؛ بلا اتصال: آخر نسخة مخزنة + وسم عمرها (DS-ST-05)؛ نجاح: القائمة. **بلا أحداث تحليلية** (Q-046).
 - **وايرفريم:**
 ```text
@@ -1014,7 +1056,7 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 ### R03-18 — تنبيه رفض / محاولة تصعيد
 
 - **الوضع:** أهل. **الأدوار المستهدفة:** المالك (الأب) وحده.
-- **الغرض:** تفصيل رفض حساس أو محاولة تصعيد (سيناريو 2-6؛ REQ-007): من حاول / ماذا طلب / متى / لماذا رُفض (مفتاح غير ممنوح / ثابت صلب D-038 / ليس مالكاً) + إجراء الأب (عرض صلاحيات العضو / مراجعة المنح / تجاهل).
+- **الغرض:** تفصيل رفض حساس أو محاولة تصعيد (سيناريو 2-6؛ REQ-007): من حاول / ماذا طلب / متى / لماذا رُفض (مفتاح غير ممنوح / ثابت صلب D-038 / ليس مالكاً) + إجراء الأب (عرض صلاحيات العضو / مراجعة المنح / تجاهل). ويصل التنبيه عبر `family/{family_id}/alerts/new` (النوع `escalation` — S1-09 §4-2 · §5-4).
 - **REQ:** REQ-007.
 - **الحقول الرئيسية:** رأس التنبيه (نوع الرفض + الأولوية P1 — DS-CC-03: تنبيه مخاطر عالٍ)؛ التفصيل (العضو + المفتاح المطلوب + السبب + الوقت)؛ زر «عرض صلاحيات العضو» (R03-02)؛ زر «تأكيد القراءة» (يربط S1-09 `hub.alerts.acknowledge`)؛ رابط حدث التدقيق (R03-13).
 - **التنقل:** من: تنبيه في اللوحة (S1-09 — بطاقة «يتطلب انتباهك» / قائمة التنبيهات)؛ R03-13. إلى: R03-02؛ R03-13.
@@ -1169,10 +1211,10 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 
 ### 10-1. خطوات البناء بالترتيب
 1. **سجل المفاتيح المركزي** (`permission_key`) + بذرة المفاتيح الموحدة (82 مفتاحاً): S1-01 ‏(6) + S1-02 ‏(14) + `roles.*` ‏(7) + `billing.*` ‏(4) + `rewards.*` ‏(6) + `tasks.*`/`calendar.*` ‏(9) + `location.*` ‏(6) + `chat.*` ‏(8) + `hub.*` ‏(6) + `protection.*` ‏(9) + `agent.*` ‏(7) — Ktor + PostgreSQL.
-2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer`) + RLS + فهارس (`member_id`, `grantee_type`, `permission_key`, `valid_until`).
+2. **جداول المنح والقوالب** (`permission_grant` + `role_template` + `template_key` + `ownership_transfer` + `permission_request`) + RLS + فهارس (`member_id`, `grantee_type`, `permission_key`, `valid_until`).
 3. **محرك التقييم الخادمي** (deny-override + حل المنح المتداخلة §6-3) + نقطة `POST /api/v1/permissions/check`.
-4. **نقاط المنح والقوالب والتدقيق** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166).
-5. **مزامنة المنح** عبر MQTT (`family/{family_id}/permissions/sync` + `family/{family_id}/permissions/revoked` + `family/{family_id}/permissions/grant-expiring` عبر فحص يومي مجدول للمنح القريبة من الانتهاء (7 أيام قبل الانتهاء — Q-227)) + اللقطة المحلية + قناة `MethodChannel` (`checkPermission`).
+4. **نقاط المنح والقوالب والتدقيق وطلبات التعديل** (REST §4-1: إنشاء/تعديل/إلغاء/تطبيق قالب/نقل ملكية/سجل تدقيق/حذف العائلة والعضو Q-166/طلبات تعديل R03-17).
+5. **مزامنة المنح** عبر MQTT (`family/{family_id}/permissions/sync` + `family/{family_id}/permissions/revoked` + `family/{family_id}/permissions/grant-expiring` عبر فحص يومي مجدول للمنح القريبة من الانتهاء (7 أيام قبل الانتهاء — Q-227)) + اللقطة المحلية + قناة `MethodChannel` (`checkPermission`) + فحص يومي مجدول لانتهاء نقل الملكية (7 أيام — Q-139) يقلب المعلق إلى `expired` ويُشعر الأب والمتلقي (§7-14).
 6. **شاشات إدارة الأعضاء والقوالب** — تُبنى بعد مرحلة التصميم (§9)؛ هذه الخطة تعتمد على مخرجاتها.
 7. **بروتوكول الحذف والتصدير (Q-166)** — نقاط الحذف/الإلغاء/التصدير + مصفوفة الأثر + تطهير النسخ خلال 30 يوماً + TTL آخر موقع 7 أيام (S1-07) — `DELETION-EXPORT-PROTOCOL.md`.
 8. **مفاتيح الوكيل `agent.*` (Q-167)** — تُزرع في السجل المركزي (7 مفاتيح)؛ والممنوح له هو الوكيل نفسه ككيان مستقل بنطاق العائلة — `AI-VERIFICATION-CONTRACT.md`.
@@ -1187,9 +1229,29 @@ QoS والاحتفاظ منقولان من مواصفة الوسيط §6 (Q-168)
 
 ### 10-4. نهج الاختبار
 - **وحدات:** محرك التقييم (deny-override + المتداخلة + المنتهية) — كل قاعدة §6-3 لها اختبار.
-- **تكامل:** النقاط السبع عشرة (§4-1) + أحداث MQTT الثلاثة (§4-2) + قناة المنصة.
+- **تكامل:** النقاط العشرون (§4-1) + أحداث MQTT الثلاثة (§4-2) + قناة المنصة.
 - **قبول:** ACC-001…014 — كل معيار له اختبار آلي.
 - **أداء:** الفحص المحلي O(1) — زمن الاستجابة يُقاس في مختبر Q-027 (هدف: فوري دون شبكة).
+
+### 10-5. قائمة بذرة المفاتيح الكاملة (82 مفتاحاً — حرفياً من مواصفات الأنظمة)
+
+كل اسم أدناه حرفي من §6 في مواصفة نظامه (لا يُخترع هنا)؛ والمجموع 82 = 6 + 14 + 7 + 4 + 6 + 9 + 6 + 8 + 6 + 9 + 7 (§10-1). وأي مفتاح جديد في أي نظام يُضاف هنا أولاً قبل زرعه (REQ-009).
+
+| النطاق | المفاتيح |
+|---|---|
+| S1-01 (6) | `shell.view`، `shell.admin.access`، `shell.parent_gate.manage`، `shell.mode.exit_child`، `shell.config.view`، `shell.config.edit` |
+| S1-02 (14) | `identity.login`، `identity.email.login`، `identity.family.create`، `identity.family.invite`، `identity.family.join`، `identity.child.create`، `identity.child.profile.edit`، `identity.device.pair`، `identity.device.unpair`، `identity.session.revoke`، `identity.biometric.enable`، `identity.member.remove`، `identity.account.delete_self`، `identity.family.leave` |
+| `roles.*` (7) | `roles.key.view`، `roles.grant.create`، `roles.grant.edit`، `roles.grant.revoke`، `roles.template.apply`، `roles.ownership.transfer`، `roles.audit.view` |
+| `billing.*` (4) | `billing.view`، `billing.manage`، `billing.topup.buy`، `billing.voucher.redeem` |
+| `rewards.*` (6) | `rewards.wallet.view`، `rewards.grant.create`، `rewards.time_request.decide`، `rewards.settings.edit`، `rewards.streak.freeze`، `rewards.ledger.view` |
+| `tasks.*` / `calendar.*` (9) | `tasks.create`، `tasks.view`، `tasks.submit`، `tasks.approve`، `tasks.revoke`، `tasks.cancel`، `tasks.category.create`، `calendar.event.create`، `calendar.view` |
+| `location.*` (6) | `location.view`، `location.history.view`، `location.sos.trigger`، `location.sos.acknowledge`، `location.sos.resolve`، `location.emergency.manage` |
+| `chat.*` (8) | `chat.channel.create.direct`، `chat.channel.create.group`، `chat.channel.view`، `chat.message.send`، `chat.message.delete.any`، `chat.channel.close`، `chat.parents.view`، `chat.minor.view` |
+| `hub.*` (6) | `hub.dashboard.view`، `hub.settings.view`، `hub.settings.edit`، `hub.alerts.view`، `hub.alerts.acknowledge`، `hub.plan.view` |
+| `protection.*` (9) | `protection.rule.view`، `protection.rule.create`، `protection.rule.edit`، `protection.rule.delete`، `protection.schedule.edit`، `protection.priority.edit`، `protection.free_mode.activate`، `protection.tamper.view`، `protection.state.view` |
+| `agent.*` (7) | `agent.summary.read`، `agent.plan.create`، `agent.task.verify`، `agent.rule.change`، `agent.message.send`، `agent.payment.execute`، `agent.data.delete` |
+
+**ملاحظة:** مفتاح `tasks.own.manage` الوارد في وايرفريم R03-09 فقط لا يظهر هنا — لأنه غير موجود في §6 لأي نظام (R2-S103-01 — B2)؛ ولا يُزرع حتى يُحكم.
 
 ## أسئلة مفتوحة (من هذه المواصفة)
 
