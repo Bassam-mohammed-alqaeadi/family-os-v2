@@ -60,6 +60,11 @@ flowchart LR
     Teen --> UC10
     Teen --> UC11
     Teen --> UC12
+    Teen --> UC13
+    Father --> UC10
+    Father --> UC11
+    Adult --> UC10
+    Adult --> UC11
     UC4 -.->|يتضمن| UC5
     UC4 --> AI
     UC5 --> AI
@@ -90,7 +95,6 @@ erDiagram
     task }o--|| membership : "مُسندة إلى عضو واحد"
     task }o--|| membership : "أنشأها عضو"
     calendar_event }o--|| membership : "حضور عضو أو كل العائلة"
-    task ||--o{ points_ledger : "إيداعها عبر family/{family_id}/tasks.completed"
     task ||--|| MinIO_proof : "إثباتها صورة في"
 
     task {
@@ -113,7 +117,7 @@ erDiagram
         text approved_by
         timestamptz approved_at
         text rejection_notes
-        text created_by FK
+        uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
     }
@@ -127,7 +131,7 @@ erDiagram
     }
     task_category {
         uuid category_id PK
-        uuid family_id FK
+        uuid family_id FK (NULL = فئة عامة افتراضية)
         text name_ar
         text color
         text emoji
@@ -142,9 +146,9 @@ erDiagram
         timestamptz end_time
         boolean is_all_day
         text rrule
-        uuid attendee_member_id FK
+        uuid attendee_member_id FK (NULL = كل العائلة)
         int reminder_minutes
-        text created_by FK
+        uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
     }
@@ -165,7 +169,7 @@ erDiagram
     }
 ```
 
-- ملاحظة: `reward_points` افتراضي 10 و≥ 0، و0 دائماً لمهام المراهقين (Q-109 — تُفرض صفراً على الخادم)؛ و`status` أربع قيم فقط: PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED (§5)؛ و`family_id` في `task_category` يكون NULL للفئات الأربع الافتراضية العامة (منزل/مدرسة/صلاة وقرآن/عناية ذاتية — REQ-002) وقيمةً لفئة أضافها الأب لعائلته (§5)؛ و`rrule` في `task` و`calendar_event` قاعدة iCalendar خام تشمل `byDay` و`byMonthDay` و`interval` و`endDate`/`endOccurence` و`exdate` و`rdate` (REQ-010 · ملحق RE)؛ و`reminder_minutes` في `calendar_event` افتراضي 60 والخيارات 15/30/60 دقيقة أو يوم (REQ-014). و`MinIO_proof` مرجع غير جدولي إلى تخزين كائنات (MinIO) لا جدول في قاعدة البيانات.
+- ملاحظة: `reward_points` افتراضي 10 و≥ 0، و0 دائماً لمهام المراهقين (Q-109 — تُفرض صفراً على الخادم)؛ و`status` أربع قيم فقط: PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED (§5)؛ و`family_id` في `task_category` يكون NULL للفئات الأربع الافتراضية العامة (منزل/مدرسة/صلاة وقرآن/عناية ذاتية — REQ-002) وقيمةً لفئة أضافها الأب لعائلته (§5)؛ و`rrule` في `task` و`calendar_event` قاعدة iCalendar خام تشمل `byDay` و`byMonthDay` و`interval` و`endDate`/`endOccurence` و`exdate` و`rdate` (REQ-010 · ملحق RE)؛ و`reminder_minutes` في `calendar_event` افتراضي 60 والخيارات 15/30/60 دقيقة أو يوم (REQ-014). و`MinIO_proof` مرجع غير جدولي إلى تخزين كائنات (MinIO) لا جدول في قاعدة البيانات. والإيداع في المحفظة (`points_ledger`) يصل عبر حدث `family/{family_id}/tasks.completed` (REQ-007) لا عبر علاقة قاعدة بيانات — فلا حافة ERD بين `task` و`points_ledger`.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
@@ -257,6 +261,11 @@ sequenceDiagram
     Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
     S105-->>Ktor: إيداع النقاط
     Ktor-->>Father: اعتُمدت يدوياً وأُودعت النقاط
+    alt الذكاء يرفض الإنجاز لعدم المطابقة (§7 — لا يستطيع ≠ يرفض)
+        Ktor->>App: إشعار الطفل بسبب الرفض — بلا إيداع
+        App-->>Child: أُشعِرت بسبب الرفض
+        Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" — الأب يرى الرفض وقد يعتمد يدوياً فيتجاوز الرفض ويُودع النقاط
+    end
 ```
 
 - ملاحظة: الذكاء "لا يستطيع التحقق" (Q-121) يختلف عن "يرفض الإنجاز" (§7): الرفض لعدم المطابقة لا يودع شيئاً ويُشعَر الطفل بالسبب، والأب يرى الرفض وقد يعتمد يدوياً فيتجاوز الرفض ويُودع النقاط.
@@ -502,6 +511,7 @@ flowchart LR
         C3[تسليم مع الإثبات]
         C4[إعادة التسليم بعد الرفض]
         C5[صرف النقاط كوقت — عبر S1-05]
+        N1[إشعار الطفل بسبب رفض الذكاء]
     end
     subgraph AI [الذكاء — بوابة Q-054]
         direction TB
@@ -518,6 +528,7 @@ flowchart LR
         V4[حساب نسخ RRULE عند الطلب]
         V5[إنهاء نسخة اليوم الفائتة]
         V6[تسجيل AuditEvent]
+        V7[إعادة الحالة إلى PENDING]
     end
     subgraph WalletHub [المحفظة S1-05 + مركز الأوامر S1-09]
         direction TB
@@ -537,7 +548,8 @@ flowchart LR
     A2 -->|لا يستطيع| F2
     A2 -->|نعم| A3
     A3 -->|مطابق| A4
-    A3 -->|غير مطابق| F2
+    A3 -->|غير مطابق| N1
+    N1 --> F2
     A4 --> V3
     V3 --> W2
     F2 --> F3
@@ -545,9 +557,10 @@ flowchart LR
     F3 -->|يرفض| F5
     F4 --> V3
     F5 --> C4
-    V3 --> C4
     C4 --> C3
     F6 --> W3
+    F6 --> V7
+    V7 --> C4
     V3 --> V6
     V2 --> V6
     W2 --> C5
