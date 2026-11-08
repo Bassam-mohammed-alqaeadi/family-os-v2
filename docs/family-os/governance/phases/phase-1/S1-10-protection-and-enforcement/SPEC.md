@@ -7,7 +7,7 @@
 
 ## 1. الهدف والتحليل والنطاق
 
-**الهدف:** هذا النظام هو قلب نواة الحماية (Q-002) — المالك الذي أشارت إليه المعمارية (`ARCHITECTURE.md` §5.2: `ScheduleEngine` · `CommandDispatcher` · `EnforcementSync`؛ و§5.3: `DEVICE — APP_RULE` / `WEEKLY_SCHEDULE`) والمواصفات التسع دون أن يملكه أحد (الحرجة ح1 من المراجعة الناقدة 2026-11-06). الغلاف (S1-01) يستضيف التنفيذ في وحدة Kotlin؛ وهذا النظام يملك **القرار**: أي قاعدة، وأي جدول، وأي ترتيب، ومتى يُحظر التطبيق ومتى يُسمح — على جهاز الطفل، متصلاً كان أو دون اتصال. والجهاز المقترن كطفل يعمل في وضع الطفل حصراً في المرحلة 1 (Q-062 — الوضع المزدوج).
+**الهدف:** هذا النظام هو قلب نواة الحماية (Q-002) — المالك الذي أشارت إليه المعمارية (`ARCHITECTURE.md` §5.2: `ScheduleEngine` · `CommandDispatcher` · `EnforcementSync`؛ و§5.3: `DEVICE — APP_RULE` / `WEEKLY_SCHEDULE`) والمواصفات التسع دون أن يملكه أحد (الحرجة ح1 من المراجعة الناقدة 2026-11-06). الغلاف (S1-01) يستضيف التنفيذ في وحدة Kotlin؛ وهذا النظام يملك **القرار**: أي قاعدة، وأي جدول، وأي ترتيب، ومتى يُحظر التطبيق ومتى يُسمح — على جهاز الطفل، متصلاً كان أو دون اتصال. والجهاز المقترن كطفل يعمل في وضع الطفل حصراً في المرحلة 1 (Q-062 — الوضع المزدوج) (Q-212).
 
 **القواعد الثلاث الحاكمة:**
 1. **الترتيب الافتراضي يعمل فوراً (Q-145):** النوم > المدرسة > حدود التطبيقات > الحصة الإجمالية — بلا أي إعداد من الأب.
@@ -236,12 +236,12 @@ flowchart LR
 | `DELETE /api/v1/families/{id}/children/{childId}/app-rules/{ruleId}` | حذف قاعدة (الأب + البالغ المفوَّض حسب القالب — Q-146) | — | `204` + دفع `rules-updated` |
 | `GET /api/v1/families/{id}/children/{childId}/weekly-schedule` | الجدول الأسبوعي | — | `{schedule_id, windows, version}` |
 | `PUT /api/v1/families/{id}/children/{childId}/weekly-schedule` | استبدال الجدول (REQ-006) | `{windows, version}` — قفل تفاؤلي: `version` قديم → `409` | الجدول المحفوظ |
-| `GET /api/v1/families/{id}/children/{childId}/daily-total-quota` | قراءة الحصة اليومية الإجمالية (REQ-002) — المفتاح `protection.rule.view` | — | `{minutes_by_weekday}` — الصف مزروع عند الإقران بقيم 60؛ ولا 404 أبداً بعد الإقران |
+| `GET /api/v1/families/{id}/children/{childId}/daily-total-quota` | قراءة الحصة اليومية الإجمالية (REQ-002) — المفتاح `protection.rule.view` (Q-206) | — | `{minutes_by_weekday}` — الصف مزروع عند الإقران بقيم 60؛ ولا 404 أبداً بعد الإقران |
 | `PUT /api/v1/families/{id}/children/{childId}/daily-total-quota` | تعيين الحصة اليومية الإجمالية (REQ-002) | `{minutes_by_weekday, version}` — المالك (الأب) فقط — المفتاح `protection.quota.edit` (Q-184)؛ وقفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` (والمالك على جهازين قد يتصادم — القاعدة مصرح بها لا مستحيلة) | الحصة المحفوظة + دفع `rules-updated` |
 | `GET /api/v1/families/{id}/rule-priority` | ترتيب الأنواع الحالي (ترتيب العائلة) — المفتاح `protection.rule.view` | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
 | `PUT /api/v1/families/{id}/rule-priority` | إعادة ترتيب الأنواع للعائلة (REQ-011) — المفتاح `protection.priority.edit` | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
 | `GET /api/v1/families/{id}/children/{childId}/rule-priority` | ترتيب الأنواع لطفل (تجاوز عن ترتيب العائلة — REQ-011) — المفتاح `protection.rule.view` | — | `{order: ["sleep","school","app_limit","total_quota"]}` |
-| `PUT /api/v1/families/{id}/children/{childId}/rule-priority` | إعادة ترتيب الأنواع لطفل (REQ-011) — المفتاح `protection.priority.edit` | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
+| `PUT /api/v1/families/{id}/children/{childId}/rule-priority` | إعادة ترتيب الأنواع لطفل (REQ-011) — المفتاح `protection.priority.edit` (Q-203) | `{order, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT` | الترتيب المحفوظ |
 | `POST /api/v1/families/{id}/children/{childId}/free-mode` | تفعيل الوضع الحر (REQ-018/019) | `{duration_minutes}` — المالك فقط — المفتاح `protection.free_mode.activate` (Q-143) | `{session_id, expires_at}` — `201` |
 | `POST /api/v1/families/{id}/children/{childId}/free-mode/cancel` | إلغاء مبكر للوضع الحر — المفتاح `protection.free_mode.activate` (Q-143) | — | `{session_id, status: "cancelled"}` |
 | `GET /api/v1/families/{id}/children/{childId}/enforcement-state` | حالة الفرض (REQ-025) — المفتاح `protection.state.view` | — | `{active_rule_type, remaining_by_app, next_boundary_at, free_mode_until, tamper_status}` |
@@ -403,7 +403,7 @@ flowchart LR
 | S10-10 | الأوضاع المسبقة | أهل | الأب (مالك)؛ البالغ المفوَّض (عرض؛ والتطبيق حسب القالب) | تطبيق حزمة دراسة/نوم/حر ذرّياً (كلها أو لا شيء) | REQ-024 | DS-SE-04، DS-CC-05، DS-ST-02، DS-MC-04 |
 | S10-11 | تنبيهات العبث وإعادة التفعيل | أهل | الأب؛ البالغ المفوَّض حسب القالب (`protection.tamper.view`) | عرض أحداث العبث وحالة إعادة التفعيل؛ والتنبيه لا يُسكَت من جهاز الطفل | REQ-021/022/023 | DS-CC-02، DS-ST-10، DS-SE-05، DS-MC-08 |
 | S10-12 | حالة الفرض | أهل | الأب؛ البالغ المفوَّض حسب القالب (`protection.state.view`) | القواعد النشطة + المتبقي لكل تطبيق + الحد التالي + حالة الوضع الحر والعبث والمزامنة | REQ-014/015/016/017/020/025 | DS-CC-04، DS-ST-05، DS-ST-11، DS-CC-08 |
-| S10-13 | سجل تدقيق الحماية | أهل | الأب؛ البالغ المفوَّض حسب القالب | كل تغيير قاعدة/جدول/ترتيب/وضع حر: من غيّر/ماذا/متى | REQ-026 | DS-SE-12، DS-CM-01، DS-ST-01 |
+| S10-13 | سجل تدقيق الحماية | أهل | الأب؛ البالغ المفوَّض حسب القالب | كل تغيير قاعدة/جدول/ترتيب/وضع حر: من غيّر/ماذا/متى | REQ-026 | DS-SE-12، DS-CM-12، DS-ST-01 |
 | S10-14 | مراجعة القواعد: بلوغ 13 سنة واستبدال الجهاز | أهل | الأب (مالك) | إشعار مراجعة عند بلوغ الطفل 13 سنة؛ وإعادة القواعد نفسها عند استبدال الجهاز | REQ-027 | DS-SE-09، DS-MC-04، DS-ST-07 |
 | S10-15 | قواعد تصفية الويب لطفل | أهل | الأب المالك وحده للتحرير (`protection.filter.edit`)؛ والأب + البالغ المفوَّض حسب القالب للعرض (`protection.filter.view`) | الفئات الثلاثون + إجراء كل فئة (حظر/تنبيه/سماح) + الأعلام الخمسة | REQ-028/030/031 | DS-SE-06، DS-CM-02، DS-ST-01، DS-ST-02 |
 | S10-16 | تجاوزات نطاقات التصفية | أهل | الأب المالك وحده للتحرير (`protection.filter.edit`)؛ والأب + البالغ المفوَّض حسب القالب للعرض (`protection.filter.view`) | قائمة تجاوزات النطاقات + إضافة/حذف تجاوز بإجراء 0–3 | REQ-029 | DS-SE-06، DS-CM-02، DS-ST-01، DS-ST-07 |
@@ -718,7 +718,7 @@ flowchart LR
 
 #### S10-13 — سجل تدقيق الحماية
 
-- **الحقول الرئيسية:** خط زمني لأحداث التدقيق (domain=protection): من غيّر/ماذا/متى (REQ-026)؛ مصدرها `GET .../audit/protection` (§4-2 — الترقيم: `limit` افتراضي 50 وأقصى 100، والأحدث أولاً، و`next_cursor`)؛ تصفية حسب الطفل والفترة والنوع (قاعدة/جدول/ترتيب/وضع حر/عبث)؛ كل حدث بصياغة مبسطة (DS-CM-01 §3.12 `FosAuditTimeline`)؛ رابط «تراجع» حيث ممكن؛ قراءة فقط — بلا حذف (Q-201).
+- **الحقول الرئيسية:** خط زمني لأحداث التدقيق (domain=protection): من غيّر/ماذا/متى (REQ-026)؛ مصدرها `GET .../audit/protection` (§4-2 — الترقيم: `limit` افتراضي 50 وأقصى 100، والأحدث أولاً، و`next_cursor`)؛ تصفية حسب الطفل والفترة والنوع (قاعدة/جدول/ترتيب/وضع حر/عبث)؛ كل حدث بصياغة مبسطة (DS-CM-12 §3.12 `FosAuditTimeline`)؛ رابط «تراجع» حيث ممكن؛ قراءة فقط — بلا حذف (Q-201).
 - **التنقل:** من: لوحة الأهل / S10-01 (رابط «سجل التغييرات») / S10-11. إلى: الشاشة ذات الصلة بالحدث (قاعدة/جدول/ترتيب).
 - **الحالات (DS-ST):** تحميل — Skeleton للخط الزمني؛ فارغة — بلا أحداث في الفترة: «لا تغييرات في هذه الفترة» (DS-ST-07)؛ خطأ — فشل التحميل: بطاقة خطأ + إعادة محاولة (DS-ST-02)؛ بلا اتصال — عرض الأحداث المحفوظة مع عمرها (DS-ST-05)؛ نجاح — عرض الخط الزمني كاملاً.
 - **وايرفريم ASCII:**
@@ -731,7 +731,7 @@ flowchart LR
 │ • أُعيد ترتيب الأنواع — اليوم │
 └──────────────────────────────┘
 ```
-- **رموز DS المستخدمة:** DS-SE-12، DS-CM-01، DS-ST-01، DS-ST-07.
+- **رموز DS المستخدمة:** DS-SE-12، DS-CM-12، DS-ST-01، DS-ST-07. [تصحيح مؤرخ 2026-11-09 (Q-357): DS-CM-01 ← DS-CM-12 هنا وفي :406 و:721 — كان الرقم خاطئاً؛ DS-CM-01 هو «كل مكوّن له الحالات الإلزامية» ولا علاقة له بخط التدقيق.]
 - **النصوص الدقيقة (مصدر الترجمة):**
   - `screens.s10-13.title` — «سجل تدقيق الحماية»
   - `screens.s10-13.no_events` — «لا تغييرات في هذه الفترة»

@@ -467,5 +467,14 @@
   "used_in": "§3 REQ-023 (إلغاء التثبيت يتطلب PIN الأب — S1-01 REQ-006)",
   "kind": "logic",
   "match": "n/a-logic"
+ },
+ {
+  "system": "S1-10",
+  "source_raw": "Qustodio — نموذج ترشيح الويب (`WebRulesRecord` + `webCategories` + `WEBFILTER_DOMAIN_ACTIONS`)",
+  "source_app": "qustodio",
+  "mechanism": "30 فئة ويب بمعرفات رقمية ثابتة + إجراء كل فئة (BLOCK/ALERT/ALLOW) + تجاوزات النطاقات (0–3: ALLOW/BLOCK/ALERT/IGNORE) + الأعلام الخمسة بافتراضياتها + الافتراضيات (`DEFAULT_WEB_CATEGORIES`)",
+  "used_in": "§3 REQ-028/029/030/031 · §5 (`web_category` · `web_filter_rule`) · §9 (S10-15/S10-16)",
+  "kind": "logic",
+  "match": "n/a-logic"
  }
 ]

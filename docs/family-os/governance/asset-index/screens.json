@@ -162,7 +162,7 @@
  {
   "system": "S1-02",
   "id": "S102-05",
-  "name": "إدخال رمز البريد",
+  "name": "رابط البريد (بانتظار فتح الرابط)",
   "need": "generic-icons",
   "asset_available": true,
   "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
@@ -1313,6 +1313,26 @@
   "system": "S1-10",
   "id": "S10-14",
   "name": "مراجعة القواعد: بلوغ 13 سنة واستبدال الجهاز",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-15",
+  "name": "قواعد تصفية الويب لطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-16",
+  "name": "تجاوزات نطاقات التصفية",
   "need": "generic-icons",
   "asset_available": true,
   "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",

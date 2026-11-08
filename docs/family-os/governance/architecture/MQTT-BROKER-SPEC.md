@@ -55,7 +55,7 @@
 | `family/{family_id}/wallet/updated` | خادم → الكل | تغيّر رصيد المحفظة | S1-05 |
 | `family/{family_id}/chat/{channelId}/message` | خادم → الكل | رسالة جديدة (QoS 1) | S1-08 |
 | `family/{family_id}/chat/{channelId}/typing` | الكل ↔ الكل | مؤشر كتابة حي (QoS 1) | S1-08 |
-| `family/{family_id}/chat/{channelId}/deleted` | خادم → الكل | حذف رسالة (QoS 1) | S1-08 |
+| `family/{family_id}/chat/{channelId}/deleted` | خادم → الكل | حذف رسالة (QoS 1) (Q-207) | S1-08 |
 | `family/{family_id}/dashboard/updated` · `calendar/event/reminder` | خادم → أهل | لوحة الأهل والتذكير | S1-09/S1-06 |
 | `family/{family_id}/billing/subscription-changed` · `billing/quota-warning` · `billing/sub-grace-period` · `billing/sub-renewed` · `billing/quota-mirror` | خادم → الكل | الفوترة: تغيّرت الخطة / حصة على وشك النفاد / دخول فترة السماح / تم التجديد / لقطة مرآة الحصة المرجعية (Q-239) | الفوترة (S1-04 §4-2) |
 
@@ -69,7 +69,7 @@
 | العبث والتنبيهات (`family/{family_id}/protection/tamper` / `family/{family_id}/alerts/new`) | 1 | لا | — (صندوق صادر العميل على الجهاز عند الانقطاع — S1-01) |
 | الأحداث (`tasks/submitted` · `tasks/completed` · `tasks/verification-revoked` / `wallet/updated` / `time-request/new` · `time-request/decided` / `chat/...`) | 1 | لا | — |
 | المنح (`family/{family_id}/time/granted`) | 1 | **نعم** (آخر منح عند إعادة الاتصال) | — (محفوظ؛ الجهاز يقرأ آخر قيمة عند إعادة الاتصال) |
-| لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar/event/reminder` / `family/{family_id}/billing/subscription-changed` · `billing/quota-warning` · `billing/sub-grace-period` · `billing/sub-renewed`) | 1 | لا | — |
+| لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar/event/reminder` / `family/{family_id}/billing/subscription-changed` · `billing/quota-warning` · `billing/sub-grace-period` · `billing/sub-renewed`) (Q-208) | 1 | لا | — |
 | مرآة الحصة (`family/{family_id}/billing/quota-mirror`) | 1 | **نعم** (آخر لقطة عند إعادة الاتصال) | — |
 | الموقع الحي (`family/{family_id}/location/updated`) | 0 | لا | — (متكرر؛ والفقدان يُعوَّض بالتحديث التالي + سجل REST) |
 | حالة الجهاز الدورية (`family/{family_id}/device/{device_id}/state` — مفرد per Q-195) | 0 | **نعم** (آخر حالة) | — |
