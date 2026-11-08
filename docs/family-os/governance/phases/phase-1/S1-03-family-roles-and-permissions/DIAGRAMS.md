@@ -3,7 +3,7 @@
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **السياق المحدد (Bounded Context):** #2 الصلاحيات (Permissions) — `CONTEXT-MAP.md` §2 صف 2
-- **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · Q-139 · Q-164 · Q-166 · Q-189 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
+- **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · Q-139 · Q-164 · Q-166 · Q-189 · Q-162 · Q-174 · Q-201 · Q-204 · Q-227 · Q-232 · Q-235 · Q-248 · Q-250 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -184,7 +184,8 @@ erDiagram
     }
 ```
 
-- `template_key` مفتاحه المركب (`template_id`, `permission_key`) (§5-3)؛ وصفوف البذرة (شريك 40 / وصي محدود 22 / مراقب 10) في SPEC §5-3-أ (Q-262).
+- `template_key` مفتاحه المركب (`template_id`, `permission_key`) (§5-3)؛ وصفوف البذرة (شريك 43 / وصي محدود 24 / مراقب 10) في SPEC §5-3-أ (Q-262 · Q-329 · Q-330 · Q-343). [تصحيح 2026-11-08 (D-2): كانت 40/22/10 قبل Q-329/Q-330/Q-343.]
+- **تسوية المفاتيح (Q-326…Q-333 · Q-343):** المجموع **95 مفتاحاً**: شريك 43 / وصي محدود 24 / مراقب 10؛ و§5-أ (مالك حصري) **28**؛ و§5-ب 23؛ و§5-ج 1 (`identity.device.pair`)؛ 43+28+23+1 = 95. والمراهق (Q-318…Q-325): المفتاح الوحيد القابل للمنح `tasks.create` (scope=self)؛ و13 متأصلة في الدور؛ و5 حدّية حُسمت؛ و76 مستبعدة؛ 1+13+5+76 = 95؛ و`tasks.own.manage` محذوف من وايرفريم R03-09 (Q-325).
 - `AuditEvent` في ERD يسرد كل حقل في §5-6 (بعد تصحيح R2-S103-19 في B4) — بأنواع مطابقة.
 - `permission_request` جدول جديد (§5-7) — طلبات تعديل الصلاحية (R03-17)؛ و`member_id` مفتاح أجنبي إلى `membership.id` (Q-169).
 - **توحيد الهوية (Q-169):** `permission_grant.member_id` مفتاح أجنبي إلى `membership.id` (S1-03 SPEC §5-4) — لا إلى `person`؛ فالمراهق والطفل لهما عضوية وبلا `person` (Q-137). وعند منح الوكيل (`grantee_type='agent'`) يكون `member_id` فارغاً.
@@ -474,7 +475,6 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Teen as المراهق
-    actor Adult as البالغ المفوَّض
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
@@ -533,7 +533,7 @@ flowchart TD
     Check -->|ثابت صلب — إشراف / فوترة / ملكية| Hard[رفض PERM_HARD_INVARIANT + تنبيه الأب]
 
     Done --> Revoke{الأب يلغي المنح؟}
-    Revoke -->|نعم| Rev[إلغاء فوري في كل الأجهزة + إبطال الجلسات]
+    Revoke -->|نعم| Rev[إلغاء فوري في كل الأجهزة]
     Rev --> Notify[تسجيل الإلغاء + إشعار العضو]
     Notify --> DelQ{حذف العائلة / إزالة عضو؟}
     DelQ -->|لا| End([انتهى])
@@ -555,7 +555,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D5. المخزن D5 سجل التدقيق (النواة المشتركة)؛ واللقطة المحلية على جهاز الطفل مخزن عميل (ليست جدول خادم) وتُزامَن عبر MQTT.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 تظهر هنا على الأقل: `PATCH /api/v1/families/{id}/members/{memberId}/grants/{grantId}` (تعديل النطاق/المدة — REQ-010، يمر عبر P2) · `GET /api/v1/families/{id}/members/{memberId}/permissions` (الصلاحيات الفعلية لعضو — REQ-004، تُقرأ عبر P4) · `GET /api/v1/families/{id}/audit/permissions` (سجل التدقيق — REQ-018، يُقرأ من D5 عبر P6)؛ وبقية النقاط مرسومة في §3 (keys، grants إنشاء/إلغاء، templates، apply-template، check، ownership-transfer — قبول النقل في 3-ح، حذف العائلة/العضو وإلغاء الحذف — 3-ز، طلبات التعديل — 3-ط)؛ وإلغاء نقل الملكية المعلق عبر P2 في DFD.
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4-1 مرسومة هنا كحافة DFD أو في تسلسلات §3: `PATCH /api/v1/families/{id}/members/{memberId}/grants/{grantId}` (تعديل النطاق/المدة — REQ-010، حافة Father→P2) · `GET /api/v1/families/{id}/members/{memberId}/permissions` (الصلاحيات الفعلية لعضو — REQ-004، حافتا Father→P4 وP4→Father) · `GET /api/v1/families/{id}/audit/permissions` (سجل التدقيق — REQ-018، حواف Father→P6 وD5→P6 وP6→Father)؛ وبقية النقاط مرسومة في §3 (keys، grants إنشاء/إلغاء، templates، apply-template، check، ownership-transfer — قبول النقل في 3-ح، حذف العائلة/العضو وإلغاء الحذف — 3-ز، طلبات التعديل — 3-ط)؛ وإلغاء نقل الملكية المعلق عبر P2 في DFD (DELETE …/ownership-transfer/{transferId} — Q-162). [تصحيح 2026-11-08 (D-2): كانت النقاط الثلاث نثراً فقط في هذه الملاحظة؛ رُسمت الآن كحواف.]
 
 ```mermaid
 flowchart LR
@@ -589,13 +589,13 @@ flowchart LR
     MQTT([وسيط MQTT])
     Snapshot[(لقطة المنح المحلية — جهاز الطفل)]
 
-    Father -->|منح / تعديل / إلغاء| P2
+    Father -->|"منح / تعديل (PATCH .../grants/{grantId} — REQ-010) / إلغاء"| P2
     Father -->|تطبيق قالب| P3
     Father -->|نقل ملكية| P2
     Father -->|حذف العائلة / إزالة عضو| P7
     P7 -->|تحقق PIN / بصمة مثبَتة بالتحدي| S101
     P7 -->|تسجيل طلب الحذف + الحذف الناعم| S102
-    P2 -->|"إلغاء نقل ملكية معلق (المالك — Q-162)"| D4
+    P2 -->|"إلغاء نقل ملكية معلق — DELETE .../ownership-transfer/{transferId} (المالك — Q-162)"| D4
     P7 -->|تسجيل الحذف / الإلغاء| P6
     P7 -->|إشعار الأب — وكل البالغين لحذف العائلة| MQTT
     Adult -->|ممارسة ما فُوِّض له| P4
@@ -618,10 +618,14 @@ flowchart LR
     P4 -->|قراءة المنح النشطة| D3
     D3 -->|المنح + is_granted + valid_until| P4
     P4 -->|allowed / denied / hard_invariant / unknown_key| Consumers
+    Father -->|"GET .../members/{memberId}/permissions — الصلاحيات الفعلية لعضو (REQ-004)"| P4
+    P4 -->|الصلاحيات الفعلية للعضو| Father
     P4 -->|رفض حساس أو تصعيد| P6
     P2 -->|منح / تعديل / إلغاء| P6
     P6 -->|أحداث التدقيق| D5
-    D5 -->|سجل قابل للعرض على الأب| Father
+    D5 -->|"سجل التدقيق (REQ-018)"| P6
+    P6 -->|سجل التدقيق للعرض على الأب| Father
+    Father -->|"GET .../audit/permissions — سجل التدقيق (REQ-018)"| P6
     P6 -->|"تنبيه الأب عند رفض / تصعيد — family/{family_id}/alerts/new (نوع escalation — S1-09)"| Father
     P2 -->|تغيير منح| P5
     P5 -->|"family/{family_id}/permissions/sync"| MQTT
@@ -629,7 +633,7 @@ flowchart LR
     P6 -->|"family/{family_id}/permissions/grant-expiring — فحص يومي (Q-227)"| MQTT
     MQTT -->|لقطة المنح| Snapshot
     Snapshot -->|"فحص محلي O(1) — checkPermission"| Teen
-    P2 -->|"POST grants + ownership-transfer + accept (3-أ/3-هـ/3-ح) + permission-requests (3-ط)"| Ktor
+    P2 -->|"POST grants + ownership-transfer + accept (3-أ/3-هـ/3-ح) + permission-requests (3-ط) + DELETE ownership-transfer/{transferId} (Q-162)"| Ktor
     Ktor -->|"grant_id / transfer_id — pending / accepted (3-أ/3-هـ/3-ح)"| P2
     P3 -->|"POST /api/v1/families/{id}/members/{memberId}/grants/apply-template (3-ب)"| Ktor
     Ktor -->|"المنح المنسوخة من القالب (3-ب)"| P3
@@ -679,7 +683,7 @@ flowchart LR
         V2[حفظ المنح + تسجيل التدقيق]
         V3[تقييم deny-override — رفض صريح يفوز، وإلا أحدث منح]
         V11[رفض التصعيد + تسجيل التدقيق + تنبيه الأب]
-        V4[إبطال فوري + إبطال الجلسات]
+        V4[إبطال فوري]
         V5[مراجعة المنح عند بلوغ 13]
         V6[حذف ناعم + سماح 30 يوماً + سجل deletion_request عبر S1-02 + إبطال الجلسات + تجهيل رسائل العضو]
         V7[إلغاء حذف معلَّق خلال السماح]
