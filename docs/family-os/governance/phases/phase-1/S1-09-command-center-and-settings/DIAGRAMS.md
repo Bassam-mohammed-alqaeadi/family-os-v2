@@ -112,7 +112,7 @@ erDiagram
     family }o--|| plan : "خطتها قراءة فقط من S1-04"
 
     dashboard_widget {
-        uuid widget_id PK
+        text widget_id PK
         text system
         text title_ar
         text kind
@@ -123,14 +123,16 @@ erDiagram
         text system PK
         text control_key PK
         text type
-        text default_value
-        text values
+        jsonb default_value
+        jsonb values
+        text required_key FK
         boolean available_android
         boolean available_ios
     }
     dashboard_snapshot {
         uuid family_id PK
-        text snapshot
+        jsonb snapshot
+        int version
         timestamptz updated_at
     }
     alert {
@@ -138,10 +140,11 @@ erDiagram
         uuid family_id FK
         text kind
         text system
+        text source_ref
         uuid target_member_id
         timestamptz at
         boolean read
-        text acknowledged_by
+        uuid acknowledged_by
         timestamptz acknowledged_at
     }
     family {
@@ -161,7 +164,7 @@ erDiagram
     }
 ```
 
-- `kind` في `dashboard_widget` من القيم الأربع فقط: `map` / `list` / `stat` / `alert` (§5-1)؛ و`kind` في `alert` من القيم الأربع فقط: `sos` / `escalation` / `grant_expiring` / `system` (§5-4)؛ و`type` في `control_surface` من القيم الثلاث فقط: `select` / `switch` / `action` (§5-2).
+- `kind` في `dashboard_widget` من القيم الأربع فقط: `map` / `list` / `stat` / `alert` (§5-1)؛ و`kind` في `alert` من القيم الأربع فقط: `sos` / `escalation` / `grant_expiring` / `system` (§5-4)؛ و`type` في `control_surface` من القيم الثلاث فقط: `select` / `switch` / `action` (§5-2)؛ وأنواع هذا المخطط هي أنواع SPEC §5 حرفياً (ومنها `jsonb` — فالمواصفة حاكمة على المخطط)؛ و`source_ref` في `alert` بصيغة `{system}:{kind}:{id}` (§5-4)؛ و`version` في `dashboard_snapshot` يزيده الخادم وحده (§5-3).
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
@@ -189,7 +192,7 @@ sequenceDiagram
     Hub-->>Father: تحديث اللوحة في الخلفية
 ```
 
-- الودجات المخفية لا تُرسَل للعميل أصلاً (§6-3)؛ واللقطة المخزنة تُعرض فوراً ثم يُحدَّث في الخلفية (REQ-016).
+- الودجات المخفية لا تُرسَل للعميل أصلاً (§6-3)؛ واللقطة المخزنة تُعرض فوراً ثم يُحدَّث في الخلفية (REQ-016)؛ و`?since` طابع RFC 3339 UTC — بلا `since` لقطة كاملة، ومعه دلتا (المصفوفة الفارغة تعني «لا تغيير») — §4-1؛ واللقطة المحلية نسخة مخزنة من صف الخادم (`family_id`, `version`) لا سجل مستقل — والخادم وحده يكتب الصف (§5-3).
 
 ### 3-ب. تعديل تحكم نظام (REQ-004/008 — §4-1)
 
@@ -210,10 +213,12 @@ sequenceDiagram
     end
     Hub->>Ktor: PATCH /api/v1/families/{id}/settings/{system}
     alt النظام غير مسجل في السجل المركزي (§7-1)
-        Ktor-->>Hub: HUB_SYSTEM_NOT_REGISTERED + قائمة الأنظمة المسجلة
+        Ktor-->>Hub: 404 HUB_SYSTEM_NOT_REGISTERED + قائمة الأنظمة المسجلة
     else التحكم غير موجود في سطح النظام (§7-2)
-        Ktor-->>Hub: HUB_CONTROL_NOT_FOUND
-    else النظام والتحكم موجودان
+        Ktor-->>Hub: 404 HUB_CONTROL_NOT_FOUND
+    else القيمة خارج values أو مخالفة النوع (§7-14)
+        Ktor-->>Hub: 400 HUB_INVALID_VALUE
+    else النظام والتحكم موجودان والقيمة صالحة
         Ktor->>S103: هل يملك مفتاح التحكم نفسه؟
         alt يملك المفتاح
             S103-->>Ktor: مسموح
@@ -229,7 +234,7 @@ sequenceDiagram
     end
 ```
 
-- مفتاح `hub.settings.edit` وحده لا يمنح حق التعديل (§6-1)؛ والتعارض المتزامن على نفس التحكم يُمرَّر إلى النظام صاحبه ويُحل بقواعده (مثال S1-03 REQ-019) — المركز لا يبت في التعارض (§7-9).
+- مفتاح `hub.settings.edit` وحده لا يمنح حق التعديل (§6-1)؛ وحالات رموز HUB: `HUB_SYSTEM_NOT_REGISTERED` و`HUB_CONTROL_NOT_FOUND` خطأا `404`، و`HUB_INVALID_VALUE` خطأ `400` (§4-4)؛ والتعارض المتزامن على نفس التحكم يُمرَّر إلى النظام صاحبه ويُحل بقواعده (مثال S1-03 REQ-019) — المركز لا يبت في التعارض (§7-9).
 
 ### 3-ج. تنبيه جديد وتأكيد قراءته (REQ-003 — §4-1 + §4-2)
 
@@ -241,7 +246,7 @@ sequenceDiagram
     participant Hub as المركز
     actor Father as الأب
     النظام->>Ktor: حدث يستحق تنبيهاً (SOS / تصعيد / انتهاء منح)
-    Ktor->>Ktor: إنشاء alert {kind, system, at, read: false}
+    Ktor->>Ktor: إنشاء alert {kind, system, source_ref, at, read: false}
     Ktor->>Hub: MQTT family/{family_id}/alerts/new
     Hub-->>Father: التنبيه يظهر في اللوحة
     Father->>Hub: الضغط على التنبيه
@@ -280,7 +285,7 @@ sequenceDiagram
     Note over Hub,Ktor: عند عودة الاتصال: refreshDashboard() ثم تحديث اللقطة
 ```
 
-- "قبل 25 دقيقة" مثال من السيناريو 9-5؛ والبيانات القديمة لا تُعرض كأنها حية أبداً (§6-2)؛ واللقطة التالفة تُتجاهل وتُعاد من الخادم عند الاتصال (§7-12).
+- "قبل 25 دقيقة" مثال من السيناريو 9-5؛ والبيانات القديمة لا تُعرض كأنها حية أبداً (§6-2)؛ واللقطة التالفة تُتجاهل وتُعاد من الخادم عند الاتصال (§7-12)؛ واللقطة المحلية نسخة مخزنة من صف الخادم (`family_id`, `version`) — والخادم وحده يكتب الصف ويزيد `version` (§5-3).
 
 ### 3-هـ. عرض الخطة والترقية (REQ-012/013 — §4-1)
 
@@ -338,7 +343,7 @@ sequenceDiagram
     Hub-->>Father: البطاقة تُحدَّث — العنصر يُزال بعد القرار
 ```
 
-- المصدران: S1-05 REQ-014 (طلب الوقت الإضافي يظهر في البطاقة؛ والأب يقرر بنقرة واحدة) وS1-06 REQ-015 (`family/{family_id}/tasks.submitted` → البطاقة)؛ والبطاقة نفسها تُعرض في S1-09 وتُدفع أحداثها عبر `family/{family_id}/alerts/new` (§4-2). والبالغ المفوَّض يرى في البطاقة فقط ما فُوِّض به (Q-096) — الباقي مخفي تماماً.
+- المصدران: S1-05 REQ-014 (طلب الوقت الإضافي يظهر في البطاقة؛ والأب يقرر بنقرة واحدة) وS1-06 REQ-015 (`family/{family_id}/tasks.submitted` → البطاقة)؛ والموضوع الوارد الثالث `family/{family_id}/permissions/grant-expiring` (S1-03 §4-2 — Q-227) ينشئ تنبيه `kind=grant_expiring` بالمرجع نفسه (`source_ref`)؛ والبطاقة نفسها تُعرض في S1-09 وتُدفع أحداثها عبر `family/{family_id}/alerts/new` (§4-2). والبالغ المفوَّض يرى في البطاقة فقط ما فُوِّض به (Q-096) — الباقي مخفي تماماً.
 
 ### 3-ز. عرض سجل أفعال الوكيل — شفافية الذكاء (REQ-018 — §4-1)
 

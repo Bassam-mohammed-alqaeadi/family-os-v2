@@ -111,6 +111,7 @@ erDiagram
         text action
         int[7] minutes_by_weekday
         boolean is_study_app
+        int version
         text created_by
         timestamptz created_at
         timestamptz updated_at
@@ -120,6 +121,7 @@ erDiagram
         uuid family_id FK
         uuid child_id FK
         int[7] minutes_by_weekday
+        int version
         text created_by
         timestamptz created_at
         timestamptz updated_at
@@ -137,6 +139,7 @@ erDiagram
         uuid family_id FK
         uuid child_id FK
         text order
+        int version
         text updated_by
         timestamptz updated_at
     }
@@ -253,7 +256,7 @@ sequenceDiagram
     Ktor-->>Flutter: الجدول المحفوظ
 ```
 
-- ملاحظة: تعديل متزامن من والد آخر على نسخة قديمة → `409 VERSION_CONFLICT` — يُعاد تحميل أحدث حالة قبل إعادة المحاولة (نمط S1-03 REQ-019 — قفل تفاؤلي على `version`).
+- ملاحظة: تعديل متزامن من والد آخر على نسخة قديمة → `409 VERSION_CONFLICT` — يُعاد تحميل أحدث حالة قبل إعادة المحاولة (نمط S1-03 REQ-019 — قفل تفاؤلي على `version`). وكشف التعارض يشمل التداخل الليلي عبر منتصف الليل (REQ-006): نافذة `end_time <= start_time` تمتد إلى اليوم التالي.
 
 ### 3-ج. تقييم الفرض عند فتح تطبيق (REQ-008/010/011/012 — §4-1 evaluateNow + Q-145)
 
@@ -265,6 +268,10 @@ sequenceDiagram
     participant K as "وحدة Kotlin"
     Child->>Shell: فتح تطبيق
     Shell->>K: evaluateNow() — MethodChannel("familyos/enforcement")
+    K->>K: الفحص الأول: وضع حر سارٍ؟ (free_mode_until لم يمضِ — REQ-018)
+    alt وضع حر سارٍ
+        K->>Shell: سماح — free_mode_active=true — بلا النظر إلى أي قاعدة
+    else لا وضع حر
     K->>K: قراءة موضع القناع اليومي O(1) (REQ-008)
     K->>K: المشي في ترتيب الأب من الأعلى إلى الأسفل — الافتراضي: نوم ثم مدرسة ثم حد تطبيق ثم حصة إجمالية (Q-145)
     alt أول نوع مطابق = نوم
@@ -278,6 +285,7 @@ sequenceDiagram
     else لا نوع مطابق أو بقي رصيد
         K->>Shell: سماح — مع عرض المتبقي
         Note over K,Shell: تحذير قبل 5 دقائق من نفاد الحد (REQ-004) — مرة واحدة في اليوم لكل تطبيق
+    end
     end
     Note over K,Shell: عند أي حظر — بث rule_blocked عبر EventChannel("familyos/enforcement/events")
 ```
@@ -370,6 +378,13 @@ sequenceDiagram
     else فشلت
         K->>K: إعادة المحاولة عند كل نبضة تقييم حتى تنجح أو يتدخل الأب
         Note over K,Father: التنبيه يبقى ظاهراً للأب ولا يُسكَت من جهاز الطفل (REQ-022)
+    end
+    opt الأب يفتح تنبيهات العبث (S10-11)
+        Father->>Ktor: GET /api/v1/families/{id}/children/{childId}/tamper-events?limit&before — المفتاح protection.tamper.view
+        Ktor->>Ktor: قراءة D7 tamper_event
+        Ktor-->>Father: {events: [{event_id, kind, detected_at, reactivation_attempted, resolved_at, notified}], next_cursor}
+        Father->>Ktor: POST .../tamper-events/{eventId}/resolve — حلّ بعد التدخل (REQ-022)
+        Ktor-->>Father: {event_id, resolved_at}
     end
 ```
 
@@ -491,7 +506,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–8.0، والمخازن D1–D8 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء. وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `POST .../mode-presets/{preset}` (P1+P2 ذرّياً — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `GET .../tamper-events` و`POST .../tamper-events/{eventId}/resolve` (يقرآن/يكتبان D7 عبر Ktor — S10-11 · 3-و) · `POST .../mode-presets/{preset}` (P1+P2 ذرّياً — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
 
 ```mermaid
 flowchart LR
@@ -574,6 +589,8 @@ flowchart LR
     P3 -->|تسجيل التغيير| Audit
     P5 -->|تسجيل التفعيل والانتهاء والإلغاء المبكر| Audit
     P6 -->|تسجيل العبث| Audit
+    Audit -->|"نشر ملخص الحدث — family/{family_id}/protection/audit — QoS 1"| MQTT
+    MQTT -->|"ملخص حدث التدقيق إلى كل أجهزة الأهل (REQ-026)"| Father
 ```
 
 ## 6. مخطط النشاط (Activity) — دورة حياة القاعدة والفرض
