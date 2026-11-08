@@ -187,7 +187,7 @@ erDiagram
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-خمسة مخططات، كل واحد لتدفق واحد:
+ستة مخططات، كل واحد لتدفق واحد:
 - **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ ورسائل الدردشة (`family/{family_id}/chat/{channelId}/message` و`family/{family_id}/chat/{channelId}/typing` و`family/{family_id}/chat/{channelId}/deleted` و`family/{family_id}/chat/{channelId}/read` و`family/{family_id}/chat/{channelId}/created` و`family/{family_id}/chat/{channelId}/closed`) QoS 1 وبلا احتفاظ (retained=false — §4-2)؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. لا `command_id` في هذا النظام — عدم التكرار هنا بـ `client_message_id` (§4-1).
 
 ### 3-أ. إرسال رسالة فورياً — العرض المتفائل ثم المزامنة (REQ-006/007 — §4.1 + §4.2)
@@ -325,12 +325,18 @@ sequenceDiagram
     participant Device as الجهاز
     participant Ktor as الخادم
     Father->>Device: فتح قناة الوالدين على جهاز جديد
+    Device->>Ktor: POST /api/v1/families/{id}/parents-channel/recovery/request-otp — إصدار OTP بغرض recovery (موجّه S1-02 — Q-021)
+    Ktor-->>Device: {otp_sent_via, expires_in_sec: 300}
+    Father->>Device: إدخال OTP (6 خانات — FosOtpField)
     Device->>Ktor: POST /api/v1/families/{id}/parents-channel/backup {otp} — مصادقة الأب (OTP إلى الخادم + PIN محلي لاشتقاق المفتاح — §4-1، بلا مفتاح chat.*)
-    alt المصادقة ناجحة
+    alt OTP صحيح
         Ktor-->>Device: النسخة المشفرة (payload) + parents_key_backup.encrypted_key
         Device->>Device: اشتقاق مفتاح الاسترداد من PIN (Argon2id — kdf_params)
         Device->>Device: فك مفتاح القناة ثم فك السجل محلياً
         Device-->>Father: سجل قناة الوالدين مستعاد — الخادم لم يرَ المحتوى أبداً
+    else OTP خاطئ
+        Ktor-->>Device: CHAT_RECOVERY_OTP_INVALID — لا نسخة تُسلَّم
+        Device-->>Father: OTP خاطئ — أعد الإدخال (5 محاولات خاطئة ← قفل 15 دقيقة)
     else تعذرت المصادقة تماماً
         Ktor-->>Device: رفض — السجل غير قابل للاسترداد
         Device-->>Father: رسالة صريحة: لا وعد كاذب (§7-12)
@@ -338,6 +344,33 @@ sequenceDiagram
 ```
 
 - النسخة المشفرة ومفتاحها المشفر لا يُسلَّمان إلا بعد مصادقة الأب (PIN + OTP) (§6-2)؛ وإعادة تعيين PIN (Q-077) تُعيد تغليف مفتاح الاسترداد (§6-3).
+
+### 3-و. إرسال صورة/صوت — رفع عبر Ktor ثم إرسال بـ media_id (REQ-005 — §4.1)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Member as العضو
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant MinIO as MinIO
+    participant MQTT as MQTT
+    Member->>App: اختيار صورة / تسجيل صوت
+    alt صورة > 10MB أو صوت > 5MB
+        App-->>Member: رفض CHAT_MEDIA_TOO_LARGE + الحد ظاهر
+    else ضمن الحد
+        App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/media (multipart {file}) — الرفع عبر Ktor لا برابط موقّع مباشر
+        Ktor->>MinIO: كتابة البايتات (في قناة الوالدين: البايتات مشفرة E2E على الجهاز قبل الرفع — الخادم لا يرى المحتوى)
+        MinIO-->>Ktor: storage_ref
+        Ktor-->>App: {media_id, storage_ref, size_bytes}
+        App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload, media_id}
+        Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
+        Ktor-->>App: الرسالة + server_seq_id
+        App-->>Member: ظهور الرسالة مع الوسائط
+    end
+```
+
+- `media_id` إلزامي عند `kind` صورة/صوت؛ و`payload` ظرف مشفَّر فقط — لا بايتات وسائط فيه (§4-1)؛ ومخرج `GET .../messages` يسرد `server_seq_id` و`media_id` و`deleted_for` لكل رسالة.
 
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الستة (§2)
 

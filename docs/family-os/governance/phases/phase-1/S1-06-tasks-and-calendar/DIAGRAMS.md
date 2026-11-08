@@ -182,6 +182,7 @@ sequenceDiagram
     participant App as التطبيق
     participant Ktor as الخادم
     participant DB as قاعدة_البيانات
+    participant Assignee as جهاز المُسند إليه
     Father->>App: إنشاء مهمة (عنوان + مُسند واحد + فئة + نقاط + استحقاق + إثبات)
     App->>Ktor: POST /api/v1/families/{id}/tasks {tasks.create}
     Ktor->>Ktor: التحقق من الصلاحية + النقاط (0 للمراهق Q-109)
@@ -190,6 +191,7 @@ sequenceDiagram
     end
     Ktor->>DB: إدراج task (status=PENDING)
     Ktor->>Ktor: جدولة تذكير المهمة (افتراضي قبل 60 دقيقة Q-124)
+    Ktor->>Assignee: نشر family/{family_id}/tasks.created (QoS 1 — §4) — المهمة ظهرت للمُسند إليه فوراً
     Ktor-->>App: Task {task_id}
     App-->>Father: المهمة ظهرت للمُسند إليه فوراً
 ```
@@ -206,10 +208,13 @@ sequenceDiagram
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     Child->>App: تسليم المهمة مع الإثبات (صورة/تسجيل/تسليم ذاتي Q-122)
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/submit
-    Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (ALREADY_SUBMITTED إن تكرر)
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/proof (ملف الإثبات — رفع عبر Ktor إلى MinIO — §4-1-أ)
+    Ktor-->>App: {proof_ref}
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
+    Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (ALREADY_SUBMITTED إن تكرر — والإعادة بنفس client_request_id تُعيد التسليم الأصلي)
     Ktor->>Ktor: حفظ proof_ref في MinIO + status=SUBMITTED_BY_CHILD
     Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
+    Note over Ktor,AI: مهلة الاستدعاء + إعادة محاولة واحدة تُحسب من الميزانية؛ وعند الفشل النهائي → احتياطي الأب (Q-121 — §7)
     alt دليل مباشر — منح تلقائي
         AI-->>Ktor: مطابق للمطلوب (مباشر)
     else دليل مقدَّم — تحقق ثم منح
@@ -219,8 +224,9 @@ sequenceDiagram
     Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + طبقة الثقة
     Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06} (Q-118)
     Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
+    Note over Ktor,MQTT: فشل نشر MQTT لا يفقد الإيداع: الحدث الداخلي إلى S1-05 هو المرجع (Q-209 — §7)
     S105-->>Ktor: إيداع النقاط في المحفظة
-    Ktor-->>App: تم — النقاط دخلت المحفظة وتحدّثت السلسلة
+    Ktor-->>App: تم — النقاط دخلت المحفظة
 ```
 
 - لا تُودع نقطة قبل التحقق (Q-110) — التسليم الذاتي وحده لا يودع شيئاً (§6).
@@ -239,13 +245,13 @@ sequenceDiagram
     participant MQTT as وسيط MQTT
     participant S109 as المركز
     Child->>App: تسليم المهمة مع الإثبات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/submit
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
     Ktor->>AI: تحقق من الإنجاز
     AI-->>Ktor: لا يستطيع التحقق (مثال: صورة غير واضحة)
     Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة (Q-121)
     Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" (REQ-015)
     Father->>App: مراجعة الإثبات والنتيجة المسجلة مع السبب
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {APPROVE}
+    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
     Ktor->>Ktor: status=APPROVED + verified_by=father
     Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
     Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
@@ -267,12 +273,12 @@ sequenceDiagram
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     Father->>App: رفض تسليم مع ملاحظات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {REJECT_WITH_NOTES}
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}
     Ktor->>Ktor: status=PENDING + rejection_notes
     Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
     Child->>App: إعادة التسليم بإثبات جديد
     Note over Father,S105: إلغاء تحقق بعد الإيداع (الأب وحده)
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/revoke-verification
+    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification {client_request_id}
     Ktor->>S105: family/{family_id}/tasks.verification-revoked → قيد تعويضي يخصم النقاط
     Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
     S105-->>Ktor: خصم من الرصيد الحالي (صفراً ولا سالب أبداً — §7)
@@ -318,8 +324,8 @@ sequenceDiagram
     participant Ktor as الخادم
     Child->>App: تسليم مهمة دون اتصال
     App->>OB: حفظ التسليم في Outbox (Drift محلي)
-    Note over App,OB: عند عودة الاتصال
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/submit (من Outbox)
+    Note over App,OB: عند عودة الاتصال — إعادة محاولة محدودة بتراجع أسي؛ وإزالة التكرار بـ client_request_id لكل نسخة؛ واحتفاظ 7 أيام (§7)
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit (من Outbox) {proof_ref, client_request_id}
     alt المهمة أُلغيت أثناء الانقطاع
         Ktor-->>App: رفض التسليم + إشعار الطفل (§7)
     else المهمة ما زالت PENDING
@@ -341,20 +347,20 @@ sequenceDiagram
     participant MQTT as وسيط MQTT
     participant S109 as المركز
     Child->>App: تسليم المهمة مع الإثبات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/submit
+    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
     Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
     AI-->>Ktor: شك — الدليل غير حاسم (confidence_tier=مشكوك)
     Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة + AgentActionLog (الشك + الدليل)
     Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" — اعتماد بنقرة واحدة (REQ-015)
     Father->>App: مراجعة الإثبات + الشك المسجل مع السبب
     alt الأب يعتمد بنقرة واحدة
-        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {APPROVE}
+        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
         Ktor->>Ktor: status=APPROVED + verified_by=father
         Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
         Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
         S105-->>Ktor: إيداع النقاط
     else الأب يرفض
-        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {REJECT_WITH_NOTES}
+        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}
         Ktor->>Ktor: status=PENDING + rejection_notes
         Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
     end
@@ -398,7 +404,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–6.0، والمخازن D1–D4 جداول خادم (PostgreSQL). المخزنان المحليان (مرآة Drift + Outbox) على الجهاز (SQLite) وليسا جدولَي خادم. والمخازن الخارجية: `points_ledger` (S1-05) و`AuditEvent` (النواة) وMinIO (Q-058).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/tasks` و`GET /api/v1/families/{id}/tasks/{taskId}` و`PATCH /api/v1/families/{id}/tasks/{taskId}` (قراءة/تعديل مهمة — تمر عبر P1) · `DELETE /api/v1/families/{id}/tasks/{taskId}` (إلغاء مهمة — REQ-005، تمر عبر P1) · `GET /api/v1/families/{id}/task-categories` و`POST /api/v1/families/{id}/task-categories` (الفئات — REQ-002، تمر عبر P1) · `GET /api/v1/families/{id}/events` و`PATCH /api/v1/families/{id}/events/{eventId}` و`DELETE /api/v1/families/{id}/events/{eventId}` (أحداث التقويم — تمر عبر P5)؛ وبقية النقاط مرسومة في §3 (tasks إنشاء، submit، approve، revoke-verification، events إنشاء).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/tasks` و`GET /api/v1/families/{id}/tasks/{taskId}` و`PATCH /api/v1/families/{id}/tasks/{taskId}` (قراءة/تعديل مهمة — تمر عبر P1) · `DELETE /api/v1/families/{id}/tasks/{taskId}` (إلغاء مهمة — REQ-005، تمر عبر P1) · `GET /api/v1/families/{id}/task-categories` و`POST /api/v1/families/{id}/task-categories` (الفئات — REQ-002، تمر عبر P1) · `GET /api/v1/families/{id}/events` و`PATCH /api/v1/families/{id}/events/{eventId}` و`DELETE /api/v1/families/{id}/events/{eventId}` (أحداث التقويم — تمر عبر P5)؛ و`POST .../occurrences/{occurrenceId}/proof` و`PATCH .../tasks/{taskId}/checklist/{itemId}` (رفع إثبات + تبديل بند — تمر عبر P2)؛ وبقية النقاط مرسومة في §3 (tasks إنشاء، submit، approve، revoke-verification، events إنشاء).
 
 ```mermaid
 flowchart LR
@@ -437,6 +443,7 @@ flowchart LR
     P1 -->|حفظ المهمة| D1
     P1 -->|فئة جديدة| D3
     P1 -->|بنود قائمة الفحص| D2
+    P1 -->|"family/{family_id}/tasks.created"| Child
     D1 -->|المهمة + حالتها| P2
     Child -->|تسليم + إثبات| P2
     P2 -->|صورة الإثبات| MinIO

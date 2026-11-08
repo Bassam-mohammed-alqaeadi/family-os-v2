@@ -81,7 +81,7 @@ flowchart LR
 
 ### التسليم والتحقق
 - **REQ-006:** الطفل يسلّم المهمة مع الإثبات المطلوب (صورة/تسجيل/تسليم ذاتي حسب ما حدده الأب). [Q-122 · DIRECT]
-- **REQ-007:** الذكاء يتحقق من الإنجاز؛ وعند النجاح يصدر حدث `family/{family_id}/tasks.completed` (يحمل `source_system=S1-06`) إلى المحفظة. ويُستثنى المراهق: مهمة المراهق تُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب إطلاقاً (Q-109 — §7). [Q-110/Q-118 · DIRECT]
+- **REQ-007:** الذكاء يتحقق من الإنجاز؛ وعند النجاح يصدر حدث `family/{family_id}/tasks.completed` (يحمل `source_system=S1-06`) إلى المحفظة. والنقل مزدوج (Q-209): حدث داخلي إلى S1-05 هو المرجع، ونشر MQTT QoS 1 نسخة مرئية؛ ويُزال التكرار بـ `event_id`. ويُستثنى المراهق: مهمة المراهق تُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب إطلاقاً (Q-109 — §7). [Q-110/Q-118 · DIRECT]
 - **REQ-008:** إذا لم يستطع الذكاء التحقق تبقى المهمة معلّقة لاعتماد الأب اليدوي. [Q-121 · DIRECT]
 - **REQ-009:** الأب يرفض تسليماً مع ملاحظات → تعود المهمة إلى PENDING ليعيدها الطفل؛ ويراجع أي تحقق ويلغيه.
 
@@ -102,46 +102,62 @@ flowchart LR
 ## 4. الواجهات والعقود
 
 ### نقاط الوصول REST
-- `POST /api/v1/families/{id}/tasks` — إنشاء مهمة.
-- `GET /api/v1/families/{id}/tasks?date&assignee&status` — قائمة المهام.
-- `GET /api/v1/families/{id}/tasks/{taskId}` — مهمة واحدة.
-- `PATCH /api/v1/families/{id}/tasks/{taskId}` — تعديل مهمة.
-- `DELETE /api/v1/families/{id}/tasks/{taskId}` — إلغاء مهمة.
-- `POST /api/v1/families/{id}/tasks/{taskId}/submit` — الطفل يسلّم المهمة مع الإثبات.
-- `POST /api/v1/families/{id}/tasks/{taskId}/approve` — اعتماد الأب اليدوي (قرار: APPROVE / REJECT_WITH_NOTES).
-- `POST /api/v1/families/{id}/tasks/{taskId}/revoke-verification` — الأب يلغي تحققاً (ويعوَّض الإيداع في S1-05).
-- `POST /api/v1/families/{id}/events` — إنشاء حدث تقويم.
-- `GET /api/v1/families/{id}/events?from&to` — قائمة الأحداث (3 أشهر كحد أقصى).
-- `PATCH /api/v1/families/{id}/events/{eventId}` — تعديل حدث.
-- `DELETE /api/v1/families/{id}/events/{eventId}` — إلغاء حدث.
-- `GET /api/v1/families/{id}/task-categories` — قائمة الفئات.
-- `POST /api/v1/families/{id}/task-categories` — الأب يضيف فئة.
+
+| الطريقة والمسار | المفتاح | المدخل | المخرج |
+|---|---|---|---|
+| `POST /api/v1/families/{id}/tasks` | `tasks.create` | `{title_ar, description_ar?, assigned_member_id, category_id, reward_points?, due_date, due_time?, rrule?, proof_method, checklist_items?[], reminder_minutes?}` | `{task_id, status: "PENDING"}` — 201 |
+| `GET /api/v1/families/{id}/tasks?date&assignee&status` | `tasks.view` | `?date&assignee&status` | `[{task_id, title_ar, assigned_member_id, reward_points, due_date, status, occurrence_id}]` — `occurrence_id` لنسخة التاريخ المطلوب |
+| `GET /api/v1/families/{id}/tasks/{taskId}` | `tasks.view` | — | المهمة + `occurrence_id` لنسخة اليوم + `version` |
+| `PATCH /api/v1/families/{id}/tasks/{taskId}` | `tasks.create` (إنشاء تعريف المهمة وتعديله بمفتاح واحد في المرحلة 1 — لا مفتاح `tasks.edit` منفصل) | `{…الحقول القابلة للتعديل, version}` | المهمة — `version` غير مطابقة → `VERSION_CONFLICT` |
+| `DELETE /api/v1/families/{id}/tasks/{taskId}` | `tasks.cancel` | — | `{task_id, status: "CANCELLED"}` |
+| `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/proof` | `tasks.submit` | `multipart {file}` + `{client_request_id}` | `{proof_ref, size_bytes}` — رفع الإثبات عبر Ktor إلى MinIO (§4-1-أ) |
+| `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit` | `tasks.submit` | `{proof_ref?, checklist_completed: {done, total}, client_request_id}` | `{occurrence_id, status: "SUBMITTED_BY_CHILD", submitted_at}` — إعادة بنفس `client_request_id` تُعيد التسليم الأصلي بلا تنفيذ ثانٍ |
+| `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve` | `tasks.approve` | `{decision: APPROVE \| REJECT_WITH_NOTES, rejection_notes?, client_request_id}` | `{occurrence_id, status: "APPROVED" \| "PENDING"}` |
+| `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification` | `tasks.revoke` | `{reason?, client_request_id}` | `{occurrence_id, status: "PENDING"}` + قيد تعويضي في S1-05 |
+| `PATCH /api/v1/families/{id}/tasks/{taskId}/checklist/{itemId}` | `tasks.submit` (إعادة استخدام معلَنة — الطفل يؤشر بنود مهمته قبل التسليم؛ ولا مفتاح جديد فيُحفظ عدّ المفاتيح 82 بلا تغيير) | `{is_completed}` (قيمة مطلقة — الإعادة بنفس القيمة idempotent) | `{item_id, is_completed}` |
+| `POST /api/v1/families/{id}/events` | `calendar.event.create` | `{title_ar, description_ar?, location_text?, start_time, end_time, is_all_day?, rrule?, attendee_member_id?, reminder_minutes?}` | `{event_id}` — 201 |
+| `GET /api/v1/families/{id}/events?from&to` | `calendar.view` | `?from&to` (3 أشهر كحد أقصى — REQ-010) | `[{event_id, title_ar, start_time, end_time, attendee_member_id, rrule?}]` |
+| `PATCH /api/v1/families/{id}/events/{eventId}` | `calendar.event.create` (إنشاء الحدث وتعديله بمفتاح واحد في المرحلة 1) | `{…الحقول القابلة للتعديل, version}` | الحدث — `version` غير مطابقة → `VERSION_CONFLICT` |
+| `DELETE /api/v1/families/{id}/events/{eventId}` | `calendar.event.create` | — | `{event_id, ok: true}` |
+| `GET /api/v1/families/{id}/task-categories` | `tasks.view` | — | `[{category_id, name_ar, color, emoji}]` |
+| `POST /api/v1/families/{id}/task-categories` | `tasks.category.create` | `{name_ar, color, emoji}` | `{category_id}` — 201 |
+
+#### 4-1-أ. هوية النسخة وعدم التكرار والتفاؤل ورفع الإثبات
+
+- **هوية النسخة `occurrence_id`:** معرّف مشتق `{taskId}:{occurrence_date}` حيث `occurrence_date` بصيغة `YYYY-MM-DD` بالتوقيت المحلي للعائلة (Q-183)؛ ولا صفوف مادية للنسخ (REQ-010) — والهوية مشتقة لا مخزَّنة. وتقديم/اعتماد/إبطال نسخة يخاطب `occurrence_id` لا `taskId` وحده؛ وتسليما يومين مختلفين لا يمكن أن يختلطا.
+- **عدم التكرار:** كل كتابة قابلة لإعادة التنفيذ (`submit`/`approve`/`revoke-verification`/`proof`) تحمل `client_request_id` (uuid يولّده العميل لكل عملية)؛ والإعادة بنفس المفتاح تُعيد النتيجة الأصلية بلا تنفيذ ثانٍ (سابقة S1-05 `client_request_id`)؛ ونطاق المفتاح النسخة لا المهمة — مفتاح على مستوى المهمة يمنع خطأً تسليم نسختين مختلفتين.
+- **التفاؤل:** `PATCH` يحمل `version` الحالية؛ وعدم تطابقها → `VERSION_CONFLICT`؛ وتزيد `version` مع كل كتابة ناجحة (§5/§7).
+- **رفع الإثبات — اختيار معلَن:** الرفع عبر Ktor (`multipart` إلى نقطة `.../proof`) لا برابط موقّع مباشر إلى MinIO في المرحلة 1 — لأن التسليم دون اتصال (REQ-016) يمر عبر Outbox والخادم هو من يكتب إلى MinIO؛ والرابط الموقّع المباشر مؤجل إلى ما بعد المرحلة 1. والرفع دون اتصال يُحفظ في Outbox ويُرفع مع التسليم عند عودة الاتصال. و`proof_ref` مرجع MinIO فقط (§5)؛ ولا يقبل `submit` بايتات إثبات — يقبل `proof_ref` فقط.
 
 ### أحداث MQTT
 
-| الموضوع | QoS | Retained | الوصف |
-|---|---|---|---|
-| `family/{family_id}/tasks.submitted` | 1 | لا | تسليم جديد (لبطاقة S1-09) |
-| `family/{family_id}/tasks.completed` | 1 | لا | حدث كسب عام (للمحفظة S1-05؛ يحمل `source_system=S1-06`) |
-| `family/{family_id}/tasks.verification-revoked` | 1 | لا | إلغاء تحقق (لتعويض الإيداع في S1-05) |
-| `family/{family_id}/calendar.event.reminder` | 1 | لا | تذكير حدث (لخدمة التنبيهات) |
+| الموضوع | QoS | Retained | الناشر | المشترك | الحمولة |
+|---|---|---|---|---|---|
+| `family/{family_id}/tasks.created` | 1 | لا | الخادم | جهاز المُسند إليه + S1-09 | `{event_id, task_id, occurrence_id (الأولى), title_ar, assigned_member_id, due_at, created_by}` |
+| `family/{family_id}/tasks.submitted` | 1 | لا | الخادم | S1-09 (بطاقة «يتطلب انتباهك») | `{event_id, task_id, occurrence_id, submitted_by, submitted_at, proof_ref?}` |
+| `family/{family_id}/tasks.completed` | 1 | لا | الخادم — نقل مزدوج (Q-209): الحدث الداخلي إلى S1-05 هو المرجع؛ وMQTT نسخة مرئية | S1-05 + الأجهزة التي تعرض حالة المهمة | `{event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}` |
+| `family/{family_id}/tasks.verification-revoked` | 1 | لا | الخادم — نقل مزدوج (Q-209): الحدث الداخلي إلى S1-05 هو المرجع؛ وMQTT نسخة مرئية | S1-05 | `{event_id, task_id, occurrence_id, revoked_by, at}` |
+| `family/{family_id}/calendar.event.reminder` | 1 | لا | الخادم | — (المشترك سؤال مفتوح R2-S106-15، B2 — يُسمى هنا كمستهلك لا كمالك) | `{event_id, calendar_event_id, reminder_id, remind_at}` |
 
 - المصدر: الوسيط §6 — صف «الأحداث» وصف «لوحة/تقويم/فوترة»: QoS 1، Retained لا.
+- **النقل المزدوج (Q-209):** الخادم ينشر `tasks.completed` و`tasks.verification-revoked` على MQTT (QoS 1) بجانب الحدث الداخلي إلى S1-05 — والحدث الداخلي هو المرجع الذي تعتمده المحفظة؛ وMQTT نسخة مرئية للأجهزة والبطاقات؛ ويُزال التكرار بين النقلين بـ `event_id` (uuid لكل حدث) — فلا إيداع مزدوج إن وصل الحدث من النقلين معاً. والتسلسلات 3-ب/3-ج/3-د/3-ز ترسم الخطوتين معاً.
 
 ### قناة MethodChannel (Kotlin)
 - `scheduleLocalReminder` — جدولة منبّه محلي دقيق (دون اتصال).
 - `getTodayTasks` — مهام اليوم المحفوظة محلياً (دون اتصال).
 
 ### رموز الخطأ (`TSK_*`)
-`TASK_NOT_FOUND` · `EVENT_NOT_FOUND` · `NOT_ASSIGNEE` · `ALREADY_SUBMITTED` · `VERIFICATION_FAILED` · `INVALID_RRULE` · `INVALID_PROOF` · `CATEGORY_EXISTS` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
+`TASK_NOT_FOUND` · `EVENT_NOT_FOUND` · `NOT_ASSIGNEE` · `ALREADY_SUBMITTED` · `VERIFICATION_FAILED` · `INVALID_RRULE` · `INVALID_PROOF` · `CATEGORY_EXISTS` · `VERSION_CONFLICT` · `TSK_EXPIRED_INSTANCE` · `TSK_TASK_MODIFIED_AFTER_SUBMIT` · `TSK_TASK_CANCELLED` — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
 
 ## 5. البيانات — النموذج
 
 **جداول النظام (تحمل `family_id` + RLS):**
-- `task` — المهمة: `task_id` · `family_id` · `title_ar` · `description_ar` · `assigned_member_id` (مُسنَد واحد، NOT NULL) · `category_id` · `reward_points` (افتراضي 10، ≥ 0؛ و0 للمراهقين) · `due_date` · `due_time` · `rrule` (nullable) · `proof_method` (photo/recording/self) · `status` (PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED) · `proof_ref` (إثبات التسليم — MinIO) · `submitted_at` · `verified_by` (ai/father) · `verified_at` · `approved_by` · `approved_at` · `rejection_notes` · `created_by` · `created_at` · `updated_at`.
+- `task` — المهمة: `task_id` · `family_id` · `title_ar` · `description_ar` · `assigned_member_id` (مُسنَد واحد، NOT NULL) · `category_id` · `reward_points` (افتراضي 10، ≥ 0؛ و0 للمراهقين) · `due_date` · `due_time` · `rrule` (nullable) · `proof_method` (photo/recording/self) · `status` (PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED) · `proof_ref` (إثبات التسليم — MinIO) · `submitted_at` · `verified_by` (ai/father) · `verified_at` · `approved_by` · `approved_at` · `rejection_notes` · `created_by` · `version` (int — تفاؤل: يبدأ 1 ويزيد مع كل كتابة؛ و`PATCH` بغير المطابقة → `VERSION_CONFLICT`) · `created_at` · `updated_at`.
 - `task_checklist` — بنود فرعية: `item_id` · `task_id` (FK + CASCADE) · `item_title_ar` · `is_completed` · `sort_order`.
 - `task_category` — الفئة: `category_id` · `family_id` (NULL = فئة عامة افتراضية من الأربع؛ وقيمة = فئة أضافها الأب لعائلته) · `name_ar` · `color` · `emoji`.
-- `calendar_event` — حدث التقويم: `event_id` · `family_id` · `title_ar` · `description_ar` · `location_text` · `start_time`/`end_time` · `is_all_day` · `rrule` (nullable) · `attendee_member_id` (NULL = كل العائلة) · `reminder_minutes` (افتراضي 60) · `created_by` · `created_at` · `updated_at`.
+- `calendar_event` — حدث التقويم: `event_id` · `family_id` · `title_ar` · `description_ar` · `location_text` · `start_time`/`end_time` · `is_all_day` · `rrule` (nullable) · `attendee_member_id` (NULL = كل العائلة) · `reminder_minutes` (افتراضي 60) · `created_by` · `version` (int — تفاؤل: يبدأ 1 ويزيد مع كل كتابة) · `created_at` · `updated_at`.
+
+**هوية النسخة `occurrence_id` (مشتقة لا مخزَّنة):** `{taskId}:{occurrence_date}` بتاريخ `YYYY-MM-DD` بالتوقيت المحلي للعائلة (Q-183)؛ ولا جدول للنسخ (REQ-010) — وتُحسب النسخ عند الطلب من `rrule`؛ وتسليم/اعتماد/إبطال نسخة يخاطب `occurrence_id` (§4-1-أ).
 
 **مراجع:** عضوية الأعضاء من S1-02؛ حدث `family/{family_id}/tasks.completed` يودع في `points_ledger` (S1-05)؛ وكل إنشاء/تسليم/تحقق/اعتماد/رفض/إلغاء يُسجَّل في AuditEvent (domain=tasks)؛ وصور الإثبات في MinIO (Q-058). **مخازن العميل (ليست جداول خادم):** مرآة Drift للمهام والأحداث (تشمل حالة CANCELLED وكل الحقول — إصلاح انحراف الفرع القديم) + Outbox للتسليم دون اتصال.
 
@@ -169,7 +185,9 @@ flowchart LR
 - أحداث التقويم لا تخرج من العائلة أبداً.
 
 ### قواعد التشغيل
+- إنشاء مهمة ينشر `family/{family_id}/tasks.created` (QoS 1 — §4) إلى جهاز المُسند إليه فوراً؛ وقائمة المُسند تراقب هذا الموضوع؛ وإن وصلت المهمة نفسها عبر `dashboard/updated` في S1-09 أيضاً تُزال التكرار بـ `task_id` فلا تعرض مرتين.
 - التسليم يظهر فوراً في بطاقة "يتطلب انتباهك" في S1-09.
+- مفتاح `tasks.submit` يغطي أيضاً تبديل بنود قائمة الفحص لمهمة المُسند إليه ورفع إثباتها (§4-1) — إعادة استخدام معلَنة بلا مفتاح جديد.
 - نتيجة تحقق الذكاء تُسجَّل مع السبب؛ والأب يراها قبل أن يعترض أو يلغي.
 - الرفض مع ملاحظات يعيد المهمة إلى PENDING؛ ويستطيع الطفل إعادة التسليم.
 - إلغاء تحقق بعد الإيداع يصدر `family/{family_id}/tasks.verification-revoked` → قيد تعويضي في S1-05 يخصم النقاط.
@@ -187,9 +205,13 @@ flowchart LR
 - الأب يعتمد مهمة رفضها الذكاء → الاعتماد اليدوي يتجاوز الرفض ويُودع النقاط.
 - إلغاء مهمة بعد تسليمها وقبل التحقق → CANCELLED؛ والتسليم يُلغى ولا إيداع.
 - إلغاء مهمة APPROVED بعد الإيداع → CANCELLED + قيد تعويضي واحد عبر `family/{family_id}/tasks.verification-revoked` (مسار إلغاء التحقق نفسه)؛ والرصيد صفراً ولا سالب أبداً.
-- تعديل نقاط مهمة بعد تسليمها → مرفوض (النقاط ثابتة عند الإنشاء).
-- تسليم نسخة الأمس بعد انتهائها → مرفوض (النسخة منتهية)؛ وتظهر نسخة اليوم.
-- دون اتصال: تسليم يُحفظ في Outbox؛ وعند عودة الاتصال إن أُلغيت المهمة أثناء الانقطاع → يُرفض التسليم مع إشعار.
+- تعديل نقاط مهمة بعد تسليمها → مرفوض (`TSK_TASK_MODIFIED_AFTER_SUBMIT` — النقاط ثابتة عند الإنشاء).
+- تسليم نسخة الأمس بعد انتهائها → مرفوض (`TSK_EXPIRED_INSTANCE` — النسخة منتهية)؛ وتظهر نسخة اليوم.
+- دون اتصال: تسليم يُحفظ في Outbox؛ وعند عودة الاتصال إن أُلغيت المهمة أثناء الانقطاع → يُرفض التسليم مع إشعار (`TSK_TASK_CANCELLED`).
+- مهمة غير موجودة (`GET`/`PATCH`/`submit`/`approve` بمعرّف مهمة مجهول) → `TASK_NOT_FOUND`؛ وحدث غير موجود (`GET`/`PATCH` بمعرّف حدث مجهول) → `EVENT_NOT_FOUND`.
+- تعارض كتابة متفائلة: `PATCH` بـ `version` أقدم من الحالية → `VERSION_CONFLICT`؛ ولا كتابة صامتة فوق نسخة أحدث — والعميل يعيد القراءة ثم يعيد المحاولة بقرار المستخدم. وتزيد `version` مع كل كتابة ناجحة (§5).
+- **الصندوق الصادر (Outbox — REQ-016):** إعادة المحاولة محدودة بتراجع أسي مع اهتزاز عشوائي؛ وعدد المحاولات الأقصى وقاعدة التراجع قيمتا مختبر Q-027 (المالك: مختبر Q-027؛ البوابة: قبل التنفيذ)؛ والاحتفاظ 7 أيام (سابقة S1-07 §7-13) — تسليم أقدم من 7 أيام يُتجاهل ولا يُرسَل؛ وإزالة التكرار بمفتاح `client_request_id` لكل نسخة (§4-1-أ) — فإعادة إرسال بعد إقرار ساقط تعيد النتيجة الأصلية بلا تسليم ثانٍ؛ وترتيب التفريغ ترتيب الإنشاء.
+- **استدعاء الذكاء والنشر (REQ-017):** عقد تحقق الذكاء (Q-167) لا يعرّف مهلة استدعاء ولا إعادة محاولة — فقاعدة هذا النظام: مهلة استدعاء واحدة محدودة (`AI_VERIFY_TIMEOUT_MS` — قيمة مختبر Q-027؛ المالك: مختبر Q-027؛ البوابة: قبل التنفيذ) + إعادة محاولة واحدة على الأكثر تُحسب من ميزانية الذكاء (Q-012/Q-054)؛ وعند الفشل النهائي يبقى التسليم معلّقاً لاحتياطي الأب (Q-121) ولا يُودع شيء. وفشل نشر MQTT لا يفقد الإيداع: الحدث الداخلي إلى S1-05 هو المرجع (Q-209)؛ ويُعاد نشر نسخة MQTT بتراجع محدود، وإن تعذّر النشر نهائياً يبقى الحدث مسجلاً خادمياً لإعادة النشر عند استعادة الوسيط.
 - صورة إثبات تالفة أو غير قابلة للقراءة → INVALID_PROOF؛ والطفل يُطلب منه إعادة التسليم.
 - حدث تقويم بقاعدة RRULE غير صالحة → INVALID_RRULE؛ ويُرفض الإنشاء.
 - تذكير حدث في الماضي → لا تذكير (يُتجاهل بصمت)؛ والحدث نفسه يبقى.

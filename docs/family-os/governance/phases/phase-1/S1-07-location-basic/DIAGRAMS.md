@@ -88,6 +88,8 @@ erDiagram
         uuid point_id PK
         uuid family_id FK
         uuid member_id FK
+        uuid device_id FK
+        uuid client_point_id
         double lat
         double lng
         double accuracy
@@ -98,6 +100,7 @@ erDiagram
     last_known_location {
         uuid member_id PK, FK
         uuid family_id FK
+        uuid device_id FK
         double lat
         double lng
         double accuracy
@@ -157,13 +160,13 @@ sequenceDiagram
     خدمة->>خدمة: حساس الحركة يحدد التردد (5 دقائق سكون / دقيقة حركة)
     خدمة->>خدمة: قراءة GPS + تنعيم Kalman (رفض القفزات الوهمية)
     alt متصل
-        خدمة->>الخادم: POST /api/v1/families/{id}/locations {lat, lng, accuracy, battery, at}
+        خدمة->>الخادم: POST /api/v1/families/{id}/locations {device_id, client_point_id, lat, lng, accuracy, battery, at}
         الخادم->>المخزن: حفظ location_point + تحديث last_known_location
         الخادم-->>خدمة: النقطة + server_seq
         الخادم->>الخادم: نشر family/{family_id}/location/updated (MQTT — QoS 0)
     else دون اتصال
         خدمة->>خدمة: حفظ النقطة في الصندوق الصادر (محلي)
-        Note over خدمة,الخادم: تُزامَن عند عودة الاتصال بلا تكرار؛ نقاط أقدم من 7 أيام تُتجاهل
+        Note over خدمة,الخادم: تُزامَن عند عودة الاتصال بلا تكرار (مفتاح client_point_id — §7)؛ نقاط أقدم من 7 أيام تُتجاهل؛ وسعة الصندوق LOCATION_OUTBOX_MAX_POINTS (§5-5)
     end
 ```
 
@@ -189,7 +192,7 @@ sequenceDiagram
 ```
 
 - الأب يرى الموقع الدقيق لكل قاصر — طفلاً كان أو مراهقاً (Q-102)؛ والبالغ المفوَّض يرى حسب منحِه فقط (REQ-012).
-- قناة المنصة (§4-3): `startLocationService()` تشغّل خدمة الموقع في الخلفية (التتبع التكيفي)؛ و`getLastKnownLocation() → {lat, lng, at}` تقرأ آخر موقع مخزن؛ و`triggerSos()` مرسومة في 3-ج (سطر 208).
+- قناة المنصة (§4-3): `startLocationService()` تشغّل خدمة الموقع في الخلفية (التتبع التكيفي)؛ و`getLastKnownLocation() → {lat, lng, accuracy, battery, at}` تقرأ آخر موقع مخزن مع دقته وبطاريته؛ و`triggerSos()` مرسومة في 3-ج (سطر 208).
 - حد قراءات p95 < 300ms مصدره **Q-061 في ARCHITECTURE.md** — نص S1-07 SPEC يذكر SOS <10s فقط (REQ-008)؛ والقيمة صحيحة per Q-061.
 
 ### 3-ج. SOS متصل — تنبيه في أقل من 10 ثوانٍ (REQ-007/008 — §4-1 + §4-2 + §4-3)
@@ -256,6 +259,7 @@ sequenceDiagram
 ```
 
 - كل SMS صادر يُحسب من حصة الخطة (Q-055)؛ الحصص: مجانية 20 رسالة/شهر، مميزة 100 رسالة/شهر، تعبئة 50 رسالة (Q-129 · REQ-017)؛ والتعبئة وشراء الحزم عبر S1-04 (REQ-017 · Q-106)؛ وتجاوز الطوارئ الثلاث لا يُمنح إلا لـ SOS — لا OTP ولا غيره (§6-2)؛ وقرار الإرسال دون اتصال من مرآة الحصة المحلية، وكل SMS استغاثة موقّع HMAC-SHA256 (مقتطع إلى 10 أحرف) بمفتاح الجهاز فوق (العائلة، العضو، الوقت، الإحداثيات) ويتحقق تطبيق الأب من التوقيع قبل العرض (REQ-017 · Q-163).
+- **المصالحة عند عودة الاتصال (§7):** SOS أُرسل عبر SMS يُصالح بإعادة `POST /api/v1/families/{id}/sos` بنفس `Idempotency-Key` — صف `sos_alert` واحد (`channel=sms`) وخصم حصة واحد؛ ولا تنبيه ثانٍ.
 - **ملكية النقل دون اتصال (Q-234): S1-07 يملك النقل؛ الغلاف يسلّم `sos_triggered` إلى S1-07 فوراً**؛ والصندوق الصادر (Outbox) مخزن تأجيل لا نقل بديل — S1-07 وحده يقرر الوسيلة (SMS مباشر عند توفر الحصة، أو تسجيل الحدث في Outbox بأولوية قصوى للمزامنة عند عودة الاتصال) — لا نقلان بديلان بلا مالك.
 - **إلغاء المؤلف على iOS (Q-238):** مسار المؤلف (فتح المؤلف + فرع الإلغاء بحالته النهائية المسماة «معلّقة — مؤلف ملغى») ينطبق على فرع الحصة المتبقية وعلى فرع الطوارئ الثلاث معاً — SMS الطارئ على iOS يمر بالمؤلف نفسه؛ وإعادة المحاولة تعيد فتح المؤلف لنفس حدث SOS (نفس `Idempotency-Key`) فلا SOS ثانٍ مكرر ولا لافتة «فشل SOS».
 - **حد الإشعار دون اتصال (صريح):** عند استنفاد الحصة + الطوارئ الثلاث لا توجد أي قناة لإشعار الأب "فوراً" — فإشعار النفاد يُحفَظ في طابور على الجهاز ويُسلَّم عند عودة الاتصال، ويُعرض محلياً للطفل فقط. (الحد نفسه خطر مقبول موثَّق بحكم المالك — Q-163.)
@@ -322,7 +326,7 @@ sequenceDiagram
     participant الخادم as Ktor
     participant المخزن as PG
     Father->>التطبيق: طلب سجل مواقع عضو (7 أيام كحد أقصى)
-    التطبيق->>الخادم: GET /api/v1/families/{id}/members/{memberId}/locations?from&to
+    التطبيق->>الخادم: GET /api/v1/families/{id}/members/{memberId}/locations?from&to&limit&cursor
     الخادم->>الخادم: فحص منح location.history.view (deny-override — Q-007)
     alt بلا منح رؤية
         الخادم-->>التطبيق: LOC_NOT_VISIBLE
@@ -332,8 +336,8 @@ sequenceDiagram
         الخادم-->>التطبيق: فارغ — محذوف تلقائياً، لا خطأ (§7-12)
     else طلب صالح
         الخادم->>المخزن: قراءة location_point في النطاق
-        المخزن-->>الخادم: [{lat, lng, at}]
-        الخادم-->>التطبيق: السجل
+        المخزن-->>الخادم: [{lat, lng, accuracy, battery, at, server_seq}]
+        الخادم-->>التطبيق: {points, next_cursor} — صفحة محدودة (limit افتراضي 100، أقصى 500)
     end
 ```
 

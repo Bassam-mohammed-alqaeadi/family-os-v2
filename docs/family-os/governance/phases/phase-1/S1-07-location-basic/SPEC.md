@@ -123,41 +123,45 @@ flowchart TD
 
 ### 4-1. نقاط الوصول (REST — `/api/v1`)
 
-| الطريقة والمسار | الغرض | المدخل | المخرج |
+| الطريقة والمسار | المفتاح | المدخل | المخرج |
 |---|---|---|---|
-| `GET /api/v1/families/{id}/locations` | آخر مواقع كل الأعضاء (مصفاة حسب المنح) | — | `[{member_id, lat, lng, accuracy, battery, at}]` |
-| `POST /api/v1/families/{id}/locations` | الإبلاغ عن نقطة موقع (الجهاز → الخادم) | `{lat, lng, accuracy, battery, at}` | النقطة + `server_seq` |
-| `GET /api/v1/families/{id}/members/{memberId}/locations` | سجل المواقع (7 أيام كحد أقصى) | `?from&to` | `[{lat, lng, at}]` |
-| `POST /api/v1/families/{id}/sos` | إطلاق SOS (الجهاز → الخادم) | `{lat, lng, at}` + ترويسة `Idempotency-Key` (UUID يولّده الجهاز لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال) | `{sos_id, at}` |
-| `POST /api/v1/families/{id}/sos/{sosId}/acknowledge` | تأكيد استلام SOS (الأب/بالغ) | — | `{sos_id, acknowledged_by, at}` |
-| `POST /api/v1/families/{id}/sos/{sosId}/resolve` | حل تنبيه SOS وإيقاف التصعيد (الأب + البالغ المفوَّض حسب القالب — مفتاح `location.sos.resolve` — Q-136 · Q-160) | `{resolution_note?}` | `{sos_id, resolved_by, at, status: "resolved"}` |
-| `POST /api/v1/families/{id}/quota/mirror-sync` | مزامنة مرآة الحصة (الجهاز → الخادم — عند كل اتصال؛ المالك خادمياً: الفوترة `SmsLedger` — S1-04 §5) | `{device_id, mirror_version, sms_sent_local, sms_emergency_used_local, cycle_end}` | `{quota_balance, sms_emergency_remaining, cycle_end, server_timestamp, mirror_version}` — لقطة الخادم المرجعية؛ تفوز على المرآة دائماً (Q-239) |
-| `GET /api/v1/families/{id}/emergency-contacts` | قائمة جهات الطوارئ | — | `[{contact_id, member_id, phone}]` |
-| `POST /api/v1/families/{id}/emergency-contacts` | إضافة جهة طوارئ (الأب) | `{member_id, phone}` | جهة الطوارئ |
-| `DELETE /api/v1/families/{id}/emergency-contacts/{contactId}` | حذف جهة طوارئ (الأب) | — | `{ok: true}` |
+| `GET /api/v1/families/{id}/locations` | `location.view` | — | `[{member_id, device_id, lat, lng, accuracy, battery, at}]` |
+| `POST /api/v1/families/{id}/locations` | بلا مفتاح — مصادقة جهاز (شهادة الإقران)؛ والجهاز يبلّغ عن موقعه هو فقط | `{device_id, client_point_id, lat, lng, accuracy, battery, at}` | النقطة + `server_seq` — إعادة الإرسال بنفس `client_point_id` تُعيد النقطة الأصلية بلا تكرار (§7) |
+| `GET /api/v1/families/{id}/members/{memberId}/locations` | `location.history.view` | `?from&to&limit&cursor` — `limit` افتراضي 100، أقصى 500؛ و`cursor` مبني على `server_seq` (معتم لا يُبنى يدوياً) | `{points: [{lat, lng, accuracy, battery, at, server_seq}], next_cursor}` — صفحة محدودة؛ و`next_cursor` فارغ عند نهاية النطاق |
+| `POST /api/v1/families/{id}/sos` | `location.sos.trigger` | `{lat, lng, at}` + ترويسة `Idempotency-Key` (UUID يولّده الجهاز لكل حدث SOS — `client_sos_id` — يمنع التنبيه المكرر عند إعادة الإرسال) | `{sos_id, at}` |
+| `POST /api/v1/families/{id}/sos/{sosId}/acknowledge` | `location.sos.acknowledge` | — | `{sos_id, acknowledged_by, at}` |
+| `POST /api/v1/families/{id}/sos/{sosId}/resolve` | `location.sos.resolve` (Q-136 · Q-160) | `{resolution_note?}` | `{sos_id, resolved_by, at, status: "resolved"}` |
+| `POST /api/v1/families/{id}/quota/mirror-sync` | بلا مفتاح — مصادقة جهاز (شهادة الإقران) | `{device_id, mirror_version, sms_sent_local, sms_emergency_used_local, cycle_end}` | `{quota_balance, sms_emergency_remaining, cycle_end, server_timestamp, mirror_version}` — لقطة الخادم المرجعية؛ تفوز على المرآة دائماً (Q-239) |
+| `GET /api/v1/families/{id}/emergency-contacts` | `location.emergency.manage` | — | `[{contact_id, member_id, phone}]` |
+| `POST /api/v1/families/{id}/emergency-contacts` | `location.emergency.manage` | `{member_id, phone}` | جهة الطوارئ |
+| `DELETE /api/v1/families/{id}/emergency-contacts/{contactId}` | `location.emergency.manage` | — | `{ok: true}` |
+
+- **مصالحة SOS عبر SMS (§7):** إعادة `POST /api/v1/families/{id}/sos` نفسه بنفس `Idempotency-Key` (`client_sos_id`) بعد عودة الاتصال — لا endpoint منفصل للمصالحة؛ والخادم ينشئ صف `sos_alert` واحداً (`channel=sms`) إن لم يكن موجوداً، ويعيد الموجود إن كان؛ ويُحسم خصم الحصة مرة واحدة.
 
 ### 4-2. الأحداث (MQTT → الأجهزة)
 
 > **عقد الوسيط الملزم (Q-168):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على 8883 + mTLS؛ QoS 1؛ والإقرار التطبيقي إلزامي للأوامر وSOS فقط؛ والموقع الحي QoS 0؛ وبلا QoS 2؛ والعزل ببادئة `family/{family_id}/` + ACL خادمي؛ والشهادات سنتان مع تجديد تلقائي وإبطال فوري. التفصيل الكامل: `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`. [Q-168 · Q-175]
 
-| الموضوع | الغرض |
-|---|---|
-| `family/{family_id}/location/updated` | تحديث موقع عضو (للخريطة الحية) |
-| `family/{family_id}/sos/new` | SOS جديد (أولوية عالية — يصل في أقل من 10 ثوانٍ) |
-| `family/{family_id}/sos/acknowledged` | تأكيد استلام SOS |
-| `family/{family_id}/sos/resolved` | حل تنبيه SOS (`{sos_id, resolved_by, at}`) — يُدفع فوراً للأجهزة التي تعرض التنبيه |
+| الموضوع | الحمولة | الناشر | المشترك | الغرض |
+|---|---|---|---|---|
+| `family/{family_id}/location/updated` | `{member_id, device_id, lat, lng, accuracy, battery, at, server_seq}` | الخادم | تطبيقات الأهل (الخريطة الحية) + S1-09 (الودجة) | تحديث موقع عضو (للخريطة الحية) |
+| `family/{family_id}/sos/new` | `{sos_id, member_id, lat, lng, accuracy, at, channel}` | الخادم | تطبيقات كل البالغين + S1-09 (تنبيهات SOS) | SOS جديد (أولوية عالية — يصل في أقل من 10 ثوانٍ) |
+| `family/{family_id}/sos/acknowledged` | `{sos_id, acknowledged_by, at}` | الخادم | جهاز المستغيث + S1-09 | تأكيد استلام SOS |
+| `family/{family_id}/sos/resolved` | `{sos_id, resolved_by, at}` | الخادم | الأجهزة التي تعرض التنبيه + S1-09 | حل تنبيه SOS — يُدفع فوراً للأجهزة التي تعرض التنبيه |
 
 ### 4-3. قناة المنصة (MethodChannel — Flutter ↔ Kotlin)
 
 | الطريقة | الغرض |
 |---|---|
 | `startLocationService()` | تشغيل خدمة الموقع في الخلفية (التتبع التكيفي) |
-| `getLastKnownLocation() → {lat, lng, at}` | آخر موقع مخزن + وسمه الزمني |
+| `getLastKnownLocation() → {lat, lng, accuracy, battery, at}` | آخر موقع مخزن + وسمه الزمني + دقته + بطاريته (كل ما تعرضه LO-02) |
 | `triggerSos()` | إطلاق SOS من زر الغلاف (ضغط مطول 3 ثوانٍ) |
 
 ### 4-4. صيغة الخطأ الموحدة
 
-`{code, message_ar, trace_id}` — كما في S1-02 §4. رموز هذا النظام: `LOC_MEMBER_NOT_FOUND` (عضو غير موجود) · `LOC_NOT_VISIBLE` (موقع بلا منح رؤية) · `LOC_SOS_ALREADY_ACTIVE` (يوجد SOS نشط — تُعاد بياناته بدل التكرار) · `LOC_INVALID_COORDINATES` (إحداثيات خارج النطاق).
+`{code, message_ar, trace_id}` — كما في S1-02 §4. رموز هذا النظام وحالات HTTP المقابلة: `LOC_MEMBER_NOT_FOUND` (عضو غير موجود) → 404 · `LOC_NOT_VISIBLE` (موقع بلا منح رؤية) → 403 · `LOC_SOS_ALREADY_ACTIVE` (يوجد SOS نشط — تُعاد بياناته بدل التكرار) → 200 · `LOC_INVALID_COORDINATES` (إحداثيات خارج النطاق) → 400 · `LOC_UNAUTHORIZED` (بلا مصادقة جهاز/جلسة) → 401 · `LOC_RATE_LIMITED` (تجاوز حد المعدل) → 429 مع ترويسة `Retry-After`.
+
+**حدود المعدل (لكل جهاز ما لم يُذكر غيره):** `POST /locations` — 10 طلبات/دقيقة (يسمح بدفعات مزامنة Outbox بعد انقطاع؛ والتتبع العادي طلب/دقيقة)؛ `POST /sos` — 5 طلبات/دقيقة مع تسامح دفعات (لا يحجب SOS حقيقياً ثانياً أبداً — التكرار يُضبط بـ `LOC_SOS_ALREADY_ACTIVE` لا بالحد)؛ وبقية النقاط — 60 طلباً/دقيقة لكل عضو مصادق. وتجاوز الحد → 429 + `LOC_RATE_LIMITED`. (قيم أولية للعقد تُتحقق في مختبر Q-027.)
 
 ## 5. البيانات — النموذج
 
@@ -169,6 +173,8 @@ flowchart TD
 | `point_id` | uuid (PK) | |
 | `family_id` | uuid (FK) | + RLS |
 | `member_id` | uuid (FK) | |
+| `device_id` | uuid (FK) | الجهاز المُبلِّغ — نقطتا جهازين لعضو واحد مميزتان (§6-3) |
+| `client_point_id` | uuid | معرّف النقطة على العميل — مفتاح عدم التكرار (إعادة الإرسال بنفسه تُعيد النقطة الأصلية) |
 | `lat` / `lng` | double | بعد التنعيم (Kalman) |
 | `accuracy` | double | دقة القراءة (متر) |
 | `battery` | int | مستوى بطارية الجهاز (%) |
@@ -180,6 +186,7 @@ flowchart TD
 |---|---|---|
 | `member_id` | uuid (PK, FK) | |
 | `family_id` | uuid (FK) | + RLS |
+| `device_id` | uuid (FK) | جهاز آخر قراءة — صف واحد لكل عضو؛ وقاعدة التعارض في §6-3 |
 | `lat` / `lng` | double | |
 | `accuracy` | double | |
 | `battery` | int | |
@@ -211,6 +218,8 @@ flowchart TD
 ### 5-5. مراجع (بلا تكرار)
 - العضوية: S1-02 (`membership`) · تنبيهات SOS: تظهر في S1-09 (`alert`، النوع `sos`) · إطلاق SOS وتأكيده: أحداث تدقيق في النواة المشتركة (`AuditEvent`، النطاق `location`).
 - **ملاحظة العميل:** بلاطات الخرائط دون اتصال (MBTiles — Q-020) + نقاط الصندوق الصادر + **مرآة الحصة المحلية (رصيد الحصة + الطوارئ المتبقية + نهاية الدورة — REQ-017، تُزامَن عند كل اتصال بالخادم)** — مخازن عميل لا جداول خادم. **حقول المرآة:** `quota_balance` · `sms_emergency_remaining` · `cycle_end` · `mirror_version` (نسخة أحادية رتيبة يملكها الخادم — تُرفع عند كل تغيير في `quota_usage`) · `last_sync_at` · `sms_sent_local` / `sms_emergency_used_local` (عدّادات محلية تُبلَّغ عند المزامنة فقط — لا سلطة لها). **قاعدة التعارض:** لقطة الخادم تفوز دائماً — عند المزامنة يستبدل الجهاز مرآته كاملةً باللقطة الخادمية (`POST .../quota/mirror-sync` — §4-1) ولا يدمج محلياً أبداً؛ ونسخة أقدم (`mirror_version` أصغر) لا تكتب فوق نسخة أحدث أبداً.
+- **مفتاح توقيع SOS:** مرجع المفتاح `device_hmac_key_id` — المفتاح المتبادل عند الإقران (REQ-017)؛ ويُخزن على جهاز الطفل في Keystore وعند الأب في تطبيق الوالد؛ وهوية المفتاح وتبادله واشتقاقه ملك AUD-009 (P1) — وهذا النظام يسمّي مرجع التخزين ودورة الحياة فقط (§6-3/§7).
+- **سعة الصندوق الصادر:** حد أقصى لعدد النقاط (`LOCATION_OUTBOX_MAX_POINTS` — قيمة مختبر Q-027؛ المالك: مختبر Q-027؛ البوابة: قبل التنفيذ)؛ وعند بلوغ الحد يتوقف قبول نقاط جديدة (الأقدم محفوظ — أثر الطفل المفقود أولى من الأحدث) ويُرفع علم `outbox_full` عند المزامنة التالية؛ ونقاط أقدم من 7 أيام تُتجاهل (§7-13).
 
 ## 6. القواعد والصلاحيات
 
@@ -239,6 +248,9 @@ flowchart TD
 - **حصة الرسائل:** كل SMS صادر (SOS + OTP الاحتياطي) يُحسب من حصة الخطة؛ والتعبئة عبر S1-04.
 - **بروتوكول مزامنة مرآة الحصة (Q-239 — D-9؛ مالك المزامنة خادمياً: الفوترة `SmsLedger` — S1-04 §5):** (1) **التردد:** الجهاز يزامن مرآته عند كل اتصال بالخادم (`POST /api/v1/families/{id}/quota/mirror-sync` — §4-1) وكلما دفع الخادم لقطة جديدة عبر الموضوع المحتفظ `family/{family_id}/billing/quota-mirror` (S1-04 §4). (2) **قاعدة التعارض — الخادم يفوز:** لقطة الخادم (`quota_balance` · `sms_emergency_remaining` · `cycle_end` · `server_timestamp` · `mirror_version`) تستبدل المرآة كاملةً؛ والجهاز لا يدمج محلياً ولا يكتب نسخة أقدم فوق أحدث. (3) **مصالحة متعددة الأجهزة:** العدّادات خادمية لكل عائلة لا لكل جهاز (`quota_usage` — `family_id` + `period`)؛ وكل جهاز يبلّغ استهلاكه المحلي عند المزامنة، فيجمعه الخادم بعد إزالة التكرار بمفاتيح عدم التكرار/سجلات الإرسال، ويعيد اللقطة المرجعية لكل أجهزة العائلة — فالثلاث الطارئة (Q-163) لكل عائلة: جهاز ثانٍ (Q-230) لا يعيد صرف ما صرفه الأول. (4) **مغلقة-عند-الفشل بعد 3 (Q-239):** بعد استنفاد الثلاث الطارئة — أو بمرآة فارغة لم تُزامَن أبداً — يُغلق الإرسال دون اتصال حتى أول مزامنة ناجحة؛ ويُشعَر الأب فوراً (أو يُحفظ الإشعار في الطابور عند انقطاع الاتصال ويُعرض محلياً للطفل — REQ-017).
 - **منع تكرار SOS:** SOS نشط قائم → الضغط الجديد يعيد بياناته بدل إنشاء تنبيه مكرر؛ و`POST /api/v1/families/{id}/sos` يقبل ترويسة `Idempotency-Key` (UUID لكل حدث) فيرفض الخادم إعادة إرسال الحدث نفسه.
+- **أجهزة متعددة لعضو واحد — آخر كاتب يفوز:** نقطتا جهازين لعضو واحد مميزتان بـ `device_id` (§5-1)؛ وصف `last_known_location` واحد لكل عضو يُحدَّث بالنقطة ذات `at` الأحدث (وعند تساوي `at` يفوز `server_seq` الأكبر) — وبلا أولوية جهاز على جهاز (الأولوية تحتاج حكم مالك — لم تُخترع هنا).
+- **مفتاح توقيع SOS — دورة الحياة (هذا النظام فقط؛ الهوية والتبادل والاشتقاق: AUD-009):** `device_hmac_key_id` يُسجَّل مرجعاً عند الإقران (§5-5)؛ ويُبطل المفتاح عند إلغاء إقران الجهاز أو إزالة العضو من العائلة (S1-02) — فلا توقيع لاحق بمفتاح مُبطل يُقبل؛ وتدوير المفتاح عند إعادة الإقران يولّد مرجعاً جديداً؛ وتبديل الجهاز (Q-230) لا ينقل المفتاح القديم إلى الجهاز الجديد.
+- **مصالحة SOS عبر SMS:** SOS أُرسل عبر SMS دون اتصال يُصالح بإعادة `POST /api/v1/families/{id}/sos` نفسه بنفس `Idempotency-Key` بعد عودة الاتصال (§4-1) — صف `sos_alert` واحد (`channel=sms`) وخصم حصة واحد؛ ولا يُنشئ تنبيه ثانٍ أبداً.
 - **البطارية:** مستوى البطارية ظاهر مع الموقع؛ وعند انخفاض البطارية دون عتبة البطارية المنخفضة (`LOW_BATTERY_THRESHOLD_PCT`) يقل تردد التتبع تلقائياً إلى تردد البطارية المنخفضة (`LOW_BATTERY_CADENCE_MIN` دقيقة) لحفظ ما تبقى للطوارئ (SOS أولاً) — والقيمتان قيمتا مختبر Q-027 (المالك: مختبر Q-027؛ البوابة: قبل التنفيذ)؛ ولا تنبيه بطارية منخفضة في المرحلة 1 (عرض فقط).
 
 ## 7. الحالات الحدية والأخطاء
@@ -255,8 +267,11 @@ flowchart TD
 10. **SOS عرضي:** SOS بالخطأ (ضغط عرضي) → الأب يؤكد أو يلغي عبر نقطة الحل `POST /api/v1/families/{id}/sos/{sosId}/resolve` (الأب + البالغ المفوَّض حسب القالب — Q-136)؛ الحالة تصبح `resolved` ويتوقف التصعيد؛ والإلغاء يُسجَّل في التدقيق.
 11. **جهة طوارئ محذوفة أو مبدّلة الرقم:** جهة طوارئ حُذفت من العضوية (S1-02) → تُحذف من القائمة؛ وSOS اللاحق لا يرسل لها. أما تغيير رقم هاتف العضو في S1-02 فلا يحذف الجهة ولا يحدّث رقمها تلقائياً بصمت: سجل العضوية في S1-02 هو مصدر الحقيقة للهاتف، و`emergency_contact.phone` نسخة مخزنة منه (§5-4)؛ وعند عرض القائمة (LO-04) وعند إرسال SOS يقارن S1-07 النسخة المخزنة بهاتف العضو الحالي في S1-02 — وعند الاختلاف يُحدَّث الرقم المخزن من S1-02 ويُعرض التغيير للأب للتأكيد عند فتحه LO-04 التالي؛ وSOS نفسه يُرسَل إلى رقم S1-02 الحالي لا إلى النسخة القديمة.
 12. **سجل قديم:** طلب سجل أقدم من 7 أيام → يعيد فارغاً (محذوف تلقائياً — لا خطأ).
-13. **نقاط منتهية في الصندوق:** نقاط في الصندوق الصادر أقدم من 7 أيام عند عودة الاتصال → تُتجاهل (انتهت صلاحيتها) ولا تُزامَن.
+13. **نقاط منتهية في الصندوق:** نقاط في الصندوق الصادر أقدم من 7 أيام عند عودة الاتصال → تُتجاهل (انتهت صلاحيتها) ولا تُزامَن. وعند بلوغ سعة الصندوق (`LOCATION_OUTBOX_MAX_POINTS` — §5-5) يتوقف قبول نقاط جديدة (الأقدم محفوظ) ويُرفع علم `outbox_full` عند المزامنة التالية.
 14. **إلغاء مؤلف SMS على iOS:** المستخدم أغلق مؤلف SMS النظام دون إرسال → SOS يبقى في حالة «معلّقة — مؤلف ملغى» دائمة على الجهاز (لا تُعرض كأنها أُرسلت، ولا كلافتة «فشل SOS»)؛ وتُعاد المطالبة فوراً بإعادة فتح المؤلف لنفس حدث SOS (نفس `Idempotency-Key`) — لا حدث SOS ثانٍ ولا SMS مكرر؛ وتُزامَن الحالة عند عودة الاتصال. (Q-238 · REQ-009)
+15. **إعادة إرسال نقطة بعد إقرار ساقط:** إعادة إرسال النقطة نفسها بنفس `client_point_id` بعد انقطاع الإقرار → تُعاد النقطة الأصلية (`server_seq` نفسه) بلا صف مكرر — والإدخال idempotent على (`member_id`، `client_point_id`).
+16. **مصالحة SOS عبر SMS بعد عودة الاتصال:** SOS أُرسل عبر SMS دون اتصال ثم عاد الاتصال → إعادة `POST /api/v1/families/{id}/sos` بنفس `Idempotency-Key` تنشئ صف `sos_alert` واحداً (`channel=sms`) أو تعيد الموجود؛ وخصم الحصة مرة واحدة؛ ولا تنبيه ثانٍ.
+17. **إبطال مفتاح التوقيع:** إلغاء إقران جهاز أو إزالة عضو → يُبطل `device_hmac_key_id` (§6-3)؛ وتوقيع لاحق بالمفتاح المُبطل يُرفض ولا يُعرض تنبيهه.
 
 ## 8. معايير القبول
 
@@ -339,7 +354,7 @@ flowchart TD
 
 ### LO-02 — آخر موقع معروف (تفاصيل عضو)
 
-- **الوضع:** أهل + طفل. **الأدوار:** الأب؛ البالغ المفوَّض حسب منحِه؛ العضو نفسه لموقعه. **المصدر:** §2 (7-4) + DIAGRAMS §1 (UC3) + §4-3 `getLastKnownLocation() → {lat, lng, at}`.
+- **الوضع:** أهل + طفل. **الأدوار:** الأب؛ البالغ المفوَّض حسب منحِه؛ العضو نفسه لموقعه. **المصدر:** §2 (7-4) + DIAGRAMS §1 (UC3) + §4-3 `getLastKnownLocation() → {lat, lng, accuracy, battery, at}`.
 - **الحقول الرئيسية:** بطاقة العضو (الاسم + الصورة + البطارية)؛ آخر موقع: الإحداثيات على خريطة مصغرة + الوسم الزمني الصريح + الدقة (متر)؛ شارة «ليس حياً» الصريحة عند الانقطاع (REQ-003)؛ زر «عرض السجل» (→ LO-05)؛ زر «مراسلة» (→ CH-02 في S1-08 — مثال §2 7-1: رسالة «اشحن هاتفك» عند بطارية 15%).
 - **التنقل:** من: LO-01 (علامة عضو) / LO-07. إلى: LO-05 / CH-02 (S1-08) / رجوع إلى LO-01.
 - **الحالات (DS-ST):** تحميل: Skeleton للبطاقة؛ فارغة: لا قراءة بعد لهذا العضو («لا موقع معروف بعد»)؛ خطأ: `LOC_MEMBER_NOT_FOUND` / `LOC_NOT_VISIBLE` كحالتين صادقتين؛ بلا اتصال: آخر قراءة مخزنة مع عمرها؛ نجاح: عرض آخر موقع + وسمه. **لا ينطبق:** حالة «فارغة بعد حذف» (السجل يُحذف تلقائياً بعد 7 أيام — §7-12: طلب أقدم يعيد فارغاً بلا خطأ).

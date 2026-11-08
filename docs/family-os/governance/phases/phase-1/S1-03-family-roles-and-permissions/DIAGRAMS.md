@@ -565,8 +565,8 @@ flowchart LR
     P7 -->|إشعار الأب — وكل البالغين لحذف العائلة| MQTT
     Adult -->|ممارسة ما فُوِّض له| P4
     Teen -->|محاولة فعل| P4
-    Teen -->|طلب تعديل صلاحية (3-ط)| P2
-    Adult -->|طلب تعديل صلاحية (3-ط)| P2
+    Teen -->|"طلب تعديل صلاحية (3-ط)"| P2
+    Adult -->|"طلب تعديل صلاحية (3-ط)"| P2
     S102 -->|العضوية والدور و is_owner| P2
     S102 -->|بلوغ 13 — تحول الدور| P2
     P1 -->|مفتاح + عنوان عربي + وصف + حساس| D1
@@ -585,7 +585,7 @@ flowchart LR
     P2 -->|منح / تعديل / إلغاء| P6
     P6 -->|أحداث التدقيق| D5
     D5 -->|سجل قابل للعرض على الأب| Father
-    P6 -->|تنبيه الأب عند رفض / تصعيد — family/{family_id}/alerts/new (نوع escalation — S1-09)| Father
+    P6 -->|"تنبيه الأب عند رفض / تصعيد — family/{family_id}/alerts/new (نوع escalation — S1-09)"| Father
     P2 -->|تغيير منح| P5
     P5 -->|"family/{family_id}/permissions/sync"| MQTT
     P5 -->|"family/{family_id}/permissions/revoked — إبطال فوري"| MQTT
