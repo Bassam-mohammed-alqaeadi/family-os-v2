@@ -351,6 +351,8 @@ sequenceDiagram
         Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
     else المتلقي طفل أو مراهق
         Ktor-->>App: رفض — النقل للبالغين فقط (§7-11 · ACC-013)
+    else نقل معلق قائم للعائلة
+        Ktor-->>App: رفض 409 + transfer_id النقل المعلق — النقل الأول يبقى كما هو (Q-259 · §7-18 · ACC-019)
     else المتلقي بالغ
         Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
         App->>S101: طلب تحقق — PIN أو بصمة (Q-093)
