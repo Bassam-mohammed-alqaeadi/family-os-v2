@@ -166,7 +166,7 @@ flowchart LR
 
 ## 4. الواجهات والعقود
 
-### نقاط الوصول REST
+### 4-1. نقاط الوصول REST
 
 كل عملية تحمل مفتاحها الذري (§6 — S1-03 REQ-009: لا عملية بلا مفتاح).
 
@@ -183,13 +183,13 @@ flowchart LR
 - `GET /api/v1/families/{id}/rewards/settings` — ضوابط الأب (الحد اليومي، مصادر الكسب المفعّلة، مكافأة السلسلة) — المفتاح: `rewards.settings.view`. الرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources}`. الأخطاء: بلا أخطاء مسماة.
 - `PATCH /api/v1/families/{id}/rewards/settings` — الأب يضبط المعاملات — المفتاح: `rewards.settings.edit`. الطلب: `{daily_spend_cap_minutes?, streak_bonus_points?, enabled_sources?, version}` — و`version` النسخة المتوقعة (تفاؤل — §5)؛ والرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources, version}` (تزيد `version` عند كل PATCH ناجح). الأخطاء: `REW_VERSION_CONFLICT` · `REW_VALIDATION_FAILED`.
 
-### عقد بطاقة «يتطلب انتباهك» وودجة S1-09 (R2-S105-21)
+### 4-2. عقد بطاقة «يتطلب انتباهك» وودجة S1-09 (R2-S105-21)
 
 - **حمولة البطاقة** (S1-09 REQ-017): `{request_id, child_id, app_package, minutes_requested, status, created_at}` — من `time_request` (§5)؛ والمستهلك S1-09 (بطاقة «يتطلب انتباهك» — REQ-014).
 - **حمولة الودجة** (S1-09 REQ-001/002): `{balance_points, streak_days, pending_requests_count}` — من `GET .../wallet`؛ والمستهلك S1-09 (ودجة المكافآت — REQ-016).
 - العقد يُعرَّف مرة واحدة هنا (جانب المنتج — S1-05)؛ وS1-09 تشير إليه (جانب المستهلك).
 
-### أحداث MQTT
+### 4-3. أحداث MQTT
 
 | الموضوع | QoS | Retained | الحمولة | الناشر | المشترك |
 |---|---|---|---|---|---|
@@ -203,13 +203,13 @@ flowchart LR
 
 - المصدر: الوسيط §6 — صف «الأحداث»: QoS 1، Retained لا.
 
-### قناة MethodChannel (Kotlin)
+### 4-4. قناة MethodChannel (Kotlin)
 - `getCachedWallet` — رصيد المحفظة المحفوظ محلياً (دون اتصال).
 - `queueTimeRequest` — طلب وقت إضافي دون اتصال (يُحفظ في Outbox ويُرسَل عند عودة الاتصال).
 - `queueRedeem` — صرف دون اتصال: يُحفظ `{app_package, points, client_request_id}` في Outbox؛ ومفتاح عدم التكرار هو `client_request_id` نفسه — يُرسَل في ترويسة `Idempotency-Key` عند تفريغ Outbox (آلية S1-01 نفسها — S1-01 §4.2 `POST /shell/outbox/flush` + `command_id` لكل أمر — S1-01 §4.3؛ ولا آلية ثانية مختلفة في هذا النظام)؛ وعند عودة الاتصال إن كان الرصيد لا يكفي يُرفض مع إشعار؛ والصرف المكرر بنفس المفتاح يُعاد نتيجته الأصلية بلا خصم جديد. (وقد عرّف S1-01 مفتاح عدم التكرار لكل حدث — NEW-S101-07: `idempotency_key`؛ و`client_request_id` في `queueRedeem` هو قيمة ذلك المفتاح لهذا الحدث.)
 - `queueObjection` — اعتراض دون اتصال: يُحفظ `{subject_type, subject_id, objection_text}` في Outbox ويُرسَل عند عودة الاتصال؛ ويُشعَر الأب عند وصوله لا قبلها (S05-06).
 
-### رموز الخطأ (`REW_*`)
+### 4-5. رموز الخطأ (`REW_*`)
 
 جدول قانوني واحد: الرمز + العملية التي ترفعه + تعيين HTTP. لا رمز عارٍ خارج هذا الجدول.
 

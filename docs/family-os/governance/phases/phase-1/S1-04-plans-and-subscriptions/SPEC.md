@@ -157,7 +157,7 @@ flowchart LR
 
 ## 4. الواجهات والعقود
 
-### نقاط الوصول REST
+### 4-1. نقاط الوصول REST
 
 كل نقطة تحمل مفتاحها (R2-S104-04 — §6)؛ وأي نقطة بلا مفتاح مسمى تُذكر صراحةً كعامة أو كمبوَّبة.
 
@@ -180,7 +180,7 @@ flowchart LR
 - `POST /api/v1/families/{id}/billing/ai/kill-switch` — قلب مفتاح إيقاف الذكاء (R2-S104-01 — Q-012/Q-221) — المفتاح: `billing.manage` (الأب وحده). الطلب: `{enabled: boolean}`. الرد: `{enabled, updated_at}` — وكل قلب للمفتاح يُسجَّل في `AuditEvent` (domain=billing)؛ والحالة تُكتب في موضع واحد (وحدة الفوترة) وتُقرأ منها بوابة الذكاء (ARCH §6.5)؛ والعميل يقرأ الحالة من `GET .../plan` (لا نسخة عميل مستقلة). الأخطاء: `SUBSCRIPTION_NOT_FOUND` · `VALIDATION_FAILED`. (REQ-016.)
 - `POST /api/v1/families/{id}/plan/renew` — تجديد الآن (R2-S104-29 — زر S04-09 «جدّد الآن») — المفتاح: `billing.manage`. الطلب: `{plan_id}` — الخطة نفسها (تجديد الفترة نفسها؛ واختيار خطة أخرى يكون من S04-02). الرد: `{plan_id, status: "ACTIVE", current_period_start, current_period_end}` — بعد إتمام الدفع عبر قناة الخطة (S04-04/S04-05). الأخطاء: `PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `PAYMENT_FAILED`. (REQ-013.)
 
-### أحداث MQTT
+### 4-2. أحداث MQTT
 
 | الموضوع | QoS | Retained | الحمولة | الناشر | المشترك |
 |---|---|---|---|---|---|
@@ -193,14 +193,14 @@ flowchart LR
 - المصدر: الوسيط §6 — صف «لوحة/تقويم/فوترة»: QoS 1، Retained لا.
 - **خصوصية الحمولات:** حمولات الفوترة حالة خطة/استخدام فقط — بلا أسعار ولا تفاصيل دفع ولا أرقام مرجعية؛ وأي حمولة تشمل تفاصيل فوترة تُعد تسرباً في ناقل الأحداث.
 
-### قناة MethodChannel (Kotlin)
+### 4-3. قناة MethodChannel (Kotlin)
 - `launchStorePurchase` — فتح ورقة شراء المتجر.
 - `getCachedPlan` — الخطة المحفوظة محلياً (دون اتصال).
 
-### رموز الخطأ (`BIL_*`)
+### 4-4. رموز الخطأ (`BIL_*`)
 `PLAN_NOT_FOUND` · `SUBSCRIPTION_NOT_FOUND` · `RECEIPT_INVALID` · `RECEIPT_DUPLICATE` · `VOUCHER_INVALID` · `VOUCHER_USED` · `VOUCHER_REVOKED` · `QUOTA_EXCEEDED` · `TRIAL_ALREADY_USED` · `PAYMENT_FAILED` · `PAYMENT_NOT_FOUND` · `PAYMENT_ALREADY_CONFIRMED` · `REFERENCE_DUPLICATE` · `WALLET_REFERENCE_REQUIRED` · `VALIDATION_FAILED` (طلب غير صالح — 400 عام) — وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
 
-### التحقق من دفع المحفظة واليدوي (Q-251)
+### 4-5. التحقق من دفع المحفظة واليدوي (Q-251)
 
 - **محول المزوّد المسمى:** تأكيد المزوّد يصل عبر محول خادمي مسمى `WalletProviderAdapter` (محول مزوّد المحفظة) — واجهة تحقق خادمية بلا أي تفاصيل API للمزوّد حتى عقد حقيقي معه؛ وتفاصيل تمرير المبلغ إلى تطبيق المحفظة (رابط عميق/رمز/تعليمات) من العقد الحقيقي — لا تُخترع هنا.
 - **انتقالات الحالة:** `INITIATED` (بدأ الأب الدفع في المحفظة) ← تأكيد الأب بالرقم المرجعي → `PENDING_VERIFICATION` (بانتظار تحقق المزوّد) ← تأكيد المزوّد عبر المحول → `VERIFIED` (يُفعَّل الاشتراك فوراً + سجل `purchase_receipt` بحالة `VALIDATED_SUCCESS` + حدث `subscription-changed`)؛ أو رفض التحقق → `REJECTED` (بلا تفعيل — `PAYMENT_FAILED`).

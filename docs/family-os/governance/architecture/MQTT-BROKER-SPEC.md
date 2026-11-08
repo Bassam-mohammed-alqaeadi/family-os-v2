@@ -51,7 +51,7 @@
 | `family/{family_id}/alerts/new` | خادم → أهل | تنبيه جديد (ومنها إشعارات الاسترداد — Q-210) | S1-09 |
 | `family/{family_id}/tasks/submitted` · `tasks/completed` · `tasks/verification-revoked` | طفل/خادم → الكل | دورة المهام والتحقق | S1-05/S1-06 |
 | `family/{family_id}/time-request/new` · `time-request/decided` | طفل/أب → الكل | طلب وقت إضافي وقراره | S1-05 |
-| `family/{family_id}/time/granted` | خادم → طفل | دقائق ممنوحة (صرف/منح/قرار أب) تدخل في «الإضافي» لحساب المتبقي (S1-10 REQ-002) — محفوظة (retained) فيستلمها الجهاز دون اتصال عند إعادة الاتصال | S1-05 §4-2 |
+| `family/{family_id}/time/granted` | خادم → طفل | دقائق ممنوحة (صرف/منح/قرار أب) تدخل في «الإضافي» لحساب المتبقي (S1-10 REQ-002) — محفوظة (retained) فيستلمها الجهاز دون اتصال عند إعادة الاتصال | S1-05 §4-3 |
 | `family/{family_id}/wallet/updated` | خادم → الكل | تغيّر رصيد المحفظة | S1-05 |
 | `family/{family_id}/chat/{channelId}/message` | خادم → الكل | رسالة جديدة (QoS 1) | S1-08 |
 | `family/{family_id}/chat/{channelId}/typing` | الكل ↔ الكل | مؤشر كتابة حي (QoS 1) | S1-08 |
