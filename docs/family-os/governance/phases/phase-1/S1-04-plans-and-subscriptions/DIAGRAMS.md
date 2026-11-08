@@ -53,22 +53,21 @@ flowchart LR
     Father --> UC7
     Adult --> UC1
     Adult --> UC10
-    Minor -.->|403 — مخفية تماماً| UC1
     Agent --> UC14
     Admin --> UC13
     Store --> UC8
     Wallet --> UC9
     UC2 -.->|يتضمن| UC8
     UC2 -.->|يتضمن| UC9
-    UC6 -.->|يتضمن| UC14
     UC10 --> S109
     UC11 --> S102
     UC12 --> S107
-    UC2 --> UC11
-    UC15 --> UC16
+    UC15 -->|يُطلق عند انتهاء السماح بلا تجديد| UC16
 ```
 
 - ملاحظة: الترقية فورية عند الدفع، والتخفيض يسري بنهاية الفترة المدفوعة (REQ-004)؛ والتجربة مرة واحدة لكل عائلة وغير قابلة للتحويل (§6).
+- ملاحظة شروط مسبقة (لا تُرسم كتضمين ولا كارتباط): UC6 (استبدال قسيمة) تفترض قسيمة صادرة (UC14) شرطاً مسبقاً لا تضميناً؛ وUC2 (المقارنة والترقية) تفترض فحص حارس الحصص (UC11) شرطاً مسبقاً لا ارتباطاً مباشراً.
+- ملاحظة إخفاء: الفوترة مخفية تماماً عن الأطفال والمراهقين — لا ارتباط للقاصر بالمخطط؛ والقاعدة نصية: محاولة وصول مباشر عبر API تردّ 403 (§7).
 - الأسعار (Q-127 · REQ-003): الخليج — المميزة 19.99 ر.س شهرياً / 179.99 سنوياً، الأساسية 9.99 ر.س شهرياً / 89.99 سنوياً (خصم سنوي ~25%)؛ والمجانية 0 ر.س. سعر اليمن بالريال اليمني مفتوح (Q-132) — لم يُحدد بعد، ولا رقم مخترع هنا.
 
 ## 2. مخطط قاعدة البيانات (ERD)
@@ -253,23 +252,32 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Guard as الحارس
     participant S107 as الموقع
-    Father->>App: شراء حزمة تعبئة 50 رسالة
-    App->>Ktor: POST /api/v1/families/{id}/billing/topup
-    Ktor->>Ktor: تحقق الدفع خادمياً + إضافة 50 إلى topup_sms_balance
-    Ktor-->>App: الرصيد أُضيف فوراً لرصيد الشهر
-    Note over Ktor: رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم
-    S107->>Guard: طلب إرسال SMS (SOS)
-    Guard->>Ktor: فحص quota_usage (sms_sent + topup_sms_balance)
-    alt رصيد متاح
-        Guard-->>S107: سماح بالإرسال
-    else الحصة نفدت — رسالة SOS
-        Guard->>Guard: فحص sms_emergency_used < 3 في الدورة
-        alt أقل من 3
-            Guard-->>S107: سماح — رسالة طوارئ (SOS فقط)
-            Guard->>Father: إشعار فوري بكل رسالة طارئة
-        else 3 مستخدمة
-            Guard-->>S107: حظر حتى التعبئة أو التجديد
-            Guard->>Father: إشعار فوري عند النفاد
+    participant Broker as الوسيط MQTT
+    rect rgb(235, 245, 235)
+        Note over Father,Ktor: شراء حزمة تعبئة
+        Father->>App: شراء حزمة تعبئة 50 رسالة
+        App->>Ktor: POST /api/v1/families/{id}/billing/topup
+        Ktor->>Ktor: تحقق الدفع خادمياً + إضافة 50 إلى topup_sms_balance
+        Ktor-->>App: الرصيد أُضيف فوراً لرصيد الشهر
+        Note over Ktor: رصيد التعبئة ينتهي بنهاية الفترة ولا يتراكم
+    end
+    rect rgb(255, 243, 224)
+        Note over S107,Guard: تجاوز طوارئ SOS
+        S107->>Guard: طلب إرسال SMS (SOS)
+        Guard->>Ktor: فحص quota_usage (sms_sent + topup_sms_balance)
+        alt رصيد متاح
+            Guard-->>S107: سماح بالإرسال
+        else الحصة نفدت — رسالة SOS
+            Guard->>Guard: فحص sms_emergency_used < 3 في الدورة
+            alt أقل من 3
+                Guard-->>S107: سماح — رسالة طوارئ (SOS فقط)
+                Guard->>Broker: نشر family/{family_id}/billing/quota-warning
+                Broker->>Father: إشعار فوري بكل رسالة طارئة
+            else 3 مستخدمة
+                Guard-->>S107: حظر حتى التعبئة أو التجديد
+                Guard->>Broker: نشر family/{family_id}/billing/quota-warning
+                Broker->>Father: إشعار فوري عند النفاد
+            end
         end
     end
 ```
@@ -285,6 +293,7 @@ sequenceDiagram
     participant App as التطبيق
     participant Ktor as الخادم
     participant Sched as المجدول
+    participant Broker as الوسيط MQTT
     Father->>App: بدء التجربة 7 أيام للمميزة
     App->>Ktor: POST /api/v1/families/{id}/plan/trial/start
     alt لم تُستخدم التجربة من قبل
@@ -295,9 +304,10 @@ sequenceDiagram
     end
     Note over Sched: عند انتهاء التجربة بلا تجديد
     Sched->>Ktor: دخول فترة السماح — status=IN_GRACE_PERIOD — 3 أيام
-    Ktor->>Father: حدث family/{family_id}/billing/sub-grace-period — الميزات تبقى
+    Ktor->>Broker: نشر family/{family_id}/billing/sub-grace-period
+    Broker->>Father: حدث فترة السماح — الميزات تبقى
     Note over Sched: عند انتهاء السماح بلا تجديد
-    Sched->>Ktor: تراجع لبق — status=EXPIRED ثم المجانية ACTIVE
+    Sched->>Ktor: تراجع لبق — كتابة واحدة: status=ACTIVE على الخطة المجانية + AuditEvent بانتهاء الخطة المدفوعة
     Ktor-->>Father: بلا قفل وبلا حذف بيانات — الأعضاء الحاليون يبقون
 ```
 
@@ -321,7 +331,15 @@ sequenceDiagram
     App-->>Father: بطاقة ترقية لبقة (لا حظر قاسٍ)
     Father->>App: الترقية للأساسية (حتى 10 أفراد)
     App->>Ktor: POST /api/v1/families/{id}/plan/upgrade
-    Ktor-->>App: ترقية فورية — إضافة العضو تنجح
+    Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة / قسيمة) — بلا تفعيل بعد
+    Father->>App: إتمام الدفع بالقناة المختارة
+    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm أو voucher/redeem حسب القناة
+    alt تحقق خادمي صحيح
+        Ktor->>Ktor: تفعيل الاشتراك
+        Ktor-->>App: ترقية مفعّلة — إضافة العضو تنجح
+    else إيصال مزوَّر أو مكرر
+        Ktor-->>App: 409 FRAUD_SUSPECT / REFERENCE_DUPLICATE — بلا تفعيل
+    end
 ```
 
 - الأعضاء الحاليون عند التراجع اللبق يبقون فعالين مع حظر إضافة جدد فقط (REQ-014)؛ وحد الأفراد: 5 / 10 / غير محدود (§1).
@@ -440,6 +458,8 @@ flowchart LR
     S107([نظام الموقع S1-07])
     Store([متجر / بوابة بطاقات])
     Wallet([محفظة يمنية])
+    Broker([الوسيط MQTT])
+    App([التطبيق — Flutter])
 
     subgraph Billing [وحدة الفوترة — Ktor billing]
         P1(1.0 كتالوج الخطط والاستحقاقات)
@@ -462,7 +482,6 @@ flowchart LR
         D8[(D8 payment_confirmation)]
     end
 
-    Ktor([خادم Ktor])
     Audit([AuditEvent — domain=billing])
 
     Father -->|اختيار خطة / تجربة / إلغاء تجديد| P1
@@ -481,7 +500,8 @@ flowchart LR
     P2 -->|تفعيل الاشتراك| D3
     Father -->|قسيمة / محفظة / دفع يدوي| P3
     Wallet -->|تأكيد الدفع| P3
-    Agent -->|إصدار قسيمة| D5
+    Agent -->|"إصدار قسيمة — قناة وكيل خارج التطبيق (الفاعل والمفتاح: R2-S104-03 — بانتظار حكم المالك)"| P3
+    P3 -->|إصدار / استبدال قسيمة| D5
     P3 -->|التحقق من القسيمة| D5
     P3 -->|حفظ سجل الدفع / التأكيد اليدوي| D8
     P3 -->|تفعيل الاشتراك| D3
@@ -492,11 +512,14 @@ flowchart LR
     P4 -->|نفاد SMS → 3 طوارئ SOS فقط| S107
     P5 -->|انتهاء تجربة / سماح| D3
     P5 -->|تحديث الحالة| D3
-    P6 -->|"family/{family_id}/billing/subscription-changed و family/{family_id}/billing/quota-warning و family/{family_id}/billing/sub-grace-period و family/{family_id}/billing/sub-renewed"| Ktor
+    P6 -->|"family/{family_id}/billing/subscription-changed و family/{family_id}/billing/quota-warning و family/{family_id}/billing/sub-grace-period و family/{family_id}/billing/sub-renewed"| Broker
+    Broker -->|المواضيع الأربعة — اشتراك S1-09| S109
+    Broker -->|"family/{family_id}/billing/quota-mirror"| S107
     P6 -->|"تنبيه 80% (Q-216) وإشعار طوارئ فوري"| Father
     Admin -->|تعديل أعلام / حصص| P7
     P7 -->|حفظ بلا تغيير مخطط| D1
-    P1 -->|نسخة محفوظة دون اتصال| D7
+    P1 -->|الخطة + الاستهلاك| App
+    App -->|نسخة محفوظة دون اتصال — يكتبها العميل| D7
     D7 -->|عرض مع وقت صريح| Father
     P2 -->|كل شراء / ترقية / إلغاء / استبدال| Audit
     P3 -->|كل استبدال| Audit

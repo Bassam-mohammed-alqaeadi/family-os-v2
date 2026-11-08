@@ -214,7 +214,7 @@ sequenceDiagram
         Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
         Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
         Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
-        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة
+        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: task_id + source_system — §7)
         Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
     else دليل مقدَّم (صورة/إثبات يرفعه الطفل)
         AI-->>S106: verified = true (مقدَّم — تحقق ثم منح)
@@ -223,19 +223,20 @@ sequenceDiagram
         Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
         Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
         Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
+        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: task_id + source_system — §7)
         Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
     else شك (الدليل غير حاسم)
         AI-->>S106: شك — يُحال للأب بنقرة واحدة
         S106->>Ktor: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" في S1-09
-        Note over S106,Ktor: لا إيداع حتى يقرر الأب (اعتماد يودع، رفض يعيد PENDING)
+        Note over S106,Ktor: لا إيداع حتى يقرر الأب (اعتماد يودع، رفض يعيد PENDING) — ولا سلسلة بلا إيداع
     else إقرار ذاتي وحده (تسليم بلا دليل)
         AI-->>S106: verified = false — الإقرار وحده لا يودع شيئاً (REQ-005)
-        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed
+        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed — ولا سلسلة
         Ktor-->>Child: لا إيداع + إشعار بالسبب
         Ktor->>Ktor: الأب يرى الرفض
     else رفض — لم تُنجز كما هو مطلوب
         AI-->>S106: verified = false
-        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed — verified = false تعني لا إيداع
+        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed — verified = false تعني لا إيداع ولا سلسلة
         Ktor-->>Child: لا إيداع + إشعار بالسبب
         Ktor->>Ktor: الأب يرى الرفض
         opt اعتراض الطفل على الرفض (REQ-018 · Q-167)
@@ -366,7 +367,7 @@ sequenceDiagram
 
 - المحفظة تعمل دون اتصال (مخزن محلي Drift) وتُزامَن عند عودة الاتصال عبر Outbox بلا خصم مكرر (REQ-003/Q-064)؛ والرصيد المعروض دون اتصال هو آخر رصيد معروف مع وقت صريح (§6).
 
-### 3-و. إلغاء تحقق — قيد تعويضي يعكس الإيداع (REQ-007/§6 — §4: `family/{family_id}/tasks.verification-revoked`)
+### 3-و. إلغاء تحقق — قيد تعويضي يعكس الإيداع (REQ-018/§6 — §4: `family/{family_id}/tasks.verification-revoked`)
 
 ```mermaid
 sequenceDiagram
@@ -555,6 +556,7 @@ flowchart LR
         C5[صرف نقاط كوقت للتطبيق]
         C6([التطبيق يستمر])
         C7([مرفوض — يُشعَر الطفل — Q-179])
+        C8[اعتراض على منح أو رفض]
     end
     subgraph Father [الأب]
         direction TB
@@ -564,6 +566,7 @@ flowchart LR
         F4[تجميد السلسلة يوماً واحداً]
         F5[ضبط الحد اليومي والمصادر ومكافأة السلسلة]
         F6[الأب يرى الرفض — والطفل يُشعَر بالسبب]
+        F7[قرار على الاعتراض — قبول / رفض + السبب]
     end
     subgraph Server [الخادم — Ktor: وحدة rewards]
         direction TB
@@ -573,6 +576,7 @@ flowchart LR
         V4[صرف ذري — فحص الرصيد + الحد اليومي]
         V5[إنشاء وقت ممنوح ينتهي بنهاية اليوم]
         V6[تسجيل كل منح / صرف / قرار في AuditEvent]
+        V7["قيد تعويضي واحد — عكس المنح (اعتراض مقبول أو إلغاء تحقق S1-06)"]
     end
     subgraph AI [الذكاء — بوابة Q-054]
         direction TB
@@ -613,6 +617,12 @@ flowchart LR
     V2 --> V6
     V4 --> V6
     F1 --> V6
+    C8 --> F7
+    F7 -->|يقبل الاعتراض| V7
+    F7 -->|يرفض الاعتراض + السبب — يُشعَر الطفل| C4
+    V7 --> V2
+    V7 --> C4
+    V7 --> V6
     E1 --> C1
 ```
 
