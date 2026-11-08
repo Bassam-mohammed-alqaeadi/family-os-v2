@@ -322,21 +322,23 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Wallet as المحفظة
     participant Child as الطفل
-    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grant {points, note} — مكافأة استثنائية بلا مهمة
+    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grant {points ≤ 60, note} — مكافأة استثنائية بلا مهمة (Q-278)
     Ktor->>Wallet: إيداع فوري + سجل MANUAL_GRANT في points_ledger
     Ktor->>Ktor: AuditEvent (domain=rewards)
     Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت
     Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/streak/freeze — تجميد ليوم واحد (مرض / سفر)
-    alt لا تجميد نشط
+    alt تجميد نشط موجود
+        Ktor-->>Father: REW_ALREADY_FROZEN — تجميد واحد نشط في كل مرة
+    else بلغ حد التجميدين في هذه السلسلة
+        Ktor-->>Father: REW_FREEZE_LIMIT_REACHED — تجميدان كحد أقصى لكل سلسلة (Q-278)
+    else لا تجميد نشط ولم يُبلغ الحد
         Ktor->>Wallet: streak_frozen_until = الغد — التجميد يمدّد السلسلة يوماً واحداً
         Ktor->>Ktor: سجل التجميد في streak_freeze (§5)
         Ktor-->>Father: السلسلة مجمَّدة — لن تنقطع
-    else تجميد نشط موجود
-        Ktor-->>Father: REW_ALREADY_FROZEN — تجميد واحد نشط في كل مرة
     end
 ```
 
-- المنح اليدوي بلا مهمة (Q-107/REQ-006)؛ والتجميد بإذن الأب فقط وليوم واحد في كل مرة (§6)؛ والتجميد بعد انقطاع السلسلة لا يعيدها (§7)؛ وسلسلة 7 أيام تكسب مكافأة السلسلة (50 نقطة افتراضياً — §5 — Q-276) مع شارة فضية؛ والشارات: فضية 7 أيام، ذهبية 30 يوماً، ماسية 90 يوماً (Q-277 — §2: 5-5).
+- المنح اليدوي بلا مهمة (Q-107/REQ-006) وبحد أقصى 60 نقطة في المرة (Q-278)؛ والتجميد بإذن الأب فقط وليوم واحد في كل مرة (§6) وتجميدان كحد أقصى لكل سلسلة (Q-278)؛ والتجميد بعد انقطاع السلسلة لا يعيدها (§7)؛ وسلسلة 7 أيام تكسب مكافأة السلسلة (50 نقطة افتراضياً — §5 — Q-276) مع شارة فضية؛ والشارات: فضية 7 أيام، ذهبية 30 يوماً، ماسية 90 يوماً (Q-277 — §2: 5-5).
 
 ### 3-هـ. العمل دون اتصال والمزامنة (REQ-003 — §4: `getCachedWallet` + `queueTimeRequest` + `queueRedeem` + `queueObjection`)
 
