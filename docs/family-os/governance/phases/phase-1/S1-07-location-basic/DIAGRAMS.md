@@ -171,19 +171,19 @@ erDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant خدمة as Kotlin
-    participant الخادم as Ktor
-    participant المخزن as PG
-    خدمة->>خدمة: حساس الحركة يحدد التردد (5 دقائق سكون / دقيقة حركة)
-    خدمة->>خدمة: قراءة GPS + تنعيم Kalman (رفض القفزات الوهمية)
+    participant Kotlin as خدمة
+    participant Ktor as الخادم
+    participant PG as المخزن
+    Kotlin->>Kotlin: حساس الحركة يحدد التردد (5 دقائق سكون / دقيقة حركة)
+    Kotlin->>Kotlin: قراءة GPS + تنعيم Kalman (رفض القفزات الوهمية)
     alt متصل
-        خدمة->>الخادم: POST /api/v1/families/{id}/locations {device_id, client_point_id, lat, lng, accuracy, battery, at}
-        الخادم->>المخزن: حفظ location_point + تحديث last_known_location
-        الخادم-->>خدمة: النقطة + server_seq
-        الخادم->>الخادم: نشر family/{family_id}/location/updated (MQTT — QoS 0)
+        Kotlin->>Ktor: POST /api/v1/families/{id}/locations {device_id, client_point_id, lat, lng, accuracy, battery, at}
+        Ktor->>PG: حفظ location_point + تحديث last_known_location
+        Ktor-->>Kotlin: النقطة + server_seq
+        Ktor->>Ktor: نشر family/{family_id}/location/updated (MQTT — QoS 0)
     else دون اتصال
-        خدمة->>خدمة: حفظ النقطة في الصندوق الصادر (محلي)
-        Note over خدمة,الخادم: تُزامَن عند عودة الاتصال بلا تكرار (مفتاح client_point_id — §7)؛ نقاط أقدم من 7 أيام تُتجاهل؛ وسعة الصندوق LOCATION_OUTBOX_MAX_POINTS (§5-5)
+        Kotlin->>Kotlin: حفظ النقطة في الصندوق الصادر (محلي)
+        Note over Kotlin,Ktor: تُزامَن عند عودة الاتصال بلا تكرار (مفتاح client_point_id — §7)؛ نقاط أقدم من 7 أيام تُتجاهل؛ وسعة الصندوق LOCATION_OUTBOX_MAX_POINTS (§5-5)
     end
 ```
 
@@ -195,17 +195,17 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant التطبيق as Flutter
-    participant الخادم as Ktor
-    participant المخزن as PG
-    Father->>التطبيق: فتح خريطة العائلة
-    التطبيق->>الخادم: GET /api/v1/families/{id}/locations
-    الخادم->>الخادم: تصفية حسب منح location.view (deny-override — Q-007)
-    الخادم->>المخزن: قراءة last_known_location لكل عضو مرئي
-    المخزن-->>الخادم: المواقع + البطارية + الوسم الزمني
-    الخادم-->>التطبيق: [{member_id, lat, lng, accuracy, battery, at}]
-    التطبيق->>التطبيق: حي أم آخر موقع معروف؟ (عمر القراءة ≤ عتبة الحداثة LOCATION_STALENESS_THRESHOLD — قيمة مختبر Q-027 — Q-283؛ والأقدم وسم "آخر تحديث: قبل X" — لا يُعرض كحي)
-    التطبيق-->>Father: خريطة OSM + مواقع حية + بطارية كل جهاز (قراءات p95 < 300ms — Q-061)
+    participant Flutter as التطبيق
+    participant Ktor as الخادم
+    participant PG as المخزن
+    Father->>Flutter: فتح خريطة العائلة
+    Flutter->>Ktor: GET /api/v1/families/{id}/locations
+    Ktor->>Ktor: تصفية حسب منح location.view (deny-override — Q-007)
+    Ktor->>PG: قراءة last_known_location لكل عضو مرئي
+    PG-->>Ktor: المواقع + البطارية + الوسم الزمني
+    Ktor-->>Flutter: [{member_id, lat, lng, accuracy, battery, at}]
+    Flutter->>Flutter: حي أم آخر موقع معروف؟ (عمر القراءة ≤ عتبة الحداثة LOCATION_STALENESS_THRESHOLD — قيمة مختبر Q-027 — Q-283؛ والأقدم وسم "آخر تحديث: قبل X" — لا يُعرض كحي)
+    Flutter-->>Father: خريطة OSM + مواقع حية + بطارية كل جهاز (قراءات p95 < 300ms — Q-061)
 ```
 
 - الأب يرى الموقع الدقيق لكل قاصر — طفلاً كان أو مراهقاً (Q-102)؛ والبالغ المفوَّض يرى حسب منحِه فقط (REQ-012).
@@ -219,26 +219,26 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Child as الطفل
-    participant الغلاف as Shell
-    participant الموقع as S107
-    participant الخادم as Ktor
-    participant التدقيق as Audit
-    participant البالغون as Adults
-    Child->>الغلاف: ضغط مطول 3 ثوانٍ على زر SOS (Q-067)
-    الغلاف->>الموقع: triggerSos() — MethodChannel (§4-3)
+    participant Shell as الغلاف
+    participant S107 as الموقع
+    participant Ktor as الخادم
+    participant Audit as التدقيق
+    participant Adults as البالغون
+    Child->>Shell: ضغط مطول 3 ثوانٍ على زر SOS (Q-067)
+    Shell->>S107: triggerSos() — MethodChannel (§4-3)
     opt إلغاء محلي خلال 10 ثوانٍ قبل الإرسال (Q-286)
-        Child->>الموقع: إلغاء SOS بالخطأ
-        الموقع->>الموقع: إلغاء الضغطة المحلية — بلا تنبيه ولا SMS ولا خصم حصة
+        Child->>S107: إلغاء SOS بالخطأ
+        S107->>S107: إلغاء الضغطة المحلية — بلا تنبيه ولا SMS ولا خصم حصة
     end
-    الموقع->>الخادم: POST /api/v1/families/{id}/sos {lat, lng, at, last_known_at?} + ترويسة Idempotency-Key (UUID لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال)
+    S107->>Ktor: POST /api/v1/families/{id}/sos {lat, lng, at, last_known_at?} + ترويسة Idempotency-Key (UUID لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال)
     alt يوجد SOS نشط
-        الخادم-->>الموقع: LOC_SOS_ALREADY_ACTIVE — تُعاد بيانات النشط بدل التكرار
+        Ktor-->>S107: LOC_SOS_ALREADY_ACTIVE — تُعاد بيانات النشط بدل التكرار
     else لا SOS نشط
-        الخادم->>الخادم: إنشاء sos_alert (status=active, channel=server)
-        الخادم->>البالغون: نشر family/{family_id}/sos/new (MQTT — QoS 1 — أولوية عالية)
-        الخادم->>التدقيق: AuditEvent (إطلاق SOS — النطاق location)
-        الخادم-->>الموقع: {sos_id, at}
-        Note over الخادم,البالغون: التنبيه يصل للأب وكل البالغين في أقل من 10 ثوانٍ مع الموقع (Q-061 · Q-104)
+        Ktor->>Ktor: إنشاء sos_alert (status=active, channel=server)
+        Ktor->>Adults: نشر family/{family_id}/sos/new (MQTT — QoS 1 — أولوية عالية)
+        Ktor->>Audit: AuditEvent (إطلاق SOS — النطاق location)
+        Ktor-->>S107: {sos_id, at}
+        Note over Ktor,Adults: التنبيه يصل للأب وكل البالغين في أقل من 10 ثوانٍ مع الموقع (Q-061 · Q-104)
     end
 ```
 
@@ -252,37 +252,37 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Child as الطفل
-    participant الموقع as S107
-    participant الخادم as Ktor
-    participant المستلمون as Recipients
-    Child->>الموقع: ضغط SOS 3 ثوانٍ — لا اتصال بالخادم
+    participant S107 as الموقع
+    participant Ktor as الخادم
+    participant Recipients as المستلمون
+    Child->>S107: ضغط SOS 3 ثوانٍ — لا اتصال بالخادم
     opt إلغاء محلي خلال 10 ثوانٍ قبل الإرسال (Q-286)
-        Child->>الموقع: إلغاء SOS بالخطأ
-        الموقع->>الموقع: إلغاء الضغطة المحلية — بلا SMS ولا خصم حصة
+        Child->>S107: إلغاء SOS بالخطأ
+        S107->>S107: إلغاء الضغطة المحلية — بلا SMS ولا خصم حصة
     end
-    الموقع->>الموقع: قرار الإرسال من مرآة الحصة المحلية (Q-163) — لا فحص خادمي دون اتصال
+    S107->>S107: قرار الإرسال من مرآة الحصة المحلية (Q-163) — لا فحص خادمي دون اتصال
     alt الحصة متبقية
         alt Android — إرسال SMS مباشر
-            الموقع->>المستلمون: SMS موقّع HMAC-SHA256 (مقتطع إلى 10 أحرف) بمفتاح الجهاز فوق (العائلة، العضو، الوقت، الإحداثيات) — تطبيق الأب يتحقق من التوقيع قبل عرض التنبيه (REQ-017)
-            الموقع->>الموقع: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
+            S107->>Recipients: SMS موقّع HMAC-SHA256 (مقتطع إلى 10 أحرف) بمفتاح الجهاز فوق (العائلة، العضو، الوقت، الإحداثيات) — تطبيق الأب يتحقق من التوقيع قبل عرض التنبيه (REQ-017)
+            S107->>S107: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
         else iOS — مؤلف SMS النظام (Q-229)
-            الموقع->>Child: فتح مؤلف SMS النظام معبأً مسبقاً إلى الأب + كل البالغين + جهات الطوارئ (Q-138) — المستخدم يضغط إرسال
+            S107->>Child: فتح مؤلف SMS النظام معبأً مسبقاً إلى الأب + كل البالغين + جهات الطوارئ (Q-138) — المستخدم يضغط إرسال
             alt المستخدم يضغط إرسال
-                الموقع->>الموقع: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
+                S107->>S107: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
             else المستخدم ألغى المؤلف دون إرسال (Q-238)
-                الموقع->>الموقع: حالة نهائية مسماة: معلّقة — مؤلف ملغى (تبقى دائمة على الجهاز)
-                الموقع-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس Idempotency-Key) — لا SOS ثانٍ مكرر ولا لافتة فشل SOS
-                الموقع->>الموقع: مزامنة الحالة عند عودة الاتصال
+                S107->>S107: حالة نهائية مسماة: معلّقة — مؤلف ملغى (تبقى دائمة على الجهاز)
+                S107-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس Idempotency-Key) — لا SOS ثانٍ مكرر ولا لافتة فشل SOS
+                S107->>S107: مزامنة الحالة عند عودة الاتصال
             end
         end
     else الحصة منتهية — الطوارئ الثلاث متبقية
-        الموقع->>المستلمون: SMS طارئ موقّع HMAC-SHA256 (10 أحرف — REQ-017) (1 من 3 في الشهر التقويمي — SOS فقط) (Q-163 · Q-252)
-        الموقع->>المستلمون: إشعار الأب فوراً بكل رسالة طارئة — دفع فوري (Q-285)؛ ودون اتصال رسالة الطوارئ نفسها إلى الأب هي الإشعار (بلا رسالة ثانية — تُحسب مرة واحدة من الثلاث)
+        S107->>Recipients: SMS طارئ موقّع HMAC-SHA256 (10 أحرف — REQ-017) (1 من 3 في الشهر التقويمي — SOS فقط) (Q-163 · Q-252)
+        S107->>Recipients: إشعار الأب فوراً بكل رسالة طارئة — دفع فوري (Q-285)؛ ودون اتصال رسالة الطوارئ نفسها إلى الأب هي الإشعار (بلا رسالة ثانية — تُحسب مرة واحدة من الثلاث)
     else الحصة والطوارئ الثلاث مستنفدة
-        الموقع->>الموقع: SOS يبقى "معلقاً" على الجهاز — لا يُعرض كأنه أُرسل
-        الموقع->>الموقع: إشعار النفاد يُحفظ في طابور على الجهاز للتسليم عند عودة الاتصال
-        الموقع-->>Child: عرض محلي للطفل: SOS معلّق — سيُرسَل عند عودة الاتصال
-        Note over الموقع,الخادم: لا قناة لإشعار الأب فوراً دون اتصال — لا SMS متبقية ولا مسار خادم؛ ويُسلَّم إشعار النفاد عبر الخادم فور عودة الاتصال (§7-5)
+        S107->>S107: SOS يبقى "معلقاً" على الجهاز — لا يُعرض كأنه أُرسل
+        S107->>S107: إشعار النفاد يُحفظ في طابور على الجهاز للتسليم عند عودة الاتصال
+        S107-->>Child: عرض محلي للطفل: SOS معلّق — سيُرسَل عند عودة الاتصال
+        Note over S107,Ktor: لا قناة لإشعار الأب فوراً دون اتصال — لا SMS متبقية ولا مسار خادم؛ ويُسلَّم إشعار النفاد عبر الخادم فور عودة الاتصال (§7-5)
     end
 ```
 
@@ -302,23 +302,23 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Father as الأب / البالغ المفوَّض
-    participant التطبيق as Flutter
-    participant الخادم as Ktor
-    participant التدقيق as Audit
-    participant البالغون as Adults
-    Father->>التطبيق: تأكيد استلام تنبيه SOS
-    التطبيق->>الخادم: POST /api/v1/families/{id}/sos/{sosId}/acknowledge
-    الخادم->>الخادم: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
-    الخادم->>البالغون: نشر family/{family_id}/sos/acknowledged (MQTT — QoS 1)
-    الخادم->>التدقيق: AuditEvent (تأكيد SOS — النطاق location)
-    الخادم-->>التطبيق: {sos_id, acknowledged_by, at}
-    التطبيق-->>Father: مؤكد — ثم يتصل بالطفل
-    Father->>التطبيق: حل التنبيه بعد التعامل معه — الأب أو البالغ المفوَّض حسب القالب (Q-136 · Q-160)
-    التطبيق->>الخادم: POST /api/v1/families/{id}/sos/{sosId}/resolve
-    الخادم->>الخادم: sos_alert.status = resolved + resolved_by + resolved_at
-    الخادم->>البالغون: نشر family/{family_id}/sos/resolved (MQTT — QoS 1)
-    الخادم->>التدقيق: AuditEvent (حل SOS — النطاق location)
-    الخادم-->>التطبيق: {sos_id, resolved_by, at, status: "resolved"}
+    participant Flutter as التطبيق
+    participant Ktor as الخادم
+    participant Audit as التدقيق
+    participant Adults as البالغون
+    Father->>Flutter: تأكيد استلام تنبيه SOS
+    Flutter->>Ktor: POST /api/v1/families/{id}/sos/{sosId}/acknowledge
+    Ktor->>Ktor: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
+    Ktor->>Adults: نشر family/{family_id}/sos/acknowledged (MQTT — QoS 1)
+    Ktor->>Audit: AuditEvent (تأكيد SOS — النطاق location)
+    Ktor-->>Flutter: {sos_id, acknowledged_by, at}
+    Flutter-->>Father: مؤكد — ثم يتصل بالطفل
+    Father->>Flutter: حل التنبيه بعد التعامل معه — الأب أو البالغ المفوَّض حسب القالب (Q-136 · Q-160)
+    Flutter->>Ktor: POST /api/v1/families/{id}/sos/{sosId}/resolve
+    Ktor->>Ktor: sos_alert.status = resolved + resolved_by + resolved_at
+    Ktor->>Adults: نشر family/{family_id}/sos/resolved (MQTT — QoS 1)
+    Ktor->>Audit: AuditEvent (حل SOS — النطاق location)
+    Ktor-->>Flutter: {sos_id, resolved_by, at, status: "resolved"}
 ```
 
 - SOS بالخطأ (ضغط عرضي): الأب يؤكد أو يلغي عبر نقطة الحل `POST /api/v1/families/{id}/sos/{sosId}/resolve` (الأب + البالغ المفوَّض حسب القالب — Q-136)؛ والحالة تصبح `resolved` ويتوقف التصعيد؛ والإلغاء يُسجَّل في التدقيق (§7-10).
@@ -329,20 +329,20 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant التطبيق as Flutter
-    participant الخادم as Ktor
-    participant المخزن as PG
-    Father->>التطبيق: فتح إدارة جهات الطوارئ
-    التطبيق->>الخادم: GET /api/v1/families/{id}/emergency-contacts
-    الخادم-->>التطبيق: [{contact_id, member_id, phone}]
-    Father->>التطبيق: إضافة العم (بالغ في العائلة) برقم هاتفه
-    التطبيق->>الخادم: POST /api/v1/families/{id}/emergency-contacts {member_id, phone}
-    الخادم->>المخزن: حفظ emergency_contact (added_by = الأب)
-    الخادم-->>التطبيق: جهة الطوارئ
-    Note over Father,الخادم: عند أي SOS لاحق يصل التنبيه للعم أيضاً مع الأب وكل البالغين؛ ويجوز رقم خارجي (Q-287) — member_id فارغ — يستلم SOS دون تتبع مستمر
-    Father->>التطبيق: حذف جهة طوارئ
-    التطبيق->>الخادم: DELETE /api/v1/families/{id}/emergency-contacts/{contactId}
-    الخادم-->>التطبيق: {ok: true}
+    participant Flutter as التطبيق
+    participant Ktor as الخادم
+    participant PG as المخزن
+    Father->>Flutter: فتح إدارة جهات الطوارئ
+    Flutter->>Ktor: GET /api/v1/families/{id}/emergency-contacts
+    Ktor-->>Flutter: [{contact_id, member_id, phone}]
+    Father->>Flutter: إضافة العم (بالغ في العائلة) برقم هاتفه
+    Flutter->>Ktor: POST /api/v1/families/{id}/emergency-contacts {member_id, phone}
+    Ktor->>PG: حفظ emergency_contact (added_by = الأب)
+    Ktor-->>Flutter: جهة الطوارئ
+    Note over Father,Ktor: عند أي SOS لاحق يصل التنبيه للعم أيضاً مع الأب وكل البالغين؛ ويجوز رقم خارجي (Q-287) — member_id فارغ — يستلم SOS دون تتبع مستمر
+    Father->>Flutter: حذف جهة طوارئ
+    Flutter->>Ktor: DELETE /api/v1/families/{id}/emergency-contacts/{contactId}
+    Ktor-->>Flutter: {ok: true}
 ```
 
 - إدارة جهات الطوارئ للأب فقط (`location.emergency.manage` — §6-1)؛ وجهة محذوفة من العضوية تُحذف من القائمة؛ وتغيير رقم هاتف العضو في S1-02 يحدّث الرقم المخزن من سجل العضوية (مصدر الحقيقة) ولا يحذف الجهة (§7-11).
@@ -354,22 +354,22 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant التطبيق as Flutter
-    participant الخادم as Ktor
-    participant المخزن as PG
-    Father->>التطبيق: طلب سجل مواقع عضو (7 أيام كحد أقصى)
-    التطبيق->>الخادم: GET /api/v1/families/{id}/members/{memberId}/locations?from&to&limit&cursor
-    الخادم->>الخادم: فحص منح location.history.view (deny-override — Q-007)
+    participant Flutter as التطبيق
+    participant Ktor as الخادم
+    participant PG as المخزن
+    Father->>Flutter: طلب سجل مواقع عضو (7 أيام كحد أقصى)
+    Flutter->>Ktor: GET /api/v1/families/{id}/members/{memberId}/locations?from&to&limit&cursor
+    Ktor->>Ktor: فحص منح location.history.view (deny-override — Q-007)
     alt بلا منح رؤية
-        الخادم-->>التطبيق: LOC_NOT_VISIBLE
+        Ktor-->>Flutter: LOC_NOT_VISIBLE
     else عضو غير موجود
-        الخادم-->>التطبيق: LOC_MEMBER_NOT_FOUND
+        Ktor-->>Flutter: LOC_MEMBER_NOT_FOUND
     else طلب أقدم من 7 أيام
-        الخادم-->>التطبيق: فارغ — محذوف تلقائياً، لا خطأ (§7-12)
+        Ktor-->>Flutter: فارغ — محذوف تلقائياً، لا خطأ (§7-12)
     else طلب صالح
-        الخادم->>المخزن: قراءة location_point في النطاق
-        المخزن-->>الخادم: [{lat, lng, accuracy, battery, at, server_seq}]
-        الخادم-->>التطبيق: {points, next_cursor} — صفحة محدودة (limit افتراضي 100، أقصى 500)
+        Ktor->>PG: قراءة location_point في النطاق
+        PG-->>Ktor: [{lat, lng, accuracy, battery, at, server_seq}]
+        Ktor-->>Flutter: {points, next_cursor} — صفحة محدودة (limit افتراضي 100، أقصى 500)
     end
 ```
 

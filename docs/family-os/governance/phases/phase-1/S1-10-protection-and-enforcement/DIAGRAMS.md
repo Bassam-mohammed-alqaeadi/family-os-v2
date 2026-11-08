@@ -419,17 +419,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant الخادم as Ktor
-    participant الوسيط as Mosquitto
+    participant Ktor as الخادم
+    participant Mosquitto as الوسيط
     participant K as "وحدة Kotlin"
-    Note over الخادم,الوسيط: الوسيط Eclipse Mosquitto 2.x — TLS 1.2+ على 8883 + mTLS (Q-168)
-    الخادم->>الوسيط: family/{family_id}/devices/{device_id}/commands (MQTT — QoS 1 + command_id)
-    الوسيط->>K: تسليم الأمر — مرة على الأقل (إزالة تكرار بـ command_id)
+    Note over Ktor,Mosquitto: الوسيط Eclipse Mosquitto 2.x — TLS 1.2+ على 8883 + mTLS (Q-168)
+    Ktor->>Mosquitto: family/{family_id}/devices/{device_id}/commands (MQTT — QoS 1 + command_id)
+    Mosquitto->>K: تسليم الأمر — مرة على الأقل (إزالة تكرار بـ command_id)
     K->>K: تنفيذ الأمر (حظر/قاعدة/وضع حر)
-    K->>الوسيط: family/{family_id}/devices/{device_id}/acks (MQTT — QoS 1 + command_id + النتيجة)
-    الوسيط->>الخادم: إقرار التنفيذ — توصيل الأمر + الإقرار < 5 ثوانٍ (Q-061)
-    K->>الوسيط: family/{family_id}/device/{device_id}/state (MQTT — QoS 0 — محفوظة)
-    K->>الوسيط: family/{family_id}/devices/{device_id}/status (MQTT — محفوظة + last will = offline)
+    K->>Mosquitto: family/{family_id}/devices/{device_id}/acks (MQTT — QoS 1 + command_id + النتيجة)
+    Mosquitto->>Ktor: إقرار التنفيذ — توصيل الأمر + الإقرار < 5 ثوانٍ (Q-061)
+    K->>Mosquitto: family/{family_id}/device/{device_id}/state (MQTT — QoS 0 — محفوظة)
+    K->>Mosquitto: family/{family_id}/devices/{device_id}/status (MQTT — محفوظة + last will = offline)
 ```
 
 ### 3-ط. تطبيق إعداد مسبق (REQ-024 — §4-2 POST .../mode-presets/{preset})
