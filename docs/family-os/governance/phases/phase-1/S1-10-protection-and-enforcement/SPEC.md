@@ -197,7 +197,7 @@ flowchart LR
 | الطريقة والمسار | الغرض | المدخل | المخرج |
 |---|---|---|---|
 | `GET /api/v1/families/{id}/children/{childId}/app-rules` | قائمة قواعد التطبيقات | — | `[{rule_id, app_package, action, minutes_by_weekday}]` |
-| `POST /api/v1/families/{id}/children/{childId}/app-rules` | إنشاء قاعدة (REQ-001) | `{app_package, action, minutes_by_weekday?}` — شرطية: `action=LIMIT` ⇒ `minutes_by_weekday` إلزامية (كل قيمة 0–1440)؛ و`action=ALLOW/BLOCK` ⇒ `minutes_by_weekday` مرفوضة إن حضرت (`400 INVALID_RULE`) | `201 {rule_id, ...}` |
+| `POST /api/v1/families/{id}/children/{childId}/app-rules` | إنشاء قاعدة (REQ-001) | `{app_package, action, minutes_by_weekday?}` — شرطية: `action=LIMIT` ⇒ `minutes_by_weekday` إلزامية (كل قيمة 0–1440)؛ و`action=ALLOW/BLOCK` ⇒ `minutes_by_weekday` مرفوضة إن حضرت (`400 INVALID_RULE`) | `201 {rule_id, ...}` — رد واحد بعد إقرار الجهاز (3-أ — كـ 3-ب) |
 | `PATCH /api/v1/families/{id}/children/{childId}/app-rules/{ruleId}` | تعديل قاعدة | `{action?, minutes_by_weekday?, version}` — قفل تفاؤلي: `version` قديم → `409 VERSION_CONFLICT`؛ والقاعدة الشرطية نفسها: التحويل إلى `LIMIT` بلا دقائق ⇒ `400 INVALID_RULE`، ودقائق مع `ALLOW/BLOCK` ⇒ `400 INVALID_RULE` | القاعدة المعدَّلة |
 | `DELETE /api/v1/families/{id}/children/{childId}/app-rules/{ruleId}` | حذف قاعدة (الأب + البالغ المفوَّض حسب القالب — Q-146) | — | `204` + دفع `rules-updated` |
 | `GET /api/v1/families/{id}/children/{childId}/weekly-schedule` | الجدول الأسبوعي | — | `{schedule_id, windows, version}` |

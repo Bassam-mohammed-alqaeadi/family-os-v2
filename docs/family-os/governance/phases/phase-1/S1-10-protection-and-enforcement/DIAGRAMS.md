@@ -217,15 +217,14 @@ sequenceDiagram
     Father->>Flutter: إنشاء قاعدة لتطبيق عمر — ALLOW أو BLOCK أو LIMIT + دقائق لكل يوم أسبوع
     Flutter->>Ktor: POST /api/v1/families/{id}/children/{childId}/app-rules {app_package, action, minutes_by_weekday}
     Ktor->>Ktor: فحص protection.rule.create عبر S1-03 — deny-override (Q-007)
-    Ktor-->>Flutter: 201 {rule_id, ...}
     Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
     K->>K: إعادة بناء القناع اليومي
     K-->>Ktor: إقرار (ack) — QoS 1 — توصيل الأمر + الإقرار < 5 ثوانٍ (Q-061)
     Ktor->>Audit: AuditEvent (domain=protection — من غيّر وماذا ومتى)
-    Ktor-->>Flutter: تأكيد — القاعدة سارية على جهاز الطفل
+    Ktor-->>Flutter: 201 {rule_id, ...} — رد واحد بعد الإقرار (كـ 3-ب)
 ```
 
-- قاعدة واحدة لكل (طفل، تطبيق) — قيد وحيد (REQ-001)؛ وكل دقيقة في `minutes_by_weekday` بين 0 و1440؛ والتطبيق بلا قاعدة = سماح، لا حظر ضمني.
+- قاعدة واحدة لكل (طفل، تطبيق) — قيد وحيد (REQ-001)؛ وكل دقيقة في `minutes_by_weekday` بين 0 و1440؛ والتطبيق بلا قاعدة = سماح، لا حظر ضمني؛ والرد `201` واحد بعد الإقرار — لا رد مبكر ولا تأكيد ثانٍ (نموذج 3-ب نفسه — و`POST .../app-rules` في §4-2 يعرّف `201` وحده).
 
 ### 3-ب. حفظ الجدول الأسبوعي مع كشف التعارض (REQ-006 — §4-2)
 
@@ -251,7 +250,7 @@ sequenceDiagram
     Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
     K->>K: إعادة بناء القناع اليومي
     K->>K: إعادة تقييم فورية — إن صار الوقت الحالي محظوراً يُطبَّق الحظر فوراً دون انتظار الحد التالي (REQ-009)
-    K->>Shell: إغلاق التطبيق المفتوح المخالف + شاشة الحظر
+    K->>Shell: بث rule_blocked عبر EventChannel — إغلاق التطبيق المفتوح المخالف + شاشة الحظر
     K-->>Ktor: إقرار (ack) — QoS 1 < 5 ثوانٍ (Q-061)
     Ktor-->>Flutter: الجدول المحفوظ
 ```
@@ -330,6 +329,7 @@ sequenceDiagram
     participant Flutter as "لوحة الأهل"
     participant Ktor as الخادم
     participant K as "وحدة Kotlin"
+    participant ChildFlutter as "غلاف الطفل (Flutter)"
     Father->>Flutter: ضغط بطاقة وضع حر + اختيار المدة بالدقائق
     Flutter->>Ktor: POST /api/v1/families/{id}/children/{childId}/free-mode {duration_minutes}
     alt المفعّل ليس المالك
@@ -339,8 +339,8 @@ sequenceDiagram
     else تفعيل صحيح
         Ktor->>Ktor: إنشاء free_mode_session {expires_at}
         Ktor->>K: family/{family_id}/protection/free-mode — تفعيل (MQTT — QoS 1)
-        K->>K: activateFreeMode(until) — MethodChannel("familyos/enforcement") — تعليق كل القواعد
-        K->>K: بث free_mode_changed عبر EventChannel("familyos/enforcement/events")
+        K->>ChildFlutter: بث free_mode_changed عبر EventChannel("familyos/enforcement/events")
+        ChildFlutter->>K: activateFreeMode(until) — MethodChannel("familyos/enforcement") — تعليق كل القواعد
         Ktor-->>Flutter: 201 {session_id, expires_at}
         Flutter-->>Father: لافتة وضع حر — ينتهي خلال X
         Note over Ktor,K: عند انتهاء المدة — انتهاء تلقائي + عودة القواعد + تسجيل في التدقيق (REQ-019)؛ والجلسة منتهية متى بلغ الوقت expires_at ولو بقي status مخزَّناً ACTIVE — والخادم يصحّح status إلى EXPIRED كسولاً عند أول قراءة/تفعيل/مزامنة لاحقة (بلا وظيفة مسح)، وحدث التدقيق يحمل expires_at
@@ -348,7 +348,7 @@ sequenceDiagram
     end
 ```
 
-- أثناء الوضع الحر: زر SOS يعمل كالعادة؛ والاستخدام يُحسب في التقارير ولا يُحدَّد؛ والوضع الحر لا يمسح تنبيهات العبث المعلقة ولا يوقف محاولات إعادة التفعيل (REQ-020).
+- أثناء الوضع الحر: زر SOS يعمل كالعادة؛ والاستخدام يُحسب في التقارير ولا يُحدَّد؛ والوضع الحر لا يمسح تنبيهات العبث المعلقة ولا يوقف محاولات إعادة التفعيل (REQ-020). ونموذج الرد هنا يختلف عن 3-أ/3-ب قصداً: الجلسة تُنشأ خادمياً فيُرجع `201` فور إرسال أمر التفعيل عبر MQTT — لأن `201` هنا يثبت إنشاء الجلسة لا سريانها على الجهاز؛ وإقرار الجهاز يصل لاحقاً عبر موضوع الإقرارات `devices/{device_id}/acks` (§4-3) — فلا ينتظر الأب الإقرار ليرى اللافتة.
 
 ### 3-و. كشف العبث — تنبيه + إعادة تفعيل (REQ-021/022/023 — Q-144)
 
@@ -442,14 +442,23 @@ sequenceDiagram
     participant Ktor as الخادم
     participant K as "وحدة Kotlin"
     Father->>S109: ضغط بطاقة إعداد مسبق — دراسة / نوم / حر
-    S109->>Ktor: POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset} {preset, duration_minutes?}
-    Ktor->>Ktor: تطبيق الحزمة ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء (REQ-024)
+    S109->>Ktor: POST /api/v1/families/{id}/children/{childId}/mode-presets/{preset} {duration_minutes?}
+    alt الإعداد حر (free)
+        Ktor->>Ktor: إنشاء free_mode_session عبر P5/D6 — لا قواعد (REQ-024)
+    else الإعداد دراسة أو نوم
+        Ktor->>Ktor: تطبيق الحزمة ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء (REQ-024)
+    end
     alt فشل التطبيق
         Ktor->>Ktor: إعادة الحالة السابقة بلا تغيير جزئي
         Ktor-->>S109: خطأ — لم يُطبَّق شيء
     else نجح التطبيق
-        Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
-        K->>K: إعادة بناء القناع اليومي
+        alt الإعداد حر
+            Ktor->>K: family/{family_id}/protection/free-mode (MQTT — QoS 1)
+            K->>K: تعليق كل القواعد — بلا بناء قناع
+        else دراسة أو نوم
+            Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
+            K->>K: إعادة بناء القناع اليومي
+        end
         K-->>Ktor: إقرار (ack) < 5 ثوانٍ (Q-061)
         Ktor->>Ktor: تسجيل التغيير في AuditEvent (domain=protection)
     end
@@ -504,9 +513,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–8.0، والمخازن D1–D8 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً عبر P1+P2 — كل قواعدها أو لا شيء. وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
+العمليات مرقمة 1.0–8.0، والمخازن D1–D8 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً: دراسة/نوم عبر P1+P2 (كل قواعدها أو لا شيء)؛ والحر عبر P5/D6 (إنشاء جلسة — لا قواعد ولا بناء قناع). وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `GET .../tamper-events` و`POST .../tamper-events/{eventId}/resolve` (يقرآن/يكتبان D7 عبر Ktor — S10-11 · 3-و) · `POST .../mode-presets/{preset}` (P1+P2 ذرّياً — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `GET .../tamper-events` و`POST .../tamper-events/{eventId}/resolve` (يقرآن/يكتبان D7 عبر Ktor — S10-11 · 3-و) · `POST .../mode-presets/{preset}` (دراسة/نوم عبر P1+P2 ذرّياً، والحر عبر P5/D6 — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
 
 ```mermaid
 flowchart LR
