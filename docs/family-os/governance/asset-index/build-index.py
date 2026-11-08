@@ -1,11 +1,47 @@
 #!/usr/bin/env python3
 """Build Family OS asset index: extract RE tables + §9 screens from SPECs,
 match against parts/*.json, emit re_items.json / screens.json / summary.json.
-Read-only on the repo clone. Writes only inside the draft dir."""
-import json, glob, os, re, sys
+Read-only on the repo clone. Writes only inside the --out dir.
 
-DRAFT = "/home/hatch/workspace/family-os-asset-index-draft"
-SPEC_BASE = "/home/hatch/workspace/audit-family-os-check/docs/family-os/governance/phases/phase-1"
+Reproducible from a clean copy: all paths are CLI flags, with defaults
+derived from this script's own location (no hardcoded machine paths):
+
+  --draft      dir holding parts/*.json (outside the repo).
+               Default: <parent of the repo clone>/family-os-asset-index-draft
+               (i.e. a sibling of the repo clone, as in the original setup).
+  --spec-base  dir holding the phase-1 SPECs.
+               Default: <script dir>/../phases/phase-1
+  --out        dir to write re_items.json / screens.json / summary.json into.
+               Default: the script's own directory (the asset-index dir).
+
+Example (from a fresh copy of the repo + a copy of the draft dir):
+
+  python3 build-index.py --draft /path/to/family-os-asset-index-draft
+"""
+import argparse
+import json, glob, os, re, sys
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[3]  # docs/family-os/governance/asset-index -> repo root
+DEFAULT_DRAFT = REPO_ROOT.parent / "family-os-asset-index-draft"
+DEFAULT_SPEC_BASE = (SCRIPT_DIR / ".." / "phases" / "phase-1").resolve()
+DEFAULT_OUT = SCRIPT_DIR
+
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(
+        description="Build Family OS asset index from SPECs + parts/*.json.")
+    p.add_argument("--draft", type=Path, default=DEFAULT_DRAFT,
+                   help="Directory holding parts/*.json (outside the repo). "
+                        "Default: a sibling of the repo clone named "
+                        "family-os-asset-index-draft.")
+    p.add_argument("--spec-base", type=Path, default=DEFAULT_SPEC_BASE,
+                   help="Directory holding the phase-1 SPECs. "
+                        "Default: <script dir>/../phases/phase-1.")
+    p.add_argument("--out", type=Path, default=DEFAULT_OUT,
+                   help="Directory to write re_items.json / screens.json / "
+                        "summary.json into. Default: the script's own directory.")
+    return p.parse_args(argv)
 
 SYSTEMS = [
     ("S1-01", "S1-01-app-shell-and-platform/SPEC.md"),
@@ -174,9 +210,14 @@ def is_asset_type(mech: str, used: str) -> bool:
     return bool(kinds)
 
 def main():
+    args = parse_args()
+    draft = args.draft
+    spec_base = args.spec_base
+    out = args.out
+
     # ---- parts ----
     parts = {}
-    for f in sorted(glob.glob(os.path.join(DRAFT, "parts", "*.json"))):
+    for f in sorted(glob.glob(os.path.join(draft, "parts", "*.json"))):
         d = json.load(open(f, encoding="utf-8"))
         parts[d["app"]] = d
     assert len(parts) == 11, f"expected 11 parts, got {len(parts)}"
@@ -219,7 +260,7 @@ def main():
     # ---- RE items ----
     re_items = []
     for sys_id, rel in SYSTEMS:
-        path = os.path.join(SPEC_BASE, rel)
+        path = os.path.join(spec_base, rel)
         for it in extract_re(path):
             app = norm_app(it["source_raw"])
             asset = is_asset_type(it["mechanism"], it["used_in"])
@@ -308,7 +349,7 @@ def main():
 
     screens = []
     for sys_id, rel in SYSTEMS:
-        path = os.path.join(SPEC_BASE, rel)
+        path = os.path.join(spec_base, rel)
         for s in extract_screens(path):
             need = screen_need(s["name"], s["purpose"])
             avail, ev, basket = need_available(need)
@@ -351,11 +392,11 @@ def main():
         "per_system": per_system,
         "audio_counts_exact_where_known": audio_counts,
     }
-    json.dump(re_items, open(os.path.join(DRAFT, "re_items.json"), "w", encoding="utf-8"),
+    json.dump(re_items, open(os.path.join(out, "re_items.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
-    json.dump(screens, open(os.path.join(DRAFT, "screens.json"), "w", encoding="utf-8"),
+    json.dump(screens, open(os.path.join(out, "screens.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
-    json.dump(summary, open(os.path.join(DRAFT, "summary.json"), "w", encoding="utf-8"),
+    json.dump(summary, open(os.path.join(out, "summary.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
 
     print("TOTALS", totals)
