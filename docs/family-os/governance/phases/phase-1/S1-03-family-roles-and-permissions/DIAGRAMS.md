@@ -204,41 +204,42 @@ sequenceDiagram
     participant App as التطبيق
     participant S101 as البوابة
     participant Ktor as الخادم
-    participant Keys as السجل
     participant Grants as المنح
     participant Audit as التدقيق
     Father->>App: اختيار عضو + مفتاح + scope + valid_until
-    App->>Keys: GET /api/v1/permissions/keys — التحقق أن المفتاح في السجل
-    alt المفتاح غير موجود في السجل
-        Keys-->>App: غير موجود
-        App->>Audit: تسجيل الرفض (لا يُنشأ مفتاح ضمنياً — §7-1)
-        App-->>Father: رفض PERM_DENIED
-    else المفتاح موجود
-        App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants
-        alt المفتاح حساس
-            Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
-            App->>S101: طلب تحقق — PIN الأب أو بصمته (Q-088)
-            S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
-            App->>Ktor: verification {method, challenge_id, signature, at}
-            Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
-            alt بلا verification أو توقيع غير صالح
-                Ktor-->>App: رفض PERM_VERIFICATION_REQUIRED
-            end
-        end
-        alt المفتاح من الثوابت الصلبة
-            Ktor-->>App: رفض PERM_HARD_INVARIANT + تنبيه الأب (§7-7)
-        else المانح ليس المالك
-            Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
-        else منح سارٍ
+    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants
+    alt المانح ليس المالك
+        Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
+    else المفتاح من الثوابت الصلبة
+        Ktor-->>App: رفض PERM_HARD_INVARIANT + تنبيه الأب (§7-7)
+    else المفتاح غير موجود في السجل
+        Ktor->>Audit: تسجيل الرفض خادمياً (لا يُنشأ مفتاح ضمنياً — §7-1)
+        Ktor-->>App: رفض PERM_DENIED
+    else المفتاح حساس — التحدي أخيراً
+        Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
+        App->>S101: طلب تحقق — PIN الأب أو بصمته (Q-088)
+        S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
+        App->>Ktor: verification {method, challenge_id, signature, at}
+        Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
+        alt بلا verification أو توقيع غير صالح
+            Ktor-->>App: رفض PERM_VERIFICATION_REQUIRED
+        else التوقيع صالح
             Ktor->>Grants: حفظ المنح (scope + valid_until إلزاميان)
             Ktor->>Audit: تسجيل المنح (من منح / لمن / متى / ينتهي)
             Ktor-->>App: 201 {grant_id}
             App-->>Father: المنح منفَّذ ومسجَّل
         end
+    else منح غير حساس
+        Ktor->>Grants: حفظ المنح (scope + valid_until إلزاميان)
+        Ktor->>Audit: تسجيل المنح (من منح / لمن / متى / ينتهي)
+        Ktor-->>App: 201 {grant_id}
+        App-->>Father: المنح منفَّذ ومسجَّل
     end
 ```
 
 - التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072) **ويتحقق الخادم من توقيع التحدي بمفتاح الجهاز العام قبل التنفيذ (Q-164)** ويُسجَّل في التدقيق (§4-1)؛ ولو فشل التحقق 3 مرات يعود النظام لطلب PIN (سيناريو 2-4 · Q-072).
+- ترتيب الفحص عند إنشاء منح (قاعدة §6-3): المالك أولاً → الثابت الصلب → المفتاح في السجل → التحدي أخيراً؛ فلا تحدٍّ يُصدر لغير المالك ولا لمفتاح ثابت صلب ولا لمفتاح غير موجود. ومنتقي المفتاح يقرأ السجل للعرض فقط (GET /api/v1/permissions/keys) — والتحقق الحاكم خادمي.
+- رفض المفتاح غير المعروف يكتبه الخادم في التدقيق (Ktor→Audit) — لا كتابة تدقيق من العميل أبداً (§7-1)؛ وبلا اتصال يُحفظ سجل الرفض محلياً ويُصالح مع الخادم عند عودة الاتصال. والاستثناء Q-174 (تبديل المنح من S1-09 بلا تحدٍّ) يتجاوز التحدي فقط، لا الفحوص قبله.
 - رموز الخطأ الموحدة (§4-4): `PERM_DENIED` · `PERM_HARD_INVARIANT` · `PERM_NOT_OWNER` · `PERM_VERIFICATION_REQUIRED` · `PERM_GRANT_EXPIRED` · `PERM_CONFLICT` — والأخير لتعديلين متزامنين على منح عضو واحد: الثاني يفشل ويُطلب إعادة تحميل أحدث حالة قبل إعادة المحاولة (REQ-019 · §7-8).
 
 ### 3-ب. تطبيق قالب على عضو (REQ-013/014 — §4-1)
@@ -346,7 +347,9 @@ sequenceDiagram
     participant Audit as التدقيق
     Father->>App: اختيار بالغ لنقل الملكية إليه
     App->>Ktor: POST /api/v1/families/{id}/ownership-transfer {to_member_id}
-    alt المتلقي طفل أو مراهق
+    alt المانح ليس المالك
+        Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
+    else المتلقي طفل أو مراهق
         Ktor-->>App: رفض — النقل للبالغين فقط (§7-11 · ACC-013)
     else المتلقي بالغ
         Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
@@ -393,7 +396,9 @@ sequenceDiagram
     participant Device as الجهاز
     Father->>App: حذف العائلة / إزالة عضو من إدارة الأعضاء
     App->>Ktor: DELETE /api/v1/families/{id} — أو DELETE /api/v1/families/{id}/members/{memberId}
-    alt حذف العائلة
+    alt المانح ليس المالك
+        Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
+    else حذف العائلة
         Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
         App->>Ktor: verification {method: pin | biometric, challenge_id, signature, at}
         Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام (Q-164)
@@ -432,7 +437,9 @@ sequenceDiagram
     participant Audit as التدقيق
     Recipient->>App: قبول نقل الملكية {transfer_id}
     App->>Ktor: POST /api/v1/families/{id}/ownership-transfer/{transferId}/accept
-    alt المتلقي بالغ
+    alt المتلقي ليس المتلقي المحدد
+        Ktor-->>App: رفض — القبول للمتلقي المحدد فقط (§7-16)
+    else المتلقي بالغ
         Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
         App->>S101: طلب تحقق — PIN أو بصمة (Q-093)
         S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
@@ -715,6 +722,6 @@ flowchart LR
 
 - عند بلوغ الطفل 13 يتحول دوره تلقائياً وتُراجع منحُه غير الإشرافية ويُشعَر الأب (REQ-003) — المسار V5 إلى F1.
 - محاولة التصعيد المرفوضة (M3) تذهب إلى الرفض + التدقيق + تنبيه الأب (V11)؛ ومراجعة العضو تتم من التنبيه (V11 → F1) لا من عقدة التقييم.
-- المنح بلا شبكة لا يُنفَّذ محلياً: الخادم هو المرجع، ويُحفظ الطلب في صندوق الصادر ويُعاد عند عودة الاتصال (§7-12 — نمط S1-01).
+- المنح بلا شبكة لا يُنفَّذ محلياً: الخادم هو المرجع، ويُحفظ الطلب في صندوق الصادر ويُعاد عند عودة الاتصال (§7-12 — نمط S1-01). والمنح الحساس المحفوظ يُعاد بتحدٍّ جديد وبنفس `Idempotency-Key` — فلا نجاح على تحدٍّ ميت ولا تنفيذ مكرر (§7-12).
 - الفحص اليومي للمنح القريبة من الانتهاء (V8) يصدر `family/{family_id}/permissions/grant-expiring` (عتبة 7 أيام — Q-227)؛ ويستهلكه S1-09 لتنبيهات `grant_expiring` (§4-2).
 - انتهاء نقل الملكية لا ينتظر قبولاً: الفحص اليومي (V9) يقلب المعلق المنتهي إلى `expired` ويُشعر الأب والمتلقي (§7-14 — Q-139).
