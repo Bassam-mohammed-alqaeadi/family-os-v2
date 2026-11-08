@@ -25,7 +25,7 @@
 | 5 | `docs/family-os/governance/architecture/ARCHITECTURE.md` (المعمارية) |
 | 6 | مواصفات الأنظمة `docs/family-os/governance/phases/phase-1/S1-*/SPEC.md` |
 
-> `docs/family-os/decisions.md` و`docs/family-os/roadmap.md` **تاريخيان مجمَّدان** — لا يُعتمد عليهما. و`spec/` و`benchmarks/` **محذوفان** (2026-11-06) — لا تشير إليهما أبداً.
+> `docs/family-os/decisions.md` و`docs/family-os/roadmap.md` **تاريخيان مجمَّدان** — لا يُعتمد عليهما. و`spec/` و`benchmarks/` **محذوفان** (2026-11-06) — لا تشير إليهما أبداً كمرجع حي. **استثناء محكوم (Q-290، 2026-11-08):** يُسمح بذكر `spec/` كأصل تاريخي فقط (مصدر استُخلص منه ملف حالي) لا كمرجع حي؛ وأي استشهاد جديد يشير للملفات الحالية.
 
 ## قواعد ملزمة
 
