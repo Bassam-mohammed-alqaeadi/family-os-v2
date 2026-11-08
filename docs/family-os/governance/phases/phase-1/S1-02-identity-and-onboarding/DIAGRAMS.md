@@ -3,7 +3,7 @@
 - **الحالة:** مسودة للمراجعة على GitHub — المواصفة معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06)؛ والمخططات الستة مسودة بانتظار مراجعة المالك على GitHub (لم تُعتمد بعد)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط — حكم المالك 2026-11-06 · §9 في مرحلة التصميم Q-091)
 - **السياق المحدد (Bounded Context):** #1 الهوية والعائلة (Identity & Family) — `CONTEXT-MAP.md` §2 صف 1
-- **القرارات الحاكمة:** Q-001 · Q-002 · Q-005 · Q-006 · Q-007 · Q-008 · Q-021 · Q-022 · Q-062 · Q-063 · Q-065 · Q-068 · Q-070 · Q-071 · Q-072 · Q-073 · Q-074 · Q-075 · Q-076 · Q-077 · Q-079 · Q-080 · Q-084 · D-006 · D-007 · D-023 · D-038 · G-006 · G-011
+- **القرارات الحاكمة:** Q-001 · Q-002 · Q-005 · Q-006 · Q-007 · Q-008 · Q-021 · Q-022 · Q-062 · Q-063 · Q-065 · Q-068 · Q-070 · Q-071 · Q-072 · Q-073 · Q-074 · Q-075 · Q-076 · Q-077 · Q-079 · Q-080 · Q-084 · Q-106 · Q-137 · Q-189 · Q-235 · Q-245 · Q-246 · Q-247 · Q-248 · D-006 · D-007 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -83,7 +83,7 @@ flowchart LR
 
 - ملاحظتان: فك الإقران (UC12) للمالك فقط + PIN الأب (REQ-015/Q-065)؛ والبصمة (UC9) وضع الأهل فقط ولا تتجاوز بوابة الوالدين ولا تفتح وضع الطفل (REQ-016/Q-072).
 - ملاحظة: حذف الحساب (UC14) ومغادرته (UC15) بمفتاحين (`identity.account.delete_self` / `identity.family.leave` — الافتراضي ممنوح عند الانضمام، حق أصيل للبالغ لا يملك الأب سحبه — Q-291؛ ومحاولة السحب تُرفض: «حق الخروج لا يُسلب»)؛ والمالك لا يغادر عائلته ولا يحذف حسابه إلا بنقل الملكية أو حذف العائلة كاملة (REQ-025/026 · Q-166 · Q-291) — نقل الملكية: S1-03 REQ-016؛ وحذف العائلة: S1-03 REQ-020 (SPEC §4.3). [تصحيح 2026-11-08 (Q-291): أُلغيت عبارة «والأب يلغيهما فردياً» و«الرفض 403».]
-- ملاحظة: UC5 يشمل استئناف الانضمام المنقطع عبر الرابط العميق (سيناريو 2-16)؛ وUC7 يشمل إقران جهاز ثانٍ لطفل لديه جهاز مقترن (سيناريو 2-10 — حدث `device.paired-new`)؛ وبلوغ 13 سيناريو فقط (2-9) بلا حالة استخدام — مهمة خادمية مجدولة لا هدف مستخدم؛ وبلوغ 7 سيناريو فقط (2-9-أ) كذلك — المهمة اليومية نفسها تُطلق القلب `minimal` ← `standard` في 1 يناير من سنة بلوغ 7 (Q-256).
+- ملاحظة: UC5 يشمل استئناف الانضمام المنقطع عبر الرابط العميق (سيناريو 2-16)؛ وUC7 يشمل إقران جهاز ثانٍ لطفل لديه جهاز مقترن (سيناريو 2-10 — حدث `device.paired-new`)؛ وبلوغ 13 سيناريو فقط (2-9) بلا حالة استخدام — مهمة خادمية مجدولة لا هدف مستخدم (مرسومة في تسلسل 3-ي)؛ وبلوغ 7 سيناريو فقط (2-9-أ) كذلك — المهمة اليومية نفسها تُطلق القلب `minimal` ← `standard` في 1 يناير من سنة بلوغ 7 (Q-256 — مرسوم في 3-ي).
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -294,10 +294,10 @@ sequenceDiagram
     participant Ktor as الخادم
     Father->>Client: إدخال البريد الإلكتروني
     Client->>Client: التحقق من صيغة البريد (REQ-022)
-    Client->>FBAuth: طلب رمز البريد
-    FBAuth-->>Father: رمز إلى البريد
-    Father->>Client: إدخال الرمز
-    Client->>FBAuth: التحقق من الرمز
+    Client->>FBAuth: طلب رابط البريد (sendSignInLinkToEmail)
+    FBAuth-->>Father: رابط إلى البريد
+    Father->>Client: فتح الرابط (deep link)
+    Client->>FBAuth: التحقق من الرابط (signInWithEmailLink)
     FBAuth-->>Client: ID Token
     Client->>Ktor: POST /api/v1/identity/email/verify {firebase_id_token}
     alt ID Token صالح والبريد غير مسجل لحساب آخر
@@ -352,8 +352,8 @@ sequenceDiagram
     autonumber
     actor Father as الأب
     actor Child as الطفل
-    participant ParentApp as جهازالأب
-    participant ChildApp as جهازالطفل
+    participant ParentApp as جهاز الأب
+    participant ChildApp as جهاز الطفل
     participant Ktor as الخادم
     participant Audit as التدقيق
     Father->>ParentApp: إنشاء ملف طفل {nickname, avatar, color, birth_year}
@@ -421,6 +421,7 @@ sequenceDiagram
     participant Client as العميل
     participant Ktor as الخادم
     participant MQTT as إشعار — family/{family_id}/alerts/new
+    Father->>Ktor: POST /api/v1/identity/recovery/trusted-contact — تعيين جهة الاسترداد الموثوقة مسبقاً (المالك فقط)
     Father->>Client: طلب استرداد من جهاز جديد برقم جديد
     Client->>Ktor: POST /api/v1/identity/recovery/request — جهة الاسترداد الموثوقة (بالغ حدده الأب مسبقاً)
     Ktor->>Trusted: طلب تأكيد الاسترداد
@@ -428,6 +429,7 @@ sequenceDiagram
     Ktor->>Ktor: بدء فترة انتظار 7 أيام
     Ktor->>MQTT: إشعار كل أجهزة العائلة بالطلب — family/{family_id}/alerts/new (Q-022 · Q-210)
     MQTT-->>Father: إشعار لكل جهاز في العائلة — family/{family_id}/alerts/new (Q-210)
+    Father->>Ktor: GET /api/v1/identity/recovery/{id} — حالة الطلب والأيام المتبقية (عداد S102-22)
     alt اعتراض أي بالغ خلال الانتظار
         Ktor->>Ktor: إلغاء الطلب فوراً (POST /api/v1/identity/recovery/{id}/object)
         Ktor-->>Father: أُلغي طلب الاسترداد
@@ -545,6 +547,30 @@ sequenceDiagram
 
 - عمليات الإدارة الست في مخطط واحد؛ وكل منها يظهر أيضاً في شاشته (§9: S102-18 للجلسات، S102-09 للدعوات، S102-12 للملفات، S102-27 لفك الإقران، S102-15 للموافقة).
 
+### 3-ي. المهمة اليومية لبلوغ 13 و7 (سيناريو 2-9/2-9-أ — Q-189 · Q-235 · Q-256 · Q-183)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Job as المهمة اليومية (خادم Ktor)
+    participant Bus as ناقل أحداث Ktor الداخلي (لا MQTT)
+    participant S103 as S1-03 — الأدوار
+    participant S110 as S1-10 — الحماية
+    participant S101 as S1-01 — الغلاف
+    Job->>Job: 1 يناير — منتصف الليل المحلي للعائلة (Q-183)
+    alt طفل يبلغ 13 في هذه السنة (Q-235)
+        Job->>Bus: member.turned-teen — family_id + membership_id + birth_year (Q-189)
+        Bus->>S103: member.turned-teen
+        S103->>S103: membership.role = teen + مراجعة المنح غير الإشرافية + إشعار الأب
+        Bus->>S110: member.turned-teen — بطاقة مراجعة (S1-10 REQ-027)
+    else طفل يبلغ 7 في هذه السنة (Q-256)
+        Job->>Bus: member.turned-seven — family_id + membership_id + birth_year
+        Bus->>S101: member.turned-seven — قالب العرض minimal ← standard (REQ-013)
+    end
+```
+
+- المهمة اليومية نفسها تُطلق التحول عند بلوغ 18 كما في سن 13 (Q-235)، لكن اسم الحدث الداخلي للتحول عند 18 يُعرَّف مع S1-03 ولم يُرسم هنا (ليس جزءاً من عقد §4.4).
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الستة عشر (§2)
 
 ```mermaid
@@ -575,12 +601,12 @@ flowchart TD
     Email --> EmailFmt{صيغة بريد صالحة؟}
     EmailFmt -->|لا| BadEmail[رفض برسالة واضحة]
     BadEmail --> Email
-    EmailFmt -->|نعم| FB[Firebase Auth — رمز إلى البريد]
+    EmailFmt -->|نعم| FB[Firebase Auth — رابط إلى البريد]
     FB --> FBDown{Firebase متاح؟}
     FBDown -->|لا| FBFail[عرض خيار الهاتف وOTP تلقائياً]
     FBFail --> Phone
-    FBDown -->|نعم| EmailCode[إدخال رمز البريد — تحقق الخادم من ID Token]
-    EmailCode --> TOTP
+    FBDown -->|نعم| EmailLink["فتح رابط البريد (deep link) — تحقق الخادم من ID Token"]
+    EmailLink --> TOTP
     TOTP --> Fam{لديه عائلة؟}
     Fam -->|لا — إنشاء| Create[تسمية العائلة + اختيار المنطقة]
     Create --> Owner[المنشئ مالك تلقائياً — عائلة واحدة للحساب]
@@ -668,7 +694,7 @@ flowchart LR
     P1 -->|إنشاء / تحديث الشخص| D1
     P1 -->|إصدار رموز الجلسة| P3
     Father -->|البريد الإلكتروني| P2
-    P2 -->|رمز البريد + ID Token| Firebase
+    P2 -->|رابط البريد + ID Token| Firebase
     Firebase -->|ID Token صالح| P2
     P2 -->|إنشاء / تحديث الشخص| D1
     P2 -->|إصدار رموز الجلسة| P3
@@ -699,7 +725,6 @@ flowchart LR
     P7 -->|حفظ طلب الاسترداد| D11
     P7 -->|"إشعار كل أجهزة العائلة — family/{family_id}/alerts/new"| MQTT
     P7 -->|تسجيل طلب الاسترداد| Audit
-    Adult -->|طلب حذف حسابه / مغادرة / تصدير| P8
     Father -->|تصدير بيانات قاصر| P8
     P8 -->|"فحص المفتاح (delete_self / family.leave)"| S103
     P8 -->|"حذف ناعم — deleted_at + scheduled_purge_at (REQ-028)"| D1
@@ -725,6 +750,8 @@ flowchart LR
     P8 -->|"DELETE /api/v1/identity/me + POST /api/v1/identity/me/leave + /api/v1/identity/me/export (3-ز)"| Ktor
     Ktor -->|"pending_deletion + purge_at / left / export_id (3-ز)"| P8
 ```
+
+- [تصحيح 2026-11-08 (D-2): حُذفت حافة `Adult --> P8` من DFD §5 لأن `Adult` غير معلنة؛ وعقدة `Father([الأب / البالغ])` تغطي البالغ (طلب الحذف/المغادرة/التصدير من P8 نفسه).]
 
 ## 6. مخطط النشاط (Activity) — دورة حياة التهيئة من أول تثبيت إلى وضع الطفل
 
@@ -817,9 +844,8 @@ flowchart LR
     CL5 --> CL7
     V9 -->|"family/{family_id}/alerts/new"| E3
     F9 --> V10
-    V10 -->|مفتاح غائب| F9
     V10 -->|حذف — مفتاح ممنوح + بصمة/PIN| V11
-    V11 -->|إلغاء خلال السماح — البالغ أو سحب المفتاح| F9
+    V11 -->|إلغاء خلال السماح — البالغ نفسه فقط| F9
     V11 -->|بلا إلغاء بعد 30 يوماً| V14
     V10 -->|مغادرة — مفتاح ممنوح| V12
     V10 -->|تصدير| V13
@@ -827,3 +853,4 @@ flowchart LR
 ```
 
 - عند إعادة الفتح بعد الإغلاق القسري، يعود المستخدم لنفس الشاشة والمدخلات (نمط الغلاف S1-01)؛ وكل حدث هوية/إقران يُسجَّل في `AuditEvent` (§5).
+- [تصحيح 2026-11-08 (D-2 — Q-291): حُذفت حافة «مفتاح غائب» من V10 في §6 — مفتاحا الحذف/المغادرة حق أصيل لا يُسحب ولا يغيب؛ والإلغاء خلال السماح من البالغ نفسه فقط (كما في §3-ز س470 و§4 س610).]
