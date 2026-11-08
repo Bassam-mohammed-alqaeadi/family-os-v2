@@ -182,7 +182,7 @@ erDiagram
 
 - المصدر: §5 كاملاً (الجداول السبعة وحقولها) · §6 (الثوابت الصلبة).
 - `balance_points` لا يقل عن صفر أبداً — والفرض على الخادم لا على العميل (§6)؛ و`kind` في `points_ledger` إحدى: TASK_COMPLETED / STREAK_BONUS / MANUAL_GRANT / TIME_REDEEMED / TIME_GRANTED / REVERSAL (قيد تعويضي — §5)؛ و`status` في `time_request` إحدى: PENDING / APPROVED / REJECTED / TASK_ASSIGNED (§5)؛ و`status` في `granted_time` إحدى: ACTIVE / EXPIRED / EXHAUSTED (§5)؛ و`source` في `granted_time` إحدى: REDEEM / GRANT (§5)؛ و`version` في `rewards_settings` عداد نسخة للتفاؤل (§5 — 409 `REW_VERSION_CONFLICT`).
-- القيم الافتراضية المحكومة: `daily_spend_cap_minutes` = 60 دقيقة (Q-114) · `streak_bonus_points` = 50 نقطة (قابلة للتغيير من الأب — §5) · `enabled_sources` افتراضياً كل الأنظمة المسجلة (Q-118).
+- القيم الافتراضية المحكومة: `daily_spend_cap_minutes` = 60 دقيقة (Q-114) · `streak_bonus_points` = 50 نقطة (مصدَّقة افتراضياً — Q-276 — قابلة للتغيير من الأب — §5) · `enabled_sources` افتراضياً كل الأنظمة المسجلة (Q-118).
 - لا محفظة للمراهقين إطلاقاً (Q-109) — فلا صف `child_wallet` لمراهق؛ وكل جدول يحمل `family_id` + عزل RLS (عائلة واحدة لكل حساب في المرحلة 1).
 
 ## 3. التسلسل (Sequence) — من عقود §4
