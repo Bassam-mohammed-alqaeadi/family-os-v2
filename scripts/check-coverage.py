@@ -11,8 +11,8 @@ For each SPEC.md:
   4. Print per-system counts and the grand total.
 
 Run from the repo root:  python3 scripts/check-coverage.py
-Expected grand total after the R1–R5 close-out: 202 REQ
-(187 with a screen, 15 with no interface and a stated reason).
+Expected grand total: 203 REQ
+(188 with a screen, 15 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave).
 """
 import glob
 import re
@@ -75,8 +75,8 @@ for path in sorted(glob.glob(
     grand_no_ui += n_no_ui
 
 print(f"coverage: total={grand_total} screen={grand_screen} no-ui={grand_no_ui}")
-if grand_total != 202:
-    FAIL.append(f"grand total is {grand_total}, expected 202")
+if grand_total != 203:
+    FAIL.append(f"grand total is {grand_total}, expected 203")
 if FAIL:
     for x in FAIL:
         print("FAIL " + x)
