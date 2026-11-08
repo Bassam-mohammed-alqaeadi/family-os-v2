@@ -186,6 +186,7 @@ erDiagram
         text pairing_code_hash
         text device_cert
         text device_public_key
+        text device_hmac_key_id
         text mode
         timestamptz paired_at
         uuid paired_by FK
@@ -364,7 +365,8 @@ sequenceDiagram
     Ktor->>Ktor: تحديد الدور والقالب: دون 7 child/minimal، 7–12 child/standard، 13–17 teen/standard
     Ktor-->>ParentApp: {membership_id}
     Father->>ParentApp: طلب رمز جهاز (6 أحرف)
-    ParentApp->>Ktor: POST /api/v1/identity/devices/pairing-code {membership_id} — إصدار رمز إقران (صالح 15 دقيقة)
+    ParentApp->>ParentApp: توليد سر توقيع SOS (HMAC — 256 بت) + معرّف device_hmac_key_id (UUID)
+    ParentApp->>Ktor: POST /api/v1/identity/devices/pairing-code {membership_id, device_hmac_secret, device_hmac_key_id} — إصدار رمز إقران (صالح 15 دقيقة)
     Ktor-->>ParentApp: رمز الجهاز
     Child->>ChildApp: إدخال رمز الجهاز على جهازه
     ChildApp->>ChildApp: توليد مفتاح توقيع (ECDSA P-256) مربوط بالعتاد (Q-164)
@@ -373,7 +375,9 @@ sequenceDiagram
         Ktor->>Ktor: تبادل شهادة الجهاز + تسجيل المفتاح العام للجهاز (Q-181) + تحديد الوضع (طفل) نهائياً — Q-062
         Ktor->>Ktor: إن كان للطفل جهاز مقترن أصلاً — إطلاق حدث device.paired-new الداخلي (Q-230؛ التخزين: device_pairing)
         Ktor->>Audit: AuditEvent — إقران + موافقة مشتركة (أب + طفل) مرة واحدة
-        Ktor-->>ChildApp: {device_id, mode: child}
+        Ktor->>Ktor: تسجيل معرّف مفتاح توقيع SOS device_hmac_key_id في device_pairing (السر نفسه لا يُخزَّن خادمياً أبداً)
+        Ktor-->>ChildApp: {device_id, mode: child, device_hmac_key_id, device_hmac_secret}
+        ChildApp->>ChildApp: حفظ سر توقيع SOS في Keystore مع معرّفه
         ChildApp-->>Child: جهازك في وضع الطفل — لا حساب لك ولا بيانات اتصال
     else الجهاز مقترن لعائلة أخرى
         Ktor-->>ChildApp: رفض — فك الإقران يتطلب PIN أب العائلة الأولى (REQ-015)
@@ -382,7 +386,7 @@ sequenceDiagram
     end
 ```
 
-- الإقران ذري: إما يكتمل كاملاً (شهادة + مفتاح توقيع + وضع + عضوية) أو لا شيء (§7). الوضع يتحدد بالإقران ويُسلَّم للغلاف S1-01؛ وتبديل الملفات مؤجل للمرحلة 2 (Q-063) فلا تبديل للوضع في المرحلة 1؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168 · REQ-014)؛ والموافقة شفافية عن الفئات المراقَبة لا عن المحتوى (REQ-017).
+- الإقران ذري: إما يكتمل كاملاً (شهادة + مفتاح توقيع + سر توقيع SOS + وضع + عضوية) أو لا شيء (§7)؛ وسر توقيع SOS لا يمر عبر MQTT أبداً (MQTT-BROKER-SPEC:18)؛ والخادم يحفظه عابراً مربوطاً برمز الإقران (15 دقيقة كحد أقصى) ثم يتلفه؛ ويُخزَّن دائماً في `device_pairing` معرّف المفتاح فقط (S1-02 §5). الوضع يتحدد بالإقران ويُسلَّم للغلاف S1-01؛ وتبديل الملفات مؤجل للمرحلة 2 (Q-063) فلا تبديل للوضع في المرحلة 1؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168 · REQ-014)؛ والموافقة شفافية عن الفئات المراقَبة لا عن المحتوى (REQ-017).
 
 ### 3-هـ. الجلسة: تجديد ودوران وتسجيل خروج (REQ-006 — §4.1)
 
