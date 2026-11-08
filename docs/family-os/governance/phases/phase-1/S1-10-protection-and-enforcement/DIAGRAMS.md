@@ -503,6 +503,7 @@ sequenceDiagram
     participant Ktor as الخادم
     participant K as وحدة Kotlin (VPN QProxy)
     Father->>App: ضبط إجراء pornography على BLOCK وgambling على BLOCK وsocialNetwork على ALERT (S10-15)
+    Father->>App: ضبط تجاوز example.com على BLOCK (S10-16)
     App->>Ktor: PUT /api/v1/families/{id}/children/{childId}/web-filter-rules {categories, domains, flags} — protection.filter.edit
     Ktor->>Ktor: تحقق: معرّف فئة غير معروف → 400 INVALID_WEB_FILTER — لا يُخزَّن شيء
     Ktor->>Ktor: حفظ القواعد + تسجيل التغيير في AuditEvent
@@ -512,6 +513,7 @@ sequenceDiagram
 ```
 
 - تجاوز النطاق يفوز على إجراء الفئة (REQ-029)؛ والطفل المقترن حديثاً تُزرع قواعده بالافتراضيات قبل أي إجراء من الأب (REQ-031).
+[تصحيح 2026-11-08 (Q-343 — Q343-01): معرّف الشاشة S10-16 (تجاوزات نطاقات التصفية — REQ-029) كان غائباً من هذا الملف رغم أن مضمونه كان موجوداً: تسلسل 3-ي يحمل `domains` في حمولة PUT، والملاحظة أعلاه تستشهد بـ REQ-029 «تجاوز النطاق يفوز على إجراء الفئة»؛ أُضيف المعرف في تسلسل 3-ي وعقدة FWeb في §4 بنمط S10-15 نفسه، بلا تغيير في عدد التغطية (REQ-029 مغطى بـ S10-16 أصلاً في SPEC :903).]
 
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثمانية (§2)
 
@@ -526,7 +528,7 @@ flowchart TD
     FAct -->|ترتيب| FOrd[إعادة ترتيب أنواع القواعد — مع معاينة النتيجة بلغة صريحة قبل الحفظ]
     FOrd --> FSave
     FAct -->|وضع حر| FFree[تفعيل وضع حر — المالك وحده + مدة محددة]
-    FAct -->|تصفية ويب| FWeb["ضبط قواعد تصفية الويب لطفل (S10-15) — الفئات الثلاثون + الأعلام الخمسة"]
+    FAct -->|تصفية ويب| FWeb["ضبط قواعد تصفية الويب لطفل (S10-15) + تجاوزات النطاقات (S10-16) — الفئات الثلاثون + الأعلام الخمسة"]
     FWeb --> FWebVal{معرّف فئة غير معروف؟}
     FWebVal -->|نعم| FWebRej[رفض 400 INVALID_WEB_FILTER — لا يُخزَّن شيء]
     FWebRej --> FWeb
