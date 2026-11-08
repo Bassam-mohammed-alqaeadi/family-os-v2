@@ -26,6 +26,8 @@ jobs:
         run: python3 scripts/check-links.py
       - name: Verify REQ coverage
         run: python3 scripts/check-coverage.py
+      - name: Verify textual references
+        run: python3 scripts/check-refs.py
 
   server:
     name: Server build
