@@ -9,7 +9,7 @@
 
 ## 1. حالات الاستخدام
 
-13 حالة استخدام من السيناريوهات السبعة والمتطلبات (§2/§3): الأب ينشئ القواعد والجداول ويرتب الأنواع ويفعّل الوضع الحر؛ والبالغ المفوَّض يدير القواعد حسب القالب (حذف القاعدة وإعادة الترتيب قابلان للتفويض — Q-146)؛ والوضع الحر للمالك وحده (Q-143)؛ والطفل والمراهق يفتحان التطبيقات ويطلبان وقتاً إضافياً دون اتصال؛ وأي محاولة تعطيل تتضمن تنبيهاً فورياً وإعادة تفعيل. والتسليم إلى S1-05 (دورة النقاط) وS1-09 (البطاقات والتنبيهات) ممثلان كجهات خارجية.
+16 حالة استخدام من السيناريوهات الثمانية والمتطلبات (§2/§3): الأب ينشئ القواعد والجداول ويرتب الأنواع ويفعّل الوضع الحر؛ والبالغ المفوَّض يدير القواعد حسب القالب (حذف القاعدة وإعادة الترتيب قابلان للتفويض — Q-146)؛ والوضع الحر للمالك وحده (Q-143)؛ والطفل والمراهق يفتحان التطبيقات ويطلبان وقتاً إضافياً دون اتصال؛ وأي محاولة تعطيل تتضمن تنبيهاً فورياً وإعادة تفعيل. والتسليم إلى S1-05 (دورة النقاط) وS1-09 (البطاقات والتنبيهات) ممثلان كجهات خارجية.
 
 ```mermaid
 flowchart LR
@@ -37,6 +37,9 @@ flowchart LR
         UC11(تطبيق إعداد مسبق)
         UC12(عرض أحداث العبث)
         UC13(مراجعة تدقيق الحماية)
+        UC14(ضبط قواعد تصفية الويب لطفل)
+        UC15(تجاوز نطاقات التصفية)
+        UC16(مراجعة قواعد التصفية — بلوغ 13 سنة / استبدال جهاز)
     end
 
     Father --> UC1
@@ -47,6 +50,12 @@ flowchart LR
     Father --> UC11
     Father --> UC12
     Father --> UC13
+    Father --> UC14
+    Father --> UC15
+    Father --> UC16
+    Adult --> UC14
+    Adult --> UC15
+    Server -->|"زرع الافتراضيات عند الإقران (REQ-031)"| UC14
     Adult --> UC1
     Adult --> UC2
     Adult --> UC3
@@ -63,7 +72,6 @@ flowchart LR
     Kotlin --> UC6
     Kotlin --> UC9
     Kotlin --> UC10
-    Server --> UC1
     UC6 -.->|عند الحظر| UC7
     UC7 --> S105
     UC9 --> UC12
@@ -73,10 +81,11 @@ flowchart LR
 ```
 
 - ملاحظة: حذف القاعدة (`protection.rule.delete`) وإعادة ترتيب الأنواع (`protection.priority.edit`) **قابلان للتفويض حسب القالب** (Q-146) — لذلك يظهر البالغ في UC1 وUC3. والوضع الحر (`protection.free_mode.activate`) **للمالك وحده** (Q-143) — لذلك لا يظهر البالغ في UC4. وزر SOS لا يظهر هنا لأنه ملك S1-01/S1-07 ولا يُحظر أبداً بأي قاعدة (Q-067).
+- قواعد تصفية الويب (UC14/UC15 — REQ-028/029/030 — Q-343): التحرير للمالك وحده (`protection.filter.edit`)، والعرض للأب + البالغ المفوَّض حسب القالب (`protection.filter.view`)؛ ومراجعة بلوغ 13 سنة واستبدال الجهاز (UC16 — REQ-027 — S10-14) للمالك.
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الثمانية من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: كل الجداول الثمانية جداول عائلة تحمل `family_id` + عزل RLS (D-021) — ولا جداول سجل عالمية في هذا النظام. وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `text` (مفردات ERD الموحدة Q-177 — النوع الحقيقي `jsonb` في §5) — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5. ولا علاقة مفاتيح بين `granted_time` وأي جدول هنا — الوقت الممنوح من S1-05 يدخل في "الإضافي" لصيغة المتبقي (REQ-002: المتبقي = الحصة + الإضافي − المستهلك) عبر محرك التقييم (DFD: S105→P4)؛ وحقل `remaining_by_app` في `enforcement_state` لقطة محسوبة للمتبقي لا علاقة تخزين.
+الجداول العشرة من §5 كما هي، مع أربعة مراجع خارجية: العائلة (S1-02)، والعضوية (S1-02)، والوقت الممنوح (S1-05)، و`AuditEvent` (النواة المشتركة). ملاحظات: تسعة من الجداول العشرة جداول عائلة تحمل `family_id` + عزل RLS (D-021)؛ والاستثناء الوحيد `web_category` — قاموس منصة ثابت بلا بيانات عائلة (لا `family_id` ولا RLS — Q-343). وحقول jsonb (`windows` و`order` و`remaining_by_app`) تُرسم `text` (مفردات ERD الموحدة Q-177 — النوع الحقيقي `jsonb` في §5) — كما في مخططات S1-05. وحقل `minutes_by_weekday` هو `int[7]` — الفهرس 0 = الأحد، 1 = الاثنين، 2 = الثلاثاء، 3 = الأربعاء، 4 = الخميس، 5 = الجمعة، 6 = السبت؛ وكل قيمة 0–1440. و`rule_priority.child_id` فارغ = ترتيب العائلة الافتراضي؛ وصف الطفل تجاوز اختياري عنه (REQ-011). و`enforcement_state` مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). ومخازن العميل (مرآة Drift للقواعد والجدول والترتيب والقناع + Outbox) ليست جداول خادم — انظر §5. ولا علاقة مفاتيح بين `granted_time` وأي جدول هنا — الوقت الممنوح من S1-05 يدخل في "الإضافي" لصيغة المتبقي (REQ-002: المتبقي = الحصة + الإضافي − المستهلك) عبر محرك التقييم (DFD: S105→P4)؛ وحقل `remaining_by_app` في `enforcement_state` لقطة محسوبة للمتبقي لا علاقة تخزين.
 
 ```mermaid
 erDiagram
@@ -102,6 +111,10 @@ erDiagram
     rule_priority ||--o{ AuditEvent : "تغييراته تُسجَّل"
     free_mode_session ||--o{ AuditEvent : "تفعيله وانتهاؤه يُسجَّلان"
     tamper_event ||--o{ AuditEvent : "كل حدث يُسجَّل"
+    family ||--o{ web_filter_rule : "له قواعد تصفية"
+    membership ||--o{ web_filter_rule : "قواعد تصفية طفل"
+    web_filter_rule }o--|| web_category : "قاعدة فئة"
+    web_filter_rule ||--o{ AuditEvent : "تغييراتها تُسجَّل"
 
     app_rule {
         uuid rule_id PK
@@ -184,6 +197,22 @@ erDiagram
         timestamptz resolved_at
         boolean notified
     }
+    web_category {
+        int category_id PK
+        text key
+        text label_ar
+    }
+    web_filter_rule {
+        uuid rule_id PK
+        uuid family_id FK
+        uuid child_id FK
+        int category_id
+        text action
+        text settings
+        int version
+        text updated_by
+        timestamptz updated_at
+    }
     family {
         uuid id PK
     }
@@ -202,7 +231,7 @@ erDiagram
 
 تسعة مخططات، كل واحد لتدفق واحد:
 - **عقد MQTT (Q-168 — الإحالة الصريحة إلى `docs/family-os/governance/architecture/MQTT-BROKER-SPEC.md`):** الوسيط Eclipse Mosquitto 2.x — عقدة واحدة في المرحلة 1 — TLS 1.2+ على المنفذ 8883 + mTLS (شهادة خادم + شهادة جهاز)؛ والأوامر (`family/{family_id}/devices/{device_id}/commands` / `family/{family_id}/protection/rules-updated` / `family/{family_id}/protection/free-mode`) QoS 1 + إقرار تطبيقي إلزامي؛ والعبث (`family/{family_id}/protection/tamper`) QoS 1؛ والحالة الدورية (`family/{family_id}/device/{device_id}/state`) QoS 0 + محفوظة؛ وبلا QoS 2 — التكرار يُغطيه `command_id`؛ وكل أمر يحمل `command_id` (idempotency)؛ والجلسة دائمة (clean session = false)؛ وlast will على `family/{family_id}/devices/{device_id}/status` = `offline`.
-- **قنوات المنصة (§4-1 — `MethodChannel("familyos/enforcement")` و`EventChannel("familyos/enforcement/events")`):** الطرق الخمس الجديدة: `applySchedule(schedule: WeeklySchedule) -> void` (دفع الجدول الأسبوعي) · `applyPriority(order: List<RuleType>) -> void` (دفع ترتيب الأنواع) · `getEnforcementState() -> EnforcementState` (حالة الفرض للعرض) · `activateFreeMode(until: timestamp) -> void` (تفعيل الوضع الحر) · `evaluateNow() -> EnforcementDecision` (تقييم فوري عند فتح تطبيق)؛ والأحداث: `enforcement_state` (موروثة) + `rule_blocked` و`tamper_detected` و`free_mode_changed`.
+- **قنوات المنصة (§4-1 — `MethodChannel("familyos/enforcement")` و`EventChannel("familyos/enforcement/events")`):** الطرق الست الجديدة: `applySchedule(schedule: WeeklySchedule) -> void` (دفع الجدول الأسبوعي) · `applyPriority(order: List<RuleType>) -> void` (دفع ترتيب الأنواع) · `getEnforcementState() -> EnforcementState` (حالة الفرض للعرض) · `activateFreeMode(until: timestamp) -> void` (تفعيل الوضع الحر) · `evaluateNow() -> EnforcementDecision` (تقييم فوري عند فتح تطبيق) · `applyWebFilterRules(rules: WebFilterRules) -> void` (دفع قواعد تصفية الويب إلى VPN QProxy — REQ-028/029/030)؛ والأحداث: `enforcement_state` (موروثة) + `rule_blocked` و`tamper_detected` و`free_mode_changed`.
 
 ### 3-أ. إنشاء قاعدة تطبيق + دفع عبر MQTT (REQ-001/026 — §4-2 + §4-3)
 
@@ -464,7 +493,27 @@ sequenceDiagram
     end
 ```
 
-## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
+### 3-ي. حفظ قواعد تصفية الويب + دفع إلى VPN QProxy (REQ-028/029/030/031 — Q-343)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Father as الأب
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant K as وحدة Kotlin (VPN QProxy)
+    Father->>App: ضبط إجراء pornography على BLOCK وgambling على BLOCK وsocialNetwork على ALERT (S10-15)
+    App->>Ktor: PUT /api/v1/families/{id}/children/{childId}/web-filter-rules {categories, domains, flags} — protection.filter.edit
+    Ktor->>Ktor: تحقق: معرّف فئة غير معروف → 400 INVALID_WEB_FILTER — لا يُخزَّن شيء
+    Ktor->>Ktor: حفظ القواعد + تسجيل التغيير في AuditEvent
+    Ktor->>K: family/{family_id}/protection/rules-updated (MQTT — QoS 1)
+    K->>K: applyWebFilterRules(rules) — تطبيق فوري على مسار التصفية (VPN QProxy)
+    K-->>Ktor: إقرار (ack) < 5 ثوانٍ (Q-061)
+```
+
+- تجاوز النطاق يفوز على إجراء الفئة (REQ-029)؛ والطفل المقترن حديثاً تُزرع قواعده بالافتراضيات قبل أي إجراء من الأب (REQ-031).
+
+## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثمانية (§2)
 
 ```mermaid
 flowchart TD
@@ -477,6 +526,16 @@ flowchart TD
     FAct -->|ترتيب| FOrd[إعادة ترتيب أنواع القواعد — مع معاينة النتيجة بلغة صريحة قبل الحفظ]
     FOrd --> FSave
     FAct -->|وضع حر| FFree[تفعيل وضع حر — المالك وحده + مدة محددة]
+    FAct -->|تصفية ويب| FWeb["ضبط قواعد تصفية الويب لطفل (S10-15) — الفئات الثلاثون + الأعلام الخمسة"]
+    FWeb --> FWebVal{معرّف فئة غير معروف؟}
+    FWebVal -->|نعم| FWebRej[رفض 400 INVALID_WEB_FILTER — لا يُخزَّن شيء]
+    FWebRej --> FWeb
+    FWebVal -->|لا| FWebSave[حفظ + تدقيق + دفع MQTT]
+    FWebSave --> FWebApply[VPN QProxy يطبق القواعد فوراً عبر applyWebFilterRules]
+    RStart([بلوغ الطفل 13 سنة أو استبدال جهازه]) --> RNotify["إشعار الأب لمراجعة قواعد التصفية (S10-14 — REQ-027)"]
+    RNotify --> RReview{الأب يراجع القواعد؟}
+    RReview -->|نعم| FWeb
+    RReview -->|لا| RKeep[القواعد تبقى سارية كما هي]
     FFree --> FFreeSave["إنشاء جلسة وضع حر + تدقيق + دفع family/{family_id}/protection/free-mode MQTT — تعليق كل القواعد، بلا بناء قناع"]
     FSave --> Sync[الجهاز يبني القناع اليومي]
     Sync --> COpen([الطفل يفتح تطبيقاً])
@@ -513,9 +572,9 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–8.0، والمخازن D1–D8 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً: دراسة/نوم عبر P1+P2 (كل قواعدها أو لا شيء)؛ والحر عبر P5/D6 (إنشاء جلسة — لا قواعد ولا بناء قناع). وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
+العمليات مرقمة 1.0–9.0، والمخازن D1–D10 جداول خادم (PostgreSQL)، والمخزنان L1–L2 مخازن عميل على جهاز الطفل (Drift/Outbox — محلية، ليست جداول خادم). و`enforcement_state` (D4) مرآة خادمية لحالة الجهاز — وتقييم الجهاز المحلي هو المرجع دون اتصال (REQ-025). والإعدادات المسبقة (REQ-024) تُطبَّق ذرّياً: دراسة/نوم عبر P1+P2 (كل قواعدها أو لا شيء)؛ والحر عبر P5/D6 (إنشاء جلسة — لا قواعد ولا بناء قناع). وصيغة المتبقي (REQ-002): المتبقي = الحصة + الإضافي − المستهلك؛ والحصة من `daily_total_quota.minutes_by_weekday` ليوم الأسبوع، والإضافي هو الوقت الممنوح/المصروف من S1-05 (`granted_time`)، والمستهلك من `app_usage_daily.seconds_used`. ولا حافة D5→P4: المستهلك في الصيغة هو `seconds_used` نفسه، لكنه يُحسب على الجهاز محلياً (نبضة خصم كل 60 ثانية) ولا يُقرأ من D5؛ وD5 مرآة خادمية يكتب فيها P7 فقط (مزامنة upsert — REQ-016) (Q-188).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `GET .../tamper-events` و`POST .../tamper-events/{eventId}/resolve` (يقرآن/يكتبان D7 عبر Ktor — S10-11 · 3-و) · `POST .../mode-presets/{preset}` (دراسة/نوم عبر P1+P2 ذرّياً، والحر عبر P5/D6 — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET/POST/PATCH/DELETE .../app-rules` (3-أ · P1) · `GET/PUT .../weekly-schedule` (3-ب · P2) · `GET/PUT .../rule-priority` (3-ج · P3) · `GET/PUT .../daily-total-quota` (P8 · D8) · `GET/PUT .../web-filter-rules` (3-ي · P9 · D9/D10) · `POST .../free-mode` و`POST .../free-mode/cancel` (3-هـ · P5) · `GET .../enforcement-state` (P4 · D4) · `GET .../tamper-events` و`POST .../tamper-events/{eventId}/resolve` (يقرآن/يكتبان D7 عبر Ktor — S10-11 · 3-و) · `POST .../mode-presets/{preset}` (دراسة/نوم عبر P1+P2 ذرّياً، والحر عبر P5/D6 — 3-ط) · `GET .../audit/protection` (التدفقات إلى AuditEvent). و§4-1 (قناة المنصة) و§4-3 (أحداث MQTT) خارج هذه الملاحظة. وهذه الملاحظة مرجع لنقاط §4 (بلا رسم كل نقطة في تسلسل).
 
 ```mermaid
 flowchart LR
@@ -534,6 +593,7 @@ flowchart LR
         P6(6.0 كشف العبث وإعادة التفعيل)
         P7(7.0 مزامنة دون اتصال)
         P8(8.0 إدارة الحصة الإجمالية اليومية)
+        P9(9.0 إدارة قواعد تصفية الويب)
     end
 
     subgraph ServerStores [مخازن الخادم — PostgreSQL]
@@ -545,6 +605,8 @@ flowchart LR
         D6[(D6 free_mode_session)]
         D7[(D7 tamper_event)]
         D8[(D8 daily_total_quota)]
+        D9[(D9 web_category)]
+        D10[(D10 web_filter_rule)]
     end
 
     subgraph ClientStores [مخازن العميل — على جهاز الطفل]
@@ -568,6 +630,10 @@ flowchart LR
     Father -->|"تعيين الحصة (الأب وحده — Q-184)"| P8
     P8 -->|حفظ الحصة| D8
     P8 -->|"family/{family_id}/protection/rules-updated — QoS 1"| MQTT
+    Father -->|ضبط قواعد تصفية الويب لطفل| P9
+    D9 -->|الفئات الثلاثون بمعرفاتها| P9
+    P9 -->|حفظ القواعد| D10
+    P9 -->|"family/{family_id}/protection/rules-updated — QoS 1"| MQTT
     Father -->|تفعيل أو إلغاء وضع حر| P5
     P5 -->|حفظ الجلسة| D6
     P5 -->|"family/{family_id}/protection/free-mode — QoS 1"| MQTT
@@ -598,6 +664,7 @@ flowchart LR
     P3 -->|تسجيل التغيير| Audit
     P5 -->|تسجيل التفعيل والانتهاء والإلغاء المبكر| Audit
     P6 -->|تسجيل العبث| Audit
+    P9 -->|تسجيل التغيير| Audit
     Audit -->|"نشر ملخص الحدث — family/{family_id}/protection/audit — QoS 1"| MQTT
     MQTT -->|"ملخص حدث التدقيق إلى كل أجهزة الأهل (REQ-026)"| Father
 ```
