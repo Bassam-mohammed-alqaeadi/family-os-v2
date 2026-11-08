@@ -131,7 +131,7 @@ erDiagram
     }
     task_category {
         uuid category_id PK
-        uuid family_id FK (NULL = فئة عامة افتراضية)
+        uuid family_id FK "NULL = فئة عامة افتراضية"
         text name_ar
         text color
         text emoji
@@ -146,7 +146,7 @@ erDiagram
         timestamptz end_time
         boolean is_all_day
         text rrule
-        uuid attendee_member_id FK (NULL = كل العائلة)
+        uuid attendee_member_id FK "NULL = كل العائلة"
         int reminder_minutes
         uuid created_by FK
         timestamptz created_at
