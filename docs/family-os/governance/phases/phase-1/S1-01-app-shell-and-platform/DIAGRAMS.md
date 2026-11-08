@@ -9,7 +9,7 @@
 
 ## 1. حالات الاستخدام
 
-13 حالة استخدام من السيناريوهات الأربعة والمتطلبات (§2/§3): الأب والبالغ يفتحان اللوحة، كل الأدوار تضغط SOS، الطفل والمراهق يعملان دون اتصال، وأي إجراء مقيّد على جهاز طفل يتضمن بوابة PIN. والتسليم لنظام الموقع (S1-07) والإقران (S1-02) ممثلان كجهات خارجية؛ وتقييم القواعد والجداول الأسبوعية ملك نظام الحماية والفرض S1-10 (REQ-003 · Q-141).
+17 حالة استخدام من السيناريوهات التسعة والمتطلبات (§2/§3): الأب والبالغ يفتحان اللوحة، كل الأدوار تضغط SOS، الطفل والمراهق يعملان دون اتصال، وأي إجراء مقيّد على جهاز طفل يتضمن بوابة PIN. والتسليم لنظام الموقع (S1-07) والإقران (S1-02) ممثلان كجهات خارجية؛ وتقييم القواعد والجداول الأسبوعية ملك نظام الحماية والفرض S1-10 (REQ-003 · Q-141).
 
 ```mermaid
 flowchart LR
@@ -17,10 +17,9 @@ flowchart LR
     Adult([البالغ])
     Teen([المراهق])
     Child([الطفل])
-    Kotlin([وحدة Kotlin للفرض])
-    Server([خادم Ktor])
     S102([نظام الهوية S1-02])
     S107([نظام الموقع S1-07])
+    S110([نظام الحماية S1-10])
 
     subgraph S101 ["S1-01: غلاف التطبيق والمنصة — تطبيق واحد بوضعين (REQ-001)"]
         direction TB
@@ -37,6 +36,10 @@ flowchart LR
         UC11(تفريغ طابور Outbox)
         UC12(مراقبة صحة المنصة)
         UC13(تسليم حدث SOS)
+        UC14(خطاف عقد بوابة الذكاء)
+        UC15(تحديث التطبيق والحد الأدنى للإصدار)
+        UC16(الترجمة عربي/إنجليزي وRTL)
+        UC17(توصيل أمر الأب + الإقرار)
     end
 
     Father --> UC1
@@ -44,21 +47,45 @@ flowchart LR
     Father --> UC3
     Father --> UC7
     Father --> UC8
+    Father --> UC12
+    Father --> UC14
+    Father --> UC15
+    Father --> UC16
+    Father --> UC17
     Adult --> UC1
     Adult --> UC3
+    Adult --> UC12
     Teen --> UC3
     Teen --> UC4
+    Teen --> UC11
+    Teen --> UC16
     Child --> UC3
     Child --> UC4
     Child --> UC5
+    Child --> UC11
+    Child --> UC15
+    Child --> UC16
     UC5 -.->|يتضمن| UC6
     S102 --> UC9
-    Kotlin --> UC10
-    Kotlin --> UC12
-    Server --> UC11
+    S110 --> UC10
     UC3 --> UC13
     UC13 --> S107
 ```
+
+- متطلبات بلا حالة استخدام مستقلة (مغطاة بتدفق أو قيد):
+
+| المتطلب | لماذا بلا حالة استخدام مستقلة |
+|---|---|
+| REQ-003 | مكوّن داخلي (وحدة Kotlin) — لا هدف مستخدم مستقل |
+| REQ-010 | سلوك عابر (وضع النطاق المنخفض) — يُمارَس في تدفق §4 |
+| REQ-012 | سلوك نظامي (أعلام الميزات) — يُمارَس في 3-أ |
+| REQ-015 | عنصر عرض عابر (الإشعار الدائم) — يُمارَس في تدفق §4 |
+| REQ-016 | قيد بناء (بلا إعلانات/تتبع) — لا تدفق مستخدم |
+| REQ-018 | رفض تبديل الوضع — يُمارَس في تدفق §4 |
+| REQ-019 | قيد منصة (طريق iOS محفوظ) — لا تدفق مستخدم |
+| REQ-023 | جزء من تدفق الإجراء المقيّد (UC5/UC6) — إثبات التحدي خلف البوابة |
+
+- كل REQ من REQ-001 إلى REQ-023 مغطى إما بحالة استخدام أو بالجدول أعلاه؛ بلا REQ بلا تغطية.
 
 - ملاحظة طريق iOS (REQ-019 · Q-005/Q-068): واجهة Flutter مشتركة للوضعين؛ وحدة الفرض Kotlin أندرويد فقط — التحكم العميق أندرويد فقط لقيد Apple؛ فعلى iOS لا توجد وحدة فرض Kotlin ولا خدمة خلفية دائمة للفرض.
 
@@ -71,9 +98,8 @@ flowchart LR
 ```mermaid
 erDiagram
     family ||--o{ device_mode : "له أجهزة"
-    family ||--|| parent_gate : "له بوابة"
     family ||--o{ feature_flag : "له أعلام"
-    family }o--|| country_profile : "يتبع ملف منطقة"
+    device_mode ||--|| parent_gate : "بوابة الجهاز"
     device_mode ||--o{ outbox_event : "يسجل أحداثاً"
     parent_gate ||--o{ AuditEvent : "محاولاته تُسجَّل"
     shell_registry }o--|| permission_key : "سجل الصلاحيات يرجع إلى"
@@ -81,10 +107,12 @@ erDiagram
     device_mode {
         uuid id PK
         uuid family_id FK
-        uuid device_id
+        uuid device_id UK
         text mode
         timestamptz paired_at
-        text paired_by
+        uuid paired_by FK
+        text push_token
+        text push_provider
     }
     parent_gate {
         uuid id PK
@@ -125,14 +153,14 @@ erDiagram
         text payment_routes
     }
     shell_registry {
-        text registry
-        text key
+        text registry PK
+        text key PK
         text metadata
     }
     notification_registry {
-        text kind
-        text channel
-        text owner_system
+        text kind PK
+        text channel PK
+        text owner_system PK
     }
     family {
         uuid id PK
@@ -144,6 +172,8 @@ erDiagram
         uuid id PK
     }
 ```
+
+- ملاحظات ERD: `parent_gate` مخزن محلي على الجهاز بلا علاقة خادمية — علاقته `device_mode ||--|| parent_gate` («بوابة الجهاز»)؛ و`family_id` فيه حقل محلي منسوخ لا علاقة خادم (Q-142). و`country_profile` مرجع بحث بالمنطقة (`family.region = country_profile.region`) بلا مفتاح أجنبي. والمفاتيح المركبة: `shell_registry` بمفتاح (`registry`, `key`)؛ و`notification_registry` بمفتاح (`kind`, `channel`, `owner_system`). و`paired_by` معرّف شخص (uuid — FK إلى `person`)؛ و`device_mode.device_id` فريد (UK) — جهاز واحد = صف وضع واحد.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
@@ -161,16 +191,30 @@ sequenceDiagram
     Father->>Shell: فتح التطبيق
     Shell->>Store: قراءة device_mode (الوضع)
     Store-->>Shell: mode = parent
-    Shell->>Ktor: GET /api/v1/families/{id}/shell/config
-    Ktor-->>Shell: ShellConfig {region, planFlags, featureFlags}
-    Shell->>Ktor: GET /api/v1/shell/registries/control
-    Ktor-->>Shell: قائمة المفاتيح المسجلة
-    Note over Shell,Ktor: control إحدى القيم الأربع لـ registry — control / permission / widget / notification (تثبيت §4)
-    Shell->>Store: حفظ الإعداد محلياً
+    alt دون اتصال
+        Shell->>Store: قراءة الإعداد + السجلات المحفوظة (نسخ محلية)
+        Store-->>Shell: الإعداد + السجلات المحفوظة
+    else متصل
+        Shell->>Ktor: GET /api/v1/families/{id}/shell/config
+        alt فشل جلب الإعداد
+            Ktor-->>Shell: خطأ — استخدام النسخة المحلية المحفوظة
+            Shell->>Store: قراءة الإعداد المحفوظ
+        else نجاح
+            Ktor-->>Shell: ShellConfig {region, planFlags, featureFlags}
+            Shell->>Store: حفظ الإعداد محلياً
+        end
+        loop السجلات الأربعة — control / permission / widget / notification
+            Shell->>Ktor: GET /api/v1/shell/registries/{registry}
+            Ktor-->>Shell: قائمة المفاتيح المسجلة
+        end
+        Shell->>Store: حفظ السجلات محلياً
+    end
     Shell->>Shell: تطبيق قوالب العرض + إخفاء ما خارج الخطة (REQ-004 · Q-007)
     Shell->>Shell: تطبيق اللغة — العربية افتراضياً + RTL — كل نصوص الواجهة من ملفات ترجمة، لا نصوص مثبتة في الكود (REQ-021 · Q-070)
     Shell-->>Father: لوحة الأهل (إقلاع < 1.2s، قراءات p95 < 300ms)
 ```
+
+- السجلات الأربعة تُجلب بحلقة فوق القيم الأربع لـ `registry` (تثبيت §4)؛ ودون اتصال تُستخدم النسخ المحفوظة؛ والحقيقة `GET config` عند الاتصال.
 
 ### 3-ب. بوابة الوالدين (REQ-005/006 — §4.1 + §4.2)
 
@@ -189,7 +233,11 @@ sequenceDiagram
     alt PIN صحيح
         K-->>Shell: GateResult {granted}
         K->>Audit: AuditEvent — إثبات تحقق ناجح (يُسلَّم عبر Outbox عند عدم الاتصال)
-        Shell-->>Child: تنفيذ الإجراء
+        alt العملية حساسة — خروج / فك إقران / إلغاء تثبيت (REQ-006 أ/ب/ج)
+            Shell->>Shell: التفرع إلى 3-هـ — تحدي خادم قبل التنفيذ (REQ-023)
+        else فتح إعداد إداري للعرض فقط (REQ-006 د)
+            Shell-->>Child: تنفيذ الإجراء — بلا تحدي
+        end
     else PIN خاطئ (أقل من 5)
         K-->>Shell: GateResult {granted: false, attemptsLeft}
         Shell-->>Child: رفض + المحاولات المتبقية
@@ -201,7 +249,7 @@ sequenceDiagram
     end
 ```
 
-- التحقق من PIN **محلي فقط** (Q-142): hash الـ PIN محفوظ مشفراً على الجهاز وتتحقق منه وحدة Kotlin محلياً؛ والخادم يسجل إثبات التحقق + القفل فقط في التدقيق (عبر Outbox عند عدم الاتصال) ولا يستلم PIN ولا hashه أبداً. ونقطة التحقق الخادمي من PIN **محذوفة** — لا مكالمة Ktor في هذا التدفق. ولا سؤال حسابي في أي مسار (Q-065). وعند تعيين PIN جديد أو تغييره (UC7): 6 أرقام حداً أدنى، مع منع الأنماط الشائعة (123456، أرقام مكررة، سنوات الميلاد) (REQ-005 · Q-164). PIN فقط يفتح Parent Gate؛ البصمة تفتح مفتاح التوقيع بعدها (Q-244). **قاعدة الساعة (Q-236/D-18):** `locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال؛ وتُعاد تثبيت المرساة عند كل اتصال.
+- التحقق من PIN **محلي فقط** (Q-142): hash الـ PIN محفوظ مشفراً على الجهاز وتتحقق منه وحدة Kotlin محلياً؛ والخادم يسجل إثبات التحقق + القفل فقط في التدقيق (عبر Outbox عند عدم الاتصال) ولا يستلم PIN ولا hashه أبداً. ونقطة التحقق الخادمي من PIN **محذوفة** — لا مكالمة Ktor للتحقق من PIN في هذا التدفق. **لكن العمليات الحساسة (تعداد REQ-006) تتفرع بعد فتح البوابة إلى 3-هـ:** الخادم يصدر تحدياً يوقّعه الجهاز قبل التنفيذ (REQ-023) — ففتح الإعداد الإداري للعرض بلا تحدي، وأي كتابة خادمية داخله تتحدى كمفتاح العملية نفسها. ولا سؤال حسابي في أي مسار (Q-065). وعند تعيين PIN جديد أو تغييره (UC7): 6 أرقام حداً أدنى، مع منع الأنماط الشائعة (123456، أرقام مكررة، سنوات الميلاد) (REQ-005 · Q-164). PIN فقط يفتح Parent Gate؛ البصمة تفتح مفتاح التوقيع بعدها (Q-244). **قاعدة الساعة (Q-236/D-18):** `locked_until` انتهاء صادر من الخادم عند الاتصال، ومنقضٍ رتيب (monotonic) دون اتصال؛ وتُعاد تثبيت المرساة عند كل اتصال.
 
 ### 3-ج. تفريغ طابور Outbox (REQ-009 — §4.2)
 
@@ -323,18 +371,19 @@ sequenceDiagram
     Note over Father,Agent: توصيل الأمر + الإقرار < 5 ثوانٍ؛ إعادة المحاولة بتراجع أسّي (REQ-022 · Q-061)
 ```
 
-## 4. تدفق المستخدم (User Flow) — من السيناريوهات الأربعة (§2)
+## 4. تدفق المستخدم (User Flow) — من السيناريوهات التسعة (§2)
 
 ```mermaid
 flowchart TD
     Start([فتح التطبيق — إقلاع بارد < 1.2s]) --> Read[قراءة وضع الجهاز من device_mode]
-    Read --> LowBW{"وضع النطاق المنخفض — اليمن (Q-064 · REQ-010)؟"}
+    Read --> Config[تحميل الإعداد: region + planFlags + featureFlags — دون اتصال: من النسخة المحفوظة]
+    Config --> LowBW{"وضع النطاق المنخفض — اليمن (Q-064 · REQ-010)؟"}
     LowBW -->|نعم| Compress["استجابات مضغوطة Brotli/Gzip + لا تحديثات تلقائية + مزامنة يدوية/مجدولة + قنوات OTP بديلة (Q-021)"]
     Compress --> Mode{الوضع؟}
     LowBW -->|لا| Mode
-    Mode -->|أهل| Config[تحميل الإعداد: region + planFlags + featureFlags]
-    Config --> Render[عرض لوحة الأهل بقالب الدور]
-    Render --> Hide[إخفاء الميزات خارج الخطة]
+    Mode -->|أهل| Render[عرض لوحة الأهل بقالب الدور]
+    Render --> SOSp[زر SOS دائم فوق كل الشاشات — في الوضعين]
+    SOSp --> Hide[إخفاء الميزات خارج الخطة]
     Hide --> Ready[جاهز — قراءات p95 < 300ms]
     Mode -->|طفل| Child[وضع الطفل: فرض + خدمة خلفية]
     Child --> Notif["إشعار دائم: معلومات نافعة — الوقت المتبقي — لا عبارة رقابية (REQ-015 · G-006)"]
@@ -365,7 +414,7 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–7.0، والمخازن D1–D6. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد — **عدا D2 (`parent_gate`) فهو مخزن محلي على الجهاز (Q-142)**: hash الـ PIN مشفر على الجهاز ولا يغادر الجهاز أبداً، والخادم يسجل إثبات التحقق + القفل فقط عبر Outbox. ووضع النطاق المنخفض (Q-064 · REQ-010): الاستجابات مضغوطة Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية/مجدولة (P4).
+العمليات مرقمة 1.0–7.0، والمخازن D1–D7. المخزن D4 محلي على الجهاز (SQLite)؛ بقية المخازن جداول خادم (PostgreSQL) مع نسخة محفوظة محلياً للإعداد — **عدا D2 (`parent_gate`) فهو مخزن محلي على الجهاز (Q-142)**: hash الـ PIN مشفر على الجهاز ولا يغادر الجهاز أبداً، والخادم يسجل إثبات التحقق + القفل فقط عبر Outbox. ووضع النطاق المنخفض (Q-064 · REQ-010): الاستجابات مضغوطة Brotli/Gzip، ولا تحديثات تلقائية، والمزامنة يدوية/مجدولة (P4). و`notification_registry` (D7) سجل عالمي مستقل لقنوات التنبيه — لا عرض فوق `shell_registry` — وتقرأه P2. وD3 نسخة محلية محفوظة من الأعلام — والحقيقة `GET config` (§4.2). ولا حافة P6→Outbox: SOS دون اتصال يُسلَّم لـ S1-07 داخل الجهاز (Q-234)؛ وOutbox ليس نقلاً بديلاً لـ SOS. وP3 يطلب التحدي الخادمي للعمليات الحساسة فقط (تعداد REQ-006)؛ وفتح الإعداد الإداري للعرض بلا تحدي.
 
 - **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/shell/config` (3-أ) · `GET /api/v1/shell/registries/{registry}` (3-أ) · `POST /api/v1/shell/outbox/flush` (3-ج) · `POST /api/v1/shell/verification/challenge` (3-هـ) · `POST /api/v1/shell/verification/prove` (3-هـ) · `POST /api/v1/shell/push/register` (§4.4 — استدعاء واحد عند تسجيل الدخول/الإقران، بلا تسلسل مستقل) · أوامر MQTT `family/{family_id}/devices/{device_id}/commands` + الإقرار على `family/{family_id}/devices/{device_id}/acks` (3-ح · P7). ونقطة التحقق الخادمي من PIN **محذوفة** per Q-142 — التحقق من PIN محلي فقط (P3 ← D2).
 
@@ -394,6 +443,7 @@ flowchart LR
         D4[(D4 outbox_event — محلي)]
         D5[(D5 country_profile)]
         D6[(D6 shell_registry)]
+        D7[(D7 notification_registry)]
     end
 
     Ktor([خادم Ktor])
@@ -404,14 +454,16 @@ flowchart LR
     P1 -->|حفظ وضع الجهاز| D1
     D1 -->|الوضع + القالب| P2
     Father -->|فتح اللوحة| P2
-    P2 -->|قراءة الأعلام| D3
+    P2 -->|حفظ الأعلام من GET config — الحقيقة الخادم| D3
+    D3 -->|الأعلام المحفوظة| P2
     P2 -->|قراءة المنطقة| D5
     P2 -->|قراءة السجلات| D6
+    P2 -->|قراءة قنوات التنبيه| D7
     P2 -->|لوحة الأهل| Father
     Child -->|محاولة إجراء مقيّد| P3
     P3 -->|التحقق محلياً من pin_hash المشفر| D2
     D2 -->|النتيجة + المحاولات| P3
-    P3 -->|POST /api/v1/shell/verification/challenge| Ktor
+    P3 -->|"POST /api/v1/shell/verification/challenge — للعمليات الحساسة فقط (REQ-006 أ/ب/ج)"| Ktor
     Ktor -->|"{challenge_id, nonce} — 5 دقائق"| P3
     P3 -->|"POST /api/v1/shell/verification/prove {signature}"| Ktor
     Ktor -->|"{verified}"| P3
@@ -458,6 +510,7 @@ flowchart LR
         S7[تنفيذ الإجراء / رفض + عدّاد]
         S8[تسليم SOS لنظام الموقع]
         S9[حفظ حالة الواجهة فوراً]
+        S10{العملية حساسة؟ — تعداد REQ-006}
     end
     subgraph Kotlin [وحدة Kotlin]
         direction TB
@@ -487,9 +540,10 @@ flowchart LR
     U2 --> U3
     U3 --> S5
     S5 --> K4
-    K4 --> S6
+    K4 --> S10
+    S10 -->|حساسة — خروج / فك إقران / إلغاء تثبيت| V4
+    S10 -->|عرض إعداد إداري فقط| S6
     K4 -.->|إثبات التحقق + القفل يُحفظ في Outbox| V3
-    K4 --> V4
     V4 --> S6
     S6 -->|مقبول| S7
     S6 -->|مرفوض| S7
