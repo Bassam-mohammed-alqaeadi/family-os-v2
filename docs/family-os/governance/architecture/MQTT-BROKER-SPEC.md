@@ -15,6 +15,7 @@
 - **TLS 1.2 كحد أدنى (1.3 مفضل)**؛ و**mTLS**: شهادة خادم + شهادة جهاز عميل.
 - **بلا وصول مجهول**؛ و**بلا اشتراكات wildcard** للأجهزة (`#` و`+` مرفوضة من العميل).
 - الوسيط لا يصل إليه إلا الخادم والأجهزة المصرَّح لها؛ ولا وصول مباشر من الإنترنت العام إلا عبر 8883.
+- **مفتاح توقيع SOS (HMAC) لا يركب MQTT أبداً:** لا يُنقل في أي موضوع ولا يُخزَّن في الوسيط ولا يظهر في أي حمولة؛ والتحقق من التوقيع يتم في تطبيق الأب (S1-07 REQ-017)؛ وهوية المفتاح وتبادله وتخزينه وتدويره وإبطاله تُعرَّف في S1-02 §5 وS1-07 REQ-017 لا في مواصفة الوسيط (Q-163/Q-164 — مفتاح التوقيع ECDSA لا يُعاد استخدامه لـ HMAC).
 
 ## 3. المصادقة — شهادة الجهاز
 
@@ -33,7 +34,7 @@
 
 | الموضوع | الاتجاه | الغرض | النظام المالك |
 |---|---|---|---|
-| `family/{family_id}/devices/{device_id}/commands` | خادم → طفل | الأوامر (حظر/قاعدة/وضع حر) — QoS 1 + `command_id` + إقرار | S1-10 §4-3 |
+| `family/{family_id}/devices/{device_id}/commands` | خادم → طفل | الأوامر (حظر/قاعدة/وضع حر) — QoS 1 + `command_id` + إقرار (مخطط الحمولة + تعداد أنواع الأوامر: S1-10 §4-3) | S1-10 §4-3 |
 | `family/{family_id}/devices/{device_id}/acks` | طفل → خادم | إقرار تنفيذ أمر (`command_id` + النتيجة) — QoS 1 | S1-10 §4-3 |
 | `family/{family_id}/devices/{device_id}/status` | طفل → خادم | حالة الاتصال — محفوظة (retained) + last will = `offline` | S1-10 §4-3 |
 | `family/{family_id}/device/{device_id}/state` | طفل → خادم | حالة الفرض الدورية (S1-01 §4.3) — مفرد per Q-195 | S1-10 §4-3 |
@@ -48,13 +49,15 @@
 | `family/{family_id}/sos/resolved` | خادم/أب → الكل | حل SOS | S1-07 |
 | `family/{family_id}/location/updated` | خادم → الكل | الموقع الحي (ينشره الخادم بعد استلامه عبر REST) | S1-07 |
 | `family/{family_id}/alerts/new` | خادم → أهل | تنبيه جديد (ومنها إشعارات الاسترداد — Q-210) | S1-09 |
-| `family/{family_id}/tasks.submitted` · `tasks.completed` · `tasks.verification-revoked` | طفل/خادم → الكل | دورة المهام والتحقق | S1-05/S1-06 |
+| `family/{family_id}/tasks/submitted` · `tasks/completed` · `tasks/verification-revoked` | طفل/خادم → الكل | دورة المهام والتحقق | S1-05/S1-06 |
 | `family/{family_id}/time-request/new` · `time-request/decided` | طفل/أب → الكل | طلب وقت إضافي وقراره | S1-05 |
+| `family/{family_id}/time/granted` | خادم → طفل | دقائق ممنوحة (صرف/منح/قرار أب) تدخل في «الإضافي» لحساب المتبقي (S1-10 REQ-002) — محفوظة (retained) فيستلمها الجهاز دون اتصال عند إعادة الاتصال | S1-05 §4-2 |
 | `family/{family_id}/wallet/updated` | خادم → الكل | تغيّر رصيد المحفظة | S1-05 |
 | `family/{family_id}/chat/{channelId}/message` | خادم → الكل | رسالة جديدة (QoS 1) | S1-08 |
 | `family/{family_id}/chat/{channelId}/typing` | الكل ↔ الكل | مؤشر كتابة حي (QoS 1) | S1-08 |
 | `family/{family_id}/chat/{channelId}/deleted` | خادم → الكل | حذف رسالة (QoS 1) | S1-08 |
-| `family/{family_id}/dashboard/updated` · `calendar.event.reminder` · `billing/*` | خادم → أهل | لوحة الأهل والتذكير والفوترة | S1-09/S1-06/الفوترة |
+| `family/{family_id}/dashboard/updated` · `calendar/event/reminder` | خادم → أهل | لوحة الأهل والتذكير | S1-09/S1-06 |
+| `family/{family_id}/billing/subscription-changed` · `billing/quota-warning` · `billing/sub-grace-period` · `billing/sub-renewed` · `billing/quota-mirror` | خادم → الكل | الفوترة: تغيّرت الخطة / حصة على وشك النفاد / دخول فترة السماح / تم التجديد / لقطة مرآة الحصة المرجعية (Q-239) | الفوترة (S1-04 §4-2) |
 
 ## 6. QoS والاحتفاظ — جدول ملزم
 
@@ -63,9 +66,11 @@
 | الأوامر (`family/{family_id}/devices/{device_id}/commands` / `family/{family_id}/protection/rules-updated` / `family/{family_id}/protection/free-mode`) | 1 | لا | إلزامي (ack + `command_id`) |
 | لقطة المنح والقواعد (`family/{family_id}/permissions/sync`) | 1 | **نعم** (آخر لقطة عند إعادة الاتصال) | — |
 | SOS (`family/{family_id}/sos/new` + الإقرار) | 1 | لا | إلزامي + تصعيد (Q-163) |
-| العبث والتنبيهات (`family/{family_id}/protection/tamper` / `family/{family_id}/alerts/new`) | 1 | لا | — (Outbox عند الانقطاع) |
-| الأحداث (`tasks.*` / `wallet` / `time-request` / `chat`) | 1 | لا | — |
-| لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar.event.reminder` / `family/{family_id}/billing/*`) | 1 | لا | — |
+| العبث والتنبيهات (`family/{family_id}/protection/tamper` / `family/{family_id}/alerts/new`) | 1 | لا | — (صندوق صادر العميل على الجهاز عند الانقطاع — S1-01) |
+| الأحداث (`tasks/submitted` · `tasks/completed` · `tasks/verification-revoked` / `wallet/updated` / `time-request/new` · `time-request/decided` / `chat/...`) | 1 | لا | — |
+| المنح (`family/{family_id}/time/granted`) | 1 | **نعم** (آخر منح عند إعادة الاتصال) | — (محفوظ؛ الجهاز يقرأ آخر قيمة عند إعادة الاتصال) |
+| لوحة/تقويم/فوترة (`family/{family_id}/dashboard/updated` / `family/{family_id}/calendar/event/reminder` / `family/{family_id}/billing/subscription-changed` · `billing/quota-warning` · `billing/sub-grace-period` · `billing/sub-renewed`) | 1 | لا | — |
+| مرآة الحصة (`family/{family_id}/billing/quota-mirror`) | 1 | **نعم** (آخر لقطة عند إعادة الاتصال) | — |
 | الموقع الحي (`family/{family_id}/location/updated`) | 0 | لا | — (متكرر؛ والفقدان يُعوَّض بالتحديث التالي + سجل REST) |
 | حالة الجهاز الدورية (`family/{family_id}/device/{device_id}/state` — مفرد per Q-195) | 0 | **نعم** (آخر حالة) | — |
 | القياس والبطارية | 0 | لا | — |
@@ -77,7 +82,7 @@
 
 - جلسة **دائمة** لوكيل الطفل (`clean session = false`)؛ وkeepalive 60 ثانية.
 - إعادة اتصال بتراجع أسي (1 ثانية → 60 ثانية كحد أقصى).
-- عند إعادة الاتصال: تُرسل اللقطات المحفوظة (retained) تلقائياً؛ وتُعاد الأوامر غير المُقرة من Outbox.
+- عند إعادة الاتصال: تُرسل اللقطات المحفوظة (retained) تلقائياً؛ وتُعاد الأوامر غير المُقرة من صندوق الصادر الخادمي (ARCH §5.5 — لا صندوق صادر العميل).
 - **Last will** على `devices/{device_id}/status` = `offline` (QoS 1، محفوظة) — فيعرف الأب أن جهاز طفله انقطع.
 
 ## 8. الاحتياط
