@@ -1,7 +1,7 @@
 # S1-06: المهام والتقويم (Tasks & Calendar)
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-06
-- **القرارات الحاكمة:** Q-001 · Q-054 · Q-058 · Q-064 · Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · D-021 · G-011 · Q-183 · Q-167 · Q-007 · Q-280
+- **القرارات الحاكمة:** Q-001 · Q-054 · Q-058 · Q-064 · Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · D-021 · G-011 · Q-183 · Q-167 · Q-007 · Q-280 · Q-281
 - **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06) · §9 في مرحلة التصميم.
 - **الأدلة المرجعية:** المواصفة القديمة S1-06 (مرجع فقط، G-009) · FamilyWall (قوائم مشتركة + إسناد + RRULE + تذكير موحد) · Qustodio (حساب الأسبوع الدائري)
 
@@ -137,7 +137,7 @@ flowchart LR
 | `family/{family_id}/tasks.submitted` | 1 | لا | الخادم | S1-09 (بطاقة «يتطلب انتباهك») | `{event_id, task_id, occurrence_id, submitted_by, submitted_at, proof_ref?}` |
 | `family/{family_id}/tasks.completed` | 1 | لا | الخادم — نقل مزدوج (Q-209): الحدث الداخلي إلى S1-05 هو المرجع؛ وMQTT نسخة مرئية | S1-05 + الأجهزة التي تعرض حالة المهمة | `{event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}` |
 | `family/{family_id}/tasks.verification-revoked` | 1 | لا | الخادم — نقل مزدوج (Q-209): الحدث الداخلي إلى S1-05 هو المرجع؛ وMQTT نسخة مرئية | S1-05 | `{event_id, task_id, occurrence_id, revoked_by, at}` |
-| `family/{family_id}/calendar.event.reminder` | 1 | لا | الخادم | — (المشترك سؤال مفتوح R2-S106-15، B2 — يُسمى هنا كمستهلك لا كمالك) | `{event_id, calendar_event_id, reminder_id, remind_at}` |
+| `family/{family_id}/calendar.event.reminder` | 1 | لا | الخادم | صاحب الحدث (الطفل/المراهق) + الأب (كمراقب) — Q-281؛ لا أحد غيرهما | `{event_id, calendar_event_id, reminder_id, remind_at}` |
 
 - المصدر: الوسيط §6 — صف «الأحداث» وصف «لوحة/تقويم/فوترة»: QoS 1، Retained لا.
 - **النقل المزدوج (Q-209):** الخادم ينشر `tasks.completed` و`tasks.verification-revoked` على MQTT (QoS 1) بجانب الحدث الداخلي إلى S1-05 — والحدث الداخلي هو المرجع الذي تعتمده المحفظة؛ وMQTT نسخة مرئية للأجهزة والبطاقات؛ ويُزال التكرار بين النقلين بـ `event_id` (uuid لكل حدث) — فلا إيداع مزدوج إن وصل الحدث من النقلين معاً. والتسلسلات 3-ب/3-ج/3-د/3-ز ترسم الخطوتين معاً.
