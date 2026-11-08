@@ -249,6 +249,7 @@ sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
+    participant S101 as البوابة
     participant Ktor as الخادم
     participant Templates as القوالب
     participant Grants as المنح
@@ -257,7 +258,12 @@ sequenceDiagram
     App->>Ktor: GET /api/v1/families/{id}/templates — عرض القوالب ومفاتيحها
     Ktor-->>App: [{template_id, title_ar, keys}]
     Father->>App: تطبيق القالب
-    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants/apply-template {template_id}
+    alt القالب يحوي مفتاحاً حساساً — التحقق أولاً (Q-269)
+        App->>Ktor: POST /api/v1/shell/verification/challenge — تحدٍّ {challenge_id, nonce} — صلاحية 5 دقائق (Q-164)
+        App->>S101: طلب تحقق — PIN الأب أو بصمته (Q-088)
+        S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
+    end
+    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants/apply-template {template_id, valid_until, verification?}
     Ktor->>Templates: قراءة مفاتيح القالب (template_key + default_scope)
     Ktor->>Grants: نسخ مفاتيح القالب إلى منح العضو (valid_until يحدده الأب)
     Ktor->>Audit: تسجيل تطبيق القالب
@@ -724,6 +730,6 @@ flowchart LR
 
 - عند بلوغ الطفل 13 يتحول دوره تلقائياً وتُراجع منحُه غير الإشرافية ويُشعَر الأب (REQ-003) — المسار V5 إلى F1.
 - محاولة التصعيد المرفوضة (M3) تذهب إلى الرفض + التدقيق + تنبيه الأب (V11)؛ ومراجعة العضو تتم من التنبيه (V11 → F1) لا من عقدة التقييم.
-- المنح بلا شبكة لا يُنفَّذ محلياً: الخادم هو المرجع، ويُحفظ الطلب في صندوق الصادر ويُعاد عند عودة الاتصال (§7-12 — نمط S1-01). والمنح الحساس المحفوظ يُعاد بتحدٍّ جديد وبنفس `Idempotency-Key` — فلا نجاح على تحدٍّ ميت ولا تنفيذ مكرر (§7-12).
+- المنح بلا شبكة لا يُنفَّذ محلياً: الخادم هو المرجع، ويُحفظ طلب المنح غير الحساس في صندوق الصادر ويُعاد عند عودة الاتصال (§7-12 — نمط S1-01). **والمنح الحساس لا يُدرج في صندوق الصادر أبداً (Q-269):** محاولة منح حساس بلا اتصال تُرفض فوراً ولا تُعاد — فلا نجاح على تحدٍّ ميت ولا تنفيذ مكرر (§7-12).
 - الفحص اليومي للمنح القريبة من الانتهاء (V8) يصدر `family/{family_id}/permissions/grant-expiring` (عتبة 7 أيام — Q-227)؛ ويستهلكه S1-09 لتنبيهات `grant_expiring` (§4-2).
 - انتهاء نقل الملكية لا ينتظر قبولاً: الفحص اليومي (V9) يقلب المعلق المنتهي إلى `expired` ويُشعر الأب والمتلقي (§7-14 — Q-139).
