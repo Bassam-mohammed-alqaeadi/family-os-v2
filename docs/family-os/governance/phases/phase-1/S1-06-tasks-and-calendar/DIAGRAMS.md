@@ -34,7 +34,7 @@ flowchart LR
         UC7(رفض تسليم مع ملاحظات)
         UC8(إلغاء تحقق)
         UC9(إنشاء حدث تقويم)
-        UC10(عرض التقويم المزدوج هجري/ميلادي)
+        UC10(عرض التقويم المزدوج هجري/ميلادي — REQ-013)
         UC11(استلام تذكير حدث أو مهمة)
         UC12(إنشاء مهمة شخصية — مراهق)
         UC13(تسليم مهمة دون اتصال)
@@ -72,13 +72,13 @@ flowchart LR
     UC6 --> UC14
     UC14 --> S105
     UC4 --> S109
-    UC5 --> MinIO
+    MinIO --> UC5
     UC8 --> S105
     UC13 --> Server
     UC12 -.->|تسليم بلا نقاط Q-109| UC4
 ```
 
-- ملاحظة: إلغاء التحقق (UC8) للأب وحده (§6 `tasks.revoke`)، وإضافة الفئة (UC2) للأب وحده (§6 `tasks.category.create`) — البالغ المفوَّض لا يملكهما. والمهمة الشخصية للمراهق (UC12) تُسلَّم وتُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب (§7). وإلغاء المهمة (UC3) للأب لأي مهمة، وللمراهق لمهامه التي أنشأها بنفسه فقط (Q-253).
+- ملاحظة: إلغاء التحقق (UC8) للأب وحده (§6 `tasks.revoke`)، وإضافة الفئة (UC2) للأب وحده (§6 `tasks.category.create`) — البالغ المفوَّض لا يملكهما. والمهمة الشخصية للمراهق (UC12) تُسلَّم وتُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب (§7). وإلغاء المهمة (UC3) للأب لأي مهمة، وللمراهق لمهامه التي أنشأها بنفسه فقط (Q-253)؛ وإلغاء مهمة لا يودع نقاطاً، ولا يكسر السلسلة ولا يقدّمها؛ وإلغاء مهمة معتمدة يُصدر `verification-revoked` + حالة CANCELLED (REQ-005 — مرسوم في §6).
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -120,6 +120,7 @@ erDiagram
         uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
+        int version
     }
     %% REQ-004: بنود قائمة فحص فرعية
     task_checklist {
@@ -151,6 +152,7 @@ erDiagram
         uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
+        int version
     }
     family {
         uuid id PK
@@ -217,7 +219,7 @@ sequenceDiagram
     Ktor-->>App: {proof_ref}
     App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
     Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (ALREADY_SUBMITTED إن تكرر — والإعادة بنفس client_request_id تُعيد التسليم الأصلي)
-    Ktor->>Ktor: حفظ proof_ref في MinIO + status=SUBMITTED_BY_CHILD
+    Ktor->>Ktor: حفظ الإثبات في MinIO + proof_ref في task + status=SUBMITTED_BY_CHILD
     Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
     Note over Ktor,AI: مهلة الاستدعاء + إعادة محاولة واحدة تُحسب من الميزانية؛ وعند الفشل النهائي → احتياطي الأب (Q-121 — §7)
     alt دليل مباشر — منح تلقائي
@@ -252,20 +254,29 @@ sequenceDiagram
     Child->>App: تسليم المهمة مع الإثبات
     App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
     Ktor->>AI: تحقق من الإنجاز
-    AI-->>Ktor: لا يستطيع التحقق (مثال: صورة غير واضحة)
-    Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة (Q-121)
-    Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" (REQ-015)
-    Father->>App: مراجعة الإثبات والنتيجة المسجلة مع السبب
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
-    Ktor->>Ktor: status=APPROVED + verified_by=father
-    Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
-    Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
-    S105-->>Ktor: إيداع النقاط
-    Ktor-->>Father: اعتُمدت يدوياً وأُودعت النقاط
-    alt الذكاء يرفض الإنجاز لعدم المطابقة (§7 — لا يستطيع ≠ يرفض)
+    alt الذكاء لا يستطيع التحقق (مثال: صورة غير واضحة)
+        AI-->>Ktor: لا يستطيع التحقق
+        Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة (Q-121)
+        Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" (REQ-015)
+        Father->>App: مراجعة الإثبات والنتيجة المسجلة مع السبب
+        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
+        Ktor->>Ktor: status=APPROVED + verified_by=father
+        Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
+        Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
+        S105-->>Ktor: إيداع النقاط
+        Ktor-->>Father: اعتُمدت يدوياً وأُودعت النقاط
+    else الذكاء يرفض الإنجاز لعدم المطابقة (§7 — لا يستطيع ≠ يرفض)
+        AI-->>Ktor: رفض الإنجاز لعدم المطابقة
         Ktor->>App: إشعار الطفل بسبب الرفض — بلا إيداع
         App-->>Child: أُشعِرت بسبب الرفض
-        Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" — الأب يرى الرفض وقد يعتمد يدوياً فيتجاوز الرفض ويُودع النقاط
+        Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" — الأب يرى الرفض
+        Father->>App: مراجعة الرفض
+        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id} — اعتماد يدوي يتجاوز الرفض
+        Ktor->>Ktor: status=APPROVED + verified_by=father
+        Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
+        Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
+        S105-->>Ktor: إيداع النقاط
+        Ktor-->>Father: اعتُمدت يدوياً رغم الرفض وأُودعت النقاط
     end
 ```
 
@@ -305,15 +316,17 @@ sequenceDiagram
     participant Ktor as الخادم
     participant K as Kotlin
     participant Family as العائلة
+    Father->>App: تفعيل التكرار لهذه المهمة (معطّل افتراضياً — Q-282)
     Father->>App: إنشاء مهمة متكررة (RRULE: الأحد–الخميس)
     App->>Ktor: POST /api/v1/families/{id}/tasks {rrule}
     Ktor->>Ktor: التحقق من RRULE (INVALID_RRULE إن باطلة)
     Note over Ktor,App: RRULE خام (iCalendar): byDay + byMonthDay + interval + endDate/endOccurence + exdate + rdate — النسخ محسوبة عند الطلب (REQ-010 · ملحق RE)
     Ktor->>Ktor: النسخ محسوبة عند الطلب — لا صفوف مادية
     Ktor-->>App: نسخة اليوم ظاهرة؛ نسخة الغد تظهر صباحاً
-    Note over Ktor,App: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم (Q-123 · Q-183)
+    Note over Ktor,App: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم (Q-123 · Q-183 · REQ-011)
     Father->>App: إنشاء حدث تقويم (موعد طبيب الأسنان)
     App->>Ktor: POST /api/v1/families/{id}/events
+    Note over Ktor: التكرار الماضي يبقى في السجل ولا يتكرر (REQ-012)
     Ktor->>Ktor: عرض مزدوج هجري (أم القرى) / ميلادي (Q-124)
     Ktor->>Ktor: جدولة التذكير (الخادم مالك الجدولة — مصدر الحقيقة الوحيد، Q-280)
     Note over Ktor,K: المنبّه المحلي احتياط للتسليم فقط: التطبيق يسلّحه بـ scheduleLocalReminder من بيانات الحدث المزامَنة (مرآة Drift — §5)؛ ويعمل دون اتصال (REQ-014)
@@ -323,7 +336,7 @@ sequenceDiagram
     Note over K,Family: التذكير الواحد لا يُعرض مرتين: المنبّه المحلي والحدث نسختا تسليم للتذكير نفسه (reminder_id واحد) — أول وصول يفوز ويُكتم الثاني (§6/§7)
 ```
 
-- تذكير حدث في الماضي يُتجاهل بصمت والحدث نفسه يبقى (§7)؛ وعرض التقويم 3 أشهر مقدماً كحد أقصى (REQ-010).
+- تذكير حدث في الماضي يُتجاهل بصمت والحدث نفسه يبقى (§7)؛ وعرض التقويم 3 أشهر مقدماً كحد أقصى (REQ-010)؛ والتكرار معطّل افتراضياً ويُفعَّل صراحةً لكل مهمة (Q-282).
 
 ### 3-و. التسليم دون اتصال (REQ-016 — §4)
 
@@ -384,8 +397,8 @@ sequenceDiagram
 flowchart TD
     Start([الأب يفتح المهام والتقويم]) --> Create[إنشاء مهمة: عنوان + مُسند واحد + فئة + نقاط + استحقاق + إثبات]
     Create --> TeenQ{المُسند مراهق؟}
-    TeenQ -->|نعم| Zero[النقاط 0 دائماً — Q-109]
-    TeenQ -->|لا| Points[النقاط افتراضي 10 — خيارات 5/10/15/25]
+    TeenQ -->|نعم| Zero[النقاط 0 دائماً — Q-109 · REQ-003]
+    TeenQ -->|لا| Points["النقاط افتراضي 10 — خيارات 5/10/15/25 (REQ-003)"]
     Zero --> Show[تظهر المهمة للمُسند فوراً + تذكير قبل ساعة]
     Points --> Show
     Show --> Do[الطفل ينجز بنود قائمة الفحص بنداً بنداً]
@@ -506,6 +519,7 @@ flowchart LR
         F5[رفض مع ملاحظات]
         F6[إلغاء تحقق]
         F7[إنشاء حدث تقويم]
+        F8[إلغاء مهمة — الأب لأي مهمة / المراهق لمهامه فقط (Q-253)]
     end
     subgraph Child [الطفل / المراهق]
         direction TB
@@ -529,8 +543,10 @@ flowchart LR
         V2[حفظ التسليم SUBMITTED_BY_CHILD]
         V3[تحديث الحالة APPROVED]
         V4[حساب نسخ RRULE عند الطلب]
-        V5[إنهاء نسخة اليوم الفائتة]
+        V5["إنهاء نسخة اليوم الفائتة (REQ-011)"]
         V6[تسجيل AuditEvent]
+        V8[حالة CANCELLED — بلا نقاط؛ السلسلة لا تنكسر ولا تتقدم (Q-253)]
+    end
         V7[إعادة الحالة إلى PENDING]
     end
     subgraph WalletHub [المحفظة S1-05 + مركز الأوامر S1-09]
@@ -570,6 +586,8 @@ flowchart LR
     F1 --> V4
     V4 --> V5
     F7 --> V4
+    F8 --> V8
+    F8 -->|إن كانت معتمدة| W3
 ```
 
 - ملاحظة: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم أبداً (Q-123 · Q-183)؛ وتظهر نسخة الغد صباحاً (§2 مخطط التكرار). والمراهق يمر بنفس المسارات لكن إيداعه صفر نقاط ولا حدث كسب يصدر (§7).
