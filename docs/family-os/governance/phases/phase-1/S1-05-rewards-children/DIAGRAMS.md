@@ -295,8 +295,9 @@ sequenceDiagram
     Ktor->>S109: family/{family_id}/time-request/new — بطاقة يتطلب انتباهك
     S109-->>Father: الطلب معروض — قرار بنقرة واحدة
     alt الأب يمنح مباشرة
-        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {APPROVED}
-        Ktor->>Ktor: إنشاء granted_time {source=GRANT, ينتهي بنهاية اليوم}
+        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {APPROVED, minutes}
+        Ktor->>Ktor: الدقائق > 0 و≤ المتبقي من الحد اليومي؟ (Q-274 — وإلا REW_DAILY_CAP_REACHED أو REW_VALIDATION_FAILED)
+        Ktor->>Ktor: إنشاء granted_time {source=GRANT, minutes, ينتهي بنهاية اليوم} — والمنح يزيد daily_spent_minutes (Q-272)
         Ktor->>Ktor: سجل TIME_GRANTED + AuditEvent
         Ktor-->>Child: family/{family_id}/time-request/decided — التطبيق يستمر
     else الأب يرفض
@@ -310,7 +311,7 @@ sequenceDiagram
     end
 ```
 
-- طلب مكرر لنفس التطبيق وهو معلَّق يعيد الطلب الأصلي — لا طلبان معلَّقان لنفس التطبيق (§7)؛ والقرار على طلب سبق القرار عليه يعيد النتيجة الأصلية (`ALREADY_DECIDED` — §7)؛ والمنح المباشر قيد ليوم واحد وينتهي بنهايته (REQ-011)؛ والمنح المباشر يُحسب ضمن الحد اليومي (Q-272).
+- طلب مكرر لنفس التطبيق وهو معلَّق يعيد الطلب الأصلي — لا طلبان معلَّقان لنفس التطبيق (§7)؛ والقرار على طلب سبق القرار عليه يعيد النتيجة الأصلية (`ALREADY_DECIDED` — §7)؛ والمنح المباشر قيد ليوم واحد وينتهي بنهايته (REQ-011)؛ والمنح المباشر يُحسب ضمن الحد اليومي (Q-272)؛ والدقائق الممنوحة يحددها الأب: أي دقائق أكبر من صفر ولا تتجاوز المتبقي من الحد اليومي (Q-274).
 
 ### 3-د. منح يدوي من الأب + تجميد السلسلة (REQ-006 / REQ-007 / REQ-011 — §4: `POST /api/v1/families/{id}/children/{childId}/wallet/grant` + `POST /api/v1/families/{id}/children/{childId}/streak/freeze`)
 
@@ -514,6 +515,7 @@ flowchart LR
     P4 -->|"family/{family_id}/time-request/new — بطاقة يتطلب انتباهك"| S109
     Father -->|قرار: منح / رفض / إسناد مهمة| P4
     P4 -->|القرار + assigned_task_id| D3
+    P4 -->|فحص المتبقي من الحد اليومي قبل المنح (Q-272/Q-274)| D1
     P4 -->|منح مباشر — قيد ليوم واحد| D4
     P4 -->|"family/{family_id}/time-request/decided"| Child
     Child -->|اعتراض على منح أو رفض| P4

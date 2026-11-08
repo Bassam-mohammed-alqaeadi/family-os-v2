@@ -1,7 +1,7 @@
 # S1-05: المكافآت للأطفال (Rewards for Children)
 
 - **الحالة:** approved | **المرحلة:** 1 (نواة الحماية) · **آخر تحديث:** 2026-11-06
-- **القرارات الحاكمة:** Q-001 · Q-003 · Q-054 · Q-064 · Q-107 · Q-108 · Q-109 · Q-110 · Q-111 · Q-112 · Q-113 · Q-114 · Q-115 · Q-116 · Q-117 · Q-118 · Q-119 · D-021 · G-011 · Q-183 · Q-185 · D-012 · Q-009 · Q-167 · Q-007 · Q-193 · Q-189 · Q-237 · Q-243 · Q-272 · Q-273
+- **القرارات الحاكمة:** Q-001 · Q-003 · Q-054 · Q-064 · Q-107 · Q-108 · Q-109 · Q-110 · Q-111 · Q-112 · Q-113 · Q-114 · Q-115 · Q-116 · Q-117 · Q-118 · Q-119 · D-021 · G-011 · Q-183 · Q-185 · D-012 · Q-009 · Q-167 · Q-007 · Q-193 · Q-189 · Q-237 · Q-243 · Q-272 · Q-273 · Q-274
 - **حالة المراجعة:** §§1–8 + §10 معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06) · §9 في مرحلة التصميم.
 - **الأدلة المرجعية:** المواصفة القديمة S1-05 (مرجع فقط، G-009) · Qustodio (Extra Time + حصص لكل تطبيق) · Quizlet (سلاسل وشارات) · FamilyWall (إسناد المهام) · FamiSafe (تمديد حتى منتصف الليل)
 
@@ -156,7 +156,7 @@ flowchart LR
 ### الطلب
 - **REQ-012:** عند نفاد وقت التطبيق يطلب الطفل وقتاً إضافياً من الأب (من شاشة الحظر). [Q-107 · DERIVED]
 - **REQ-013:** الأب يرفض المنح فيسند مهمة بدلاً منه؛ والمهمة تظهر للطفل فوراً مع قيمتها النقطية. [Q-115/Q-118 · DIRECT]
-- **REQ-014:** طلبات الوقت الإضافي تظهر في بطاقة "يتطلب انتباهك" في S1-09؛ والأب يقرر بنقرة واحدة (منح/رفض/إسناد مهمة). [S1-09 REQ-017 · DERIVED] (حمولة البطاقة في §4.)
+- **REQ-014:** طلبات الوقت الإضافي تظهر في بطاقة "يتطلب انتباهك" في S1-09؛ والأب يقرر بنقرة واحدة (منح/رفض/إسناد مهمة)؛ وعند المنح يحدد الأب الدقائق: أي دقائق أكبر من صفر ولا تتجاوز المتبقي من الحد اليومي (Q-274). [S1-09 REQ-017 · DERIVED] (حمولة البطاقة في §4.)
 
 ### التكامل
 - **REQ-015:** فرض حدود الوقت والحظر محرك S1-10 (مواصفته معتمدة (Q-146))؛ وS1-05 يستهلك حدوده وأرصدته (المتبقي) ولا يملك الفرض. [S1-10 · DERIVED]
@@ -178,7 +178,7 @@ flowchart LR
 - `POST /api/v1/families/{id}/children/{childId}/wallet/redeem` — صرف نقاط كوقت إضافي لتطبيق محدد — المفتاح: `rewards.wallet.redeem`. الطلب: `{app_package, points (int > 0), client_request_id}` — ومبلغ الصرف `points` عدد صحيح بمضاعفات 10 (10، 20، 30، …)؛ والحد الأدنى 10 نقاط، والحد الأقصى = الرصيد الحالي (Q-273)؛ ومبلغ ليس من مضاعفات 10 أو أقل من 10 يُرفض بـ `REW_VALIDATION_FAILED`؛ والسعر 1:1 محكوم (Q-111). الرد: `{grant_id, minutes, expires_at (نهاية اليوم), balance_points}`. الأخطاء: `REW_INSUFFICIENT_POINTS` · `REW_DAILY_CAP_REACHED` · `REW_INVALID_APP` · `REW_VALIDATION_FAILED` (مبلغ ليس من مضاعفات 10 أو أقل من 10) · `REW_WALLET_NOT_FOUND`.
 - `GET /api/v1/families/{id}/children/{childId}/wallet/ledger` — سجل حركات المحفظة — المفتاح: `rewards.ledger.view`. الرد: `{entries: [{ledger_id, kind, amount, source_system, reference_id, evidence, balance_after, at}]}` — مرتبة بالأحدث أولاً. الأخطاء: `REW_WALLET_NOT_FOUND`.
 - `POST /api/v1/families/{id}/children/{childId}/time-requests` — الطفل يطلب وقتاً إضافياً (التطبيق + الدقائق المطلوبة) — المفتاح: `rewards.time_request.create`. الطلب: `{app_package, minutes_requested (int > 0)}`. الرد: `{request_id, status: "PENDING", created_at}` — وطلب معلَّق لنفس التطبيق وهو معلَّق يُعاد الطلب الأصلي (§7). الأخطاء: `REW_INVALID_APP` · `REW_VALIDATION_FAILED`.
-- `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide` — الأب يقرر: منح / رفض / إسناد مهمة (تُنشأ المهمة عبر `S1-06 POST /api/v1/families/{id}/tasks` بقيمة نقطية يحددها الأب — REQ-013) — المفتاح: `rewards.time_request.decide`. الطلب: `{decision (APPROVED | REJECTED | TASK_ASSIGNED), assigned_task_id?}` — وبلا حقل دقائق في القرار: الدقائق الممنوحة مفتوحة (R2-S105-09 — بانتظار حكم المالك — لا يُفترض هنا أن المنح يساوي المطلوب أو يختلف عنه). الرد: `{request_id, status, decided_by, decided_at}` — وعند المنح يُنشأ `granted_time` (مصدر GRANT). الأخطاء: `REW_REQUEST_NOT_FOUND` · `REW_ALREADY_DECIDED` (تُعاد النتيجة الأصلية).
+- `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide` — الأب يقرر: منح / رفض / إسناد مهمة (تُنشأ المهمة عبر `S1-06 POST /api/v1/families/{id}/tasks` بقيمة نقطية يحددها الأب — REQ-013) — المفتاح: `rewards.time_request.decide`. الطلب: `{decision (APPROVED | REJECTED | TASK_ASSIGNED), minutes?, assigned_task_id?}` — وعند APPROVED يحمل القرار `minutes` (int، إلزامي): الأب يمنح أي دقائق أكبر من صفر ولا تتجاوز المتبقي من الحد اليومي (Q-274) — لا يشترط أن تساوي المطلوب؛ والمنح يُحسب ضمن الحد اليومي (Q-272). الرد: `{request_id, status, decided_by, decided_at, minutes_granted?}` — وعند المنح يُنشأ `granted_time` (مصدر GRANT) بدقائق القرار. الأخطاء: `REW_REQUEST_NOT_FOUND` · `REW_ALREADY_DECIDED` (تُعاد النتيجة الأصلية) · `REW_DAILY_CAP_REACHED` (دقائق القرار تتجاوز المتبقي من الحد اليومي) · `REW_VALIDATION_FAILED` (دقائق ≤ 0 أو بلا دقائق عند المنح).
 - `POST /api/v1/families/{id}/children/{childId}/streak/freeze` — الأب يجمّد السلسلة ليوم واحد — المفتاح: `rewards.streak.freeze`. الطلب: `{}`. الرد: `{streak_frozen_until}` — ويُسجَّل التجميد في `streak_freeze` (§5). الأخطاء: `REW_ALREADY_FROZEN` (تجميد ثانٍ أثناء تجميد نشط).
 - `GET /api/v1/families/{id}/rewards/settings` — ضوابط الأب (الحد اليومي، مصادر الكسب المفعّلة، مكافأة السلسلة) — المفتاح: `rewards.settings.view`. الرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources}`. الأخطاء: بلا أخطاء مسماة.
 - `PATCH /api/v1/families/{id}/rewards/settings` — الأب يضبط المعاملات — المفتاح: `rewards.settings.edit`. الطلب: `{daily_spend_cap_minutes?, streak_bonus_points?, enabled_sources?, version}` — و`version` النسخة المتوقعة (تفاؤل — §5)؛ والرد: `{daily_spend_cap_minutes, streak_bonus_points, enabled_sources, version}` (تزيد `version` عند كل PATCH ناجح). الأخطاء: `REW_VERSION_CONFLICT` · `REW_VALIDATION_FAILED`.
@@ -195,7 +195,7 @@ flowchart LR
 |---|---|---|---|---|---|
 | `family/{family_id}/wallet/updated` | 1 | لا | `{child_id, balance_points, ledger_id, at}` | وحدة المكافآت (Ktor rewards) | التطبيق (واجهة المحفظة — 3-أ/3-ب) |
 | `family/{family_id}/time-request/new` | 1 | لا | `{request_id, child_id, app_package, minutes_requested, created_at}` | وحدة المكافآت | S1-09 (بطاقة «يتطلب انتباهك» — REQ-014) |
-| `family/{family_id}/time-request/decided` | 1 | لا | `{request_id, decision (APPROVED/REJECTED/TASK_ASSIGNED), decided_by, decided_at}` | وحدة المكافآت | التطبيق (الطفل — حالة الطلب)؛ وS1-09 (إزالة البطاقة) |
+| `family/{family_id}/time-request/decided` | 1 | لا | `{request_id, decision (APPROVED/REJECTED/TASK_ASSIGNED), decided_by, decided_at, minutes_granted?}` | وحدة المكافآت | التطبيق (الطفل — حالة الطلب)؛ وS1-09 (إزالة البطاقة) |
 | `family/{family_id}/time/granted` | 1 | نعم | `{child_id, minutes_granted, source (redeem/grant/decision), granted_at}` — دقائق ممنوحة تدخل في «الإضافي» لحساب المتبقي (S1-10 REQ-002) | وحدة المكافآت (Ktor rewards) | التطبيق (واجهة الطفل — المتبقي)؛ وS1-10 (حساب المتبقي — REQ-002) |
 | `family/{family_id}/tasks.completed` | 1 | لا | `{source_system, task_id, points}` — حدث الكسب العام الذي تستهلكه المحفظة (من أي نظام مسجَّل) | النظام المُسند (S1-06 أولاً — Q-118) | S1-05 (مستهلك الكسب — REQ-004) |
 | `family/{family_id}/tasks.verification-revoked` | 1 | لا | `{source_system, task_id, points}` — إلغاء تحقق (قيد تعويضي يخصم النقاط المودعة) | S1-06 (`revoke-verification`) | S1-05 (قيد تعويضي — REQ-018) |
@@ -217,7 +217,7 @@ flowchart LR
 |---|---|---|
 | `REW_WALLET_NOT_FOUND` | `GET .../wallet` · `GET .../wallet/ledger` · `POST .../wallet/grant` · `POST .../wallet/redeem` (بلا صف محفظة) | 404 |
 | `REW_INSUFFICIENT_POINTS` | `POST .../wallet/redeem` (رصيد غير كافٍ — بلا رصيد سالب أبداً) | 409 |
-| `REW_DAILY_CAP_REACHED` | `POST .../wallet/redeem` (بلغ الحد اليومي — يُرفض حتى الغد) | 409 |
+| `REW_DAILY_CAP_REACHED` | `POST .../wallet/redeem` (بلغ الحد اليومي — يُرفض حتى الغد) · `POST .../time-requests/{requestId}/decide` (دقائق القرار تتجاوز المتبقي من الحد اليومي — Q-274) | 409 |
 | `REW_REQUEST_NOT_FOUND` | `POST .../time-requests/{requestId}/decide` (طلب غير موجود) | 404 |
 | `REW_ALREADY_DECIDED` | `POST .../time-requests/{requestId}/decide` · `POST .../objections/{objectionId}/decide` (قرار مكرر — تُعاد النتيجة الأصلية) | 409 |
 | `REW_INVALID_APP` | `POST .../wallet/redeem` · `POST .../time-requests` (تطبيق غير موجود أو غير خاضع للحد) | 400 |
@@ -227,7 +227,7 @@ flowchart LR
 | `REW_OBJECTION_NOT_FOUND` | `POST .../objections/{objectionId}/decide` (اعتراض غير موجود) | 404 |
 | `REW_ALREADY_FROZEN` | `POST .../streak/freeze` (تجميد ثانٍ أثناء تجميد نشط) | 409 |
 | `REW_VERSION_CONFLICT` | `PATCH .../rewards/settings` (نسخة قديمة — §5 `version`) | 409 |
-| `REW_VALIDATION_FAILED` | أي endpoint (حقول غير صالحة: نقاط ≤ 0، مبلغ صرف ليس من مضاعفات 10 أو أقل من 10، نوع موضوع غير صالح، نص فارغ) | 400 |
+| `REW_VALIDATION_FAILED` | أي endpoint (حقول غير صالحة: نقاط ≤ 0، دقائق منح ≤ 0 أو بلا دقائق عند المنح، مبلغ صرف ليس من مضاعفات 10 أو أقل من 10، نوع موضوع غير صالح، نص فارغ) | 400 |
 
 - وبصيغة الخطأ الموحدة `{code, message_ar, trace_id}`.
 
@@ -313,7 +313,7 @@ flowchart LR
 - **ACC-009:** الوقت المصروف ينتهي بنهاية اليوم؛ وما لم يُستخدم لا يُسترد. ← REQ-009
 - **ACC-010:** الحد اليومي يُفرض على الخادم؛ والصرف فوقه يُرفض مع رسالة واضحة؛ والمنح المباشر يُحسب ضمن الحد (Q-272) — فمنح 60 دقيقة ثم صرف يُرفض حتى الغد. ← REQ-010
 - **ACC-011:** منح مباشر من الأب قيد ليوم واحد وينتهي بنهايته؛ ويُحسب ضمن الحد اليومي (Q-272). ← REQ-011
-- **ACC-012:** طلب وقت يظهر في بطاقة S1-09؛ والأب يقرر بنقرة (منح/رفض/إسناد مهمة)؛ والمهمة المسندة تودع نقاطها عند تحقق الذكاء. ← REQ-012/013/014
+- **ACC-012:** طلب وقت يظهر في بطاقة S1-09؛ والأب يقرر بنقرة (منح/رفض/إسناد مهمة)؛ والمهمة المسندة تودع نقاطها عند تحقق الذكاء؛ وعند المنح يحدد الأب الدقائق (أكبر من صفر ولا تتجاوز المتبقي من الحد اليومي — Q-274)؛ ودقائق فوق المتبقي تُرفض. ← REQ-012/013/014
 - **ACC-013:** فرض حدود الوقت والحظر محرك S1-10؛ وS1-05 يستهلك حدوده وأرصدته فقط. ← REQ-015
 - **ACC-014:** ودجة S1-09 تعرض رصيد المحفظة + السلسلة + الطلبات المعلقة. ← REQ-016
 - **ACC-015:** كل منح/صرف/قرار مسجَّل في التدقيق (domain=rewards). ← §5
@@ -651,7 +651,7 @@ flowchart LR
 - **الأدوار:** `owner` + `adult` المفوَّض حسب القالب (`rewards.time_request.decide`).
 - **الغرض:** طلبات الوقت الإضافي تظهر في بطاقة «يتطلب انتباهك» في S1-09؛ والأب يقرر بنقرة واحدة: منح / رفض / إسناد مهمة (REQ-014) — والمنح المباشر وقت قيد ليوم واحد (REQ-011)، وإسناد المهمة بدلاً من المنح (REQ-013).
 - **ملاحظة البيت:** هذه الشاشة **تعيش في S1-09** (بطاقة «يتطلب انتباهك» + ودجة الموافقات — DS-CC-04)؛ تُسجَّل هنا لأن REQ-011/013/014 تُغطَّى عبرها، وبيتها التفصيلي في §9 لـ S1-09.
-- **الحقول الرئيسية:** الطفل والطلب (التطبيق + الدقائق المطلوبة)؛ أولوية P2 في طابور الانتباه (DS-CC-03: طلبات الموافقة درجة P2)؛ أزرار القرار الثلاثة (منح / رفض / إسناد مهمة — `FosApprovalCard`)؛ عند إسناد مهمة: اختيار المهمة + قيمتها النقطية (تُنشأ عبر `S1-06 POST /api/v1/families/{id}/tasks` — §4)؛ حالة الطلب بعد القرار.
+- **الحقول الرئيسية:** الطفل والطلب (التطبيق + الدقائق المطلوبة)؛ أولوية P2 في طابور الانتباه (DS-CC-03: طلبات الموافقة درجة P2)؛ أزرار القرار الثلاثة (منح / رفض / إسناد مهمة — `FosApprovalCard`)؛ وعند المنح يحدد الأب الدقائق: أي دقائق أكبر من صفر ولا تتجاوز المتبقي من الحد اليومي (Q-274) — وزر المنح يعرض الدقائق الممنوحة لا المطلوبة بالضرورة؛ عند إسناد مهمة: اختيار المهمة + قيمتها النقطية (تُنشأ عبر `S1-06 POST /api/v1/families/{id}/tasks` — §4)؛ حالة الطلب بعد القرار.
 - **التنقل:** من: بطاقة «يتطلب انتباهك» في مركز الأوامر S1-09 (DS-CC-02/03)؛ من إشعار `family/{family_id}/time-request/new` (MQTT). إلى: S05-01 (الرصيد بعد القرار)؛ إلى إنشاء مهمة في S1-06 (عند إسناد مهمة)؛ إلى S05-04 (منح نقاط بدلاً من الوقت — مسار بديل).
 - **الحالات (DS-ST):**
   - تحميل: Skeleton للبطاقة.
