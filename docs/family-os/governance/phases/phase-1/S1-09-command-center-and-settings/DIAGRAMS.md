@@ -73,10 +73,10 @@ flowchart LR
     Adult --> UC9
     Adult --> UC11
     Adult --> UC15
-    UC2 -.->|يجمع حالة| S107
-    UC2 -.->|يجمع حالة| S108
-    UC2 -.->|يجمع حالة| S105
-    UC2 -.->|يجمع حالة| S106
+    UC2 -.->|"قراءة زمن تشغيل — يجمع حالة"| S107
+    UC2 -.->|"قراءة زمن تشغيل — يجمع حالة"| S108
+    UC2 -.->|"قراءة زمن تشغيل — يجمع حالة"| S105
+    UC2 -.->|"قراءة زمن تشغيل — يجمع حالة"| S106
     UC5 -.->|تطبيق وضع مسبق — دراسة/نوم/حر| S110
     S106 -.->|"family/{family_id}/tasks.submitted"| UC15
     S105 -.->|"family/{family_id}/time-request/new"| UC15
@@ -98,6 +98,7 @@ flowchart LR
 - البالغ المفوَّض لا يظهر له UC5 وUC6 وUC7 وUC10 وUC15 إلا إن ملك مفتاح كل عنصر (REQ-004 · Q-096)؛ وUC15 للبالغ مشروط بأن يكون عنصر الانتباه مفوَّضاً به (H09-02 — يرى منه فقط ما فُوِّض به، ويقرر العنصر المفوَّض به وحده — H09-03)؛ والمركز لا يمنح صلاحيات — تعديل أي تحكم يتطلب مفتاح التحكم نفسه عبر S1-03 (§6-2).
 - بطاقة "يتطلب انتباهك" (UC15 — REQ-017): تستهلك `family/{family_id}/tasks.submitted` (S1-06 REQ-015) و`family/{family_id}/time-request/new` (S1-05 REQ-014)؛ والأب يقرر بنقرة واحدة (منح / رفض / إسناد مهمة لطلب الوقت؛ اعتماد / رفض لمهمة مسلَّمة)؛ والبالغ المفوَّض بصلاحية القرار يقرر العنصر المفوَّض به وحده (Q-268) — انظر التسلسل 3-و.
 - سجل أفعال الوكيل (UC16): يعرض `AgentActionLog` كاملاً للأب؛ والبالغ المفوَّض يرى منه ما يخص ما فُوِّض به (REQ-004)؛ والطفل يرى منه ما يخصه فقط (G-006) — انظر التسلسل 3-ز.
+- الحواف المنقطة عبر الأنظمة في §1 (قراءات الحالة، أحداث MQTT، القرارات بنقرة) هي حواف زمن تشغيل — قراءات وأحداث وقت التشغيل لا تبعيات بناء (Q-297)؛ فلا يبني S1-09 على S1-05/06/07/08/10 ولا يبنون عليه.
 - الغلاف S1-01 يستضيف المركز (SPEC §1: «يعتمد على» + مخطط السياق)؛ والبطاقات السريعة (UC5) أوضاع S1-10 مسبقة (REQ-007) — تُطبَّق عبر التسلسل 3-ب.
 
 ## 2. مخطط قاعدة البيانات (ERD)
@@ -111,6 +112,9 @@ erDiagram
     dashboard_widget }o--|| permission_key : "رؤيتها بمفتاح required_key"
     alert }o--|| membership : "العضو المعني target_member_id"
     family }o--|| plan : "خطتها قراءة فقط من S1-04"
+    control_surface }o--|| permission_key : "يحرسه مفتاح required_key"
+    permission_grant }o--|| permission_key : "المنح مفتاح — جدول S1-03"
+    permission_grant }o--|| membership : "المنح عضو — جدول S1-03"
 
     dashboard_widget {
         text widget_id PK
@@ -484,7 +488,7 @@ flowchart LR
     S103 -->|المنح المملوكة| P2
     P2 -->|الودجات المسموحة فقط| P1
     P1 -->|اللوحة المصفاة| Father
-    Systems -->|حالة كل نظام| P1
+    Systems -->|"حالة كل نظام — قراءة زمن تشغيل (Q-297)"| P1
     P1 -->|حفظ اللقطة + وسمها| D3
     D3 -->|آخر حالة معروفة| P6
     Kotlin -->|getCachedDashboard| P6
@@ -535,6 +539,7 @@ flowchart LR
         U7([إغلاق المركز])
         U8[تأكيد قراءة التنبيه]
         U9[الضغط على ترقية]
+        U10["فتح سجل إجراءات الوكيل (H09-12)"]
     end
     subgraph Hub [المركز — Flutter]
         direction TB
@@ -551,6 +556,7 @@ flowchart LR
         H11[يفعّل / يلغي مفتاحاً واحداً لعضو واحد]
         H12[تأكيد قراءة التنبيه — POST acknowledge]
         H13[رفض — HUB_SYSTEM_NOT_REGISTERED أو HUB_CONTROL_NOT_FOUND]
+        H14["عرض سجل إجراءات الوكيل — H09-12 (REQ-018)"]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
@@ -561,6 +567,7 @@ flowchart LR
         V5["MQTT: family/{family_id}/dashboard/updated + family/{family_id}/alerts/new"]
         V6["POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide + POST /api/v1/families/{id}/tasks/{taskId}/approve"]
         V7{النظام مسجل والتحكم موجود؟}
+        V8["GET /api/v1/families/{id}/agent-actions (REQ-018)"]
     end
     subgraph Systems [الأنظمة + S1-03]
         direction TB
@@ -601,6 +608,12 @@ flowchart LR
     H7 --> H11
     H11 --> V2
     U2 --> U6
+    U10 --> H14
+    H14 --> V8
+    V8 --> G1
+    G1 --> V8
+    V8 --> H14
+    H14 --> U10
     U6 --> H8
     H8 --> V4
     H8 --> U9
