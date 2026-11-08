@@ -39,11 +39,14 @@ WidgetRegistration {
   id, service_id, title_key, size[s|m|l], priority_fn,
   supported_profiles[], required_permission, scope (family|member),
   data_source (API + realtime topic), freshness_ttl,
-  states { loading, empty, error, unavailable }, // الحالات الصادقة: S1-09 §3/§6
+  states { loading, empty, error, unavailable }, // حالات الويدجت الأربع — ليست الحالات الصادقة السبع (S1-09 §3/§6)
   actions[] { key, label_key, deep_link, required_permission },
   privacy { lockscreen_safe: bool, contains_sensitive: bool }
 }
 ```
+
+[ملاحظة مؤرخة 2026-11-08 (Q-352 — C-04): كان تعليق سطر `states` يقول «الحالات الصادقة: S1-09 §3/§6» عن الحالات الأربع {loading, empty, error, unavailable}، وهي حالات ويدجت عامة لا الحالات الصادقة السبع المعرفة في S1-09 §3/§6؛ صُحح التعليق.]
+
 ### 4.1 الكتالوج الأساسي للمرحلة 1
 | الويدجت | الحجم | المحتوى | الملفات |
 |---|---|---|---|
