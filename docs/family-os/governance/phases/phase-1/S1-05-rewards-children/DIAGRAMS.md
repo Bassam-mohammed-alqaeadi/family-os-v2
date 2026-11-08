@@ -258,7 +258,7 @@ sequenceDiagram
     participant Ktor as الخادم
     participant S110 as الفرض
     Child->>Shell: صرف نقاط كوقت للتطبيق الذي نفد وقته
-    Shell->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/redeem {app_package, points, client_request_id}
+    Shell->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/redeem {app_package, points, client_request_id} — points بمضاعفات 10 (الحد الأدنى 10، والحد الأقصى = الرصيد — Q-273)
     Ktor->>Ktor: معاملة ذرية — فحص الرصيد + الحد اليومي (60 دقيقة افتراضياً)
     alt الرصيد يكفي والحد لم يُبلغ
         Ktor->>Ktor: خصم النقاط — 10 نقاط = 10 دقائق
@@ -276,7 +276,7 @@ sequenceDiagram
     end
 ```
 
-- سعر الصرف ثابت 1:1 (Q-111)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009 · Q-183)؛ والحد اليومي يُفرض على الخادم (Q-114)؛ والحد اليومي هنا حد الوقت الإضافي كله: المنح المباشر (مصدر GRANT) يزيد `daily_spent_minutes` ويستهلك الحد مثل الصرف (Q-272 — §6).
+- سعر الصرف ثابت 1:1 (Q-111)؛ والصرف بخطوات ثابتة 10 نقاط: الحد الأدنى 10، والحد الأقصى = الرصيد، ومبلغ ليس من مضاعفات 10 يُرفض بـ `REW_VALIDATION_FAILED` (Q-273)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009 · Q-183)؛ والحد اليومي يُفرض على الخادم (Q-114)؛ والحد اليومي هنا حد الوقت الإضافي كله: المنح المباشر (مصدر GRANT) يزيد `daily_spent_minutes` ويستهلك الحد مثل الصرف (Q-272 — §6).
 
 ### 3-ج. طلب وقت إضافي وقرار الأب (REQ-012 / REQ-013 / REQ-014 — §4: `POST /api/v1/families/{id}/children/{childId}/time-requests` + `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide`)
 
