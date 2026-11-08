@@ -515,7 +515,7 @@ flowchart LR
     P4 -->|"family/{family_id}/time-request/new — بطاقة يتطلب انتباهك"| S109
     Father -->|قرار: منح / رفض / إسناد مهمة| P4
     P4 -->|القرار + assigned_task_id| D3
-    P4 -->|فحص المتبقي من الحد اليومي قبل المنح (Q-272/Q-274)| D1
+    P4 -->|"فحص المتبقي من الحد اليومي قبل المنح (Q-272/Q-274)"| D1
     P4 -->|منح مباشر — قيد ليوم واحد| D4
     P4 -->|"family/{family_id}/time-request/decided"| Child
     Child -->|اعتراض على منح أو رفض| P4
