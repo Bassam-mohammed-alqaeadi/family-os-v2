@@ -124,15 +124,15 @@ erDiagram
         text system PK
         text control_key PK
         text type
-        jsonb default_value
-        jsonb values
+        text default_value
+        text values
         text required_key FK
         boolean available_android
         boolean available_ios
     }
     dashboard_snapshot {
         uuid family_id PK
-        jsonb snapshot
+        text snapshot
         int version
         timestamptz updated_at
     }
@@ -165,7 +165,7 @@ erDiagram
     }
 ```
 
-- `kind` في `dashboard_widget` من القيم الأربع فقط: `map` / `list` / `stat` / `alert` (§5-1)؛ و`kind` في `alert` من القيم الأربع فقط: `sos` / `escalation` / `grant_expiring` / `system` (§5-4)؛ و`type` في `control_surface` من القيم الثلاث فقط: `select` / `switch` / `action` (§5-2)؛ وأنواع هذا المخطط هي أنواع SPEC §5 حرفياً (ومنها `jsonb` — فالمواصفة حاكمة على المخطط)؛ و`source_ref` في `alert` بصيغة `{system}:{kind}:{id}` (§5-4)؛ و`version` في `dashboard_snapshot` يزيده الخادم وحده (§5-3).
+- `kind` في `dashboard_widget` من القيم الأربع فقط: `map` / `list` / `stat` / `alert` (§5-1)؛ و`kind` في `alert` من القيم الأربع فقط: `sos` / `escalation` / `grant_expiring` / `system` (§5-4)؛ و`type` في `control_surface` من القيم الثلاث فقط: `select` / `switch` / `action` (§5-2)؛ وأنواع هذا المخطط تتبع اتفاقية Q-177 (Q-267): يرسم `text` لما نوعه الحقيقي `jsonb` في §5 (`default_value`/`values`/`snapshot`)، و§5 مرجع الأنواع الحقيقية؛ وما عداها يطابق §5 حرفياً (`widget_id` نص، و`acknowledged_by` ‏`uuid`)؛ و`source_ref` في `alert` بصيغة `{system}:{kind}:{id}` (§5-4)؛ و`version` في `dashboard_snapshot` يزيده الخادم وحده (§5-3).
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
