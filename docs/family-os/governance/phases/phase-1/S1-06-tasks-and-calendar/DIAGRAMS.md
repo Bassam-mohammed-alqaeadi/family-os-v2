@@ -195,7 +195,8 @@ sequenceDiagram
         Ktor->>DB: إنشاء task_category (الأب وحده)
     end
     Ktor->>DB: إدراج task (status=PENDING)
-    Ktor->>Ktor: جدولة تذكير المهمة (افتراضي قبل 60 دقيقة Q-124)
+    Ktor->>Ktor: جدولة تذكير المهمة (افتراضي قبل 60 دقيقة Q-124 — الخادم مالك الجدولة، مصدر الحقيقة الوحيد Q-280)
+    Note over Ktor,Assignee: المنبّه المحلي على جهاز المُسند إليه احتياط للتسليم فقط (§6)؛ والخادم يجدول التذكير ولو كان جهاز الطفل مطفأً (Q-280)
     Ktor->>Assignee: نشر family/{family_id}/tasks.created (QoS 1 — §4) — المهمة ظهرت للمُسند إليه فوراً
     Ktor-->>App: Task {task_id}
     App-->>Father: المهمة ظهرت للمُسند إليه فوراً
@@ -315,7 +316,8 @@ sequenceDiagram
     Father->>App: إنشاء حدث تقويم (موعد طبيب الأسنان)
     App->>Ktor: POST /api/v1/families/{id}/events
     Ktor->>Ktor: عرض مزدوج هجري (أم القرى) / ميلادي (Q-124)
-    Ktor->>K: scheduleLocalReminder (افتراضي 60 دقيقة؛ والخيارات 15/30/60 دقيقة أو يوم — REQ-014)
+    Ktor->>Ktor: جدولة التذكير (الخادم مالك الجدولة — مصدر الحقيقة الوحيد، Q-280)
+    Note over Ktor,K: المنبّه المحلي احتياط للتسليم فقط: التطبيق يسلّحه بـ scheduleLocalReminder من بيانات الحدث المزامَنة (مرآة Drift — §5)؛ ويعمل دون اتصال (REQ-014)
     K->>K: منبّه محلي دقيق يعمل دون اتصال (REQ-014)
     K-->>Family: تذكير لكل العائلة قبل الموعد بساعة
     Ktor->>Family: family/{family_id}/calendar.event.reminder — تذكير حدث (لخدمة التنبيهات، §4)
@@ -478,7 +480,7 @@ flowchart LR
     P5 -->|حساب النسخ عند الطلب| D1
     Father -->|إنشاء حدث تقويم| P5
     P5 -->|حفظ الحدث| D4
-    P5 -->|جدولة منبّه محلي| Kotlin
+    P5 -->|تسليح منبّه محلي احتياطي للتسليم (الجدولة خادمية — Q-280)| Kotlin
     Kotlin -->|"تذكير قبل الموعد (افتراضي 60 دقيقة؛ والخيارات 15/30/60 دقيقة أو يوم — REQ-014)"| Child
     Kotlin -->|تذكير حدث| Father
     P5 -->|"family/{family_id}/calendar.event.reminder"| Notif
