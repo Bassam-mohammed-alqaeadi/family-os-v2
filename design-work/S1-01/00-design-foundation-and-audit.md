@@ -197,3 +197,10 @@ This audit/design pass does not change:
 - S1-01 `SPEC.md` or `DIAGRAMS.md`.
 - The approved design-system sources.
 - Application code, packages, CI, or database schema.
+
+
+### F-007 — Project-owner identity needs confirmation before further approval gates
+
+The current `CHARTER.md §3` names the project owner as `hussin`, while this GitHub repository is under `Bassam-mohammed-alqaeadi` and the current conversation is with Bassam. The available evidence does not establish whether these identify the same person, an alias, or different people.
+
+**Handling:** do not infer identity or transfer decision authority. This does not invalidate the read-only audit or this non-binding draft artifact, but owner approval of screen designs and any governance decision must wait until the project-owner identity/authority is confirmed.
