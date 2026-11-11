@@ -1,4 +1,5 @@
 # أنماط التنقل (Navigation Patterns)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-062, Q-070 | يعتمد على: S1-01 §1 (قوالب العرض)، S1-09 §1 (مركز الأوامر)، spacing-and-grid.md §6, components.md
 > التنقل **يُركَّب** من السجلات وملف التجربة والصلاحيات، ولا يُرمَّز يدويًا لكل دور.
