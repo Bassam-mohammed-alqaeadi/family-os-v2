@@ -1,5 +1,4 @@
 ﻿# الهوية والشعار (Brand & Logo)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-024 · Q-383 | يعتمد على: CHARTER.md §1 (الغرض: منصة عائلية واحدة — أمان، تعليم، إدارة، تواصل، صلاحيات مرنة) | يغذي: color-tokens.md, typography.md, microcopy-and-tone.md
 > الاسم: **«عائلتي»** (الاسم التجاري العربي) و**Family OS** (الاسم الإنجليزي/الوصفي). الشعار بألوان: كحلي #1F3A6B، أخضر #1F6B3B، برتقالي #CF5B2C، ذهبي #C8A24A، كريمي #FCFAED. درجات العلامة والحالات مثبتة في `color-tokens.md` بموجب Q-383.
