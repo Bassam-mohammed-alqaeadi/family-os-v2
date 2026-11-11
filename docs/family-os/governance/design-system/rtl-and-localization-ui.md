@@ -1,5 +1,4 @@
 # الاتجاه والتوطين في الواجهة (RTL & Localization UI)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-001, Q-070 · Q-386 | يعتمد على: Q-070 (العربية والإنجليزية، الافتراضي العربية)، typography.md §3 (قواعد خاصة بالعربية)، spacing-and-grid.md, iconography.md §4، QUALITY-GATES.md §2 (RTL سليم + لغة ثانية دون كسر التخطيط)
 > هذا الملف يحوّل مبادئ التوطين إلى **قواعد واجهة قابلة للفحص**. العربية RTL هي الأصل وLTR هو المتفرع.
