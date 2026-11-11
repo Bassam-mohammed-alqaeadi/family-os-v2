@@ -1,4 +1,5 @@
 ﻿# واجهة وضع الطفل (Child Mode UI)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-006, D-023, D-024 | يعتمد على: S1-01 §1 (قوالب العرض حسب الدور)، S1-02 REQ-013 (القالب حسب العمر)، components.md §5, motion-and-feedback.md §5, microcopy-and-tone.md
 > تجربة الأبناء (دوري `teen` و `child` بقالبيه `standard` و `minimal`). الهدف: **تجربة ممتعة وآمنة تحترم الطفل، وتبني ثقته، ولا تستغل انتباهه.**
