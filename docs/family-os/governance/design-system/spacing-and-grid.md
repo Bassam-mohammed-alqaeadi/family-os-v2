@@ -1,4 +1,5 @@
 # المسافات والشبكة والأبعاد (Spacing, Grid & Layout)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-070 | يعتمد على: color-tokens.md, typography.md, S1-01 §1 (قوالب العرض) | يُولَّد منه: `fos_design_system`
 
