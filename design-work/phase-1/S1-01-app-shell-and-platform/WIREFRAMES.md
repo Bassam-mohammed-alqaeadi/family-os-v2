@@ -73,9 +73,9 @@ This is a shell layout only. The actual child/teen content slots are owned by th
     │                                     │
     │              [SOS]                  │
     │                                     │
-    │       [Large tile] [Large tile]     │
     │                                     │
-    │       [Large tile] [Large tile]     │
+    │       [Large tile cluster — layout TBD] │
+    │                                     │
     │                                     │
     │              [بيت]                  │
     └─────────────────────────────────────┘
@@ -281,6 +281,8 @@ Ordinary update: non-blocking and parent-led. Critical security update or unsupp
 
 ## 3. Responsive conversion rules
 
+The width classes and navigation patterns follow Q-392 and the approved spacing/navigation specifications. Compact behavior at 150–200% text scaling follows Q-389; system text scaling remains uncapped.
+
 | Surface | Compact | Medium | Expanded / Large |
 |---|---|---|---|
 | Parent dashboard | Single column; cards stack or form a compact grid where space allows | Main content may use two columns; rail remains visible | Adaptive dashboard grid; readable bounded content |
@@ -292,6 +294,8 @@ Ordinary update: non-blocking and parent-led. Critical security update or unsupp
 | Child minimal | Tile surface | Same simple interaction, centered/bounded | Do not add adult-style navigation to fill space |
 
 ## 4. Dimension and token rules
+
+Dimensions and touch targets follow spacing-and-grid.md §2–§6; palette roles follow Q-383; typography follows Q-384/Q-389; the operational role model follows Q-006/Q-394.
 
 - Page margins and component spacing come from spacing-and-grid.md; no arbitrary screen-specific values.
 - The spacing system uses the approved 4dp scale; the only 2dp exception is internal space.1.

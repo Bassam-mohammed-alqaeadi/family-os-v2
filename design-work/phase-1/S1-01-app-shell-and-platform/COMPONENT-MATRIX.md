@@ -1,7 +1,7 @@
 # S1-01 — Component and Token Matrix
 
 > **Status:** drafted · **Owner review required**  
-> **Purpose:** Connect each S1-01 surface to existing design-system components, semantic tokens, states, and responsive rules. This is a reuse map; it does not define new components or implement them.
+> **Purpose:** Connect each S1-01 surface to existing design-system components, semantic tokens, states, and responsive rules. This is a reuse map; it does not define new components or implement them. The only operational roles are adult, teen, and child; owner is adult + is_owner=true (Q-006/Q-394).
 
 ## 1. Screen-to-component mapping
 
@@ -23,6 +23,8 @@
 **Catalog guard:** a component not listed above may be used only where the source screen contract and an existing design-system definition support it. Do not create S1-01-only variants to work around a catalog limitation.
 
 ## 2. Semantic token mapping
+
+The frozen palette is governed by Q-383; typography by Q-384/Q-389; and the approved general icon family by Q-385. This matrix references semantic names only and does not repeat primitive hex values.
 
 | UI purpose | Semantic role / token family | Use in S1-01 |
 |---|---|---|
@@ -47,6 +49,8 @@
 - No raw hexadecimal values in screen annotations or component variants.
 
 ## 3. Spacing, shape, and elevation
+
+Responsive width classes/navigation follow Q-392; Compact text-scale adaptation follows Q-389. The dimension rules below are transcribed from spacing-and-grid.md and are not a separate token set.
 
 | Context | Token / rule | S1-01 application |
 |---|---|---|
