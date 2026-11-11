@@ -1,5 +1,4 @@
 # رموز الألوان (Color Tokens)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-038 · Q-383 | يعتمد على: brand-and-logo.md §2 | يُولَّد منه: `packages_dart/fos_design_system`
 > الألوان الخمسة للشعار: **1F3A6B** (كحلي)، **1F6B3B** (أخضر)، **CF5B2C** (برتقالي)، **C8A24A** (ذهبي)، **FCFAED** (كريمي).
