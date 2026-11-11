@@ -1,4 +1,5 @@
 # المكوّنات (Components)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-061, Q-065, Q-067, Q-070 | يعتمد على: color-tokens.md, typography.md, spacing-and-grid.md, iconography.md, S1-09 §9 (سطح التحكم)، S1-03 (مصفوفة التفويض)
 > المكوّن هو العقد بين التصميم والتنفيذ. لا شاشة تبني عنصرًا بنفسها إذا وُجد هنا ما يغطيه.
