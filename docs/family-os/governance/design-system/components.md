@@ -162,11 +162,11 @@
 - **الموافقة:** يُشرح مرة واحدة في الإعداد المشترك (أب + طفل)؛ والشفافية عن الفئات المراقَبة لا عن المحتوى (G-006).
 
 ## 6. التكيف مع ملفات التجربة
-| الجانب | owner / adult | teen | child (standard) | child (minimal) |
+| الجانب | adult (`is_owner=true/false`) | teen | child (standard) | child (minimal) |
 |---|---|---|---|---|
 | حجم الهدف | 48 | 48 | 56 | 72-88 |
 | الاستدارة | md-lg | lg | xl | xl-full |
-| الكثافة | compact للمالك / comfortable للبالغ | comfortable | spacious | spacious |
+| الكثافة | compact لـ `adult + is_owner=true` / comfortable لـ `adult + is_owner=false` | comfortable | spacious | spacious |
 | الأزرار | نص + أيقونة | نص + أيقونة | نص كبير + أيقونة | أيقونة + نص مختصر + صوت |
 | التغذية الراجعة | هادئة | متوسطة | ودّية بحركة | حركة وصوت واضحان |
 - يُعرَّف ذلك في `ThemeProfile` لا في كل مكوّن.
