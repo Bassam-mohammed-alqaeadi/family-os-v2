@@ -1,4 +1,5 @@
 # الطباعة (Typography)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-001, Q-070 | يعتمد على: Q-070 (العربية والإنجليزية، الافتراضي العربية)، rtl-and-localization-ui.md، QUALITY-GATES.md §2 (تكبير الخط) | يُولَّد منه: `fos_design_system`
 > **العربية هي الأصل:** كل قرار طباعي يُصمَّم للعربية أولًا ثم يتأكد في اللاتينية.
