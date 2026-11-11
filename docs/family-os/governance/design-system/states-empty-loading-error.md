@@ -1,4 +1,5 @@
 ﻿# الحالات: الفارغة والتحميل والخطأ (States)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: S1-09 §3/§6، Q-097 | يعتمد على: components.md, motion-and-feedback.md §6, microcopy-and-tone.md, S1-09 §6 (الحالات الصادقة)، architecture/ARCHITECTURE.md §8 (مفاهيم عابرة: الشفافية G-006) و§10 (Q-061)
 > الشاشة ليست «مثالية» أو «مكسورة» فقط. لكل شاشة عشر حالات على الأقل، وكلها **مصمَّمة وصادقة ومفيدة**.
