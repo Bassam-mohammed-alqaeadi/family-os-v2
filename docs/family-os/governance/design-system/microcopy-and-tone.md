@@ -1,5 +1,4 @@
 ﻿# النص التفاعلي والنبرة (Microcopy & Tone)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: D-001, D-023 · Q-382 | يعتمد على: brand-and-logo.md §1, states-empty-loading-error.md, QUALITY-GATES.md §2 (إمكانية الوصول؛ وكل النصوص من ملفات الترجمة)، CONTEXT-MAP.md §5 (اللغة الموحدة)، ARCHITECTURE.md §12 (مسرد)
 > النص جزء من التصميم. الصياغة هي ما يجعل المنصة تبدو موثوقة ودافئة، أو باردة ومخيفة.
