@@ -1,5 +1,4 @@
 # الأيقونات (Iconography)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-070 · Q-385 | يعتمد على: color-tokens.md §6, spacing-and-grid.md §10, rtl-and-localization-ui.md, typography.md §7 (الوصول)، QUALITY-GATES.md §2 (إمكانية الوصول)
 
