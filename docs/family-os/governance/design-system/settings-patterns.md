@@ -1,4 +1,5 @@
 # أنماط الإعدادات (Settings Patterns)
+> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-003, Q-085, Q-088, Q-089 | يعتمد على: S1-09 §9 (سطح التحكم)، S1-03 §3/§5 (القوالب والمنح)، components.md §3, navigation-patterns.md §6, command-center-and-dashboards.md §5
 > **الأولوية الأولى للمنتج:** لكل خدمة لوحة تحكم وإعدادات مرنة وشاملة بحسب صلاحية كل فرد، بتجربة جذابة وواضحة. هذا الملف يحدد **كيف تُبنى وتُعرض كل صفحة إعدادات** بنمط واحد.
