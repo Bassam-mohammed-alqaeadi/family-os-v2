@@ -1,5 +1,4 @@
 # مركز القيادة ولوحات الخدمات (Command Center & Dashboards)
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > الحالة: معتمد للتنفيذ | القرارات: Q-061, Q-066, Q-096, Q-097, Q-098 · Q-391 · Q-393 | يعتمد على: S1-09 SPEC §1/§3 (مركز الأوامر والويدجتات)، components.md §4, settings-patterns.md, navigation-patterns.md §6, S1-09 SPEC §4-2/§5-4 (الأحداث والتنبيهات: `alert.kind` = sos/escalation/grant_expiring/system)، CONTEXT-MAP.md §2 (مجال الإشعارات والتوصيل)
 > **الفكرة:** الرئيسية ليست قائمة روابط، بل **مكتب قيادة حيّ** يجيب في ثوانٍ: هل عائلتي بخير؟ ما الذي يحتاج قراري؟ ما الذي حدث؟ ويُنتَج من السجلات لا من شيفرة لكل خدمة.
