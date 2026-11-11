@@ -123,3 +123,52 @@ No entry in this matrix creates a new role or grant. Actual authorization remain
 - No new Family OS logo, mascot, mentor character, or mentor voice is authored in this S1-01 package; related identity questions remain open.
 - SOS is an interface control, not a standalone decorative illustration. Its icon and text must remain recognizable and accessible.
 - Status illustrations must use the approved brand language and state palette; no extracted brand-distinctive imagery is reused as Family OS identity.
+
+
+## 8. REQ-to-screen traceability
+
+The mapping below reproduces the approved S1-01 SPEC §9-5 coverage map in this design workspace. REQ-016 is deliberately mapped to no UI because it is a build constraint, not a screen.
+
+| REQ | Screen coverage | Design consequence |
+|---|---|---|
+| REQ-001 | SCR-01, SCR-02, SCR-03 | One app, two fixed device modes |
+| REQ-002 | SCR-01 | Resolve paired mode from device record |
+| REQ-003 | SCR-11 (state only) | Enforcement module state is diagnostic, not a separate screen |
+| REQ-004 | SCR-02, SCR-03 | Adaptive parent navigation and child template shell |
+| REQ-005 | SCR-04, SCR-05 | Enter, set, and change parent PIN |
+| REQ-006 | SCR-04 | Restricted action on a child device passes through Parent Gate |
+| REQ-007 | SCR-07 | Persistent SOS control and post-trigger status |
+| REQ-008 | SCR-01, SCR-02, SCR-03 | Offline banner and cached-data behavior |
+| REQ-009 | SCR-09 | Outbox status and flush surface |
+| REQ-010 | SCR-09, SCR-10 | Low-bandwidth policy plus manual/scheduled sync |
+| REQ-011 | SCR-08 | Four registries are shown read-only |
+| REQ-012 | SCR-01, SCR-02, SCR-08 | Load flags/profile at boot; display admin details in settings |
+| REQ-013 | SCR-11 | Platform health diagnostics |
+| REQ-014 | SCR-08 | AI gateway contract structure only; no AI action |
+| REQ-015 | SCR-06 (OS content, not in-app route) | Persistent notification by device mode |
+| REQ-016 | No UI | No ad/tracking libraries; enforced as a build/package constraint |
+| REQ-017 | SCR-01 | Cold-start target is measured in the lab, not represented as a user-facing promise |
+| REQ-018 | SCR-01, SCR-03 | Refusal message for mode/profile switching in Phase 1 |
+| REQ-019 | SCR-11 + platform availability matrix | iOS enforcement state is honestly unavailable; no separate screen |
+| REQ-020 | SCR-12 | Ordinary and mandatory security update states |
+
+Source: docs/family-os/governance/phases/phase-1/S1-01-app-shell-and-platform/SPEC.md §9-5.
+
+## 9. Design-system acceptance traceability
+
+| Screen | Acceptance criteria carried into the design |
+|---|---|
+| SCR-01 | DS-CC-08, DS-CC-11, DS-NV-01, DS-RT-02, DS-ST-01, DS-ST-05 |
+| SCR-02 | DS-CC-01, DS-CC-02, DS-CC-05, DS-CC-08, DS-NV-01, DS-NV-02, DS-ST-01 |
+| SCR-03 | DS-CH-01, DS-CH-02, DS-CH-03, DS-CH-09, DS-NV-05, DS-ST-01 |
+| SCR-04 | DS-CM-05, DS-CM-07, DS-MC-03, DS-RT-04, DS-ST-02, DS-ST-08 |
+| SCR-05 | DS-CM-05, DS-CM-07, DS-MC-03, DS-SE-05, DS-ST-02 |
+| SCR-06 | DS-CM-11, DS-CH-07, DS-MC-08, DS-ST-03 |
+| SCR-07 | DS-CM-04, DS-MT-06, DS-SP-07, DS-ST-10 |
+| SCR-08 | DS-SE-01, DS-SE-02, DS-SE-03, DS-CM-02, DS-CM-03, DS-ST-03 |
+| SCR-09 | DS-ST-05, DS-ST-11, DS-CC-04, DS-MC-03 |
+| SCR-10 | DS-ST-11, DS-SE-01, DS-ST-05 |
+| SCR-11 | DS-SE-09, DS-CH-08, DS-ST-03, DS-ST-06, DS-MT-03 |
+| SCR-12 | DS-ST-01, DS-NV-09, DS-MC-03 |
+
+These are design traceability links, not claims that any criterion is implemented or passed.
