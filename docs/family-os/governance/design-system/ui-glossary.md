@@ -1,5 +1,4 @@
 # مسرد واجهة Family OS — المرجع المعتمد
-> **المراجع الحاكمة:** الألوان `color-tokens.md`؛ الخطوط والاتجاه `typography.md` و`rtl-and-localization-ui.md`؛ مصطلحات الواجهة `ui-glossary.md`؛ المكوّنات والحالات `components.md` و`states-empty-loading-error.md`.
 
 > **الحالة:** معتمد لنظام التصميم بموجب Q-382 (2026-11-11).
 > **المرجع الوحيد لمصطلحات الواجهة:** هذا الملف. CONTEXT-MAP §5 وARCHITECTURE §12 مرجعان للمفاهيم المعمارية، ولا يتقدمان على صياغة الواجهة هنا.
