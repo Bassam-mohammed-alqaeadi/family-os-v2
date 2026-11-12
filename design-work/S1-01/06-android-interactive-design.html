@@ -402,6 +402,7 @@ function navItems(){
 }
 function renderNav(){
  var items=navItems();
+ if(state.view==="gate"||state.view==="update")items=[];
  if(items.length===0){nav.classList.add("hidden");return;}
  nav.classList.remove("hidden");
  var iconMode=state.scale>=150;
@@ -496,14 +497,14 @@ function updateView(){
  return '<section class="update-panel"><div class="eyebrow">Critical security update</div><div style="font-size:28px;margin-top:12px;color:var(--danger)">⬆</div><h3>يلزم تحديث أمني</h3><p>هذا الإصدار لم يعد مدعوماً. يلزم تثبيت التحديث الأمني للمتابعة. لا يوجد مسار تجاوز للتحديث الحرج.</p><button class="store-action" id="storeAction">فتح صفحة التحديث</button><div class="info-note">حالة تجريبية. لا يتم فتح متجر حقيقي من هذه المعاينة. تبقى SOS متاحة ولا يُدّعى اكتمال التحديث عند عدم الاتصال.</div></section>';
 }
 function render(){
- var v=state.view, p=profileForView();
+ var v=state.view, p=(state.view==="gate"?"child":profileForView());
  document.documentElement.setAttribute("data-theme",state.theme);
  $("screen").style.setProperty("--scale",String(state.scale/100));
  $("scaleValue").textContent=state.scale+"%";
  $("topAction").style.display=(v==="gate"||v==="update"||v==="minimal")?"none":"grid";
  var title=names[v]||"عائلتي";
  var ctx=(p==="adult"||p==="adultNonOwner")?"وضع الأهل":p==="teen"?"وضع المراهق":p==="minimal"?"وضع الطفل · مبسّط":"وضع الطفل";
- commonHeader(title,ctx);
+ commonHeader(title,(v==="gate"?"جهاز الطفل · إجراء محمي":ctx));
  renderStrip();
  sos.className="sos-fab"+(p==="child"?" child":"")+(p==="minimal"?" minimal":"");
  sos.style.display=v==="gate"||v==="update"?"block":"flex";
