@@ -108,6 +108,46 @@ html[data-theme="dark"] .preview-stage{background:radial-gradient(ellipse at 50%
 .phone-sub{font-size:calc(11px * var(--phone-scale));color:#667085;line-height:1.75}
 .demo-label{display:inline-flex;align-items:center;gap:5px;background:#F2F4F7;border:1px solid #E2E5EA;color:#667085;border-radius:99px;padding:4px 8px;font-size:8px;font-weight:800;margin-bottom:8px}
 .demo-label:before{content:"";width:5px;height:5px;background:#C8A24A;border-radius:50%}
+
+.orbit-card{background:linear-gradient(145deg,#142749,#0F1E39);border-radius:24px;padding:14px 14px 11px;margin:14px 0 17px;color:#fff;overflow:hidden;position:relative}
+.orbit-label{display:flex;justify-content:space-between;align-items:center;color:#DAE4F2;font-size:9px}
+.orbit-label .hero-chip{font-size:7px}
+.orbit-scene{height:188px;position:relative;margin-top:7px}
+.orbit-path{position:absolute;border:1px solid rgba(210,225,245,.17);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-15deg)}
+.orbit-path-one{width:190px;height:112px}
+.orbit-path-two{width:245px;height:150px;transform:translate(-50%,-50%) rotate(32deg)}
+.orbit-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:75px;height:75px;border-radius:28px;background:linear-gradient(145deg,#fff,#DCE7F7);color:#1F3A6B;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 9px rgba(255,255,255,.045),0 10px 26px rgba(0,0,0,.18)}
+.orbit-core span{font-size:23px;font-weight:900;line-height:1}
+.orbit-core small{font:6px Arial,sans-serif;letter-spacing:1px;margin-top:4px}
+.orbit-node{position:absolute;width:55px;height:55px;border-radius:19px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;backdrop-filter:blur(8px)}
+.orbit-node b{font-size:16px;color:#fff}
+.orbit-node small{font-size:7px;color:#DCE6F2}
+.orbit-node-a{top:6px;right:33px}
+.orbit-node-b{top:73px;right:0}
+.orbit-node-c{bottom:0;left:30px}
+.orbit-node-d{top:1px;left:42px}
+.orbit-foot{display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.15);padding-top:9px;color:#B6C6DC;font-size:7px}
+.focus-card{display:flex;align-items:center;gap:10px;border:1px solid #DCE4EE;background:#fff;border-radius:15px;padding:11px}
+.focus-icon{width:34px;height:34px;border-radius:12px;background:#EEF2F8;color:#1F3A6B;display:grid;place-items:center;font-size:16px}
+.focus-card div{flex:1;min-width:0}
+.focus-card strong{display:block;color:#1C2B45;font-size:10px}
+.focus-card small{display:block;color:#7B8798;font-size:8px;margin-top:4px}
+.focus-arrow{color:#8792A5;font-size:18px}
+.signal-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.signal-row>div{background:#fff;border:1px solid #E5E8ED;border-radius:12px;padding:9px 8px}
+.signal-row b{display:block;font-size:8px;color:#1C2B45;margin:5px 0 3px}
+.signal-row small{display:block;font-size:7px;color:#7B8798}
+.signal-dot{width:6px;height:6px;border-radius:50%;display:block}
+.signal-ok{background:#1F6B3B}
+.signal-warn{background:#9A5B00}
+.signal-neutral{background:#2457A6}
+html[data-theme="dark"] .focus-card,
+html[data-theme="dark"] .signal-row>div{background:#121F33;border-color:#263852}
+html[data-theme="dark"] .focus-card strong,
+html[data-theme="dark"] .signal-row b{color:#F4F6FA}
+html[data-theme="dark"] .focus-card small,
+html[data-theme="dark"] .signal-row small{color:#B3BED0}
+
 .hero-card{background:linear-gradient(145deg,#1F3A6B,#142749 72%,#0F1E39);border-radius:22px;padding:17px;color:#fff;position:relative;overflow:hidden;margin:12px 0 14px;box-shadow:0 12px 24px rgba(31,58,107,.16)}
 .hero-card:before{content:"";position:absolute;width:160px;height:160px;border:1px solid rgba(255,255,255,.10);border-radius:50%;left:-72px;top:-68px;box-shadow:0 0 0 18px rgba(255,255,255,.035),0 0 0 38px rgba(255,255,255,.025)}
 .hero-card>*{position:relative}
@@ -244,6 +284,58 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
 .release-gate strong{font-size:11px}.release-gate small{display:block;font-size:9px;margin-top:4px}
 .stage-foot{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:9px}
 .stage-foot strong{color:var(--text)}
+
+html[data-theme="dark"] .device-screen,
+html[data-theme="dark"] .phone-app,
+html[data-theme="dark"] .phone-content,
+html[data-theme="dark"] .phone-home-indicator{background:#081122;color:#F4F6FA}
+html[data-theme="dark"] .android-status{background:#081122;color:#D7E1F0}
+html[data-theme="dark"] .phone-brand strong,
+html[data-theme="dark"] .phone-title,
+html[data-theme="dark"] .section-head strong,
+html[data-theme="dark"] .module-meta strong,
+html[data-theme="dark"] .stat-card strong,
+html[data-theme="dark"] .child-tile strong,
+html[data-theme="dark"] .health-card strong,
+html[data-theme="dark"] .gate-card h3{color:#F4F6FA}
+html[data-theme="dark"] .phone-sub,
+html[data-theme="dark"] .phone-brand small,
+html[data-theme="dark"] .section-head small,
+html[data-theme="dark"] .module-meta small,
+html[data-theme="dark"] .stat-card small,
+html[data-theme="dark"] .health-card small,
+html[data-theme="dark"] .health-card em{color:#B3BED0}
+html[data-theme="dark"] .phone-action,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .module-card,
+html[data-theme="dark"] .queue-row,
+html[data-theme="dark"] .health-card,
+html[data-theme="dark"] .gate-card,
+html[data-theme="dark"] .keypad button,
+html[data-theme="dark"] .child-tile,
+html[data-theme="dark"] .minimal-tile,
+html[data-theme="dark"] .teen-chip,
+html[data-theme="dark"] .phone-bottom-nav{background:#121F33;border-color:#263852;color:#F4F6FA}
+html[data-theme="dark"] .child-hero{background:#182840;border-color:#2A405E}
+html[data-theme="dark"] .child-hero h3{color:#F4F6FA}
+html[data-theme="dark"] .child-hero p{color:#B3BED0}
+html[data-theme="dark"] .child-progress{background:#2A405E}
+html[data-theme="dark"] .child-tile .tile-icon,
+html[data-theme="dark"] .minimal-tile span,
+html[data-theme="dark"] .module-symbol,
+html[data-theme="dark"] .stat-icon{background:#203653;color:#DCE8FA}
+html[data-theme="dark"] .child-help{background:#1F3A6B}
+html[data-theme="dark"] .phone-bottom-nav{border-top-color:#263852}
+html[data-theme="dark"] .nav-item{color:#A7B3C5}
+html[data-theme="dark"] .nav-item.active{color:#FFFFFF}
+html[data-theme="dark"] .pin-dots i{background:#121F33;border-color:#71809A}
+html[data-theme="dark"] .pin-dots i.filled{background:#719CE0;border-color:#719CE0}
+html[data-theme="dark"] .gate-card p{color:#B3BED0}
+html[data-theme="dark"] .sos-ring{background:#301C22}
+html[data-theme="dark"] .sos-page h3{color:#F4F6FA}
+html[data-theme="dark"] .sos-page p{color:#B3BED0}
+html[data-theme="dark"] .phone-banner{background:#392B19;color:#F8D7A6;border-color:#5E4826}
+
 @media(max-width:1220px){
  .studio-grid{grid-template-columns:210px minmax(390px,1fr) 260px;gap:10px}
  .page{padding:16px 12px 28px}
@@ -366,6 +458,7 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
               <div class="phone-banner" id="offlineBanner"><b>●</b><span>أنت دون اتصال — نعرض البيانات المحفوظة</span></div>
               <div class="phone-app" id="phoneApp">
                 <div class="phone-content" id="phoneContent"></div>
+                <div id="dynamicNav"></div>
                 <button class="sos-fab" id="globalSos" aria-label="معاينة زر SOS">SOS</button>
                 <div class="phone-home-indicator"><span></span></div>
               </div>
@@ -456,7 +549,7 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
         <div class="toggle-row"><span>بيانات قديمة</span><button class="toggle" id="staleToggle" aria-label="تبديل قدم البيانات"><span></span></button></div>
       </div>
       <div class="inspector-block">
-        <div class="control-label">المظهر <small>Theme profile</small></div>
+        <div class="control-label">مظهر الاستوديو والمعاينة <small>Theme profile</small></div>
         <div class="segment"><button class="active" data-theme-choice="light">فاتح</button><button data-theme-choice="dark">داكن</button></div>
       </div>
       <div class="inspector-block">
@@ -486,7 +579,7 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
 
 <script>
 (function(){
-  var state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,sosStarted:false};
+  var state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,lockUntil:0,sosStarted:false};
   var phoneContent=document.getElementById("phoneContent");
   var phoneApp=document.getElementById("phoneApp");
   var offlineBanner=document.getElementById("offlineBanner");
@@ -517,17 +610,29 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
     return header("عائلتي","مساحة الوالدين · مالك/بالغ","⌕")+
       '<div class="demo-label">DEMO DATA · بيانات تركيبية</div>'+
       '<div class="phone-kicker">FAMILY COMMAND SPACE</div>'+
-      '<h1 class="phone-title">كل ما يهم عائلتك،<br>في مساحة واحدة.</h1>'+
-      '<p class="phone-sub">تجربة موحّدة تتغير حسب صلاحياتك وسياق جهازك، لا حسب قائمة شاشات ثابتة.</p>'+
-      '<section class="hero-card"><div class="hero-top"><span class="hero-eyebrow">نظرة عامة على المنصة</span><span class="hero-chip">'+(state.online?'متصل':'دون اتصال')+'</span></div><h3>مساحة عائلتك</h3><p>معلومات الأنظمة تظهر من مصادرها المسجّلة، مع توضيح الحالة ووقت آخر تحديث.</p><div class="hero-footer"><div class="hero-orbit">✳</div><div><span>حالة السياق</span><br><b style="font-size:11px;color:#fff">'+status+'</b></div></div></section>'+
-      '<div class="section-head"><strong>إشارات المنصة</strong><small>عينة عرض فقط</small></div>'+
-      '<div class="stat-grid">'+
-      '<div class="stat-card"><div class="stat-icon">⌘</div><strong>'+(state.online?'الاتصال متاح':'الاتصال منقطع')+'</strong><small>حالة الشبكة الحالية في المعاينة</small></div>'+
-      '<div class="stat-card"><div class="stat-icon">↻</div><strong class="'+(state.stale?'state-amber':'state-green')+'">'+(state.stale?'تحتاج تحديثاً':'المزامنة جاهزة')+'</strong><small>لا تعني أن كل البيانات حديثة</small></div>'+
-      '<div class="stat-card"><div class="stat-icon">▣</div><strong>وضع الأهل</strong><small>تُحدد الوجهات حسب المنح الفعلية</small></div>'+
-      '<div class="stat-card"><div class="stat-icon">◇</div><strong>قدرات الجهاز</strong><small>تُعرض وفق ما يؤكده النظام</small></div>'+
+      '<h1 class="phone-title">عائلتك هي المركز.<br>والمنصة تتكيّف حولها.</h1>'+
+      '<p class="phone-sub">بدلاً من قائمة شاشات ثابتة، تظهر هنا المساحات والقدرات التي يحق لك الوصول إليها الآن.</p>'+
+      '<section class="orbit-card">'+
+        '<div class="orbit-label"><span>خريطة المساحات</span><span class="hero-chip">REGISTERED MODULES</span></div>'+
+        '<div class="orbit-scene">'+
+          '<div class="orbit-path orbit-path-one"></div><div class="orbit-path orbit-path-two"></div>'+
+          '<div class="orbit-core"><span>F</span><small>FAMILY OS</small></div>'+
+          '<div class="orbit-node orbit-node-a"><b>⬡</b><small>الحماية</small></div>'+
+          '<div class="orbit-node orbit-node-b"><b>⌖</b><small>الموقع</small></div>'+
+          '<div class="orbit-node orbit-node-c"><b>✉</b><small>التواصل</small></div>'+
+          '<div class="orbit-node orbit-node-d"><b>◷</b><small>اليوم</small></div>'+
+        '</div>'+
+        '<div class="orbit-foot"><span>تكوين تجريبي للمساحات</span><span>تُحدد الوجهات من السجل والمنح</span></div>'+
+      '</section>'+
+      '<div class="section-head"><strong>الآن في مساحتك</strong><small>حالة المصدر · DEMO</small></div>'+
+      '<div class="focus-card"><div class="focus-icon">✳</div><div><strong>نظرة المنصة</strong><small>'+(state.online?(state.stale?'هناك بيانات تحتاج إلى تحديث':'قناة الاتصال متاحة'):'العمل المحلي مستمر دون اتصال')+'</small></div><span class="focus-arrow">←</span></div>'+
+      '<div class="section-head"><strong>إشارات الحالة</strong><small>لا أحكام مستنتجة</small></div>'+
+      '<div class="signal-row">'+
+        '<div><span class="signal-dot '+(state.online?'signal-ok':'signal-warn')+'"></span><b>الاتصال</b><small>'+(state.online?'متصل':'غير متصل')+'</small></div>'+
+        '<div><span class="signal-dot '+(state.stale?'signal-warn':'signal-ok')+'"></span><b>حداثة البيانات</b><small>'+(state.stale?'تحتاج تحديثاً':'حديثة في العينة')+'</small></div>'+
+        '<div><span class="signal-dot signal-neutral"></span><b>القدرات</b><small>حسب الجهاز</small></div>'+
       '</div>'+
-      '<div class="section-head"><strong>مساحات الأنظمة</strong><small>من السجل · مثال</small></div>'+
+      '<div class="section-head"><strong>المساحات المتاحة</strong><small>من وحدات مسجّلة</small></div>'+
       '<div class="module-list">'+
       '<div class="module-card"><div class="module-symbol">⬡</div><div class="module-meta"><strong>الحماية والفرض</strong><small>قدرة نظامية · المصدر S1-10</small></div><span class="module-code">S1-10</span></div>'+
       '<div class="module-card"><div class="module-symbol">⌖</div><div class="module-meta"><strong>الموقع والسلامة</strong><small>قدرة نظامية · المصدر S1-07</small></div><span class="module-code">S1-07</span></div>'+
@@ -610,12 +715,18 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
     document.getElementById("childProfileBlock").style.display=state.mode==="child"?"block":"none";
     if(state.mode==="child" && state.view==="parent"){state.view="child";}
     if(state.mode==="parent" && state.view==="child"){state.view="parent";}
-    if(state.view==="parent"){phoneContent.innerHTML=parentHTML();}
-    else if(state.view==="child"){phoneContent.innerHTML=childHTML();}
-    else if(state.view==="gate"){phoneContent.innerHTML=gateHTML();}
-    else if(state.view==="sos"){phoneContent.innerHTML=sosHTML();}
-    else if(state.view==="sync"){phoneContent.innerHTML=syncHTML();}
-    else if(state.view==="health"){phoneContent.innerHTML=healthHTML();}
+    if(state.locked && Date.now() >= state.lockUntil){state.locked=false;state.attempts=0;state.lockUntil=0;}
+    var rendered="";
+    if(state.view==="parent"){rendered=parentHTML();}
+    else if(state.view==="child"){rendered=childHTML();}
+    else if(state.view==="gate"){rendered=gateHTML();}
+    else if(state.view==="sos"){rendered=sosHTML();}
+    else if(state.view==="sync"){rendered=syncHTML();}
+    else if(state.view==="health"){rendered=healthHTML();}
+    var navMatch=rendered.match(/<div class="phone-bottom-nav">[\s\S]*?<\/div>$/);
+    var dock=document.getElementById("dynamicNav");
+    if(navMatch){phoneContent.innerHTML=rendered.slice(0,navMatch.index);dock.innerHTML=navMatch[0];}
+    else{phoneContent.innerHTML=rendered;dock.innerHTML="";}
     globalSos.style.display=state.view==="sos"?"none":"block";
     offlineBanner.classList.toggle("show",!state.online);
     phoneApp.style.setProperty("--phone-scale",String(state.scale/100));
@@ -667,7 +778,7 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
     else if(action==="pin-verify"){
       if(state.pin.length!==6){notify("أدخل ستة أرقام في المحاكاة.");return;}
       if(state.pin==="604281"){state.attempts=0;state.pin="";notify("نجاح محاكاة محلية — لا تم التحقق من PIN حقيقي.");}
-      else{state.attempts++;state.pin="";if(state.attempts>=5)state.locked=true;notify(state.locked?"محاكاة القفل: خمس محاولات خاطئة · خمس دقائق.":"PIN غير صحيح في المحاكاة.");renderPhone();}
+      else{state.attempts++;state.pin="";if(state.attempts>=5){state.locked=true;state.lockUntil=Date.now()+300000;setTimeout(function(){state.locked=false;state.attempts=0;state.lockUntil=0;renderPhone();},300000);}notify(state.locked?"محاكاة القفل: خمس محاولات خاطئة · خمس دقائق.":"PIN غير صحيح في المحاكاة.");renderPhone();}
     }
   });
   document.getElementById("globalSos").addEventListener("click",function(){state.sosStarted=false;showView("sos");});
@@ -681,7 +792,7 @@ input[type=range]{width:100%;accent-color:#1F3A6B}
     this.textContent=state.theme==="light"?"الوضع الداكن":"الوضع الفاتح";
   });
   document.getElementById("resetBtn").addEventListener("click",function(){
-    state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,sosStarted:false};
+    state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,lockUntil:0,sosStarted:false};
     document.documentElement.setAttribute("data-theme","light");
     document.getElementById("scaleRange").value=100;
     document.querySelectorAll("[data-theme-choice]").forEach(function(x){x.classList.toggle("active",x.getAttribute("data-theme-choice")==="light");});
