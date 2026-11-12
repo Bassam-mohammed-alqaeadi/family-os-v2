@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0F1E39">
+<title>Family OS — Experience Studio / S1-01</title>
+<style>
+:root{
+  --navy:#1F3A6B;--navy-2:#142749;--navy-3:#0F1E39;--navy-4:#081525;
+  --green:#1F6B3B;--orange:#CF5B2C;--gold:#C8A24A;--amber:#9A5B00;
+  --red:#B42318;--info:#2457A6;--cream:#FCFAED;
+  --white:#FFFFFF;--n50:#F7F6F0;--n100:#EEECE2;--n200:#DEDACB;
+  --n500:#827B69;--n600:#625C4D;--n700:#494536;--n800:#302D24;
+  --canvas:#F1F3F7;--surface:#FFFFFF;--surface-2:#F8F8F4;
+  --text:#17243B;--muted:#667085;--line:#E4E7EC;
+  --shadow:0 18px 54px rgba(16,24,40,.10);
+  --scale:1;
+  --font:"IBM Plex Sans Arabic","IBM Plex Sans",Tahoma,Arial,sans-serif;
+}
+html[data-theme="dark"]{
+  --canvas:#0B1424;--surface:#121F33;--surface-2:#182840;
+  --text:#F4F6FA;--muted:#B3BED0;--line:#263852;
+  --shadow:0 18px 54px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--text);font-family:var(--font);font-size:14px;min-width:320px}
+button,select,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #719CE0;outline-offset:2px}
+.topbar{height:72px;background:#0F1E39;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-glyph{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#fff 0%,#DDE7F6 100%);color:#1F3A6B;display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.brand-name{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.brand-sub{font:10px/1.4 Arial,sans-serif;color:#A8B8D0;letter-spacing:1.5px;margin-top:2px}
+.top-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.top-pill{border:1px solid rgba(255,255,255,.15);color:#D7E1F0;padding:7px 11px;border-radius:999px;font-size:11px;display:flex;align-items:center;gap:7px}
+.top-pill strong{color:#fff}
+.dot{width:7px;height:7px;border-radius:50%;background:#C8A24A;display:inline-block}
+.top-actions{display:flex;align-items:center;gap:8px}
+.top-button{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);color:#fff;border-radius:10px;padding:9px 12px;font-size:12px}
+.top-button:hover{background:rgba(255,255,255,.15)}
+.page{max-width:1680px;margin:auto;padding:22px 22px 38px}
+.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:4px 2px 18px}
+.intro-kicker{font:10px/1.5 Arial,sans-serif;color:var(--muted);letter-spacing:1.7px;text-transform:uppercase}
+.intro h1{font-size:27px;letter-spacing:-.6px;margin:4px 0 5px;font-weight:850}
+.intro p{color:var(--muted);font-size:13px;margin:0;max-width:700px;line-height:1.8}
+.intro-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#FFF3E8;color:#75430E;font-size:10px;font-weight:800;border:1px solid #EBCDA9}
+.badge.blue{background:#EAF1FC;color:#1F3A6B;border-color:#D3E0F5}
+.badge.green{background:#E8F5EA;color:#1F6B3B;border-color:#C9E2D0}
+.studio-grid{display:grid;grid-template-columns:246px minmax(440px,1fr) 286px;gap:16px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 4px 18px rgba(20,35,60,.035)}
+.left-panel,.right-panel{padding:16px;position:sticky;top:92px}
+.panel-title{font-size:12px;font-weight:850;margin:0 0 5px}
+.panel-caption{font-size:10px;line-height:1.65;color:var(--muted);margin:0 0 14px}
+.section-label{font:9px/1.4 Arial,sans-serif;letter-spacing:1.4px;color:#8792A5;text-transform:uppercase;margin:17px 0 8px}
+.view-list{display:grid;gap:6px}
+.view-button{width:100%;border:1px solid transparent;background:transparent;color:var(--text);display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;text-align:right;font-size:12px;font-weight:700;transition:.18s}
+.view-button:hover{background:var(--surface-2)}
+.view-button.active{background:#EDF2F9;border-color:#D9E3F2;color:var(--navy)}
+html[data-theme="dark"] .view-button.active{background:#1B3150;border-color:#2B4568;color:#DCE8FA}
+.view-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:var(--surface-2);font-size:15px;color:var(--navy)}
+.view-button.active .view-icon{background:var(--navy);color:#fff}
+.view-text{display:flex;flex-direction:column;gap:2px}
+.view-text small{font-size:9px;color:var(--muted);font-weight:500}
+.architecture-mini{border:1px solid var(--line);border-radius:13px;padding:11px;background:var(--surface-2)}
+.layer-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:10px}
+.layer-row:last-child{border:0}
+.layer-row b{font-size:10px}
+.layer-tag{color:var(--muted);font:8px Arial,sans-serif;letter-spacing:.6px}
+.phase-meter{margin-top:12px}
+.phase-meter-top{display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px}
+.meter{height:6px;background:var(--n100);border-radius:99px;overflow:hidden}
+.meter span{height:100%;display:block;background:linear-gradient(90deg,#1F3A6B,#4C78B7);width:16.66%;border-radius:99px}
+.center-panel{padding:16px;min-height:920px;overflow:hidden}
+.center-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:2px 2px 14px;border-bottom:1px solid var(--line)}
+.center-head h2{font-size:16px;margin:0 0 4px}
+.center-head p{margin:0;color:var(--muted);font-size:10px}
+.switcher{display:flex;gap:4px;padding:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;flex-shrink:0}
+.switcher button{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:8px;font-size:10px}
+.switcher button.active{background:var(--surface);color:var(--navy);font-weight:800;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.preview-stage{min-height:770px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:24px 10px 18px;background:
+ radial-gradient(ellipse at 50% 35%,rgba(205,219,240,.56),rgba(241,243,247,0) 52%),
+ linear-gradient(135deg,rgba(255,255,255,.42),rgba(241,243,247,0));}
+html[data-theme="dark"] .preview-stage{background:radial-gradient(ellipse at 50% 35%,rgba(40,63,94,.48),rgba(11,20,36,0) 56%)}
+.device-wrap{position:relative;filter:drop-shadow(0 24px 28px rgba(5,15,30,.22))}
+.device-frame{width:390px;height:824px;padding:9px;border-radius:55px;background:linear-gradient(145deg,#3D4148,#090B10 28%,#20242B 70%,#08090B);border:1px solid #06070A;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),inset 0 0 0 4px rgba(0,0,0,.35)}
+.device-frame:before{content:"";position:absolute;right:-3px;top:165px;width:3px;height:64px;background:#222831;border-radius:0 4px 4px 0}
+.device-frame:after{content:"";position:absolute;left:-3px;top:138px;width:3px;height:48px;background:#222831;border-radius:4px 0 0 4px;box-shadow:0 61px 0 #222831}
+.device-screen{height:100%;width:100%;border-radius:46px;overflow:hidden;background:var(--cream);position:relative;display:flex;flex-direction:column;color:#17243B}
+.android-status{height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 20px 0 17px;font:10px Arial,sans-serif;color:#344054;background:var(--cream);position:relative;z-index:3}
+.android-hole{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:#141A22;box-shadow:0 0 0 2px rgba(0,0,0,.05)}
+.status-icons{display:flex;gap:5px;align-items:center}
+.phone-app{display:flex;flex-direction:column;flex:1;min-height:0;background:var(--cream);position:relative;--phone-scale:1}
+.phone-banner{display:none;background:#FFF3E8;color:#714206;padding:8px 13px;font-size:10px;font-weight:700;align-items:center;gap:7px;border-bottom:1px solid #EBCDA9;flex-shrink:0}
+.phone-banner.show{display:flex}
+.phone-content{flex:1;min-height:0;overflow:auto;scrollbar-width:none;padding:0 17px 18px;font-size:calc(13px * var(--phone-scale))}
+.phone-content::-webkit-scrollbar{display:none}
+.phone-header{display:flex;align-items:center;justify-content:space-between;padding:12px 1px 15px}
+.phone-brand{display:flex;gap:9px;align-items:center}
+.brand-mark-phone{width:33px;height:33px;border-radius:11px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900}
+.phone-brand strong{display:block;font-size:calc(14px * var(--phone-scale));font-weight:850;color:#17243B}
+.phone-brand small{display:block;font-size:9px;color:#778195;margin-top:2px}
+.phone-action{width:34px;height:34px;border:1px solid #E3E6EC;background:#fff;border-radius:11px;color:#344054;display:grid;place-items:center;font-size:15px}
+.phone-kicker{font:9px Arial,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#7B879A}
+.phone-title{font-size:calc(23px * var(--phone-scale));font-weight:900;line-height:1.35;letter-spacing:-.55px;color:#142749;margin:7px 0}
+.phone-sub{font-size:calc(11px * var(--phone-scale));color:#667085;line-height:1.75}
+.demo-label{display:inline-flex;align-items:center;gap:5px;background:#F2F4F7;border:1px solid #E2E5EA;color:#667085;border-radius:99px;padding:4px 8px;font-size:8px;font-weight:800;margin-bottom:8px}
+.demo-label:before{content:"";width:5px;height:5px;background:#C8A24A;border-radius:50%}
+.hero-card{background:linear-gradient(145deg,#1F3A6B,#142749 72%,#0F1E39);border-radius:22px;padding:17px;color:#fff;position:relative;overflow:hidden;margin:12px 0 14px;box-shadow:0 12px 24px rgba(31,58,107,.16)}
+.hero-card:before{content:"";position:absolute;width:160px;height:160px;border:1px solid rgba(255,255,255,.10);border-radius:50%;left:-72px;top:-68px;box-shadow:0 0 0 18px rgba(255,255,255,.035),0 0 0 38px rgba(255,255,255,.025)}
+.hero-card>*{position:relative}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hero-eyebrow{font-size:9px;color:#C4D3EA}
+.hero-chip{font-size:8px;padding:5px 8px;border-radius:99px;background:rgba(255,255,255,.12);color:#F7F9FC;border:1px solid rgba(255,255,255,.12)}
+.hero-card h3{font-size:calc(21px * var(--phone-scale));line-height:1.4;margin:14px 0 6px;font-weight:850}
+.hero-card p{font-size:calc(10px * var(--phone-scale));color:#D6E0EF;line-height:1.8;margin:0;max-width:250px}
+.hero-footer{display:flex;gap:8px;margin-top:17px;align-items:center}
+.hero-footer span{font-size:8px;color:#D5E1F0}
+.hero-orbit{width:50px;height:50px;border-radius:50%;border:1px solid rgba(255,255,255,.30);display:grid;place-items:center;background:rgba(255,255,255,.07);font-size:19px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:16px 0 9px}
+.section-head strong{font-size:calc(12px * var(--phone-scale));font-weight:850;color:#182A45}
+.section-head small{font-size:9px;color:#8792A5}
+.stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat-card{background:#fff;border:1px solid #E6E8ED;border-radius:15px;padding:11px;min-height:86px}
+.stat-icon{width:28px;height:28px;border-radius:9px;background:#EEF2F8;color:#1F3A6B;display:grid;place-items:center;font-size:13px;margin-bottom:7px}
+.stat-card strong{font-size:calc(11px * var(--phone-scale));display:block;color:#1C2B45}
+.stat-card small{display:block;color:#7B8798;font-size:8px;line-height:1.5;margin-top:3px}
+.state-green{color:#1F6B3B!important}
+.state-amber{color:#9A5B00!important}
+.module-list{display:grid;gap:8px}
+.module-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E5E8ED;border-radius:15px;padding:10px}
+.module-symbol{width:37px;height:37px;border-radius:12px;background:#EEF2F8;color:#1F3A6B;display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.module-meta{min-width:0;flex:1}
+.module-meta strong{display:block;font-size:calc(11px * var(--phone-scale));color:#1C2B45}
+.module-meta small{display:block;color:#7D8797;font-size:8px;margin-top:4px}
+.module-code{color:#8792A5;font:8px Arial,sans-serif;letter-spacing:.5px}
+.pulse-row{display:flex;align-items:center;gap:8px;background:#EFF5F0;border:1px solid #DCEBDD;border-radius:13px;padding:10px;margin-top:10px}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#1F6B3B;box-shadow:0 0 0 4px rgba(31,107,59,.10);flex-shrink:0}
+.pulse-row div{font-size:9px;color:#30553E;line-height:1.6}
+.pulse-row b{font-size:10px;color:#1F6B3B}
+.phone-bottom-nav{height:67px;flex-shrink:0;background:#fff;border-top:1px solid #E6E8ED;display:flex;justify-content:space-around;align-items:center;padding:4px 8px 7px}
+.nav-item{border:0;background:transparent;color:#9099A9;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-width:54px;min-height:48px;font-size:8px}
+.nav-item span:first-child{font-size:16px;line-height:1}
+.nav-item.active{color:#1F3A6B;font-weight:850}
+.nav-item.active:before{content:"";width:17px;height:3px;background:#1F3A6B;border-radius:99px;position:absolute;transform:translateY(-22px)}
+.sos-fab{position:absolute;bottom:79px;left:17px;width:53px;height:53px;border:0;border-radius:19px;background:#B42318;color:#fff;font:bold 11px Arial,sans-serif;box-shadow:0 8px 18px rgba(180,35,24,.25);z-index:8}
+.sos-fab:after{content:"";position:absolute;inset:-4px;border:1px solid rgba(180,35,24,.24);border-radius:22px}
+.child-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+.child-avatar{width:38px;height:38px;border-radius:14px;background:#E5F0E6;color:#1F6B3B;display:grid;place-items:center;font-weight:900}
+.child-hero{background:linear-gradient(135deg,#F0F5FF,#E6F1F8);border:1px solid #D9E4F0;border-radius:23px;padding:16px;margin:8px 0}
+.child-hero h3{font-size:calc(21px * var(--phone-scale));margin:7px 0;color:#142749}
+.child-hero p{font-size:10px;color:#667085;line-height:1.7;margin:0}
+.child-progress{height:7px;border-radius:99px;background:#DCE6F2;overflow:hidden;margin:13px 0 7px}
+.child-progress span{display:block;width:64%;height:100%;background:#1F6B3B;border-radius:99px}
+.child-tile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.child-tile{min-height:105px;border:1px solid #E3E7EC;background:#fff;border-radius:18px;padding:13px;text-align:right}
+.child-tile .tile-icon{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:#F0F5FF;color:#1F3A6B;font-size:17px;margin-bottom:10px}
+.child-tile strong{display:block;font-size:11px;color:#1C2B45}
+.child-tile small{display:block;font-size:8px;color:#7B8798;margin-top:4px}
+.child-help{display:flex;gap:10px;align-items:center;background:#1F3A6B;color:#fff;border-radius:16px;padding:13px;margin-top:12px}
+.child-help span{font-size:18px}
+.child-help div{font-size:10px;line-height:1.6}
+.minimal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:25px}
+.minimal-tile{height:128px;border:0;border-radius:25px;background:#fff;box-shadow:0 7px 18px rgba(20,45,75,.08);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;color:#1F3A6B;font-size:13px;font-weight:850}
+.minimal-tile span{width:54px;height:54px;border-radius:19px;background:#EEF3FA;display:grid;place-items:center;font-size:23px}
+.teen-strip{display:flex;gap:8px;overflow:auto;padding:2px 0 8px}
+.teen-chip{flex-shrink:0;border:1px solid #DDE4EE;background:#fff;border-radius:99px;padding:8px 12px;font-size:9px;color:#344054}
+.gate-card{background:#fff;border:1px solid #E4E7ED;border-radius:23px;padding:18px;margin-top:28px;text-align:center}
+.gate-lock{width:56px;height:56px;margin:auto;border-radius:19px;background:#EEF2F8;color:#1F3A6B;display:grid;place-items:center;font-size:24px}
+.gate-card h3{font-size:18px;margin:12px 0 5px;color:#17243B}
+.gate-card p{font-size:10px;color:#667085;line-height:1.7;margin:0}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:20px 0}
+.pin-dots i{width:11px;height:11px;border-radius:50%;border:1px solid #BAC4D2;background:#fff}
+.pin-dots i.filled{background:#1F3A6B;border-color:#1F3A6B}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.keypad button{height:42px;border:1px solid #E5E8EE;background:#F9FAFB;border-radius:12px;color:#24334D;font-size:15px;font-weight:700}
+.keypad button:active{background:#EAF0F8}
+.gate-submit{width:100%;border:0;border-radius:12px;background:#1F3A6B;color:#fff;padding:12px;margin-top:12px;font-weight:800;font-size:11px}
+.gate-note{font-size:9px;color:#8B94A4;margin-top:9px}
+.sos-page{padding-top:32px;text-align:center}
+.sos-ring{width:150px;height:150px;margin:30px auto 18px;border:1px solid rgba(180,35,24,.25);border-radius:50%;display:grid;place-items:center;position:relative;background:#FFF2EF}
+.sos-ring:before{content:"";position:absolute;inset:12px;border:1px dashed rgba(180,35,24,.42);border-radius:50%}
+.sos-ring strong{font:bold 25px Arial,sans-serif;color:#B42318}
+.sos-page h3{font-size:21px;color:#17243B;margin:6px 0}
+.sos-page p{font-size:10px;color:#667085;line-height:1.8}
+.sos-action{border:0;background:#B42318;color:#fff;padding:13px 17px;border-radius:13px;width:100%;font-weight:850;font-size:11px;margin:14px 0 8px}
+.sos-disclaimer{font-size:9px!important;color:#9B3A34!important;background:#FFF2EF;padding:9px;border-radius:11px}
+.sync-hero{background:#1F3A6B;color:#fff;border-radius:21px;padding:16px;margin-top:17px}
+.sync-hero small{font-size:9px;color:#D7E1F0}
+.sync-hero strong{display:block;font-size:22px;margin:8px 0}
+.queue-row{background:#fff;border:1px solid #E5E8EE;border-radius:13px;padding:11px;display:flex;justify-content:space-between;gap:9px;margin-top:8px}
+.queue-row strong{font-size:10px;color:#23334D}
+.queue-row small{display:block;font-size:8px;color:#8490A2;margin-top:4px}
+.health-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}
+.health-card{background:#fff;border:1px solid #E4E8ED;border-radius:15px;padding:12px}
+.health-card small{font-size:8px;color:#7B8798}
+.health-card strong{display:block;color:#1F3A6B;font-size:14px;margin:6px 0}
+.health-card em{font-style:normal;font-size:8px;color:#667085}
+.phone-home-indicator{height:17px;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0}
+.phone-home-indicator span{width:98px;height:4px;border-radius:99px;background:#1C2430;opacity:.78}
+.inspector-block{border-top:1px solid var(--line);padding-top:13px;margin-top:13px}
+.control-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;margin-bottom:8px}
+.control-label small{font-size:9px;color:var(--muted);font-weight:500}
+.segment{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:11px;border:1px solid var(--line)}
+.segment button{flex:1;border:0;background:transparent;color:var(--muted);padding:8px 6px;border-radius:8px;font-size:10px}
+.segment button.active{background:var(--surface);color:var(--navy);font-weight:850;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface);color:var(--text);font-size:11px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;margin-top:11px}
+.toggle{border:0;width:38px;height:22px;border-radius:99px;background:#C7CDD6;padding:3px;display:flex;justify-content:flex-start;transition:.2s}
+.toggle span{width:16px;height:16px;border-radius:50%;background:#fff;display:block;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle.on{background:#1F6B3B;justify-content:flex-end}
+input[type=range]{width:100%;accent-color:#1F3A6B}
+.token-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.swatch{height:29px;border-radius:8px;border:1px solid rgba(16,24,40,.08);position:relative}
+.swatch-label{font-size:8px;color:var(--muted);text-align:center;margin-top:4px}
+.inspector-note{font-size:9px;line-height:1.7;color:var(--muted);background:var(--surface-2);padding:10px;border-radius:10px;margin-top:12px}
+.architecture-board{display:none;padding:20px 5px 8px}
+.architecture-board.active{display:block}
+.arch-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}
+.arch-intro h3{font-size:19px;margin:0 0 7px}
+.arch-intro p{font-size:11px;color:var(--muted);max-width:700px;line-height:1.8;margin:0}
+.arch-stats{display:flex;gap:8px;flex-wrap:wrap}
+.arch-stat{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 13px;min-width:95px}
+.arch-stat strong{display:block;font-size:19px;color:var(--navy)}
+.arch-stat small{font-size:9px;color:var(--muted)}
+.arch-layers{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.arch-layer{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px;min-height:95px}
+.arch-layer b{display:block;font-size:11px;margin-bottom:7px}
+.arch-layer p{font-size:9px;color:var(--muted);line-height:1.65;margin:0}
+.phase-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.phase-card{border:1px solid var(--line);background:var(--surface);border-radius:15px;padding:13px}
+.phase-card.current{border-color:#9AB1D3;box-shadow:0 0 0 2px rgba(31,58,107,.07)}
+.phase-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.phase-top b{font-size:12px}
+.phase-top span{font-size:9px;color:var(--muted)}
+.system-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.system-chip{border:1px solid var(--line);background:var(--surface-2);padding:8px;border-radius:9px;font-size:9px;line-height:1.5}
+.system-chip strong{display:block;color:var(--navy);font:9px Arial,sans-serif;margin-bottom:3px}
+.system-chip.unknown{border-style:dashed;color:var(--muted);background:transparent}
+.phase-note{font-size:9px;color:var(--muted);line-height:1.7;margin-top:9px}
+.release-gate{margin-top:16px;border:1px solid #EBCDA9;background:#FFF8EC;border-radius:14px;padding:13px;display:flex;justify-content:space-between;gap:12px;align-items:center;color:#77480E}
+.release-gate strong{font-size:11px}.release-gate small{display:block;font-size:9px;margin-top:4px}
+.stage-foot{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:var(--muted);font-size:9px}
+.stage-foot strong{color:var(--text)}
+@media(max-width:1220px){
+ .studio-grid{grid-template-columns:210px minmax(390px,1fr) 260px;gap:10px}
+ .page{padding:16px 12px 28px}
+ .left-panel,.right-panel{padding:12px}
+ .device-frame{transform:scale(.94);transform-origin:top center;margin-bottom:-48px}
+}
+@media(max-width:980px){
+ .studio-grid{grid-template-columns:205px minmax(0,1fr)}
+ .right-panel{position:static;grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+ .right-panel>.panel-intro{grid-column:1/-1}
+ .inspector-block{border-top:0;border-right:1px solid var(--line);padding:0 10px 0 0;margin:0}
+ .preview-stage{min-height:760px}
+}
+@media(max-width:700px){
+ .topbar{height:auto;min-height:64px;padding:12px;flex-wrap:wrap;gap:10px}
+ .brand-sub{display:none}
+ .top-meta{display:none}
+ .page{padding:13px 9px 22px}
+ .intro{display:block;margin-bottom:12px}
+ .intro h1{font-size:21px}
+ .intro-badges{margin-top:10px}
+ .studio-grid{display:flex;flex-direction:column}
+ .left-panel,.right-panel{position:static;width:100%}
+ .left-panel{order:1}
+ .center-panel{order:2;width:100%;padding:10px;min-height:auto}
+ .right-panel{order:3;display:block}
+ .view-list{grid-template-columns:repeat(3,1fr)}
+ .view-button{padding:8px 4px;justify-content:center;flex-direction:column;text-align:center;font-size:9px;gap:5px}
+ .view-text small{display:none}
+ .architecture-board{padding:12px 2px}
+ .arch-layers{grid-template-columns:repeat(2,1fr)}
+ .phase-grid{grid-template-columns:1fr}
+ .device-frame{transform:scale(.82);transform-origin:top center;margin-bottom:-148px}
+ .preview-stage{min-height:690px;padding:12px 0}
+ .center-head{flex-direction:column}
+ .right-panel{display:block}
+ .inspector-block{border-top:1px solid var(--line);border-right:0;padding:13px 0 0;margin-top:13px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-glyph">ع</div>
+    <div><div class="brand-name">عائلتي <span style="font-weight:400;color:#A9B9D0">/ Family OS</span></div><div class="brand-sub">PLATFORM EXPERIENCE STUDIO</div></div>
+  </div>
+  <div class="top-meta">
+    <span class="top-pill"><i class="dot"></i><strong>S1-01</strong> · App Shell & Platform</span>
+    <span class="top-pill">6 STAGES · TARGET 60 SYSTEMS</span>
+    <span class="top-pill">CONCEPT 0.1 · DRAFT</span>
+  </div>
+  <div class="top-actions">
+    <button class="top-button" id="resetBtn">إعادة ضبط المعاينة</button>
+    <button class="top-button" id="themeBtn">الوضع الداكن</button>
+  </div>
+</header>
+
+<main class="page">
+  <section class="intro">
+    <div>
+      <div class="intro-kicker">REIMAGINED PLATFORM FOUNDATION / 01</div>
+      <h1>غلاف واحد. تجارب تتشكل حول الإنسان.</h1>
+      <p>استوديو تصوري لبناء لغة Family OS البصرية من الصفر: منصة مشتركة، سياقات مختلفة، وأنظمة تضيف قدراتها دون أن تنشئ عوالم تصميم منفصلة.</p>
+    </div>
+    <div class="intro-badges">
+      <span class="badge blue">Android device preview</span>
+      <span class="badge green">Arabic-first · RTL</span>
+      <span class="badge">بيانات العرض تجريبية</span>
+    </div>
+  </section>
+
+  <section class="studio-grid">
+    <aside class="panel left-panel">
+      <h2 class="panel-title">مسارات التجربة</h2>
+      <p class="panel-caption">اختر سياقاً أو حالة لترى كيف يحافظ الغلاف على نفس المنطق البصري.</p>
+      <div class="section-label">LIVE EXPERIENCE</div>
+      <div class="view-list" id="viewList">
+        <button class="view-button active" data-view="parent"><span class="view-icon">⌂</span><span class="view-text">مساحة الوالدين<small>Family Command Space</small></span></button>
+        <button class="view-button" data-view="child"><span class="view-icon">✳</span><span class="view-text">مساحة الطفل<small>Personal Family Space</small></span></button>
+        <button class="view-button" data-view="gate"><span class="view-icon">▣</span><span class="view-text">بوابة الوالدين<small>Parent Gate · PIN</small></span></button>
+        <button class="view-button" data-view="sos"><span class="view-icon">!</span><span class="view-text">طبقة الطوارئ<small>Global SOS layer</small></span></button>
+        <button class="view-button" data-view="sync"><span class="view-icon">↻</span><span class="view-text">الاستمرارية<small>Offline & Sync</small></span></button>
+        <button class="view-button" data-view="health"><span class="view-icon">⌁</span><span class="view-text">صحة المنصة<small>Platform Health</small></span></button>
+      </div>
+
+      <div class="section-label">PLATFORM LOGIC</div>
+      <div class="architecture-mini">
+        <div class="layer-row"><b>سياق المنصة</b><span class="layer-tag">CONTEXT</span></div>
+        <div class="layer-row"><b>الثقة والسلامة</b><span class="layer-tag">TRUST</span></div>
+        <div class="layer-row"><b>الاستمرارية</b><span class="layer-tag">CONTINUITY</span></div>
+        <div class="layer-row"><b>غلاف التجربة</b><span class="layer-tag">SHELL</span></div>
+        <div class="layer-row"><b>وحدات الأنظمة</b><span class="layer-tag">MODULES</span></div>
+      </div>
+      <div class="phase-meter">
+        <div class="phase-meter-top"><span>التوسع المستهدف</span><strong>01 / 06</strong></div>
+        <div class="meter"><span></span></div>
+        <p class="panel-caption" style="margin:7px 0 0">10 أنظمة موثقة في المرحلة الأولى. تفاصيل الأنظمة اللاحقة لا تُخترع قبل تخطيطها.</p>
+      </div>
+      <button class="view-button" id="architectureBtn" style="margin-top:12px;border:1px solid var(--line);background:var(--surface-2)"><span class="view-icon">▦</span><span class="view-text">خريطة المنصة<small>6 stages / 60-system target</small></span></button>
+    </aside>
+
+    <section class="panel center-panel">
+      <div class="center-head">
+        <div><h2 id="centerTitle">معاينة تجربة الوالدين</h2><p id="centerCaption">إطار Android · سياق الوالدين · بيانات نموذجية وليست متصلة بخادم</p></div>
+        <div class="switcher" role="tablist" aria-label="نوع المعاينة">
+          <button class="active" id="phoneTab">إطار الهاتف</button>
+          <button id="mapTab">معمارية المنصة</button>
+        </div>
+      </div>
+
+      <div class="preview-stage" id="previewStage">
+        <div class="device-wrap" id="deviceWrap">
+          <div class="device-frame">
+            <div class="device-screen">
+              <div class="android-status">
+                <span>9:41</span><span class="android-hole"></span>
+                <span class="status-icons"><b>5G</b><b>▮▮▮</b><b>◒</b></span>
+              </div>
+              <div class="phone-banner" id="offlineBanner"><b>●</b><span>أنت دون اتصال — نعرض البيانات المحفوظة</span></div>
+              <div class="phone-app" id="phoneApp">
+                <div class="phone-content" id="phoneContent"></div>
+                <button class="sos-fab" id="globalSos" aria-label="معاينة زر SOS">SOS</button>
+                <div class="phone-home-indicator"><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="architecture-board" id="architectureBoard">
+        <div class="arch-intro">
+          <div><h3>بنية واحدة تستوعب ست مراحل</h3><p>الغلاف يوفّر السياق والسلامة والاستمرارية. كل نظام يسجل قدراته ويقدم واجهاته ضمن قواعد المنصة، ولا يكرر التنقل أو الصلاحيات أو المكونات العامة.</p></div>
+          <div class="arch-stats"><div class="arch-stat"><strong>06</strong><small>مراحل مستهدفة</small></div><div class="arch-stat"><strong>60</strong><small>نظام مستهدف</small></div><div class="arch-stat"><strong>10</strong><small>أنظمة موثقة الآن</small></div></div>
+        </div>
+        <div class="section-label">SHARED PLATFORM LAYERS</div>
+        <div class="arch-layers">
+          <div class="arch-layer"><b>01 · Platform Context</b><p>وضع الجهاز، العضوية، المنح، اللغة، المنطقة، وقدرات المنصة.</p></div>
+          <div class="arch-layer"><b>02 · Trust & Safety</b><p>SOS، Parent Gate، سجل التدقيق، وصدق التوفر والصلاحيات.</p></div>
+          <div class="arch-layer"><b>03 · Continuity Fabric</b><p>الكاش، Outbox، دون اتصال، التعارض، النطاق المنخفض.</p></div>
+          <div class="arch-layer"><b>04 · Experience Shell</b><p>التركيب التكيفي، الاكتشاف، التركيز، النشاط، التحكم والحساب.</p></div>
+          <div class="arch-layer"><b>05 · Registered Modules</b><p>قدرات الأنظمة، مداخلها، عناصرها، عقودها وحالاتها.</p></div>
+        </div>
+        <div class="section-label">PHASE PORTFOLIO · CURRENTLY DOCUMENTED VS TARGET</div>
+        <div class="phase-grid">
+          <div class="phase-card current">
+            <div class="phase-top"><b>المرحلة 1 · نواة الحماية</b><span>10 / 10 موثقة</span></div>
+            <div class="system-grid">
+              <div class="system-chip"><strong>S1-01</strong>غلاف التطبيق والمنصة</div>
+              <div class="system-chip"><strong>S1-02</strong>الهوية والتهيئة</div>
+              <div class="system-chip"><strong>S1-03</strong>الأدوار والصلاحيات</div>
+              <div class="system-chip"><strong>S1-10</strong>الحماية والفرض</div>
+              <div class="system-chip"><strong>S1-09</strong>مركز الأوامر</div>
+              <div class="system-chip"><strong>S1-07</strong>الموقع وSOS</div>
+              <div class="system-chip"><strong>S1-08</strong>الدردشة الأساسية</div>
+              <div class="system-chip"><strong>S1-05</strong>المكافآت</div>
+              <div class="system-chip"><strong>S1-06</strong>المهام والتقويم</div>
+              <div class="system-chip"><strong>S1-04</strong>الخطط والاشتراكات</div>
+            </div>
+            <p class="phase-note">أسماء المرحلة الأولى وترتيب التنفيذ كما في خارطة الطريق وQ-199.</p>
+          </div>
+          <div class="phase-card">
+            <div class="phase-top"><b>المرحلة 2 · التواصل العائلي</b><span>تخطيط تفصيلي لاحق</span></div>
+            <div class="system-grid"><div class="system-chip unknown">10 وحدات محتملة<br>لم تُسمَّ بعد</div><div class="system-chip unknown">لا أسماء أو واجهات مفترضة</div></div>
+            <p class="phase-note">المجال والأهداف مذكورة في الخارطة؛ لا توجد عشرة عقود أنظمة معتمدة في هذه اللقطة.</p>
+          </div>
+          <div class="phase-card">
+            <div class="phase-top"><b>المرحلة 3 · التعليم</b><span>تخطيط تفصيلي لاحق</span></div>
+            <div class="system-grid"><div class="system-chip unknown">10 وحدات مستهدفة<br>تحدد لاحقاً</div><div class="system-chip unknown">لا أسماء أو واجهات مفترضة</div></div>
+            <p class="phase-note">تُبنى تجربة التعليم على العقود المعتمدة عند دخول مرحلتها.</p>
+          </div>
+          <div class="phase-card">
+            <div class="phase-top"><b>المرحلة 4 · الخدمات الدينية</b><span>تخطيط تفصيلي لاحق</span></div>
+            <div class="system-grid"><div class="system-chip unknown">10 وحدات مستهدفة<br>تحدد لاحقاً</div><div class="system-chip unknown">لا أسماء أو واجهات مفترضة</div></div>
+            <p class="phase-note">لا تُنشأ أصول أو تجارب دينية دون مصادر وقرارات موثقة.</p>
+          </div>
+          <div class="phase-card">
+            <div class="phase-top"><b>المرحلة 5 · إدارة العائلة</b><span>تخطيط تفصيلي لاحق</span></div>
+            <div class="system-grid"><div class="system-chip unknown">10 وحدات مستهدفة<br>تحدد لاحقاً</div><div class="system-chip unknown">لا أسماء أو واجهات مفترضة</div></div>
+            <p class="phase-note">الأسوار الجغرافية الكاملة ومجالات الإدارة المؤجلة تُفصّل حينها.</p>
+          </div>
+          <div class="phase-card">
+            <div class="phase-top"><b>المرحلة 6 · طبقة الذكاء الكاملة</b><span>تخطيط تفصيلي لاحق</span></div>
+            <div class="system-grid"><div class="system-chip unknown">10 وحدات مستهدفة<br>تحدد لاحقاً</div><div class="system-chip unknown">لا أسماء أو واجهات مفترضة</div></div>
+            <p class="phase-note">عقد الذكاء والميزانية والحدود من المرحلة الأولى لا تعني تفعيل الطبقة الكاملة.</p>
+          </div>
+        </div>
+        <div class="release-gate"><div><strong>مرحلة التصليب والإطلاق</strong><small>بوابة جودة وأمان وامتثال، وليست مرحلة أنظمة إضافية ضمن هدف 6 × 10.</small></div><span>G4 · Release Gate</span></div>
+        <div class="stage-foot"><span>الأنظمة 11–60: لم تُخترع أسماءها أو نطاقاتها.</span><strong>Architecture target ≠ approved backlog</strong></div>
+      </div>
+    </section>
+
+    <aside class="panel right-panel">
+      <div class="panel-intro"><h2 class="panel-title">لوحة التجربة</h2><p class="panel-caption">غيّر السياق والحالة لترى تكيف الواجهة. جميع الحالات محاكاة محلية فقط.</p></div>
+      <div class="inspector-block" style="border-top:0;padding-top:0;margin-top:0">
+        <div class="control-label">سياق المستخدم <small>Experience mode</small></div>
+        <div class="segment"><button class="active" data-mode="parent">الأهل</button><button data-mode="child">الطفل</button></div>
+      </div>
+      <div class="inspector-block" id="childProfileBlock">
+        <div class="control-label">قالب تجربة الطفل <small>Age profile</small></div>
+        <select id="childProfile">
+          <option value="standard">طفل · Standard</option>
+          <option value="minimal">دون 7 · Minimal</option>
+          <option value="teen">مراهق · Standard</option>
+        </select>
+      </div>
+      <div class="inspector-block">
+        <div class="control-label">الاتصال <small>Continuity state</small></div>
+        <div class="toggle-row"><span>متصل بالشبكة</span><button class="toggle on" id="networkToggle" aria-label="تبديل الاتصال"><span></span></button></div>
+        <div class="toggle-row"><span>بيانات قديمة</span><button class="toggle" id="staleToggle" aria-label="تبديل قدم البيانات"><span></span></button></div>
+      </div>
+      <div class="inspector-block">
+        <div class="control-label">المظهر <small>Theme profile</small></div>
+        <div class="segment"><button class="active" data-theme-choice="light">فاتح</button><button data-theme-choice="dark">داكن</button></div>
+      </div>
+      <div class="inspector-block">
+        <div class="control-label"><span>تكبير النص</span><small id="scaleValue">100%</small></div>
+        <input type="range" id="scaleRange" min="100" max="160" step="10" value="100">
+      </div>
+      <div class="inspector-block">
+        <div class="control-label">إشارات التصميم</div>
+        <div class="token-row">
+          <div><div class="swatch" style="background:#1F3A6B"></div><div class="swatch-label">Primary</div></div>
+          <div><div class="swatch" style="background:#1F6B3B"></div><div class="swatch-label">Success</div></div>
+          <div><div class="swatch" style="background:#9A5B00"></div><div class="swatch-label">Warning</div></div>
+          <div><div class="swatch" style="background:#B42318"></div><div class="swatch-label">Danger</div></div>
+          <div><div class="swatch" style="background:#FCFAED"></div><div class="swatch-label">Surface</div></div>
+        </div>
+        <p class="inspector-note">الرموز مأخوذة من مرجع الألوان الحالي. لا توجد ألوان خاصة بالشاشة ولا حالة «آمن» مستنتجة من الاتصال.</p>
+      </div>
+      <div class="inspector-block">
+        <div class="control-label">عقد المعاينة</div>
+        <p class="inspector-note">لا خادم، لا قاعدة بيانات، لا إرسال SOS حقيقي، ولا تغيير صلاحيات. هذا استوديو تصميم تفاعلي ببيانات عرض فقط.</p>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,sosStarted:false};
+  var phoneContent=document.getElementById("phoneContent");
+  var phoneApp=document.getElementById("phoneApp");
+  var offlineBanner=document.getElementById("offlineBanner");
+  var globalSos=document.getElementById("globalSos");
+  var toast=document.getElementById("toast");
+  var isArch=false;
+  var toastTimer=null;
+
+  function notify(message){
+    toast.textContent=message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){toast.classList.remove("show");},2600);
+  }
+  function header(title,subtitle,icon){
+    return '<div class="phone-header"><div class="phone-brand"><div class="brand-mark-phone">ع</div><div><strong>'+title+'</strong><small>'+subtitle+'</small></div></div><button class="phone-action" data-action="account" aria-label="الحساب">'+(icon||'⋯')+'</button></div>';
+  }
+  function nav(active){
+    var items=[["parent","⌂","الرئيسية"],["spaces","▦","المساحات"],["activity","◷","النشاط"],["health","⌁","المنصة"]];
+    var out='<div class="phone-bottom-nav">';
+    for(var i=0;i<items.length;i++){
+      out+='<button class="nav-item '+(items[i][0]===active?'active':'')+'" data-action="nav" data-target="'+items[i][0]+'"><span>'+items[i][1]+'</span><span>'+items[i][2]+'</span></button>';
+    }
+    return out+'</div>';
+  }
+  function parentHTML(){
+    var status=state.online?(state.stale?'بيانات تحتاج تحديثاً':'المزامنة متاحة'):'دون اتصال';
+    return header("عائلتي","مساحة الوالدين · مالك/بالغ","⌕")+
+      '<div class="demo-label">DEMO DATA · بيانات تركيبية</div>'+
+      '<div class="phone-kicker">FAMILY COMMAND SPACE</div>'+
+      '<h1 class="phone-title">كل ما يهم عائلتك،<br>في مساحة واحدة.</h1>'+
+      '<p class="phone-sub">تجربة موحّدة تتغير حسب صلاحياتك وسياق جهازك، لا حسب قائمة شاشات ثابتة.</p>'+
+      '<section class="hero-card"><div class="hero-top"><span class="hero-eyebrow">نظرة عامة على المنصة</span><span class="hero-chip">'+(state.online?'متصل':'دون اتصال')+'</span></div><h3>مساحة عائلتك</h3><p>معلومات الأنظمة تظهر من مصادرها المسجّلة، مع توضيح الحالة ووقت آخر تحديث.</p><div class="hero-footer"><div class="hero-orbit">✳</div><div><span>حالة السياق</span><br><b style="font-size:11px;color:#fff">'+status+'</b></div></div></section>'+
+      '<div class="section-head"><strong>إشارات المنصة</strong><small>عينة عرض فقط</small></div>'+
+      '<div class="stat-grid">'+
+      '<div class="stat-card"><div class="stat-icon">⌘</div><strong>'+(state.online?'الاتصال متاح':'الاتصال منقطع')+'</strong><small>حالة الشبكة الحالية في المعاينة</small></div>'+
+      '<div class="stat-card"><div class="stat-icon">↻</div><strong class="'+(state.stale?'state-amber':'state-green')+'">'+(state.stale?'تحتاج تحديثاً':'المزامنة جاهزة')+'</strong><small>لا تعني أن كل البيانات حديثة</small></div>'+
+      '<div class="stat-card"><div class="stat-icon">▣</div><strong>وضع الأهل</strong><small>تُحدد الوجهات حسب المنح الفعلية</small></div>'+
+      '<div class="stat-card"><div class="stat-icon">◇</div><strong>قدرات الجهاز</strong><small>تُعرض وفق ما يؤكده النظام</small></div>'+
+      '</div>'+
+      '<div class="section-head"><strong>مساحات الأنظمة</strong><small>من السجل · مثال</small></div>'+
+      '<div class="module-list">'+
+      '<div class="module-card"><div class="module-symbol">⬡</div><div class="module-meta"><strong>الحماية والفرض</strong><small>قدرة نظامية · المصدر S1-10</small></div><span class="module-code">S1-10</span></div>'+
+      '<div class="module-card"><div class="module-symbol">⌖</div><div class="module-meta"><strong>الموقع والسلامة</strong><small>قدرة نظامية · المصدر S1-07</small></div><span class="module-code">S1-07</span></div>'+
+      '<div class="module-card"><div class="module-symbol">✉</div><div class="module-meta"><strong>التواصل العائلي</strong><small>قدرة نظامية · المصدر S1-08</small></div><span class="module-code">S1-08</span></div>'+
+      '</div>'+
+      '<div class="pulse-row"><span class="pulse-dot"></span><div><b>قاعدة الصدق</b><br>لا تظهر حالة نجاح أو حماية إلا عندما يؤكدها النظام المالك.</div></div>'+
+      '<div style="height:12px"></div>'+nav("parent");
+  }
+  function childHTML(){
+    if(state.profile==="minimal"){
+      return '<div class="child-header"><div><div class="phone-kicker">PERSONAL FAMILY SPACE</div><h2 class="phone-title" style="font-size:23px;margin:4px 0">أهلاً بك!</h2><p class="phone-sub">اختر ما تريد فعله.</p></div><div class="child-avatar">✳</div></div>'+
+        '<div class="demo-label">تصور بصري · قالب Minimal</div>'+
+        '<div class="minimal-grid">'+
+        '<button class="minimal-tile" data-action="child-slot"><span>✦</span>نشاطي</button>'+
+        '<button class="minimal-tile" data-action="child-slot"><span>⌂</span>عائلتي</button>'+
+        '<button class="minimal-tile" data-action="child-slot"><span>◈</span>أتعلم</button>'+
+        '<button class="minimal-tile" data-action="open-sos"><span style="background:#FFF2EF;color:#B42318">!</span>مساعدة</button>'+
+        '</div><p class="phone-sub" style="margin-top:15px;text-align:center">محتوى البلاطات النهائي يُراجع مع عقود الأنظمة وقالب العمر.</p>';
+    }
+    if(state.profile==="teen"){
+      return '<div class="child-header"><div><div class="phone-kicker">YOUR SPACE</div><h2 class="phone-title" style="font-size:23px;margin:4px 0">مساحتك الخاصة.</h2><p class="phone-sub">معلومات واضحة، وخيارات تحترم استقلاليتك.</p></div><div class="child-avatar">✳</div></div>'+
+        '<div class="demo-label">تصور بصري · Teen Standard</div>'+
+        '<section class="child-hero"><small class="phone-kicker">TODAY</small><h3>ابدأ بما يهمك.</h3><p>مساحاتك تظهر هنا حسب الخدمات المفعّلة وما يسمح به حسابك.</p><div class="child-progress"><span style="width:42%"></span></div><small class="phone-sub">بيانات تقديرية للعرض فقط</small></section>'+
+        '<div class="teen-strip"><span class="teen-chip">خصوصيتي</span><span class="teen-chip">وقتي</span><span class="teen-chip">التواصل</span></div>'+
+        '<div class="module-list"><div class="module-card"><div class="module-symbol">◷</div><div class="module-meta"><strong>وقتي وخطتي</strong><small>يعرضه نظام الحماية عند توفر الحالة</small></div></div><div class="module-card"><div class="module-symbol">✉</div><div class="module-meta"><strong>رسائلي</strong><small>من نظام التواصل</small></div></div></div>'+
+        '<div class="child-help"><span>?</span><div><b>تحتاج مساعدة؟</b><br>اطلب المساعدة من شخص موثوق.</div></div>'+nav("spaces");
+    }
+    return '<div class="child-header"><div><div class="phone-kicker">PERSONAL FAMILY SPACE</div><h2 class="phone-title" style="font-size:23px;margin:4px 0">أهلاً بك!</h2><p class="phone-sub">مساحتك اليومية، ببساطة.</p></div><div class="child-avatar">✳</div></div>'+
+      '<div class="demo-label">تصور بصري · Child Standard</div>'+
+      '<section class="child-hero"><div class="phone-kicker">خطوتك القادمة</div><h3>كل يوم فرصة جديدة.</h3><p>نظرة واضحة على ما ينتظرك، بدون ضغط أو مقارنة.</p><div class="child-progress"><span></span></div><small class="phone-sub">مثال بصري فقط — لا يعكس بيانات طفل حقيقي</small></section>'+
+      '<div class="section-head"><strong>مساحاتك</strong><small>محتوى نموذجي</small></div>'+
+      '<div class="child-tile-grid"><button class="child-tile" data-action="child-slot"><div class="tile-icon">✓</div><strong>مهامي</strong><small>من نظام المهام</small></button><button class="child-tile" data-action="child-slot"><div class="tile-icon">✦</div><strong>مكافآتي</strong><small>من نظام المكافآت</small></button><button class="child-tile" data-action="child-slot"><div class="tile-icon">✉</div><strong>تواصلي</strong><small>من نظام التواصل</small></button><button class="child-tile" data-action="child-slot"><div class="tile-icon">◈</div><strong>أتعلم</strong><small>مساحة نظامية</small></button></div>'+
+      '<div class="child-help"><span>?</span><div><b>تحتاج شيئاً؟</b><br>يمكنك طلب المساعدة بطريقة آمنة.</div></div>'+nav("spaces");
+  }
+  function gateHTML(){
+    var dots="";
+    for(var i=0;i<6;i++){dots+='<i class="'+(i<state.pin.length?'filled':'')+'"></i>';}
+    var keys="";
+    for(var n=1;n<=9;n++){keys+='<button data-action="pin-digit" data-digit="'+n+'">'+n+'</button>';}
+    keys+='<button data-action="pin-clear">⌫</button><button data-action="pin-digit" data-digit="0">0</button><button data-action="pin-delete">×</button>';
+    return header("بوابة الوالدين","إجراء يتطلب تحققاً","←")+
+      '<div class="gate-card"><div class="gate-lock">▣</div><h3>تحقق قبل المتابعة</h3><p>تُستخدم هذه البوابة لحماية الإجراءات الإدارية على جهاز الطفل.</p>'+
+      '<div class="pin-dots">'+dots+'</div>'+
+      (state.locked?'<p class="state-amber">تم تفعيل القفل بعد خمس محاولات خاطئة. المحاكاة تعرض حالة القفل لمدة خمس دقائق.</p>':'<p>أدخل PIN الأب · تحقق محلي في الجهاز</p>')+
+      '<div class="keypad">'+keys+'</div>'+
+      '<button class="gate-submit" data-action="pin-verify" '+(state.locked?'disabled':'')+'>تحقق</button>'+
+      '<div class="gate-note">محاكاة تصميمية فقط · لا يتم تخزين PIN أو التحقق من خادم.</div>'+
+      '<div class="gate-note">محاولات تجريبية خاطئة: '+state.attempts+' / 5</div></div>';
+  }
+  function sosHTML(){
+    return header("طلب المساعدة","طبقة أمان عامة","!")+
+      '<div class="sos-page"><div class="demo-label">SIMULATION ONLY · لا إرسال حقيقي</div><div class="sos-ring"><strong>SOS</strong></div><h3>المساعدة قريبة.</h3><p>يظل زر SOS ظاهراً فوق تجارب الأهل والأطفال. عند التفعيل يسلّم الغلاف الحدث إلى نظام الموقع، وهو المالك لوسيلة التوصيل.</p>'+
+      '<button class="sos-action" data-action="simulate-sos">'+(state.sosStarted?'تم إنشاء حالة تجريبية':'محاكاة تسليم حدث SOS')+'</button>'+
+      '<p class="sos-disclaimer">'+(state.sosStarted?'هذه حالة مرئية داخل المتصفح فقط. لم يُرسل أي تنبيه ولم يتم الاتصال بأي جهة.':'لن يتم إرسال تنبيه أو مشاركة موقع في هذا النموذج.')+'</p>'+
+      '<div class="queue-row"><div><strong>التحكم العالمي</strong><small>طبقة مستقلة عن التنقل</small></div><span class="module-code">GLOBAL</span></div>'+
+      '<div class="queue-row"><div><strong>ملكية التوصيل</strong><small>S1-07 · مصدر الحقيقة لحالات الإرسال والإقرار</small></div><span class="module-code">S1-07</span></div></div>';
+  }
+  function syncHTML(){
+    return header("الاستمرارية","حالة الاتصال والمزامنة","↻")+
+      '<div class="demo-label">DEMO STATE · محاكاة محلية</div>'+
+      '<section class="sync-hero"><small>حالة الاتصال الحالية</small><strong>'+(state.online?'متصل بالشبكة':'دون اتصال')+'</strong><small>'+(state.online?(state.stale?'توجد بيانات تحتاج إلى تحديث':'يمكن مزامنة التغييرات'):'تستمر القراءة من البيانات المحفوظة محلياً')+'</small></section>'+
+      '<div class="section-head"><strong>حالة العمل المحلي</strong><small>مثال عرض</small></div>'+
+      '<div class="queue-row"><div><strong>إعداد عائلي محفوظ</strong><small>تغيير محلي · لا يحتوي بيانات شخصية</small></div><span class="module-code">'+(state.online?'متزامن':'معلّق')+'</span></div>'+
+      '<div class="queue-row"><div><strong>حالة جهاز</strong><small>قراءة من آخر مصدر متاح</small></div><span class="module-code">'+(state.stale?'قديم':'حديث')+'</span></div>'+
+      '<div class="queue-row"><div><strong>تحديث المنصة</strong><small>لا تحديث تلقائي في وضع النطاق المنخفض</small></div><span class="module-code">يتطلب سياسة</span></div>'+
+      '<div class="pulse-row"><span class="pulse-dot" style="background:'+(state.online?'#1F6B3B':'#9A5B00')+'"></span><div><b>'+(state.online?'الاتصال متاح':'العمل المحلي مستمر')+'</b><br>تُعرض حالة الحفظ المحلي منفصلة عن قبول الخادم.</div></div>';
+  }
+  function healthHTML(){
+    return header("صحة المنصة","قراءات الجهاز وقدراته","⌁")+
+      '<div class="demo-label">SIMULATED TELEMETRY · بيانات تجريبية</div>'+
+      '<div class="phone-kicker">PLATFORM STATUS</div><h2 class="phone-title">صورة واضحة عن الجهاز.</h2><p class="phone-sub">لا نحول القراءات إلى حكم شامل عن سلامة العائلة، ولا نعرض قدرة غير متاحة وكأنها تعمل.</p>'+
+      '<div class="health-grid"><div class="health-card"><small>الاتصال</small><strong class="'+(state.online?'state-green':'state-amber')+'">'+(state.online?'متصل':'غير متصل')+'</strong><em>مصدر: حالة الشبكة</em></div><div class="health-card"><small>حداثة البيانات</small><strong class="'+(state.stale?'state-amber':'state-green')+'">'+(state.stale?'تحتاج تحديثاً':'حديثة')+'</strong><em>مصدر: آخر مزامنة</em></div><div class="health-card"><small>الذاكرة</small><strong>—</strong><em>تحتاج قراءة من الجهاز</em></div><div class="health-card"><small>وحدة الفرض</small><strong>تبع النظام</strong><em>التقييم ملك S1-10</em></div></div>'+
+      '<div class="section-head"><strong>صدق التوفر</strong><small>Platform truth</small></div>'+
+      '<div class="queue-row"><div><strong>Android enforcement</strong><small>يعرض فقط ما يثبته النظام</small></div><span class="module-code">SOURCE</span></div>'+
+      '<div class="queue-row"><div><strong>iOS capabilities</strong><small>القدرات المحدودة تظهر صراحةً</small></div><span class="module-code">HONEST</span></div>';
+  }
+  function renderPhone(){
+    document.querySelectorAll("[data-view]").forEach(function(b){b.classList.toggle("active",b.getAttribute("data-view")===state.view);});
+    document.querySelectorAll("[data-mode]").forEach(function(b){b.classList.toggle("active",b.getAttribute("data-mode")===state.mode);});
+    document.getElementById("childProfileBlock").style.display=state.mode==="child"?"block":"none";
+    if(state.mode==="child" && state.view==="parent"){state.view="child";}
+    if(state.mode==="parent" && state.view==="child"){state.view="parent";}
+    if(state.view==="parent"){phoneContent.innerHTML=parentHTML();}
+    else if(state.view==="child"){phoneContent.innerHTML=childHTML();}
+    else if(state.view==="gate"){phoneContent.innerHTML=gateHTML();}
+    else if(state.view==="sos"){phoneContent.innerHTML=sosHTML();}
+    else if(state.view==="sync"){phoneContent.innerHTML=syncHTML();}
+    else if(state.view==="health"){phoneContent.innerHTML=healthHTML();}
+    globalSos.style.display=state.view==="sos"?"none":"block";
+    offlineBanner.classList.toggle("show",!state.online);
+    phoneApp.style.setProperty("--phone-scale",String(state.scale/100));
+    document.getElementById("scaleValue").textContent=state.scale+"%";
+    document.getElementById("networkToggle").classList.toggle("on",state.online);
+    document.getElementById("staleToggle").classList.toggle("on",state.stale);
+    document.getElementById("centerTitle").textContent=state.view==="parent"?"معاينة مساحة الوالدين":state.view==="child"?"معاينة مساحة الطفل":state.view==="gate"?"بوابة الوالدين":state.view==="sos"?"طبقة الطوارئ":state.view==="sync"?"الاستمرارية والاتصال":"صحة المنصة";
+    document.getElementById("centerCaption").textContent="إطار Android · "+(state.mode==="parent"?"سياق الوالدين":"سياق الطفل")+" · بيانات عرض محلية";
+    document.getElementById("childProfile").value=state.profile;
+  }
+  function showView(view){
+    state.view=view;
+    if(view==="child")state.mode="child";
+    if(view==="parent"||view==="gate"||view==="sync"||view==="health")state.mode="parent";
+    renderPhone();
+  }
+  document.addEventListener("click",function(e){
+    var btn=e.target.closest("[data-view],[data-mode],[data-theme-choice],[data-action]");
+    if(!btn)return;
+    if(btn.hasAttribute("data-view")){showView(btn.getAttribute("data-view"));return;}
+    if(btn.hasAttribute("data-mode")){
+      state.mode=btn.getAttribute("data-mode");
+      state.view=state.mode==="parent"?"parent":"child";
+      renderPhone();return;
+    }
+    if(btn.hasAttribute("data-theme-choice")){
+      state.theme=btn.getAttribute("data-theme-choice");
+      document.documentElement.setAttribute("data-theme",state.theme);
+      document.querySelectorAll("[data-theme-choice]").forEach(function(x){x.classList.toggle("active",x===btn);});
+      return;
+    }
+    var action=btn.getAttribute("data-action");
+    if(action==="open-sos"){state.view="sos";renderPhone();}
+    else if(action==="simulate-sos"){state.sosStarted=true;renderPhone();notify("تم إنشاء حالة SOS تجريبية فقط — لم يُرسل تنبيه.");}
+    else if(action==="nav"){
+      var target=btn.getAttribute("data-target");
+      if(target==="health")showView("health");
+      else if(target==="activity")showView("sync");
+      else if(target==="spaces")notify("هذه وجهة تجريبية — الوجهات الحقيقية تُشتق من تسجيل الأنظمة والمنح.");
+      else showView(state.mode==="parent"?"parent":"child");
+    }
+    else if(action==="account"){notify("صفحة الحساب خارج نطاق معاينة S1-01 الحالية.");}
+    else if(action==="child-slot"){notify("هذا موضع تعرضه وحدة نظامية مسجّلة؛ لا توجد بيانات حقيقية في المعاينة.");}
+    else if(action==="pin-digit"){
+      if(!state.locked && state.pin.length<6){state.pin+=btn.getAttribute("data-digit");renderPhone();}
+    }
+    else if(action==="pin-delete"){state.pin=state.pin.slice(0,-1);renderPhone();}
+    else if(action==="pin-clear"){state.pin="";renderPhone();}
+    else if(action==="pin-verify"){
+      if(state.pin.length!==6){notify("أدخل ستة أرقام في المحاكاة.");return;}
+      if(state.pin==="604281"){state.attempts=0;state.pin="";notify("نجاح محاكاة محلية — لا تم التحقق من PIN حقيقي.");}
+      else{state.attempts++;state.pin="";if(state.attempts>=5)state.locked=true;notify(state.locked?"محاكاة القفل: خمس محاولات خاطئة · خمس دقائق.":"PIN غير صحيح في المحاكاة.");renderPhone();}
+    }
+  });
+  document.getElementById("globalSos").addEventListener("click",function(){state.sosStarted=false;showView("sos");});
+  document.getElementById("networkToggle").addEventListener("click",function(){state.online=!state.online;renderPhone();});
+  document.getElementById("staleToggle").addEventListener("click",function(){state.stale=!state.stale;renderPhone();});
+  document.getElementById("childProfile").addEventListener("change",function(){state.profile=this.value;renderPhone();});
+  document.getElementById("scaleRange").addEventListener("input",function(){state.scale=Number(this.value);renderPhone();});
+  document.getElementById("themeBtn").addEventListener("click",function(){
+    state.theme=state.theme==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",state.theme);
+    document.querySelectorAll("[data-theme-choice]").forEach(function(x){x.classList.toggle("active",x.getAttribute("data-theme-choice")===state.theme);});
+    this.textContent=state.theme==="light"?"الوضع الداكن":"الوضع الفاتح";
+  });
+  document.getElementById("resetBtn").addEventListener("click",function(){
+    state={view:"parent",mode:"parent",profile:"standard",online:true,stale:false,theme:"light",scale:100,pin:"",attempts:0,locked:false,sosStarted:false};
+    document.documentElement.setAttribute("data-theme","light");
+    document.getElementById("scaleRange").value=100;
+    document.querySelectorAll("[data-theme-choice]").forEach(function(x){x.classList.toggle("active",x.getAttribute("data-theme-choice")==="light");});
+    renderPhone();notify("أُعيدت المعاينة إلى الحالة الافتراضية.");
+  });
+  document.getElementById("architectureBtn").addEventListener("click",function(){
+    isArch=true;document.getElementById("previewStage").style.display="none";document.getElementById("architectureBoard").classList.add("active");
+    document.getElementById("phoneTab").classList.remove("active");document.getElementById("mapTab").classList.add("active");
+    document.getElementById("centerTitle").textContent="خريطة المنصة القابلة للتوسع";
+    document.getElementById("centerCaption").textContent="الموثق في المستودع منفصل عن هدف الستين نظاماً.";
+  });
+  document.getElementById("phoneTab").addEventListener("click",function(){
+    isArch=false;document.getElementById("previewStage").style.display="flex";document.getElementById("architectureBoard").classList.remove("active");
+    document.getElementById("phoneTab").classList.add("active");document.getElementById("mapTab").classList.remove("active");renderPhone();
+  });
+  document.getElementById("mapTab").addEventListener("click",function(){
+    isArch=true;document.getElementById("previewStage").style.display="none";document.getElementById("architectureBoard").classList.add("active");
+    document.getElementById("phoneTab").classList.remove("active");document.getElementById("mapTab").classList.add("active");
+    document.getElementById("centerTitle").textContent="خريطة المنصة القابلة للتوسع";
+    document.getElementById("centerCaption").textContent="الموثق في المستودع منفصل عن هدف الستين نظاماً.";
+  });
+  renderPhone();
+})();
+</script>
+</body>
+</html>
