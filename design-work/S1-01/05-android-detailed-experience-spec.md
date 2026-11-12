@@ -842,8 +842,7 @@ This section maps the existing requirements; it does not reword or replace their
 | REQ-001 / ACC-001 | One shared Android app package with separate parent/child mode rendering |
 | REQ-017 / ACC-007 | Avoid a decorative boot sequence and preserve the approved cold-start target of less than 1.2 seconds |
 | ACC-008 | Parent shell reads retain the approved p95 target below 300ms; the shell must not add avoidable blocking work |
-| REQ-002 / ACC-019 | Mode comes from pairing; no mode or profile switcher |
-| REQ-018 / ACC-019 | Device mode remains fixed for Phase 1; attempts to change the mode/profile are refused without invoking Parent Gate |
+| REQ-002, REQ-018 / ACC-019 | Mode comes from pairing and remains fixed for Phase 1; attempts to change mode/profile are refused without invoking Parent Gate |
 | REQ-003 / ACC-017 | Visible Android enforcement availability comes from native Kotlin adapter; rule evaluation stays in S1-10 |
 | REQ-004 / ACC-002 / ACC-010 | Navigation and module surfaces are grant-aware; no child admin shell |
 | REQ-005, REQ-006, REQ-023 / ACC-003 | Parent Gate input, lock states, secure action handoff and no local recovery shortcut |
@@ -856,7 +855,6 @@ This section maps the existing requirements; it does not reword or replace their
 | REQ-014 / ACC-012 | Gateway contract only; no actual AI feature/safety judgment |
 | REQ-015 / ACC-009 | Useful persistent notification without surveillance wording or sensitive payload |
 | REQ-016 / ACC-015 | No ads/tracking; no child analytics events until Q-046 resolved |
-| REQ-017 / ACC-007 | Cold-start target is respected by avoiding a decorative loading sequence |
 | REQ-019 / ACC-020 | Android enforcement capabilities are platform-specific and not implied on iOS |
 | REQ-020 / ACC-021 | Normal, minimum-version, critical-security-update views and offline state |
 | REQ-021 / ACC-022 | Arabic default, English, RTL and localized content across all shell surfaces |
