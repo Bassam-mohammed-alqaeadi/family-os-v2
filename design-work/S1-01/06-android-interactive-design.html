@@ -377,11 +377,7 @@ var content=$("content"), nav=$("navBar"), strip=$("contextStrip"), sos=$("sosBu
 var names={parent:"مساحة العائلة",family:"العائلة",chats:"المحادثات",controls:"التحكم",more:"المزيد",child:"الرئيسية",minimal:"الرئيسية",teen:"الرئيسية",gate:"بوابة الوالدين",sync:"الاتصال والمزامنة",health:"صحة المنصة",update:"تحديث أمني"};
 function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");window.clearTimeout(t._timer);t._timer=window.setTimeout(function(){t.classList.remove("show");},2200);}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
-function profileForView(){
- if(["child","minimal"].indexOf(state.view)>=0)return state.view==="minimal"?"minimal":"child";
- if(state.view==="teen")return "teen";
- return state.profile==="adultNonOwner"?"adultNonOwner":"adult";
-}
+function profileForView(){return state.profile;}
 function contextText(){
  if(!state.online)return "أنت دون اتصال — نعرض البيانات المحفوظة";
  if(state.stale)return "آخر تحديث قبل ٥ دقائق — هذه بيانات محفوظة";
@@ -397,11 +393,11 @@ function renderStrip(){
  strip.innerHTML='<span aria-hidden="true">'+(!state.online?"◌":state.stale?"◷":"⇣")+'</span><span>'+esc(msg)+'</span>';
 }
 function navItems(){
- var v=state.view;
- if(v==="minimal")return [];
- if(v==="child")return [["الرئيسية","⌂","child"],["المحادثات","▤","chats"],["العب وتعلّم","✦","learn"],["مكافآتي","☆","rewards"]];
- if(v==="teen")return [["الرئيسية","⌂","teen"],["المحادثات","▤","chats"],["تعلّم","✦","learn"],["أنا","◉","me"]];
- if(state.profile==="adultNonOwner")return [["الرئيسية","⌂","parent"],["المحادثات","▤","chats"],["الأمان","盾","safety"],["التحكم المتاح","⚙","controls"],["المزيد","⋯","more"]];
+ var p=state.profile;
+ if(p==="minimal")return [];
+ if(p==="child")return [["الرئيسية","⌂","child"],["المحادثات","▤","chats"],["العب وتعلّم","✦","learn"],["مكافآتي","☆","rewards"]];
+ if(p==="teen")return [["الرئيسية","⌂","teen"],["المحادثات","▤","chats"],["تعلّم","✦","learn"],["أنا","◉","me"]];
+ if(p==="adultNonOwner")return [["الرئيسية","⌂","parent"],["المحادثات","▤","chats"],["الأمان","盾","safety"],["التحكم المتاح","⚙","controls"],["المزيد","⋯","more"]];
  return [["الرئيسية","⌂","parent"],["العائلة","⌂","family"],["المحادثات","▤","chats"],["التحكم","⚙","controls"],["المزيد","⋯","more"]];
 }
 function renderNav(){
