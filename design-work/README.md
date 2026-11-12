@@ -14,3 +14,8 @@ This directory is the dedicated workspace for Family OS design work on `feat/gov
 ## Working rule
 
 This workspace does not authorize changes to application code, existing governance documents, or the established design system. Such changes require explicit review and approval.
+
+
+## Current S1-01 design direction
+
+See [S1-01 Design Workbench](S1-01/README.md). The new platform experience foundation and interactive studio are the current exploratory direction. Earlier S1-01 wireframes and screen compositions are retained for audit/history, not as the visual template for the new design.

@@ -186,7 +186,7 @@ html[data-theme="dark"] .signal-row small{color:#B3BED0}
 .nav-item.active{color:#1F3A6B;font-weight:850}
 .nav-item.active:before{content:"";width:17px;height:3px;background:#1F3A6B;border-radius:99px;position:absolute;transform:translateY(-22px)}
 .sos-fab{position:absolute;bottom:79px;left:17px;width:53px;height:53px;border:0;border-radius:19px;background:#B42318;color:#fff;font:bold 11px Arial,sans-serif;box-shadow:0 8px 18px rgba(180,35,24,.25);z-index:8}
-.sos-fab:after{content:"";position:absolute;inset:-4px;border:1px solid rgba(180,35,24,.24);border-radius:22px}
+.sos-fab:after{content:"";position:absolute;inset:-4px;border:1px solid rgba(180,35,24,.24);border-radius:22px}.sos-fab.holding{transform:scale(.94);background:#93180F}.sos-fab.holding:after{border-color:#B42318;box-shadow:0 0 0 5px rgba(180,35,24,.12)}
 .child-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
 .child-avatar{width:38px;height:38px;border-radius:14px;background:#E5F0E6;color:#1F6B3B;display:grid;place-items:center;font-weight:900}
 .child-hero{background:linear-gradient(135deg,#F0F5FF,#E6F1F8);border:1px solid #D9E4F0;border-radius:23px;padding:16px;margin:8px 0}
@@ -459,7 +459,7 @@ html[data-theme="dark"] .phone-banner{background:#392B19;color:#F8D7A6;border-co
               <div class="phone-app" id="phoneApp">
                 <div class="phone-content" id="phoneContent"></div>
                 <div id="dynamicNav"></div>
-                <button class="sos-fab" id="globalSos" aria-label="معاينة زر SOS">SOS</button>
+                <button class="sos-fab" id="globalSos" aria-label="اضغط مطولاً ثلاث ثوانٍ لمعاينة طلب SOS">SOS</button>
                 <div class="phone-home-indicator"><span></span></div>
               </div>
             </div>
@@ -781,7 +781,32 @@ html[data-theme="dark"] .phone-banner{background:#392B19;color:#F8D7A6;border-co
       else{state.attempts++;state.pin="";if(state.attempts>=5){state.locked=true;state.lockUntil=Date.now()+300000;setTimeout(function(){state.locked=false;state.attempts=0;state.lockUntil=0;renderPhone();},300000);}notify(state.locked?"محاكاة القفل: خمس محاولات خاطئة · خمس دقائق.":"PIN غير صحيح في المحاكاة.");renderPhone();}
     }
   });
-  document.getElementById("globalSos").addEventListener("click",function(){state.sosStarted=false;showView("sos");});
+  var sosHoldTimer=null;
+  var sosHoldFired=false;
+  function cancelSosHold(){
+    if(sosHoldTimer){clearTimeout(sosHoldTimer);sosHoldTimer=null;}
+    globalSos.classList.remove("holding");
+  }
+  globalSos.addEventListener("pointerdown",function(){
+    sosHoldFired=false;
+    cancelSosHold();
+    globalSos.classList.add("holding");
+    sosHoldTimer=setTimeout(function(){
+      sosHoldFired=true;
+      state.sosStarted=false;
+      cancelSosHold();
+      showView("sos");
+      notify("معاينة SOS بعد ضغط مطوّل 3 ثوانٍ — لا يوجد إرسال حقيقي.");
+    },3000);
+  });
+  globalSos.addEventListener("pointerup",function(){
+    if(!sosHoldFired){cancelSosHold();notify("اضغط مطولاً لمدة 3 ثوانٍ لمعاينة مسار SOS.");}
+  });
+  globalSos.addEventListener("pointerleave",cancelSosHold);
+  globalSos.addEventListener("pointercancel",cancelSosHold);
+  globalSos.addEventListener("click",function(e){
+    if(e.detail===0){state.sosStarted=false;showView("sos");notify("فتحنا مسار التأكيد الميسر لمعاينة SOS.");}
+  });
   document.getElementById("networkToggle").addEventListener("click",function(){state.online=!state.online;renderPhone();});
   document.getElementById("staleToggle").addEventListener("click",function(){state.stale=!state.stale;renderPhone();});
   document.getElementById("childProfile").addEventListener("change",function(){state.profile=this.value;renderPhone();});
