@@ -1,0 +1,108 @@
+{
+  "app": "bark",
+  "res_missing": false,
+  "total_files": 385,
+  "total_size_kb": 3517,
+  "categories": {
+    "icons_images": {
+      "count": 247,
+      "size_kb": 170,
+      "examples": [
+        "res/drawable-anydpi/fingerprint_dialog_fp_icon.xml",
+        "res/drawable-hdpi/notification_oversize_large_icon_bg.png",
+        "res/drawable-land/com_facebook_sso_noapp_background.xml",
+        "res/drawable-mdpi/com_facebook_profile_picture_blank_portrait.png",
+        "res/drawable-mdpi/com_facebook_profile_picture_blank_square.png",
+        "res/drawable-mdpi/node_modules_iterable_reactnativesdk_lib_module_core_assets_logogrey.png",
+        "res/drawable-v29/autofill_inline_suggestion_chip_background.xml",
+        "res/drawable-watch/abc_dialog_material_background.xml",
+        "res/drawable-xxhdpi/com_facebook_sso_logo.png",
+        "res/drawable/$avd_hide_password__0.xml",
+        "res/drawable/$avd_hide_password__1.xml",
+        "res/drawable/$avd_hide_password__2.xml",
+        "res/drawable/$avd_show_password__0.xml",
+        "res/drawable/$avd_show_password__1.xml",
+        "res/drawable/$avd_show_password__2.xml"
+      ]
+    },
+    "animations": {
+      "count": 129,
+      "size_kb": 82,
+      "examples": [
+        "res/anim-v33/rns_default_enter_in.xml",
+        "res/anim-v33/rns_default_enter_out.xml",
+        "res/anim-v33/rns_default_exit_in.xml",
+        "res/anim-v33/rns_default_exit_out.xml",
+        "res/anim/abc_fade_in.xml",
+        "res/anim/abc_fade_out.xml",
+        "res/anim/abc_grow_fade_in_from_bottom.xml",
+        "res/anim/abc_popup_enter.xml",
+        "res/anim/abc_popup_exit.xml",
+        "res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "res/anim/abc_slide_in_bottom.xml",
+        "res/anim/abc_slide_in_top.xml",
+        "res/anim/abc_slide_out_bottom.xml",
+        "res/anim/abc_slide_out_top.xml",
+        "res/anim/abc_tooltip_enter.xml"
+      ]
+    },
+    "sounds_media": {
+      "count": 5,
+      "size_kb": 1,
+      "examples": [
+        "res/raw/com_android_billingclient_heterodyne_info",
+        "res/raw/com_android_billingclient_registration_info.binarypb",
+        "res/raw/consumer_onesignal_keep.xml",
+        "res/raw/firebase_common_keep.xml",
+        "res/raw/keep.xml"
+      ]
+    },
+    "fonts": {
+      "count": 1,
+      "size_kb": 49,
+      "examples": [
+        "res/font/optimistic_vf.ttf"
+      ]
+    },
+    "other_assets": {
+      "count": 3,
+      "size_kb": 3215,
+      "examples": [
+        "assets/dexopt/baseline.prof",
+        "assets/dexopt/baseline.profm",
+        "assets/index.android.bundle"
+      ]
+    }
+  },
+  "distinct_identity": [
+    "res/drawable-mdpi/node_modules_iterable_reactnativesdk_lib_module_core_assets_logogrey.png",
+    "res/drawable-xxhdpi/com_facebook_sso_logo.png",
+    "res/drawable/sentry_logo_dark.xml",
+    "res/drawable/sentry_user_feedback_button_logo_24.xml"
+  ],
+  "generic_functional_examples": [
+    "res/drawable/ic_m3_chip_check.xml",
+    "res/drawable/ic_arrow_back_black_24.xml",
+    "res/drawable/ic_search_black_24.xml",
+    "res/drawable/ic_m3_chip_close.xml",
+    "res/drawable/m3_password_eye.xml",
+    "res/drawable/ic_clock_black_24dp.xml",
+    "res/drawable/m3_split_button_chevron_avd.xml",
+    "res/drawable/ic_clear_black_24.xml",
+    "res/drawable-hdpi/notification_oversize_large_icon_bg.png",
+    "res/drawable/ic_expand_more_22px.xml",
+    "res/animator/m3_appbar_state_list_animator.xml"
+  ],
+  "unusual_folders_note": "assets/ subdirectories: dexopt | unusual res/ directories: anim, anim-v33, animator, font, interpolator | largest media files: assets/index.android.bundle (3207 KB); res/font/optimistic_vf.ttf (49 KB); res/drawable-xxhdpi/com_facebook_sso_logo.png (26 KB); assets/dexopt/baseline.prof (7 KB); res/mipmap-xxxhdpi/ic_launcher_foreground.png (6 KB) | media files over 500 KB: 1 | excluded res code/config resources (layout/xml/values/color/menu/navigation/interpolator, not media assets): 482 files, 1743 KB | sizes are sums of exact file sizes (os.path.getsize), not du block totals; counts come from find -type f lists, not estimates",
+  "excluded_code_resources": {
+    "count": 482,
+    "size_kb": 1743
+  },
+  "verified_by": [
+    "find /home/hatch/workspace/rework/bark/apktool-out/res -type f > /tmp/assetidx/bark-res.txt",
+    "find /home/hatch/workspace/rework/bark/apktool-out/assets -type f > /tmp/assetidx/bark-assets.txt",
+    "wc -l /tmp/assetidx/bark-res.txt /tmp/assetidx/bark-assets.txt",
+    "du -sk /home/hatch/workspace/rework/bark/apktool-out/res /home/hatch/workspace/rework/bark/apktool-out/assets",
+    "python3 /tmp/assetidx/inventory.py (os.path.getsize per file; classification by directory/extension; Lottie detection by '\"layers\"' content marker)"
+  ]
+}
