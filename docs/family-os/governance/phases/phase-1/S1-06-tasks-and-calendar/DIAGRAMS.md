@@ -3,7 +3,7 @@
 - **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-08 — D-2، بعد موجة الإصلاح 0e4a3e2..f7da470)؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **السياق المحدد (Bounded Context):** #9 إدارة العائلة (Family Management) — `CONTEXT-MAP.md` §2 صف 9
-- **القرارات الحاكمة:** Q-001 · Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · Q-064 · Q-054 · Q-058 · Q-022 · Q-167 · Q-007 (رفض-يتغلب — المنع يغلب) · Q-280 · Q-281
+- **القرارات الحاكمة:** Q-001 · Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · Q-064 · Q-054 · Q-058 · Q-022 · Q-167 · Q-007 (رفض-يتغلب — المنع يغلب) · Q-280 · Q-281 · Q-183 · Q-209 · Q-253 · Q-254 · Q-282
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -61,7 +61,7 @@ flowchart LR
     Teen --> UC11
     Teen --> UC12
     Teen --> UC13
-    Teen --> UC3
+    Teen -->|self only — Q-253| UC3
     Father --> UC10
     Father --> UC11
     Adult --> UC10
@@ -82,7 +82,7 @@ flowchart LR
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الأربعة من §5 كما هي، مع أربعة مراجع خارجية: العضوية (`membership` — S1-02)، و`points_ledger` (S1-05)، و`AuditEvent` (النواة المشتركة)، وصور الإثبات في MinIO (Q-058). ملاحظتان: مرآة Drift والـ Outbox مخزنان محليان على الجهاز (SQLite) وليسا جدولَي خادم (§5)، ونسخ المهام المتكررة محسوبة عند الطلب لا صفوفاً مادية (REQ-010) فلا جدول للنسخ. كل جدول يحمل `family_id` + عزل RLS (D-021).
+الجداول الأربعة من §5 كما هي، مع أربعة مراجع خارجية: العضوية (`membership` — S1-02)، و`points_ledger` (S1-05)، و`AuditEvent` (النواة المشتركة)، وصور الإثبات في MinIO (Q-058). و`family` جذر تجميع مالك للجداول الأربعة وليس مرجعاً خارجياً، فلا يدخل في عدّ المراجع الأربعة. ملاحظتان: مرآة Drift والـ Outbox مخزنان محليان على الجهاز (SQLite) وليسا جدولَي خادم (§5)، ونسخ المهام المتكررة محسوبة عند الطلب لا صفوفاً مادية (REQ-010) فلا جدول للنسخ. كل جدول يحمل `family_id` + عزل RLS (D-021).
 
 ```mermaid
 erDiagram
@@ -171,13 +171,15 @@ erDiagram
     }
 ```
 
-- ملاحظة: `reward_points` افتراضي 10 و≥ 0، و0 دائماً لمهام المراهقين (Q-109 — تُفرض صفراً على الخادم)؛ و`status` أربع قيم فقط: PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED (§5)؛ و`family_id` في `task_category` يكون NULL للفئات الأربع الافتراضية العامة (منزل/مدرسة/صلاة وقرآن/عناية ذاتية — REQ-002) وقيمةً لفئة أضافها الأب لعائلته (§5)؛ و`rrule` في `task` و`calendar_event` قاعدة iCalendar خام تشمل `byDay` و`byMonthDay` و`interval` و`endDate`/`endOccurence` و`exdate` و`rdate` (REQ-010 · ملحق RE)؛ و`reminder_minutes` في `calendar_event` افتراضي 60 والخيارات 15/30/60 دقيقة أو يوم (REQ-014). و`MinIO_proof` مرجع غير جدولي إلى تخزين كائنات (MinIO) لا جدول في قاعدة البيانات. والإيداع في المحفظة (`points_ledger`) يصل عبر حدث `family/{family_id}/tasks.completed` (REQ-007) لا عبر علاقة قاعدة بيانات — فلا حافة ERD بين `task` و`points_ledger`.
+- ملاحظة: `reward_points` افتراضي 10 و≥ 0، و0 دائماً لمهام المراهقين (Q-109 — تُفرض صفراً على الخادم)؛ و`status` أربع قيم فقط: PENDING / SUBMITTED_BY_CHILD / APPROVED / CANCELLED (§5)؛ و`family_id` في `task_category` يكون NULL للفئات الأربع الافتراضية العامة (منزل/مدرسة/صلاة وقرآن/عناية ذاتية — REQ-002) وقيمةً لفئة أضافها الأب لعائلته (§5)؛ و`rrule` في `task` و`calendar_event` قاعدة iCalendar خام تشمل `byDay` و`byMonthDay` و`interval` و`endDate`/`endOccurrence` و`exdate` و`rdate` (REQ-010 · ملحق RE)؛ و`reminder_minutes` في `calendar_event` افتراضي 60 والخيارات 15/30/60 دقيقة أو يوم (REQ-014). و`MinIO_proof` مرجع غير جدولي إلى تخزين كائنات (MinIO) لا جدول في قاعدة البيانات. والإيداع في المحفظة (`points_ledger`) يصل عبر حدث `family/{family_id}/tasks.completed` (REQ-007) لا عبر علاقة قاعدة بيانات — فلا حافة ERD بين `task` و`points_ledger`.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-سبعة مخططات، كل واحد لتدفق واحد:
+ثمانية مخططات، كل واحد لتدفق واحد:
 
 - النقل مزدوج (Q-209): الخادم ينشر `family/{family_id}/tasks.completed` و`family/{family_id}/tasks.verification-revoked` على MQTT (QoS 1) بجانب الحدث الداخلي إلى S1-05 — لا يُحذف التسليم الداخلي.
+
+- **تغطية REQ في التسلسل:** المخططات الثمانية تغطي REQ-001…REQ-017 كلها: REQ-005 له مخططه 3-ح؛ وREQ-004 (قائمة الفحص) مغطى في ERD (§2 — جدول `task_checklist`) وDFD (D2 `task_checklist`) و§4 (نقطتا التسليم: `checklist_completed` في حمولة `submit` و`PATCH .../tasks/{taskId}/checklist/{itemId}`)، لا كحمولة في 3-ب — فـ 3-ب تسلّم `{proof_ref, client_request_id}` فقط؛ وREQ-015 يظهر كحافة `tasks.submitted` إلى S1-09 في 3-ج/3-ز.
 
 ### 3-أ. إنشاء مهمة وإسنادها (REQ-001/002/003 — §4)
 
@@ -218,7 +220,7 @@ sequenceDiagram
     App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/proof (ملف الإثبات — رفع عبر Ktor إلى MinIO — §4-1-أ)
     Ktor-->>App: {proof_ref}
     App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
-    Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (ALREADY_SUBMITTED إن تكرر — والإعادة بنفس client_request_id تُعيد التسليم الأصلي)
+    Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (TSK_ALREADY_SUBMITTED إن تكرر — والإعادة بنفس client_request_id تُعيد التسليم الأصلي)
     Ktor->>Ktor: حفظ الإثبات في MinIO + proof_ref في task + status=SUBMITTED_BY_CHILD
     Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
     Note over Ktor,AI: مهلة الاستدعاء + إعادة محاولة واحدة تُحسب من الميزانية؛ وعند الفشل النهائي → احتياطي الأب (Q-121 — §7)
@@ -319,8 +321,8 @@ sequenceDiagram
     Father->>App: تفعيل التكرار لهذه المهمة (معطّل افتراضياً — Q-282)
     Father->>App: إنشاء مهمة متكررة (RRULE: الأحد–الخميس)
     App->>Ktor: POST /api/v1/families/{id}/tasks {rrule}
-    Ktor->>Ktor: التحقق من RRULE (INVALID_RRULE إن باطلة)
-    Note over Ktor,App: RRULE خام (iCalendar): byDay + byMonthDay + interval + endDate/endOccurence + exdate + rdate — النسخ محسوبة عند الطلب (REQ-010 · ملحق RE)
+    Ktor->>Ktor: التحقق من RRULE (TSK_INVALID_RRULE إن باطلة)
+    Note over Ktor,App: RRULE خام (iCalendar): byDay + byMonthDay + interval + endDate/endOccurrence + exdate + rdate — النسخ محسوبة عند الطلب (REQ-010 · ملحق RE)
     Ktor->>Ktor: النسخ محسوبة عند الطلب — لا صفوف مادية
     Ktor-->>App: نسخة اليوم ظاهرة؛ نسخة الغد تظهر صباحاً
     Note over Ktor,App: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم (Q-123 · Q-183 · REQ-011)
@@ -391,6 +393,31 @@ sequenceDiagram
     end
 ```
 
+### 3-ح. إلغاء مهمة (REQ-005 — §4)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Canceller as الأب / المراهق
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant S105 as المحفظة
+    participant MQTT as وسيط MQTT
+    Canceller->>App: إلغاء مهمة (الأب لأي مهمة؛ والمراهق لمهامه التي أنشأها بنفسه فقط — Q-253)
+    App->>Ktor: DELETE /api/v1/families/{id}/tasks/{taskId} {tasks.cancel}
+    Ktor->>Ktor: التحقق: الأب لأي مهمة؛ والمراهق scope=self فقط (Q-253)
+    alt المهمة APPROVED بعد الإيداع
+        Ktor->>Ktor: status=CANCELLED
+        Ktor->>S105: family/{family_id}/tasks.verification-revoked → قيد تعويضي واحد يخصم النقاط (REQ-009)
+        Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
+        S105-->>Ktor: خصم من الرصيد الحالي (صفراً ولا سالب أبداً — §7)
+    else المهمة غير معتمدة
+        Ktor->>Ktor: status=CANCELLED — بلا نقاط؛ والسلسلة لا تنكسر ولا تتقدم (Q-253)
+    end
+    Ktor->>Ktor: الإلغاء مُسجَّل في التدقيق (AuditEvent — REQ-005)
+    Ktor-->>App: {task_id, status: "CANCELLED"}
+```
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
 
 ```mermaid
@@ -421,15 +448,18 @@ flowchart TD
     Streak --> Spend[يصرفها الطفل كوقت إضافي للتطبيق — سيناريو 6-6]
     NoEvent --> End([منجزة])
     Spend --> End
+    Show -.-> Recur["6-4 التكرار (REQ-010): نسخة جديدة كل يوم — نسخة الأمس تنتهي ولا تتراكم"]
+    Recur --> Do
+    Start -.-> CalEv["6-5 حدث تقويم (REQ-012): الأب ينشئ حدثاً — تذكير لصاحب الحدث والأب قبل ساعة (Q-281)"]
 ```
 
-- ملاحظة: مسار "مهمة بدلاً من منح الوقت" (6-6) هو نفس دورة الحياة أعلاه: الأب يرفض المنح ويسند مهمة (10 نقاط) فينجزها الطفل فيصرف نقاطها كوقت للعبة عبر S1-05. والمهمة الشخصية للمراهق (6-7) تمر بنفس التدفق لكنها تنتهي عند "منجزة بلا نقاط".
+- ملاحظة: مسار "مهمة بدلاً من منح الوقت" (6-6) هو نفس دورة الحياة أعلاه: الأب يرفض المنح ويسند مهمة (10 نقاط) فينجزها الطفل فيصرف نقاطها كوقت للعبة عبر S1-05. والمهمة الشخصية للمراهق (6-7) تمر بنفس التدفق لكنها تنتهي عند "منجزة بلا نقاط". والمساران الجانبيان: 6-4 (التكرار — نسخة جديدة كل يوم، REQ-010) فرع من عرض المهمة إلى الإنجاز، و6-5 (حدث التقويم والتذكير — REQ-012/Q-281) مدخل جانبي من البداية؛ فالتدفق يغطي السيناريوهات السبعة.
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
 العمليات مرقمة 1.0–6.0، والمخازن D1–D4 جداول خادم (PostgreSQL). المخزنان المحليان (مرآة Drift + Outbox) على الجهاز (SQLite) وليسا جدولَي خادم. والمخازن الخارجية: `points_ledger` (S1-05) و`AuditEvent` (النواة) وMinIO (Q-058).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `GET /api/v1/families/{id}/tasks` و`GET /api/v1/families/{id}/tasks/{taskId}` و`PATCH /api/v1/families/{id}/tasks/{taskId}` (قراءة/تعديل مهمة — تمر عبر P1) · `DELETE /api/v1/families/{id}/tasks/{taskId}` (إلغاء مهمة — REQ-005، تمر عبر P1) · `GET /api/v1/families/{id}/task-categories` و`POST /api/v1/families/{id}/task-categories` (الفئات — REQ-002، تمر عبر P1) · `GET /api/v1/families/{id}/events` و`PATCH /api/v1/families/{id}/events/{eventId}` و`DELETE /api/v1/families/{id}/events/{eventId}` (أحداث التقويم — تمر عبر P5)؛ و`POST .../occurrences/{occurrenceId}/proof` و`PATCH .../tasks/{taskId}/checklist/{itemId}` (رفع إثبات + تبديل بند — تمر عبر P2)؛ وبقية النقاط مرسومة في §3 (tasks إنشاء، submit، approve، revoke-verification، events إنشاء).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 مذكورة هنا على الأقل: `GET /api/v1/families/{id}/tasks` و`GET /api/v1/families/{id}/tasks/{taskId}` و`PATCH /api/v1/families/{id}/tasks/{taskId}` (قراءة/تعديل مهمة — تمر عبر P1) · `DELETE /api/v1/families/{id}/tasks/{taskId}` (إلغاء مهمة — REQ-005، تمر عبر P1) · `GET /api/v1/families/{id}/task-categories` و`POST /api/v1/families/{id}/task-categories` (الفئات — REQ-002، تمر عبر P1) · `GET /api/v1/families/{id}/events` و`PATCH /api/v1/families/{id}/events/{eventId}` و`DELETE /api/v1/families/{id}/events/{eventId}` (أحداث التقويم — تمر عبر P5)؛ و`POST .../occurrences/{occurrenceId}/proof` و`PATCH .../tasks/{taskId}/checklist/{itemId}` (رفع إثبات + تبديل بند — تمر عبر P2)؛ والنقاط الخمس (إنشاء مهمة، submit، approve، revoke-verification، إنشاء حدث) مفصلة في §3 ومذكورة هنا بالإحالة لا مرسومة في مخطط DFD نفسه.
 
 ```mermaid
 flowchart LR
@@ -547,6 +577,7 @@ flowchart LR
         V6[تسجيل AuditEvent]
         V7[إعادة الحالة إلى PENDING]
         V8["حالة CANCELLED — بلا نقاط؛ السلسلة لا تنكسر ولا تتقدم (Q-253)"]
+        V9["جدولة تذكير الحدث — الخادم مالك الجدولة (Q-280)"]
     end
     subgraph WalletHub [المحفظة S1-05 + مركز الأوامر S1-09]
         direction TB
@@ -584,7 +615,8 @@ flowchart LR
     W2 --> C5
     F1 --> V4
     V4 --> V5
-    F7 --> V4
+    F7 --> V9
+    V9 --> C1
     F8 --> V8
     F8 -->|إن كانت معتمدة| W3
 ```

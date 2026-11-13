@@ -9,7 +9,7 @@
 
 ## 1. حالات الاستخدام
 
-13 حالة استخدام من السيناريوهات الثمانية والمتطلبات (§2/§3): الأب يملك كل القرارات (المنح المباشر، إسناد مهمة بدلاً من المنح، ضبط المعاملات، تجميد السلسلة)؛ والبالغ المفوَّض يعمل حسب القالب (S1-03)؛ والطفل يرى محفظته فقط ويطلب ويصرف؛ والمراهق **لا** محفظة له إطلاقاً (Q-109) فيظهر كجهة مرفوضة؛ والكسب يأتي من أي نظام مسجَّل عبر عقد عام (Q-118)؛ والفرض نفسه محرك S1-10 لا S1-05 (REQ-015).
+13 حالة استخدام من السيناريوهات الثلاثة عشر والمتطلبات (§2/§3): الأب يملك كل القرارات (المنح المباشر، إسناد مهمة بدلاً من المنح، ضبط المعاملات، تجميد السلسلة)؛ والبالغ المفوَّض يعمل حسب القالب (S1-03)؛ والطفل يرى محفظته فقط ويطلب ويصرف؛ والمراهق **لا** محفظة له إطلاقاً (Q-109) فيظهر كجهة مرفوضة؛ والكسب يأتي من أي نظام مسجَّل عبر عقد عام (Q-118)؛ والفرض نفسه محرك S1-10 لا S1-05 (REQ-015).
 
 ```mermaid
 flowchart LR
@@ -67,7 +67,7 @@ flowchart LR
     UC4 --> S109
 ```
 
-- المصدر: §2 (السيناريوهات 5-1…5-8) · §3 (REQ-001…REQ-018 — ومنها REQ-017/REQ-018 عقد التحقق Q-167: المفتاح `agent.task.verify` + البوابة + السجل + التراجع) · §6 (مفاتيح `rewards.*`)؛ وUC1 يغطي REQ-002 (الرصيد + سجل الحركات ظاهران للطفل وللأب).
+- المصدر: §2 (السيناريوهات 5-1…5-13) · §3 (REQ-001…REQ-018 — ومنها REQ-017/REQ-018 عقد التحقق Q-167: المفتاح `agent.task.verify` + البوابة + السجل + التراجع) · §6 (مفاتيح `rewards.*`)؛ وUC1 يغطي REQ-002 (الرصيد + سجل الحركات ظاهران للطفل وللأب).
 - `rewards.settings.edit` و`rewards.streak.freeze` للأب وحده (مالك العائلة) — §6؛ وبقية المفاتيح للأب + البالغ المفوَّض حسب القالب.
 - UC9 يستهلك حدود S1-10 وأرصدته ولا يملك الفرض (REQ-015)؛ وUC8/UC4 يظهران في بطاقة "يتطلب انتباهك" في S1-09 (REQ-014). وودجة S1-09 (REQ-016) تعرض الرصيد + السلسلة + الطلبات المعلقة.
 
@@ -209,21 +209,21 @@ sequenceDiagram
     S106->>AI: طلب تحقق — أُنجزت كما هو مطلوب؟ (مفتاح agent.task.verify — عقد Q-167)
     alt دليل مباشر (قراءة جهاز/تطبيق تثبت الإنجاز)
         AI-->>S106: verified = true (مباشر — منح تلقائي)
-        S106->>Ktor: family/{family_id}/tasks.completed {source_system, task_id, points}
-        Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس task_id
+        S106->>Ktor: family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}
+        Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس event_id
         Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
         Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
         Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
-        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: task_id + source_system — §7)
+        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: event_id — §7)
         Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
     else دليل مقدَّم (صورة/إثبات يرفعه الطفل)
         AI-->>S106: verified = true (مقدَّم — تحقق ثم منح)
-        S106->>Ktor: family/{family_id}/tasks.completed {source_system, task_id, points}
-        Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس task_id
+        S106->>Ktor: family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}
+        Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس event_id
         Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
         Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
         Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
-        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: task_id + source_system — §7)
+        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: event_id — §7)
         Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
     else شك (الدليل غير حاسم)
         AI-->>S106: شك — يُحال للأب بنقرة واحدة
@@ -246,7 +246,7 @@ sequenceDiagram
     end
 ```
 
-- تسليم الطفل الذاتي وحده لا يودع شيئاً (REQ-005/Q-110)؛ وإيداع مكرر لنفس `task_id` + `source_system` يعيد الإيداع الأصلي بلا مضاعفة (§7)؛ وحدث كسب من نظام غير مسجَّل يُرفض ويُسجَّل في التدقيق (§7/REQ-004).
+- تسليم الطفل الذاتي وحده لا يودع شيئاً (REQ-005/Q-110)؛ وإيداع مكرر لنفس `event_id` يعيد الإيداع الأصلي بلا مضاعفة (§7)؛ وحدث كسب من نظام غير مسجَّل يُرفض ويُسجَّل في التدقيق (§7/REQ-004).
 
 ### 3-ب. صرف نقاط كوقت إضافي (REQ-008 / REQ-009 / REQ-010 — §4: `POST /api/v1/families/{id}/children/{childId}/wallet/redeem`)
 
@@ -382,9 +382,9 @@ sequenceDiagram
     participant Wallet as المحفظة
     participant MQTT as وسيط MQTT
     participant Child as الطفل
-    Father->>S106: إلغاء تحقق مهمة سبق اعتمادها (POST /api/v1/families/{id}/tasks/{taskId}/revoke-verification — S1-06 §4)
-    S106->>Ktor: family/{family_id}/tasks.verification-revoked {source_system=S1-06, task_id, points}
-    Ktor->>Ktor: البحث عن الإيداع الأصلي لنفس task_id + source_system
+    Father->>S106: إلغاء تحقق مهمة سبق اعتمادها (POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification — S1-06 §4)
+    S106->>Ktor: family/{family_id}/tasks.verification-revoked {event_id, task_id, occurrence_id, revoked_by, at} — حمولة الناشر (S1-06 §4)
+    Ktor->>Ktor: البحث عن الإيداع الأصلي بنفس occurrence_id
     alt وُجد إيداع أصلي لم يُعكَس بعد
         Ktor->>Wallet: قيد تعويضي سالب بنفس القيمة — الرصيد لا يقل عن صفر أبداً
         Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
@@ -395,7 +395,7 @@ sequenceDiagram
     end
 ```
 
-- الاشتراك في `family/{family_id}/tasks.verification-revoked` إلزامي: إلغاء التحقق في S1-06 يعوَّض الإيداع في S1-05 (S1-06 SPEC §4 `revoke-verification` و§6)؛ والقيد التعويضي سالب بنفس قيمة الإيداع الأصلي، والرصيد لا يقل عن صفر أبداً (§6)؛ وإلغاء مكرر لنفس `task_id` لا يعكس مرتين (§7 — نفس قاعدة عدم التكرار في 3-أ)؛ ومسارا العكس (S1-06 `revoke-verification` وS1-05 `reverse`) يكتبان قيداً تعويضياً واحداً لنفس الإيداع — لا قيدين (§6).
+- الاشتراك في `family/{family_id}/tasks.verification-revoked` إلزامي: إلغاء التحقق في S1-06 يعوَّض الإيداع في S1-05 (S1-06 SPEC §4 `revoke-verification` و§6)؛ والقيد التعويضي سالب بنفس قيمة الإيداع الأصلي، والرصيد لا يقل عن صفر أبداً (§6)؛ وإلغاء مكرر لنفس `occurrence_id` لا يعكس مرتين (§7 — نفس قاعدة عدم التكرار في 3-أ)؛ ومسارا العكس (S1-06 `revoke-verification` وS1-05 `reverse`) يكتبان قيداً تعويضياً واحداً لنفس الإيداع — لا قيدين (§6)؛ و`reverse` على منح كسب مهمة يتبع `revoke-verification` في S1-06 (اليوم نفسه + إعادة PENDING — Q-254).
 
 ### 3-ز. اعتراض الطفل على منح أو رفض + تراجع S1-05 (REQ-018 — §4)
 
@@ -415,18 +415,20 @@ sequenceDiagram
     Ktor->>Ktor: كتابة صف الاعتراض (status / decided_by / decided_at / decision_reason)
     alt الأب يقبل الاعتراض (تراجع عن المنح)
         Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse
-        Ktor->>Wallet: قيد تعويضي — حدث family/{family_id}/tasks.verification-revoked
+        Ktor->>Wallet: قيد تعويضي — لمنح كسب مهمة: عبر `revoke-verification` في S1-06 (اليوم نفسه — Q-254)؛ ولمنح غير مهام: محاسبي محلي بلا حدث
         Ktor-->>Child: أُلغي المنح
     else الأب يرفض الاعتراض
         Ktor-->>Child: الاعتراض مرفوض + السبب
     end
 ```
 
-## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثمانية (§2)
+## 4. تدفق المستخدم (User Flow) — من السيناريوهات الثلاثة عشر (§2)
 
 ```mermaid
 flowchart TD
     Start([نفد وقت التطبيق — من S1-10]) --> Req[الطفل يطلب وقتاً إضافياً — من شاشة الحظر]
+    Start6([منح فوري من الأب — 5-6]) --> Grant20[الأب يمنح 20 نقطة فوراً بلا مهمة — REQ-006]
+    Grant20 --> Wallet
     Req --> Card[الطلب يظهر في بطاقة يتطلب انتباهك — S1-09]
     Card --> Father{الأب يقرر}
     Father -->|يمنح مباشرة| Grant[وقت إضافي مباشر — قيد ليوم واحد]
@@ -441,6 +443,8 @@ flowchart TD
     Credit --> Streak{سلسلة 7 أيام؟}
     Streak -->|نعم| Bonus[شارة فضية + مكافأة السلسلة — 50 نقطة افتراضياً؛ وذهبية عند 30 يوماً وماسية عند 90 يوماً — Q-277]
     Streak -->|لا| Wallet[الرصيد ظاهر للطفل وللأب + سجل الحركات]
+    Streak -->|مرض/سفر — تجميد يوم واحد بإذن الأب| Freeze[السلسلة مجمَّدة يوماً واحداً — لا تنقطع — 5-5 · REQ-007]
+    Freeze --> Wallet
     Bonus --> Wallet
     Wallet --> Redeem{الطفل يصرف؟}
     Redeem -->|لا| End([الرصيد يبقى — النقاط لا تنتهي])
@@ -453,8 +457,8 @@ flowchart TD
     Expire --> Play
 ```
 
-- المصدر: §2 (5-1…5-8) · §3 (REQ-001…REQ-014 + REQ-018) · §7 (الحالات الحدية).
-- مساران جانبيان لا يظهران في التدفق الرئيسي: منح الأب الفوري 20 نقطة بلا مهمة (5-6) وتجميد السلسلة يوماً واحداً بإذن الأب عند المرض/السفر (5-5) — انظر 3-د؛ ومراهق يحاول الكسب أو الصرف يُرفض ويُسجَّل (Q-109) قبل أي خطوة في التدفق.
+- المصدر: §2 (5-1…5-13) · §3 (REQ-001…REQ-014 + REQ-018) · §7 (الحالات الحدية).
+- المساران الجانبيان مرسومان الآن في التدفق الرئيسي: المنح الفوري 20 نقطة بلا مهمة (5-6) مدخل جانبي إلى المحفظة، وتجميد السلسلة يوماً واحداً بإذن الأب عند المرض/السفر (5-5) فرع من قرار السلسلة — والتفصيل التسلسلي في 3-د؛ ومراهق يحاول الكسب أو الصرف يُرفض ويُسجَّل (Q-109) قبل أي خطوة في التدفق.
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
@@ -496,7 +500,7 @@ flowchart LR
     Audit([AuditEvent — domain=rewards])
     AgentActionLog([سجل أفعال الوكيل — عقد Q-167 §3 — يُعرض في S1-09])
 
-    S106 -->|"family/{family_id}/tasks.completed {source_system=S1-06} — source_system + task_id + نقاط"| P1
+    S106 -->|"family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by} — عدم تكرار بـ event_id"| P1
     S106 -->|"family/{family_id}/tasks.verification-revoked — قيد تعويضي يخصم النقاط (3-و)"| P1
     AI -->|"نتيجة التحقق + الدليل + طبقة الثقة (مباشر/مقدَّم/مشكوك)"| P1
     P1 -->|"سجل الفعل (المفتاح agent.task.verify + البوابة + الدليل)"| AgentActionLog

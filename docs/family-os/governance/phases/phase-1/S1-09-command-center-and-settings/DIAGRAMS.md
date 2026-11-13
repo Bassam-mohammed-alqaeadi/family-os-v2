@@ -342,7 +342,7 @@ sequenceDiagram
         Ktor-->>Hub: المهمة تظهر للطفل مع قيمتها النقطية
     else مهمة مسلَّمة — الأب يعتمد / يرفض
         Father->>Hub: فتح المهمة من البطاقة
-        Hub->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/approve {APPROVE / REJECT_WITH_NOTES}
+        Hub->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE / REJECT_WITH_NOTES}
         Ktor-->>Hub: القرار يُسلَّم للمهمة (S1-06)
     end
     Hub-->>Father: البطاقة تُحدَّث — العنصر يُزال بعد القرار
@@ -565,7 +565,7 @@ flowchart LR
         V3["POST /api/v1/families/{id}/alerts/{alertId}/acknowledge"]
         V4["GET /api/v1/families/{id}/plan"]
         V5["MQTT: family/{family_id}/dashboard/updated + family/{family_id}/alerts/new"]
-        V6["POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide + POST /api/v1/families/{id}/tasks/{taskId}/approve"]
+        V6["POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide + POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve"]
         V7{النظام مسجل والتحكم موجود؟}
         V8["GET /api/v1/families/{id}/agent-actions (REQ-018)"]
     end
