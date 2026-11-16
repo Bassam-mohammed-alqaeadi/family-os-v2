@@ -75,6 +75,16 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .stage::before{content:"";position:absolute;inset:0;opacity:.5;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(closest-side,#000,transparent)}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
 .brand .mk{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#1F3A6B,#142749);border:1px solid #33528a;display:grid;place-items:center;color:var(--st-gold);font-size:20px}
+.lgcard{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;margin-top:14px;padding:14px 12px 10px;border-radius:16px;background:#1F3A6B;border:1px solid #3C5F9E;color:#FCFAED;font-size:12.5px;font-weight:600}
+.lgcard:hover{background:#24437b}
+.lgcard span{color:var(--st-gold)}
+#brandOv{position:fixed;inset:0;z-index:300;background:#EEECE2;display:flex;flex-direction:column}
+#brandOv[hidden]{display:none}
+.bo-bar{display:flex;align-items:center;gap:12px;padding:8px 14px;background:#1F3A6B;color:#FCFAED;flex:none}
+.bo-bar b{flex:1;font-size:15px}
+.bo-bar button{padding:9px 16px;border-radius:99px;background:#FCFAED;color:#142749;font-weight:700;font-size:13.5px}
+#brandFr{flex:1;width:100%;border:0;background:#EEECE2}
+@media (max-width:520px){.bo-bar b{display:none}.bo-bar{justify-content:space-between}}
 .brand h1{font-size:19px;margin:0;font-weight:700}
 .brand small{display:block;color:var(--st-mute);font-size:12px;font-weight:400;margin-top:1px}
 .lede{color:var(--st-mute);font-size:12.5px;line-height:1.8;margin:10px 0 0}
@@ -524,6 +534,7 @@ button.chip{min-height:28px}
   body[data-open="r"] .pane.r,body[data-open="l"] .pane.l{transform:none}
   .fab-st{display:flex;position:fixed;top:12px;z-index:99;gap:6px;align-items:center;padding:8px 12px;border-radius:99px;background:#0C1830E6;border:1px solid #3C5F9E;font-size:12.5px;font-weight:600;backdrop-filter:blur(8px)}
   .fab-st.a{inset-inline-start:12px}.fab-st.b{inset-inline-end:12px}
+  .fab-st.c{inset-inline-start:12px;top:58px;background:#1F3A6BF2}
   .fab-st svg.ic{width:18px;height:18px;color:var(--st-gold)}
   .bk{position:fixed;inset:0;background:#0009;z-index:98;display:none}
   body[data-open] .bk{display:block}
@@ -535,4 +546,5 @@ button.chip{min-height:28px}
   .fab-st span{display:none}.fab-st{padding:10px 7px;top:44%;opacity:.86}
   .fab-st.a{inset-inline-start:0;border-start-start-radius:0;border-end-start-radius:0;border-inline-start:0}
   .fab-st.b{inset-inline-end:0;border-start-end-radius:0;border-end-end-radius:0;border-inline-end:0}
+  .fab-st.c{inset-inline-start:0;top:calc(44% + 50px);border-start-start-radius:0;border-end-start-radius:0;border-inline-start:0}
 }

@@ -89,8 +89,9 @@ const Studio = {
   tab: 'ctx', open: {},
   init() {
     buildCover();
-    $('#paneR').innerHTML = `<div class="brand"><div class="mk">${ic('family_home')}</div><h1>عائلتي<small>النموذج الأولي التفاعلي · المرحلة 1</small></h1></div>
+    $('#paneR').innerHTML = `<div class="brand"><div class="mk"><img src="assets/brand/logo-symbol-dark.svg" alt="" width="30" height="28"></div><h1>عائلتي<small>النموذج الأولي التفاعلي · المرحلة 1</small></h1></div>
       <p class="lede">نظام التصميم المعتمد حيّاً داخل هاتف: خمس شخصيات تتشارك حالة عائلة واحدة، وكل سطح مربوط بمتطلباته في الحوكمة.</p>
+      <button class="lgcard" data-st="brand"><img src="assets/brand/logo-horizontal-ar-dark.svg" alt="عائلتي" height="64"><span>الشعار وأيقونة التطبيق — اضغط للعرض</span></button>
       <div class="st-h">الشخصيات</div><div id="personas"></div><div class="st-h">رحلات موجَّهة</div><div id="journeys"></div>
       <div class="note" style="margin-top:18px"><b>للتجربة:</b> رقم بوابة الوالدين <span class="mono">482615</span> · رمز التحقق <span class="mono">246810</span> · زر SOS بضغط مطوّل 3 ثوانٍ.</div>
       <button class="jr" data-st="reset" style="justify-content:center;margin-top:10px">${ic('refresh')}أعد ضبط بيانات العرض</button>`;
@@ -119,6 +120,8 @@ const Studio = {
     reset() { const keep = { persona: S.persona, theme: S.theme, lang: S.lang, ts: S.ts }; S = fresh(); Object.assign(S, keep); S.stack = [{ id: rootOf(S.persona), a: [] }]; JR = null; render(); toast('أُعيدت بيانات العرض إلى بدايتها', null, 'refresh'); },
     warn5() { if (!['child', 'teen'].includes(S.persona)) setPersona('child'); render(); notif('بقي 5 دقائق', 'ينتهي وقت Minecraft بعد قليل. أنهي ما تفعلين.', 'hourglass_top'); },
     boot() { boot(); },
+    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116c'; o.hidden = false; document.body.removeAttribute('data-open'); },
+    brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
     pane(x) { document.body.dataset.open === x ? document.body.removeAttribute('data-open') : (document.body.dataset.open = x); },
     closePane() { document.body.removeAttribute('data-open'); },
   },
@@ -175,4 +178,9 @@ const Studio = {
 };
 window.Studio = Studio;
 function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="142"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
-addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot(); });
+addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot();
+  /* عرض الشعار مرة واحدة عند أول فتح حتى يحكم عليه المالك؛ ?quiet يمنعه (للاختبارات) */
+  let seen = false; try { seen = localStorage.getItem('fos-brand-seen') === '1'; } catch (e) { /* لا شيء */ }
+  if (!seen && !/[?&]quiet/.test(location.search)) Studio.act.brand();
+});
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#brandOv').hidden) Studio.act.brandClose(); });
