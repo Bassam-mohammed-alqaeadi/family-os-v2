@@ -165,7 +165,8 @@ erDiagram
     DEVICE ||--o{ SOS_ALERT : sends
     FAMILY ||--o{ GEOFENCE : defines المرحلة 5 — Q-056
     FAMILY ||--o{ AUDIT_EVENT : logs
-    FAMILY ||--o{ OWNERSHIP_TRANSFER : has
+    FAMILY ||--o{ FULL_AUTHORITY : has
+    MEMBERSHIP ||--o{ FULL_AUTHORITY : holds
     PLAN ||--o{ SUBSCRIPTION : defines
     FAMILY {
         uuid id PK
@@ -210,16 +211,16 @@ erDiagram
         text action
         timestamptz at
     }
-    OWNERSHIP_TRANSFER {
-        uuid transfer_id PK
+    FULL_AUTHORITY {
+        uuid id PK
         uuid family_id FK
-        uuid from_member_id FK
-        uuid to_member_id FK
+        uuid member_id FK
+        uuid granted_by FK
         text status
         text auth_method
-        timestamptz expires_at
-        timestamptz requested_at
-        timestamptz accepted_at
+        timestamptz granted_at
+        timestamptz revoked_at
+        timestamptz notice_seen_at
     }
 ```
 
@@ -232,7 +233,7 @@ erDiagram
 - هذا ERD **نواة + ملخص المرحلة 1** لا تفصيلها الكامل؛ جداول المرحلة 1 الكاملة تعيش في §5 لكل مواصفة نظام: الستة في S1-01، وجداول S1-02، ومحفظة النقاط/السجل في S1-05، والمهام/التقويم في S1-06، وجداول الدردشة/الوسائط في S1-08.
 - `APP_RULE` / `WEEKLY_SCHEDULE` يملكهما **S1-10 "الحماية والفرض"** (Q-141) — مواصفته معتمدة (Q-146)؛ والتفصيل في S1-10 §5.
 - `MEMBERSHIP.person_id` فارغ للطفل — عضوية بالملف فقط (Q-137 — محكوم).
-- `OWNERSHIP_TRANSFER`: طرفا النقل شخصان بالغان (`from_member_id`/`to_member_id` → `person` — Q-169)؛ ولا كيان `PERSON` في هذا الملخص — كما أن `MEMBERSHIP.person_id` مرجع بلا كيان. التفصيل في S1-03 §5-5 (Q-177).
+- `FULL_AUTHORITY` (Q-401 — أُعيد رسمه 2026-11-16): حلّ محل `OWNERSHIP_TRANSFER`. الحامل `member_id` → `membership` بالغ، والمانح `granted_by` → `person` (المالك)؛ `status` قيمتاه `active` / `revoked` فقط — لا معلّق ولا قبول ولا مهلة. و`MEMBERSHIP.is_owner` واحد دائماً ولا ينتقل إلا باكتمال حذف حساب المالك (Q-402). ولا كيان `PERSON` في هذا الملخص — كما أن `MEMBERSHIP.person_id` مرجع بلا كيان. التفصيل في S1-03 §5-5.
 
 ### 5.4 سطح API (المبادئ — التفاصيل في مواصفات الأنظمة)
 
