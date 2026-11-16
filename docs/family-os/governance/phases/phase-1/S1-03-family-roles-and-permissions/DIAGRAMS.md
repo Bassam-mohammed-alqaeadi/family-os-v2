@@ -3,7 +3,8 @@
 - **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-08 — D-2، بعد موجة الإصلاح 0e4a3e2..f7da470)؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
 - **السياق المحدد (Bounded Context):** #2 الصلاحيات (Permissions) — `CONTEXT-MAP.md` §2 صف 2
-- **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · Q-139 · Q-164 · Q-166 · Q-189 · Q-162 · Q-174 · Q-201 · Q-204 · Q-227 · Q-232 · Q-235 · Q-248 · Q-250 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011 · Q-168 · Q-329 · Q-330 · Q-343
+- **القرارات الحاكمة:** Q-001 · Q-003 · Q-006 · Q-007 · Q-010 · Q-065 · Q-072 · Q-080 · Q-085 · Q-086 · Q-087 · Q-088 · Q-089 · Q-093 · Q-139 · Q-164 · Q-166 · Q-189 · Q-162 · Q-174 · Q-201 · Q-204 · Q-227 · Q-232 · Q-235 · Q-248 · Q-250 · D-006 · D-021 · D-023 · D-038 · G-006 · G-011 · Q-168 · Q-329 · Q-330 · Q-343 · Q-401 · Q-402
+- **ملاحظة مؤرخة تسود على الرسم (2026-11-16 — Q-401 · Q-402):** «الصلاحية الكاملة» حلّت محل نقل الملكية: تُعطى لبالغ فتسري فوراً بلا قبول، المالك يبقى مالكاً ويسحبها متى شاء؛ ونُقضت Q-139 · Q-162 · Q-259. أُعيد رسم التسلسلين 3-هـ و3-ح. **وحيث يخالف باقي الرسم هذه الملاحظة فهي السائدة:** في حالات الاستخدام (§1) «نقل الملكية لبالغ» تُقرأ «إعطاء الصلاحية الكاملة لبالغ وسحبها»؛ في ERD (§2) الجدول `ownership_transfer` بحقوله صار `full_authority` (SPEC §5-5) بلا `pending` / `accepted` / `expired` ولا `expires_at`؛ في تدفق المستخدم وDFD (§4 · §5) لا مسار «قبول المتلقي» ولا «إلغاء نقل معلق» — يحل محلهما إشعار الحامل وسحب المالك؛ في النشاط (§6) لا فحص يومي لانتهاء نقل (V9 ملغى). ويُضاف ما لا رسم له بعد: حذف حساب المالك وانتقال `is_owner` إلى حامل الصلاحية الكاملة بعد 30 يوماً (SPEC §7-18)، وإشعار المتلقي بكل تغيير من المالك. الرسوم لم تُعَد كلها، وتأكيد المالك لها بكلمة (Q-289) لم يصدر بعد.
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
@@ -341,7 +342,7 @@ sequenceDiagram
 
 - إلغاء المنح لا يبطل أي جلسة (Q-257): الجلسات تُبطل فقط بالعمليات الصريحة في S1-02 §4.1 — وتبقى جلسات العضو عاملة لباقي صلاحياتها بعد الإلغاء.
 
-### 3-هـ. نقل الملكية لبالغ (REQ-016 — §4-1 · Q-093)
+### 3-هـ. إعطاء الصلاحية الكاملة لبالغ (REQ-016 — §4-1 · Q-093 · Q-401)
 
 ```mermaid
 sequenceDiagram
@@ -350,28 +351,30 @@ sequenceDiagram
     participant App as التطبيق
     participant S101 as البوابة
     participant Ktor as الخادم
-    participant Transfer as النقل
+    participant FA as الصلاحية الكاملة
     participant Audit as التدقيق
-    Father->>App: اختيار بالغ لنقل الملكية إليه
-    App->>Ktor: POST /api/v1/families/{id}/ownership-transfer {to_member_id}
-    alt المانح ليس المالك
-        Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
-    else المتلقي طفل أو مراهق
-        Ktor-->>App: رفض — النقل للبالغين فقط (§7-11 · ACC-013)
-    else نقل معلق قائم للعائلة
-        Ktor-->>App: رفض 409 + transfer_id النقل المعلق — النقل الأول يبقى كما هو (Q-259 · §7-18 · ACC-019)
-    else المتلقي بالغ
-        Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
-        App->>S101: طلب تحقق — PIN أو بصمة (Q-093)
-        S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
-        App->>Ktor: verification {method, challenge_id, signature, at}
-        Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
-        Ktor->>Transfer: إنشاء نقل (status: pending, auth_method)
-        Ktor->>Audit: تسجيل بدء النقل
-        Ktor-->>App: {transfer_id, status: pending}
-        App-->>Father: النقل بدأ — بانتظار الإكمال
+    actor Adult as البالغ
+
+    Father->>App: اختيار بالغ في R03-10
+    App->>Ktor: POST /api/v1/families/{id}/full-authority {member_id}
+    alt العضو ليس بالغاً
+        Ktor-->>App: رفض — للبالغين فقط (§7-11 · ACC-013)
+    else العضو يحملها
+        Ktor-->>App: رفض 409 بلا تغيير (§7-14)
+    else بالغ لا يحملها
+        App->>S101: طلب تحقق PIN أو بصمة
+        S101-->>App: توقيع التحدي
+        App->>Ktor: إعادة الطلب مع verification
+        Ktor->>FA: إنشاء صف (status: active, auth_method)
+        Ktor->>Audit: تسجيل الإعطاء
+        Ktor-->>App: {member_id, status: active}
+        App-->>Father: لها الصلاحية الكاملة الآن — أنت المالك كما كنت
+        Ktor-->>Adult: إشعار — تسري فوراً بلا قبول (R03-11)
     end
 ```
+
+- تسري من لحظة نجاح الطلب؛ لا خطوة قبول ولا مهلة ولا حالة معلقة (Q-401 — نُقض Q-139 · Q-259).
+- دون اتصال تُرفض ولا تدخل صندوق الصادر (Q-269)؛ و`is_owner` لا ينتقل (Q-006).
 
 ### 3-و. تحول الدور عند بلوغ 13 (REQ-003 — §6-3)
 
@@ -433,41 +436,33 @@ sequenceDiagram
 
 - ملاحظة: حذف العائلة وإزالة العضو غير قابلين للتفويض (REQ-020 — ثابت صلب)؛ والقاصر لا يُزال إلا بيد الأب؛ وطلب حذف دون اتصال يُحفظ في الصندوق الصادر ويُنفَّذ عند الاتصال (بروتوكول الحذف والتصدير — `DELETION-EXPORT-PROTOCOL.md` §6).
 
-### 3-ح. قبول نقل الملكية (REQ-016 — §4-1 · Q-093 · Q-164)
+### 3-ح. سحب الصلاحية الكاملة (REQ-016 — §4-1 · Q-401)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Recipient as المتلقي
+    actor Father as الأب
     participant App as التطبيق
-    participant S101 as البوابة
     participant Ktor as الخادم
-    participant Transfer as النقل
+    participant FA as الصلاحية الكاملة
     participant Audit as التدقيق
-    Recipient->>App: قبول نقل الملكية {transfer_id}
-    App->>Ktor: POST /api/v1/families/{id}/ownership-transfer/{transferId}/accept
-    alt المتلقي ليس المتلقي المحدد
-        Ktor-->>App: رفض — القبول للمتلقي المحدد فقط (§7-16)
-    else المتلقي بالغ
-        Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
-        App->>S101: طلب تحقق — PIN أو بصمة (Q-093)
-        S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
-        App->>Ktor: verification {method, challenge_id, signature, at}
-        Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل القبول (Q-164)
-        alt التوقيع صالح
-            Ktor->>Transfer: قبول النقل (status: accepted)
-            Ktor->>Audit: تسجيل قبول النقل + نقل الملكية
-            Ktor-->>App: {transfer_id, status: "accepted"}
-            App-->>Recipient: أنت المالك الآن
-        else بلا verification أو توقيع غير صالح
-            Ktor-->>App: رفض PERM_VERIFICATION_REQUIRED
-        end
-    else المتلقي طفل أو مراهق
-        Ktor-->>App: رفض — النقل للبالغين فقط (REQ-016)
+    actor Adult as البالغ
+
+    Father->>App: «اسحب الصلاحية الكاملة» في R03-12 + تأكيد
+    App->>Ktor: DELETE /api/v1/families/{id}/full-authority/{memberId}
+    alt الطالب ليس المالك نفسه
+        Ktor-->>App: رفض 403 PERM_DENIED (§7-16)
+    else المالك نفسه
+        Ktor->>FA: إغلاق الصف (status: revoked)
+        Ktor->>Audit: تسجيل السحب
+        Ktor-->>App: {member_id, status: revoked}
+        App-->>Father: سُحبت — عاد البالغ إلى دوره السابق
+        Ktor-->>Adult: حدث permissions/revoked + إشعار
     end
 ```
 
-- القبول يثبَّت بالتحدي كالبدء تماماً (REQ-016 · Q-093 · Q-164)؛ والاستثناء Q-174 (بلا تحدي لتبديل المنح من S1-09) لا ينطبق هنا. وينتهي النقل بعد 7 أيام بلا قبول (Q-139).
+- السحب تأكيد واحد بلا رقم سري، كإلغاء أي منح (REQ-017)؛ ولا تُبطل جلسة (Q-257).
+- البالغ يعود إلى منحه في `permission_grant` كما هي؛ ما انتهت مدته أثناء الحمل يبقى منتهياً (SPEC §5-5).
 
 ### 3-ط. طلب تعديل صلاحية وقرار الأب (REQ-002/004/015 — §4-1 · R03-17)
 
