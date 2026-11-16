@@ -54,6 +54,7 @@ assets/js/req-data.js         ⟵ مولَّد. لا يُحرَّر يدوياً
 assets/js/icons.js            ⟵ مولَّد. لا يُحرَّر يدوياً
 tools/build-req-data.py       يقرأ §3 من الـ SPEC العشرة وقوالب S1-03 ويولّد req-data.js
 tools/build-icons.mjs         يمسح المصدر ويضمّن الأيقونات المستعملة فقط
+tools/test-s1-02.cjs          يمشي في مسارات S1-02 في متصفح آلي (يحتاج puppeteer-core و@sparticuz/chromium)
 ```
 
 كل شاشة تُسجَّل بـ `surface(id, { t, sys, req, st, note, r() })`. الحقل `req` (مثل `'09:1,2 01:4'`) هو مصدر

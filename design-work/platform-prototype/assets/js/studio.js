@@ -16,6 +16,10 @@ function jump(id, args) {
   if (id === 'sos-status' && !S.sos) S.sos = { from: 'layan', st: 'sent', via: 'عبر الإنترنت', place: 'البيت' };
   if (id === 'sos-sent' && !S.sos) S.sos = { from: PERSONA[S.persona].m, st: 'sent', via: 'عبر الإنترنت', place: 'البيت' };
   if (id === 'sos-count') S.sosN = 10;
+  if (id === 'recover-review' && !(S.recReq && S.recReq.st !== 'cancelled')) S.recReq = { st: 'pending', kind: 'num' };
+  if (id === 'recover-wait' && !S.ob.rst) S.ob.rst = 'pending';
+  if (id === 'rekey') S.bioChg = 1;
+  if (id === 'bio-unlock') S.bioF = 0;
   if (d.kind === 'screen') { const isRoot = id === root || (TABS[mode()] || []).some(t => t[0] === id); S.stack = isRoot ? [{ id, a: [] }] : [{ id: root, a: [] }, { id, a: a2 }]; }
   else { S.stack = [{ id: root, a: [] }]; if (d.kind === 'sheet') S.sheet = { id, a: a2 }; else { if (id === 'pin') { pinBuf = ''; } S.full = { id, a: a2 }; } }
   render();
@@ -24,20 +28,32 @@ function jump(id, args) {
 /* ---------- الرحلات الموجَّهة ---------- */
 const ensureReq = () => { if (!S.reqs.some(r => r.kid === 'layan' && r.st === 'PENDING')) S.reqs.push({ id: 'r' + Date.now(), kid: 'layan', app: 'ytk', min: 15, msg: 'بقيت حلقة واحدة', st: 'PENDING' }); };
 const JOURNEYS = [
-  { t: 'أول تشغيل وإنشاء العائلة', d: 'هاتف ← رمز ← خطوتان ← عائلة', s: [
-    ['جهاز جديد. تطبيق واحد لكل الأدوار. اضغط «أنشئ عائلة جديدة».', () => { S.ob = {}; jump('ob-welcome'); }],
-    ['اكتب الرقم 771234567 ثم «أرسل الرمز». جرّب رقماً ناقصاً لترى رسالة الخطأ.', () => { S.ob = { flow: 'new' }; jump('ob-phone'); }],
-    ['الرمز التجريبي 246810، أو «اقرأ الرمز تلقائياً». خمس أخطاء تقفل 15 دقيقة.', () => { S.ob = { flow: 'new', phone: '771234567' }; jump('ob-otp'); }],
-    ['التحقق بخطوتين إلزامي: لا يوجد زر تخطٍّ.', () => jump('ob-totp')],
-    ['سمِّ العائلة واختر المنطقة. اليمن يفعّل النطاق المنخفض والأسعار بالريال.', () => jump('ob-family')],
-    ['العائلة على الخطة المجانية تلقائياً. ادخل إلى اللوحة.', () => jump('ob-done')],
+  { t: 'أول تشغيل وإنشاء العائلة', d: 'رقم ← رمز ← اسم العائلة', s: [
+    ['جهاز جديد. زرّان فقط: البالغ يبدأ برقمه، وجهاز الطفل يُقرن برمز.', () => { S.ob = {}; jump('ob-welcome'); }],
+    ['اكتب الرقم 771234567 ثم «أرسل الرمز». جرّب رقماً ناقصاً لترى رسالة الخطأ. الرقم 777000111 له حساب فيدخل مباشرة.', () => { S.ob = { flow: '' }; jump('ob-phone'); }],
+    ['الرمز التجريبي 246810، أو «اقرأ الرمز تلقائياً». خمس أخطاء تقفل 15 دقيقة. «لم يصل؟» ثلاث مرات يُظهر حالة فشل القنوات كلها.', () => { S.ob = { flow: '', phone: '771234567' }; jump('ob-otp'); }],
+    ['رقم جديد: عائلة جديدة أم دعوة؟ من له حساب لا يرى هذه الشاشة.', () => { S.ob = { phone: '771234567' }; jump('ob-choose'); }],
+    ['حقل واحد يُكتب: اسم العائلة. البلد من مفتاح الرقم والتوقيت من ساعة الهاتف، وكلاهما يُغيَّر بنقرة.', () => { S.ob = { phone: '771234567' }; jump('ob-family'); }],
+    ['العائلة على الخطة المجانية تلقائياً، وهذا الهاتف صار موثوقاً بلا خطوة إضافية. ادخل إلى اللوحة.', () => jump('ob-done')],
+  ] },
+  { t: 'الانضمام بدعوة', d: 'دعوة ← رمز ← انضمام بلا صلاحيات', s: [
+    ['أحمد ينشئ دعوة: رمز لشخص واحد صالح 7 أيام، والرسالة فيها رابط ورمز. كل دعوة معلقة تُلغى وحدها.', () => jump('invite')],
+    ['سارة فتحت الرابط ووثّقت رقمها: الرمز معبّأ. اضغط «تابع».', () => { S.ob = { link: 1, phone: '733555019' }; jump('ob-join'); }],
+    ['اسم العائلة يظهر بعد التحقق من الرمز فقط، مع ما ستستطيعه وما لا تستطيعه.', () => { S.ob = { link: 1, jok: 1 }; jump('ob-join'); }],
+  ] },
+  { t: 'فقدت الهاتف والرقم', d: 'طلب ← تأكيد ← 7 أيام ← اعتراض', s: [
+    ['من جهاز جديد: «فقدت هاتفك ورقمك؟» في شاشة الرقم. اكتب الرقم القديم والجديد.', () => { S.ob = {}; jump('ob-recover'); }],
+    ['بانتظار تأكيد من اختاره أحمد مسبقاً. اسمها لا يُكشف هنا.', () => { S.ob = { rst: 'pending' }; S.recReq = { st: 'pending', kind: 'num' }; jump('recover-wait'); }],
+    ['على هاتف سارة: تتأكد بصوته ثم تؤكد أو ترفض.', () => { S.recReq = { st: 'pending', kind: 'num' }; setPersona('delegate'); jump('recover-review'); }],
+    ['بدأت الأيام السبعة. صاحب الطلب يرى العدّ ويستطيع الإلغاء.', () => { S.ob = { rst: 'waiting' }; S.recReq = { st: 'waiting', kind: 'num' }; jump('recover-wait'); }],
+    ['إن كان الطلب من محتال: أحمد الحقيقي يراه على هاتفه القديم ويوقفه فوراً.', () => { S.recReq = { st: 'waiting', kind: 'num' }; setPersona('owner'); jump('recover-review'); }],
   ] },
   { t: 'إضافة طفل وإقران جهازه', d: 'ملف ← رمز ← موافقة مشتركة', s: [
     ['على المجانية العائلة مكتملة (5/5): يظهر حارس الحصص. بدّلنا الخطة إلى الأساسية للمتابعة.', () => { S.plan = 'basic'; jump('add-member'); }],
     ['اسم مستعار وصورة ولون وسنة ميلاد فقط. غيّر السنة ولاحظ القالب يتبدل تلقائياً.', () => { S.cn = null; jump('child-new'); }],
     ['رمز إقران من 6 خانات صالح 15 دقيقة.', () => jump('pair-code')],
     ['الآن جهاز الطفل: أدخل LY4N82.', () => { S.ob = {}; jump('ob-pair'); }],
-    ['الموافقة المشتركة: يفعّل الطفل والأب المفتاحين معاً، ثم يكتب بابا رقمه السري مرتين فيُحفظ على هذا الجهاز.', () => { S.ob = { cons: {} }; jump('ob-consent'); }],
+    ['يتفقان معاً: يفعّل الطفل والأب المفتاحين، ثم يكتب بابا رقمه السري فيُحفظ على هذا الجهاز. «ليس الآن» يوقف الإقران بلا لوم.', () => { S.ob = { cons: {} }; jump('ob-consent'); }],
     ['انتهى الإقران: الجهاز في وضع الطفل، والوضع ثابت.', () => jump('c-home')],
   ] },
   { t: 'نفد الوقت ← طلب ← قرار الأب', d: 'حلقة القرار بين جهازين', s: [
@@ -120,7 +136,7 @@ const Studio = {
     reset() { const keep = { persona: S.persona, theme: S.theme, lang: S.lang, ts: S.ts }; S = fresh(); Object.assign(S, keep); S.stack = [{ id: rootOf(S.persona), a: [] }]; JR = null; render(); toast('أُعيدت بيانات العرض إلى بدايتها', null, 'refresh'); },
     warn5() { if (!['child', 'teen'].includes(S.persona)) setPersona('child'); render(); notif('بقي 5 دقائق', 'ينتهي وقت Minecraft بعد قليل. أنهي ما تفعلين.', 'hourglass_top'); },
     boot() { boot(); },
-    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116c'; o.hidden = false; document.body.removeAttribute('data-open'); },
+    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116d'; o.hidden = false; document.body.removeAttribute('data-open'); },
     brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
     pane(x) { document.body.dataset.open === x ? document.body.removeAttribute('data-open') : (document.body.dataset.open = x); },
     closePane() { document.body.removeAttribute('data-open'); },

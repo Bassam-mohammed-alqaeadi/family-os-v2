@@ -40,6 +40,8 @@ const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
   tpl: 'partner', privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
+  /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
+  invs: [{ c: 'MNSR-7K2P', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
   kid: {
     khaled: { quota: 180, used: 75, pts: 0, streak: 0, bat: 64, place: 'المدرسة', ago: 4, moving: false, online: true, enf: 'degraded', x: 68, y: 30, extra: 0, spent: 0 },
     layan: { quota: 120, used: 96, pts: 85, streak: 5, bat: 41, place: 'البيت', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },

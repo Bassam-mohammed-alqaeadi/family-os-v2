@@ -12,20 +12,30 @@ surface('more', {
     return `<button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
     ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
     ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', `${attention().length} بانتظار قرار`, { a: 'go:alerts' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: own ? '' : chip('عرض فقط', 'ol') }))}
-    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'التحقق بخطوتين · الجلسات · الاسترداد', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button>`; },
+    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'البصمة · أجهزتي · إن فقدت الهاتف', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button>`; },
 });
 surface('account', {
-  t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,26',
-  r() { return `<div class="c" style="padding:8px 0 12px">${av(me(), 'xl')}<div class="b" style="font-size:20px;margin-top:8px">${me().n}</div></div>${list(row('call', 'رقم الهاتف', '', { v: '<span class="ltr">+967 77• ••• •42</span>' }), row('mail', 'البريد الإلكتروني', 'بديل موازٍ لتسجيل الدخول · للبالغين فقط', { v: 'أضف', a: 'soonC' }), row('family_home', 'عائلتي', 'عائلة واحدة لكل حساب', { v: 'المنصور' }))}${list(row('logout', 'اخرج من هذا الجهاز', '', { a: 'signOut' }), isOwner() ? '' : row('person_remove', 'غادر العائلة', 'تفقد كل ما مُنح لك فوراً', { a: 'leaveFam', ic: 'var(--danger)' }))}`; },
+  t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,25,26',
+  r() { const d = S.delP; return `<div class="c" style="padding:8px 0 12px">${av(me(), 'xl')}<div class="b" style="font-size:20px;margin-top:8px">${me().n}</div></div>
+    ${d ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:delete-account">${ic('delete_forever')}<div><b>حسابك يُحذف بعد ${d} يوماً</b><br>اضغط هنا لإلغاء الحذف.</div></button>` : ''}
+    ${list(row('call', 'رقم الهاتف', 'تدخل به إلى «عائلتي»', { v: '<span class="ltr">+967 77• ••• •42</span>' }), row('mail', 'البريد الإلكتروني', 'طريق دخول ثانٍ إن تعذّر الرقم', { v: 'أضف', a: 'soonC' }), row('family_home', 'عائلتي', 'عائلة واحدة لكل حساب', { v: 'المنصور' }))}
+    ${list(row('logout', 'اخرج من هذا الجهاز', '', { a: 'signOut' }), isOwner() ? '' : row('person_remove', 'غادر العائلة', '', { a: 'go:leave-family', ic: 'var(--danger)' }))}`; },
+});
+surface('leave-family', {
+  t: 'مغادرة العائلة', sys: 'S1-02', p: 'adult', req: '02:26 03:20',
+  note: 'حق أصيل لكل بالغ لا يملك الأب سحبه (Q-291)، ولذلك لا حالة «معطَّل من المالك». المغادرة فورية. المالك لا يغادر: ينقل الملكية أولاً. إن كان المغادر هو جهة الاسترداد يُنبَّه هو والأب (مقترح — GAP-10).',
+  r() { if (isOwner()) return `${empty('family_home', 'أنت مالك العائلة', 'المالك لا يغادر عائلته. انقل الملكية إلى بالغ آخر أولاً، وبعدها تستطيع المغادرة.', btn('انقل الملكية', 'go:transfer', 'sec', 'swap_horiz'))}`;
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('person_remove')}</div><p class="ttl" style="font-size:22px">ماذا يحدث إن غادرتِ؟</p><div class="card"><div class="tl"><div class="ev da"><b>الآن: تخرجين من عائلة المنصور</b><span>لا ترين الأفراد ولا المحادثات ولا المواقع</span></div><div class="ev"><b>كل ما سمح لك به أحمد يُلغى</b><span>فوراً وعلى كل أجهزتك</span></div><div class="ev ok"><b>حسابك يبقى</b><span>تستطيعين الانضمام مجدداً بدعوة جديدة</span></div></div></div>
+    ${S.rec === me().id ? callout('أنتِ من اختارها أحمد لتساعده إن فقد هاتفه ورقمه. بعد مغادرتك يصله تنبيه ليختار غيرك.', 'wa', 'support') : ''}${btn('غادر العائلة', 'leaveFam', 'dng')}<div class="gap"></div>${btn('ابقَ', 'back', 'sec')}`; },
 });
 Object.assign(ACT, {
-  signOut() { confirmDlg('الخروج من هذا الجهاز؟', 'ستحتاج إلى رقمك ورمز التحقق للدخول مجدداً. ما في الصندوق الصادر يبقى محفوظاً.', 'اخرج', () => { setPersona('guest'); render(); }); },
-  leaveFam() { confirmDlg('مغادرة عائلة المنصور؟', 'تُلغى كل صلاحياتك فوراً، ولن ترى بيانات العائلة. يمكن دعوتك مجدداً لاحقاً.', 'غادر', () => { toast('في التطبيق الفعلي تغادر العائلة الآن', null, 'info'); render(); }, true); },
+  signOut() { confirmDlg('الخروج من هذا الجهاز؟', 'ستحتاج إلى رقمك ورمز التحقق للدخول مجدداً. ما لم يُرسل بعد يبقى محفوظاً على هذا الجهاز.', 'اخرج', () => { setPersona('guest'); S.ob = {}; }); },
+  leaveFam() { confirmDlg('مغادرة عائلة المنصور؟', 'المغادرة فورية. للعودة تحتاجين دعوة جديدة.', 'غادر', () => { const was = S.rec === me().id; audit(`غادرت ${me().n} العائلة`, 'identity.family.leave'); if (was) { S.rec = null; S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: 'لم تعد لك جهة استرداد', s: 'غادرت سارة العائلة · اختر بالغاً آخر', ago: 'الآن', p: 3, open: 1 }); } setPersona('guest'); S.ob = {}; toast('غادرتِ عائلة المنصور', null, 'person_remove'); }, true); },
 });
 surface('family-settings', {
   t: 'العائلة', sys: 'S1-02', p: 'adult', req: '02:7,8,25,28 03:20 01:12',
-  note: 'الاسم والمنطقة والمنطقة الزمنية. المنطقة تحدد ملف المنطقة (الأسعار، قنوات OTP، وضع النطاق المنخفض). حذف العائلة للمالك حصراً بمهلة تراجع.',
-  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: 'عائلة المنصور', a: own ? 'soonC' : 'denied:shell.config.edit' }), row('public', 'المنطقة', 'تحدد ملف المنطقة: الأسعار وطرق الدفع وقنوات التحقق', { v: 'اليمن' }), row('schedule', 'المنطقة الزمنية', 'تُحسب بها نوافذ النوم والمدرسة ونهاية اليوم', { v: 'صنعاء UTC+3' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(row('swap_horiz', 'انقل الملكية', 'إلى بالغ آخر', { a: 'go:transfer' }), row('delete_forever', 'احذف العائلة', 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'famDel', ic: 'var(--danger)' })) : callout('نقل الملكية وحذف العائلة للأب حصراً.', 'nt', 'lock')); },
+  note: 'الاسم والبلد والتوقيت. البلد يحدد الأسعار وطرق الدفع وقنوات التحقق. حذف العائلة للمالك حصراً بمهلة تراجع.',
+  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: 'عائلة المنصور', a: own ? 'soonC' : 'denied:shell.config.edit' }), row('public', 'البلد', 'يحدد الأسعار وطرق الدفع', { v: 'اليمن' }), row('schedule', 'التوقيت', 'تُحسب به أوقات النوم والمدرسة ونهاية اليوم', { v: 'صنعاء' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(row('swap_horiz', 'انقل الملكية', 'إلى بالغ آخر', { a: 'go:transfer' }), row('delete_forever', 'احذف العائلة', 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'famDel', ic: 'var(--danger)' })) : callout('نقل الملكية وحذف العائلة للأب حصراً.', 'nt', 'lock')); },
 });
 ACT.famDel = () => confirmDlg('حذف عائلة المنصور؟', 'تُجدوَل العائلة للحذف وتبقى قابلة للاسترجاع 30 يوماً، ثم تُمحى بياناتها نهائياً. يُبلَّغ كل البالغين.', 'تابع', () => gate('حذف العائلة فعل لا يُتراجع عنه بعد المهلة', () => toast('في التطبيق الفعلي تبدأ مهلة الحذف الآن', null, 'info'), 'stepup'), true);
 surface('templates', {
@@ -91,32 +101,114 @@ ACT.topGo = () => { S.sheet = null; S.sms.used = Math.max(0, S.sms.used - 50); S
 surface('privacy', {
   t: 'الخصوصية والبيانات', sys: 'S1-02', p: 'adult', req: '02:25,26,27,28 01:15,16 08:15', st: 'un',
   note: 'UNKNOWN (Q-046): سياسة تحليلات استخدام الأطفال غير محسومة؛ لذلك لا يُعرض لها مفتاح. الخلو من الإعلانات وأدوات التتبع ثابت صلب بلا واجهة.',
-  r() { return `${callout('لا إعلانات ولا أدوات تتبع في التطبيق، وهذا ثابت لا يُغيَّر بإعداد.', 'ok', 'verified_user')}${sec('ما نشاركه مع الطفل')}${list(row('visibility', 'الشفافية عن الفئات لا المحتوى', 'يعرف الطفل ما الذي يُتابَع (الوقت، الموقع، المحادثات) لا تفاصيله', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض الوقت المتبقي، لا عبارة رقابية', { a: 'go:persist' }))}${sec('بياناتي')}${list(row('download', 'صدّر بياناتي', 'ملف يُجهَّز ويصلك رابطه', { a: 'expGo' }), isOwner() ? row('folder', 'صدّر بيانات العائلة', 'للمالك فقط', { a: 'expGo' }) : '', row('delete', 'الاحتفاظ بالمحادثات', 'دائم حتى يحذفها الأب', { v: 'دائم' }), row('location_on', 'سجل المواقع', 'يُحذف تلقائياً', { v: '7 أيام' }))}${callout('<b>غير محسوم (Q-046):</b> سياسة تحليلات الأطفال لم تُعتمد؛ لا يُجمع شيء حتى تُحسم.', 'wa', 'help')}${sec('منطقة الخطر')}${list(row('delete_forever', 'احذف حسابي', 'مهلة تراجع 30 يوماً', { a: 'go:delete-account', ic: 'var(--danger)' }))}`; },
+  r() { return `${callout('لا إعلانات ولا أدوات تتبع في التطبيق، وهذا ثابت لا يُغيَّر بإعداد.', 'ok', 'verified_user')}${sec('ما نشاركه مع الطفل')}${list(row('visibility', 'الطفل يعرف ما يُتابَع', 'الوقت والموقع والمحادثات، لا تفاصيلها', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض الوقت المتبقي، لا عبارة رقابية', { a: 'go:persist' }))}
+    ${sec('نسخة من البيانات')}${list(row('download', 'نسخة من بياناتي', S.exp && S.exp.me ? (S.exp.me === 'ready' ? 'جاهزة للتنزيل' : 'قيد التجهيز') : 'ملف يُجهَّز ويصلك رابطه', { a: 'go:export' }), isOwner() ? KIDS.map(k => row('', 'نسخة من بيانات ' + M[k].n, S.exp && S.exp[k] ? (S.exp[k] === 'ready' ? 'جاهزة للتنزيل' : 'قيد التجهيز') : '', { lead: av(M[k], 'sm'), a: 'go:export:' + k })) : '')}
+    ${sec('مدة الحفظ')}${list(row('forum', 'المحادثات', 'تبقى حتى يحذفها الأب', { v: 'دائم' }), row('location_on', 'سجل المواقع', 'يُحذف تلقائياً', { v: '7 أيام' }))}${callout('<b>غير محسوم (Q-046):</b> سياسة تحليلات الأطفال لم تُعتمد؛ لا يُجمع شيء حتى تُحسم.', 'wa', 'help')}${sec('منطقة الخطر')}${list(row('delete_forever', 'احذف حسابي', S.delP ? `يُحذف بعد ${S.delP} يوماً · اضغط للإلغاء` : 'مهلة تراجع 30 يوماً', { a: 'go:delete-account', ic: 'var(--danger)' }))}`; },
 });
-ACT.expGo = () => toast('بدأ تجهيز التصدير · يصلك إشعار عند الجاهزية', null, 'download');
-surface('delete-account', {
-  t: 'حذف الحساب', sys: 'S1-02', p: 'adult', req: '02:25,28 03:20',
-  note: 'فعل عالي الخطورة: شرح العواقب ← تأكيد ← رفع أمني. حذف ناعم بمهلة 30 يوماً ثم محو مجدول.',
-  r() { return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('delete_forever')}</div><p class="ttl" style="font-size:22px">ماذا يحدث عند الحذف؟</p><div class="card"><div class="tl"><div class="ev wa"><b>اليوم: يُعطَّل الحساب</b><span>تخرج من كل أجهزتك</span></div><div class="ev"><b>خلال 30 يوماً: يمكنك التراجع</b><span>ادخل برقمك لإلغاء الحذف</span></div><div class="ev da"><b>بعد 30 يوماً: محو نهائي</b><span>لا يمكن الاسترجاع</span></div></div></div>${isOwner() ? callout('أنت مالك العائلة. انقل الملكية إلى بالغ آخر أولاً، أو احذف العائلة.', 'wa', 'warning') + btn('انقل الملكية أولاً', 'go:transfer', 'sec') : btn('احذف حسابي', 'delGo', 'dng')}`; },
-});
-ACT.delGo = () => gate('حذف الحساب', () => toast('في التطبيق الفعلي تبدأ مهلة الـ30 يوماً الآن', null, 'info'), 'stepup');
-surface('security', {
-  t: 'الأمان', sys: 'S1-02', p: 'adult', req: '02:5,6,16,20 01:5,23',
-  note: 'التحقق بخطوتين إلزامي. البصمة تفتح التطبيق في وضع الأهل فقط ولا تتجاوز بوابة الوالدين. الجلسة منزلقة بسقف 30 يوماً.',
-  r() { const own = isOwner(); return `${sec('الدخول')}${list(row('verified_user', 'التحقق بخطوتين (TOTP)', 'إلزامي · مفعّل', { v: chip('مفعّل', 'ok', 'check') }), row('fingerprint', 'فتح سريع بالبصمة', 'في وضع الأهل فقط · لا يتجاوز بوابة الوالدين', { tg: S.bio ?? true, ta: own ? 'bioT' : 'denied:identity.biometric.enable' }), row('pin', 'رقم بوابة الوالدين', S.pin.set ? 'غيّر رقمك السري' : 'لم يُنشأ بعد', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? (S.pin.set ? '' : chip('أنشئه', 'wa')) : ic('lock') }))}
-    ${sec('الجلسات النشطة')}${list(row('mobile', 'هذا الجهاز', 'Samsung A54 · صنعاء · الآن', { v: chip('الحالي', 'ok') }), row('tablet_android', 'Lenovo Tab M10', 'آخر نشاط قبل 3 أيام · تنتهي بعد 27 يوماً', { v: own ? `<button class="btn txt sm" data-a="sessEnd">أنهِ</button>` : '' }))}<p class="xs muted" style="margin:0 4px 10px">تبقى الجلسة ما دمت تستخدم التطبيق، وبحد أقصى 30 يوماً من تسجيل الدخول.</p>
-    ${sec('الاسترداد')}${list(row('support', 'جهة الاسترداد الموثوقة', 'إن فقدت الهاتف والرقم معاً', { v: 'سارة', a: 'go:recovery' }), row('key', 'مفتاح توقيع هذا الجهاز', 'مربوط بالعتاد · يوقّع العمليات الحساسة', { v: chip('مسجَّل', 'ok', 'check') }))}`; },
+surface('export', {
+  t: id => (id && M[id] ? 'نسخة من بيانات ' + M[id].n : 'نسخة من بياناتي'), sys: 'S1-02', p: 'adult', req: '02:27',
+  note: 'البالغ يطلب نسخة من بياناته هو، والأب يطلب نسخة من بيانات قاصر. التجهيز في الخلفية؛ يصل إشعار، والرابط صالح 7 أيام. الشاشة تقول ما في الملف بكلام عادي ولا تذكر صيغته التقنية.',
+  r(id) { const k = id && M[id] ? id : 'me', st = (S.exp || {})[k], who = k === 'me' ? 'بياناتك' : 'بيانات ' + M[k].n;
+    if (k !== 'me' && !isOwner()) return empty('lock', 'للأب فقط', 'نسخة بيانات الطفل يطلبها مالك العائلة.', btn('رجوع', 'back', 'sec'));
+    const what = `<div class="card"><b>ما في الملف</b>${list(k === 'me' ? [row('person', 'ملفك', 'الاسم والرقم والبريد'), row('forum', 'رسائلك', 'ما كتبته أنت، مع الصور'), row('history', 'ما فعلته', 'القرارات والتغييرات المسجلة باسمك')] : [row('badge', 'ملفه', 'الاسم وسنة الميلاد'), row('task_alt', 'مهامه ونجومه', ''), row('forum', 'رسائله', 'مع الصور'), row('location_on', 'سجل مواقعه', 'آخر 7 أيام'), row('hourglass_top', 'وقت الشاشة', 'المدة لكل تطبيق')])}</div>`;
+    if (!st) return `<p class="sub" style="text-align:start">نجمع ${who} في ملف واحد مضغوط تنزّله على هاتفك.</p>${what}${btn('جهّز النسخة', 'expAsk:' + k, '', 'download')}<p class="c xs muted" style="margin-top:10px">يأخذ التجهيز دقائق إلى ساعات. يصلك إشعار حين تجهز.</p>`;
+    if (st === 'prep') return `<div class="bigic">${ic('hourglass_top')}</div><p class="ttl" style="font-size:22px">نجهّز النسخة</p><p class="sub">تستطيع الخروج من هذه الشاشة. يصلك إشعار حين تجهز.</p>${btn('جرّب: كأنها جهزت', 'expReady:' + k, 'ton')}<div class="gap"></div>${btn('ألغِ الطلب', 'expDrop:' + k, 'txt" style="width:100%')}`;
+    return `<div class="bigic" style="background:var(--success-soft);color:var(--success)">${ic('download')}</div><p class="ttl" style="font-size:22px">النسخة جاهزة</p><p class="sub">ملف مضغوط · 18 م.ب · الرابط يعمل 7 أيام ثم يُحذف الملف.</p>${offline() ? callout('أنت غير متصل. التنزيل يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('نزّل الملف', 'expGet', offline() ? '" disabled="' : '', 'download')}<div class="gap"></div>${btn('احذف النسخة الآن', 'expDrop:' + k, 'txt" style="width:100%')}${callout('الملف فيه بيانات خاصة. احفظه في مكان آمن ولا ترسله عبر محادثة عامة.', 'nt', 'lock')}`; },
 });
 Object.assign(ACT, {
-  bioT() { S.bio = !(S.bio ?? true); if (S.bio) toast('تغيير البصمة لاحقاً يتطلب إعادة تسجيل مفتاح الجهاز بالرقم السري', null, 'fingerprint'); },
+  expAsk(k) { S.exp = S.exp || {}; S.exp[k] = 'prep'; audit(k === 'me' ? 'طلب نسخة من بياناته' : `طلب نسخة من بيانات ${M[k].n}`, 'identity.data.export'); },
+  expReady(k) { S.exp[k] = 'ready'; notif('النسخة جاهزة', 'الرابط يعمل 7 أيام', 'download'); },
+  expDrop(k) { delete S.exp[k]; toast('حُذف الطلب والملف', null, 'delete'); },
+  expGet() { toast('بدأ التنزيل', null, 'download'); },
+});
+surface('delete-account', {
+  t: 'حذف الحساب', sys: 'S1-02', p: 'adult', req: '02:25,28 03:20',
+  note: 'حق أصيل لكل بالغ لا يملك الأب سحبه (Q-291). شرح العواقب ← تأكيد ← الرقم السري. حذف بمهلة 30 يوماً يلغيه صاحب الحساب وحده. المالك ينقل الملكية أولاً.',
+  r() { if (S.delP) return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('auto_delete')}</div><p class="ttl" style="font-size:22px">حسابك يُحذف بعد ${S.delP} يوماً</p><p class="sub">في 16 ديسمبر 2026 يُمحى نهائياً. إلى ذلك الحين أنت خارج العائلة، وتستطيع التراجع من هنا.</p>${btn('ألغِ الحذف واستعد حسابي', 'delUndo', '', 'undo')}${callout('لا أحد غيرك يستطيع إلغاء الحذف أو تعجيله.', 'nt', 'info')}`;
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('delete_forever')}</div><p class="ttl" style="font-size:22px">ماذا يحدث عند الحذف؟</p><div class="card"><div class="tl"><div class="ev wa"><b>اليوم: يتوقف الحساب</b><span>تخرج من العائلة ومن كل أجهزتك</span></div><div class="ev"><b>خلال 30 يوماً: تستطيع التراجع</b><span>ادخل برقمك واضغط «ألغِ الحذف»</span></div><div class="ev da"><b>بعد 30 يوماً: محو نهائي</b><span>لا يمكن الاسترجاع</span></div></div></div>${isOwner() ? callout('أنت مالك العائلة. انقل الملكية إلى بالغ آخر أولاً، أو احذف العائلة كلها.', 'wa', 'warning') + btn('انقل الملكية أولاً', 'go:transfer', 'sec') : list(row('download', 'خذ نسخة من بياناتك أولاً', '', { a: 'go:export' })) + btn('احذف حسابي', 'delGo', 'dng')}`; },
+});
+Object.assign(ACT, {
+  delGo() { confirmDlg('حذف حسابك؟', 'تخرج من العائلة الآن. أمامك 30 يوماً للتراجع.', 'تابع', () => gate('حذف الحساب', () => { S.delP = 30; audit('طلب حذف حسابه · مهلة 30 يوماً', 'identity.account.delete_self'); toast('بدأت مهلة الـ30 يوماً', null, 'auto_delete'); }, 'stepup'), true); },
+  delUndo() { S.delP = 0; audit('ألغى حذف حسابه', 'identity.account.delete_self'); toast('أُلغي الحذف · حسابك كما كان'); },
+});
+surface('security', {
+  t: 'الأمان', sys: 'S1-02', p: 'adult', req: '02:5,6,16,20 01:5,23',
+  note: 'الفتح بالبصمة مطفأ حتى يشغّله صاحب الحساب (Q-219)، ويفتح التطبيق في وضع الأهل فقط ولا يغني عن الرقم السري. لا تظهر هنا كلمات مثل TOTP أو مفتاح التوقيع: مكانها المواصفة.',
+  r() { const own = isOwner(), q = S.recReq, n = S.sess.length;
+    return `${S.bioChg ? `<button class="callout wa" style="width:100%;text-align:start" data-a="go:rekey">${ic('fingerprint')}<div><b>تغيّرت بصمات هذا الهاتف</b><br>اكتب رقمك السري مرة واحدة لنتأكد أنك أنت.</div></button>` : ''}${q && q.st !== 'cancelled' ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:recover-review">${ic('lock_reset')}<div><b>طلب استرداد حساب أحمد</b><br>${q.st === 'pending' ? 'بانتظار تأكيد جهة الاسترداد' : 'بقي 7 أيام · اضغط للمراجعة'}</div></button>` : ''}
+    ${sec('فتح التطبيق')}${list(row('fingerprint', 'افتح بالبصمة أو الوجه', 'للدخول إلى التطبيق فقط · الأفعال الحساسة تبقى بالرقم السري', { tg: !!S.bio, ta: 'bioT' }), row('pin', 'الرقم السري', S.pin.set ? 'غيّر رقمك السري' : 'لم يُنشأ بعد', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? (S.pin.set ? '' : chip('أنشئه', 'wa')) : ic('lock') }))}
+    ${sec('أجهزتي')}${list(row('devices', 'الأجهزة التي دخلتُ منها', 'هذا الهاتف' + (n > 1 ? ` و${n - 1} آخر` : ' فقط'), { a: 'go:sessions' }), row('password', 'رمز الدخول لجهاز جديد', 'يُطلب منك عند الدخول من هاتف آخر', { a: 'go:login-code' }))}
+    ${sec('إن فقدت الهاتف والرقم')}${list(own ? row('support', 'من يساعدك على العودة', S.rec ? '' : 'لم تختر أحداً بعد', { v: S.rec ? M[S.rec].n : chip('اختر', 'wa'), a: 'go:recovery' }) : row('support', 'العودة إلى حسابك', 'يدعوك أحمد من جديد برقمك الجديد', { a: 'go:recovery' }))}`; },
+});
+Object.assign(ACT, {
+  bioT() { if (S.bio) { S.bio = false; toast('أُطفئ الفتح بالبصمة'); return; } gate('اكتب رقمك السري لتشغيل الفتح بالبصمة', () => { S.bio = true; toast('شُغّل الفتح بالبصمة على هذا الهاتف', null, 'fingerprint'); }); },
   /* التغيير يتطلب الرقم الحالي نفسه لا البصمة (S1-01 §7)؛ والإنشاء الأول بلا رقم سابق */
   pinChange() { if (!S.pin.set) return pinSetOpen('create'); gate('أدخل الرقم الحالي لتغييره', () => pinSetOpen('change')); },
-  sessEnd() { toast('أُنهيت الجلسة على Lenovo Tab M10'); },
 });
+surface('sessions', {
+  t: 'الأجهزة التي دخلتُ منها', sys: 'S1-02', p: 'adult', req: '02:6',
+  note: 'يبقى الدخول ما دمت تستخدم التطبيق، وبحد أقصى 30 يوماً ثم يُطلب الرمز من جديد. إخراج جهاز واحد بتأكيد؛ إخراج كل الأجهزة الأخرى بالرقم السري. أجهزة الأطفال ليست هنا: تلك تُفك من ملف الطفل.',
+  r() { const o = S.sess.filter(x => !x.cur); return `${list(S.sess.map((x, i) => row(x.i, x.n, x.cur ? 'هذا الهاتف · الآن' : `${x.at} · ${x.pl}`, { v: x.cur ? chip('الحالي', 'ok') : `<button class="btn txt sm" style="color:var(--danger)" data-a="sessEnd:${i}">أخرِجه</button>` })))}
+    <p class="xs muted" style="margin:0 4px 12px">يبقى دخولك ما دمت تستخدم التطبيق، وبحد أقصى 30 يوماً ثم نطلب رمز التحقق من جديد.</p>
+    ${o.length ? btn('أخرِج كل الأجهزة الأخرى', 'sessAll', 'sec', 'logout') : callout('لا جهاز آخر داخل إلى حسابك.', 'ok', 'verified_user')}<div class="gap"></div>${btn('اخرج من هذا الهاتف', 'signOut', 'txt" style="width:100%')}
+    ${callout('ترى جهازاً لا تعرفه؟ أخرِجه ثم غيّر رقمك السري.', 'nt', 'help')}`; },
+});
+Object.assign(ACT, {
+  sessEnd(i) { const x = S.sess[+i]; confirmDlg(`إخراج ${x.n}؟`, 'يخرج فوراً ويحتاج إلى رقمك ورمز التحقق ليدخل مجدداً.', 'أخرِجه', () => { S.sess.splice(+i, 1); audit(`أُخرج الجهاز ${x.n} من الحساب`, 'identity.session.revoke'); toast(`أُخرج ${x.n}`, null, 'logout'); }, true); },
+  sessAll() { gate('إخراج كل الأجهزة الأخرى', () => { S.sess = S.sess.filter(x => x.cur); audit('أُخرجت كل الأجهزة الأخرى من الحساب', 'identity.session.revoke'); toast('أُخرجت كل الأجهزة الأخرى', null, 'logout'); }, 'stepup'); },
+});
+surface('login-code', {
+  t: 'رمز الدخول لجهاز جديد', sys: 'S1-02', p: 'adult', req: '02:5', st: 'pr',
+  note: 'مقترح بديل لشاشة «تفعيل TOTP» (ينتظر حكم المالك): التطبيق نفسه يولّد الرمز على الهاتف الموثوق، فلا تطبيق خارجي ولا QR ولا مفتاح يُنسخ. التفعيل ما زال إلزامياً بلا تخطٍّ (Q-246) لكنه يحدث تلقائياً عند أول تحقق.',
+  r() { return `<p class="sub" style="text-align:start">إن دخلت من هاتف آخر وطلبنا منك رمزاً، فاكتب هذا الرمز هناك.</p><div class="code">314 159</div><div class="chips" style="justify-content:center;margin-bottom:14px">${chip('يتغير بعد 18 ثانية', 'in', 'timer')}</div>${callout('لا ترسل هذا الرمز لأحد ولا تقله في الهاتف. «عائلتي» لا تتصل بك لتطلبه.', 'wa', 'warning')}${callout('يعمل بلا إنترنت. الرمز يخرج من هذا الهاتف نفسه.', 'nt', 'cloud_off')}`; },
+});
+surface('bio-unlock', {
+  kind: 'full', t: 'الفتح بالبصمة', sys: 'S1-02', p: 'adult', req: '02:16 01:5',
+  note: 'يظهر عند فتح التطبيق في وضع الأهل إن شغّل صاحبه الفتح بالبصمة. ثلاث محاولات فاشلة ← الرقم السري. لا يظهر أبداً على جهاز طفل، ولا يغني عن الرقم السري في الأفعال الحساسة.',
+  r() { const f = S.bioF || 0; return `<div class="body" style="justify-content:center;text-align:center"><img src="assets/brand/logo-symbol.svg" alt="" width="72" height="68" style="margin:0 auto 18px"><p class="ttl">أهلاً ${me().n}</p><p class="sub">${f ? `لم نتعرف على البصمة. بقيت ${3 - f} ${3 - f === 1 ? 'محاولة' : 'محاولتان'}.` : 'المس حساس البصمة لتفتح «عائلتي».'}</p><button class="bigic" style="width:112px;height:112px;border-radius:50%;${f ? 'background:var(--danger-soft);color:var(--danger)' : ''}" data-a="bioOk" aria-label="افتح بالبصمة">${ic('fingerprint')}</button>${btn('استعمل الرقم السري', 'bioPin', 'sec', 'pin')}<div class="gap"></div>${btn('جرّب: بصمة غير معروفة', 'bioBad', 'txt" style="width:100%')}</div>`; },
+});
+Object.assign(ACT, {
+  bioOk() { S.bioF = 0; S.full = null; },
+  bioBad() { S.bioF = (S.bioF || 0) + 1; if (S.bioF >= 3) { S.bioF = 0; gate('ثلاث محاولات فاشلة بالبصمة · اكتب رقمك السري', () => {}); } },
+  bioPin() { S.bioF = 0; gate('افتح «عائلتي» بالرقم السري', () => {}); },
+});
+surface('rekey', {
+  t: 'تغيّرت بصمات هذا الهاتف', sys: 'S1-02', p: 'adult', req: '02:16 01:23',
+  note: 'حين تُضاف بصمة إلى الهاتف أو تُحذف منه، لا نثق بالبصمة حتى يكتب صاحب الحساب رقمه السري مرة واحدة. الشاشة لا تذكر «مفتاح التوقيع»: تقول ما حدث وما المطلوب. إلى أن يفعل، الأفعال الحساسة متوقفة والباقي يعمل.',
+  r() { if (!S.bioChg) return empty('verified_user', 'هذا الهاتف موثوق', 'لا شيء مطلوب منك.', btn('رجوع', 'back', 'sec'));
+    return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('fingerprint')}</div><p class="ttl" style="font-size:22px">أُضيفت بصمة أو حُذفت</p><p class="sub">تغيّرت البصمات المسجلة على هذا الهاتف. لنتأكد أنك أنت، اكتب رقمك السري مرة واحدة.</p>${list(row('lock', 'متوقف إلى أن تكتبه', 'فكّ إقران جهاز · إيقاف القواعد · حذف العائلة'), row('check_circle', 'يعمل كالعادة', 'المتابعة والمحادثة والمهام والاستغاثة'))}${btn('اكتب الرقم السري', 'rekeyGo', '', 'pin')}${callout('لم تغيّر البصمات أنت؟ اكتب الرقم السري ثم غيّره من «الأمان».', 'nt', 'help')}`; },
+});
+ACT.rekeyGo = () => gate('تأكيد أنك أنت بعد تغيّر البصمات', () => { S.bioChg = 0; audit('أُعيد توثيق هذا الهاتف بالرقم السري بعد تغيّر البصمات', 'shell.device_key'); toast('عاد هذا الهاتف موثوقاً', null, 'verified_user'); }, 'stepup');
 surface('recovery', {
-  t: 'استرداد الحساب', sys: 'S1-02', p: 'adult', req: '02:20',
-  note: 'الأب يحدد مسبقاً بالغاً موثوقاً. عند الطلب تؤكد الجهة، ثم انتظار 7 أيام مع إشعار كل أجهزة العائلة، والاعتراض يلغي الطلب.',
-  r() { return `${callout('إن فقدت هاتفك ورقمك معاً، تساعدك جهة الاسترداد على العودة برقم جديد.')}${list(row('', 'سارة', 'جهة الاسترداد الموثوقة', { lead: av(M.sara), v: 'غيّر', a: 'soonC' }))}${sec('كيف يعمل')}<div class="card"><div class="tl"><div class="ev"><b>تطلب الاسترداد برقم جديد</b><span>من شاشة الدخول</span></div><div class="ev"><b>سارة تؤكد من جهازها</b><span>برقمها السري</span></div><div class="ev wa"><b>انتظار 7 أيام</b><span>يصل إشعار إلى كل أجهزة العائلة · أي اعتراض يلغي الطلب</span></div><div class="ev ok"><b>يُسترد الحساب</b><span>بالرقم الجديد</span></div></div></div>`; },
+  t: 'إن فقدت الهاتف والرقم', sys: 'S1-02', p: 'adult', req: '02:20',
+  note: 'الأب يختار مسبقاً بالغاً من العائلة يساعده على العودة. تغيير الاختيار بالرقم السري. إن لم يكن في العائلة بالغ آخر فالشاشة تقول ذلك وتفتح الدعوة. البالغ غير المالك لا جهة استرداد له في المواصفة: يدعوه الأب من جديد (يحتاج تأكيد المالك).',
+  r() { const own = isOwner(), ad = Object.values(M).filter(m => m.role === 'adult' && !m.owner);
+    if (!own) return `${S.rec === me().id ? callout('<b>اختاركِ أحمد لتساعديه.</b> إن فقد هاتفه ورقمه يصلك طلب، وتؤكدين أنه هو بعد أن تسمعي صوته.', 'ok', 'support') : ''}${callout('إن فقدتِ أنتِ هاتفك ورقمك: أخبري أحمد، فيدعوك من جديد برقمك الجديد.', 'nt', 'info')}${S.recReq && S.recReq.st !== 'cancelled' ? btn('راجعي طلب أحمد', 'go:recover-review', '', 'lock_reset') : ''}`;
+    return `<p class="sub" style="text-align:start">اختر فرداً بالغاً تثق به. إن ضاع هاتفك ورقمك معاً، يؤكد لنا أنك أنت فتعود برقم جديد.</p>
+    ${ad.length ? list(ad.map(m => row('', m.n, m.rel, { lead: av(m), a: 'recPick:' + m.id, chev: false, v: S.rec === m.id ? chip('اختيارك', 'ok', 'check') : '' }))) : empty('group_add', 'لا بالغ آخر في العائلة', 'ادعُ بالغاً تثق به أولاً، ثم اختره هنا.', btn('ادعُ بالغاً', 'go:invite', '', 'person_add'))}
+    ${S.rec ? btn('لا أريد أحداً', 'recPick:', 'txt" style="width:100%') : ad.length ? callout('لم تختر أحداً. إن فقدت هاتفك ورقمك معاً فلن نستطيع إعادة حسابك.', 'wa', 'warning') : ''}
+    ${sec('كيف تعود')}<div class="card"><div class="tl"><div class="ev"><b>تطلب العودة برقم جديد</b><span>من شاشة الدخول: «فقدت هاتفك ورقمك؟»</span></div><div class="ev"><b>${S.rec ? M[S.rec].n + ' ' + vb(M[S.rec], 'يؤكد', 'تؤكد') : 'من اخترته يؤكد'} أنك أنت</b><span>بعد أن يسمع صوتك</span></div><div class="ev wa"><b>انتظار 7 أيام</b><span>يُبلَّغ كل البالغين · أي اعتراض يلغي الطلب</span></div><div class="ev ok"><b>يعود حسابك</b><span>برقمك الجديد</span></div></div></div>`; },
+});
+ACT.recPick = id => gate(id ? `اختيار ${M[id].n} لتساعدك على العودة` : 'إزالة من يساعدك على العودة', () => { S.rec = id || null; audit(id ? `اختير ${M[id].n} جهة استرداد` : 'أُزيلت جهة الاسترداد', 'identity.recovery'); toast(id ? `اخترت ${M[id].n} · وصل الإشعار` : 'لم يعد لك من يساعدك على العودة', null, 'support'); });
+surface('unpair', {
+  t: id => 'فكّ إقران جهاز ' + M[id].n, sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:15 01:5,6 10:27',
+  note: 'للمالك فقط وبرقمه السري. الشاشة تقول ما يتوقف وما يبقى قبل التنفيذ. بعده يخرج ذلك الجهاز من العائلة ويصير هاتفاً عادياً، وقواعد الطفل تبقى محفوظة لجهازه القادم.',
+  r(id) { const m = M[id]; if (!isOwner()) return empty('lock', 'للأب فقط', 'فكّ الإقران يفعله مالك العائلة برقمه السري.', btn('رجوع', 'back', 'sec'));
+    if ((S.unp || {})[id]) return `<div class="bigic" style="background:var(--success-soft);color:var(--success)">${ic('link_off')}</div><p class="ttl" style="font-size:22px">فُكّ الإقران</p><p class="sub">Samsung Galaxy A14 لم يعد جهاز ${m.n}. قواعد ${m.n} ونجومه ومهامه محفوظة وتنتقل إلى جهازه القادم.</p>${btn('اقرن جهازاً جديداً لـ' + m.n, 'go:pair-code:' + id, '', 'devices')}<div class="gap"></div>${btn('ليس الآن', 'back', 'sec')}`;
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('link_off')}</div><p class="ttl" style="font-size:22px">ماذا يحدث بعد الفك؟</p>${list(row('lock_open', 'تتوقف القواعد على هذا الجهاز', 'وقت الشاشة والتطبيقات والمواقع', { ic: 'var(--danger)' }), row('location_off', 'يتوقف موقعه واستغاثته', 'لا يصلك منه شيء بعد الآن', { ic: 'var(--danger)' }), row('mobile', 'يصير هاتفاً عادياً', 'يمكن بيعه أو إقرانه بعائلة أخرى'), row('inventory_2', `ملف ${m.n} يبقى`, 'قواعده ونجومه ومهامه تنتظر جهازه القادم', { ic: 'var(--success)' }))}
+    ${offline() ? callout('أنت غير متصل. فكّ الإقران يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('فكّ الإقران برقمي السري', 'unpairGo:' + id, 'dng' + (offline() ? '" disabled="' : ''), 'pin')}<div class="gap"></div>${btn('تراجع', 'back', 'sec')}`; },
+});
+ACT.unpairGo = id => gate('فكّ إقران جهاز ' + M[id].n, () => { S.unp = S.unp || {}; S.unp[id] = 1; audit(`فُكّ إقران جهاز ${M[id].n}`, 'identity.device.unpair'); toast('فُكّ الإقران', null, 'link_off'); }, 'stepup');
+surface('pin-forgot', {
+  t: 'نسيت الرقم السري', sys: 'S1-02', p: 'adult', req: '02:20 01:5', st: 'pr',
+  note: 'مقترح ينتظر حكم المالك: S1-01 تمنع إعادة تعيين الرقم السري على الهاتف نفسه وتحيل إلى جهة الاسترداد وانتظار 7 أيام، لكن S1-02 لا شاشة فيها لهذا الطريق. المعروض يستعمل الطريق نفسه المكتوب لفقدان الرقم.',
+  r() { const q = S.recReq; if (q && q.kind === 'pin' && q.st !== 'cancelled') return `<div class="bigic">${ic('hourglass_top')}</div><p class="ttl" style="font-size:22px">${q.st === 'pending' ? 'بانتظار تأكيد ' + M[S.rec || 'sara'].n : 'بقي 7 أيام'}</p><p class="sub">${q.st === 'pending' ? 'اتصل بها وأخبرها أن تفتح «عائلتي».' : 'بعدها تنشئ رقماً سرياً جديداً. أي بالغ في العائلة يستطيع إيقاف الطلب.'}</p>${callout('إلى ذلك الحين: المتابعة والمحادثة والمهام تعمل. الأفعال التي تحتاج الرقم السري متوقفة.', 'nt', 'info')}${btn('ألغِ الطلب — تذكرت الرقم', 'pfDrop', 'sec')}`;
+    if (!S.rec) return `${empty('support', 'لم تختر من يساعدك', 'لا نستطيع إنشاء رقم سري جديد على هذا الهاتف وحده، حتى لا يفعلها من يأخذ هاتفك. ولأنك لم تختر فرداً يؤكد أنك أنت، لا طريق الآن.', '')}${callout('ما تحميه بوابة الوالدين يبقى مقفلاً. بقية التطبيق يعمل.', 'wa', 'warning')}`;
+    return `<p class="sub" style="text-align:start">لا ننشئ رقماً سرياً جديداً على هذا الهاتف وحده، حتى لا يفعلها من يأخذ هاتفك أو طفلك.</p><div class="card"><div class="tl"><div class="ev"><b>${M[S.rec].n} تؤكد أنك أنت</b><span>من هاتفها</span></div><div class="ev wa"><b>انتظار 7 أيام</b><span>يُبلَّغ كل البالغين · أي اعتراض يلغي الطلب</span></div><div class="ev ok"><b>تنشئ رقماً سرياً جديداً</b><span>على هذا الهاتف</span></div></div></div>${btn('اطلب التأكيد من ' + M[S.rec].n, 'pfAsk', '', 'support')}<div class="gap"></div>${btn('تذكرت الرقم', 'back', 'sec')}`; },
+});
+Object.assign(ACT, {
+  pfAsk() { S.recReq = { st: 'pending', kind: 'pin' }; audit('طلب إنشاء رقم سري جديد عبر جهة الاسترداد', 'identity.recovery'); toast(`أُرسل الطلب إلى ${M[S.rec].n}`, null, 'support'); },
+  pfDrop() { S.recReq = null; toast('أُلغي الطلب', null, 'cancel'); },
 });
 
 /* ---------- المساعد الذكي ---------- */
@@ -223,7 +315,7 @@ surface('pin', {
     <p class="sub">${locked ? `خمس محاولات خاطئة. حاول بعد <b class="ltr">${Math.floor(S.pin.lock / 60)}:${String(S.pin.lock % 60).padStart(2, '0')}</b>` : reason + ' · أدخل رقم الأب السري'}</p>
     ${locked ? '' : `<div class="dots ${S.pin.shake ? 'bad' : ''}" aria-label="${pinBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < pinBuf.length ? 'f' : ''}"></i>`).join('')}</div>
     ${S.pin.bad ? `<p class="c sm" style="color:var(--danger);margin:-10px 0 12px">الرقم غير صحيح. بقيت ${5 - S.pin.bad} محاولات.</p>` : ''}
-    <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pinK:${n}">${n}</button>`).join('')}<button class="gh" data-a="${kind === 'stepup' && (S.bio ?? true) && mode() === 'parent' ? 'pinBio' : 'pinNo'}" aria-label="بصمة">${kind === 'stepup' && (S.bio ?? true) && mode() === 'parent' ? ic('fingerprint') : ''}</button><button data-a="pinK:0">0</button><button class="gh" data-a="pinK:b" aria-label="حذف">${ic('backspace')}</button></div>`}
+    <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pinK:${n}">${n}</button>`).join('')}<button class="gh" data-a="${kind === 'stepup' && S.bio && mode() === 'parent' ? 'pinBio' : 'pinNo'}" aria-label="بصمة">${kind === 'stepup' && S.bio && mode() === 'parent' ? ic('fingerprint') : ''}</button><button data-a="pinK:0">0</button><button class="gh" data-a="pinK:b" aria-label="حذف">${ic('backspace')}</button></div>`}
     ${mode() !== 'parent' ? `<p class="c sm muted" style="margin-top:18px">هذه الصفحة للأهل. ${btn('ارجع', 'pinX', 'txt')}</p>` : S.persona === 'owner' && !locked ? `<p class="c sm" style="margin-top:14px">${btn('نسيت الرقم؟', 'pinForgot', 'txt')}</p>` : ''}</div>`;
   },
 });
@@ -231,7 +323,7 @@ let pinTimer;
 Object.assign(ACT, {
   pinX() { S.full = null; pinCb = null; S.pin.shake = 0; },
   pinNo() { return false; },
-  pinForgot() { S.full = null; pinCb = null; go('recovery'); },
+  pinForgot() { S.full = null; pinCb = null; go('pin-forgot'); },
   pinBio() { S.full = null; const c = pinCb; pinCb = null; toast('تم التحقق بالبصمة', null, 'fingerprint'); if (c) c(); },
   pinK(k) {
     S.pin.shake = 0;
