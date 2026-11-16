@@ -28,12 +28,12 @@ function jump(id, args) {
 /* ---------- الرحلات الموجَّهة ---------- */
 const ensureReq = () => { if (!S.reqs.some(r => r.kid === 'layan' && r.st === 'PENDING')) S.reqs.push({ id: 'r' + Date.now(), kid: 'layan', app: 'ytk', min: 15, msg: 'بقيت حلقة واحدة', st: 'PENDING' }); };
 const JOURNEYS = [
-  { t: 'أول تشغيل وإنشاء العائلة', d: 'رقم ← رمز ← اسم العائلة', s: [
-    ['جهاز جديد. زرّان فقط: البالغ يبدأ برقمه، وجهاز الطفل يُقرن برمز.', () => { S.ob = {}; jump('ob-welcome'); }],
-    ['اكتب الرقم 771234567 ثم «أرسل الرمز». جرّب رقماً ناقصاً لترى رسالة الخطأ. الرقم 777000111 له حساب فيدخل مباشرة.', () => { S.ob = { flow: '' }; jump('ob-phone'); }],
-    ['الرمز التجريبي 246810، أو «اقرأ الرمز تلقائياً». خمس أخطاء تقفل 15 دقيقة. «لم يصل؟» ثلاث مرات يُظهر حالة فشل القنوات كلها.', () => { S.ob = { flow: '', phone: '771234567' }; jump('ob-otp'); }],
-    ['رقم جديد: عائلة جديدة أم دعوة؟ من له حساب لا يرى هذه الشاشة.', () => { S.ob = { phone: '771234567' }; jump('ob-choose'); }],
-    ['حقل واحد يُكتب: اسم العائلة. البلد من مفتاح الرقم والتوقيت من ساعة الهاتف، وكلاهما يُغيَّر بنقرة.', () => { S.ob = { phone: '771234567' }; jump('ob-family'); }],
+  { t: 'أول تشغيل وإنشاء العائلة', d: 'هاتف أو بريد ← تحقق ← اسم العائلة', s: [
+    ['جهاز جديد. تطبيق واحد لكل الأدوار. اضغط «أنشئ عائلة جديدة». من له حساب يضغط «لديّ حساب».', () => { S.ob = {}; jump('ob-welcome'); }],
+    ['الحساب يُسجَّل برقم الهاتف أو بالبريد، وهما متساويان في أعلى الشاشة. اكتب 771234567 ثم «أرسل الرمز». الرقم 777000111 له حساب فيدخل مباشرة.', () => { S.ob = { flow: 'new' }; jump('ob-phone'); }],
+    ['أو بالبريد: اكتب بريداً ثم «أرسل الرابط». لا يُطلب رقم هاتف.', () => { S.ob = { flow: 'new' }; jump('ob-email'); }],
+    ['الرمز التجريبي 246810، أو «اقرأ الرمز تلقائياً». خمس أخطاء تقفل 15 دقيقة. «لم يصل؟» ثلاث مرات يُظهر حالة فشل القنوات كلها.', () => { S.ob = { flow: 'new', phone: '771234567' }; jump('ob-otp'); }],
+    ['حقل واحد يُكتب: اسم العائلة. البلد والتوقيت مقترحان ويُغيَّران بنقرة.', () => { S.ob = { flow: 'new', phone: '771234567' }; jump('ob-family'); }],
     ['العائلة على الخطة المجانية تلقائياً، وهذا الهاتف صار موثوقاً بلا خطوة إضافية. ادخل إلى اللوحة.', () => jump('ob-done')],
   ] },
   { t: 'الانضمام بدعوة', d: 'دعوة ← رمز ← انضمام بلا صلاحيات', s: [
@@ -136,7 +136,7 @@ const Studio = {
     reset() { const keep = { persona: S.persona, theme: S.theme, lang: S.lang, ts: S.ts }; S = fresh(); Object.assign(S, keep); S.stack = [{ id: rootOf(S.persona), a: [] }]; JR = null; render(); toast('أُعيدت بيانات العرض إلى بدايتها', null, 'refresh'); },
     warn5() { if (!['child', 'teen'].includes(S.persona)) setPersona('child'); render(); notif('بقي 5 دقائق', 'ينتهي وقت Minecraft بعد قليل. أنهي ما تفعلين.', 'hourglass_top'); },
     boot() { boot(); },
-    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116d'; o.hidden = false; document.body.removeAttribute('data-open'); },
+    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116e'; o.hidden = false; document.body.removeAttribute('data-open'); },
     brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
     pane(x) { document.body.dataset.open === x ? document.body.removeAttribute('data-open') : (document.body.dataset.open = x); },
     closePane() { document.body.removeAttribute('data-open'); },

@@ -1,4 +1,4 @@
-// اختبار مسارات S1-02 (الهوية والتهيئة) في النموذج: 84 تحققاً + فحص كل سطح بلغتين.
+// اختبار مسارات S1-02 (الهوية والتهيئة) في النموذج: مسارات التسجيل بالهاتف وبالبريد والاسترداد والإدارة + فحص كل سطح بلغتين.
 // يحتاج puppeteer-core و@sparticuz/chromium (غير مضمَّنين في المستودع):  NODE_PATH=<node_modules> node tools/test-s1-02.cjs
 // النجاح: fail=[] و over=[] و eng=[] و errs=[].
 const puppeteer=require('puppeteer-core');let chromium=require('@sparticuz/chromium');chromium=chromium.default||chromium;
@@ -12,8 +12,9 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  const pin=()=>{for(const k of '482615')ACT.pinK(k);render()};const otp=c=>{for(const k of c)ACT.otpK(k);render()};
  const guest=()=>{S=fresh();setPersona('guest');S.ob={};render()};
  // 1 الترحيب والرقم
- guest();ok('welcome 2 buttons',ph.querySelectorAll('.btn').length===2,ph.querySelectorAll('.btn').length);
- ACT.obStart('');render();ok('to phone',top()==='ob-phone');document.getElementById('obP').value='٧٧١٢٣';ACT.obPhone();render();ok('short number err',S.ob.err===1&&top()==='ob-phone');
+ guest();ok('welcome: create, join, child device, sign in',['obStart:new','obStart:join','go:ob-pair','obStart:'].every(a=>!!ph.querySelector('[data-a="'+a+'"]'))&&ph.querySelectorAll('.btn').length===4,ph.querySelectorAll('.btn').length);
+ ACT.obStart('');render();ok('to phone',top()==='ob-phone');ok('phone and email equal',ph.querySelectorAll('.seg button').length===2&&ph.querySelector('.seg [aria-pressed="true"]').dataset.a==='obWay:phone');
+ ACT.obWay('email');render();ok('switch to email',top()==='ob-email'&&S.stack.length===2&&ph.querySelector('.seg [aria-pressed="true"]').dataset.a==='obWay:email');ACT.obWay('phone');render();ok('switch back',top()==='ob-phone'&&S.stack.length===2);document.getElementById('obP').value='٧٧١٢٣';ACT.obPhone();render();ok('short number err',S.ob.err===1&&top()==='ob-phone');
  document.getElementById('obP').value='٠٧٧١٢٣٤٥٦٧';ACT.obPhone();render();ok('arabic digits accepted',top()==='ob-otp'&&S.ob.phone==='771234567',S.ob.phone);
  ok('otp never shown',!/246810/.test(txt()));
  // 2 قفل
@@ -21,6 +22,14 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  S.ob.lock=0;S.ob.bad=0;render();ACT.otpNext();ACT.otpNext();render();ok('3rd channel',/مكالمة فائتة/.test(txt()));ACT.otpNext();render();ok('all channels failed state',S.ob.fail===1&&/لم نستطع إيصال الرمز/.test(txt())&&!!ph.querySelector('[data-a="go:ob-email"]'));
  ACT.otpRetry();render();otp('246810');ok('new number → choose',top()==='ob-choose',top());
  ACT.back();render();
+ // 2-ب التسجيل بالبريد: طريق مساوٍ بلا رقم هاتف
+ guest();ACT.obStart('new');render();ACT.obWay('email');render();document.getElementById('obE').value='not-an-email';ACT.obEmail();render();ok('bad email',S.ob.eerr===1&&top()==='ob-email');
+ document.getElementById('obE').value='sara@example.com';ACT.obEmail();render();ok('email sent state',S.ob.em==='sent'&&/افتح بريدك/.test(txt()));ACT.emOpen();render();ok('email new → family, no phone asked',top()==='ob-family'&&!S.ob.phone&&S.ob.via==='email',[top(),S.ob.phone]);
+ ok('country from phone settings when email',/من إعداد هاتفك/.test(txt()));
+ guest();ACT.obStart('join');render();ACT.obWay('email');render();document.getElementById('obE').value='sara@example.com';ACT.obEmail();ACT.emOpen();render();ok('email join → invite',top()==='ob-join');
+ guest();ACT.obStart('');render();ACT.obWay('email');render();document.getElementById('obE').value='ahmad@example.com';ACT.obEmail();ACT.emOpen();render();ok('email existing → home',S.persona==='owner'&&top()==='home');
+ guest();ACT.obStart('');render();ACT.obWay('email');render();document.getElementById('obE').value='x@down.test';ACT.obEmail();render();ok('email service down',S.ob.em==='down');ACT.emPhone();render();ok('down → phone',top()==='ob-phone'&&S.stack.length===2);
+ guest();ACT.obStart('new');render();document.getElementById('obP').value='771234567';ACT.obPhone();render();otp('246810');ok('create flow skips choose',top()==='ob-family',top());
  // 3 رقم له حساب
  guest();ACT.obStart('');render();document.getElementById('obP').value='777000111';ACT.obPhone();render();otp('246810');ok('existing → home',S.persona==='owner'&&top()==='home',[S.persona,top()]);
  // 4 العائلة
