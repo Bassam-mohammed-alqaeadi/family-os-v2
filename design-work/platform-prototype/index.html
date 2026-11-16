@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>عائلتي — النموذج الأولي التفاعلي للمنصة</title>
+<meta name="description" content="نموذج أولي تفاعلي لمنصة «عائلتي» داخل إطار هاتف، مشتق من حوكمة المرحلة 1 ونظام التصميم المعتمد.">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+<div class="studio">
+  <aside class="pane r" id="paneR" aria-label="الشخصيات والرحلات"></aside>
+  <main class="stage">
+    <div class="dev">
+      <div class="phone" id="phone" dir="rtl" data-theme="light" data-mode="parent">
+        <span class="cam" aria-hidden="true"></span>
+        <div class="sbar" id="sbar" aria-hidden="true"></div>
+        <div id="app"></div>
+        <div id="ov"></div><div id="toast"></div><div id="notif"></div><div id="fx"></div>
+        <div class="gest" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div id="jbar"></div>
+  </main>
+  <aside class="pane l" id="paneL" aria-label="السياق والحالات والتغطية"></aside>
+</div>
+<button class="fab-st a" data-st="pane:r"><svg class="ic"><use href="#i-groups"/></svg><span>الشخصيات والرحلات</span></button>
+<button class="fab-st b" data-st="pane:l"><svg class="ic"><use href="#i-tune"/></svg><span>السياق والتغطية</span></button>
+<div class="bk" data-st="closePane"></div>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/req-data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/screens-parent.js"></script>
+<script src="assets/js/screens-more.js"></script>
+<script src="assets/js/screens-kids.js"></script>
+<script src="assets/js/screens-identity.js"></script>
+<script src="assets/js/studio.js"></script>
+</body>
+</html>
