@@ -280,24 +280,28 @@ function renderOv() {
   if (S.dlg) h += `<div class="scrim mid" style="z-index:50"><div class="dlg" role="alertdialog" aria-modal="true"><h4>${S.dlg.t}</h4><p>${S.dlg.b}</p><div class="btns">${btn(S.dlg.no || 'إلغاء', 'dlgNo', 'sec')}${btn(S.dlg.yes, 'dlgYes', S.dlg.danger ? 'dng' : '')}</div></div></div>`;
   $('#ov').innerHTML = h;
   /* زر الاستغاثة يعلو الأوراق ونوافذ التأكيد (S1-01 REQ-007 · DS-SP-07) */
-  sosLift();
+  sosLift(); clearTimeout(sosLiftT); sosLiftT = setTimeout(sosLift, 340);
 }
 /* طبقة الاستغاثة العليا: إن غطّت الزرَّ ورقةٌ أو نافذة تأكيد، أو خرج من الشاشة بالتمرير، تظهر نسخته في طبقة فوق كل شيء وفي موضعه نفسه.
    لا تظهر قبل العضوية، ولا داخل مسار الاستغاثة نفسه، ولا فوق نافذة تأكيد الاستغاثة. */
+let sosLiftT;
 function sosLift() {
   const ph = $('#phone'), L = $('#sosL'); if (!L) return;
   const off = S.persona === 'guest' || (S.full && /^(sos-|sys-first)/.test(S.full.id)) || (S.dlg && S.dlg.sos);
-  if (off) { L.innerHTML = ''; ph.dataset.sosup = ''; return; }
+  if (off) { L.innerHTML = ''; L.className = ''; ph.dataset.sosup = ''; return; }
   const pr = ph.getBoundingClientRect(), k = pr.width / ph.offsetWidth || 1;
   const all = [...ph.querySelectorAll('.sos')].filter(e => !L.contains(e)).map(e => [e, e.getBoundingClientRect()]).filter(([, r]) => r.width > 0);
   const vis = all.filter(([, r]) => r.top >= pr.top && r.bottom <= pr.bottom);
   const free = vis.some(([e, r]) => { const t = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).find(x => !L.contains(x)); return t && (t === e || e.contains(t)); });
-  if (free) { L.innerHTML = ''; ph.dataset.sosup = ''; return; }
-  if (!L.firstChild) L.innerHTML = sosBtn();
-  const at = vis.length ? vis[vis.length - 1][1] : null, sb = $('#sbar').getBoundingClientRect();
-  L.style.top = ((at ? at.top - pr.top : sb.bottom - pr.top + 8 * k) / k) + 'px';
-  L.style.left = at ? ((at.left - pr.left) / k) + 'px' : (ph.dir === 'ltr' ? 'auto' : '12px'); L.style.right = at ? 'auto' : (ph.dir === 'ltr' ? '12px' : 'auto');
-  L.classList.toggle('float', !at); ph.dataset.sosup = '1';
+  if (free) { L.innerHTML = ''; L.className = ''; ph.dataset.sosup = ''; return; }
+  /* الزر مغطّى في موضعه: نسخة فوقه تماماً. الزر خرج بالتمرير: شريط علوي مطويّ يحمل عنوان الشاشة والزر. */
+  const at = vis.length ? vis[vis.length - 1][1] : null, sb = $('#sbar').getBoundingClientRect(), fl = !at && !S.sheet && !S.dlg && !S.full;
+  const want = fl ? 'f' : 'b'; if (L.dataset.k !== want || !L.firstChild) { const d = SC[topE().id], tt = typeof d.t === 'function' ? d.t() : d.t; L.innerHTML = (fl ? `<b>${tt}</b>` : '') + sosBtn(); L.dataset.k = want; }
+  L.classList.toggle('float', fl);
+  L.style.top = ((at ? at.top - pr.top : sb.bottom - pr.top + (fl ? 0 : 8 * k)) / k) + 'px';
+  const rtl = ph.dir !== 'ltr';
+  L.style.left = fl ? '0' : at ? ((at.left - pr.left) / k) + 'px' : (rtl ? '12px' : 'auto'); L.style.right = fl ? '0' : at ? 'auto' : (rtl ? 'auto' : '12px');
+  ph.dataset.sosup = '1';
 }
 addEventListener('scroll', e => { if (e.target && e.target.id === 'scr') sosLift(); }, true);
 let dlgCb;

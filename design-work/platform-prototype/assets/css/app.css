@@ -171,7 +171,8 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:44px;font-size:15px;padding:0 16px 0 12px}
 /* الاستغاثة فوق الأوراق ونوافذ التأكيد (REQ-007 · DS-SP-07)، ومؤشر الضغط لا يُلغى بتقليل الحركة (DS-MT-06) */
 #sosL{position:absolute;z-index:60;display:flex}#sosL:empty{display:none}
-#sosL.float .sos{box-shadow:0 6px 18px #0005}
+#sosL.float{align-items:center;gap:8px;padding:8px 12px 8px 16px;background:var(--bg);border-bottom:1px solid var(--border);animation:fd var(--fast,.15s)}
+#sosL.float b{flex:1;min-width:0;font-size:calc(17px*var(--ts)*var(--tk));font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .phone[data-motion="off"] .sos.holding i{transition-duration:3s!important}
 @media (prefers-reduced-motion:reduce){.phone .sos.holding i{transition-duration:3s!important}}
 

@@ -12,7 +12,7 @@ surface('more', {
     return `<button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
     ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
     ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', `${attention().length} بانتظار قرار`, { a: 'go:alerts' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: own ? '' : chip('عرض فقط', 'ol') }))}
-    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'التحقق بخطوتين · الجلسات · الاسترداد', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}`; },
+    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'التحقق بخطوتين · الجلسات · الاسترداد', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}`; },
 });
 surface('account', {
   t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,26',
@@ -157,7 +157,7 @@ ACT.syncNow = () => { if (offline()) return toast('لا يوجد اتصال ال
 surface('about', {
   t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20', st: 'un',
   note: 'UNKNOWN (Q-043): الشعار بصيغة SVG والشخصية (mascot) لم يُسلَّما بعد؛ يُعرض الاسم نصاً دون اختلاق شعار.',
-  r() { return `<div class="c" style="padding:16px 0"><div style="font-size:40px;font-weight:700;color:var(--primary)">عائلتي</div><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${callout('<b>غير محسوم (Q-043):</b> ملف الشعار والشخصية لم يُسلَّما؛ لذلك لا يظهر شعار هنا.', 'wa', 'help')}${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', '', { a: 'soonC' }), row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'soonC' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
+  r() { return `<div class="c" style="padding:16px 0"><div style="font-size:40px;font-weight:700;color:var(--primary)">عائلتي</div><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${callout('<b>غير محسوم (Q-043):</b> ملف الشعار والشخصية لم يُسلَّما؛ لذلك لا يظهر شعار هنا.', 'wa', 'help')}${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
 });
 ACT.updCheck = () => toast(offline() ? 'لا يوجد اتصال · نتحقق عند عودته' : 'أنت على أحدث إصدار', null, offline() ? 'cloud_off' : 'check_circle');
 surface('outbox', {
@@ -181,8 +181,8 @@ Object.assign(ACT, {
 });
 surface('persist', {
   t: 'الإشعار الدائم', sys: 'S1-01', p: 'any', req: '01:15',
-  note: 'الإشعار الدائم يعرض معلومة نافعة (الوقت المتبقي) لا عبارة رقابية.',
-  r() { return `<p class="sm muted" style="margin:0 4px 6px">هكذا يظهر على جهاز الطفل:</p><div class="lockn"><span class="ap">${ic('hourglass_top')}</span><span><b>بقي لك 24 دقيقة اليوم</b><small>عائلتي · اضغط لترى يومك</small></span></div><p class="sm muted" style="margin:14px 4px 6px">وعلى جهاز ولي الأمر:</p><div class="lockn"><span class="ap">${ic('verified_user')}</span><span><b>عائلتي تعمل</b><small>3 أطفال متصلون · لا شيء يحتاج قرارك</small></span></div>${callout('لا نكتب «أنت مراقَب». الإشعار يخدم صاحب الجهاز بمعلومة تفيده.', 'ok', 'check_circle')}`; },
+  note: 'الإشعار الدائم يعرض معلومة نافعة (الوقت المتبقي) لا عبارة رقابية. لا تحكم لإخفائه في المرحلة 1: الخدمة الخلفية تحتاجه. إن رُفض إذن الإشعارات أو أُوقف من إعدادات الهاتف تبقى الخدمة تعمل، ويظهر بانر صريح على الجهاز.',
+  r() { return `${isAdult() ? '' : callout(S.notifPerm ? 'هذا الإشعار يبقى ظاهراً ما دام التطبيق يحمي الجهاز. لا يُخفى من داخل التطبيق.' : '<b>الإشعارات متوقفة على هذا الجهاز.</b> الحماية ما زالت تعمل، لكن الوقت المتبقي لا يظهر والتنبيهات لا تصل. أخبر بابا ليفعّلها.', S.notifPerm ? 'nt' : 'wa', S.notifPerm ? 'info' : 'notifications_off')}<p class="sm muted" style="margin:0 4px 6px">هكذا يظهر على جهاز الطفل:</p><div class="lockn"><span class="ap">${ic('hourglass_top')}</span><span><b>بقي لك 24 دقيقة اليوم</b><small>عائلتي · اضغط لترى يومك</small></span></div><p class="sm muted" style="margin:14px 4px 6px">وعلى جهاز ولي الأمر:</p><div class="lockn"><span class="ap">${ic('verified_user')}</span><span><b>عائلتي تعمل</b><small>3 أطفال متصلون · لا شيء يحتاج قرارك</small></span></div>${callout('لا نكتب «أنت مراقَب». الإشعار يخدم صاحب الجهاز بمعلومة تفيده.', 'ok', 'check_circle')}`; },
 });
 surface('consent-view', {
   t: 'ما اتفقنا عليه', sys: 'S1-02', p: 'any', req: '02:17 01:15',
@@ -341,4 +341,49 @@ surface('sys-first', {
 Object.assign(ACT, {
   updGo() { S.sys = 'ok'; S.full = null; toast('في التطبيق الفعلي يفتح المتجر', null, 'info'); },
   maintTry() { S.sys = 'ok'; S.full = null; toast('عادت الخدمة'); },
+});
+
+/* ---------- لوازم الإطلاق في الغلاف: إذن الإشعارات، الشروط والخصوصية، المساعدة ---------- */
+surface('perm-notif', {
+  kind: 'full', t: 'إذن الإشعارات', sys: 'S1-01', p: 'any', req: '01:15',
+  note: 'شاشة تمهيد قبل نافذة النظام (أندرويد 13 فأعلى يطلب الإذن وقت التشغيل). تظهر مرة واحدة: بعد إنشاء العائلة أو الانضمام، وبعد إقران جهاز الطفل. الرفض لا يوقف شيئاً: يبقى بانر صريح أعلى الشاشة مع زر التفعيل.',
+  r() { const kid = !isAdult();
+    return `<header class="bar"><h2></h2>${sosBtn()}</header><div class="body" style="justify-content:center;text-align:center"><div class="bigic">${ic('notifications_active')}</div><p class="ttl">${kid ? 'اسمح بالإشعارات على هذا الجهاز' : 'اسمح بالإشعارات'}</p><p class="sub">${kid ? 'يقرؤها بابا مع صاحب الجهاز.' : 'لتعرف ما يحتاج قرارك دون أن تفتح التطبيق.'}</p>
+    <div class="card" style="text-align:start">${(kid ? [['hourglass_top', 'يظهر الوقت المتبقي في أعلى الهاتف دائماً'], ['chat', 'تصل رسائل العائلة وردّ بابا على الطلبات'], ['emergency_home', 'تصل تنبيهات الاستغاثة من أفراد العائلة']] : [['emergency_home', 'استغاثة أحد أفراد عائلتك تصلك فوراً'], ['pending_actions', 'طلبات أطفالك: وقت إضافي، تطبيق، مهمة'], ['shield', 'تنبيه إن تعطلت الحماية على جهاز طفل']]).map(([i, t]) => `<div class="fx" style="padding:7px 0;gap:10px">${ic(i)}<span>${t}</span></div>`).join('')}</div>
+    <p class="sm muted">${kid ? 'إن لم تسمح: تبقى الحماية تعمل، لكن الوقت المتبقي لا يظهر والتنبيهات لا تصل.' : 'لا إعلانات ولا رسائل ترويجية. تغيّر ما يصلك من «الإشعارات» في أي وقت.'}</p><div class="gap"></div>${btn('اسمح بالإشعارات', 'npAllow', '', 'notifications_active')}${btn('ليس الآن', 'npLater', 'txt')}</div>`; },
+});
+Object.assign(ACT, {
+  npAllow() { S.notifPerm = true; S.full = null; toast('الإشعارات مفعّلة'); },
+  npLater() { S.notifPerm = false; S.full = null; },
+  modeWhy() { S.sheet = { id: 'mode-fixed', a: [] }; },
+  helpQ(i) { S.helpQ = S.helpQ === +i ? -1 : +i; },
+  helpMail() { toast(offline() ? 'لا يوجد اتصال · رسالتك تُحفظ وتُرسل عند عودته' : 'يفتح بريدك وفيه رقم الإصدار ونوع الجهاز فقط', null, offline() ? 'cloud_off' : 'mail'); },
+});
+surface('mode-fixed', {
+  kind: 'sheet', t: 'وضع الجهاز ثابت', sys: 'S1-01', p: 'kid', req: '01:2,18',
+  note: 'رسالة ثبات الوضع تظهر بلا طلب رقم سري (ACC-019). وهي نفسها ما يراه أب يحاول الدخول بحسابه على جهاز طفل.',
+  r() { return `<h4>هذا الجهاز يعمل بوضع ${mode() === 'teen' ? 'المراهق' : 'الطفل'}</h4><p class="d">الوضع يُحدَّد مرة واحدة عند إقران الجهاز ولا يتحول إلى وضع الأهل، ولا يُسجَّل عليه دخول بحساب آخر.</p>${callout('ليصير هذا الهاتف جهاز أهل: يفكّ بابا إقرانه من «إعدادات هذا الجهاز» أولاً، ثم يسجّل الدخول بحسابه.', 'nt', 'info')}${btn('فهمت', 'close', 'sec')}`; },
+});
+const HELP_Q = [
+  ['نسيت الرقم السري لبوابة الوالدين', 'لا يُستعاد الرقم. تطلب المساعدة من جهة الاسترداد الموثوقة التي أضفتها في «الأمان»، ثم تنشئ رقماً جديداً.'],
+  ['غيّرت الرقم السري ولم يتغير على جهاز طفلي', 'الرقم يُحفظ على كل جهاز وحده ولا يُرسل عبر الإنترنت. غيّره على جهاز الطفل من: ملفي ← إعدادات هذا الجهاز ← تغيير الرقم السري.'],
+  ['التطبيق لا يحمي جهاز طفلي كما يجب', 'افتح بطاقة الطفل من «العائلة». إن ظهرت «الحماية تعمل جزئياً» فاتبع خطوات الإصلاح المعروضة هناك على جهازه.'],
+  ['أنا بلا إنترنت، هل يتوقف شيء؟', 'القواعد على أجهزة الأطفال تبقى تعمل. ما تغيّره أنت يُحفظ ويُرسل عند عودة الاتصال، وتراه في «البيانات والمزامنة».'],
+  ['كيف أنقل جهاز طفل إلى عائلة أخرى؟', 'من جهاز الطفل: ملفي ← إعدادات هذا الجهاز ← فكّ إقران هذا الجهاز. يحتاج الرقم السري واتصالاً بالإنترنت.'],
+];
+surface('help', {
+  t: 'المساعدة والدعم', sys: 'S1-01', p: 'adult', req: '', st: 'un',
+  note: 'لازمة إطلاق غائبة عن المواصفات العشر (بند ب-13). الأسئلة من محتوى التصميم نفسه. قناة المراسلة غير محسومة: عنوان الدعم يسلّمه المالك قبل الإطلاق، لذلك لا يظهر عنوان هنا. الطفل لا يرى هذه الصفحة: طريقه «شيء ما أزعجني» إلى والده.',
+  r() { const o = S.helpQ ?? -1; return `${sec('أسئلة شائعة')}${list(HELP_Q.map(([q, a], i) => row('quiz', q, o === i ? a : '', { a: 'helpQ:' + i, chev: false, v: ic(o === i ? 'keyboard_arrow_up' : 'keyboard_arrow_down') })))}${sec('لم تجد جوابك؟')}${list(row('mail', 'راسل الدعم', 'نرد بالعربية أو الإنجليزية', { a: 'helpMail' }), row('support_agent', 'معلومات تشخيصية', 'قد يطلبها منك فريق الدعم', { a: 'go:health' }))}${callout('<b>غير محسوم:</b> عنوان الدعم وساعات الرد يسلّمهما المالك قبل الإطلاق.', 'wa', 'help')}`; },
+});
+surface('legal', {
+  t: 'الشروط والخصوصية', sys: 'S1-01', p: 'any', req: '', st: 'un',
+  note: 'لازمة إطلاق ومتاجر (بند ب-13): شروط الاستخدام وسياسة الخصوصية يجب أن تُفتحا من داخل التطبيق ومن صفحة المتجر. النص القانوني لم يُسلَّم ولا يُختلق هنا؛ الشاشة تثبّت الموضع والبنية فقط.',
+  r() { return `${callout('<b>غير محسوم:</b> النص القانوني يُسلَّم بعد المراجعة القانونية وقبل الإطلاق. هذه الصفحة تثبّت مكانه في التطبيق.', 'wa', 'help')}${list(row('description', 'شروط الاستخدام', 'ما تلتزم به وما نلتزم به', { a: 'legalDoc' }), row('policy', 'سياسة الخصوصية', 'ما نجمعه ولماذا ومن يراه', { a: 'legalDoc' }), row('child_care', 'خصوصية الأطفال', 'ما يراه ولي الأمر وما لا يراه', { a: isAdult() ? 'go:privacy' : 'go:consent-view' }))}${isAdult() ? sec('بياناتك') + list(row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' })) : ''}${callout('لا إعلانات ولا أدوات تتبع في التطبيق.', 'ok', 'verified_user')}`; },
+});
+ACT.legalDoc = () => toast('النص القانوني لم يُسلَّم بعد', null, 'info');
+surface('licenses', {
+  t: 'تراخيص المصادر المفتوحة', sys: 'S1-01', p: 'any', req: '',
+  note: 'قائمة تولَّد آلياً عند البناء من المكتبات المستعملة فعلاً. هنا خطّ الواجهة ومجموعة الأيقونات المستعملان في النموذج.',
+  r() { return list(row('gavel', 'IBM Plex Sans Arabic', 'SIL Open Font License 1.1', { chev: false }), row('gavel', 'Material Symbols', 'Apache License 2.0', { chev: false })) + `<p class="sm muted" style="margin:10px 4px">تُضاف بقية المكتبات آلياً عند بناء التطبيق.</p>`; },
 });

@@ -83,11 +83,11 @@ Object.assign(ACT, {
   cpy() { toast('نُسخ المفتاح', null, 'content_copy'); },
   obSet(k, v) { S.ob.fam = ($('#obF') || {}).value; S.ob[k] = v; },
   obFam() { const v = ($('#obF') || {}).value.trim(); if (!v) { toast('اكتب اسم العائلة', null, 'error'); return; } S.ob.fam = v; if (S.ob.flow === 'join') return go('ob-join'); go('ob-done'); },
-  obEnter() { S.plan = 'free'; setPersona('owner'); },
-  obJoin() { const v = ($('#obJ') || {}).value.trim().toUpperCase(); if (v !== 'MNSR-7K2P') { S.ob.jerr = 1; return; } S.tpl = 'none'; setPersona('delegate'); toast('انضممتِ إلى عائلة المنصور كبالغ بلا صلاحيات بعد', null, 'how_to_reg'); },
+  obEnter() { S.plan = 'free'; setPersona('owner'); S.full = { id: 'perm-notif', a: [] }; },
+  obJoin() { const v = ($('#obJ') || {}).value.trim().toUpperCase(); if (v !== 'MNSR-7K2P') { S.ob.jerr = 1; return; } S.tpl = 'none'; setPersona('delegate'); S.full = { id: 'perm-notif', a: [] }; toast('انضممتِ إلى عائلة المنصور كبالغ بلا صلاحيات بعد', null, 'how_to_reg'); },
   obPair() { const v = ($('#obC') || {}).value.trim().toUpperCase(); if (v !== 'LY4N82') { S.ob.perr = 1; return; } S.ob.perr = 0; S.ob.cons = {}; go('ob-consent'); },
   consT(k) { S.ob.cons = S.ob.cons || {}; S.ob.cons[k] = !S.ob.cons[k]; },
-  consGo() { gate('اكتب رقمك ليُحفظ على هذا الجهاز', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
+  consGo() { gate('اكتب رقمك ليُحفظ على هذا الجهاز', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); S.full = { id: 'perm-notif', a: [] }; notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
 });
 /* في مسار الانضمام: بعد TOTP ننتقل إلى رمز الدعوة لا إلى إنشاء عائلة */
 const _totpR = SC['ob-totp'].r; SC['ob-totp'].r = () => _totpR().replace('data-a="go:ob-family"', `data-a="${S.ob.flow === 'join' ? 'go:ob-join' : 'go:ob-family'}"`);
