@@ -12,7 +12,7 @@ surface('more', {
     return `<button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
     ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
     ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', `${attention().length} بانتظار قرار`, { a: 'go:alerts' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: own ? '' : chip('عرض فقط', 'ol') }))}
-    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'التحقق بخطوتين · الجلسات · الاسترداد', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('cloud_upload', 'الصندوق الصادر', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : 'فارغ', { a: 'go:outbox' }), row('memory', 'صحة المنصة', 'الذاكرة · الاتصال · البطارية', { a: 'go:health' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}`; },
+    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'التحقق بخطوتين · الجلسات · الاسترداد', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}`; },
 });
 surface('account', {
   t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,26',
@@ -35,13 +35,12 @@ surface('templates', {
 });
 ACT.jumpP = p => { setPersona(p); };
 surface('registry', {
-  t: 'الخدمات', sys: 'S1-09', p: 'adult', req: '09:5,8,9,15 01:11,12,14',
-  note: 'السجلات المركزية الأربعة: التحكم، الصلاحيات، الودجات، التنبيهات. لا مفتاح تحكم يعمل دون تسجيل. الواجهة تُبنى من السجل لا من قوائم ثابتة.',
+  t: 'الخدمات', sys: 'S1-09', p: 'adult', req: '09:5,8,9,15',
+  note: 'الأنظمة التي تظهر في «التحكم» و«الرئيسية». الواجهة تُبنى من السجل المركزي لا من قوائم ثابتة. تفاصيل السجلات والأعلام التقنية في «عن التطبيق ← معلومات تشخيصية».',
   r() { const sv = [['S1-10', 'الحماية والفرض', 15, 4], ['S1-07', 'الموقع والاستغاثة', 6, 3], ['S1-06', 'المهام والتقويم', 9, 3], ['S1-05', 'المكافآت', 12, 3], ['S1-08', 'المحادثة', 8, 2], ['S1-04', 'الخطط', 5, 1]], off = S.svcOff || {};
-    return `<div class="g2" style="margin-bottom:10px">${[['tune', 'ControlRegistry', 'مفاتيح التحكم'], ['key', 'PermissionRegistry', '95 مفتاحاً'], ['widgets', 'WidgetRegistry', 'ودجات الرئيسية'], ['notifications', 'NotificationRegistry', 'قنوات التنبيه']].map(([i, n, s]) => `<div class="card">${ic(i)}<div class="mono xs" style="margin-top:6px">${n}</div><div class="sm muted">${s}</div></div>`).join('')}</div>
+    return `
     ${sec('الأنظمة المسجَّلة')}${list(sv.map(([id, n, k, w]) => row('', n, `${k} مفتاحاً · ${w} ودجات · <span class="mono">${id}</span>`, { tg: !off[id], ta: isOwner() ? 'svcT:' + id : 'denied:shell.config.edit' })))}
-    ${callout('إيقاف نظام يخفي ودجاته وأسطح تحكمه من المركز فوراً، دون حذف بياناته.', 'nt', 'visibility_off')}
-    ${sec('أعلام الميزات (من ملف المنطقة والخطة)')}${list(row('flag', 'low_bandwidth_default', 'اليمن: مفعّل افتراضياً', { v: chip('on', 'ok') }), row('flag', 'otp_channels', '', { v: '<span class="mono xs">whatsapp→sms→call</span>' }), row('smart_toy', 'ai_gateway_hook', 'خطاف العقد فقط في S1-01', { v: chip('hook', 'ol') }))}`; },
+    ${callout('إيقاف نظام يخفي ودجاته وأسطح تحكمه من المركز فوراً، دون حذف بياناته.', 'nt', 'visibility_off')}`; },
 });
 ACT.svcT = id => { S.svcOff = S.svcOff || {}; S.svcOff[id] = !S.svcOff[id]; toast(S.svcOff[id] ? 'أُخفيت أسطح النظام من المركز' : 'عادت أسطح النظام'); };
 
@@ -104,13 +103,14 @@ ACT.delGo = () => gate('حذف الحساب', () => toast('في التطبيق �
 surface('security', {
   t: 'الأمان', sys: 'S1-02', p: 'adult', req: '02:5,6,16,20 01:5,23',
   note: 'التحقق بخطوتين إلزامي. البصمة تفتح التطبيق في وضع الأهل فقط ولا تتجاوز بوابة الوالدين. الجلسة منزلقة بسقف 30 يوماً.',
-  r() { const own = isOwner(); return `${sec('الدخول')}${list(row('verified_user', 'التحقق بخطوتين (TOTP)', 'إلزامي · مفعّل', { v: chip('مفعّل', 'ok', 'check') }), row('fingerprint', 'فتح سريع بالبصمة', 'في وضع الأهل فقط · لا يتجاوز بوابة الوالدين', { tg: S.bio ?? true, ta: own ? 'bioT' : 'denied:identity.biometric.enable' }), row('pin', 'رقم بوابة الوالدين', '6 أرقام · محلي على كل جهاز', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? '' : ic('lock') }))}
+  r() { const own = isOwner(); return `${sec('الدخول')}${list(row('verified_user', 'التحقق بخطوتين (TOTP)', 'إلزامي · مفعّل', { v: chip('مفعّل', 'ok', 'check') }), row('fingerprint', 'فتح سريع بالبصمة', 'في وضع الأهل فقط · لا يتجاوز بوابة الوالدين', { tg: S.bio ?? true, ta: own ? 'bioT' : 'denied:identity.biometric.enable' }), row('pin', 'رقم بوابة الوالدين', S.pin.set ? 'غيّر رقمك السري' : 'لم يُنشأ بعد', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? (S.pin.set ? '' : chip('أنشئه', 'wa')) : ic('lock') }))}
     ${sec('الجلسات النشطة')}${list(row('mobile', 'هذا الجهاز', 'Samsung A54 · صنعاء · الآن', { v: chip('الحالي', 'ok') }), row('tablet_android', 'Lenovo Tab M10', 'آخر نشاط قبل 3 أيام · تنتهي بعد 27 يوماً', { v: own ? `<button class="btn txt sm" data-a="sessEnd">أنهِ</button>` : '' }))}<p class="xs muted" style="margin:0 4px 10px">تبقى الجلسة ما دمت تستخدم التطبيق، وبحد أقصى 30 يوماً من تسجيل الدخول.</p>
     ${sec('الاسترداد')}${list(row('support', 'جهة الاسترداد الموثوقة', 'إن فقدت الهاتف والرقم معاً', { v: 'سارة', a: 'go:recovery' }), row('key', 'مفتاح توقيع هذا الجهاز', 'مربوط بالعتاد · يوقّع العمليات الحساسة', { v: chip('مسجَّل', 'ok', 'check') }))}`; },
 });
 Object.assign(ACT, {
   bioT() { S.bio = !(S.bio ?? true); if (S.bio) toast('تغيير البصمة لاحقاً يتطلب إعادة تسجيل مفتاح الجهاز بالرقم السري', null, 'fingerprint'); },
-  pinChange() { gate('أدخل الرقم الحالي لتغييره', () => toast('الرقم الجديد: أدخله مرتين — خارج هذا الإصدار', null, 'pin'), 'stepup'); },
+  /* التغيير يتطلب الرقم الحالي نفسه لا البصمة (S1-01 §7)؛ والإنشاء الأول بلا رقم سابق */
+  pinChange() { if (!S.pin.set) return pinSetOpen('create'); gate('أدخل الرقم الحالي لتغييره', () => pinSetOpen('change')); },
   sessEnd() { toast('أُنهيت الجلسة على Lenovo Tab M10'); },
 });
 surface('recovery', {
@@ -137,26 +137,47 @@ ACT.aiUndo = id => { const g = S.agent.find(x => x.id === id); g.undo = 0; g.st 
 surface('display', {
   t: 'اللغة والعرض', sys: 'S1-01', p: 'any', req: '01:21 02:18',
   note: 'التطبيق عربي وإنجليزي في هذه النسخة. في هذا النموذج تُرجم الغلاف (التبويبات، التهيئة) فقط لإثبات انقلاب الاتجاه RTL/LTR؛ بقية النصوص عربية.',
-  r() { return `${sec('اللغة')}${list(row('', 'العربية', '', { a: 'set:lang:ar', chev: false, v: ic(S.lang === 'ar' ? 'check_circle-fill' : 'radio_button_unchecked') }), row('', 'English', '', { a: 'set:lang:en', chev: false, v: ic(S.lang === 'en' ? 'check_circle-fill' : 'radio_button_unchecked') }))}${sec('المظهر')}${seg([['light', 'فاتح'], ['dark', 'داكن']], S.theme, 'set:theme')}${sec('حجم النص')}${seg([[0.9, 'صغير'], [1, 'عادي'], [1.15, 'كبير'], [1.3, 'أكبر']], S.ts, 'set:ts')}<div class="card"><b>معاينة</b><p class="sm muted" style="margin:4px 0 0">بقي لليان 24 دقيقة اليوم. الحد الأدنى لحجم النص 12 ولا تُضاف مسافات بين الحروف العربية.</p></div>${list(row('animation', 'تقليل الحركة', 'يوقف الانتقالات والاحتفالات', { tg: S.motion === 'off', ta: 'motionT' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' }))}`; },
+  r() { return `${sec('اللغة')}${list(row('', 'العربية', '', { a: 'set:lang:ar', chev: false, v: ic(S.lang === 'ar' ? 'check_circle-fill' : 'radio_button_unchecked') }), row('', 'English', '', { a: 'set:lang:en', chev: false, v: ic(S.lang === 'en' ? 'check_circle-fill' : 'radio_button_unchecked') }))}${sec('المظهر')}${seg([['light', 'فاتح'], ['dark', 'داكن']], S.theme, 'set:theme')}${sec('حجم النص')}${seg([[0.9, 'صغير'], [1, 'عادي'], [1.15, 'كبير'], [1.3, 'أكبر']], S.ts, 'set:ts')}<div class="card"><b>معاينة</b><p class="sm muted" style="margin:4px 0 0">بقي لليان 24 دقيقة اليوم. الحد الأدنى لحجم النص 12 ولا تُضاف مسافات بين الحروف العربية.</p></div>${list(row('animation', 'تقليل الحركة', 'يوقف الانتقالات والاحتفالات', { tg: S.motion === 'off', ta: 'motionT' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' }))}${sec('الأرقام')}${seg([['latn', '012 لاتينية'], ['arab', '٠١٢ عربية']], S.num, 'numSet')}${sec('الوصول')}${list(row('emergency_home', 'استغاثة بنقرة ثم تأكيد', 'لمن يصعب عليه الضغط المطوّل 3 ثوانٍ', { tg: S.sos2, ta: 'flip:sos2' }))}`; },
 });
 ACT.motionT = () => { S.motion = S.motion === 'off' ? 'on' : 'off'; };
+ACT.numSet = v => { S.num = v; };
 surface('health', {
-  t: 'صحة المنصة', sys: 'S1-01', p: 'adult', req: '01:10,13,17,20,22,23', st: 'un',
-  note: 'قيم مقروءة للذاكرة والاتصال والبطارية. UNKNOWN: عتبات التنبيه الرقمية للذاكرة والبطارية «تُحدَّد في التصميم» (ثغرة مسجلة في المواصفة) ولم تُحسم؛ الأرقام هنا عيّنة عرض.',
-  r() { return `<div class="g2" style="margin-bottom:10px">${[['memory', 'الذاكرة', '3 GB', 'انتقالات كاملة'], ['wifi', 'الاتصال', offline() ? 'منقطع' : S.lbw ? 'ضعيف' : 'جيد', offline() ? 'يعمل محلياً' : S.lbw ? 'نطاق منخفض' : 'Wi‑Fi'], ['battery_5_bar', 'البطارية', '72%', 'عادي'], ['rocket_launch', 'الإقلاع البارد', '0.9 ث', 'الهدف < 1.2 ث']].map(([i, t, v, s]) => `<div class="card stat">${ic(i)}<b>${v}</b><span>${t} · ${s}</span></div>`).join('')}</div>
-    ${list(row('data_saver_on', 'وضع النطاق المنخفض', 'ضغط الاستجابات · لا تحديث تلقائي · مزامنة يدوية', { tg: S.lbw, ta: 'flip:lbw' }), S.lbw ? row('sync', 'زامن الآن', 'آخر مزامنة قبل 18 د', { a: 'syncNow' }) : '', row('speed', 'الأجهزة دون 2GB', 'تُعطَّل الانتقالات الثقيلة تلقائياً', { v: 'لا ينطبق' }), row('system_update_alt', 'التحديثات', 'العادية عبر المتجر · الإجباري للأمني الحرج فقط', { a: 'go:about' }))}${callout('<b>غير محسوم:</b> عتبات تنبيه الذاكرة والبطارية لم تُحدَّد بعد.', 'wa', 'help')}`; },
+  t: 'معلومات تشخيصية', sys: 'S1-01', p: 'adult', req: '01:3,10,11,12,13,14,17,19,22,23', st: 'un',
+  note: 'شاشة للدعم الفني لا للاستخدام اليومي: قراءات هذا الجهاز، وحدة الفرض، التوفر على المنصة، السجلات الأربعة، أعلام الميزات وملف المنطقة. نُقلت من «المزيد» إلى «عن التطبيق» لأنها لا تخدم الأب مباشرة. UNKNOWN: عتبات تنبيه الذاكرة والبطارية غير محسومة (GAP-S1-01-07).',
+  r() {
+    const ios = S.os === 'ios';
+    return `${callout('هذه الصفحة للدعم الفني. إن طلب منك فريق الدعم معلومة عن جهازك فستجدها هنا.', 'nt', 'support_agent')}
+    ${sec('هذا الجهاز')}<div class="g2">${[['memory', 'الذاكرة', '3 GB', 'انتقالات كاملة'], ['wifi', 'الاتصال', offline() ? 'منقطع' : S.lbw ? 'ضعيف' : 'جيد', offline() ? 'يعمل محلياً' : S.lbw ? 'توفير البيانات' : 'Wi‑Fi'], ['battery_5_bar', 'البطارية', '72%', 'عادي'], ['rocket_launch', 'الإقلاع البارد', '0.9 ث', 'الهدف < 1.2 ث']].map(([i, t, v, x]) => `<div class="card">${ic(i)}<div class="b" style="font-size:calc(20px*var(--ts));margin-top:4px">${v}</div><div class="sm muted">${t} · ${x}</div></div>`).join('')}</div>
+    ${list(row('speed', 'الانتقالات الثقيلة', 'تُعطَّل تلقائياً على الأجهزة دون 2GB', { v: chip('مفعّلة', 'ok') }), row('shield', 'وحدة الفرض', ios ? 'غير متاحة على iOS · التحكم العميق على أندرويد فقط' : 'تعمل على أجهزة الأطفال فقط · هذا جهاز أهل', { v: ios ? chip('غير متاحة', 'ol') : chip('لا تنطبق', 'ol'), a: ios ? 'why:ios' : '' }), row('key', 'مفتاح توقيع الجهاز', 'مربوط بالعتاد', { v: chip('مسجَّل', 'ok', 'check') }), row('android', 'المنصة', '', { v: ios ? 'iOS' : 'Android' }))}
+    ${sec('السجلات المركزية')}${list([['tune', 'ControlRegistry', 'مفاتيح التحكم', ''], ['key', 'PermissionRegistry', 'مفاتيح الصلاحيات', '95'], ['widgets', 'WidgetRegistry', 'ودجات الرئيسية', ''], ['notifications', 'NotificationRegistry', 'قنوات التنبيه', '']].map(([i, n, x, c]) => row(i, x, `<span class="mono">${n}</span>`, { v: c ? `<span class="mono">${c}</span>` : chip('مسجَّل', 'ok', 'check'), chev: false })))}
+    ${sec('أعلام الميزات وملف المنطقة')}${list(row('public', 'المنطقة', 'ملف المنطقة يُحمَّل عند الفتح ويُحفظ', { v: '<span class="mono">YE</span>', chev: false }), row('flag', 'low_bandwidth_default', 'صالح حتى إشعار آخر', { v: chip('on', 'ok'), chev: false }), row('flag', 'otp_channels', '', { v: '<span class="mono xs">whatsapp→sms→call</span>', chev: false }), row('flag', 'payment_routes', 'مسارات الدفع من ملف المنطقة · تفاصيلها في «الخطة والفوترة»', { chev: false }), row('smart_toy', 'ai_gateway_hook', 'خطاف العقد فقط · الميزانية ومفتاح الإيقاف في «المساعد الذكي»', { v: chip('hook', 'ol'), chev: false }))}`;
+  },
 });
-ACT.syncNow = () => { flushOutbox(); toast('تمت المزامنة', null, 'cloud_done'); };
+ACT.syncNow = () => { if (offline()) return toast('لا يوجد اتصال الآن · يُرسل كل شيء تلقائياً عند عودته', null, 'cloud_off'); flushOutbox(); S.lastSync = S.lastSync || { n: 0, at: 'الآن' }; S.lastSync.at = 'الآن'; toast('تمت المزامنة', null, 'cloud_done'); };
 surface('about', {
   t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20', st: 'un',
   note: 'UNKNOWN (Q-043): الشعار بصيغة SVG والشخصية (mascot) لم يُسلَّما بعد؛ يُعرض الاسم نصاً دون اختلاق شعار.',
-  r() { return `<div class="c" style="padding:16px 0"><div style="font-size:40px;font-weight:700;color:var(--primary)">عائلتي</div><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${callout('<b>غير محسوم (Q-043):</b> ملف الشعار والشخصية لم يُسلَّما؛ لذلك لا يظهر شعار هنا.', 'wa', 'help')}${list(row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', '', { a: 'soonC' }), row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'soonC' }))}`; },
+  r() { return `<div class="c" style="padding:16px 0"><div style="font-size:40px;font-weight:700;color:var(--primary)">عائلتي</div><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${callout('<b>غير محسوم (Q-043):</b> ملف الشعار والشخصية لم يُسلَّما؛ لذلك لا يظهر شعار هنا.', 'wa', 'help')}${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', '', { a: 'soonC' }), row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'soonC' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
 });
-ACT.updCheck = () => toast('أنت على أحدث إصدار', null, 'check_circle');
+ACT.updCheck = () => toast(offline() ? 'لا يوجد اتصال · نتحقق عند عودته' : 'أنت على أحدث إصدار', null, offline() ? 'cloud_off' : 'check_circle');
 surface('outbox', {
-  t: 'الصندوق الصادر', sys: 'S1-01', p: 'any', req: '01:8,9 06:16 08:14 07:6 05:3 10:16',
-  note: 'كل فعل دون اتصال يُسجَّل محلياً ثم يُفرَّغ دفعة واحدة مضغوطة بترتيب زمني صارم. جرّب: اقطع الاتصال من الاستوديو، نفّذ أفعالاً، ثم أعد الاتصال.',
-  r() { return S.outbox.length ? `${callout(offline() ? 'تُرسل هذه العمليات تلقائياً بترتيبها عند عودة الاتصال.' : 'جارٍ الإرسال…', offline() ? 'wa' : 'ok', 'cloud_upload')}<div class="card"><div class="tl">${S.outbox.map((o, i) => `<div class="ev wa"><b>${i + 1}. ${o.t}</b><span>${o.at} · <span class="mono">${o.sys}</span> · بانتظار الإرسال</span></div>`).join('')}</div></div>` : empty('cloud_done', 'لا شيء بانتظار الإرسال', offline() ? 'أنت غير متصل. ما تفعله الآن يُحفظ هنا ويُرسل لاحقاً بالترتيب.' : 'كل ما فعلته وصل إلى الخادم.'); },
+  t: 'البيانات والمزامنة', sys: 'S1-01', p: 'any', req: '01:8,9,10 06:16 08:14 07:6 05:3 10:16',
+  note: 'شاشة واحدة بلغة المستخدم بدل «الصندوق الصادر» و«وضع النطاق المنخفض»: ما ينتظر الإرسال، زر «زامن الآن»، وتوفير البيانات (تلقائي افتراضياً، إعداد شخصي لكل جهاز). جرّب: اقطع الاتصال من الاستوديو، نفّذ أفعالاً، ثم أعد الاتصال. الطفل والمراهق يريان الحالة فقط.',
+  r() {
+    const n = S.outbox.length, off = offline();
+    const head = `<div class="card fx">${ic(off ? 'cloud_off' : n ? 'cloud_upload' : 'cloud_done', `" style="width:34px;height:34px;color:var(--${off ? 'warning' : 'success'})`)}<div class="grow"><b>${off ? 'غير متصل' : n ? 'جارٍ الإرسال…' : 'كل شيء مُرسل'}</b><div class="sm muted">${off ? (n ? 'ما فعلته محفوظ ويُرسل بترتيبه عند عودة الاتصال.' : 'تعمل بآخر بيانات محفوظة. لا شيء ينتظر.') : S.lastSync ? `آخر مزامنة ${S.lastSync.at}${S.lastSync.n ? ` · أُرسلت ${S.lastSync.n}` : ''}` : 'آخر مزامنة قبل 18 د'}</div></div></div>`;
+    if (!isAdult()) return head + (n ? callout(n === 1 ? 'عملية واحدة ستُرسل عند عودة الاتصال.' : `${n} عمليات ستُرسل عند عودة الاتصال.`, 'nt', 'schedule') : '');
+    return `${head}${btn('زامن الآن', 'syncNow', off ? 'sec" disabled="' : 'sec', 'sync')}
+    ${S.syncConflict ? `<div class="gap"></div>${callout('<b>تغيير واحد لم يُطبَّق.</b> عدّلت سارة حصة ليان بعدك، فبقي تعديلها الأحدث (150 د). تعديلك (120 د) لم يُكتب فوقه.', 'wa', 'merge')}<div class="btns">${btn('أبقِ تعديل سارة', 'conflKeep', 'sec')}${btn('أعد تطبيق تعديلي', 'conflRedo', 'ton')}</div>` : ''}
+    ${n ? `${sec('بانتظار الإرسال')}${list(S.outbox.map((o, i) => row('schedule', o.t, `${o.at} · يُرسل ${i === 0 ? 'أولاً' : 'بعد ما قبله'}`, { chev: false })))}` : ''}
+    ${sec('توفير البيانات')}${seg([['auto', 'تلقائي'], ['on', 'دائماً'], ['off', 'متوقف']], S.saver, 'saverSet')}<p class="sm muted" style="margin:8px 2px 0">${S.saver === 'auto' ? (S.lbw ? 'مفعّل الآن لأن الاتصال ضعيف. يعود للوضع العادي عند تحسّنه.' : 'يتفعّل وحده عند ضعف الاتصال.') : S.saver === 'on' ? 'الصور والخرائط تُحمَّل عند الطلب، ولا تحديث تلقائي في الخلفية.' : 'متوقف على هذا الجهاز. قد يزيد استهلاك البيانات.'}</p>
+    <p class="xs muted" style="margin:6px 2px 0">هذا الإعداد لجهازك أنت فقط. الاستغاثة والقواعد على أجهزة الأطفال تعمل في كل الأحوال.</p>`;
+  },
+});
+Object.assign(ACT, {
+  saverSet(v) { S.saver = v; if (v === 'on') S.lbw = true; if (v === 'off') S.lbw = false; },
+  conflKeep() { S.syncConflict = false; toast('بقي تعديل سارة'); },
+  conflRedo() { S.syncConflict = false; S.kid.layan.quota = 120; audit('أُعيد تطبيق الحصة اليومية لليان: 120 د', 'protection.rule.edit'); toast('طُبّق تعديلك · 120 د'); },
 });
 surface('persist', {
   t: 'الإشعار الدائم', sys: 'S1-01', p: 'any', req: '01:15',
@@ -192,30 +213,79 @@ surface('why', {
 /* ============ بوابة الوالدين / الرفع الأمني ============ */
 surface('pin', {
   kind: 'full', t: 'بوابة الوالدين', sys: 'S1-01', p: 'any', a: ['الخروج من وضع الطفل', 'gate'], req: '01:5,6,23 03:12 02:16',
-  note: 'رقم الأب السري، 6 أرقام، محلي ولا يمنح صلاحية بحد ذاته. 5 محاولات خاطئة ← قفل 5 دقائق. لوحة الأرقام لا تُعكس. الرقم التجريبي: 123456.',
+  note: 'رقم الأب السري، 6 أرقام، محلي ولا يمنح صلاحية بحد ذاته. 5 محاولات خاطئة ← قفل 5 دقائق، وكل فشل وقفل يُسجَّل في التدقيق ويُنبَّه الأب عند القفل. لوحة الأرقام لا تُعكس. زر الاستغاثة يبقى في رأس البوابة. الرقم التجريبي: 482615 (والرقم 123456 نمط ممنوع).',
   r(reason, kind) {
     const locked = S.pin.lock > 0;
-    return `<header class="bar"><button class="ib" data-a="pinX" aria-label="إغلاق">${ic('close')}</button><h2></h2></header><div class="body" style="justify-content:center">
+    return `<header class="bar"><button class="ib" data-a="pinX" aria-label="إغلاق">${ic('close')}</button><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center">
     <div class="bigic">${ic(locked ? 'lock_clock' : kind === 'stepup' ? 'shield_lock' : 'lock')}</div><p class="ttl">${locked ? 'البوابة مقفلة مؤقتاً' : kind === 'stepup' ? 'أكّد أنك أنت' : 'بوابة الوالدين'}</p>
     <p class="sub">${locked ? `خمس محاولات خاطئة. حاول بعد <b class="ltr">${Math.floor(S.pin.lock / 60)}:${String(S.pin.lock % 60).padStart(2, '0')}</b>` : reason + ' · أدخل رقم الأب السري'}</p>
     ${locked ? '' : `<div class="dots ${S.pin.shake ? 'bad' : ''}" aria-label="${pinBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < pinBuf.length ? 'f' : ''}"></i>`).join('')}</div>
     ${S.pin.bad ? `<p class="c sm" style="color:var(--danger);margin:-10px 0 12px">الرقم غير صحيح. بقيت ${5 - S.pin.bad} محاولات.</p>` : ''}
     <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pinK:${n}">${n}</button>`).join('')}<button class="gh" data-a="${kind === 'stepup' && (S.bio ?? true) && mode() === 'parent' ? 'pinBio' : 'pinNo'}" aria-label="بصمة">${kind === 'stepup' && (S.bio ?? true) && mode() === 'parent' ? ic('fingerprint') : ''}</button><button data-a="pinK:0">0</button><button class="gh" data-a="pinK:b" aria-label="حذف">${ic('backspace')}</button></div>`}
-    ${mode() !== 'parent' ? `<p class="c sm muted" style="margin-top:18px">هذه الصفحة للأهل. ${btn('ارجع', 'pinX', 'txt')}</p>` : ''}</div>`;
+    ${mode() !== 'parent' ? `<p class="c sm muted" style="margin-top:18px">هذه الصفحة للأهل. ${btn('ارجع', 'pinX', 'txt')}</p>` : S.persona === 'owner' && !locked ? `<p class="c sm" style="margin-top:14px">${btn('نسيت الرقم؟', 'pinForgot', 'txt')}</p>` : ''}</div>`;
   },
 });
 let pinTimer;
 Object.assign(ACT, {
   pinX() { S.full = null; pinCb = null; S.pin.shake = 0; },
   pinNo() { return false; },
+  pinForgot() { S.full = null; pinCb = null; go('recovery'); },
   pinBio() { S.full = null; const c = pinCb; pinCb = null; toast('تم التحقق بالبصمة', null, 'fingerprint'); if (c) c(); },
   pinK(k) {
     S.pin.shake = 0;
     if (k === 'b') { pinBuf = pinBuf.slice(0, -1); return; }
     pinBuf += k; if (pinBuf.length < 6) return;
-    if (pinBuf === '123456') { pinBuf = ''; S.pin.bad = 0; S.full = null; const c = pinCb; pinCb = null; if (c) c(); return; }
-    pinBuf = ''; S.pin.bad += 1; S.pin.shake = 1;
-    if (S.pin.bad >= 5) { S.pin.bad = 0; S.pin.lock = 300; clearInterval(pinTimer); pinTimer = setInterval(() => { S.pin.lock -= 1; if (S.pin.lock <= 0) { S.pin.lock = 0; clearInterval(pinTimer); } if (S.full && S.full.id === 'pin') renderOv(); }, 1000); }
+    if (pinBuf === S.pin.code) { pinBuf = ''; S.pin.bad = 0; S.full = null; const c = pinCb; pinCb = null; if (c) c(); return; }
+    pinBuf = ''; S.pin.bad += 1; S.pin.shake = 1; gateLog(`رقم خاطئ في بوابة الوالدين (${S.pin.bad} من 5)`);
+    if (S.pin.bad >= 5) { S.pin.bad = 0; S.pin.lock = 300; gateLog('قُفلت بوابة الوالدين 5 دقائق بعد 5 محاولات خاطئة'); S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `قُفلت بوابة الوالدين على ${gateDev()}`, s: 'خمس محاولات خاطئة للرقم السري · القفل 5 دقائق', ago: 'الآن', p: 3, open: 1 }); clearInterval(pinTimer); pinTimer = setInterval(() => { S.pin.lock -= 1; if (S.pin.lock <= 0) { S.pin.lock = 0; clearInterval(pinTimer); } if (S.full && S.full.id === 'pin') renderOv(); }, 1000); }
+  },
+});
+
+/* ============ إنشاء رقم بوابة الوالدين وتغييره ============ */
+/* الأنماط الممنوعة (S1-01 REQ-005): رقم مكرر، تسلسل، نمط متكرر، وسنة ميلاد في أول الرقم أو آخره. */
+function weakPin(p) {
+  if (/^(\d)\1{5}$/.test(p)) return 'رقم واحد مكرر سهل التخمين';
+  const d = [...p].map(Number), up = d.every((x, i) => !i || x === (d[i - 1] + 1) % 10), dn = d.every((x, i) => !i || x === (d[i - 1] + 9) % 10);
+  if (up || dn) return 'الأرقام المتتالية سهلة التخمين';
+  if (/^(\d\d)\1\1$/.test(p) || /^(\d\d\d)\1$/.test(p)) return 'النمط المتكرر سهل التخمين';
+  if (/^(19[4-9]\d|20[0-2]\d)/.test(p) || /(19[4-9]\d|20[0-2]\d)$/.test(p)) return 'يشبه سنة ميلاد · اختر رقماً لا يعرفه أطفالك';
+  return '';
+}
+let psBuf = '';
+function pinSetOpen(kind, dev) { psBuf = ''; S.ps = { kind, step: 'new', a: '', err: '', dev: dev || '' }; S.full = { id: 'pin-set', a: [] }; }
+surface('pin-set', {
+  kind: 'full', t: 'رقم بوابة الوالدين', sys: 'S1-01', p: 'any', req: '01:5,6',
+  note: 'إنشاء الرقم أول مرة، وتغييره بعد إدخال الرقم الحالي. 6 أرقام، إدخال ثم تأكيد، ورفض الأنماط الشائعة مع السبب. لا تراجع بعد الحفظ، ولا إعادة تعيين عند النسيان إلا عبر جهة الاسترداد. الرقم محلي على كل جهاز: تغييره هنا لا يغيّره على أجهزة الأطفال.',
+  r() {
+    const p = S.ps || { kind: 'change', step: 'new', a: '', err: '' }, done = p.step === 'done', kidDev = mode() !== 'parent';
+    if (done) return `<header class="bar"><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center"><div class="bigic" style="color:var(--success)">${ic('check_circle')}</div><p class="ttl">${p.kind === 'create' ? 'أُنشئ رقمك السري' : 'تغيّر الرقم السري'}</p><p class="sub">${kidDev ? 'يعمل الرقم الجديد على هذا الجهاز من الآن.' : 'يعمل الرقم الجديد على هاتفك من الآن.'}</p>
+      ${kidDev ? '' : p.kind === 'create' ? callout('ستدخل هذا الرقم نفسه على جهاز كل طفل عند إقرانه، فيُحفظ هناك أيضاً.', 'nt', 'info') : callout('<b>أجهزة أطفالك ما زالت على الرقم القديم.</b> الرقم لا يغادر الجهاز حفاظاً على أمانه، فغيّره على كل جهاز طفل من: ملفي ← إعدادات هذا الجهاز ← تغيير الرقم السري.', 'wa', 'devices')}
+      <div class="gap"></div>${btn('تم', 'psClose')}</div>`;
+    return `<header class="bar"><button class="ib" data-a="psClose" aria-label="إغلاق">${ic('close')}</button><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center">
+    <div class="bigic">${ic('pin')}</div><p class="ttl">${p.step === 'new' ? (p.kind === 'create' ? 'أنشئ رقمك السري' : 'الرقم الجديد') : 'أعد كتابة الرقم'}</p>
+    <p class="sub">${p.step === 'new' ? '6 أرقام تعرفها أنت وحدك. يحمي إعدادات أجهزة أطفالك.' : 'للتأكد أنك كتبته كما تريد.'}</p>
+    <div class="dots ${p.err ? 'bad' : ''}" aria-label="${psBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < psBuf.length ? 'f' : ''}"></i>`).join('')}</div>
+    ${p.err ? `<p class="c sm" role="alert" style="color:var(--danger);margin:-10px 0 12px">${p.err}</p>` : ''}
+    <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="psK:${n}">${n}</button>`).join('')}<button class="gh" data-a="pinNo" aria-hidden="true"></button><button data-a="psK:0">0</button><button class="gh" data-a="psK:b" aria-label="حذف">${ic('backspace')}</button></div>
+    ${p.step === 'confirm' ? `<p class="c sm" style="margin-top:14px">${btn('ابدأ من جديد', 'psBack', 'txt')}</p>` : p.kind === 'change' && !kidDev ? `<p class="c xs muted" style="margin-top:14px">نسيت رقمك مستقبلاً؟ يُستعاد عبر جهة الاسترداد الموثوقة فقط.</p>` : ''}</div>`;
+  },
+});
+Object.assign(ACT, {
+  psClose() { S.full = null; S.ps = null; psBuf = ''; },
+  psBack() { psBuf = ''; S.ps.step = 'new'; S.ps.a = ''; S.ps.err = ''; },
+  psK(k) {
+    const p = S.ps; p.err = '';
+    if (k === 'b') { psBuf = psBuf.slice(0, -1); return; }
+    psBuf += k; if (psBuf.length < 6) return;
+    if (p.step === 'new') {
+      const w = weakPin(psBuf); if (w) { p.err = w; psBuf = ''; return; }
+      if (p.kind === 'change' && psBuf === S.pin.code) { p.err = 'هذا رقمك الحالي · اختر رقماً مختلفاً'; psBuf = ''; return; }
+      p.a = psBuf; psBuf = ''; p.step = 'confirm'; return;
+    }
+    if (psBuf !== p.a) { p.err = 'الرقمان غير متطابقين · أعد المحاولة'; psBuf = ''; return; }
+    S.pin.code = p.a; S.pin.set = true; S.pin.bad = 0; psBuf = ''; p.a = ''; p.step = 'done';
+    S.audit.unshift({ t: `${p.kind === 'create' ? 'أُنشئ' : 'غُيّر'} رقم بوابة الوالدين · ${gateDev()}`, w: 'أحمد', at: 'الآن', k: 'shell.parent_gate.manage' });
+    if (S.checklist) S.checklist.pin = 1;
   },
 });
 
@@ -243,7 +313,7 @@ surface('sos-status', {
     ${s.st === 'resolved' ? callout('حُلّ التنبيه وسُجّل في التدقيق.', 'ok', 'check_circle') : `<div class="btns">${btn('اتصل', 'sosCall', 'sec', 'call')}${btn('أنا في الطريق', can('location.sos.acknowledge') ? 'sosAck' : 'denied:location.sos.acknowledge', 'ton')}</div><div class="gap"></div>${btn('حُلّ الأمر — أغلق التنبيه', can('location.sos.resolve') ? 'sosResolve' : 'denied:location.sos.resolve', can('location.sos.resolve') ? 'ok' : 'sec', can('location.sos.resolve') ? 'check' : 'lock')}`}`; },
 });
 Object.assign(ACT, {
-  sosStart() { S.sheet = null; S.sosN = 10; S.full = { id: 'sos-count', a: [] }; clearInterval(sosTimer); sosTimer = setInterval(() => { S.sosN -= 1; if (S.sosN <= 0) { ACT.sosSend(); render(); } else if (S.full && S.full.id === 'sos-count') renderOv(); }, 1000); },
+  sosStart() { S.sheet = null; S.dlg = null; S.sosN = 10; S.full = { id: 'sos-count', a: [] }; clearInterval(sosTimer); sosTimer = setInterval(() => { S.sosN -= 1; if (S.sosN <= 0) { ACT.sosSend(); render(); } else if (S.full && S.full.id === 'sos-count') renderOv(); }, 1000); },
   sosCancel() { clearInterval(sosTimer); S.full = null; toast('أُلغيت الاستغاثة · لم يُرسل شيء'); },
   sosSend() { clearInterval(sosTimer); const off = offline(), id = PERSONA[S.persona].m; S.sos = { from: id, st: 'sent', via: off ? 'عبر SMS (دون اتصال)' : 'عبر الإنترنت', place: S.kid[id] ? S.kid[id].place : 'البيت' }; if (off) S.sms.used += 2 + (S.ec || []).length; S.full = { id: 'sos-sent', a: [] }; },
   sosSelfEnd() { S.sos.st = 'resolved'; },
@@ -256,12 +326,17 @@ Object.assign(ACT, {
 surface('sys-update', {
   kind: 'full', cls: 'dark', t: 'تحديث إجباري', sys: 'S1-01', p: 'any', req: '01:20 01:7',
   note: 'للإصدارات الأمنية الحرجة فقط. لا إغلاق لهذه الشاشة، لكن الاستغاثة تبقى متاحة.',
-  r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('system_update_alt')}</div><p class="ttl">تحديث مطلوب للأمان</p><p class="sub">هذا الإصدار لم يعد مدعوماً. حدّث التطبيق لتواصل استخدامه بأمان. بياناتك وما في الصندوق الصادر محفوظة.</p>${btn('حدّث من المتجر', 'updGo', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'download')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
+  r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('system_update_alt')}</div><p class="ttl">تحديث مطلوب للأمان</p><p class="sub">هذا الإصدار لم يعد مدعوماً. حدّث التطبيق لتواصل استخدامه بأمان. بياناتك وما لم يُرسل بعد محفوظة.</p>${btn('حدّث من المتجر', 'updGo', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'download')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
 });
 surface('sys-maint', {
   kind: 'full', cls: 'dark', t: 'صيانة', sys: 'S1-01', p: 'any', req: '01:7,9', st: 'pr',
   note: 'مقترح: حالة «صيانة» مذكورة في نظام التصميم (states) كحالة نظام. القواعد تبقى مفروضة محلياً والاستغاثة عبر SMS تعمل.',
   r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('construction')}</div><p class="ttl">نُجري صيانة قصيرة</p><p class="sub">نعود خلال دقائق. قواعد الأطفال ما زالت تعمل على أجهزتهم، وما تفعله الآن يُحفظ ويُرسل لاحقاً.</p>${btn('حاول مجدداً', 'maintTry', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'refresh')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
+});
+surface('sys-first', {
+  kind: 'full', cls: 'dark', t: 'أول فتح دون اتصال', sys: 'S1-01', p: 'any', req: '01:8',
+  note: 'أول فتح للتطبيق دون اتصال وبلا بيانات محفوظة (GAP-S1-01-01): شاشة صادقة مع إعادة المحاولة. لا زر استغاثة هنا لأن الاستغاثة تحتاج عضوية في عائلة.',
+  r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('cloud_off')}</div><p class="ttl">نحتاج اتصالاً لأول مرة</p><p class="sub">افتح الإنترنت مرة واحدة ليجهز التطبيق. بعدها يعمل معك حتى دون اتصال.</p>${btn('حاول مجدداً', 'maintTry', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'refresh')}</div>`; },
 });
 Object.assign(ACT, {
   updGo() { S.sys = 'ok'; S.full = null; toast('في التطبيق الفعلي يفتح المتجر', null, 'info'); },

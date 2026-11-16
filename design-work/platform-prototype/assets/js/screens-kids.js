@@ -17,7 +17,7 @@ surface('chat', {
   act: () => `<button class="ib" data-a="go:chat-new" aria-label="محادثة جديدة">${ic('edit')}</button>`,
   r() { const u = me().id, ad = isAdult(), mine = Object.keys(CH).filter(id => CH[id].mem.includes(u) && (id !== 'parents' || ad));
     const R = id => { const c = CH[id], dm = !c.n, o = dm ? M[c.mem.find(x => x !== u)] : null; return row(dm ? '' : c.i, chName(id, u), (S.privacy && ad ? '•••' : lastMsg(id)), { lead: dm ? av(o) : `<span class="av" style="--c:${id === 'parents' ? '#142749' : '#1F6B3B'}">${ic(c.i)}</span>`, a: `openCh:${id}`, v: id === 'parents' ? ic('lock') : id === 'majlis' ? '<span class="chip ac">3</span>' : '' }); };
-    return `${offline() ? callout('رسائلك تُحفظ في الصندوق الصادر وتُرسل بالترتيب عند عودة الاتصال.', 'nt', 'cloud_upload') : ''}${list(mine.map(R))}
+    return `${offline() ? callout('رسائلك محفوظة وتُرسل بالترتيب عند عودة الاتصال.', 'nt', 'cloud_upload') : ''}${list(mine.map(R))}
     ${ad ? (can('chat.minor.view') ? sec('محادثات القاصرين') + list(row('visibility', 'خالد ↔ ليان', lastMsg('dm-khaled-layan'), { a: 'openCh:dm-khaled-layan', v: S.alerts.some(a => a.k === 'chat' && a.open) ? chip('للمراجعة', 'wa', 'chat_error') : '' })) + `<p class="xs muted" style="margin:0 4px">تراها بصفتك ولي الأمر. الأطفال يعلمون أن محادثاتهم مرئية للأب.</p>` : sec('محادثات القاصرين') + `<div class="card flat fx dis">${ic('visibility_off')}<span class="grow sm">رؤية محادثات القاصرين</span>${avail('not_delegated')}</div>`) : callout(mode() === 'teen' ? 'محادثاتك داخل العائلة مرئية لوالدك. هذا متفق عليه عند إعداد جهازك.' : 'بابا يستطيع رؤية محادثاتك ليبقيك بأمان.', 'nt', 'visibility')}`; },
 });
 surface('chat-new', {
@@ -107,10 +107,16 @@ surface('c-me', {
   r() { const m = me(); return `<div class="c" style="padding:6px 0 12px">${av(m, 'xl')}<div class="b" style="font-size:calc(22px*var(--ts));margin-top:8px">${m.n}</div></div>${list(row('handshake', 'ما اتفقنا عليه أنا وبابا', 'ماذا يرى بابا وماذا لا يرى', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض وقتك المتبقي', { a: 'go:persist' }), row('palette', 'لوني وصورتي', '', { a: 'askDad' }), row('front_hand', 'شيء ما أزعجني', 'أخبر بابا الآن', { a: 'reportGo', ic: 'var(--accent)' }))}${sec('للأهل')}${list(row('lock', 'إعدادات هذا الجهاز', 'تحتاج الرقم السري لبابا', { a: 'kidGate' }))}`; },
 });
 surface('kid-admin', {
-  t: 'للأهل — هذا الجهاز', sys: 'S1-01', p: 'kid', req: '01:6,18,23 02:15 10:23',
-  note: 'العمليات الحساسة المغلقة: الخروج من وضع الطفل، فك إقران الجهاز، إلغاء تثبيت الوكيل. كل منها يتطلب PIN الأب وتحدياً خادمياً موقَّعاً بمفتاح الجهاز.',
-  r() { return callout('فُتحت بالرقم السري. تُغلق تلقائياً عند مغادرة الصفحة.', 'ok', 'lock_open') + list(row('logout', 'اخرج من وضع الطفل مؤقتاً', 'يتطلب تحدياً خادمياً · يحتاج اتصالاً', { a: 'kidExit' }), row('link_off', 'فكّ إقران هذا الجهاز', 'ليُقرن بعائلة أخرى لاحقاً', { a: 'kidUnpair', ic: 'var(--danger)' }), row('delete_forever', 'إلغاء تثبيت التطبيق', 'محمي بالرقم السري', { a: 'kidUnpair', ic: 'var(--danger)' })) + callout('لا يمكن تبديل الملف أو الوضع على هذا الجهاز في المرحلة 1: جهاز واحد = فرد واحد.', 'nt', 'info'); },
+  t: 'للأهل — هذا الجهاز', sys: 'S1-01', p: 'kid', req: '01:5,6,18,23 02:15 10:18,23',
+  note: 'خلف بوابة الوالدين. «أوقف القواعد مؤقتاً» هو معنى «الخروج من وضع الطفل»: وضع حر بمدة محددة ينتهي وحده، لأن وضع الجهاز ثابت في المرحلة 1 (S1-01 REQ-018 · S1-10 Q-143). فك الإقران وإلغاء التثبيت يحتاجان اتصالاً لأن الخادم يتحقق منهما.',
+  r() { const off = offline(), need = off ? ' · يحتاج اتصالاً' : ''; return callout('فُتحت بالرقم السري. تُغلق تلقائياً عند مغادرة الصفحة.', 'ok', 'lock_open') + list(row('lock_open', S.freeMode ? 'أعد القواعد الآن' : 'أوقف القواعد مؤقتاً', S.freeMode ? `وضع حر · بقي ${S.freeMode} د` : 'وضع حر لمدة تختارها، ثم تعود القواعد وحدها' + need, { a: 'kidExit' }), row('pin', 'تغيير الرقم السري', 'على هذا الجهاز فقط', { a: 'kidPin' })) + sec('إزالة') + list(row('link_off', 'فكّ إقران هذا الجهاز', 'ليُقرن بعائلة أخرى' + need, { a: 'kidUnpair', ic: 'var(--danger)' }), row('delete_forever', 'إلغاء تثبيت التطبيق', 'يتوقف كل شيء على هذا الجهاز' + need, { a: 'kidUnpair', ic: 'var(--danger)' })); },
 });
+surface('kid-free', {
+  kind: 'sheet', t: 'إيقاف القواعد مؤقتاً', sys: 'S1-10', p: 'kid', req: '10:18,19,20 01:6',
+  note: 'الوضع الحر من جهاز الطفل نفسه بعد رقم الأب السري: مدة محددة تنتهي وحدها. يُسجَّل في التدقيق، ولافتته تظهر على جهاز الطفل وفي لوحة الأهل.',
+  r() { const n = S.fmN || 60; return `<h4>أوقف القواعد مؤقتاً</h4><p class="d">تتوقف كل حدود الوقت والحظر على هذا الجهاز للمدة التي تختارها، ثم تعود وحدها. زر الاستغاثة يبقى يعمل.</p><div class="card flat"><div class="stepper"><button data-a="fmAdj:-15" aria-label="أقل">${ic('remove')}</button><b>${n}<small>دقيقة</small></b><button data-a="fmAdj:15" aria-label="أكثر">${ic('add')}</button></div></div>${btn('أوقف القواعد', 'kidFreeGo', '', 'lock_open')}`; },
+});
+
 surface('block', {
   kind: 'full', cls: 'dark', t: 'شاشة الحظر', sys: 'S1-10', p: 'kid', a: ['ytk'], req: '10:3,5,7,12,14 05:8,12 01:7',
   note: 'تظهر فوراً عند نفاد الحد. نبرة بلا لوم، وثلاثة مخارج واضحة: اطلب وقتاً، استخدم نقاطك، أو افتح شيئاً آخر. SOS يعمل دائماً حتى في نافذة النوم. تعمل دون اتصال من آخر إعداد مزامَن.',
@@ -138,8 +144,10 @@ Object.assign(ACT, {
   reportGo() { toast('وصلت رسالتك إلى بابا. أنت بأمان.', null, 'front_hand'); },
   askDad() { toast(mode() === 'teen' ? 'يعدّلها والدك من جهازه' : 'اطلب من بابا', null, 'front_hand'); },
   kidGate() { gate('إعدادات الجهاز للأهل', () => go('kid-admin')); },
-  kidExit() { if (offline()) return toast('يحتاج الخروج من وضع الطفل اتصالاً بالخادم', null, 'cloud_off'); toast('في التطبيق الفعلي يُعلَّق وضع الطفل مؤقتاً', null, 'info'); },
-  kidUnpair() { gate('فكّ الإقران فعل حساس', () => confirmDlg('فكّ إقران هذا الجهاز؟', 'تتوقف القواعد عن العمل هنا، ويبقى ملف الطفل وقواعده محفوظة لتتبعه إلى جهازه القادم.', 'فكّ الإقران', () => { setPersona('guest'); render(); }, true), 'stepup'); },
+  kidExit() { if (S.freeMode) { S.freeMode = 0; S.audit.unshift({ t: `أُنهي الوضع الحر من ${gateDev()}`, w: 'أحمد', at: 'الآن', k: 'protection.free_mode.activate' }); return toast('عادت القواعد'); } if (offline()) return toast('إيقاف القواعد يحتاج اتصالاً · الخادم يتحقق منه', null, 'cloud_off'); S.sheet = { id: 'kid-free', a: [] }; },
+  kidFreeGo() { S.sheet = null; S.freeMode = S.fmN || 60; S.preset = ''; S.audit.unshift({ t: `فُعّل الوضع الحر ${S.freeMode} د من ${gateDev()}`, w: 'أحمد', at: 'الآن', k: 'protection.free_mode.activate' }); toast(`القواعد متوقفة ${S.freeMode} دقيقة`, null, 'lock_open'); },
+  kidPin() { pinSetOpen('change'); },
+  kidUnpair() { if (offline()) return toast('يحتاج اتصالاً · الخادم يتحقق من هذه العملية', null, 'cloud_off'); gate('فكّ الإقران فعل حساس', () => confirmDlg('فكّ إقران هذا الجهاز؟', 'تتوقف القواعد عن العمل هنا، ويبقى ملف الطفل وقواعده محفوظة لتتبعه إلى جهازه القادم.', 'فكّ الإقران', () => { setPersona('guest'); render(); }, true), 'stepup'); },
 });
 
 /* ============ القالب المبسّط (دون 7) ============ */
@@ -194,8 +202,9 @@ Object.assign(ACT, {
   teenTask() { S.tasks.unshift({ id: 't' + Date.now(), kid: 'khaled', t: 'مهمة شخصية جديدة', cat: 'self', pts: 0, due: 'غداً', proof: 'self', st: 'PENDING' }); toast('أُضيفت مهمة شخصية'); },
 });
 surface('learn', {
-  t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9', st: 'un',
-  note: 'UNKNOWN: أنظمة التعليم والمحتوى خارج المرحلة 1 وأسماء الأنظمة 11–60 غير محسومة. التبويب موجود في التنقل المعتمد؛ يعرض الآن تطبيقات الدراسة المسموحة فقط، وما بعده «قريباً» بصدق.',
-  r() { const id = kidId(), ap = S.apps[id].filter(a => a.study);
-    return `${sec('تطبيقات الدراسة')}${list(ap.map(a => row(a.i, a.n, 'مفتوح حتى في وقت المدرسة', { a: 'openApp:' + a.id, v: chip('متاح', 'ok', 'check') })))}${sec('قريباً')}<div class="g2">${[['menu_book', 'دروس'], ['quiz', 'اختبارات'], ['mosque', 'قرآن وصلاة'], ['extension', 'ألعاب ذكاء']].map(([i, t]) => `<div class="card c dis">${ic(i, '" style="margin:0 auto 6px;width:32px;height:32px')}<b>${t}</b><div style="margin-top:6px">${avail('coming_soon')}</div></div>`).join('')}</div><p class="xs muted c" style="margin-top:12px">أمثلة توضيحية لما سيُضاف لاحقاً.</p>`; },
+  t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9', st: 'pr',
+  note: 'مقترح: التبويب في التنقل المعتمد ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002).',
+  r() { const id = kidId(), A = S.apps[id].filter(a => a.act !== 'BLOCK'), st = A.filter(a => a.study), pl = A.filter(a => !a.study), teen = mode() === 'teen';
+    return `${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + list(st.map(a => row(a.i, a.n, 'مفتوح حتى في وقت المدرسة', { a: 'openApp:' + a.id, v: chip('متاح', 'ok', 'check') }))) : ''}${pl.length && !teen ? sec('ألعب') + list(pl.map(a => row(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', { a: 'openApp:' + a.id, v: a.act === 'LIMIT' && a.used >= a.lim ? chip('انتهى وقته', 'ol') : '' }))) : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
 });
+

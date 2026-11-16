@@ -87,7 +87,7 @@ Object.assign(ACT, {
   obJoin() { const v = ($('#obJ') || {}).value.trim().toUpperCase(); if (v !== 'MNSR-7K2P') { S.ob.jerr = 1; return; } S.tpl = 'none'; setPersona('delegate'); toast('انضممتِ إلى عائلة المنصور كبالغ بلا صلاحيات بعد', null, 'how_to_reg'); },
   obPair() { const v = ($('#obC') || {}).value.trim().toUpperCase(); if (v !== 'LY4N82') { S.ob.perr = 1; return; } S.ob.perr = 0; S.ob.cons = {}; go('ob-consent'); },
   consT(k) { S.ob.cons = S.ob.cons || {}; S.ob.cons[k] = !S.ob.cons[k]; },
-  consGo() { gate('تأكيد الموافقة المشتركة', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
+  consGo() { gate('اكتب رقمك ليُحفظ على هذا الجهاز', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
 });
 /* في مسار الانضمام: بعد TOTP ننتقل إلى رمز الدعوة لا إلى إنشاء عائلة */
 const _totpR = SC['ob-totp'].r; SC['ob-totp'].r = () => _totpR().replace('data-a="go:ob-family"', `data-a="${S.ob.flow === 'join' ? 'go:ob-join' : 'go:ob-family'}"`);
@@ -123,10 +123,10 @@ Object.assign(ACT, {
   cnGo() { const n = ($('#cnN') || {}).value.trim(); if (!n) { toast('اكتب اسماً مستعاراً للطفل', null, 'error'); return; } toast(`أُنشئ ملف ${n}`); S.stack.pop(); go('pair-code', 'new'); },
 });
 surface('pair-code', {
-  t: 'إقران الجهاز', sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:14,15 01:2,23',
-  note: 'رمز جهاز من 6 خانات صالح 15 دقيقة. بعد الإقران يُثبَّت الوضع ويُزرع على الجهاز آخر إعداد للقواعد.',
-  r() { return `<p class="sub" style="text-align:start">على جهاز الطفل: نزّل «عائلتي» ← «هذا جهاز طفل» ← أدخل هذا الرمز.</p><div class="code">LY4N82</div><div class="chips" style="justify-content:center;margin-bottom:14px">${chip('ينتهي بعد 14:32', 'wa', 'timer')}${chip('لجهاز واحد', 'ol', 'mobile')}</div>
-    <div class="card"><div class="tl"><div class="ev ok"><b>أُنشئ الرمز</b><span>الآن</span></div><div class="ev"><b>بانتظار إدخاله على جهاز الطفل</b><span>أبقِ هذه الشاشة مفتوحة</span></div><div class="ev"><b>الموافقة المشتركة</b><span>تقرآنها معاً ثم تؤكد برقمك السري</span></div></div></div>${btn('جرّب من جهة الطفل', 'jumpPair', 'ton', 'mobile')}`; },
+  t: 'إقران الجهاز', sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:14,15 01:2,5,23',
+  note: 'رمز جهاز من 6 خانات صالح 15 دقيقة. بعد الإقران يُثبَّت الوضع ويُزرع على الجهاز آخر إعداد للقواعد. لا يُعرض الرمز قبل أن ينشئ الأب رقمه السري، لأنه يكتبه على جهاز الطفل في خطوة الموافقة فيُحفظ هناك محلياً.',
+  r() { if (!S.pin.set) return empty('pin', 'أنشئ رقمك السري أولاً', 'ستدخله على جهاز الطفل عند الإقران، وهو الذي يحمي إعدادات ذلك الجهاز بعدها.', btn('أنشئ الرقم السري', 'pinChange', '', 'pin')); return `<p class="sub" style="text-align:start">على جهاز الطفل: نزّل «عائلتي» ← «هذا جهاز طفل» ← أدخل هذا الرمز.</p><div class="code">LY4N82</div><div class="chips" style="justify-content:center;margin-bottom:14px">${chip('ينتهي بعد 14:32', 'wa', 'timer')}${chip('لجهاز واحد', 'ol', 'mobile')}</div>
+    <div class="card"><div class="tl"><div class="ev ok"><b>أُنشئ الرمز</b><span>الآن</span></div><div class="ev"><b>بانتظار إدخاله على جهاز الطفل</b><span>أبقِ هذه الشاشة مفتوحة</span></div><div class="ev"><b>الموافقة المشتركة</b><span>تقرآنها معاً ثم تكتب رقمك السري على جهازه فيُحفظ هناك</span></div></div></div>${btn('جرّب من جهة الطفل', 'jumpPair', 'ton', 'mobile')}`; },
 });
 ACT.jumpPair = () => { setPersona('guest'); S.ob = {}; S.stack = [{ id: 'ob-welcome', a: [] }, { id: 'ob-pair', a: [] }]; };
 surface('device', {

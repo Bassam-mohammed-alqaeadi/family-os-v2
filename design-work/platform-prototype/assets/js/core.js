@@ -34,9 +34,11 @@ const PERSONA = {
   child: { m: 'layan', n: 'ليان — طفلة', d: '7–12 · القالب القياسي', mode: 'child' },
   mini: { m: 'yusuf', n: 'يوسف — طفل صغير', d: 'دون 7 · القالب المبسّط', mode: 'mini' },
 };
+/* الرقم التجريبي لبوابة الوالدين. ليس 123456 لأنه نمط شائع ممنوع (S1-01 REQ-005). */
+const DEMO_PIN = '482615';
 const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
-  tpl: 'partner', privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
+  tpl: 'partner', privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   kid: {
     khaled: { quota: 180, used: 75, pts: 0, streak: 0, bat: 64, place: 'المدرسة', ago: 4, moving: false, online: true, enf: 'degraded', x: 68, y: 30, extra: 0, spent: 0 },
@@ -107,7 +109,7 @@ const fresh = () => ({
       { f: 'layan', x: 'آسفة، كنت أبحث عن قلمي', at: '1:04', st: 2 },
     ],
   },
-  deleted: {}, pin: { bad: 0, lock: 0 }, rank: ['sleep', 'school', 'app', 'quota'], web: { safe: true, unknown: 'ALLOW', cats: { adult: 'BLOCK', gamble: 'BLOCK', social: 'ALERT', games: 'ALLOW', video: 'ALERT', news: 'ALLOW' } },
+  deleted: {}, pin: { bad: 0, lock: 0, code: DEMO_PIN, set: true }, sos2: false, num: 'latn', saver: 'auto', notifPerm: true, lastSync: null, rank: ['sleep', 'school', 'app', 'quota'], web: { safe: true, unknown: 'ALLOW', cats: { adult: 'BLOCK', gamble: 'BLOCK', social: 'ALERT', games: 'ALLOW', video: 'ALERT', news: 'ALLOW' } },
   redeemCap: 60, events: [{ d: 19, t: 'موعد طبيب يوسف', at: '4:00 م', rem: 60 }, { d: 21, t: 'اجتماع أولياء الأمور', at: '10:00 ص', rem: 1440 }], ob: {},
 });
 let S = fresh();
@@ -184,7 +186,11 @@ const TABS = {
   child: [['c-home', 'home', 'الرئيسية', 'Home'], ['chat', 'forum', 'المحادثات', 'Chats'], ['learn', 'sports_esports', 'العب وتعلّم', 'Play'], ['c-rewards', 'stars', 'مكافآتي', 'Rewards']],
   mini: [['m-home', 'home', 'بيت', 'Home']],
 };
-const rootOf = p => (p === 'guest' ? 'ob-welcome' : TABS[PERSONA[p].mode][0][0]);
+/* تبويبات البالغ المفوَّض تُشتق من منحه (S1-01 REQ-004): «الرئيسية» بمفتاح hub.dashboard.view، و«التحكم» بمفتاح hub.settings.view.
+   «العائلة» و«المحادثات» و«المزيد» لكل بالغ عضو، وما بداخلها يُقفل مفتاحاً مفتاحاً. */
+const TAB_KEY = { home: 'hub.dashboard.view', control: 'hub.settings.view' };
+const tabsFor = () => (S.persona === 'delegate' ? TABS.parent.filter(t => !TAB_KEY[t[0]] || can(TAB_KEY[t[0]])) : TABS[mode()]);
+const rootOf = p => (p === 'guest' ? 'ob-welcome' : (p === S.persona ? tabsFor() : TABS[PERSONA[p].mode])[0][0]);
 const topE = () => S.stack[S.stack.length - 1];
 let anim = '';
 function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d = SC[id]; if (d.kind === 'sheet') { S.sheet = { id, a }; return; } if (d.kind === 'full') { S.full = { id, a }; return; } S.sheet = null; S.stack.push({ id, a }); anim = 'in'; }
@@ -212,32 +218,45 @@ function confetti() {
 const audit = (t, k, deny) => S.audit.unshift({ t, w: me().n, at: 'الآن', k, deny });
 /* الصندوق الصادر: الأفعال دون اتصال تُحفظ ثم تُرسل بالترتيب عند عودة الاتصال (S1-01 REQ-009). */
 function queue(label, sys) { if (offline()) { S.outbox.push({ t: label, sys, at: 'الآن' }); return true; } return false; }
-function flushOutbox() { const n = S.outbox.length; if (n) { S.outbox = []; toast(`أُرسلت ${n} ${n === 1 ? 'عملية معلّقة' : n === 2 ? 'عمليتان معلّقتان' : 'عمليات معلّقة'} بالترتيب`, null, 'cloud_done'); } }
+function flushOutbox() { const n = S.outbox.length; if (n) { S.outbox = []; S.lastSync = { n, at: 'الآن' }; toast(`أُرسلت ${n} ${n === 1 ? 'عملية معلّقة' : n === 2 ? 'عمليتان معلّقتان' : 'عمليات معلّقة'} بالترتيب`, null, 'cloud_done'); } }
 
-/* ---------- بوابة الوالدين / الرفع الأمني (PIN تجريبي: 123456) ---------- */
+/* ---------- بوابة الوالدين / الرفع الأمني (الرقم التجريبي في DEMO_PIN) ---------- */
 let pinCb = null, pinBuf = '';
-function gate(reason, cb, kind = 'gate') { pinCb = cb; pinBuf = ''; S.full = { id: 'pin', a: [reason, kind] }; }
+const gateDev = () => 'جهاز ' + me().n;
+function gateLog(t) { S.audit.unshift({ t: `${t} · ${gateDev()}`, w: 'النظام', at: 'الآن', k: 'shell.parent_gate', deny: 1 }); }
+function gate(reason, cb, kind = 'gate') { pinCb = cb; pinBuf = ''; if (S.pin.lock > 0) gateLog('محاولة فتح بوابة الوالدين أثناء القفل'); S.full = { id: 'pin', a: [reason, kind] }; }
 
 /* ---------- العرض ---------- */
 function banners() {
   let h = '';
-  if (offline()) h += `<div class="sys off" role="status">${ic('cloud_off')}<span>${L('غير متصل', 'Offline')}${S.outbox.length ? ` · ${S.outbox.length} بانتظار الإرسال` : ' · تعمل بآخر بيانات محفوظة'}</span>${S.outbox.length ? '<button data-a="go:outbox">عرض</button>' : ''}</div>`;
-  if (S.lbw && !offline()) h += `<div class="sys lbw" role="status">${ic('data_saver_on')}<span>وضع النطاق المنخفض · الصور والخرائط عند الطلب</span></div>`;
-  if (S.freeMode && isAdult()) h += `<div class="sys free" role="status">${ic('lock_open')}<span>وضع حر — ينتهي خلال ${S.freeMode} د</span>${isOwner() ? '<button data-a="freeOff">إنهاء</button>' : ''}</div>`;
+  const kid = !isAdult() && S.persona !== 'guest';
+  if (offline()) h += kid
+    ? `<div class="sys off" role="status">${ic('cloud_off')}<span>غير متصل${S.outbox.length ? ' · ما فعلته يُرسل عند عودة الاتصال' : ' · كل شيء محفوظ'}</span></div>`
+    : `<div class="sys off" role="status">${ic('cloud_off')}<span>${L('غير متصل', 'Offline')}${S.outbox.length ? ` · ${S.outbox.length} بانتظار الإرسال` : ' · تعمل بآخر بيانات محفوظة'}</span>${S.outbox.length ? '<button data-a="go:outbox">عرض</button>' : ''}</div>`;
+  if (S.lbw && !offline()) h += `<div class="sys lbw" role="status">${ic('data_saver_on')}<span>توفير البيانات · الصور والخرائط عند الطلب</span></div>`;
+  if (S.freeMode && S.persona !== 'guest') h += `<div class="sys free" role="status">${ic('lock_open')}<span>وضع حر — ينتهي خلال ${S.freeMode} د</span>${isOwner() ? '<button data-a="freeOff">إنهاء</button>' : ''}</div>`;
+  /* الإصدار دون الحد الأدنى: حثّ غير حاجب (Q-069)، للبالغين فقط */
+  if (S.sys === 'soft' && isAdult()) h += `<div class="sys upd" role="status">${ic('system_update_alt')}<span>حدّث التطبيق · هذا الإصدار قديم</span><button data-a="updGo">حدّث</button></div>`;
+  /* غياب إذن الإشعارات: بانر صادق مع طريق الإصلاح */
+  if (!S.notifPerm && S.persona !== 'guest') h += isAdult()
+    ? `<div class="sys perm" role="status">${ic('notifications_off')}<span>الإشعارات متوقفة · لن تصلك تنبيهات أطفالك</span><button data-a="notifFix">فعّلها</button></div>`
+    : `<div class="sys perm" role="status">${ic('notifications_off')}<span>الإشعارات متوقفة على هذا الجهاز · أخبر بابا</span></div>`;
   return h;
 }
-function sosBtn() { return `<button class="sos" data-hold="sos" aria-label="استغاثة — اضغط مطولاً 3 ثوانٍ"><i></i>${ic('emergency_home-fill')}<span>SOS</span></button>`; }
+function sosBtn() { return `<button class="sos" data-hold="sos" aria-label="${S.sos2 ? 'استغاثة — اضغط ثم أكّد' : 'استغاثة — اضغط مطولاً 3 ثوانٍ'}"><i></i>${ic('emergency_home-fill')}<span>SOS</span></button>`; }
 function appbar(d, t) {
   const root = S.stack.length === 1;
   const title = typeof d.t === 'function' ? d.t(...t.a) : d.t;
   return `<header class="bar">${root ? '' : `<button class="ib" data-a="back" aria-label="رجوع">${ic('arrow_back')}</button>`}<h2>${title}</h2>${d.act ? d.act(...t.a) : ''}${S.persona === 'guest' ? '' : sosBtn()}</header>`;
 }
 function navbar() {
-  const tabs = TABS[mode()], cur = S.stack[0].id;
+  const tabs = tabsFor(), cur = S.stack[0].id;
   const att = isAdult() ? attention().length : 0;
   return `<nav class="nav" aria-label="التنقل الرئيسي">${tabs.map(([id, i, ar, en]) => `<button data-a="tab:${id}" aria-current="${cur === id ? 'page' : 'false'}"><span class="pl">${ic(cur === id ? i + '-fill' : i)}${id === 'home' && att ? `<span class="dot">${att}</span>` : ''}</span>${L(ar, en)}</button>`).join('')}</nav>`;
 }
 function render() {
+  /* صلاحية سُحبت والمستخدم داخل تبويبها: يعود لأقرب تبويب مسموح مع رسالة */
+  if (S.persona === 'delegate' && TAB_KEY[S.stack[0].id] && !can(TAB_KEY[S.stack[0].id])) { S.stack = [{ id: tabsFor()[0][0], a: [] }]; S.sheet = null; toast('لم يعد هذا القسم ضمن صلاحياتك', null, 'lock'); }
   const ph = $('#phone'), t = topE(), d = SC[t.id];
   ph.dataset.theme = S.theme; ph.dataset.mode = mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
@@ -260,7 +279,27 @@ function renderOv() {
   if (S.full) { const d = SC[S.full.id]; h += `<div class="full ${d.cls || ''}" role="dialog" aria-modal="true">${d.r(...S.full.a)}</div>`; }
   if (S.dlg) h += `<div class="scrim mid" style="z-index:50"><div class="dlg" role="alertdialog" aria-modal="true"><h4>${S.dlg.t}</h4><p>${S.dlg.b}</p><div class="btns">${btn(S.dlg.no || 'إلغاء', 'dlgNo', 'sec')}${btn(S.dlg.yes, 'dlgYes', S.dlg.danger ? 'dng' : '')}</div></div></div>`;
   $('#ov').innerHTML = h;
+  /* زر الاستغاثة يعلو الأوراق ونوافذ التأكيد (S1-01 REQ-007 · DS-SP-07) */
+  sosLift();
 }
+/* طبقة الاستغاثة العليا: إن غطّت الزرَّ ورقةٌ أو نافذة تأكيد، أو خرج من الشاشة بالتمرير، تظهر نسخته في طبقة فوق كل شيء وفي موضعه نفسه.
+   لا تظهر قبل العضوية، ولا داخل مسار الاستغاثة نفسه، ولا فوق نافذة تأكيد الاستغاثة. */
+function sosLift() {
+  const ph = $('#phone'), L = $('#sosL'); if (!L) return;
+  const off = S.persona === 'guest' || (S.full && /^(sos-|sys-first)/.test(S.full.id)) || (S.dlg && S.dlg.sos);
+  if (off) { L.innerHTML = ''; ph.dataset.sosup = ''; return; }
+  const pr = ph.getBoundingClientRect(), k = pr.width / ph.offsetWidth || 1;
+  const all = [...ph.querySelectorAll('.sos')].filter(e => !L.contains(e)).map(e => [e, e.getBoundingClientRect()]).filter(([, r]) => r.width > 0);
+  const vis = all.filter(([, r]) => r.top >= pr.top && r.bottom <= pr.bottom);
+  const free = vis.some(([e, r]) => { const t = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).find(x => !L.contains(x)); return t && (t === e || e.contains(t)); });
+  if (free) { L.innerHTML = ''; ph.dataset.sosup = ''; return; }
+  if (!L.firstChild) L.innerHTML = sosBtn();
+  const at = vis.length ? vis[vis.length - 1][1] : null, sb = $('#sbar').getBoundingClientRect();
+  L.style.top = ((at ? at.top - pr.top : sb.bottom - pr.top + 8 * k) / k) + 'px';
+  L.style.left = at ? ((at.left - pr.left) / k) + 'px' : (ph.dir === 'ltr' ? 'auto' : '12px'); L.style.right = at ? 'auto' : (ph.dir === 'ltr' ? '12px' : 'auto');
+  L.classList.toggle('float', !at); ph.dataset.sosup = '1';
+}
+addEventListener('scroll', e => { if (e.target && e.target.id === 'scr') sosLift(); }, true);
 let dlgCb;
 function confirmDlg(t, b, yes, cb, danger) { S.dlg = { t, b, yes, danger }; dlgCb = cb; }
 /* السطح الظاهر حالياً (للوحة السياق في الاستوديو) */
@@ -279,6 +318,7 @@ const ACT = {
   set(k, v) { S[k] = v === 'true' ? true : v === 'false' ? false : isNaN(v) || v === '' ? v : +v; },
   flip(k) { S[k] = !S[k]; },
   freeOff() { S.freeMode = 0; audit('أُنهي الوضع الحر', 'protection.free_mode.activate'); toast('انتهى الوضع الحر · عادت القواعد'); },
+  notifFix() { S.notifPerm = true; toast('فُعّلت الإشعارات', null, 'notifications_active'); },
   soon() { toast('خارج نطاق المرحلة 1 — يُضاف عبر سجل الخدمات لاحقاً', null, 'hourglass_empty'); },
   denied(key) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `محاولة وصول مرفوضة: ${me().n} ← ${key}`, s: 'سُجّلت في التدقيق وأُبلغ الأب', ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} حاول استخدام ${key}`, w: 'النظام', at: 'الآن', k: key, deny: 1 }); S.sheet = { id: 'why', a: ['nd:' + key] }; },
 };
@@ -290,12 +330,29 @@ document.addEventListener('click', e => {
   const r = ACT[n](...a, el);
   if (r !== false) render();
 });
-/* الضغط المطوّل 3 ثوانٍ لزر الاستغاثة (S1-07 REQ-007) */
+/* الضغط المطوّل 3 ثوانٍ لزر الاستغاثة (S1-07 REQ-007)، وبديل الوصول: نقرة ثم تأكيد (components §5.5). */
 let holdT;
+function sosAsk() { confirmDlg('إرسال استغاثة؟', 'يبدأ عدّ تنازلي 10 ثوانٍ، ويمكنك الإلغاء خلاله.', 'نعم، استغاثة', () => ACT.sosStart(), true); S.dlg.sos = 1; render(); }
 document.addEventListener('pointerdown', e => {
   const el = e.target.closest('[data-hold]'); if (!el) return;
+  if (S.sos2) { const up = () => { removeEventListener('pointerup', up); sosAsk(); }; addEventListener('pointerup', up); return; }
   el.classList.add('holding');
-  holdT = setTimeout(() => { el.classList.remove('holding'); ACT.sosStart(); render(); }, 3000);
+  holdT = setTimeout(() => { el.classList.remove('holding'); document.querySelectorAll('.sos.holding').forEach(x => x.classList.remove('holding')); ACT.sosStart(); render(); }, 3000);
   const stop = () => { clearTimeout(holdT); if (el.classList.contains('holding')) { el.classList.remove('holding'); toast('استمر بالضغط 3 ثوانٍ لإرسال الاستغاثة', null, 'touch_app'); } removeEventListener('pointerup', stop); removeEventListener('pointercancel', stop); };
   addEventListener('pointerup', stop); addEventListener('pointercancel', stop);
+});
+/* لوحة المفاتيح وقارئ الشاشة لا يستطيعان الضغط المطوّل: Enter أو المسافة تفتح التأكيد */
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-hold]')) { e.preventDefault(); sosAsk(); } });
+
+/* شكل الأرقام: إعداد شخصي يسري على كل العرض (typography §6 · DS-TY-06). الرموز والأكواد (.mono/.ltr) تبقى لاتينية. */
+const AR_DIG = '٠١٢٣٤٥٦٧٨٩';
+function numFix(root) {
+  if (S.num !== 'arab' || S.lang === 'en') return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => (/\d/.test(n.nodeValue) && !(n.parentElement && n.parentElement.closest('.mono,.ltr,svg,input,textarea,[data-latn]')) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+  const L2 = []; while (w.nextNode()) L2.push(w.currentNode);
+  L2.forEach(n => { n.nodeValue = n.nodeValue.replace(/\d/g, d => AR_DIG[d]); });
+}
+addEventListener('DOMContentLoaded', () => {
+  const ph = document.getElementById('phone'); if (!ph) return;
+  new MutationObserver(ms => { if (S.num !== 'arab') return; ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) numFix(n); else if (n.nodeType === 3 && n.parentElement && /\d/.test(n.nodeValue) && !n.parentElement.closest('.mono,.ltr,svg,input,textarea,[data-latn]')) n.nodeValue = n.nodeValue.replace(/\d/g, d => AR_DIG[d]); })); }).observe(ph, { childList: true, subtree: true });
 });

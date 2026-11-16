@@ -151,6 +151,8 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .sys.off{background:var(--sunken);color:var(--text2);border-bottom:1px solid var(--border)}
 .sys.lbw{background:var(--info-soft);color:var(--info)}
 .sys.free{background:var(--accent-soft);color:var(--accent-text)}
+.sys.upd{background:var(--info-soft);color:var(--info)}
+.sys.perm{background:var(--warning-soft);color:var(--text)}
 .sys button{margin-inline-start:auto;font-weight:600;text-decoration:underline;text-underline-offset:3px;min-height:28px}
 
 /* ---------- الشريط العلوي ---------- */
@@ -167,6 +169,11 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .sos.holding i{transition:transform 3s linear;transform:scaleX(1)}
 .sos > *:not(i){position:relative}
 .phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:44px;font-size:15px;padding:0 16px 0 12px}
+/* الاستغاثة فوق الأوراق ونوافذ التأكيد (REQ-007 · DS-SP-07)، ومؤشر الضغط لا يُلغى بتقليل الحركة (DS-MT-06) */
+#sosL{position:absolute;z-index:60;display:flex}#sosL:empty{display:none}
+#sosL.float .sos{box-shadow:0 6px 18px #0005}
+.phone[data-motion="off"] .sos.holding i{transition-duration:3s!important}
+@media (prefers-reduced-motion:reduce){.phone .sos.holding i{transition-duration:3s!important}}
 
 /* ---------- منطقة المحتوى ---------- */
 .scr{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 16px 24px;scrollbar-width:none;position:relative}
