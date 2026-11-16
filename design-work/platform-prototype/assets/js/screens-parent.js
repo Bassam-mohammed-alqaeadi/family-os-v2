@@ -14,7 +14,9 @@ function attention() {
   if (can('protection.tamper.view')) S.alerts.filter(a => a.k === 'tamper' && a.open).forEach(a => A.push({ p: 1, c: 'var(--warning)', i: 'gpp_maybe', t: a.t, s: a.s, b: [['عرض التفاصيل', `go:tamper:${a.id}`, 'ton']] }));
   if (can('tasks.approve')) S.tasks.filter(t => t.st === 'SUBMITTED').forEach(t => { const k = M[t.kid]; A.push({ p: 2, c: 'var(--info)', i: 'task_alt', t: `${k.n} ${vb(k, 'سلّم', 'سلّمت')} «${t.t}»`, s: t.ai === 'unsure' ? 'تعذّر على المساعد التحقق من الصورة · القرار لك' : 'بانتظار اعتمادك', b: [['اعتماد', `taskOk:${t.id}`, 'ok'], ['مراجعة', `go:task-review:${t.id}`, 'sec']] }); });
   if (can('chat.minor.view')) S.alerts.filter(a => a.k === 'chat' && a.open).forEach(a => A.push({ p: 2, c: 'var(--info)', i: 'chat_error', t: a.t, s: a.s, b: [['عرض المحادثة', 'go:thread:dm-khaled-layan', 'ton'], ['تجاهل', `alertClose:${a.id}`, 'sec']] }));
-  if (isOwner()) S.alerts.filter(a => a.k === 'perm' && a.open).forEach(a => A.push({ p: 3, c: 'var(--border-strong)', i: 'lock_person', t: a.t, s: a.s, b: [['عرض التدقيق', 'go:audit', 'ton'], ['تمّ', `alertClose:${a.id}`, 'sec']] }));
+  if (isOwner()) S.alerts.filter(a => a.k === 'perm' && a.open).forEach(a => A.push({ p: 3, c: 'var(--border-strong)', i: 'lock_person', t: a.t, s: a.s, b: [['التفاصيل', `go:denial:${a.id}`, 'ton'], ['تمّ', `alertClose:${a.id}`, 'sec']] }));
+  if (isOwner()) S.preq.forEach((q, i) => { if (q.st === 'pending') A.push({ p: 3, c: 'var(--info)', i: 'key', t: preqTxt(q), s: 'تقبل أو تؤجل', b: [['اقرأ وقرّر', `go:perm-request:${i}`, 'ton']] }); });
+  if (S.xfer && S.xfer.st === 'pending' && me().id === S.xfer.to) A.push({ p: 1, c: 'var(--warning)', i: 'swap_horiz', t: 'أحمد يريد نقل ملكية العائلة إليكِ', s: `بقي ${S.xfer.left} أيام للرد`, b: [['اقرئي وردّي', 'go:transfer-accept', 'ton']] });
   return A.sort((x, y) => x.p - y.p);
 }
 const attCard = a => `<div class="att" style="--pc:${a.c}"><div class="hd"><span class="lead" style="color:${a.c}">${ic(a.i)}</span><span class="tx"><b>${a.t}</b><span>${a.s}</span></span><span class="pr" title="الأولوية">P${a.p}</span></div><div class="ft">${a.b.map(([t, act, c]) => btn(t, act, 'sm ' + c)).join('')}</div></div>`;
@@ -142,15 +144,22 @@ surface('checklist', {
 
 /* ============ العائلة ============ */
 surface('family', {
-  t: 'العائلة', sys: 'S1-03', p: 'adult', req: '03:1,2 02:8,11 01:1',
-  note: 'تبويب «العائلة» يتمحور حول الفرد لا الخدمة: كل ما يخص فرداً في ملف واحد. تعداد الأدوار ثلاثي: adult / teen / child، والمالك صفة لا دور.',
-  act: () => `<button class="ib" data-a="go:add-member" aria-label="إضافة فرد">${ic('person_add')}</button>`,
+  t: 'العائلة', sys: 'S1-03', p: 'adult', req: '03:1,2,3,10,16,20 02:8,11 01:1',
+  note: 'قائمة أفراد العائلة ونقطة الدخول لكل ما يخص صلاحياتهم. كل بالغ يحمل اسم دوره بكلام واضح، وما ينتظر قراراً يظهر في أعلى الشاشة: نقل ملكية معلّق، طلب صلاحية، حذف معلّق، مراجعة من صار مراهقاً. لا تظهر كلمات المهندسين (مفاتيح، قوالب، أرقام العدّ).',
+  act: () => (can('identity.family.invite') ? `<button class="ib" data-a="go:add-member" aria-label="إضافة فرد">${ic('person_add')}</button>` : ''),
   r() {
-    const cap = { free: 5, basic: 10, premium: '∞' }[S.plan];
-    const mrow = m => row('', pname(m), m.rel, { lead: av(m), a: `go:member:${m.id}`, v: m.owner ? chip('المالك', 'go', 'verified') : m.role === 'adult' ? chip({ partner: 'شريك', guardian: 'وصي محدود', observer: 'مراقب', none: 'بلا منح' }[S.tpl], S.tpl === 'none' ? 'ol' : 'in') : KIDS.includes(m.id) ? chip(ENF[S.kid[m.id].enf][0].replace('الحماية ', ''), ENF[S.kid[m.id].enf][2], ENF[S.kid[m.id].enf][1]) : '' });
-    return `<div class="card flat fx sb"><div><b>عائلة المنصور</b><div class="sm muted">اليمن · توقيت صنعاء (UTC+3)</div></div>${chip(`${Object.keys(M).length} من ${cap} أفراد`, 'ol', 'groups')}</div>
+    const cap = { free: 5, basic: 10, premium: '∞' }[S.plan], own = isOwner(), x = S.xfer;
+    const mrow = m => row('', pname(m), m.rel.split(' · ')[0], { lead: av(m), a: `go:member:${m.id}`, v: S.removed[m.id] ? chip(`${vb(m, 'أُزيل', 'أُزيلت')} · ${S.removed[m.id]} يوماً`, 'da', 'person_off') : m.owner ? chip('المالك', 'go', 'verified') : m.role === 'adult' ? chip(roleName(), S.tpl === 'none' ? 'ol' : 'in') : KIDS.includes(m.id) ? chip(ENF[S.kid[m.id].enf][0].replace('الحماية ', ''), ENF[S.kid[m.id].enf][2], ENF[S.kid[m.id].enf][1]) : '' });
+    const todo = [
+      S.famDel ? callout(`<b>العائلة تُحذف بعد ${S.famDel} يوماً</b><br>${own ? 'تستطيع إلغاء الحذف في أي وقت قبلها.' : 'أحمد طلب حذف العائلة. يستطيع إلغاء الحذف قبلها.'}${own ? `<div style="margin-top:8px">${btn('ألغِ الحذف', 'go:family-delete', 'sm sec')}</div>` : ''}`, 'da', 'delete_forever') : '',
+      x && x.st === 'pending' && own ? callout(`<b>نقل الملكية إلى سارة بانتظار قبولها</b><br>بقي ${x.left} أيام. أنت المالك حتى تقبل.<div style="margin-top:8px">${btn('عرض', 'go:transfer', 'sm sec')}</div>`, 'wa', 'swap_horiz') : '',
+      x && x.st === 'pending' && me().id === x.to ? callout(`<b>أحمد يريد نقل ملكية العائلة إليكِ</b><br>بقي ${x.left} أيام للرد.<div style="margin-top:8px">${btn('اقرئي وردّي', 'go:transfer-accept', 'sm')}</div>`, 'wa', 'swap_horiz') : '',
+      ...(own ? S.preq.map((q, i) => (q.st === 'pending' ? callout(`<b>${preqTxt(q)}</b><div style="margin-top:8px">${btn('اقرأ وقرّر', `go:perm-request:${i}`, 'sm')}</div>`, '', 'key') : '')) : []),
+      own && S.rev13 === 1 ? callout(`<b>ليان صارت مراهقة</b><br>تغيّرت واجهتها وحدها. راجع ما تسمح لها به.<div style="margin-top:8px">${btn('راجع الآن', 'go:turn13:now', 'sm')}</div>`, '', 'cake') : '',
+    ].join('');
+    return `${todo}<div class="card flat fx sb"><div><b>عائلة المنصور</b><div class="sm muted">اليمن · توقيت صنعاء</div></div>${chip(`${Object.keys(M).length} من ${cap} أفراد`, 'ol', 'groups')}</div>
     ${sec('البالغون')}${list(mrow(M.ahmad), mrow(M.sara))}${sec('المراهقون والأطفال')}${list(KIDS.map(k => mrow(M[k])))}
-    ${list(row('person_add', 'أضف فرداً', 'ادعُ بالغاً أو أنشئ ملف طفل', { a: can('identity.family.invite') ? 'go:add-member' : 'denied:identity.family.invite' }), row('key', isOwner() ? 'سجل الصلاحيات' : 'صلاحياتي', isOwner() ? '95 مفتاحاً ذرياً · 3 قوالب' : 'ما مُنح لكِ ومن منحه ومتى ينتهي', { a: isOwner() ? 'go:perm-registry' : 'go:my-perms' }), isOwner() || can('roles.audit.view') ? row('receipt_long', 'سجل التدقيق', 'كل منح وتعديل وإلغاء ورفض', { a: 'go:audit' }) : '')}`;
+    ${list(can('identity.family.invite') ? row('person_add', 'أضف فرداً', 'ادعُ بالغاً أو أنشئ ملف طفل', { a: 'go:add-member' }) : '', own ? row('menu_book', 'دليل الصلاحيات', 'ما يستطيعه كل دور، وما يبقى لك وحدك', { a: 'go:perm-registry' }) : isAdult() ? row('key', 'صلاحياتي', 'ما أستطيعه في هذه العائلة', { a: 'go:my-perms' }) : '', own || can('roles.audit.view') ? row('receipt_long', 'سجل الصلاحيات', 'من مُنح ومن سُحب منه ومتى', { a: 'go:audit' }) : '')}`;
   },
 });
 surface('member', {
@@ -175,76 +184,242 @@ surface('member', {
       R('forum', 'محادثاته', 'مرئية للأب دائماً', 'chat.minor.view', 'go:minor-chats:' + id))}
     ${sec('الملف والجهاز')}${list(
       row('badge', 'بيانات الملف', `اسم مستعار · سنة الميلاد ${m.by} · لا تاريخ ميلاد كامل`, { a: can('identity.child.profile.edit') ? `go:child-profile:${id}` : 'denied:identity.child.profile.edit' }),
-      id === 'layan' ? row('cake', 'تبلغ ليان 13 سنة في 2030', 'يتحول الدور تلقائياً إلى مراهق وتُراجَع القواعد معك', { a: 'go:turn13' }) : '',
-      row('mobile', 'الجهاز المقترن', 'Android 13 · مقترن بهذه العائلة فقط', { a: 'go:device:' + id }))}`;
+      id === 'layan' && isOwner() ? row('cake', 'تبلغ ليان 13 سنة في 2030', 'تنتقل وحدها إلى واجهة المراهقين، وتراجع أنت ما تسمح به', { a: 'go:turn13' }) : '',
+      row('mobile', 'الجهاز المقترن', 'Android 13 · مقترن بهذه العائلة فقط', { a: 'go:device:' + id }))}
+    ${m.role === 'teen' && isOwner() ? sec('ما تسمح به لخالد') + list(row('task_alt', 'ينشئ مهامه بنفسه', 'مهام له هو فقط، ينجزها بلا اعتماد', { tg: S.teenTasks, ta: 'teenT:' })) + `<p class="sm muted" style="margin:8px 4px">المراهق لا يُعطى إشرافاً على إخوته.</p>` : ''}
+    ${isOwner() ? list(row('person_remove', `أزل ${m.n} من العائلة`, 'مهلة تراجع 30 يوماً', { a: `go:member-remove:${id}`, ic: 'var(--danger)' })) : ''}`;
   },
 });
+/* ============ الصلاحيات بكلام الأب (S1-03) ============
+   ما يُعطى لبالغ 44 صلاحية (43 في دور الشريك + إقران جهاز طفل) في تسع مجموعات. المعرّف التقني لا يُعرض على الشاشة أبداً.
+   العناوين والأوصاف مقترحة (الحوكمة تشترط عنواناً عربياً ووصفاً لكل صلاحية ولا تكتبها) — تنتظر حكم المالك. */
+const PL = {
+  'identity.child.create': ['إضافة طفل', 'ينشئ ملف طفل جديد في العائلة'], 'identity.child.profile.edit': ['تعديل ملف طفل', 'يغيّر اسم الطفل وصورته ولونه وسنة ميلاده'], 'identity.device.pair': ['إقران جهاز طفل', 'يصدر رمز الإقران ويربط جهازاً بطفل'], 'identity.family.invite': ['دعوة بالغ', 'يرسل دعوة انضمام إلى بالغ آخر ويلغيها'],
+  'protection.rule.view': ['رؤية قواعد التطبيقات', 'يرى المسموح والمحدود والمحظور لكل طفل'], 'protection.rule.create': ['إضافة قاعدة لتطبيق', 'يضع حداً لتطبيق أو يحظره'], 'protection.rule.edit': ['تعديل قاعدة تطبيق', 'يغيّر حدّ التطبيق أو حالته'], 'protection.rule.delete': ['حذف قاعدة تطبيق', 'يرفع القيد عن تطبيق فيصير مفتوحاً'],
+  'protection.schedule.edit': ['تعديل وقت النوم والمدرسة', 'يغيّر ساعات النوم والدراسة في الأسبوع'], 'protection.priority.edit': ['ترتيب القواعد عند التعارض', 'يحدد أي قاعدة تغلب إذا اجتمعت قاعدتان'], 'protection.mode_preset.apply': ['تشغيل وضع الدراسة أو النوم', 'يشغّل وضعاً جاهزاً لمدة محددة'], 'protection.filter.view': ['رؤية تصفية المواقع', 'يرى فئات المواقع المحجوبة'],
+  'protection.state.view': ['رؤية حالة الحماية', 'يعرف هل الحماية تعمل على جهاز كل طفل'], 'protection.tamper.view': ['رؤية محاولات العبث', 'يرى إن حاول طفل تعطيل الحماية'], 'protection.audit.view': ['رؤية سجل الحماية', 'يرى من غيّر القواعد ومتى'],
+  'location.view': ['رؤية الموقع الآن', 'يرى أين كل طفل على الخريطة'], 'location.history.view': ['رؤية سجل التنقل', 'يرى أين كان الطفل في الأيام السبعة الماضية'], 'location.sos.acknowledge': ['استلام الاستغاثة', 'يؤكد أنه رأى استغاثة الطفل'], 'location.sos.resolve': ['إنهاء الاستغاثة', 'يغلق الاستغاثة بعد الاطمئنان على الطفل'],
+  'tasks.view': ['رؤية المهام', 'يرى مهام الأطفال وحالتها'], 'tasks.create': ['إنشاء مهمة', 'يكلّف طفلاً بمهمة جديدة'], 'tasks.approve': ['اعتماد مهمة', 'يقبل المهمة المنجزة فتُصرف نقاطها'], 'tasks.cancel': ['إلغاء مهمة', 'يلغي مهمة لم تُنجز'], 'calendar.view': ['رؤية التقويم', 'يرى مواعيد العائلة'], 'calendar.event.create': ['إضافة موعد', 'يضيف موعداً للتقويم ويعدّله ويحذفه'],
+  'rewards.wallet.view': ['رؤية نقاط الأطفال', 'يرى رصيد كل طفل'], 'rewards.ledger.view': ['رؤية سجل النقاط', 'يرى كل ما كُسب وصُرف'], 'rewards.grant.create': ['منح نقاط', 'يعطي طفلاً نقاطاً بيده'], 'rewards.time_request.decide': ['الرد على طلب وقت إضافي', 'يقبل طلب الطفل وقتاً إضافياً أو يرفضه'],
+  'chat.minor.view': ['قراءة محادثات الأطفال', 'يقرأ رسائل الأطفال والمراهقين'], 'chat.parents.view': ['محادثة الأهل', 'يرى محادثة البالغين في العائلة'], 'chat.channel.create.group': ['إنشاء مجموعة', 'ينشئ محادثة جماعية للعائلة'], 'chat.channel.close': ['إغلاق محادثة طفل', 'يوقف محادثة طفل فلا يرسل فيها'], 'chat.message.delete.any': ['حذف أي رسالة', 'يحذف رسالة أي فرد عند الجميع'],
+  'hub.dashboard.view': ['رؤية اللوحة الرئيسية', 'يرى ملخص الأطفال في الصفحة الأولى'], 'hub.alerts.view': ['رؤية التنبيهات', 'تصله تنبيهات الأطفال'], 'hub.alerts.acknowledge': ['إغلاق تنبيه', 'يؤكد أنه قرأ التنبيه فيختفي عند الجميع'], 'hub.settings.view': ['رؤية صفحة التحكم', 'يرى إعدادات الأطفال'], 'hub.settings.edit': ['التعديل من صفحة التحكم', 'يعدّل ما مُنح صلاحيته من صفحة التحكم'], 'hub.plan.view': ['رؤية الخطة والاستخدام', 'يرى خطة العائلة وما استُهلك منها'],
+  'shell.admin.access': ['دخول قسم الإدارة', 'يفتح الإعدادات الإدارية في التطبيق'], 'shell.config.view': ['رؤية إعدادات العائلة', 'يرى اسم العائلة وبلدها وتوقيتها'], 'roles.key.view': ['رؤية دليل الصلاحيات', 'يقرأ شرح كل صلاحية'], 'roles.audit.view': ['رؤية سجل الصلاحيات', 'يرى من مُنح ومن سُحب منه ومتى'],
+  'roles.grant.create': ['منح الصلاحيات'], 'roles.grant.edit': ['تعديل الصلاحيات'], 'roles.grant.revoke': ['سحب الصلاحيات'], 'roles.template.apply': ['تغيير أدوار البالغين'], 'roles.ownership.transfer': ['نقل ملكية العائلة'],
+  'shell.parent_gate.manage': ['تغيير الرقم السري'], 'shell.mode.exit_child': ['إيقاف القواعد من جهاز الطفل'], 'shell.config.edit': ['تعديل إعدادات العائلة'], 'identity.device.unpair': ['فك إقران جهاز'], 'identity.member.remove': ['إزالة فرد من العائلة'], 'identity.biometric.enable': ['تشغيل الفتح بالبصمة'], 'identity.session.revoke': ['إخراج جهاز من الحساب'],
+  'billing.manage': ['إدارة الاشتراك'], 'billing.topup.buy': ['شراء رصيد رسائل'], 'billing.voucher.redeem': ['استعمال قسيمة'], 'billing.view': ['رؤية الاشتراك والفواتير'],
+  'rewards.settings.edit': ['تعديل نظام المكافآت'], 'rewards.streak.freeze': ['تجميد سلسلة الأيام'], 'rewards.grant.reverse': ['التراجع عن منحة'], 'rewards.objection.decide': ['الرد على اعتراض طفل'], 'rewards.settings.view': ['رؤية إعدادات المكافآت'],
+  'tasks.revoke': ['إلغاء اعتماد مهمة'], 'tasks.category.create': ['إضافة فئة مهام'], 'protection.free_mode.activate': ['تشغيل الوضع الحر'], 'protection.quota.edit': ['تعديل الحصة اليومية'], 'protection.tamper.resolve': ['إغلاق تنبيه عبث'], 'protection.filter.edit': ['تعديل تصفية المواقع'], 'location.emergency.manage': ['إدارة جهات الطوارئ'],
+};
+const PG = [
+  ['kids', 'الأطفال والأجهزة', 'family_restroom', ['identity.child.create', 'identity.child.profile.edit', 'identity.device.pair', 'identity.family.invite']],
+  ['time', 'وقت الشاشة والتطبيقات', 'hourglass_top', ['protection.rule.view', 'protection.rule.create', 'protection.rule.edit', 'protection.rule.delete', 'protection.schedule.edit', 'protection.priority.edit', 'protection.mode_preset.apply', 'protection.filter.view']],
+  ['guard', 'حالة الحماية', 'verified_user', ['protection.state.view', 'protection.tamper.view', 'protection.audit.view']],
+  ['loc', 'الموقع والاستغاثة', 'location_on', ['location.view', 'location.history.view', 'location.sos.acknowledge', 'location.sos.resolve']],
+  ['tasks', 'المهام والتقويم', 'task_alt', ['tasks.view', 'tasks.create', 'tasks.approve', 'tasks.cancel', 'calendar.view', 'calendar.event.create']],
+  ['rew', 'النقاط والوقت الإضافي', 'stars', ['rewards.wallet.view', 'rewards.ledger.view', 'rewards.grant.create', 'rewards.time_request.decide']],
+  ['chat', 'المحادثات', 'forum', ['chat.minor.view', 'chat.parents.view', 'chat.channel.create.group', 'chat.channel.close', 'chat.message.delete.any']],
+  ['hub', 'اللوحة والتنبيهات', 'dashboard', ['hub.dashboard.view', 'hub.alerts.view', 'hub.alerts.acknowledge', 'hub.settings.view', 'hub.settings.edit', 'hub.plan.view']],
+  ['adm', 'الإعدادات والسجلات', 'settings', ['shell.admin.access', 'shell.config.view', 'roles.key.view', 'roles.audit.view']],
+];
+const PGIVE = PG.flatMap(g => g[3]);                       /* كل ما يُعطى لبالغ */
+const SENS = ['chat.minor.view', 'location.history.view', 'chat.channel.close', 'chat.message.delete.any', 'protection.rule.delete'];   /* الحساسة (Q-317): تُمنح بالرقم السري */
+const OWNER_ONLY = [['credit_card', 'الاشتراك والدفع والقسائم'], ['key', 'منح الصلاحيات وسحبها، ونقل الملكية، وحذف العائلة'], ['hourglass_top', 'الحصة اليومية، والوضع الحر، وتعديل تصفية المواقع'], ['link_off', 'فك إقران الأجهزة وإزالة الأفراد'], ['lock', 'الرقم السري والبصمة وإخراج الأجهزة من الحساب'], ['stars', 'إعدادات المكافآت والرد على اعتراضات الأطفال'], ['emergency', 'جهات الطوارئ'], ['gpp_maybe', 'إغلاق تنبيهات العبث وإلغاء اعتماد المهام']];
+const ROLES = { partner: ['شريك', 'handshake', 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.'], guardian: ['وصي محدود', 'shield_person', 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.'], observer: ['مراقب', 'visibility', 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.'], none: ['بلا صلاحيات', 'person', 'عضو في العائلة لا يرى شؤون الأطفال ولا يديرها.'] };
+const preqTxt = q => (q.k === 'teen' ? 'خالد يطلب أن ينشئ مهامه بنفسه' : q.k === 'role' ? 'سارة تطلب دوراً في العائلة' : `سارة تطلب صلاحية: ${permName(q.k)}`);
+const permName = k => (PL[k] || ['هذا الإجراء'])[0];
+const roleName = () => ROLES[S.tpl][0] + (S.tpl !== 'none' && (S.gx.add.length || S.gx.rem.length) ? ' · معدَّل' : '');
+const UNTIL = { '': 'حتى تلغيها أنت', w: 'أسبوع واحد', m: 'شهر واحد', q: '3 أشهر' };
+const scopeTxt = () => (S.gScope == null ? 'اختر' : S.gScope === 'all' ? 'كل الأطفال' : S.gScope.map(k => M[k].n).join(' و') || 'اختر');
+const untilTxt = () => (S.gUntil == null ? 'اختر' : UNTIL[S.gUntil].replace(' أنت', ''));
+const termsOk = () => S.gUntil != null && S.gScope != null && (S.gScope === 'all' || S.gScope.length > 0);
+const grpOf = id => PG.find(g => g[0] === id);
+const grpSum = (ks, has) => { const n = ks.filter(k => has.includes(k)).length; return n === 0 ? 'لا شيء' : n === ks.length ? 'كل شيء' : `${n} من ${ks.length}`; };
+const tplKeys = t => (t === 'none' ? [] : window.FOS_PERM[t]);
+const sensChip = k => (SENS.includes(k) ? chip('حساسة', 'wa', 'lock') : '');
+
 function memberAdult(m) {
-  if (m.owner) return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="chips" style="margin-top:6px">${chip('المالك', 'go', 'verified')}</div></div></div>${callout('الفوترة والملكية وحذف العائلة للمالك حصراً، ولا تُفوَّض لأحد.', 'nt', 'lock')}${isOwner() ? list(row('swap_horiz', 'انقل الملكية', 'إلى بالغ آخر فقط · يتطلب تأكيداً', { a: 'go:transfer' })) : ''}`;
-  const P = window.FOS_PERM, n = S.tpl === 'none' ? 0 : P[S.tpl].length, names = { partner: 'شريك', guardian: 'وصي محدود', observer: 'مراقب' };
-  return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="chips" style="margin-top:6px">${S.tpl === 'none' ? chip('بالغ بلا منح', 'ol') : chip(`قالب ${names[S.tpl]} · ${n} مفتاحاً`, 'in', 'key')}</div></div></div>
-  ${S.tpl === 'none' ? callout('البالغ الجديد يبدأ بدور adult بلا أي منح. لا يرى شيئاً حتى تفوّضه.', 'nt', 'info') : `<div class="card"><div class="fx sb"><span class="sm muted">النطاق</span><b class="sm">كل الأطفال</b></div><div class="fx sb" style="margin-top:6px"><span class="sm muted">صالح حتى</span><b class="sm">15 فبراير 2027</b></div><div class="fx sb" style="margin-top:6px"><span class="sm muted">منحه</span><b class="sm">أحمد · أمس 8:02 م</b></div></div>`}
-  ${isOwner() ? `${sec('ابدأ من قالب')}${Object.entries(names).map(([k, t]) => `<button class="card fx" data-a="go:tpl-diff:${k}" ${S.tpl === k ? 'style="border-color:var(--success)"' : ''}>${ic({ partner: 'handshake', guardian: 'shield_person', observer: 'visibility' }[k])}<div class="grow"><b>${t}</b><div class="sm muted">${P[k].length} مفتاحاً${k === 'observer' ? ' · للعرض فقط' : k === 'partner' ? ' · إدارة يومية كاملة عدا الحصري' : ' · متابعة واعتماد مهام'}</div></div>${S.tpl === k ? chip('مطبّق', 'ok', 'check') : ic('chevron_right')}</button>`).join('')}
-  ${list(row('grid_view', 'مصفوفة التفويض', 'عدّل كل مفتاح على حدة', { a: 'go:matrix' }), S.tpl !== 'none' ? row('person_off', 'ألغِ كل المنح', 'يسري فوراً على كل أجهزتها', { a: 'revokeAll', ic: 'var(--danger)' }) : '')}` : ''}`;
+  const own = isOwner(), x = S.xfer;
+  if (m.owner) return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">الأب</div><div class="chips" style="margin-top:6px">${chip('المالك', 'go', 'verified')}</div></div></div>
+    ${callout('المالك يستطيع كل شيء. وبعض الأمور تبقى له وحده ولا تُعطى لأحد.', 'nt', 'verified')}${list(OWNER_ONLY.map(([i, t]) => row(i, t, '')))}
+    ${own ? sec('الملكية') + (x && x.st === 'pending' ? callout(`<b>نقل الملكية إلى سارة بانتظار قبولها</b><br>بقي ${x.left} أيام.`, 'wa', 'swap_horiz') : '') + list(row('swap_horiz', x && x.st === 'pending' ? 'نقل الملكية المعلّق' : 'انقل الملكية', x && x.st === 'pending' ? 'اعرضه أو ألغِه' : 'إلى بالغ آخر في العائلة', { a: 'go:transfer' })) : ''}`;
+  if (S.removed[m.id]) return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">الأم</div><div class="chips" style="margin-top:6px">${chip('أُزيلت من العائلة', 'da', 'person_off')}</div></div></div>${callout(`خرجت سارة من العائلة وتوقف دخولها. تُمحى بياناتها نهائياً بعد ${S.removed[m.id]} يوماً.`, 'da', 'schedule')}${own ? btn('عرض وإعادتها', `go:member-remove:${m.id}`, 'sec') : ''}`;
+  const has = grantsOf(), none = S.tpl === 'none';
+  return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">الأم</div><div class="chips" style="margin-top:6px">${chip(roleName(), none ? 'ol' : 'in', ROLES[S.tpl][1])}</div></div></div>
+  ${none ? callout(own ? 'سارة عضو في العائلة لكنها لا ترى شؤون الأطفال ولا تديرها. اختر لها دوراً لتبدأ.' : 'لم تُمنحي صلاحيات بعد.', 'nt', 'info') : ''}
+  ${own ? list(row(ROLES[S.tpl][1], 'الدور', ROLES[S.tpl][2], { a: 'go:role-pick', v: ROLES[S.tpl][0] }), none ? '' : row('groups', 'على من', 'الأطفال الذين تشملهم صلاحياتها', { a: 'go:grant-terms', v: scopeTxt() }), none ? '' : row('event', 'إلى متى', S.gUntil ? 'تنتهي وحدها بعدها' : 'تبقى حتى تسحبها', { a: 'go:grant-terms', v: untilTxt() })) : ''}
+  ${none ? '' : sec(`ماذا تستطيع ${m.n}`) + list(PG.map(([id, t, i, ks]) => row(i, t, '', { a: own ? `go:perm-group:${id}` : '', v: grpSum(ks, has), c: ks.some(k => has.includes(k)) ? '' : 'dis' })))}
+  ${own && !none ? `<p class="sm muted c" style="margin:10px 0">منحها أحمد · أمس 8:02 م</p>` : ''}
+  ${own ? sec('أخرى') + list(none ? '' : row('key_off', 'اسحب كل صلاحياتها', 'تبقى عضواً في العائلة بلا صلاحيات', { a: 'revokeAll', ic: 'var(--danger)' }), row('person_remove', `أزل ${m.n} من العائلة`, 'يتوقف دخولها · مهلة تراجع 30 يوماً', { a: `go:member-remove:${m.id}`, ic: 'var(--danger)' })) : ''}`;
 }
-const DOM = { shell: 'الغلاف', identity: 'الهوية', roles: 'الأدوار', billing: 'الفوترة', rewards: 'المكافآت', tasks: 'المهام', calendar: 'التقويم', location: 'الموقع', chat: 'المحادثة', hub: 'مركز الأوامر', protection: 'الحماية', agent: 'المساعد الذكي' };
-const byDom = keys => keys.reduce((g, k) => { const d = k.split('.')[0]; (g[d] = g[d] || []).push(k); return g; }, {});
+surface('role-pick', {
+  kind: 'sheet', t: 'اختيار الدور', sys: 'S1-03', p: 'owner', req: '03:13,14',
+  note: 'الأدوار الثلاثة الجاهزة نقطة بداية، ومعها «بلا صلاحيات». كل دور موصوف بجملة تقول ما يستطيعه صاحبه، لا بعدد مفاتيح. اختيار دور يفتح معاينة ما سيتغير قبل التطبيق.',
+  r() { return `<h4>أي دور لسارة؟</h4><p class="d">الدور نقطة بداية. تستطيع بعده أن تضيف وتسحب صلاحيات بعينها.</p>${Object.entries(ROLES).map(([k, [t, i, d]]) => `<button class="card fx" data-a="${k === S.tpl && !S.gx.add.length && !S.gx.rem.length ? 'close' : k === 'none' ? 'revokeAll' : 'rolePick:' + k}" ${S.tpl === k ? 'style="border-color:var(--success)"' : ''}>${ic(i)}<div class="grow"><b>${t}</b><div class="sm muted">${d}</div></div>${S.tpl === k ? chip('الحالي', 'ok', 'check') : ic('chevron_right')}</button>`).join('')}`; },
+});
 surface('tpl-diff', {
-  kind: 'sheet', t: 'معاينة تطبيق القالب', sys: 'S1-03', p: 'owner', a: ['guardian'], req: '03:10,12,13,14,19',
-  note: 'معاينة الفرق قبل التطبيق (settings-patterns: diff preview + تراجع دفعي). مفاتيح القوالب حرفية من S1-03 §5-3-أ. تطبيق القالب ينسخ مفاتيحه إلى منح العضو، ويتطلب PIN الأب.',
+  kind: 'sheet', t: 'معاينة تغيير الدور', sys: 'S1-03', p: 'owner', a: ['guardian'], req: '03:10,11,12,13,14,19',
+  note: 'قبل تطبيق الدور يرى الأب ما سيُضاف وما سيُسحب بكلام واضح، وعلى من، وإلى متى. إن كان عدّل صلاحيات بعينها من قبل يُنبَّه أن الدور الجديد يستبدلها. التطبيق بالرقم السري. دون اتصال لا يُطبَّق دور فيه صلاحية حساسة (Q-269).',
   r(k) {
-    const P = window.FOS_PERM, cur = S.tpl === 'none' ? [] : P[S.tpl], nxt = P[k], add = nxt.filter(x => !cur.includes(x)), rem = cur.filter(x => !nxt.includes(x)), names = { partner: 'شريك', guardian: 'وصي محدود', observer: 'مراقب' };
-    const grp = (keys, sign, cls) => Object.entries(byDom(keys)).map(([d, ks]) => `<div class="row noic"><span class="tx"><b>${DOM[d]} <span class="chip ${cls}">${sign}${ks.length}</span></b><span class="mono xs">${ks.map(x => x.split('.').slice(1).join('.')).join(' · ')}</span></span></div>`).join('');
-    return `<h4>تطبيق قالب «${names[k]}» على سارة</h4><p class="d">${nxt.length} مفتاحاً. راجع ما سيتغيّر قبل التأكيد.</p>
-    ${add.length ? `<h3 class="sec" style="margin-top:4px"><span>يُضاف (${add.length})</span></h3><div class="list">${grp(add, '+', 'ok')}</div>` : ''}${rem.length ? `<h3 class="sec"><span>يُزال (${rem.length})</span></h3><div class="list">${grp(rem, '−', 'da')}</div>` : ''}${!add.length && !rem.length ? callout('القالب مطبّق حالياً بلا فروق.', 'ok', 'check_circle') : ''}
-    <div class="card flat"><div class="fx sb"><span class="sm">النطاق (scope)</span><b class="sm">كل الأطفال</b></div><div class="fx sb" style="margin-top:6px"><span class="sm">صالح حتى (valid_until)</span><b class="sm">15 فبراير 2027</b></div><div class="xs muted" style="margin-top:6px">الحقلان إلزاميان لكل منح، ولا قيمة افتراضية محكومة لهما — يحددهما الأب.</div></div>
-    ${btn('أكّد بالرقم السري وطبّق', `tplApply:${k}`, '', 'lock')}`;
+    const cur = grantsOf(), nxt = tplKeys(k), add = nxt.filter(x => !cur.includes(x)), rem = cur.filter(x => !nxt.includes(x)), sens = add.filter(x => SENS.includes(x)), off = offline();
+    const grp = keys => PG.map(([, t, i, ks]) => { const h = ks.filter(x => keys.includes(x)); return h.length ? row(i, t, h.map(permName).join('، ')) : ''; });
+    return `<h4>سارة: ${ROLES[k][0]}</h4><p class="d">${ROLES[k][2]}</p>
+    ${S.gx.add.length || S.gx.rem.length ? callout('عدّلتَ صلاحيات بعينها لسارة من قبل. الدور الجديد يستبدلها كلها.', 'wa', 'info') : ''}
+    ${add.length ? `<h3 class="sec" style="margin-top:4px"><span>ستستطيع (${add.length})</span></h3>${list(grp(add))}` : ''}${rem.length ? `<h3 class="sec"><span>لن تستطيع بعدها (${rem.length})</span></h3>${list(grp(rem))}` : ''}${!add.length && !rem.length ? callout('هذا دورها الحالي بلا فرق.', 'ok', 'check_circle') : ''}
+    ${list(row('groups', 'على من', '', { a: 'go:grant-terms:' + k, v: scopeTxt() }), row('event', 'إلى متى', '', { a: 'go:grant-terms:' + k, v: untilTxt() }))}
+    ${termsOk() ? '' : callout('اختر على من وإلى متى قبل التطبيق.', 'wa', 'info')}${sens.length ? callout(`فيه ${sens.length === 1 ? 'صلاحية حساسة' : sens.length + ' صلاحيات حساسة'}: ${sens.map(permName).join('، ')}.`, 'nt', 'lock') : ''}
+    ${off ? callout('أنت غير متصل. تغيير الدور يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('طبّق بالرقم السري', `tplApply:${k}`, off || !termsOk() || (!add.length && !rem.length) ? '" disabled="' : '', 'lock')}`;
   },
 });
-surface('matrix', {
-  t: 'مصفوفة التفويض — سارة', sys: 'S1-03', p: 'owner', req: '03:8,9,11,13,20 09:4', st: 'un',
-  note: 'UNKNOWN: الحوكمة تسرد معرّفات المفاتيح الـ95 حرفياً لكنها لا تتضمن عناوينها العربية المعروضة؛ لذلك تُعرض المعرّفات كما هي حتى تُحسم العناوين. المفاتيح الحصرية للمالك (28) مقفلة.',
-  r() {
-    const P = window.FOS_PERM, has = S.tpl === 'none' ? [] : P[S.tpl], g = byDom(P.all.filter(k => !k.startsWith('agent.')));
-    return callout(`${has.length} ممنوح من 95 · ${P.ownerOnly.length} للمالك حصراً لا تُمنح. الرفض الصريح يغلب المنح دائماً.`, '', 'info') + Object.entries(g).map(([d, ks]) => `${sec(`${DOM[d]} · ${ks.filter(k => has.includes(k)).length}/${ks.length}`)}<div class="list">${ks.map(k => { const oo = P.ownerOnly.includes(k); return `<div class="row noic"><span class="tx"><b class="mono" style="font-size:13px">${k}</b>${oo ? '<span>للمالك حصراً</span>' : ''}</span>${oo ? ic('lock') : tg(has.includes(k), 'keyToggle:' + k, k)}</div>`; }).join('')}</div>`).join('');
-  },
+surface('grant-terms', {
+  kind: 'sheet', t: 'على من وإلى متى', sys: 'S1-03', p: 'owner', req: '03:11',
+  note: 'لكل منح حدّان يختارهما الأب بنفسه: على أي أطفال، وإلى متى. لا شيء مختار مسبقاً لبالغ بلا صلاحيات، ولا يُطبَّق الدور قبل الاختيار (REQ-011 · Q-087). «حتى تلغيها أنت» خيار صريح. المدة المحددة تنتهي وحدها، ويصل تنبيه قبل انتهائها بسبعة أيام (Q-227).',
+  r(ret) { const all = S.gScope === 'all', sc = Array.isArray(S.gScope) ? S.gScope : []; return `<h4>صلاحيات سارة</h4><h3 class="sec" style="margin-top:4px"><span>على من</span></h3>${list(row('groups', 'كل الأطفال', 'ومن يُضاف لاحقاً', { a: 'gScope:all', v: ic(all ? 'radio_button_checked' : 'radio_button_unchecked'), chev: false }), KIDS.map(k => row('', M[k].n, '', { lead: av(M[k], 'sm'), a: 'gScope:' + k, v: ic(sc.includes(k) ? 'check_box' : 'check_box_outline_blank'), chev: false })))}
+    ${Array.isArray(S.gScope) && !sc.length ? callout('اختر طفلاً واحداً على الأقل.', 'wa', 'info') : ''}<h3 class="sec"><span>إلى متى</span></h3>${list(Object.entries(UNTIL).map(([k, t]) => row('', t, k ? '' : 'تبقى سارية حتى تسحبها', { a: 'gUntil:' + k, v: ic(S.gUntil === k ? 'radio_button_checked' : 'radio_button_unchecked'), chev: false })))}${btn('تم', 'gtDone:' + (ret || ''))}`; },
+});
+surface('perm-group', {
+  t: id => grpOf(id)[1], sys: 'S1-03', p: 'owner', a: ['chat'], req: '03:8,9,10,11,12,14,19',
+  note: 'صلاحيات مجموعة واحدة لبالغ واحد. كل صلاحية بعنوان عربي وجملة تشرحها (REQ-008). المفتاح يُغيَّر فوراً مع «تراجع»، بلا زر حفظ. منح الصلاحية الحساسة يطلب الرقم السري، وسحب أي صلاحية لا يطلبه. دون اتصال: الحساسة لا تُمنح (Q-269) وغيرها يُرسل عند عودة الاتصال. تغيير هنا لا يغيّر الدور الجاهز ولا صلاحيات غير سارة (REQ-014).',
+  r(id) { const [, , , ks] = grpOf(id), has = grantsOf(), base = tplKeys(S.tpl);
+    return `<div class="card flat fx">${av(M.sara)}<div class="grow"><b>سارة</b><div class="sm muted">${roleName()} · ${scopeTxt()}</div></div></div>${S.conflict ? callout('تغيّرت صلاحيات سارة من جهاز آخر قبل لحظات. حدّث الصفحة قبل أي تعديل.<div style="margin-top:8px">' + btn('حدّث', 'permReload', 'sm sec') + '</div>', 'wa', 'sync_problem') : ''}
+    <div class="list">${ks.map(k => { const on = has.includes(k), src = on ? (base.includes(k) ? `من دور ${ROLES[S.tpl][0]}` : 'أضفتها أنت') : (base.includes(k) ? 'سحبتها أنت' : ''); return `<div class="row noic"><button class="tx" data-a="go:perm-key:${k}" style="text-align:start"><b>${PL[k][0]} ${sensChip(k)}</b><span>${PL[k][1]}${src ? ` · ${src}` : ''}</span></button>${tg(on, 'permT:' + k, PL[k][0])}</div>`; }).join('')}</div>
+    ${callout('التغيير يسري فوراً على كل أجهزة سارة، ويُسجَّل.', 'nt', 'bolt')}`; },
+});
+surface('perm-key', {
+  kind: 'sheet', t: 'شرح الصلاحية', sys: 'S1-03', p: 'adult', a: ['chat.minor.view'], req: '03:4,8',
+  note: 'شرح صلاحية واحدة: ماذا تعني، وهل هي عند هذا البالغ، ومن أين جاءت (من الدور أو مضافة بعينها)، وعلى من وإلى متى. المعرّف التقني لا يظهر.',
+  r(k) { const on = grantsOf().includes(k), base = tplKeys(S.tpl).includes(k), oo = !PGIVE.includes(k);
+    return `<div class="bigic" style="width:64px;height:64px;border-radius:22px">${ic(oo ? 'lock' : on ? 'check_circle' : 'block')}</div><h4 class="c">${permName(k)}</h4><p class="d c">${(PL[k] || [])[1] || ''}</p>
+    ${oo ? callout('هذا للمالك وحده، ولا يُعطى لأحد.', 'nt', 'lock') : list(row('person', 'سارة', '', { v: chip(on ? 'تستطيع' : 'لا تستطيع', on ? 'ok' : 'ol') }), on ? row('account_tree', 'من أين', '', { v: base ? `دور ${ROLES[S.tpl][0]}` : 'أضافها أحمد' }) : '', on ? row('groups', 'على من', '', { v: scopeTxt() }) : '', on ? row('event', 'إلى متى', '', { v: untilTxt() }) : '')}
+    ${SENS.includes(k) ? callout('صلاحية حساسة: منحها يطلب الرقم السري للمالك.', 'nt', 'lock') : ''}${btn('فهمت', 'close')}`; },
 });
 surface('perm-registry', {
-  t: 'سجل الصلاحيات', sys: 'S1-03', p: 'owner', req: '03:8,9,13,20 01:11',
-  note: 'السجل المركزي لمفاتيح الصلاحيات: 95 مفتاحاً ذرياً بصيغة domain.action في 12 بادئة، مستخرجة آلياً من S1-03 SPEC §10-5.',
-  r() { const P = window.FOS_PERM, g = byDom(P.all); return `<div class="g2" style="margin-bottom:10px"><div class="card stat"><b>${P.all.length}</b><span>مفتاحاً ذرياً</span></div><div class="card stat"><b>${P.ownerOnly.length}</b><span>للمالك حصراً</span></div></div>
-    <table class="mx card" style="padding:0;display:table"><thead><tr><th>النطاق</th><th>الكل</th><th>شريك</th><th>وصي</th><th>مراقب</th></tr></thead><tbody>${Object.entries(g).map(([d, ks]) => `<tr><td style="padding-inline-start:12px">${DOM[d]}<div class="mono xs muted">${d}.*</div></td><td>${ks.length}</td>${['partner', 'guardian', 'observer'].map(t => { const n = ks.filter(k => P[t].includes(k)).length; return `<td class="${n ? 'y b' : 'n'}">${n || '—'}</td>`; }).join('')}</tr>`).join('')}<tr><td style="padding-inline-start:12px" class="b">المجموع</td><td class="b">95</td><td class="b">43</td><td class="b">24</td><td class="b">10</td></tr></tbody></table>
-    ${callout('أي عملية إدارية جديدة في أي نظام تُضاف هنا أولاً كمفتاح قبل أن تظهر في الواجهة.', 'nt', 'rule')}`; },
+  t: 'دليل الصلاحيات', sys: 'S1-03', p: 'adult', req: '03:8,9,13,20',
+  note: 'كل ما يمكن أن يُعطى لبالغ، بعنوان عربي وشرح، ومعه أي الأدوار الجاهزة تشمله. وفي آخره ما يبقى للمالك وحده. التصفية بالمجموعة أو بـ«الحساسة». لا أرقام عدّ ولا معرّفات تقنية على الشاشة؛ السجل التقني الكامل (95) شرط بناء لا شاشة.',
+  r() { const f = S.pgF || 'all', P = window.FOS_PERM, gs = PG.filter(g => f === 'all' || f === 'sens' || g[0] === f);
+    const dots = k => ['partner', 'guardian', 'observer'].filter(t => P[t].includes(k)).map(t => ROLES[t][0]).join(' · ') || 'يُضاف بعينه فقط';
+    return `<div class="fch">${[['all', 'الكل'], ['sens', 'الحساسة'], ...PG.map(g => [g[0], g[1]])].map(([k, t]) => `<button aria-pressed="${f === k}" data-a="pgF:${k}">${t}</button>`).join('')}</div>
+    ${gs.map(([, t, i, ks]) => { const kk = ks.filter(k => f !== 'sens' || SENS.includes(k)); return kk.length ? sec(t) + list(kk.map(k => row('', `${PL[k][0]} ${sensChip(k)}`, `${PL[k][1]}<br><span class="xs">${dots(k)}</span>`, { a: isOwner() ? 'go:perm-key:' + k : '', chev: false }))) : ''; }).join('')}
+    ${f === 'all' ? sec('للمالك وحده') + callout('هذه لا تُعطى لأحد، مهما كان دوره.', 'nt', 'lock') + list(OWNER_ONLY.map(([i, t]) => row(i, t, ''))) : ''}
+    ${f === 'all' ? callout('الأطفال والمراهقون لا يُعطَون أي إشراف على غيرهم. للمراهق صلاحية واحدة تُعطى: أن ينشئ مهامه بنفسه.', 'nt', 'child_care') : ''}`; },
 });
 surface('my-perms', {
-  t: 'صلاحياتي', sys: 'S1-03', p: 'delegate', req: '03:2,4,17 09:4 07:12',
-  note: 'شفافية للبالغ المفوَّض: ماذا مُنح، ومن منحه، ومتى ينتهي. ما لا يملك مفتاحه لا يظهر له، والإلغاء يسري فوراً.',
-  r() { const P = window.FOS_PERM, has = S.tpl === 'none' ? [] : P[S.tpl]; if (!has.length) return empty('lock_person', 'لا توجد منح بعد', 'دورك «بالغ» بلا صلاحيات. الأب وحده يمنح ويعدّل ويلغي.'); const g = byDom(has);
-    return `<div class="card"><div class="fx sb"><span class="sm muted">القالب</span>${chip({ partner: 'شريك', guardian: 'وصي محدود', observer: 'مراقب' }[S.tpl], 'in')}</div><div class="fx sb" style="margin-top:6px"><span class="sm muted">النطاق</span><b class="sm">كل الأطفال</b></div><div class="fx sb" style="margin-top:6px"><span class="sm muted">ينتهي في</span><b class="sm">15 فبراير 2027</b></div></div>${Object.entries(g).map(([d, ks]) => `${sec(`${DOM[d]} · ${ks.length}`)}<div class="card"><div class="chips">${ks.map(k => `<span class="chip mono" style="font-size:11px">${k.split('.').slice(1).join('.')}</span>`).join('')}</div></div>`).join('')}`; },
+  t: 'صلاحياتي', sys: 'S1-03', p: 'delegate', req: '03:2,4,10,15,17',
+  note: 'ما يستطيعه البالغ المفوَّض، بكلام واضح، ومن منحه، وعلى من، وإلى متى. وما ليس عنده يُطلب من المالك بنقرة: الطلب يصل المالك تنبيهاً عادياً يقبله أو يؤجله. ما هو للمالك وحده لا يُطلب. النقر على قفل ليس محاولة تجاوز، فلا يُبلَّغ عنه.',
+  r() { const has = grantsOf(), req = k => S.preq.find(q => q.k === k && q.st === 'pending');
+    if (!isAdult()) return list(row('task_alt', 'أنشئ مهامي بنفسي', S.teenTasks ? 'سمح بها والدك' : 'لم يسمح بها والدك بعد', { v: chip(S.teenTasks ? 'مسموح' : 'غير مسموح', S.teenTasks ? 'ok' : 'ol') })) + callout('الإشراف على إخوتك لا يُعطى للمراهق.', 'nt', 'lock');
+    const head = `<div class="card fx">${av(me(), 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${me().n}</b><div class="chips" style="margin-top:6px">${chip(roleName(), S.tpl === 'none' ? 'ol' : 'in', ROLES[S.tpl][1])}</div></div></div>`;
+    if (!has.length) return head + empty('lock_person', 'لم تُمنحي صلاحيات بعد', 'أنتِ عضو في العائلة. أحمد وحده يمنح الصلاحيات ويسحبها.', btn('اطلبي دوراً من أحمد', 'preqSend:role', 'sm'));
+    return `${head}${list(row('person', 'منحها', '', { v: 'أحمد · أمس' }), row('groups', 'على من', '', { v: scopeTxt() }), row('event', 'إلى متى', '', { v: S.gUntil ? UNTIL[S.gUntil] : 'حتى يسحبها أحمد' }))}
+    ${PG.map(([, t, i, ks]) => `${sec(`${t} · ${grpSum(ks, has)}`)}${list(ks.map(k => { const on = has.includes(k), q = req(k); return row(on ? 'check_circle' : 'lock', PL[k][0], PL[k][1], { ic: on ? 'var(--success)' : '', c: on ? '' : 'dis', v: on ? '' : q ? chip('بانتظار أحمد', 'wa', 'pending') : btn('اطلبي', 'preqSend:' + k, 'sm txt'), chev: false }); }))}`).join('')}
+    ${callout('حذف حسابك ومغادرة العائلة حقّان لك دائماً، لا يسحبهما أحد.', 'nt', 'verified')}`; },
 });
+surface('perm-request', {
+  kind: 'sheet', t: 'طلب صلاحية', sys: 'S1-03', p: 'owner', a: ['0'], req: '03:2,10,12',
+  note: 'طلب من بالغ مفوَّض أن يُمنح صلاحية ليست عنده. المالك يمنحها (بالرقم السري إن كانت حساسة) أو يؤجل. التأجيل لا يُرسل رفضاً جارحاً: يُكتب للطالب «ليس الآن».',
+  r(i) { const q = S.preq[+i]; if (!q || q.st !== 'pending') return `<h4>لا طلب معلّق</h4>${btn('إغلاق', 'close')}`; const role = q.k === 'role';
+    if (q.k === 'teen') return `<div class="c" style="padding:4px 0 8px">${av(M.khaled, 'lg')}</div><h4 class="c">خالد يطلب أن ينشئ مهامه بنفسه</h4><p class="d c">مهام له هو فقط، ينجزها بلا اعتماد منك وبلا نقاط.</p>${btn('اسمح له', 'preqOk:' + i)}<div class="gap"></div>${btn('ليس الآن', 'preqNo:' + i, 'sec')}`;
+    return `<div class="c" style="padding:4px 0 8px">${av(M.sara, 'lg')}</div><h4 class="c">سارة تطلب ${role ? 'دوراً في العائلة' : 'صلاحية'}</h4>${role ? `<p class="d c">سارة بلا صلاحيات الآن. اختر لها دوراً.</p>${btn('اختر دوراً', 'preqRole:' + i)}` : `<div class="card flat c"><b>${permName(q.k)} ${sensChip(q.k)}</b><div class="sm muted">${PL[q.k][1]}</div></div>${offline() && SENS.includes(q.k) ? callout('أنت غير متصل. منح صلاحية حساسة يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn(SENS.includes(q.k) ? 'امنحها بالرقم السري' : 'امنحها', 'preqOk:' + i, offline() && SENS.includes(q.k) ? '" disabled="' : '', SENS.includes(q.k) ? 'lock' : '')}`}<div class="gap"></div>${btn('ليس الآن', 'preqNo:' + i, 'sec')}`; },
+});
+const AUF = [['all', 'الكل'], ['perm', 'الصلاحيات'], ['prot', 'الحماية'], ['deny', 'المرفوض']];
 surface('audit', {
-  t: 'سجل التدقيق', sys: 'S1-03', p: 'adult', req: '03:7,18 10:26 02:28',
-  note: 'سجل كامل لكل منح وتعديل وإلغاء ورفض. الخط الزمني يبقى من الأقدم إلى الأحدث باتجاه ثابت (Q-386)؛ هنا القائمة عمودية والأحدث أعلى.',
-  r() { return `<div class="fch"><button aria-pressed="true">الكل</button><button>الصلاحيات</button><button>الحماية</button><button>المرفوض</button></div><div class="card"><div class="tl">${S.audit.map(a => `<div class="ev ${a.deny ? 'da' : 'ok'}"><b>${a.t}</b><span>${a.w} · ${a.at} · <span class="mono">${a.k}</span></span></div>`).join('')}</div></div>`; },
+  t: 'سجل الصلاحيات', sys: 'S1-03', p: 'adult', req: '03:7,17,18 10:26 02:28',
+  note: 'كل منح وتعديل وسحب ورفض: من فعل، وماذا، ومتى. بصياغة يفهمها الأب بلا معرّفات تقنية. التصفية تعمل، وكل حالة فارغة تقول ما هي. الأحدث أعلى.',
+  r() { const f = S.auF || 'all', cat = a => (a.deny ? 'deny' : /^(roles|identity)\./.test(a.k) ? 'perm' : a.k.startsWith('protection.') ? 'prot' : 'other'), L2 = S.audit.filter(a => f === 'all' || cat(a) === f || (f === 'perm' && a.deny && /^roles\./.test(a.k)));
+    return `<div class="fch">${AUF.map(([k, t]) => `<button aria-pressed="${f === k}" data-a="auF:${k}">${t}</button>`).join('')}</div>${L2.length ? `<div class="card"><div class="tl">${L2.map(a => `<div class="ev ${a.deny ? 'da' : 'ok'}"><b>${a.t}</b><span>${a.w} · ${a.at}</span></div>`).join('')}</div></div>` : empty('receipt_long', f === 'all' ? 'لا أحداث بعد' : `لا أحداث في «${AUF.find(x => x[0] === f)[1]}»`, f === 'all' ? 'كل منح أو سحب أو رفض سيُكتب هنا.' : 'جرّب تصفية أخرى.', f === 'all' ? '' : btn('اعرض الكل', 'auF:all', 'sm sec'))}`; },
+});
+surface('denial', {
+  t: 'محاولة مرفوضة', sys: 'S1-03', p: 'owner', a: ['a3'], req: '03:7,18',
+  note: 'تفصيل تنبيه رفض: من حاول، وماذا، ومتى، ولماذا رُفض. يصل المالك عند رفض حساس أو محاولة تجاوز حقيقية يرفضها الخادم، لا عند كل نقرة على قفل ظاهر. «تمّ» يخفيه من كل الأجهزة.',
+  r(id) { const a = S.alerts.find(x => x.id === id); if (!a) return empty('task_alt', 'هذا التنبيه أُغلق', 'تجده في سجل الصلاحيات.', btn('افتح السجل', 'go:audit', 'sm sec'));
+    return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('lock_person')}</div><p class="ttl" style="font-size:22px">${a.t}</p><p class="sub">${a.s}</p>
+    ${list(row('person', 'من', '', { v: a.who || 'سارة' }), row('schedule', 'متى', '', { v: a.ago }), row('block', 'النتيجة', '', { v: chip('رُفض', 'da') }))}
+    ${callout('لم يتغير شيء. الرفض يحمي الإعداد، والتنبيه لتعرف فقط.', 'nt', 'verified')}${list(row('key', 'صلاحيات سارة', '', { a: 'go:member:sara' }), row('receipt_long', 'سجل الصلاحيات', '', { a: 'go:audit' }))}${a.open ? btn('تمّ', 'denialAck:' + id) : ''}`; },
 });
 surface('transfer', {
   t: 'نقل الملكية', sys: 'S1-03', p: 'owner', req: '03:16,20',
-  note: 'نقل الملكية لبالغ فقط. فعل عالي الخطورة: شرح العواقب ← اختيار المستلم ← رفع أمني.',
-  r() { return `${callout('بعد النقل تصبح سارة المالكة: تدير الفوترة والصلاحيات وحذف العائلة، وتصير أنت بالغاً بلا منح حتى تفوّضك.', 'wa', 'warning')}${sec('اختر المالك الجديد')}${list(row('', 'سارة', 'بالغ · مؤهلة', { lead: av(M.sara), v: ic('radio_button_checked') }), row('', 'خالد', 'مراهق · غير مؤهل (البالغون فقط)', { lead: av(M.khaled), c: 'dis', v: ic('block') }))}${btn('تابع إلى التأكيد', 'transferGo', 'dng', 'lock')}`; },
+  note: 'نقل الملكية لبالغ فقط؛ غير البالغين لا يظهرون في القائمة أصلاً. الترتيب: ما سيحدث ← اختيار البالغ ← الرقم السري ← طلب معلّق 7 أيام حتى يقبل الطرف الآخر. المالك يلغي الطلب المعلّق متى شاء، وطلب واحد فقط في الوقت نفسه (Q-259). يحتاج اتصالاً.',
+  r() { const x = S.xfer, off = offline(), adults = Object.values(M).filter(m => m.role === 'adult' && !m.owner && !S.removed[m.id]);
+    if (x && x.st === 'pending') return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:22px">بانتظار قبول سارة</p><p class="sub">وصلها الطلب. أنت المالك حتى تقبل. إن لم ترد خلال ${x.left} أيام يسقط الطلب وحده.</p>${list(row('person', 'إلى', '', { v: 'سارة' }), row('event', 'بدأ', '', { v: 'اليوم' }), row('timer', 'بقي', '', { v: `${x.left} أيام` }))}${btn('ألغِ النقل', 'xferCancel', 'sec')}`;
+    if (x && x.st === 'declined') return `<div class="bigic">${ic('undo')}</div><p class="ttl" style="font-size:22px">سارة لم تقبل</p><p class="sub">أنت المالك كما كنت. لم يتغير شيء.</p>${btn('حسناً', 'xferClear')}`;
+    if (!adults.length) return empty('group_off', 'لا بالغ آخر في العائلة', 'الملكية تُنقل إلى بالغ فقط. ادعُ بالغاً أولاً.', btn('ادعُ بالغاً', 'go:add-member', 'sm'));
+    return `${callout('<b>بعد أن تقبل سارة:</b><br>تصير هي المالكة: تدير الاشتراك والصلاحيات وحذف العائلة.<br>وتصير أنت بالغاً بلا صلاحيات حتى تمنحك هي.', 'wa', 'warning')}${sec('إلى من')}${list(adults.map(m => row('', m.n, 'بالغ', { lead: av(m), v: ic('radio_button_checked'), chev: false })))}<p class="sm muted" style="margin:8px 4px">المراهقون والأطفال لا تُنقل إليهم الملكية.</p>
+    ${off ? callout('أنت غير متصل. نقل الملكية يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('ابدأ النقل بالرقم السري', 'transferGo', 'dng' + (off ? '" disabled="' : ''), 'lock')}`; },
+});
+surface('transfer-accept', {
+  t: 'طلب نقل الملكية', sys: 'S1-03', p: 'delegate', req: '03:16',
+  note: 'عند البالغ المتلقي: من يطلب، وما الذي يتغير إن قبل، وكم بقي. القبول بالرقم السري. وله أن يرفض، فيسقط الطلب ويُبلَّغ المالك (مقترح: الحوكمة لم تحسم هل للمتلقي أن يرفض). بعد 7 أيام يسقط الطلب وحده.',
+  r() { const x = S.xfer;
+    if (x && x.st === 'done') return `<div class="bigic" style="background:var(--success-soft);color:var(--success)">${ic('verified')}</div><p class="ttl" style="font-size:22px">أنتِ المالكة الآن</p><p class="sub">تديرين الاشتراك والصلاحيات. أحمد صار بالغاً بلا صلاحيات حتى تمنحيه.</p>${callout('في هذا النموذج تبقى الشخصيات كما هي للعرض.', 'nt', 'info')}${btn('امنحي أحمد دوراً', 'xferClear', 'sec')}`;
+    if (!x || x.st !== 'pending') return empty('swap_horiz', 'لا طلب نقل الآن', x && x.st === 'expired' ? 'انتهت مهلة الطلب. إن أراد أحمد فليبدأ طلباً جديداً.' : 'إن أراد المالك نقل الملكية إليكِ سيظهر الطلب هنا.');
+    return `<div class="c" style="padding:6px 0">${av(M.ahmad, 'xl')}</div><p class="ttl" style="font-size:22px">أحمد يريد نقل ملكية العائلة إليكِ</p><p class="sub">بقي ${x.left} أيام للرد.</p>
+    ${sec('إن قبلتِ')}${list(row('verified', 'تصيرين المالكة', 'تديرين الاشتراك والصلاحيات وحذف العائلة'), row('person', 'أحمد يصير بالغاً بلا صلاحيات', 'حتى تمنحيه أنتِ دوراً'), row('child_care', 'الأطفال وقواعدهم', 'تبقى كما هي'))}
+    ${offline() ? callout('أنتِ غير متصلة. القبول يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('اقبلي بالرقم السري', 'xferAccept', offline() ? '" disabled="' : '', 'lock')}<div class="gap"></div>${btn('لا أقبل', 'xferDecline', 'sec')}`; },
+});
+surface('family-delete', {
+  t: 'حذف العائلة', sys: 'S1-03', p: 'owner', req: '03:20 02:28',
+  note: 'أخطر فعل في التطبيق: ما يُحذف وما يبقى خلال المهلة ← كتابة اسم العائلة ← الرقم السري ← حالة «تُحذف بعد 30 يوماً» مع «ألغِ الحذف» (Q-344). يحتاج اتصالاً، ولا يُصَفّ للإرسال لاحقاً.',
+  r() { const off = offline();
+    if (S.famDel) return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('auto_delete')}</div><p class="ttl" style="font-size:22px">العائلة تُحذف بعد ${S.famDel} يوماً</p><p class="sub">أُبلغ كل البالغين. كل شيء يعمل كما هو حتى ذلك اليوم. بعده يُمحى كل شيء نهائياً.</p>${btn('ألغِ الحذف', 'famDelCancel')}`;
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('delete_forever')}</div><p class="ttl" style="font-size:22px">حذف عائلة المنصور</p>
+    ${sec('بعد 30 يوماً يُمحى نهائياً')}${list(row('groups', 'كل الأفراد وملفات الأطفال', ''), row('forum', 'المحادثات والمهام والنقاط', ''), row('mobile_off', 'إقران أجهزة الأطفال', 'تتوقف الحماية عليها'), row('credit_card', 'الاشتراك', 'يتوقف بلا استرداد لما مضى'))}
+    ${sec('خلال الثلاثين يوماً')}${callout('كل شيء يعمل كما هو، وتستطيع إلغاء الحذف في أي لحظة.', 'ok', 'undo')}
+    <label class="fld"><span>اكتب اسم العائلة للتأكيد</span><input id="fdN" placeholder="عائلة المنصور" autocomplete="off"><small>${S.fdErr ? 'الاسم غير مطابق. اكتب: عائلة المنصور' : 'اكتب: عائلة المنصور'}</small></label>
+    ${off ? callout('أنت غير متصل. حذف العائلة يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('احذف العائلة بالرقم السري', 'famDelGo', 'dng' + (off ? '" disabled="' : ''), 'lock')}`; },
+});
+surface('member-remove', {
+  t: id => `إزالة ${M[id].n}`, sys: 'S1-03', p: 'owner', a: ['sara'], req: '03:20 02:28',
+  note: 'إزالة فرد للمالك وحده بالرقم السري. الشاشة تقول ما يتوقف فوراً وما يُمحى بعد 30 يوماً، ثم تعرض حالة «أُزيل» مع «أعِده إلى العائلة» خلال المهلة. المالك لا يُزال: ينقل الملكية أولاً.',
+  r(id) { const m = M[id], kid = m.role !== 'adult', d = S.removed[id];
+    if (m.owner) return empty('verified', 'المالك لا يُزال', 'انقل الملكية إلى بالغ آخر أولاً.', btn('انقل الملكية', 'go:transfer', 'sm'));
+    if (d) return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('person_off')}</div><p class="ttl" style="font-size:22px">${vb(m, 'أُزيل', 'أُزيلت')} ${m.n}</p><p class="sub">توقف ${vb(m, 'دخوله', 'دخولها')} الآن. تُمحى ${vb(m, 'بياناته', 'بياناتها')} نهائياً بعد ${d} يوماً.</p>${btn(`${vb(m, 'أعِده', 'أعِدها')} إلى العائلة`, 'memRestore:' + id)}`;
+    return `<div class="c" style="padding:6px 0">${av(m, 'xl')}</div><p class="ttl" style="font-size:22px">إزالة ${m.n} من العائلة</p>
+    ${sec('يتوقف فوراً')}${list(row('logout', `${vb(m, 'دخوله', 'دخولها')} إلى العائلة`, kid ? 'جهازه يُفك إقرانه وتتوقف الحماية عليه' : 'تخرج من كل أجهزتها'), kid ? '' : row('key_off', 'كل صلاحياتها', ''), S.xfer && S.xfer.to === id && S.xfer.st === 'pending' ? row('swap_horiz', 'طلب نقل الملكية إليها', 'يُلغى') : '', S.rec === id ? row('support_agent', 'كونها من يساعدك على العودة', 'ستحتاج أن تختار غيرها') : '')}
+    ${sec('بعد 30 يوماً يُمحى نهائياً')}${list(row('badge', `ملف ${m.n}`, ''), row('forum', `${vb(m, 'رسائله', 'رسائلها')}`, 'تبقى عند الآخرين بلا اسم'))}
+    ${callout('خلال الثلاثين يوماً تستطيع إعادتها كما كانت.'.replace('إعادتها', vb(m, 'إعادته', 'إعادتها')).replace('كانت', vb(m, 'كان', 'كانت')), 'ok', 'undo')}${offline() ? callout('أنت غير متصل. الإزالة تحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn(`أزل ${m.n} بالرقم السري`, 'memRemove:' + id, 'dng' + (offline() ? '" disabled="' : ''), 'lock')}`; },
 });
 surface('turn13', {
-  t: 'بلوغ 13 سنة', sys: 'S1-03', p: 'owner', req: '03:3,15 02:13',
-  note: 'عند بلوغ 13 يتحول الدور تلقائياً من child إلى teen. تفويض المراهق يقتصر على صلاحيات غير إشرافية.',
-  r() { return `<div class="c" style="padding:10px 0 4px">${av(M.layan, 'xl')}</div><p class="ttl" style="font-size:22px">ليان تكبر</p><p class="sub">سنة الميلاد 2017 تحدد الدور والقالب تلقائياً. في 2030 تنتقل إلى قالب المراهق.</p>
-    ${sec('ما الذي يتغيّر تلقائياً')}${list(row('swap_horiz', 'الدور: طفل ← مراهق', 'child ← teen'), row('dashboard', 'الواجهة: تبويبات المراهق', 'الرئيسية · المحادثات · تعلّم · أنا'), row('chat_error', 'المصنّف في المحادثات', 'يبقى مفعّلاً افتراضياً ويمكنك إيقافه'))}
-    ${sec('ما يمكنك تفويضه للمراهق')}${list(row('task_alt', 'إدارة مهامه الخاصة', 'صلاحية غير إشرافية', { tg: true, ta: 'soonT' }))}${callout('لا يُفوَّض للمراهق أي إشراف على إخوته، ولا الفوترة ولا الملكية.', 'nt', 'lock')}`; },
+  t: 'بلوغ 13 سنة', sys: 'S1-03', p: 'owner', a: [''], req: '03:1,3,15 02:13',
+  note: 'حالتان. قبل الموعد: ماذا سيتغير ومتى (1 يناير من سنة بلوغ 13 — Q-235). وفي يومه: الدور تغيّر وحده، والأب يراجع ما يسمح به للمراهق. المراهق لا يُعطى إشرافاً؛ له صلاحية واحدة تُعطى: أن ينشئ مهامه بنفسه.',
+  r(st) { const now = st === 'now' || S.rev13 === 1;
+    return `<div class="c" style="padding:10px 0 4px">${av(M.layan, 'xl')}</div><p class="ttl" style="font-size:22px">${now ? 'ليان صارت مراهقة' : 'ليان تكبر'}</p><p class="sub">${now ? 'تغيّرت واجهتها اليوم وحدها. راجع ما تسمح لها به.' : 'في 1 يناير 2030 تنتقل وحدها إلى واجهة المراهقين. لا تحتاج أن تفعل شيئاً الآن.'}</p>
+    ${sec(now ? 'ما تغيّر وحده' : 'ما سيتغير وحده')}${list(row('dashboard', 'الواجهة', 'واجهة المراهقين: الرئيسية، المحادثات، تعلّم، أنا'), row('chat_error', 'تنبيهات المحادثة', 'يبقى الفحص الآلي يعمل، وتستطيع إيقافه'), row('stars', 'النقاط', 'نظام المراهقين يبدأ من صفر'))}
+    ${sec('ما يبقى كما هو')}${list(row('hourglass_top', 'قواعد الوقت والتطبيقات', ''), row('location_on', 'الموقع والاستغاثة', ''))}
+    ${now ? sec('قرارك') + list(row('task_alt', 'تنشئ مهامها بنفسها', 'مهام لها هي فقط، تنجزها بلا اعتماد', { tg: S.teenTasks13 || false, ta: 'teenT:13' })) + callout('لا يُعطى المراهق إشرافاً على إخوته، ولا شيئاً من الاشتراك أو الملكية.', 'nt', 'lock') + btn('تمت المراجعة', 'rev13Done') : callout('عندما يحين الموعد يصلك تنبيه لتراجع ما تسمح لها به.', 'nt', 'notifications')}`; },
 });
 Object.assign(ACT, {
-  soonT() { toast('حُفظ التفضيل'); },
-  tplApply(k) { S.sheet = null; if (S.conflict) { S.conflict = false; return confirmDlg('تغيّرت الصلاحيات قبل لحظات', 'عدّلت نسخة أخرى من حسابك منح سارة للتو. لم يُحفظ تعديلك حتى لا يُكتب فوق الأحدث. حدّث ثم أعد المحاولة.', 'حدّث الآن', () => { toast('حُدّثت المنح · أعد تطبيق القالب'); render(); }); } gate('تطبيق قالب صلاحيات فعل حساس', () => { const was = S.tpl; S.tpl = k; audit(`طُبّق قالب «${{ partner: 'شريك', guardian: 'وصي محدود', observer: 'مراقب' }[k]}» على سارة`, 'roles.template.apply'); toast('طُبّق القالب · يسري فوراً على كل أجهزتها', () => { S.tpl = was; render(); }); }, 'stepup'); },
-  revokeAll() { confirmDlg('إلغاء كل منح سارة؟', 'ستفقد سارة الوصول إلى لوحة العائلة فوراً على كل أجهزتها، وتبقى عضواً بالغاً في العائلة.', 'ألغِ المنح', () => { const was = S.tpl; S.tpl = 'none'; audit('أُلغيت كل منح سارة', 'roles.grant.revoke'); toast('أُلغيت المنح فوراً', () => { S.tpl = was; render(); }); render(); }, true); },
-  keyToggle(k) { toast('المنح الفردي يفتح ورقة النطاق والمدة — المفتاح: ' + k, null, 'key'); },
-  transferGo() { gate('نقل الملكية لا يُتراجع عنه بنقرة', () => toast('في التطبيق الفعلي تُنقل الملكية الآن. النموذج يُبقي أحمد مالكاً.', null, 'info'), 'stepup'); },
+  rolePick(k) { S.sheet = { id: 'tpl-diff', a: [k] }; },
+  tplApply(k) { S.sheet = null; if (S.conflict) { S.conflict = false; return confirmDlg('تغيّرت الصلاحيات قبل لحظات', 'عُدّلت صلاحيات سارة من جهاز آخر للتو. لم يُحفظ تغييرك حتى لا يُكتب فوق الأحدث. حدّث ثم أعد المحاولة.', 'حدّث الآن', () => { toast('حُدّثت الصلاحيات · أعد اختيار الدور'); render(); }); } gate('تغيير دور سارة', () => { const was = [S.tpl, S.gx]; S.tpl = k; S.gx = { add: [], rem: [] }; audit(`صار دور سارة «${ROLES[k][0]}»`, 'roles.template.apply'); toast(`صارت سارة ${ROLES[k][0]} · يسري الآن على كل أجهزتها`, () => { [S.tpl, S.gx] = was; render(); }); }, 'stepup'); },
+  revokeAll() { S.sheet = null; confirmDlg('سحب كل صلاحيات سارة؟', 'تتوقف صلاحياتها الآن على كل أجهزتها، وتبقى عضواً في العائلة. لا تخرج من حسابها.', 'اسحب الصلاحيات', () => { const was = [S.tpl, S.gx, S.gScope, S.gUntil]; S.tpl = 'none'; S.gx = { add: [], rem: [] }; S.gScope = S.gUntil = null; audit('سُحبت كل صلاحيات سارة', 'roles.grant.revoke'); toast('سُحبت الصلاحيات', () => { [S.tpl, S.gx, S.gScope, S.gUntil] = was; render(); }); render(); }, true); },
+  gtDone(k) { S.sheet = k ? { id: 'tpl-diff', a: [k] } : null; },
+  gScope(k) { if (k === 'all') S.gScope = 'all'; else { const c = Array.isArray(S.gScope) ? S.gScope.slice() : []; S.gScope = c.includes(k) ? c.filter(x => x !== k) : [...c, k]; } },
+  gUntil(k) { S.gUntil = k; },
+  pgF(k) { S.pgF = k; }, auF(k) { S.auF = k; },
+  permReload() { S.conflict = false; toast('حُدّثت الصلاحيات'); },
+  permT(k) {
+    if (S.conflict) return toast('حدّث الصفحة أولاً', null, 'sync_problem');
+    const on = grantsOf().includes(k), base = tplKeys(S.tpl).includes(k), was = JSON.stringify(S.gx);
+    const set = v => { S.gx.add = S.gx.add.filter(x => x !== k); S.gx.rem = S.gx.rem.filter(x => x !== k); if (v && !base) S.gx.add.push(k); if (!v && base) S.gx.rem.push(k); audit(`${v ? 'مُنحت' : 'سُحبت من'} سارة: ${permName(k)}`, v ? 'roles.grant.create' : 'roles.grant.revoke'); toast(offline() ? 'حُفظ · يُرسل عند عودة الاتصال' : v ? 'مُنحت · تسري الآن' : 'سُحبت · توقفت الآن', () => { S.gx = JSON.parse(was); render(); }, offline() ? 'cloud_off' : 'check_circle'); };
+    if (on) return set(false);
+    if (SENS.includes(k)) { if (offline()) return toast('صلاحية حساسة · منحها يحتاج اتصالاً', null, 'cloud_off'); return gate(`منح صلاحية حساسة: ${permName(k)}`, () => set(true), 'stepup'); }
+    set(true);
+  },
+  preqSend(k) { S.sheet = null; const dad = isAdult() ? 'أحمد' : 'والدك'; if (S.preq.find(q => q.k === k && q.st === 'pending')) return toast(`طلبك عند ${dad}`); S.preq.push({ k, st: 'pending', at: 'الآن' }); toast(`أُرسل طلبك إلى ${dad}`, null, 'send'); },
+  preqOk(i) { const q = S.preq[+i]; S.sheet = null; if (q.k === 'teen') { q.st = 'ok'; S.teenTasks = true; audit('سُمح لخالد بإنشاء مهامه بنفسه', 'roles.grant.create'); return toast('خالد ينشئ مهامه بنفسه الآن'); } const ok = () => { q.st = 'ok'; ACT.permTset(q.k); toast('مُنحت · وصل سارة إشعار'); }; SENS.includes(q.k) ? gate(`منح صلاحية حساسة: ${permName(q.k)}`, ok, 'stepup') : ok(); },
+  permTset(k) { if (!tplKeys(S.tpl).includes(k) && !S.gx.add.includes(k)) S.gx.add.push(k); S.gx.rem = S.gx.rem.filter(x => x !== k); audit(`مُنحت سارة: ${permName(k)}`, 'roles.grant.create'); },
+  preqNo(i) { const q = S.preq[+i]; q.st = 'no'; S.sheet = null; toast(`وصل ${q.k === 'teen' ? 'خالد' : 'سارة'}: «ليس الآن»`); },
+  preqRole(i) { S.preq[+i].st = 'ok'; S.sheet = { id: 'role-pick', a: [] }; },
+  denialAck(id) { const a = S.alerts.find(x => x.id === id); if (a) a.open = 0; back(); toast('أُغلق التنبيه على كل الأجهزة'); },
+  transferGo() { gate('نقل ملكية العائلة إلى سارة', () => { S.xfer = { to: 'sara', left: 7, st: 'pending' }; audit('بدأ نقل الملكية إلى سارة', 'roles.ownership.transfer'); toast('وصل الطلب إلى سارة', null, 'send'); }, 'stepup'); },
+  xferCancel() { confirmDlg('إلغاء نقل الملكية؟', 'لن تستطيع سارة قبوله بعد الإلغاء. تبقى أنت المالك.', 'ألغِ النقل', () => { S.xfer = null; audit('أُلغي نقل الملكية إلى سارة', 'roles.ownership.transfer'); toast('أُلغي النقل'); render(); }, true); },
+  xferClear() { S.xfer = null; },
+  xferAccept() { gate('قبول ملكية العائلة', () => { S.xfer.st = 'done'; audit('قبلت سارة ملكية العائلة', 'roles.ownership.transfer'); }, 'stepup'); },
+  xferDecline() { confirmDlg('لا تقبلين الملكية؟', 'يسقط الطلب ويبقى أحمد المالك. يصله إشعار بذلك.', 'لا أقبل', () => { S.xfer.st = 'declined'; audit('لم تقبل سارة نقل الملكية', 'roles.ownership.transfer'); back(); toast('وصل أحمد ردّك'); render(); }); },
+  famDelGo() { const v = ($('#fdN') || {}).value || ''; if (v.trim() !== 'عائلة المنصور') { S.fdErr = 1; return; } S.fdErr = 0; gate('حذف عائلة المنصور', () => { S.famDel = 30; audit('طُلب حذف العائلة · مهلة 30 يوماً', 'identity.member.remove'); }, 'stepup'); },
+  famDelCancel() { S.famDel = 0; audit('أُلغي حذف العائلة', 'identity.member.remove'); toast('أُلغي الحذف · العائلة كما كانت'); },
+  memRemove(id) { const m = M[id]; gate(`إزالة ${m.n} من العائلة`, () => { S.removed[id] = 30; if (S.xfer && S.xfer.to === id) S.xfer = null; if (S.rec === id) S.rec = ''; audit(`${vb(m, 'أُزيل', 'أُزيلت')} ${m.n} من العائلة · مهلة 30 يوماً`, 'identity.member.remove'); }, 'stepup'); },
+  memRestore(id) { const m = M[id]; delete S.removed[id]; audit(`${vb(m, 'أُعيد', 'أُعيدت')} ${m.n} إلى العائلة`, 'identity.member.remove'); toast(`${vb(m, 'عاد', 'عادت')} ${m.n} كما ${vb(m, 'كان', 'كانت')}`); },
+  teenT(w) { if (w === '13') { S.teenTasks13 = !S.teenTasks13; return; } S.teenTasks = !S.teenTasks; audit(`${S.teenTasks ? 'سُمح لخالد' : 'أُوقف السماح لخالد'} بإنشاء مهامه بنفسه`, S.teenTasks ? 'roles.grant.create' : 'roles.grant.revoke'); toast(S.teenTasks ? 'خالد ينشئ مهامه بنفسه الآن' : 'أُوقف'); },
+  rev13Done() { S.rev13 = 2; audit('راجع أحمد صلاحيات ليان بعد بلوغها 13', 'roles.grant.edit'); back(); toast('تمت المراجعة'); },
 });
 
 /* ============ التحكم ============ */

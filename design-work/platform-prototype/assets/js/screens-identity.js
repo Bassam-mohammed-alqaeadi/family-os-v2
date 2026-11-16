@@ -165,7 +165,7 @@ Object.assign(ACT, {
   obEnter() { S.plan = 'free'; setPersona('owner'); S.full = { id: 'perm-notif', a: [] }; },
   obJoin() { const v = ($('#obJ') || {}).value.trim().toUpperCase(); if (v !== 'MNSR-7K2P') { S.ob.jerr = 1; return; } S.ob.jerr = 0; S.ob.jok = 1; },
   obJoinNo() { S.ob.jok = 0; S.ob.link = 0; },
-  obJoinGo() { S.tpl = 'none'; setPersona('delegate'); S.full = { id: 'perm-notif', a: [] }; S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: 'انضمت سارة إلى العائلة', s: 'بلا صلاحيات بعد · حدّد ما تراه وتتحكم فيه', ago: 'الآن', p: 3, open: 1 }); audit(`انضمت سارة برمز دعوة بعد توثيق ${S.ob.via === 'email' ? 'بريدها' : 'رقمها'}`, 'identity.family.join'); toast('انضممتِ إلى عائلة المنصور · أُبلغ أحمد ليحدد صلاحياتك', null, 'how_to_reg'); },
+  obJoinGo() { S.tpl = 'none'; S.gx = { add: [], rem: [] }; S.gScope = S.gUntil = null; setPersona('delegate'); S.full = { id: 'perm-notif', a: [] }; S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: 'انضمت سارة إلى العائلة', s: 'بلا صلاحيات بعد · حدّد ما تراه وتتحكم فيه', ago: 'الآن', p: 3, open: 1 }); audit(`انضمت سارة برمز دعوة بعد توثيق ${S.ob.via === 'email' ? 'بريدها' : 'رقمها'}`, 'identity.family.join'); toast('انضممتِ إلى عائلة المنصور · أُبلغ أحمد ليحدد صلاحياتك', null, 'how_to_reg'); },
   obPair() { const v = ($('#obC') || {}).value.trim().toUpperCase(); if (v === 'OTHER1') { S.ob.perr = 'other'; return; } if (v !== 'LY4N82') { S.ob.perr = 1; return; } S.ob.perr = 0; S.ob.cons = {}; go('ob-consent'); },
   consT(k) { S.ob.cons = S.ob.cons || {}; S.ob.cons[k] = !S.ob.cons[k]; },
   consLater() { S.ob = {}; S.stack = [{ id: 'ob-welcome', a: [] }]; toast('لم يُقرن الجهاز · الرمز يبقى صالحاً حتى ينتهي وقته', null, 'info'); },

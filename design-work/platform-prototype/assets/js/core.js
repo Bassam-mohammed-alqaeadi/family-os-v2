@@ -38,7 +38,7 @@ const PERSONA = {
 const DEMO_PIN = '482615';
 const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
-  tpl: 'partner', privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
+  tpl: 'partner', gx: { add: [], rem: [] }, gScope: 'all', gUntil: '', xfer: null, famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
   invs: [{ c: 'MNSR-7K2P', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
@@ -78,13 +78,13 @@ const fresh = () => ({
   alerts: [
     { id: 'a1', k: 'tamper', kid: 'khaled', t: 'تعطّلت خدمة الوصول على جهاز خالد', s: 'الحماية تعمل جزئياً · نحاول إعادة التفعيل تلقائياً', ago: 'قبل 12 د', p: 1, open: 1 },
     { id: 'a2', k: 'chat', kid: 'layan', t: 'رسالة تحتاج مراجعتك في محادثة ليان', s: 'رصدها المصنّف الآلي · قد يكون التقدير خاطئاً', ago: 'قبل ساعة', p: 2, open: 1 },
-    { id: 'a3', k: 'perm', kid: null, t: 'محاولة وصول مرفوضة: سارة ← «تعديل الحصة اليومية»', s: 'المفتاح protection.quota.edit للمالك حصراً', ago: 'أمس 9:14 م', p: 3, open: 0 },
+    { id: 'a3', k: 'perm', kid: null, t: 'طلب مرفوض: سارة ← «قراءة محادثات الأطفال»', s: 'صلاحية حساسة لم تكن عندها حينها', who: 'سارة', ago: 'أمس 7:15 م', p: 3, open: 0 },
   ],
   outbox: [], sos: null, sms: { used: 14 }, aiUse: 212,
   audit: [
-    { t: 'طُبّق قالب «شريك» على سارة', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply' },
+    { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply' },
     { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit' },
-    { t: 'رُفض: سارة حاولت «تعديل الحصة اليومية»', w: 'النظام', at: 'أمس 9:14 م', k: 'protection.quota.edit', deny: 1 },
+    { t: 'رُفض: سارة ← «قراءة محادثات الأطفال»', w: 'النظام', at: 'أمس 7:15 م', k: 'chat.minor.view', deny: 1 },
   ],
   agent: [
     { id: 'g1', t: 'ملخّص يوم الأطفال', k: 'agent.summary.read', gate: 'بلا موافقة (قراءة)', at: 'اليوم 6:00 ص', undo: 0, st: 'تمّ' },
@@ -125,8 +125,10 @@ function can(key) {
   if (S.persona === 'owner') return true;
   if (S.persona !== 'delegate') return false;
   if (window.FOS_PERM.ownerOnly.includes(key)) return false;
-  return S.tpl !== 'none' && window.FOS_PERM[S.tpl].includes(key);
+  return grantsOf().includes(key);
 }
+/* ما عند البالغ المفوَّض فعلاً: مفاتيح دوره، ناقص ما سُحب بعينه، زائد ما أُضيف بعينه (S1-03 REQ-014). */
+function grantsOf() { const base = S.tpl === 'none' ? [] : window.FOS_PERM[S.tpl]; return [...base.filter(k => !S.gx.rem.includes(k)), ...S.gx.add.filter(k => !base.includes(k))]; }
 const L = (ar, en) => (S.lang === 'en' && en ? en : ar);
 const offline = () => S.net === 'off';
 /* وسم الحداثة الصادق: لا تُعرض بيانات قديمة كأنها حية (S1-09 REQ-011). */
@@ -298,7 +300,7 @@ function sosLift() {
   if (free) { L.innerHTML = ''; L.className = ''; ph.dataset.sosup = ''; return; }
   /* الزر مغطّى في موضعه: نسخة فوقه تماماً. الزر خرج بالتمرير: شريط علوي مطويّ يحمل عنوان الشاشة والزر. */
   const at = vis.length ? vis[vis.length - 1][1] : null, sb = $('#sbar').getBoundingClientRect(), fl = !at && !S.sheet && !S.dlg && !S.full;
-  const want = fl ? 'f' : 'b'; if (L.dataset.k !== want || !L.firstChild) { const d = SC[topE().id], tt = typeof d.t === 'function' ? d.t() : d.t; L.innerHTML = (fl ? `<b>${tt}</b>` : '') + sosBtn(); L.dataset.k = want; }
+  const want = fl ? 'f' : 'b'; if (L.dataset.k !== want || !L.firstChild) { const d = SC[topE().id], tt = typeof d.t === 'function' ? d.t(...(topE().a.length ? topE().a : d.a || [])) : d.t; L.innerHTML = (fl ? `<b>${tt}</b>` : '') + sosBtn(); L.dataset.k = want; }
   L.classList.toggle('float', fl);
   L.style.top = ((at ? at.top - pr.top : sb.bottom - pr.top + (fl ? 0 : 8 * k)) / k) + 'px';
   const rtl = ph.dir !== 'ltr';
@@ -326,7 +328,8 @@ const ACT = {
   freeOff() { S.freeMode = 0; audit('أُنهي الوضع الحر', 'protection.free_mode.activate'); toast('انتهى الوضع الحر · عادت القواعد'); },
   notifFix() { S.notifPerm = true; toast('فُعّلت الإشعارات', null, 'notifications_active'); },
   soon() { toast('خارج نطاق المرحلة 1 — يُضاف عبر سجل الخدمات لاحقاً', null, 'hourglass_empty'); },
-  denied(key) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `محاولة وصول مرفوضة: ${me().n} ← ${key}`, s: 'سُجّلت في التدقيق وأُبلغ الأب', ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} حاول استخدام ${key}`, w: 'النظام', at: 'الآن', k: key, deny: 1 }); S.sheet = { id: 'why', a: ['nd:' + key] }; },
+  /* القفل الظاهر يشرح السبب ويعرض طلب الصلاحية. الرفض العادي صامت وواضح (S1-03 سيناريو 2-1)؛ ورفض صلاحية حساسة يُسجَّل ويُنبَّه الأب (REQ-007). */
+  denied(key) { if (SENS.includes(key)) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `طلب مرفوض: ${me().n} ← «${permName(key)}»`, s: 'صلاحية حساسة ليست عندها', who: me().n, ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} ← «${permName(key)}»`, w: 'النظام', at: 'الآن', k: key, deny: 1 }); } S.sheet = { id: 'why', a: ['nd:' + key] }; },
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el || !el.closest('#phone')) return;

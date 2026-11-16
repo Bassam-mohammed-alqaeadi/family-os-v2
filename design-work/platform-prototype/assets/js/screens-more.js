@@ -35,9 +35,8 @@ Object.assign(ACT, {
 surface('family-settings', {
   t: 'العائلة', sys: 'S1-02', p: 'adult', req: '02:7,8,25,28 03:20 01:12',
   note: 'الاسم والبلد والتوقيت. البلد يحدد الأسعار وطرق الدفع وقنوات التحقق. حذف العائلة للمالك حصراً بمهلة تراجع.',
-  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: 'عائلة المنصور', a: own ? 'soonC' : 'denied:shell.config.edit' }), row('public', 'البلد', 'يحدد الأسعار وطرق الدفع', { v: 'اليمن' }), row('schedule', 'التوقيت', 'تُحسب به أوقات النوم والمدرسة ونهاية اليوم', { v: 'صنعاء' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(row('swap_horiz', 'انقل الملكية', 'إلى بالغ آخر', { a: 'go:transfer' }), row('delete_forever', 'احذف العائلة', 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'famDel', ic: 'var(--danger)' })) : callout('نقل الملكية وحذف العائلة للأب حصراً.', 'nt', 'lock')); },
+  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: 'عائلة المنصور', a: own ? 'soonC' : 'denied:shell.config.edit' }), row('public', 'البلد', 'يحدد الأسعار وطرق الدفع', { v: 'اليمن' }), row('schedule', 'التوقيت', 'تُحسب به أوقات النوم والمدرسة ونهاية اليوم', { v: 'صنعاء' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(row('swap_horiz', 'انقل الملكية', 'إلى بالغ آخر', { a: 'go:transfer' }), row('delete_forever', S.famDel ? `العائلة تُحذف بعد ${S.famDel} يوماً` : 'احذف العائلة', S.famDel ? 'اعرض أو ألغِ الحذف' : 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'go:family-delete', ic: 'var(--danger)' })) : callout('نقل الملكية وحذف العائلة للأب حصراً.', 'nt', 'lock')); },
 });
-ACT.famDel = () => confirmDlg('حذف عائلة المنصور؟', 'تُجدوَل العائلة للحذف وتبقى قابلة للاسترجاع 30 يوماً، ثم تُمحى بياناتها نهائياً. يُبلَّغ كل البالغين.', 'تابع', () => gate('حذف العائلة فعل لا يُتراجع عنه بعد المهلة', () => toast('في التطبيق الفعلي تبدأ مهلة الحذف الآن', null, 'info'), 'stepup'), true);
 surface('templates', {
   t: 'القوالب', sys: 'S1-01', p: 'adult', req: '01:4 03:13 02:13', st: 'un',
   note: 'UNKNOWN (Q-090): محتوى قوالب العرض الثلاثة (ما يظهر في كل قالب بالتفصيل) سؤال مفتوح يُجاب في مرحلة التصميم. ما في هذا النموذج اقتراح للمراجعة لا قرار.',
@@ -297,9 +296,9 @@ const WHY = {
 };
 surface('why', {
   kind: 'sheet', t: 'لماذا؟', sys: 'S1-09', p: 'any', a: ['rank'], req: '09:4,8,9 03:7',
-  note: 'نمط موحّد: كل قفل أو قيمة أو اقتراح له تفسير بلغة بسيطة مع مصدره. محاولة استخدام مفتاح غير ممنوح تُسجَّل ويُنبَّه الأب.',
+  note: 'نمط موحّد: كل قفل أو قيمة أو اقتراح له تفسير بلغة بسيطة. قفل الصلاحية يقول اسمها بالعربية ويعرض طلبها من المالك. الرفض العادي لا يُبلَّغ عنه؛ ورفض صلاحية حساسة يُسجَّل ويُنبَّه المالك.',
   r(id) {
-    if (id.startsWith('nd:')) { const k = id.slice(3), oo = window.FOS_PERM.ownerOnly.includes(k); return `<div class="bigic" style="width:64px;height:64px;border-radius:22px">${ic('lock_person')}</div><h4 class="c">${oo ? 'هذا الإجراء للأب فقط' : 'غير مفوَّض لك'}</h4><p class="d c">${oo ? 'بعض الإجراءات لا تُفوَّض لأحد: الفوترة والملكية وبعض قواعد الحماية.' : 'لم يمنحك الأب هذه الصلاحية. يمكنك أن تطلبها منه.'}</p><div class="card flat c"><span class="mono sm">${k}</span></div>${callout('سُجّلت المحاولة في التدقيق وأُبلغ الأب، كما في كل محاولة وصول مرفوضة.', 'nt', 'receipt_long')}${btn('فهمت', 'close')}`; }
+    if (id.startsWith('nd:')) { const k = id.slice(3), oo = !PGIVE.includes(k), q = S.preq.find(x => x.k === k && x.st === 'pending'), f = me().f; return `<div class="bigic" style="width:64px;height:64px;border-radius:22px">${ic('lock_person')}</div><h4 class="c">${permName(k)}</h4><p class="d c">${oo ? 'هذا لأحمد وحده. بعض الأمور لا تُعطى لأحد: الاشتراك والملكية وبعض قواعد الحماية.' : `ليست عند${f ? 'كِ' : 'ك'} هذه الصلاحية. ${f ? 'تستطيعين أن تطلبيها' : 'تستطيع أن تطلبها'} من أحمد.`}</p>${SENS.includes(k) ? callout('هذه صلاحية حساسة، فسُجّلت المحاولة وأُبلغ أحمد.', 'nt', 'receipt_long') : ''}${oo ? '' : q ? callout('طلبك عند أحمد. يصلك إشعار حين يرد.', 'nt', 'pending') : btn(f ? 'اطلبيها من أحمد' : 'اطلبها من أحمد', 'preqSend:' + k)}${oo || q ? btn('فهمت', 'close') : `<div class="gap"></div>${btn('ليس الآن', 'close', 'sec')}`}`; }
     const w = WHY[id] || WHY.rank; return `<div class="bigic" style="width:64px;height:64px;border-radius:22px">${ic('help')}</div><h4 class="c">${w[0]}</h4><p class="d c">${w[1]}</p>${isAdult() ? `<div class="card flat c xs muted">المصدر: <span class="mono">${w[2]}</span></div>` : ''}${btn(mode() === 'parent' ? 'فهمت' : 'حسناً', 'close')}`;
   },
 });
