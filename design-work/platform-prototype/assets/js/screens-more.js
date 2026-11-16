@@ -156,8 +156,8 @@ surface('health', {
 ACT.syncNow = () => { if (offline()) return toast('لا يوجد اتصال الآن · يُرسل كل شيء تلقائياً عند عودته', null, 'cloud_off'); flushOutbox(); S.lastSync = S.lastSync || { n: 0, at: 'الآن' }; S.lastSync.at = 'الآن'; toast('تمت المزامنة', null, 'cloud_done'); };
 surface('about', {
   t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20', st: 'un',
-  note: 'UNKNOWN (Q-043): الشعار بصيغة SVG والشخصية (mascot) لم يُسلَّما بعد؛ يُعرض الاسم نصاً دون اختلاق شعار.',
-  r() { return `<div class="c" style="padding:16px 0"><div style="font-size:40px;font-weight:700;color:var(--primary)">عائلتي</div><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${callout('<b>غير محسوم (Q-043):</b> ملف الشعار والشخصية لم يُسلَّما؛ لذلك لا يظهر شعار هنا.', 'wa', 'help')}${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
+  note: 'الشعار من تصميم Q-398 (ينتظر حكم المالك من الشاشة). شخصية المرشد (B-002) ما زالت مفتوحة ولا تظهر.',
+  r() { return `<div class="c" style="padding:16px 0"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="96" style="margin:0 auto"><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
 });
 ACT.updCheck = () => toast(offline() ? 'لا يوجد اتصال · نتحقق عند عودته' : 'أنت على أحدث إصدار', null, offline() ? 'cloud_off' : 'check_circle');
 surface('outbox', {
@@ -171,10 +171,12 @@ surface('outbox', {
     ${S.syncConflict ? `<div class="gap"></div>${callout('<b>تغيير واحد لم يُطبَّق.</b> عدّلت سارة حصة ليان بعدك، فبقي تعديلها الأحدث (150 د). تعديلك (120 د) لم يُكتب فوقه.', 'wa', 'merge')}<div class="btns">${btn('أبقِ تعديل سارة', 'conflKeep', 'sec')}${btn('أعد تطبيق تعديلي', 'conflRedo', 'ton')}</div>` : ''}
     ${n ? `${sec('بانتظار الإرسال')}${list(S.outbox.map((o, i) => row('schedule', o.t, `${o.at} · يُرسل ${i === 0 ? 'أولاً' : 'بعد ما قبله'}`, { chev: false })))}` : ''}
     ${sec('توفير البيانات')}${seg([['auto', 'تلقائي'], ['on', 'دائماً'], ['off', 'متوقف']], S.saver, 'saverSet')}<p class="sm muted" style="margin:8px 2px 0">${S.saver === 'auto' ? (S.lbw ? 'مفعّل الآن لأن الاتصال ضعيف. يعود للوضع العادي عند تحسّنه.' : 'يتفعّل وحده عند ضعف الاتصال.') : S.saver === 'on' ? 'الصور والخرائط تُحمَّل عند الطلب، ولا تحديث تلقائي في الخلفية.' : 'متوقف على هذا الجهاز. قد يزيد استهلاك البيانات.'}</p>
-    <p class="xs muted" style="margin:6px 2px 0">هذا الإعداد لجهازك أنت فقط. الاستغاثة والقواعد على أجهزة الأطفال تعمل في كل الأحوال.</p>`;
+    ${S.saver !== 'off' ? `<p class="sm" style="margin:14px 2px 6px;font-weight:500">المزامنة عند توفير البيانات</p>${seg([['hour', 'كل ساعة'], ['day', 'يومياً'], ['manual', 'يدوياً فقط']], S.syncSched || 'hour', 'syncSched')}<p class="xs muted" style="margin:6px 2px 0">«زامن الآن» متاح دائماً. الاستغاثة لا تنتظر المزامنة.</p>` : ''}
+    <p class="xs muted" style="margin:10px 2px 0">هذا الإعداد لجهازك أنت فقط. الاستغاثة والقواعد على أجهزة الأطفال تعمل في كل الأحوال.</p>`;
   },
 });
 Object.assign(ACT, {
+  syncSched(v) { S.syncSched = v; },
   saverSet(v) { S.saver = v; if (v === 'on') S.lbw = true; if (v === 'off') S.lbw = false; },
   conflKeep() { S.syncConflict = false; toast('بقي تعديل سارة'); },
   conflRedo() { S.syncConflict = false; S.kid.layan.quota = 120; audit('أُعيد تطبيق الحصة اليومية لليان: 120 د', 'protection.rule.edit'); toast('طُبّق تعديلك · 120 د'); },
@@ -252,18 +254,20 @@ function weakPin(p) {
   return '';
 }
 let psBuf = '';
-function pinSetOpen(kind, dev) { psBuf = ''; S.ps = { kind, step: 'new', a: '', err: '', dev: dev || '' }; S.full = { id: 'pin-set', a: [] }; }
+let psDone = null;
+/* kind: create (أول مرة على جهاز الأب) · change · pair (الأب يكتب رقمه على جهاز الطفل عند الإقران فيُحفظ هناك) */
+function pinSetOpen(kind, cb) { psBuf = ''; psDone = cb || null; S.ps = { kind, step: 'new', a: '', err: '' }; S.full = { id: 'pin-set', a: [] }; }
 surface('pin-set', {
   kind: 'full', t: 'رقم بوابة الوالدين', sys: 'S1-01', p: 'any', req: '01:5,6',
-  note: 'إنشاء الرقم أول مرة، وتغييره بعد إدخال الرقم الحالي. 6 أرقام، إدخال ثم تأكيد، ورفض الأنماط الشائعة مع السبب. لا تراجع بعد الحفظ، ولا إعادة تعيين عند النسيان إلا عبر جهة الاسترداد. الرقم محلي على كل جهاز: تغييره هنا لا يغيّره على أجهزة الأطفال.',
+  note: 'إنشاء الرقم أول مرة، وتغييره بعد إدخال الرقم الحالي، وكتابته على جهاز الطفل عند الإقران (إدخال ثم تأكيد، لأن الرقم لا يغادر أي جهاز فلا يمكن مطابقته مع هاتف الأب — Q-142). 6 أرقام، إدخال ثم تأكيد، ورفض الأنماط الشائعة مع السبب. لا تراجع بعد الحفظ، ولا إعادة تعيين عند النسيان إلا عبر جهة الاسترداد. الرقم محلي على كل جهاز: تغييره هنا لا يغيّره على أجهزة الأطفال.',
   r() {
     const p = S.ps || { kind: 'change', step: 'new', a: '', err: '' }, done = p.step === 'done', kidDev = mode() !== 'parent';
-    if (done) return `<header class="bar"><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center"><div class="bigic" style="color:var(--success)">${ic('check_circle')}</div><p class="ttl">${p.kind === 'create' ? 'أُنشئ رقمك السري' : 'تغيّر الرقم السري'}</p><p class="sub">${kidDev ? 'يعمل الرقم الجديد على هذا الجهاز من الآن.' : 'يعمل الرقم الجديد على هاتفك من الآن.'}</p>
-      ${kidDev ? '' : p.kind === 'create' ? callout('ستدخل هذا الرقم نفسه على جهاز كل طفل عند إقرانه، فيُحفظ هناك أيضاً.', 'nt', 'info') : callout('<b>أجهزة أطفالك ما زالت على الرقم القديم.</b> الرقم لا يغادر الجهاز حفاظاً على أمانه، فغيّره على كل جهاز طفل من: ملفي ← إعدادات هذا الجهاز ← تغيير الرقم السري.', 'wa', 'devices')}
+    if (done) return `<header class="bar"><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center"><div class="bigic" style="color:var(--success)">${ic('check_circle')}</div><p class="ttl">${p.kind === 'pair' ? 'حُفظ الرقم على هذا الجهاز' : p.kind === 'create' ? 'أُنشئ رقمك السري' : 'تغيّر الرقم السري'}</p><p class="sub">${p.kind === 'pair' ? 'لن تُفتح إعدادات هذا الجهاز إلا به.' : kidDev ? 'يعمل الرقم الجديد على هذا الجهاز من الآن.' : 'يعمل الرقم الجديد على هاتفك من الآن.'}</p>
+      ${p.kind === 'pair' ? callout('الرقم محفوظ على هذا الجهاز وحده ولا يُرسل عبر الإنترنت. إن غيّرته لاحقاً على هاتفك فغيّره هنا أيضاً.', 'nt', 'info') : kidDev ? '' : p.kind === 'create' ? callout('ستدخل هذا الرقم نفسه على جهاز كل طفل عند إقرانه، فيُحفظ هناك أيضاً.', 'nt', 'info') : callout('<b>أجهزة أطفالك ما زالت على الرقم القديم.</b> الرقم لا يغادر الجهاز حفاظاً على أمانه، فغيّره على كل جهاز طفل من: ملفي ← إعدادات هذا الجهاز ← تغيير الرقم السري.', 'wa', 'devices')}
       <div class="gap"></div>${btn('تم', 'psClose')}</div>`;
     return `<header class="bar"><button class="ib" data-a="psClose" aria-label="إغلاق">${ic('close')}</button><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center">
-    <div class="bigic">${ic('pin')}</div><p class="ttl">${p.step === 'new' ? (p.kind === 'create' ? 'أنشئ رقمك السري' : 'الرقم الجديد') : 'أعد كتابة الرقم'}</p>
-    <p class="sub">${p.step === 'new' ? '6 أرقام تعرفها أنت وحدك. يحمي إعدادات أجهزة أطفالك.' : 'للتأكد أنك كتبته كما تريد.'}</p>
+    <div class="bigic">${ic('pin')}</div><p class="ttl">${p.step === 'new' ? (p.kind === 'pair' ? 'بابا يكتب رقمه السري' : p.kind === 'create' ? 'أنشئ رقمك السري' : 'الرقم الجديد') : 'أعد كتابة الرقم'}</p>
+    <p class="sub">${p.step === 'new' ? (p.kind === 'pair' ? 'الرقم نفسه الذي أنشأته على هاتفك. يُحفظ هنا ليحمي إعدادات هذا الجهاز.' : '6 أرقام تعرفها أنت وحدك. يحمي إعدادات أجهزة أطفالك.') : 'للتأكد أنك كتبته كما تريد.'}</p>
     <div class="dots ${p.err ? 'bad' : ''}" aria-label="${psBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < psBuf.length ? 'f' : ''}"></i>`).join('')}</div>
     ${p.err ? `<p class="c sm" role="alert" style="color:var(--danger);margin:-10px 0 12px">${p.err}</p>` : ''}
     <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="psK:${n}">${n}</button>`).join('')}<button class="gh" data-a="pinNo" aria-hidden="true"></button><button data-a="psK:0">0</button><button class="gh" data-a="psK:b" aria-label="حذف">${ic('backspace')}</button></div>
@@ -271,7 +275,7 @@ surface('pin-set', {
   },
 });
 Object.assign(ACT, {
-  psClose() { S.full = null; S.ps = null; psBuf = ''; },
+  psClose() { const cb = S.ps && S.ps.step === 'done' ? psDone : null; S.full = null; S.ps = null; psBuf = ''; psDone = null; if (cb) cb(); },
   psBack() { psBuf = ''; S.ps.step = 'new'; S.ps.a = ''; S.ps.err = ''; },
   psK(k) {
     const p = S.ps; p.err = '';
@@ -284,7 +288,7 @@ Object.assign(ACT, {
     }
     if (psBuf !== p.a) { p.err = 'الرقمان غير متطابقين · أعد المحاولة'; psBuf = ''; return; }
     S.pin.code = p.a; S.pin.set = true; S.pin.bad = 0; psBuf = ''; p.a = ''; p.step = 'done';
-    S.audit.unshift({ t: `${p.kind === 'create' ? 'أُنشئ' : 'غُيّر'} رقم بوابة الوالدين · ${gateDev()}`, w: 'أحمد', at: 'الآن', k: 'shell.parent_gate.manage' });
+    S.audit.unshift({ t: `${p.kind === 'pair' ? 'حُفظ رقم بوابة الوالدين عند الإقران' : (p.kind === 'create' ? 'أُنشئ' : 'غُيّر') + ' رقم بوابة الوالدين · ' + gateDev()}`, w: 'أحمد', at: 'الآن', k: 'shell.parent_gate.manage' });
     if (S.checklist) S.checklist.pin = 1;
   },
 });

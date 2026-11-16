@@ -37,7 +37,7 @@ const JOURNEYS = [
     ['اسم مستعار وصورة ولون وسنة ميلاد فقط. غيّر السنة ولاحظ القالب يتبدل تلقائياً.', () => { S.cn = null; jump('child-new'); }],
     ['رمز إقران من 6 خانات صالح 15 دقيقة.', () => jump('pair-code')],
     ['الآن جهاز الطفل: أدخل LY4N82.', () => { S.ob = {}; jump('ob-pair'); }],
-    ['الموافقة المشتركة: يفعّل الطفل والأب المفتاحين معاً، ثم رقم الأب 482615.', () => { S.ob = { cons: {} }; jump('ob-consent'); }],
+    ['الموافقة المشتركة: يفعّل الطفل والأب المفتاحين معاً، ثم يكتب بابا رقمه السري مرتين فيُحفظ على هذا الجهاز.', () => { S.ob = { cons: {} }; jump('ob-consent'); }],
     ['انتهى الإقران: الجهاز في وضع الطفل، والوضع ثابت.', () => jump('c-home')],
   ] },
   { t: 'نفد الوقت ← طلب ← قرار الأب', d: 'حلقة القرار بين جهازين', s: [
@@ -174,5 +174,5 @@ const Studio = {
   },
 };
 window.Studio = Studio;
-function boot() { $('#fx').innerHTML = `<div class="boot"><div><div class="wm">عائلتي</div><small>تطبيق واحد لكل العائلة</small><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
+function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="142"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
 addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot(); });

@@ -5,9 +5,9 @@ ACT.langT = () => { S.lang = S.lang === 'ar' ? 'en' : 'ar'; };
 
 surface('ob-welcome', {
   t: 'أول تشغيل', sys: 'S1-02', p: 'guest', bar: false, nonav: true, flush: true, req: '01:1,2,17,21 02:18', st: 'un',
-  note: 'تطبيق واحد لكل الأدوار: الوضع يُحدَّد عند الإقران لا عند التنزيل. UNKNOWN (Q-043): لا شعار معتمد بعد — يُعرض الاسم نصاً. كل شاشات التهيئة بالعربية والإنجليزية.',
+  note: 'تطبيق واحد لكل الأدوار: الوضع يُحدَّد عند الإقران لا عند التنزيل. الشعار من تصميم Q-398 (ينتظر حكم المالك). كل شاشات التهيئة بالعربية والإنجليزية.',
   r() { return `<div style="min-height:100%;display:flex;flex-direction:column;background:linear-gradient(170deg,#1F3A6B,#081122);color:#fff;padding:14px 22px 26px"><div style="display:flex;justify-content:flex-end"><button class="chip" style="min-height:36px;background:#ffffff1f;color:#fff" data-a="langT">${ic('translate')}${S.lang === 'ar' ? 'English' : 'العربية'}</button></div>
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center"><div style="font-size:56px;font-weight:700;line-height:1.2">${L('عائلتي', 'Aailati')}</div><p style="opacity:.85;font-size:17px;margin:8px 0 0;line-height:1.8">${L('أمان العائلة ووقتها ومهامها<br>في تطبيق واحد', 'Family safety, time and tasks<br>in one app')}</p>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center"><img src="assets/brand/logo-symbol-dark.svg" alt="" width="132" height="125" style="margin:0 auto 2px"><img src="assets/brand/${L('logo-wordmark-ar-dark', 'logo-wordmark-en-dark')}.svg" alt="${L('عائلتي', 'Family OS')}" height="${L('86', '48')}" style="margin:0 auto"><p style="opacity:.85;font-size:17px;margin:8px 0 0;line-height:1.8">${L('أمان العائلة ووقتها ومهامها<br>في تطبيق واحد', 'Family safety, time and tasks<br>in one app')}</p>
     <div class="chips" style="justify-content:center;margin-top:22px">${[['shield', L('حماية', 'Safety')], ['task_alt', L('مهام', 'Tasks')], ['location_on', L('موقع', 'Location')], ['forum', L('محادثة', 'Chat')]].map(([i, t]) => `<span class="chip" style="background:#ffffff14;color:#fff">${ic(i)}${t}</span>`).join('')}</div></div>
     ${btn(L('أنشئ عائلة جديدة', 'Create a family'), 'obStart:new', 'sec" style="background:#fff;color:#142749;box-shadow:none')}<div class="gap"></div>${btn(L('انضم بدعوة', 'Join with an invite'), 'obStart:join', 'sec" style="box-shadow:inset 0 0 0 1.5px #ffffff80;color:#fff')}<div class="gap"></div>${btn(L('هذا جهاز طفل — أدخل رمز الإقران', "This is a child's device"), 'go:ob-pair', 'txt" style="color:#fff;width:100%', 'child_care')}</div>`; },
 });
@@ -70,7 +70,7 @@ surface('ob-consent', {
   r() { const c = S.ob.cons || {}; return obBar(2, 3) + `<div style="padding:8px 6px"><div class="fx" style="justify-content:center;margin-bottom:8px">${av(M.ahmad, 'lg')}${ic('handshake')}${av(M.layan, 'lg')}</div><p class="ttl">نتفق معاً يا ليان</p><p class="sub">اقرآ هذا معاً. بابا سيعرف هذه الأشياء فقط ليبقيكِ بأمان.</p>
     ${list(row('hourglass_top', 'كم وقتاً تستخدمين الجهاز', 'المدة، لا ما تشاهدين بالتفصيل'), row('location_on', 'أين الجهاز', 'ليصل إليك بابا عند الحاجة'), row('forum', 'محادثات العائلة', 'بابا يستطيع رؤيتها'), row('travel_explore', 'نوع المواقع', 'لا كل صفحة'))}
     ${list(row('', 'أنا ليان، فهمت', '', { lead: av(M.layan, 'sm'), tg: !!c.k, ta: 'consT:k' }), row('', 'أنا بابا، شرحت لها', '', { lead: av(M.ahmad, 'sm'), tg: !!c.p, ta: 'consT:p' }))}
-    ${btn('بابا يؤكد برقمه السري', 'consGo', c.k && c.p ? '' : '" disabled="', 'lock')}</div>`; },
+    ${btn('بابا يكتب رقمه السري', 'consGo', c.k && c.p ? '' : '" disabled="', 'lock')}</div>`; },
 });
 Object.assign(ACT, {
   obStart(k) { S.ob = { flow: k }; go('ob-phone'); },
@@ -87,7 +87,7 @@ Object.assign(ACT, {
   obJoin() { const v = ($('#obJ') || {}).value.trim().toUpperCase(); if (v !== 'MNSR-7K2P') { S.ob.jerr = 1; return; } S.tpl = 'none'; setPersona('delegate'); S.full = { id: 'perm-notif', a: [] }; toast('انضممتِ إلى عائلة المنصور كبالغ بلا صلاحيات بعد', null, 'how_to_reg'); },
   obPair() { const v = ($('#obC') || {}).value.trim().toUpperCase(); if (v !== 'LY4N82') { S.ob.perr = 1; return; } S.ob.perr = 0; S.ob.cons = {}; go('ob-consent'); },
   consT(k) { S.ob.cons = S.ob.cons || {}; S.ob.cons[k] = !S.ob.cons[k]; },
-  consGo() { gate('اكتب رقمك ليُحفظ على هذا الجهاز', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); S.full = { id: 'perm-notif', a: [] }; notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
+  consGo() { pinSetOpen('pair', () => { audit('سُجّلت الموافقة المشتركة عند إقران جهاز ليان', 'identity.device.pair'); setPersona('child'); S.full = { id: 'perm-notif', a: [] }; notif('أهلاً ليان!', 'هذا الجهاز الآن جهازك. الوضع ثابت: وضع الطفل.', 'celebration'); confetti(); }); },
 });
 /* في مسار الانضمام: بعد TOTP ننتقل إلى رمز الدعوة لا إلى إنشاء عائلة */
 const _totpR = SC['ob-totp'].r; SC['ob-totp'].r = () => _totpR().replace('data-a="go:ob-family"', `data-a="${S.ob.flow === 'join' ? 'go:ob-join' : 'go:ob-family'}"`);
