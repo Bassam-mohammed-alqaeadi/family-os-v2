@@ -79,18 +79,18 @@ const JOURNEYS = [
     ['الموقع لحظة الاستغاثة، ثم الحل وتسجيله في التدقيق.', () => jump('sos-status')],
   ] },
   { t: 'دور لبالغ وصلاحية بعينها', d: 'دور ← معاينة ← الرقم السري ← أثر فوري', s: [
-    ['ملف سارة عند الأب: دورها، وعلى من، وإلى متى، وما تستطيعه في تسع مجموعات.', () => { S.tpl = 'partner'; S.gx = { add: [], rem: [] }; jump('member', ['sara']); }],
-    ['اختيار دور آخر: كل دور موصوف بجملة تقول ما يستطيعه صاحبه.', () => jump('role-pick')],
-    ['قبل التطبيق: ما ستستطيعه وما لن تستطيعه بعده، بكلام واضح. التطبيق بالرقم السري 482615.', () => jump('tpl-diff', ['guardian'])],
-    ['صلاحية بعينها: افتح «المحادثات» وأطفئ مفتاحاً. يسري فوراً ومعه «تراجع». منح الحساسة يطلب الرقم السري.', () => { S.tpl = 'guardian'; S.gx = { add: [], rem: [] }; jump('perm-group', ['chat']); }],
-    ['جهاز سارة الآن: ترى ما مُنح لها فقط، وما ليس عندها تطلبه من أحمد بنقرة.', () => { S.tpl = 'guardian'; jump('home'); setPersona('delegate'); go('my-perms'); render(); }],
-    ['الحصة اليومية لأحمد وحده: القفل ظاهر ويشرح السبب، ولا يُطلب.', () => { setPersona('delegate'); S.stack.push({ id: 'quota', a: ['layan'] }); render(); }],
-    ['الأب يرى كل منح وسحب ورفض في سجل الصلاحيات.', () => jump('audit')],
+    ['ملف سارة عند الأب: دورها، وعلى من، وإلى متى، وما تستطيعه. «كل الصلاحيات» يعرضها واحدة واحدة.', () => { setRole('partner'); jump('member', ['sara']); }],
+    ['اختيار دور آخر: كل دور موصوف بجملة. ومحتوى الدور نفسه يُعدَّل من «الأدوار».', () => jump('role-pick')],
+    ['قبل التطبيق: ما ستستطيعه وما لن تستطيعه، وعلى من وإلى متى. التطبيق بالرقم السري 482615.', () => { ACT.rolePick('guardian'); render(); }],
+    ['صلاحية واحدة: مسموح، أو غير مسموح، أو ممنوع. ولكل منها على من وإلى متى.', () => { setRole('guardian'); jump('member', ['sara']); ACT.keyOpen('location.history.view'); render(); }],
+    ['صلاحية بمدة: قبل انتهائها بسبعة أيام يصل الأب تنبيه وزر «جدّد».', () => { setRole('partner'); S.g['location.history.view'].un = addDays(5); jump('member', ['sara']); }],
+    ['جهاز سارة: ترى ما مُنح لها وحدوده، وما ليس عندها تطلبه من أحمد بنقرة.', () => { setRole('guardian'); jump('home'); setPersona('delegate'); go('my-perms'); render(); }],
+    ['الأب يرى كل منح وسحب ورفض في السجل، بتصفية بالفرد والفعل والفترة.', () => jump('audit')],
   ] },
-  { t: 'نقل الملكية', d: 'طلب ← 7 أيام ← قبول أو إلغاء', s: [
-    ['الأب يقرأ ما سيحدث ثم يبدأ بالرقم السري.', () => { S.xfer = null; jump('transfer'); }],
-    ['الطلب معلّق سبعة أيام. الأب مالك حتى تقبل سارة، ويلغي متى شاء.', () => { S.xfer = { to: 'sara', left: 7, st: 'pending' }; jump('transfer'); }],
-    ['جهاز سارة: من يطلب، وما يتغير، وكم بقي. تقبل بالرقم السري أو لا تقبل.', () => { S.xfer = { to: 'sara', left: 7, st: 'pending' }; jump('home'); setPersona('delegate'); go('transfer-accept'); render(); }],
+  { t: 'الصلاحية الكاملة', d: 'تُعطى فوراً ← تُسحب متى شاء المالك', s: [
+    ['الأب يقرأ ما تعنيه ثم يعطيها بالرقم السري. تسري فوراً.', () => { S.co = null; jump('transfer'); }],
+    ['سارة الآن مثله. الأب مالك كما كان، وزر السحب أمامه.', () => { S.co = { since: 'اليوم', seen: 0 }; jump('transfer'); }],
+    ['جهاز سارة: إشعار، ثم ترى أن الصلاحية الكاملة عندها وأن أحمد يسحبها متى شاء.', () => { S.co = { since: 'اليوم', seen: 0 }; jump('home'); setPersona('delegate'); go('my-perms'); render(); }],
   ] },
   { t: 'انقطاع الاتصال والمزامنة', d: 'يعمل دون اتصال بصدق', s: [
     ['قطعنا الاتصال: شريط خفيف، وكل معلومة تحمل عمرها. لا شيء يُعرض كأنه حي.', () => { S.net = 'off'; jump('home'); }],
@@ -134,8 +134,11 @@ const Studio = {
     jprev() { if (JR.k > 0) { JR.k--; JOURNEYS[JR.i].s[JR.k][1](); render(); } },
     jend() { JR = null; render(); },
     tab(t) { Studio.tab = t; Studio.sync(); },
-    set(k, v) { const val = v === 'true' ? true : v === 'false' ? false : isNaN(v) || v === '' ? v : +v; if (k === 'net') setNet(val); else S[k] = val; if (k === 'sys') { const F = { update: 'sys-update', maint: 'sys-maint', first: 'sys-first' }; S.full = F[val] ? { id: F[val], a: [] } : null; } if (k === 'os' || k === 'tpl' || k === 'plan') { /* أثر فوري */ } render(); },
+    set(k, v) { const val = v === 'true' ? true : v === 'false' ? false : isNaN(v) || v === '' ? v : +v; if (k === 'net') setNet(val); else if (k === 'tpl') setRole(val); else S[k] = val; if (k === 'sys') { const F = { update: 'sys-update', maint: 'sys-maint', first: 'sys-first' }; S.full = F[val] ? { id: F[val], a: [] } : null; } if (k === 'os' || k === 'tpl' || k === 'plan') { /* أثر فوري */ } render(); },
     flip(k) { S[k] = !S[k]; render(); },
+    r13Flip() { S.rev13 = S.rev13 === 1 ? 0 : 1; render(); },
+    coFlip() { S.co = S.co ? null : { since: 'اليوم', seen: 0 }; render(); },
+    expFlip() { const g = S.g['location.history.view']; if (g) { g.un = g.un ? '' : addDays(5); g.ed = g.un ? 1 : 0; } render(); },
     sys(id) { Studio.open[id] = !Studio.open[id]; Studio.sync(); },
     jump(id) { JR = null; jump(id); document.body.removeAttribute('data-open'); },
     req(k) { const ids = COVER[k]; if (ids) { JR = null; jump(ids[0]); document.body.removeAttribute('data-open'); } },
@@ -170,7 +173,7 @@ const Studio = {
     const c = (t, s, ctl) => `<div class="ctl"><span>${t}${s ? `<small>${s}</small>` : ''}</span>${ctl}</div>`;
     return `<div class="st-h" style="margin-top:0">العرض</div>${c('المظهر', '', sg('theme', [['light', 'فاتح'], ['dark', 'داكن']]))}${c('اللغة والاتجاه', 'الغلاف والتهيئة مترجمان', sg('lang', [['ar', 'ع RTL'], ['en', 'EN LTR']]))}${c('حجم النص', '', sg('ts', [[0.9, 'ص'], [1, 'ع'], [1.15, 'ك'], [1.3, 'ك+']]))}${c('تقليل الحركة', '', `<button class="sw" role="switch" aria-checked="${S.motion === 'off'}" data-st="set:motion:${S.motion === 'off' ? 'on' : 'off'}"></button>`)}${c('وضع الخصوصية', 'يخفي الأسماء والأماكن', sw('privacy'))}
     <div class="st-h">الشبكة والبيانات</div>${c('الاتصال', 'الأفعال تُحفظ وتُرسل لاحقاً', sg('net', [['on', 'متصل'], ['off', 'منقطع']]))}${c('اتصال ضعيف', 'يفعّل توفير البيانات', sw('lbw'))}${c('تعارض مزامنة', 'يظهر في «البيانات والمزامنة»', sw('syncConflict'))}${c('بيانات قديمة', 'وسوم «آخر تحديث»', sw('stale'))}
-    <div class="st-h">المنصة والخطة</div>${c('نظام التشغيل', 'مصفوفة التوفر الصادقة', sg('os', [['android', 'Android'], ['ios', 'iOS']]))}${c('الخطة', 'حارس الحصص', sg('plan', [['free', 'مجانية'], ['basic', 'أساسية'], ['premium', 'مميزة']]))}${c('حالة الاشتراك', '', sg('planSt', [['', 'فعّال'], ['trial', 'تجربة'], ['grace', 'مهلة']]))}${c('قالب سارة', 'يغيّر ما تراه البالغة المفوَّضة', sg('tpl', [['partner', 'شريك'], ['guardian', 'وصي'], ['observer', 'مراقب'], ['none', 'بلا']]))}
+    <div class="st-h">المنصة والخطة</div>${c('نظام التشغيل', 'مصفوفة التوفر الصادقة', sg('os', [['android', 'Android'], ['ios', 'iOS']]))}${c('الخطة', 'حارس الحصص', sg('plan', [['free', 'مجانية'], ['basic', 'أساسية'], ['premium', 'مميزة']]))}${c('حالة الاشتراك', '', sg('planSt', [['', 'فعّال'], ['trial', 'تجربة'], ['grace', 'مهلة']]))}${c('دور سارة', 'يغيّر ما تراه البالغة المفوَّضة', sg('tpl', [['partner', 'شريك'], ['guardian', 'وصي'], ['observer', 'مراقب'], ['none', 'بلا']]))}${c('الصلاحية الكاملة لسارة', 'تصير مثل المالك', `<button class="sw" role="switch" aria-checked="${!!S.co}" data-st="coFlip"></button>`)}${c('ليان بلغت 13', 'مراجعة ما يُسمح به لها', `<button class=\"sw\" role=\"switch\" aria-checked=\"${S.rev13 === 1}\" data-st=\"r13Flip\"></button>`)}${c('صلاحية لسارة تنتهي قريباً', 'تنبيه قبل 7 أيام', `<button class="sw" role="switch" aria-checked="${!!(S.g['location.history.view'] && S.g['location.history.view'].un)}" data-st="expFlip"></button>`)}
     <div class="st-h">حالات النظام</div>${c('حالة التطبيق', '', sg('sys', [['ok', 'عادي'], ['maint', 'صيانة'], ['first', 'أول فتح بلا اتصال']]))}${c('التحديث', 'متاح: صف في «عن التطبيق» · قديم: حثّ غير حاجب', sg('sys', [['ok', 'لا شيء'], ['avail', 'متاح'], ['soft', 'قديم'], ['update', 'إجباري']]))}${c('إذن الإشعارات', 'إيقافه يُظهر بانراً', sw('notifPerm'))}${c('استغاثة بنقرة ثم تأكيد', 'بديل الوصول', sw('sos2'))}${c('الوضع الجاهز للأطفال', '', sg('preset', [['', 'لا شيء'], ['study', 'دراسة'], ['sleep', 'نوم']]))}${c('تعارض تعديل متزامن', 'يفشل الحفظ التالي للصلاحيات', sw('conflict'))}
     <div class="st-h">أحداث</div><button class="jr" data-st="warn5">${ic('hourglass_top')}<span>تحذير الدقائق الخمس<small>على جهاز الطفل</small></span></button><button class="jr" data-st="boot">${ic('rocket_launch')}<span>إقلاع بارد<small>الهدف أقل من 1.2 ثانية</small></span></button><button class="jr" data-st="jump:pin">${ic('lock')}<span>بوابة الوالدين<small>5 أخطاء ← قفل 5 دقائق</small></span></button><button class="jr" data-st="jump:block">${ic('hourglass_empty')}<span>شاشة الحظر<small>على جهاز الطفل</small></span></button>`;
   },

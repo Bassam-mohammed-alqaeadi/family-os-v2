@@ -36,9 +36,14 @@ const PERSONA = {
 };
 /* الرقم التجريبي لبوابة الوالدين. ليس 123456 لأنه نمط شائع ممنوع (S1-01 REQ-005). */
 const DEMO_PIN = '482615';
+/* صلاحيات لا تخص طفلاً بعينه: نطاقها العائلة كلها */
+const FAMK = ['identity.family.invite', 'identity.child.create', 'chat.parents.view', 'chat.channel.create.group', 'hub.plan.view', 'shell.admin.access', 'shell.config.view', 'roles.key.view', 'roles.audit.view', 'calendar.view', 'calendar.event.create', 'protection.priority.edit'];
+/* تطبيق الدور ينسخ صلاحياته إلى منح البالغ (REQ-014): كل منح له حاله d (0 مسموح / 1 ممنوع) ونطاقه sc ومدته un ومصدره src. */
+function roleCopy(keys, sc, un, at) { const g = {}; keys.forEach(k => { g[k] = { d: 0, sc: FAMK.includes(k) ? 'fam' : (Array.isArray(sc) ? sc.slice() : sc), un, src: 'role', at: at || 'الآن' }; }); return g; }
+const seedRoles = () => ({ partner: { n: 'شريك', d: 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.', keys: window.FOS_PERM.partner.slice() }, guardian: { n: 'وصي محدود', d: 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.', keys: window.FOS_PERM.guardian.slice() }, observer: { n: 'مراقب', d: 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.', keys: window.FOS_PERM.observer.slice() } });
 const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
-  tpl: 'partner', gx: { add: [], rem: [] }, gScope: 'all', gUntil: '', xfer: null, famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
+  tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
   invs: [{ c: 'MNSR-7K2P', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
@@ -82,9 +87,11 @@ const fresh = () => ({
   ],
   outbox: [], sos: null, sms: { used: 14 }, aiUse: 212,
   audit: [
-    { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply' },
-    { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit' },
-    { t: 'رُفض: سارة ← «قراءة محادثات الأطفال»', w: 'النظام', at: 'أمس 7:15 م', k: 'chat.minor.view', deny: 1 },
+    { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply', who: 'sara', act: 'role', sc: 'all', un: '', d: 1, sn: 'صار دوركِ «شريك»', rd: 1 },
+    { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit', who: 'layan', act: 'other', d: 1 },
+    { t: 'رُفض: سارة ← «قراءة محادثات الأطفال»', w: 'النظام', at: 'أمس 7:15 م', k: 'chat.minor.view', deny: 1, who: 'sara', act: 'deny', pk: 'chat.minor.view', d: 1 },
+    { t: 'سُمح لخالد بإنشاء مهامه بنفسه', w: 'أحمد', at: '2 نوفمبر', k: 'roles.grant.create', who: 'khaled', act: 'grant', pk: 'tasks.create', un: '', d: 13 },
+    { t: 'انضمت سارة إلى العائلة بلا صلاحيات', w: 'النظام', at: '1 نوفمبر', k: 'identity.family.join', who: 'sara', act: 'other', d: 14 },
   ],
   agent: [
     { id: 'g1', t: 'ملخّص يوم الأطفال', k: 'agent.summary.read', gate: 'بلا موافقة (قراءة)', at: 'اليوم 6:00 ص', undo: 0, st: 'تمّ' },
@@ -118,17 +125,21 @@ let S = fresh();
 
 const me = () => M[PERSONA[S.persona].m] || M.ahmad; /* الضيف بلا عضوية: لا يصل لشاشات العائلة أصلاً، والبديل يمنع الانهيار فقط */
 const isAdult = () => S.persona === 'owner' || S.persona === 'delegate';
-const isOwner = () => S.persona === 'owner';
+const isOwner = () => S.persona === 'owner' || (S.persona === 'delegate' && !!S.co);   /* المالك، أو بالغ أعطاه المالك الصلاحية الكاملة (Q-401) */
+const isRoot = () => S.persona === 'owner';   /* المالك نفسه: وحده يعطي الصلاحية الكاملة ويسحبها، ولا يُزال */
 const mode = () => PERSONA[S.persona].mode;
-/* تقييم الصلاحية: المالك يملك الكل؛ المفوَّض يملك مفاتيح قالبه فقط؛ المفاتيح الحصرية لا تُمنح (S1-03 §5-3-ب). */
-function can(key) {
-  if (S.persona === 'owner') return true;
+/* تقييم الصلاحية (S1-03): المالك وصاحب الصلاحية الكاملة يملكان الكل. المفوَّض يملك ما في منحه فقط: غير ممنوع، لم تنتهِ مدته، ويشمل الطفل المقصود إن ذُكر. */
+function can(key, kid) {
+  if (isOwner()) return true;
   if (S.persona !== 'delegate') return false;
-  if (window.FOS_PERM.ownerOnly.includes(key)) return false;
-  return grantsOf().includes(key);
+  const g = S.g[key]; return gLive(g) && (!kid || g.sc === 'all' || g.sc === 'fam' || g.sc.includes(kid));
 }
-/* ما عند البالغ المفوَّض فعلاً: مفاتيح دوره، ناقص ما سُحب بعينه، زائد ما أُضيف بعينه (S1-03 REQ-014). */
-function grantsOf() { const base = S.tpl === 'none' ? [] : window.FOS_PERM[S.tpl]; return [...base.filter(k => !S.gx.rem.includes(k)), ...S.gx.add.filter(k => !base.includes(k))]; }
+const TODAY = '2026-11-15';
+const gDays = g => (g && g.un ? Math.round((Date.parse(g.un) - Date.parse(TODAY)) / 864e5) : null);
+const gLive = g => !!g && !g.d && (g.un === '' || gDays(g) >= 0);
+function grantsOf() { return Object.keys(S.g).filter(k => gLive(S.g[k])); }
+/* للاستوديو والاختبارات: يعطي سارة دوراً كاملاً على كل الأطفال بلا مدة */
+function setRole(t) { S.tpl = t; S.g = t === 'none' ? {} : roleCopy(S.roles[t].keys, 'all', '', 'الآن'); }
 const L = (ar, en) => (S.lang === 'en' && en ? en : ar);
 const offline = () => S.net === 'off';
 /* وسم الحداثة الصادق: لا تُعرض بيانات قديمة كأنها حية (S1-09 REQ-011). */
@@ -199,7 +210,7 @@ const topE = () => S.stack[S.stack.length - 1];
 let anim = '';
 function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d = SC[id]; if (d.kind === 'sheet') { S.sheet = { id, a }; return; } if (d.kind === 'full') { S.full = { id, a }; return; } S.sheet = null; S.stack.push({ id, a }); anim = 'in'; }
 function tab(id) { S.sheet = null; S.stack = [{ id, a: [] }]; anim = ''; }
-function back() { if (S.dlg) { S.dlg = null; return; } if (S.sheet) { S.sheet = null; return; } if (S.full) { S.full = null; return; } if (S.stack.length > 1) { S.stack.pop(); anim = 'inb'; } }
+function back() { if (S.dlg) { S.dlg = null; return; } if (S.sheet) { S.sheet = null; return; } if (S.full) { S.full = null; return; } if (window.leaveGuard && window.leaveGuard()) return; if (S.stack.length > 1) { S.stack.pop(); anim = 'inb'; } }
 function setPersona(p, keep) { S.persona = p; S.sheet = S.full = S.dlg = null; if (!keep) S.stack = [{ id: rootOf(p), a: [] }]; anim = ''; }
 
 /* ---------- الإشعارات والتراجع ---------- */
@@ -329,7 +340,7 @@ const ACT = {
   notifFix() { S.notifPerm = true; toast('فُعّلت الإشعارات', null, 'notifications_active'); },
   soon() { toast('خارج نطاق المرحلة 1 — يُضاف عبر سجل الخدمات لاحقاً', null, 'hourglass_empty'); },
   /* القفل الظاهر يشرح السبب ويعرض طلب الصلاحية. الرفض العادي صامت وواضح (S1-03 سيناريو 2-1)؛ ورفض صلاحية حساسة يُسجَّل ويُنبَّه الأب (REQ-007). */
-  denied(key) { if (SENS.includes(key)) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `طلب مرفوض: ${me().n} ← «${permName(key)}»`, s: 'صلاحية حساسة ليست عندها', who: me().n, ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} ← «${permName(key)}»`, w: 'النظام', at: 'الآن', k: key, deny: 1 }); } S.sheet = { id: 'why', a: ['nd:' + key] }; },
+  denied(key) { if (SENS.includes(key)) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `طلب مرفوض: ${me().n} ← «${permName(key)}»`, s: 'صلاحية حساسة ليست عندها', who: me().n, ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} ← «${permName(key)}»`, w: 'النظام', at: 'الآن', k: key, deny: 1, who: me().id, act: 'deny', pk: key, d: 0 }); } S.sheet = { id: 'why', a: ['nd:' + key] }; },
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el || !el.closest('#phone')) return;
