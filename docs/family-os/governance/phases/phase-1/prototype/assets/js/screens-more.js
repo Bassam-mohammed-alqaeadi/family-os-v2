@@ -259,9 +259,10 @@ surface('outbox', {
   r() {
     const n = S.outbox.length, off = offline();
     const head = `<div class="card fx">${ic(off ? 'cloud_off' : n ? 'cloud_upload' : 'cloud_done', `" style="width:34px;height:34px;color:var(--${off ? 'warning' : 'success'})`)}<div class="grow"><b>${off ? 'غير متصل' : n ? 'جارٍ الإرسال…' : 'كل شيء مُرسل'}</b><div class="sm muted">${off ? (n ? 'ما فعلته محفوظ ويُرسل بترتيبه عند عودة الاتصال.' : 'تعمل بآخر بيانات محفوظة. لا شيء ينتظر.') : S.lastSync ? `آخر مزامنة ${S.lastSync.at}${S.lastSync.n ? ` · أُرسلت ${S.lastSync.n}` : ''}` : 'آخر مزامنة قبل 18 د'}</div></div></div>`;
-    if (!isAdult()) return head + (n ? callout(n === 1 ? 'عملية واحدة ستُرسل عند عودة الاتصال.' : `${n} عمليات ستُرسل عند عودة الاتصال.`, 'nt', 'schedule') : '');
+    if (!isAdult()) return head + (n ? callout(n === 1 ? 'عملية واحدة ستُرسل عند عودة الاتصال.' : `${n} عمليات ستُرسل عند عودة الاتصال.`, 'nt', 'schedule') : '') + chOutbox();
     return `${head}${btn('زامن الآن', 'syncNow', off ? 'sec" disabled="' : 'sec', 'sync')}
     ${S.syncConflict ? `<div class="gap"></div>${callout('<b>تغيير واحد لم يُطبَّق.</b> عدّلت سارة حصة ليان بعدك، فبقي تعديلها الأحدث (150 د). تعديلك (120 د) لم يُكتب فوقه.', 'wa', 'merge')}<div class="btns">${btn('أبقِ تعديل سارة', 'conflKeep', 'sec')}${btn('أعد تطبيق تعديلي', 'conflRedo', 'ton')}</div>` : ''}
+    ${chOutbox()}
     ${n ? `${sec('بانتظار الإرسال')}${list(S.outbox.map((o, i) => row('schedule', o.t, `${o.at} · يُرسل ${i === 0 ? 'أولاً' : 'بعد ما قبله'}`, { chev: false })))}` : ''}
     ${sec('توفير البيانات')}${seg([['auto', 'تلقائي'], ['on', 'دائماً'], ['off', 'متوقف']], S.saver, 'saverSet')}<p class="sm muted" style="margin:8px 2px 0">${S.saver === 'auto' ? (S.lbw ? 'مفعّل الآن لأن الاتصال ضعيف. يعود للوضع العادي عند تحسّنه.' : 'يتفعّل وحده عند ضعف الاتصال.') : S.saver === 'on' ? 'الصور والخرائط تُحمَّل عند الطلب، ولا تحديث تلقائي في الخلفية.' : 'متوقف على هذا الجهاز. قد يزيد استهلاك البيانات.'}</p>
     ${S.saver !== 'off' ? `<p class="sm" style="margin:14px 2px 6px;font-weight:500">المزامنة عند توفير البيانات</p>${seg([['hour', 'كل ساعة'], ['day', 'يومياً'], ['manual', 'يدوياً فقط']], S.syncSched || 'hour', 'syncSched')}<p class="xs muted" style="margin:6px 2px 0">«زامن الآن» متاح دائماً. الاستغاثة لا تنتظر المزامنة.</p>` : ''}

@@ -109,7 +109,7 @@ function allAlerts() {
 function alertGo(a) {
   if (a.k === 'sos') return a.live ? 'go:sos-status' : 'go:map';
   if (a.k === 'tamper') return `go:tamper:${a.id}`;
-  if (a.k === 'chat') return 'go:thread:dm-khaled-layan';
+  if (a.k === 'chat') return a.rv ? 'go:chat-review' : 'go:chat-flag:dm-khaled-layan:0';
   if (a.k === 'grant') return `keyOpen:${a.gk}`;
   return /جهة استرداد/.test(a.t) ? 'go:security' : `go:denial:${a.id}`;
 }

@@ -251,7 +251,3 @@ surface('age-up', {
   note: 'ناقص في الحوكمة (يحتاج حكم المالك): Q-250 يجعل من يبلغ 18 بالغاً تلقائياً ويلغي منحه، لكن ملفه بلا رقم ولا بريد وجهازه ثابت على وضع الطفل، فلا طريق مكتوب ليصير حساباً بالغاً. المعروض هنا اقتراح، لا حكم.',
   r(id) { const m = M[id]; return `${callout('<b>غير محسوم:</b> هذه الشاشة اقتراح ينتظر حكم المالك.', 'wa', 'help')}<p class="sub" style="text-align:start">في 1 يناير ${m.by + 18} يصير ${m.n} بالغاً. القواعد على جهازه تتوقف، ولا يبقى ملفه ملف طفل.</p><div class="card"><div class="tl"><div class="ev"><b>قبلها بشهر: يصلك تذكير</b><span>لتتحدث معه وتختار</span></div><div class="ev wa"><b>تفكّ إقران جهازه</b><span>برقمك السري · يصير هاتفاً عادياً</span></div><div class="ev ok"><b>تدعوه بالغاً</b><span>يدخل برقم هاتفه هو، وتحدد ما يراه</span></div></div></div>${callout('محادثاته ومهامه السابقة تبقى في العائلة. سجل مواقعه وقواعد جهازه تُحذف.', 'nt', 'info')}`; },
 });
-surface('minor-chats', {
-  t: id => 'محادثات ' + M[id].n, sys: 'S1-08', p: 'adult', a: ['layan'], req: '08:4,13',
-  r(id) { const cs = Object.keys(CH).filter(k => CH[k].mem.includes(id)); return callout('تُعرض للقراءة فقط. ' + M[id].n + ' ' + vb(M[id], 'يعلم', 'تعلم') + ' أن محادثاته مرئية للأب.', 'nt', 'visibility') + list(cs.map(k => row(CH[k].i || 'chat', chName(k, id), lastMsg(k), { a: 'openCh:' + k }))); },
-});

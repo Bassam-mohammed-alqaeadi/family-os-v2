@@ -37,7 +37,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.alK('sos');render();ok('alerts log: filter by kind + late mark',rows()===1&&has(/وصل متأخراً/));ACT.alK('all');
  open('alert','a4');ok('late SOS: original time + late callout + already read',has(/9 نوفمبر 1:20 م/)&&has(/وقت الإرسال، لا وقت الوصول/)&&has(/قُرئ/)&&!q('[data-a^="alertAck"]'));
  ok('…and it opens its service',!!q('.btn[data-a="go:map"]'));
- S=fresh();open('alerts');open('alert','a2');ok('alert detail: unread + open service + acknowledge',has(/لم يُقرأ/)&&!!q('.btn[data-a="go:thread:dm-khaled-layan"]')&&!!q('.btn[data-a="alertAck:a2"]'));
+ S=fresh();open('alerts');open('alert','a2');ok('alert detail: unread + open service + acknowledge',has(/لم يُقرأ/)&&!!q('.btn[data-a="go:chat-flag:dm-khaled-layan:0"]')&&!!q('.btn[data-a="alertAck:a2"]'));
  const n0=attention().length;ACT.alertAck('a2');render();ok('acknowledge: closes, goes back, leaves the attention list',S.alerts.find(a=>a.id==='a2').open===0&&top()==='alerts'&&attention().length===n0-1);
  S=fresh();S.net='off';open('alert','a2');ACT.alertAck('a2');ok('acknowledge offline → waits in the outbox',S.outbox.length===1&&S.outbox[0].sys==='S1-09');
  S=fresh();S.sos={from:'layan',st:'sent',via:'عبر SMS (دون اتصال)',place:'البيت'};open('alert','sos');ok('live SOS: cannot be dismissed here',has(/طارئ/)&&!q('[data-a^="alertAck"]')&&has(/تبقى ظاهرة حتى تُحل/)&&!!q('.btn[data-a="go:sos-status"]')&&has(/وصل متأخراً/));

@@ -320,7 +320,7 @@ surface('loc', {
   },
 });
 Object.assign(ACT, {
-  locMsg(id) { if (S.chat['dm-' + id]) go('thread', 'dm-' + id); else go('chat'); },
+  locMsg(id) { ACT.dmStart(id); },
   locCall(id) { toast(`يفتح تطبيق الهاتف للاتصال ب${pname(M[id])}`, null, 'call'); },
 });
 
