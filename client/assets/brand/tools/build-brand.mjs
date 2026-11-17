@@ -3,7 +3,7 @@
    بلا اعتماديات. حدود الاسم مأخوذة من src/wordmark-paths.json (يولّده extract-wordmark.cjs). */
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
-const OUT = path.join(here, '../logo'), PROTO = path.join(here, '../../../../design-work/platform-prototype/assets/brand');
+const OUT = path.join(here, '../logo'), PROTO = path.join(here, '../../../../docs/family-os/governance/phases/phase-1/prototype/assets/brand');
 const WM = JSON.parse(fs.readFileSync(path.join(OUT, 'src/wordmark-paths.json'), 'utf8'));
 
 /* الألوان من color-tokens.md فقط */

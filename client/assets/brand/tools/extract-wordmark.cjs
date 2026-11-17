@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path');
 (async () => {
   const wawoff = require('wawoff2');
   const hbM = await import(require('url').pathToFileURL(require.resolve('harfbuzzjs')).href); const hb = hbM.default || hbM;
-  const dir = process.argv[2] || path.join(__dirname, '../../../../design-work/platform-prototype/assets/fonts/');
+  const dir = process.argv[2] || path.join(__dirname, '../../../../docs/family-os/governance/phases/phase-1/prototype/assets/fonts/');
   async function shape(file, text) {
     const ttf = Buffer.from(await wawoff.decompress(fs.readFileSync(path.join(dir, file))));
     const face = new hb.Face(new hb.Blob(new Uint8Array(ttf)), 0), font = new hb.Font(face);

@@ -2,7 +2,7 @@
 
 - **الحالة:** مقترح بأمر المالك (Q-398، 2026-11-16) — ينتظر حكمه من الشاشة.
 - **القواعد:** `docs/family-os/governance/design-system/brand-and-logo.md` §3 و§4.
-- **العرض:** `design-work/platform-prototype/brand.html`.
+- **العرض:** `docs/family-os/governance/phases/phase-1/prototype/brand.html`.
 
 ## لا تعدّل ملفات SVG باليد
 كل الملفات تُبنى من تعريف واحد:
@@ -11,7 +11,7 @@
 node client/assets/brand/tools/build-brand.mjs
 ```
 
-الأمر يكتب ملفات هذا المجلد وينسخها إلى `design-work/platform-prototype/assets/brand/`.
+الأمر يكتب ملفات هذا المجلد وينسخها إلى `docs/family-os/governance/phases/phase-1/prototype/assets/brand/`.
 حدود الاسم محفوظة في `src/wordmark-paths.json`، ويولّدها `tools/extract-wordmark.cjs` من خط IBM Plex Sans Arabic (رخصة OFL 1.1) عند تغيير الخط أو الاسم فقط.
 
 ## الملفات

@@ -673,7 +673,7 @@ surface('grant-points', {
 });
 Object.assign(ACT, {
   gpSet(k, v) { S.gp[k] = isNaN(v) ? v : +v; },
-  gpGo() { const g = S.gp, w = ($('#gpW') || {}).value; S.kid[g.kid].pts += g.n; (S.grants = S.grants || []).push({ kid: g.kid, n: g.n, by: me().n, why: w }); S.sheet = null; S.gp = null; queue('منح نقاط', 'S1-05'); toast(`أُودعت ${g.n} نقطة في محفظة ${M[g.kid].n}`, () => { S.kid[g.kid].pts -= g.n; S.grants.pop(); render(); }); },
+  gpGo() { const g = S.gp, w = ($('#gpW') || {}).value; S.kid[g.kid].pts += g.n; (S.grants = S.grants || []).push({ kid: g.kid, n: g.n, by: me().n, why: w }); S.sheet = null; S.gp = null; queue('منح نقاط', 'S1-05'); toast(`أُودعت ${g.n} نقطة في محفظة ${M[g.kid].n}`, () => { if (S.kid[g.kid]) S.kid[g.kid].pts -= g.n; (S.grants || []).pop(); render(); }); },
 });
 surface('grant-time', {
   kind: 'sheet', t: 'منح وقت مباشر', sys: 'S1-05', p: 'adult', a: ['layan'], req: '05:11 10:12',

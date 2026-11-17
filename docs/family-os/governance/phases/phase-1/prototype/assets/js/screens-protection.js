@@ -172,6 +172,7 @@ surface('protection', {
       R('gpp_maybe', 'تنبيهات العبث', tamOpen(id).length ? 'محاولة تعطيل تنتظر مراجعتك' : 'لا محاولات تعطيل', 'protection.tamper.view', `go:tamper:${id}`, tamOpen(id).length ? chip(String(tamOpen(id).length), 'wa') : ''))}
     ${sec('للعائلة كلها')}${list(
       row('bolt', 'الأوضاع', `دراسة · نوم · حر${S.modes.length ? ' · ' + S.modes.map(m => m.n).join(' · ') : ''}`, { a: 'go:presets:study' }),
+      row('verified_user', 'حالة الحماية لكل الأطفال', 'كل جهاز في سطر: حالته وما يحكمه الآن', { a: can('protection.state.view') ? 'go:enf-all' : 'denied:protection.state.view', v: can('protection.state.view') ? '' : ic('lock') }),
       row('swap_vert', 'ترتيب أنواع القواعد', rankOf(id).map(k => RANK[k][0]).join(' ← '), { a: can('protection.priority.edit') ? 'go:priority' : 'denied:protection.priority.edit', v: can('protection.priority.edit') ? '' : ic('lock') }),
       row('receipt_long', 'سجل تغييرات الحماية', 'من غيّر، وماذا، ومتى', { a: can('protection.audit.view') ? 'go:prot-audit' : 'denied:protection.audit.view', v: can('protection.audit.view') ? '' : ic('lock') }))}`; },
 });

@@ -145,6 +145,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.pm.layan={k:'m1',left:60,until:'6:12 م'};open('member','layan');ok('member card names the active mode',has(/رحلة السيارة حتى 6:12/));ACT.psFor('layan');render();ok('…and opens that mode',S.stack[S.stack.length-1].a[0]==='m1');
  S=fresh();S.ctl='adv';tab('control');render();ok('control tree: active mode row',!!q('[data-a="psFor:layan"]')&&has(/الوضع الساري/));
  S=fresh();open('app-rule','layan','mc');ACT.adLim('=','40');ACT.adSave();open('audit');ok('family log links to the protection log',!!q('[data-a="go:prot-audit:all"]'));open('prot-audit','all');ok('protection log links back to the permissions log',has(/Minecraft/)&&!!q('[data-a="go:audit"]'));
+ S=fresh();tab('control');render();open('protection');ok('protection hub: fixed entry to the all-children state',!!q('[data-a="go:enf-all"]'));q('[data-a="go:enf-all"]').click();ok('…and it lists every child',top()==='enf-all'&&document.querySelectorAll('#scr .list .row').length===KIDS.length,top());
  S=fresh();setPersona('delegate');setRole('guardian');open('member','layan');ok('guardian: modes row follows the permission',!!q('[data-a="psFor:layan"]')||!!q('[data-a="denied:protection.mode_preset.apply"]'));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // 18 أوضاع الأب الخاصة (S10-17) ومنع التعارض

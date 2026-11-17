@@ -3,8 +3,7 @@
 المصدر الوحيد: docs/family-os/governance/phases/phase-1/S1-*/SPEC.md (§3 + جدول التغطية §9).
 لا يُعدَّل الناتج يدوياً — أعد تشغيل هذا الملف عند تغير المواصفات."""
 import json, re, pathlib
-ROOT = pathlib.Path(__file__).resolve().parents[3]
-PH = ROOT / "docs/family-os/governance/phases/phase-1"
+PH = pathlib.Path(__file__).resolve().parents[2]  # phases/phase-1 — النموذج يسكن داخله
 NAMES = {
  "S1-01": "هيكل التطبيق والمنصة", "S1-02": "الهوية والتهيئة العائلية", "S1-03": "الأدوار والصلاحيات",
  "S1-04": "الخطط والاشتراكات", "S1-05": "المكافآت للأطفال", "S1-06": "المهام والتقويم",
