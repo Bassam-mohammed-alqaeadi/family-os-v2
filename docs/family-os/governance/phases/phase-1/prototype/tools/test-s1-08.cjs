@@ -139,6 +139,12 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const a3=S.audit.length;q('#scr [data-a^="flagShow"]').click();ok('showing the message is a deliberate, logged act',/لا تدخلي غرفتي/.test(scr())&&S.audit.length===a3+1);
  ok('alert actions: talk, open, ignore, delete, close',!!q('#scr [data-a="dmStart:khaled"]')&&!!q('#scr [data-a="go:thread:'+K+'"]')&&!!q('#scr [data-a^="flagOk"]')&&!!q('#scr [data-a^="msgDel:"]')&&!!q('#scr [data-a="go:chat-close:'+K+'"]'));
  q('#scr [data-a^="flagOk"]').click();ok('ignore: alert closed everywhere, message untouched',!msgsOf(K)[0].flag&&!S.alerts.some(a=>a.k==='chat'&&a.open)&&has(/أُغلق هذا التنبيه/)&&!msgsOf(K)[0].del);noT();
+ S=fresh();open('chat-flag',K,'0');ok('alert carries three short tips for the talk',ph.querySelectorAll('#ftips li').length===3&&has(/ابدأ بسؤال هادئ/));
+ S.flagCat='threat';render();ok('threat category: named, medium',has(/تهديد بالأذى/)&&has(/الخطورة: متوسطة/));
+ S.flagCat='sexual';render();ok('unfit-language category: named, medium',has(/كلام غير لائق/)&&has(/الخطورة: متوسطة/));
+ S.flagCat='distress';render();ok('distress: high, says the message was delivered, offers neither delete nor close',has(/ضيق شديد/)&&has(/الخطورة: عالية/)&&has(/وصلت كما هي ولم يُحجب شيء/)&&!q('#scr [data-a^="msgDel:"]')&&!q('#scr [data-a^="go:chat-close"]')&&!!q('#scr [data-a="dmStart:khaled"]')&&has(/اطمأننت: أغلق التنبيه/));
+ ok('distress: its own tips, with the specialist line',has(/لا تؤجل الحديث/)&&has(/فاطلب مساعدة مختص/));
+ S=fresh();open('chat-settings');q('#scr [data-a^="why:"]')&&q('#scr [data-a^="why:"]').click();ok('«how it works» names the four alert cases and the three blocked ones',/تنمّر أو إهانة، تهديد بالأذى، كلام غير لائق، ضيق شديد/.test(txt())&&/محتوى جنسي يخص قاصراً، تشجيع على إيذاء النفس، استدراج/.test(txt()));S.sheet=null;S.dlg=null;
  S=fresh();S.net='off';open('chat-flag',K,'0');ok('offline: the alert shows, the message cannot be fetched',has(/تنمّر/)&&q('#scr [data-a^="flagShow"]').disabled&&has(/عرض الرسالة يحتاج اتصالاً/));
  S=fresh();CHS();msgsOf(K)[0].del='ahmad';open('chat-flag',K,'0');ok('message deleted before viewing: said plainly',has(/الرسالة غير متاحة/));
  S=fresh();setPersona('delegate');setRole('guardian');open('chat-flag',K,'0');ok('adult without delete or close permission is offered neither',!q('#scr [data-a^="msgDel:"]')&&!q('#scr [data-a^="go:chat-close"]'));

@@ -216,19 +216,24 @@ surface('minor-chats', {
 });
 
 /* ---------- CH-06 تنبيه المصنّف، وما أوقفه قبل التسليم ---------- */
+/* فئات التنبيه (Q-413): قائمة مغلقة في المرحلة 1. الخطورة مستويان يراهما وليّ الأمر: متوسطة وعالية. */
+const FLAG_CAT = { bully: ['تنمّر أو إهانة', 'متوسطة', 'wa'], threat: ['تهديد بالأذى', 'متوسطة', 'wa'], sexual: ['كلام غير لائق', 'متوسطة', 'wa'], distress: ['ضيق شديد', 'عالية', 'da'] };
+const flagCat = m => { const k = S.flagCat || m.cat || 'bully'; return FLAG_CAT[k] ? k : 'bully'; };
+const FLAG_TIPS = { distress: ['لا تؤجل الحديث: اليوم أفضل من الغد.', 'اسمع أكثر مما تتكلم، ولا تلُم.', 'إن ذُكر إيذاء النفس فاطلب مساعدة مختص.'], other: ['ابدأ بسؤال هادئ، لا باتهام.', 'اسمع القصة كاملة قبل أي قرار.', 'قل إن التنبيه آلي وقد يخطئ.'] };
 surface('chat-flag', {
   t: 'تنبيه المصنّف', sys: 'S1-08', p: 'adult', a: ['dm-khaled-layan', '0'], req: '08:12,13',
-  note: 'التنبيه يحمل الفئة والخطورة فقط. نص الرسالة لا يُعرض إلا بطلب صريح، ويُقرأ من الرسالة نفسها لا من التنبيه. المصنّف ينبّه ولا يعاقب، وتقديره قد يخطئ. عتبات التنبيه وفئاته التفصيلية لم تُحسم بعد (فجوة مسجلة): الفئة هنا مثال.',
+  note: 'التنبيه يحمل الفئة والخطورة فقط. نص الرسالة لا يُعرض إلا بطلب صريح، ويُقرأ من الرسالة نفسها لا من التنبيه. المصنّف ينبّه ولا يعاقب، وتقديره قد يخطئ. أربع فئات تنبّه بعد وصول الرسالة: تنمّر أو إهانة، تهديد بالأذى، كلام غير لائق، ضيق شديد (Q-413). الضيق لا يُحجب أبداً: الرسالة تصل، والأهل يُنبَّهون فوراً، ولا يُعرض حذفها ولا إغلاق المحادثة. جرّب الفئات من الاستوديو.',
   r(id, i) {
     const m = msgsOf(id)[+i], c = chOf(id); if (!can('chat.minor.view', c.mem.find(isMinor))) return empty('visibility_off', 'لا تملكين رؤية هذه المحادثة', `${M.ahmad.n} هو من يسمح بها.`);
     if (!m || m.del) return empty('block', 'الرسالة غير متاحة', 'حُذفت الرسالة التي رصدها المصنّف، فلا شيء يُعرض.');
     if (!m.flag) return empty('check_circle', 'أُغلق هذا التنبيه', 'لا شيء ينتظر قرارك هنا.', btn('افتح المحادثة', 'go:thread:' + id, 'sm sec', 'forum'));
-    const show = S.flagShow === id + i, off = offline();
-    return `<div class="card"><div class="chips">${chip('تنمّر', 'wa', 'chat_error')}${chip('الخطورة: متوسطة', 'ol')}</div><p style="margin:10px 0 2px"><b>رسالة من ${M[m.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">اليوم ${m.at} · رصدها المصنّف الآلي، وقد يكون تقديره خاطئاً.</p>
+    const show = S.flagShow === id + i, off = offline(), ck = flagCat(m), fc = FLAG_CAT[ck], dis = ck === 'distress';
+    return `<div class="card"><div class="chips">${chip(fc[0], fc[2], 'chat_error')}${chip('الخطورة: ' + fc[1], 'ol')}</div><p style="margin:10px 0 2px"><b>رسالة من ${M[m.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">اليوم ${m.at} · رصدها المصنّف الآلي، وقد يكون تقديره خاطئاً.</p>${dis ? callout('الرسالة وصلت كما هي ولم يُحجب شيء. نبّهناك لتكون قريباً.', 'in', 'info') : ''}
     ${show ? `<div class="card flat" style="margin-top:10px">«${m.x}»</div>` : `<div class="gap"></div>${btn('اعرض الرسالة', 'flagShow:' + id + ':' + i, off ? 'sec" disabled="' : 'sec', 'visibility')}${off ? '<p class="xs muted c" style="margin-top:6px">عرض الرسالة يحتاج اتصالاً. التنبيه نفسه محفوظ في هاتفك.</p>' : ''}`}</div>
-    ${sec('ماذا تفعل؟')}${list(row('forum', `تحدّث مع ${M[m.f].n}`, 'محادثة بينك وبينه', { a: 'dmStart:' + m.f }), row('visibility', 'افتح المحادثة كاملة', 'للقراءة فقط', { a: 'go:thread:' + id }), row('thumb_up', 'لا مشكلة: تجاهل التنبيه', 'يُسجَّل تجاهلك بلا نص الرسالة', { a: `flagOk:${id}:${i}`, chev: false }),
-      can('chat.message.delete.any') ? row('delete', 'احذف الرسالة للجميع', off ? 'يحتاج اتصالاً' : 'يظهر مكانها «حُذفت هذه الرسالة»', { a: off ? '' : `msgDel:${id}:${i}`, c: off ? 'dis' : '', ic: 'var(--danger)', chev: false }) : '',
-      can('chat.channel.close') && !c.closed ? row('lock', 'أغلق المحادثة', 'يوقف الإرسال فيها حتى يُعاد فتحها', { a: 'go:chat-close:' + id }) : '')}
+    ${sec('ماذا تفعل؟')}${list(row('forum', `تحدّث مع ${M[m.f].n}`, 'محادثة بينك وبينه', { a: 'dmStart:' + m.f }), row('visibility', 'افتح المحادثة كاملة', 'للقراءة فقط', { a: 'go:thread:' + id }), row('thumb_up', dis ? 'اطمأننت: أغلق التنبيه' : 'لا مشكلة: تجاهل التنبيه', 'يُسجَّل ذلك بلا نص الرسالة', { a: `flagOk:${id}:${i}`, chev: false }),
+      !dis && can('chat.message.delete.any') ? row('delete', 'احذف الرسالة للجميع', off ? 'يحتاج اتصالاً' : 'يظهر مكانها «حُذفت هذه الرسالة»', { a: off ? '' : `msgDel:${id}:${i}`, c: off ? 'dis' : '', ic: 'var(--danger)', chev: false }) : '',
+      !dis && can('chat.channel.close') && !c.closed ? row('lock', 'أغلق المحادثة', 'يوقف الإرسال فيها حتى يُعاد فتحها', { a: 'go:chat-close:' + id }) : '')}
+    ${sec('قبل الحديث')}<div class="card flat" id="ftips"><ul style="margin:0;padding-inline-start:18px;line-height:1.9">${FLAG_TIPS[dis ? 'distress' : 'other'].map(t => `<li>${t}</li>`).join('')}</ul></div>
     <p class="xs muted" style="margin:10px 4px">المصنّف يفحص النص والصور في محادثات الأبناء، ولا يفحص الرسائل الصوتية. ${why('classifier', 'كيف يعمل؟')}</p>`;
   },
 });
