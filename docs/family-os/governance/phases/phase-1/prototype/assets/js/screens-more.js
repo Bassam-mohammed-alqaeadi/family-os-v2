@@ -93,17 +93,24 @@ Object.assign(ACT, {
 });
 surface('security', {
   t: 'الأمان', sys: 'S1-02', p: 'adult', req: '02:5,6,16,20 01:5,23',
-  note: 'الفتح بالبصمة مطفأ حتى يشغّله صاحب الحساب (Q-219)، ويفتح التطبيق في وضع الأهل فقط ولا يغني عن الرقم السري. لا تظهر هنا كلمات مثل TOTP أو مفتاح التوقيع: مكانها المواصفة.',
+  note: 'البصمة مفتاحان منفصلان، وكلاهما مطفأ حتى يشغّله صاحب الهاتف بالرقم السري (Q-219): الأول يفتح التطبيق، والثاني يجعل تأكيد الأفعال الحساسة بالبصمة بدل الرقم السري (Q-418). يبقى الرقم السري مطلوباً على أجهزة الأبناء، ولتغييره ولتشغيل البصمة، وبعد ثلاث محاولات فاشلة أو تغيّر بصمات الهاتف، ومرة كل 30 يوماً. تغيير الرقم السري يطفئ التأكيد بالبصمة. لا تظهر هنا كلمات مثل TOTP أو مفتاح التوقيع: مكانها المواصفة.',
   r() { const own = isOwner(), q = S.recReq, n = S.sess.length;
     return `${S.bioChg ? `<button class="callout wa" style="width:100%;text-align:start" data-a="go:rekey">${ic('fingerprint')}<div><b>تغيّرت بصمات هذا الهاتف</b><br>اكتب رقمك السري مرة واحدة لنتأكد أنك أنت.</div></button>` : ''}${q && q.st !== 'cancelled' ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:recover-review">${ic('lock_reset')}<div><b>طلب استرداد حساب أحمد</b><br>${q.st === 'pending' ? 'بانتظار تأكيد جهة الاسترداد' : 'بقي 7 أيام · اضغط للمراجعة'}</div></button>` : ''}
-    ${sec('فتح التطبيق')}${list(row('fingerprint', 'افتح بالبصمة أو الوجه', 'للدخول إلى التطبيق فقط · الأفعال الحساسة تبقى بالرقم السري', { tg: !!S.bio, ta: 'bioT' }), row('pin', 'الرقم السري', S.pin.set ? 'غيّر رقمك السري' : 'لم يُنشأ بعد', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? (S.pin.set ? '' : chip('أنشئه', 'wa')) : ic('lock') }))}
+    ${sec('البصمة أو الوجه')}${list(row('fingerprint', 'افتح التطبيق بالبصمة', 'للدخول إلى «عائلتي» على هذا الهاتف', { tg: !!S.bio, ta: 'bioT' }), row('verified_user', 'أكّد الأفعال الحساسة بالبصمة', S.bioAct ? 'بدل الرقم السري، على هذا الهاتف' : 'الآن تؤكَّد بالرقم السري', { tg: !!S.bioAct, ta: 'bioActT' }))}${S.bioAct ? callout('كل من له بصمة مسجّلة في هذا الهاتف يستطيع تأكيد هذه الأفعال باسمك.', 'wa', 'warning') : ''}<p class="xs muted" style="margin:0 4px 14px">الأفعال الحساسة مثل: تغيير الخطة والدفع، منح صلاحية حساسة، إيقاف القواعد، حذف فرد أو العائلة.${S.bioAct ? ` ويبقى الرقم السري مطلوباً: على أجهزة الأبناء، ولتغيير الرقم أو تشغيل البصمة، وبعد ثلاث محاولات فاشلة أو تغيّر بصمات الهاتف، ومرة كل ${PIN_EVERY} يوماً حتى لا تنساه.` : ''}</p>
+    ${sec('الرقم السري')}${list(row('pin', 'الرقم السري', !S.pin.set ? 'لم يُنشأ بعد' : S.bioAct ? ((S.pinAgo || 0) >= PIN_EVERY ? 'غيّر رقمك السري · نطلبه منك في التأكيد القادم' : `غيّر رقمك السري · نطلبه منك مرة بعد ${rwDy(PIN_EVERY - (S.pinAgo || 0))}`) : 'غيّر رقمك السري', { a: own ? 'pinChange' : 'denied:shell.parent_gate.manage', v: own ? (S.pin.set ? '' : chip('أنشئه', 'wa')) : ic('lock') }))}
     ${sec('أجهزتي')}${list(row('devices', 'الأجهزة التي دخلتُ منها', 'هذا الهاتف' + (n > 1 ? ` و${n - 1} آخر` : ' فقط'), { a: 'go:sessions' }), row('password', 'رمز الدخول لجهاز جديد', 'يُطلب منك عند الدخول من هاتف آخر', { a: 'go:login-code' }))}
     ${sec('إن فقدت الهاتف والرقم')}${list(own ? row('support', 'من يساعدك على العودة', S.rec ? '' : 'لم تختر أحداً بعد', { v: S.rec ? M[S.rec].n : chip('اختر', 'wa'), a: 'go:recovery' }) : row('support', 'العودة إلى حسابك', 'يدعوك أحمد من جديد برقمك الجديد', { a: 'go:recovery' }))}`; },
 });
 Object.assign(ACT, {
-  bioT() { if (S.bio) { S.bio = false; toast('أُطفئ الفتح بالبصمة'); return; } gate('اكتب رقمك السري لتشغيل الفتح بالبصمة', () => { S.bio = true; toast('شُغّل الفتح بالبصمة على هذا الهاتف', null, 'fingerprint'); }); },
+  bioT() { if (S.bio) { S.bio = false; toast('أُطفئ الفتح بالبصمة'); return; } gate('اكتب رقمك السري لتشغيل الفتح بالبصمة', () => { S.bio = true; toast('شُغّل الفتح بالبصمة على هذا الهاتف', null, 'fingerprint'); }, 'pin'); },
+  /* Q-418: التأكيد بالبصمة يُشغَّل بالرقم السري نفسه (من لا يعرفه لا يشغّله)، ويُطفأ بلا شرط */
+  bioActT() {
+    if (S.bioAct) { S.bioAct = false; audit('أُطفئ تأكيد الأفعال الحساسة بالبصمة · ' + gateDev(), 'identity.biometric.enable'); toast('عاد التأكيد بالرقم السري', null, 'pin'); return; }
+    if (!S.pin.set) return toast('أنشئ الرقم السري أولاً', null, 'pin');
+    gate('اكتب رقمك السري لتشغيل التأكيد بالبصمة', () => { S.bioAct = true; audit('شُغّل تأكيد الأفعال الحساسة بالبصمة · ' + gateDev(), 'identity.biometric.enable'); toast('الأفعال الحساسة تؤكَّد الآن بالبصمة على هذا الهاتف', null, 'fingerprint'); }, 'pin');
+  },
   /* التغيير يتطلب الرقم الحالي نفسه لا البصمة (S1-01 §7)؛ والإنشاء الأول بلا رقم سابق */
-  pinChange() { if (!S.pin.set) return pinSetOpen('create'); gate('أدخل الرقم الحالي لتغييره', () => pinSetOpen('change')); },
+  pinChange() { if (!S.pin.set) return pinSetOpen('create'); gate('أدخل الرقم الحالي لتغييره', () => pinSetOpen('change'), 'pin'); },
 });
 surface('sessions', {
   t: 'الأجهزة التي دخلتُ منها', sys: 'S1-02', p: 'adult', req: '02:6',
@@ -124,13 +131,13 @@ surface('login-code', {
 });
 surface('bio-unlock', {
   kind: 'full', t: 'الفتح بالبصمة', sys: 'S1-02', p: 'adult', req: '02:16 01:5',
-  note: 'يظهر عند فتح التطبيق في وضع الأهل إن شغّل صاحبه الفتح بالبصمة. ثلاث محاولات فاشلة ← الرقم السري. لا يظهر أبداً على جهاز طفل، ولا يغني عن الرقم السري في الأفعال الحساسة.',
+  note: 'يظهر عند فتح التطبيق في وضع الأهل إن شغّل صاحبه الفتح بالبصمة. ثلاث محاولات فاشلة ← الرقم السري. لا يظهر أبداً على جهاز طفل. وهو غير تأكيد الأفعال الحساسة بالبصمة: ذاك مفتاح آخر في «الأمان» (Q-418).',
   r() { const f = S.bioF || 0; return `<div class="body" style="justify-content:center;text-align:center"><img src="assets/brand/logo-symbol.svg" alt="" width="72" height="68" style="margin:0 auto 18px"><p class="ttl">أهلاً ${me().n}</p><p class="sub">${f ? `لم نتعرف على البصمة. بقيت ${3 - f} ${3 - f === 1 ? 'محاولة' : 'محاولتان'}.` : 'المس حساس البصمة لتفتح «عائلتي».'}</p><button class="bigic" style="width:112px;height:112px;border-radius:50%;${f ? 'background:var(--danger-soft);color:var(--danger)' : ''}" data-a="bioOk" aria-label="افتح بالبصمة">${ic('fingerprint')}</button>${btn('استعمل الرقم السري', 'bioPin', 'sec', 'pin')}<div class="gap"></div>${btn('جرّب: بصمة غير معروفة', 'bioBad', 'txt" style="width:100%')}</div>`; },
 });
 Object.assign(ACT, {
   bioOk() { S.bioF = 0; S.full = null; },
-  bioBad() { S.bioF = (S.bioF || 0) + 1; if (S.bioF >= 3) { S.bioF = 0; gate('ثلاث محاولات فاشلة بالبصمة · اكتب رقمك السري', () => {}); } },
-  bioPin() { S.bioF = 0; gate('افتح «عائلتي» بالرقم السري', () => {}); },
+  bioBad() { S.bioF = (S.bioF || 0) + 1; if (S.bioF >= 3) { S.bioF = 0; gate('ثلاث محاولات فاشلة بالبصمة · اكتب رقمك السري', () => {}, 'pin'); } },
+  bioPin() { S.bioF = 0; gate('افتح «عائلتي» بالرقم السري', () => {}, 'pin'); },
 });
 surface('rekey', {
   t: 'تغيّرت بصمات هذا الهاتف', sys: 'S1-02', p: 'adult', req: '02:16 01:23',
@@ -138,7 +145,7 @@ surface('rekey', {
   r() { if (!S.bioChg) return empty('verified_user', 'هذا الهاتف موثوق', 'لا شيء مطلوب منك.', btn('رجوع', 'back', 'sec'));
     return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('fingerprint')}</div><p class="ttl" style="font-size:22px">أُضيفت بصمة أو حُذفت</p><p class="sub">تغيّرت البصمات المسجلة على هذا الهاتف. لنتأكد أنك أنت، اكتب رقمك السري مرة واحدة.</p>${list(row('lock', 'متوقف إلى أن تكتبه', 'فكّ إقران جهاز · إيقاف القواعد · حذف العائلة'), row('check_circle', 'يعمل كالعادة', 'المتابعة والمحادثة والمهام والاستغاثة'))}${btn('اكتب الرقم السري', 'rekeyGo', '', 'pin')}${callout('لم تغيّر البصمات أنت؟ اكتب الرقم السري ثم غيّره من «الأمان».', 'nt', 'help')}`; },
 });
-ACT.rekeyGo = () => gate('تأكيد أنك أنت بعد تغيّر البصمات', () => { S.bioChg = 0; audit('أُعيد توثيق هذا الهاتف بالرقم السري بعد تغيّر البصمات', 'shell.device_key'); toast('عاد هذا الهاتف موثوقاً', null, 'verified_user'); }, 'stepup');
+ACT.rekeyGo = () => gate('تأكيد أنك أنت بعد تغيّر البصمات', () => { S.bioChg = 0; audit('أُعيد توثيق هذا الهاتف بالرقم السري بعد تغيّر البصمات', 'shell.device_key'); toast('عاد هذا الهاتف موثوقاً', null, 'verified_user'); }, 'pin');
 surface('recovery', {
   t: 'إن فقدت الهاتف والرقم', sys: 'S1-02', p: 'adult', req: '02:20',
   note: 'الأب يختار مسبقاً بالغاً من العائلة يساعده على العودة. تغيير الاختيار بالرقم السري. إن لم يكن في العائلة بالغ آخر فالشاشة تقول ذلك وتفتح الدعوة. البالغ غير المالك لا جهة استرداد له في المواصفة: يدعوه الأب من جديد (يحتاج تأكيد المالك).',
@@ -149,7 +156,7 @@ surface('recovery', {
     ${S.rec ? btn('لا أريد أحداً', 'recPick:', 'txt" style="width:100%') : ad.length ? callout('لم تختر أحداً. إن فقدت هاتفك ورقمك معاً فلن نستطيع إعادة حسابك.', 'wa', 'warning') : ''}
     ${sec('كيف تعود')}<div class="card"><div class="tl"><div class="ev"><b>تطلب العودة برقم جديد</b><span>من شاشة الدخول: «فقدت هاتفك ورقمك؟»</span></div><div class="ev"><b>${S.rec ? M[S.rec].n + ' ' + vb(M[S.rec], 'يؤكد', 'تؤكد') : 'من اخترته يؤكد'} أنك أنت</b><span>بعد أن يسمع صوتك</span></div><div class="ev wa"><b>انتظار 7 أيام</b><span>يُبلَّغ كل البالغين · أي اعتراض يلغي الطلب</span></div><div class="ev ok"><b>يعود حسابك</b><span>برقمك الجديد</span></div></div></div>`; },
 });
-ACT.recPick = id => gate(id ? `اختيار ${M[id].n} لتساعدك على العودة` : 'إزالة من يساعدك على العودة', () => { S.rec = id || null; audit(id ? `اختير ${M[id].n} جهة استرداد` : 'أُزيلت جهة الاسترداد', 'identity.recovery'); toast(id ? `اخترت ${M[id].n} · وصل الإشعار` : 'لم يعد لك من يساعدك على العودة', null, 'support'); });
+ACT.recPick = id => gate(id ? `اختيار ${M[id].n} لتساعدك على العودة` : 'إزالة من يساعدك على العودة', () => { S.rec = id || null; audit(id ? `اختير ${M[id].n} جهة استرداد` : 'أُزيلت جهة الاسترداد', 'identity.recovery'); toast(id ? `اخترت ${M[id].n} · وصل الإشعار` : 'لم يعد لك من يساعدك على العودة', null, 'support'); }, 'pin');
 surface('unpair', {
   t: id => 'فكّ إقران جهاز ' + M[id].n, sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:15 01:5,6 10:27',
   note: 'للمالك فقط وبرقمه السري. الشاشة تقول ما يتوقف وما يبقى قبل التنفيذ. بعده يخرج ذلك الجهاز من العائلة ويصير هاتفاً عادياً، وقواعد الطفل تبقى محفوظة لجهازه القادم.',
@@ -200,7 +207,7 @@ surface('health', {
     const ios = S.os === 'ios';
     return `${callout('هذه الصفحة للدعم الفني. إن طلب منك فريق الدعم معلومة عن جهازك فستجدها هنا.', 'nt', 'support_agent')}
     ${sec('هذا الجهاز')}<div class="g2">${[['memory', 'الذاكرة', '3 GB', 'انتقالات كاملة'], ['wifi', 'الاتصال', offline() ? 'منقطع' : S.lbw ? 'ضعيف' : 'جيد', offline() ? 'يعمل محلياً' : S.lbw ? 'توفير البيانات' : 'Wi‑Fi'], ['battery_5_bar', 'البطارية', '72%', 'عادي'], ['rocket_launch', 'الإقلاع البارد', '0.9 ث', 'الهدف < 1.2 ث']].map(([i, t, v, x]) => `<div class="card">${ic(i)}<div class="b" style="font-size:calc(20px*var(--ts));margin-top:4px">${v}</div><div class="sm muted">${t} · ${x}</div></div>`).join('')}</div>
-    ${list(row('speed', 'الانتقالات الثقيلة', 'تُعطَّل تلقائياً على الأجهزة دون 2GB', { v: chip('مفعّلة', 'ok') }), row('shield', 'وحدة الفرض', ios ? 'غير متاحة على iOS · التحكم العميق على أندرويد فقط' : 'تعمل على أجهزة الأطفال فقط · هذا جهاز أهل', { v: ios ? chip('غير متاحة', 'ol') : chip('لا تنطبق', 'ol'), a: ios ? 'why:ios' : '' }), row('key', 'مفتاح توقيع الجهاز', 'مربوط بالعتاد', { v: chip('مسجَّل', 'ok', 'check') }), row('android', 'المنصة', '', { v: ios ? 'iOS' : 'Android' }))}
+    ${list(row('speed', 'الانتقالات الثقيلة', 'تُعطَّل تلقائياً على الأجهزة دون 2GB', { v: chip('مفعّلة', 'ok') }), row('shield', 'تطبيق القواعد على الجهاز', ios ? 'غير متاحة على iOS · التحكم العميق على أندرويد فقط' : 'تعمل على أجهزة الأطفال فقط · هذا جهاز أهل', { v: ios ? chip('غير متاحة', 'ol') : chip('لا تنطبق', 'ol'), a: ios ? 'why:ios' : '' }), row('key', 'مفتاح توقيع الجهاز', 'مربوط بالعتاد', { v: chip('مسجَّل', 'ok', 'check') }), row('android', 'المنصة', '', { v: ios ? 'iOS' : 'Android' }))}
     ${sec('السجلات المركزية')}${list([['tune', 'ControlRegistry', 'مفاتيح التحكم', ''], ['key', 'PermissionRegistry', 'مفاتيح الصلاحيات', '95'], ['widgets', 'WidgetRegistry', 'ودجات الرئيسية', ''], ['notifications', 'NotificationRegistry', 'قنوات التنبيه', '']].map(([i, n, x, c]) => row(i, x, `<span class="mono">${n}</span>`, { v: c ? `<span class="mono">${c}</span>` : chip('مسجَّل', 'ok', 'check'), chev: false })))}
     ${sec('أعلام الميزات وملف المنطقة')}${list(row('public', 'المنطقة', 'ملف المنطقة يُحمَّل عند الفتح ويُحفظ', { v: '<span class="mono">YE</span>', chev: false }), row('flag', 'low_bandwidth_default', 'صالح حتى إشعار آخر', { v: chip('on', 'ok'), chev: false }), row('flag', 'otp_channels', '', { v: '<span class="mono xs">whatsapp→sms→call</span>', chev: false }), row('flag', 'payment_routes', 'مسارات الدفع من ملف المنطقة · تفاصيلها في «الخطة والفوترة»', { chev: false }), row('smart_toy', 'ai_gateway_hook', 'خطاف العقد فقط · الميزانية ومفتاح الإيقاف في «المساعد الذكي»', { v: chip('hook', 'ol'), chev: false }))}`;
   },
@@ -209,7 +216,7 @@ ACT.syncNow = () => { if (offline()) return toast('لا يوجد اتصال ال
 surface('about', {
   t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20', st: 'un',
   note: 'الشعار من تصميم Q-398 (ينتظر حكم المالك من الشاشة). شخصية المرشد (B-002) ما زالت مفتوحة ولا تظهر.',
-  r() { return `<div class="c" style="padding:16px 0"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="96" style="margin:0 auto"><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والفرض العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
+  r() { return `<div class="c" style="padding:16px 0"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="96" style="margin:0 auto"><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والتحكم العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
 });
 ACT.updCheck = () => toast(offline() ? 'لا يوجد اتصال · نتحقق عند عودته' : 'أنت على أحدث إصدار', null, offline() ? 'cloud_off' : 'check_circle');
 surface('outbox', {
@@ -272,29 +279,47 @@ surface('why', {
 /* ============ بوابة الوالدين / الرفع الأمني ============ */
 surface('pin', {
   kind: 'full', t: 'بوابة الوالدين', sys: 'S1-01', p: 'any', a: ['الخروج من وضع الطفل', 'gate'], req: '01:5,6,23 03:12 02:16',
-  note: 'رقم الأب السري، 6 أرقام، محلي ولا يمنح صلاحية بحد ذاته. 5 محاولات خاطئة ← قفل 5 دقائق، وكل فشل وقفل يُسجَّل في التدقيق ويُنبَّه الأب عند القفل. لوحة الأرقام لا تُعكس. زر الاستغاثة يبقى في رأس البوابة. الرقم التجريبي: 482615 (والرقم 123456 نمط ممنوع).',
-  r(reason, kind) {
-    const locked = S.pin.lock > 0;
+  note: 'على هاتف الأهل: إن اختار صاحبه التأكيد بالبصمة (Q-418) لا تظهر هذه اللوحة إلا لسبب يُكتب فيها (مرّ 30 يوماً، تغيّرت البصمات، ثلاث محاولات فاشلة) أو إن اختار هو الرقم. على جهاز الابن هي الطريق الوحيد. رقم الأب السري، 6 أرقام، محلي ولا يمنح صلاحية بحد ذاته. 5 محاولات خاطئة ← قفل 5 دقائق، وكل فشل وقفل يُسجَّل في التدقيق ويُنبَّه الأب عند القفل. لوحة الأرقام لا تُعكس. زر الاستغاثة يبقى في رأس البوابة. الرقم التجريبي: 482615 (والرقم 123456 نمط ممنوع).',
+  r(reason, kind, why) {
+    const locked = S.pin.lock > 0, canBio = why !== 'fail' && bioWhy(kind) === '';
+    const whyT = { month: `مرّ ${PIN_EVERY} يوماً على آخر مرة كتبت فيها رقمك السري. نطلبه مرة حتى لا تنساه.`, chg: 'تغيّرت بصمات هذا الهاتف، فالتأكيد الآن بالرقم السري.', fail: 'ثلاث محاولات لم تنجح بالبصمة.' }[why];
     return `<header class="bar"><button class="ib" data-a="pinX" aria-label="إغلاق">${ic('close')}</button><h2></h2>${S.persona === 'guest' ? '' : sosBtn()}</header><div class="body" style="justify-content:center">
     <div class="bigic">${ic(locked ? 'lock_clock' : kind === 'stepup' ? 'shield_lock' : 'lock')}</div><p class="ttl">${locked ? 'البوابة مقفلة مؤقتاً' : kind === 'stepup' ? 'أكّد أنك أنت' : 'بوابة الوالدين'}</p>
     <p class="sub">${locked ? `خمس محاولات خاطئة. حاول بعد <b class="ltr">${Math.floor(S.pin.lock / 60)}:${String(S.pin.lock % 60).padStart(2, '0')}</b>` : reason + ' · أدخل رقم الأب السري'}</p>
-    ${locked ? '' : `<div class="dots ${S.pin.shake ? 'bad' : ''}" aria-label="${pinBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < pinBuf.length ? 'f' : ''}"></i>`).join('')}</div>
+    ${!locked && whyT ? `<p class="c sm pinwhy">${ic('info')} ${whyT}</p>` : ''}${locked ? '' : `<div class="dots ${S.pin.shake ? 'bad' : ''}" aria-label="${pinBuf.length} من 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i < pinBuf.length ? 'f' : ''}"></i>`).join('')}</div>
     ${S.pin.bad ? `<p class="c sm" style="color:var(--danger);margin:-10px 0 12px">الرقم غير صحيح. بقيت ${5 - S.pin.bad} محاولات.</p>` : ''}
-    <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pinK:${n}">${n}</button>`).join('')}<button class="gh" data-a="${kind === 'stepup' && S.bio && mode() === 'parent' ? 'pinBio' : 'pinNo'}" aria-label="بصمة">${kind === 'stepup' && S.bio && mode() === 'parent' ? ic('fingerprint') : ''}</button><button data-a="pinK:0">0</button><button class="gh" data-a="pinK:b" aria-label="حذف">${ic('backspace')}</button></div>`}
+    <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pinK:${n}">${n}</button>`).join('')}<button class="gh" data-a="${canBio ? 'pinBio' : 'pinNo'}" ${canBio ? 'aria-label="أكّد بالبصمة"' : 'aria-hidden="true" tabindex="-1"'}>${canBio ? ic('fingerprint') : ''}</button><button data-a="pinK:0">0</button><button class="gh" data-a="pinK:b" aria-label="حذف">${ic('backspace')}</button></div>`}
     ${mode() !== 'parent' ? `<p class="c sm muted" style="margin-top:18px">هذه الصفحة للأهل. ${btn('ارجع', 'pinX', 'txt')}</p>` : S.persona === 'owner' && !locked ? `<p class="c sm" style="margin-top:14px">${btn('نسيت الرقم؟', 'pinForgot', 'txt')}</p>` : ''}</div>`;
+  },
+});
+/* ---------- التأكيد بالبصمة (Q-418) ---------- */
+surface('bio-confirm', {
+  kind: 'full', t: 'التأكيد بالبصمة', sys: 'S1-01', p: 'adult', a: ['بدء التجربة', 'stepup'], req: '01:5,23 02:16',
+  note: 'يظهر بدل لوحة الرقم السري حين يختار صاحب الهاتف «أكّد الأفعال الحساسة بالبصمة» (Q-418). على هاتف الأهل وحده، ولا يظهر على جهاز ابن أبداً. ثلاث محاولات فاشلة ← الرقم السري. «استعمل الرقم السري» متاح دائماً. يُعرض الفعل الذي يؤكَّد في أعلى الشاشة حتى لا تُلمس البصمة على شيء مجهول. من لوحة الضبط: شغّل «التأكيد بالبصمة».',
+  r(reason) {
+    const f = S.bioF || 0;
+    return `<header class="bar"><button class="ib" data-a="pinX" aria-label="إغلاق">${ic('close')}</button><h2></h2></header><div class="body" style="justify-content:center;text-align:center">
+    <p class="ttl">أكّد أنك أنت</p><p class="sub">${reason}</p>
+    <button class="bigic bcfp ${f ? 'bad' : ''}" data-a="bcOk" aria-label="أكّد بالبصمة">${ic('fingerprint')}</button>
+    <p class="sm ${f ? '' : 'muted'}" style="margin:0 0 18px;${f ? 'color:var(--danger)' : ''}" role="status">${f ? `لم نتعرف على البصمة. بقيت ${3 - f === 1 ? 'محاولة واحدة' : 'محاولتان'}.` : 'المس حساس البصمة'}</p>
+    ${btn('استعمل الرقم السري', 'bcPin', 'sec', 'pin')}<div class="gap"></div>${btn('جرّب: بصمة غير معروفة', 'bcBad', 'txt" style="width:100%')}</div>`;
   },
 });
 let pinTimer;
 Object.assign(ACT, {
+  bcOk() { S.bioF = 0; S.full = null; const c = pinCb; pinCb = null; if (c) c(); },
+  bcBad() { const a = S.full ? S.full.a : []; S.bioF = (S.bioF || 0) + 1; if (S.bioF >= 3) { S.bioF = 0; pinBuf = ''; gateLog('ثلاث محاولات فاشلة بالبصمة عند تأكيد فعل حساس'); S.full = { id: 'pin', a: [a[0], a[1], 'fail'] }; } },
+  bcPin() { const a = S.full ? S.full.a : []; S.bioF = 0; pinBuf = ''; S.full = { id: 'pin', a: [a[0], a[1], ''] }; },
   pinX() { S.full = null; pinCb = null; S.pin.shake = 0; },
   pinNo() { return false; },
   pinForgot() { S.full = null; pinCb = null; go('pin-forgot'); },
-  pinBio() { S.full = null; const c = pinCb; pinCb = null; toast('تم التحقق بالبصمة', null, 'fingerprint'); if (c) c(); },
+  /* من لوحة الأرقام إلى البصمة: يعود إلى شاشة التأكيد بالبصمة بالفعل نفسه */
+  pinBio() { const a = S.full ? S.full.a : []; if (a[2] === 'fail' || bioWhy(a[1]) !== '') return false; pinBuf = ''; S.bioF = 0; S.full = { id: 'bio-confirm', a: [a[0], a[1]] }; },
   pinK(k) {
     S.pin.shake = 0;
     if (k === 'b') { pinBuf = pinBuf.slice(0, -1); return; }
     pinBuf += k; if (pinBuf.length < 6) return;
-    if (pinBuf === S.pin.code) { pinBuf = ''; S.pin.bad = 0; S.full = null; const c = pinCb; pinCb = null; if (c) c(); return; }
+    if (pinBuf === S.pin.code) { pinBuf = ''; S.pin.bad = 0; S.pinAgo = 0; S.full = null; const c = pinCb; pinCb = null; if (c) c(); return; }
     pinBuf = ''; S.pin.bad += 1; S.pin.shake = 1; gateLog(`رقم خاطئ في بوابة الوالدين (${S.pin.bad} من 5)`);
     if (S.pin.bad >= 5) { S.pin.bad = 0; S.pin.lock = 300; gateLog('قُفلت بوابة الوالدين 5 دقائق بعد 5 محاولات خاطئة'); S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `قُفلت بوابة الوالدين على ${gateDev()}`, s: 'خمس محاولات خاطئة للرقم السري · القفل 5 دقائق', ago: 'الآن', p: 3, open: 1 }); clearInterval(pinTimer); pinTimer = setInterval(() => { S.pin.lock -= 1; if (S.pin.lock <= 0) { S.pin.lock = 0; clearInterval(pinTimer); } if (S.full && S.full.id === 'pin') renderOv(); }, 1000); }
   },
@@ -344,7 +369,9 @@ Object.assign(ACT, {
       p.a = psBuf; psBuf = ''; p.step = 'confirm'; return;
     }
     if (psBuf !== p.a) { p.err = 'الرقمان غير متطابقين · أعد المحاولة'; psBuf = ''; return; }
-    S.pin.code = p.a; S.pin.set = true; S.pin.bad = 0; psBuf = ''; p.a = ''; p.step = 'done';
+    S.pin.code = p.a; S.pin.set = true; S.pin.bad = 0; S.pinAgo = 0; psBuf = ''; p.a = ''; p.step = 'done';
+    /* Q-418: رقم جديد يطفئ التأكيد بالبصمة؛ يُشغَّل من جديد بالرقم الجديد */
+    if (S.bioAct && p.kind !== 'create') { S.bioAct = false; audit('أُطفئ تأكيد الأفعال الحساسة بالبصمة بعد تغيير الرقم السري', 'identity.biometric.enable'); }
     S.audit.unshift({ t: `${p.kind === 'pair' ? 'حُفظ رقم بوابة الوالدين عند الإقران' : (p.kind === 'create' ? 'أُنشئ' : 'غُيّر') + ' رقم بوابة الوالدين · ' + gateDev()}`, w: 'أحمد', at: 'الآن', k: 'shell.parent_gate.manage' });
     if (S.checklist) S.checklist.pin = 1;
   },
