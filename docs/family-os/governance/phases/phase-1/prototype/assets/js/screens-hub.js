@@ -14,10 +14,11 @@ const SVC = [
   { id: 'ai', n: 'المساعد الذكي', d: 'مستوى الاستقلالية وسجل الأفعال', i: 'wand_stars', go: 'go:ai', k: 'hub.settings.view', home: 'بطاقة اقتراح المساعد' },
 ];
 const svcOf = id => SVC.find(s => s.id === id);
-const svcOn = id => !(S.svcOff || {})[id];
+/* الخدمة تظهر ما دامت مسجّلة في التطبيق. الأب لا يخفي خدمة بنفسه (Q-407): إزالتها تتم عند نشر التطبيق فقط؛ والاستوديو يحاكيها بـ S.svcGone لعرض الأثر (REQ-015). */
+const svcOn = id => S.svcGone !== id;
 const svcIos = s => !!s.ios && S.os === 'ios';
 function svcState(s) {
-  if (!svcOn(s.id)) return chip('مخفية', 'ol', 'visibility_off');
+  if (!svcOn(s.id)) return chip('أُزيلت', 'ol', 'visibility_off');
   if (!can(s.k)) return avail('not_delegated');
   if (svcIos(s)) return avail('unavailable_on_device');
   return chip('تعمل', 'ok', 'check');
@@ -46,30 +47,22 @@ const ctlAct = (c, kid) => (c.type === 'pick' ? `go:ctl-edit:${c.id}:${kid}` : c
 const ctlRow = (c, kid) => srow(c.t, c.v(kid), c.src(kid), ctlAct(c, kid), c.k, { ios: c.ios, hl: S.hl === c.id });
 const ctlGroups = (kid, sid) => { const G = []; CTL.filter(c => (!sid || c.s === sid) && svcOn(c.s)).forEach(c => { let g = G.find(x => x[0] === c.g); if (!g) G.push(g = [c.g, []]); g[1].push(c); }); return G.map(([g, L]) => `${sec(g)}<div class="list">${L.map(c => ctlRow(c, kid)).join('')}</div>`).join(''); };
 /* شجرة العرض المتقدّم: تتولّد من السجل، لا من قائمة ثابتة (settings-patterns.md DS-SE-01) */
-function advTree(id) { return ctlGroups(id) || empty('visibility_off', 'كل الخدمات مخفية', 'أظهر خدمة من «الخدمات» لتعود إعداداتها هنا.', btn('الخدمات', 'go:registry', 'sm sec')); }
+function advTree(id) { return ctlGroups(id); }
 
 /* ---------- H09-08 صفحة الخدمة ---------- */
 surface('svc', {
-  t: id => (svcOf(id) || SVC[0]).n, sys: 'S1-09', p: 'adult', a: ['prot'], req: '09:2,5,8,9,14,15',
-  note: 'صفحة خدمة واحدة: حالتها بصدق، وما تضعه في الرئيسية، وإعداداتها لكل طفل بالقيمة السارية ومصدرها. الأعمدة التقنية (المفتاح، النوع، جدول Android / iOS) مخفية: يظهر «غير متاح على هذا الجهاز» حيث لا يعمل الإعداد فقط. الإخفاء لا يحذف بيانات ولا يوقف قاعدة.',
+  t: id => (svcOf(id) || SVC[0]).n, sys: 'S1-09', p: 'owner', a: ['prot'], req: '09:2,5,8,9,14,15',
+  note: 'صفحة خدمة واحدة، للمالك: حالتها بصدق، وما تضعه في الرئيسية، وإعداداتها لكل طفل بالقيمة السارية ومصدرها. الأعمدة التقنية (المفتاح، النوع، جدول Android / iOS) مخفية: يظهر «غير متاح على هذا الجهاز» حيث لا يعمل الإعداد فقط. لا مفتاح إخفاء: الخدمة تُزال عند نشر التطبيق فقط (جرّب «خدمة أُزيلت» من الاستوديو).',
   r(id) {
-    const s = svcOf(id) || SVC[0], on = svcOn(s.id), ok = can(s.k), kid = S.ctlKid || 'layan', own = can('hub.settings.edit');
-    const body = ctlGroups(kid, s.id);
+    if (!isOwner()) return empty('lock_person', 'هذه الصفحة للمالك', 'إعدادات ما سُمح لكِ به تجدينها في «التحكم».', btn('التحكم', 'tab:control', 'sm sec'));
+    const s = svcOf(id) || SVC[0], on = svcOn(s.id), kid = S.ctlKid || 'layan', body = ctlGroups(kid, s.id);
     return `<div class="card fx"><span class="qi lg ${toneOf(s.i)}">${ic(s.i)}</span><div class="grow"><b style="font-size:calc(18px*var(--ts))">${s.n}</b><div class="sm muted">${s.d}</div><div style="margin-top:6px">${svcState(s)}${svcIos(s) ? ' ' + why('ios') : ''}</div></div></div>
-    ${!on ? callout(`<b>هذه الخدمة مخفية</b><br>لا تظهر بطاقاتها في الرئيسية ولا في «التحكم». بياناتها وقواعدها كما هي، وتنبيهاتها السابقة باقية.${s.keep ? ' ' + s.keep : ''}`, 'nt', 'visibility_off') : ''}
-    ${ok && on ? btn('افتح ' + s.n, s.go, '', 'open_in_new') + '<div class="gap"></div>' : ''}
-    ${sec('ما تعرضه في الرئيسية')}<div class="card flat sm">${s.home}</div>
-    ${on && ok && body ? `<div class="fch" style="margin-top:12px">${KIDS.map(k => `<button aria-pressed="${kid === k}" data-a="set:ctlKid:${k}">${av(M[k], 'sm')}${pname(M[k])}</button>`).join('')}</div>${body}` : on && ok ? `<p class="sm muted" style="margin:10px 4px">إعدادات هذه الخدمة داخل شاشتها.</p>` : ''}
-    ${on && ok && s.log && can('protection.audit.view') ? list(row('receipt_long', 'سجل تغييرات هذه الخدمة', 'من غيّر ماذا ومتى', { a: s.log })) : ''}
-    ${own ? sec('الظهور') + list(row('visibility', 'أظهرها في الرئيسية والتحكم', 'إخفاؤها لا يحذف بياناتها ولا يوقف قواعدها', { tg: on, ta: 'svcT:' + s.id })) : ''}`;
+    ${!on ? callout(`<b>هذه الخدمة أُزيلت من التطبيق</b><br>اختفت بطاقاتها من الرئيسية ومن «التحكم». تنبيهاتها السابقة باقية في «كل التنبيهات».${s.keep ? ' ' + s.keep : ''}`, 'nt', 'visibility_off') : btn('افتح ' + s.n, s.go, '', 'open_in_new') + '<div class="gap"></div>'}
+    ${on ? sec('ما تعرضه في الرئيسية') + `<div class="card flat sm">${s.home}</div>` : ''}
+    ${on && body ? `<div class="fch" style="margin-top:12px">${KIDS.map(k => `<button aria-pressed="${kid === k}" data-a="set:ctlKid:${k}">${av(M[k], 'sm')}${pname(M[k])}</button>`).join('')}</div>${body}` : on ? `<p class="sm muted" style="margin:10px 4px">إعدادات هذه الخدمة داخل شاشتها.</p>` : ''}
+    ${on && s.log ? list(row('receipt_long', 'سجل تغييرات هذه الخدمة', 'من غيّر ماذا ومتى', { a: s.log })) : ''}`;
   },
 });
-ACT.svcT = id => {
-  const s = svcOf(id); if (!s) return; if (!can('hub.settings.edit')) return ACT.denied('hub.settings.edit');
-  S.svcOff = S.svcOff || {}; S.svcOff[id] = !S.svcOff[id]; const off = S.svcOff[id];
-  queue(`${off ? 'إخفاء' : 'إظهار'} «${s.n}»`, 'S1-09'); audit(`${off ? 'أُخفيت' : 'أُظهرت'} خدمة «${s.n}» في الرئيسية والتحكم`, 'hub.settings.edit');
-  toast(off ? `أُخفيت «${s.n}» من الرئيسية والتحكم` : `عادت «${s.n}» إلى الرئيسية والتحكم`, () => { S.svcOff[id] = !off; render(); }, off ? 'visibility_off' : 'visibility');
-};
 
 /* ---------- H09-09 تعديل إعداد واحد (نوع «اختيار») ---------- */
 surface('ctl-edit', {
@@ -131,7 +124,7 @@ surface('alert', {
     return `<div class="card"><div class="fx top"><span class="qi lg ${alertTone(a)}">${ic(K[1])}</span><div class="grow"><b style="font-size:calc(17px*var(--ts));line-height:1.5">${a.t}</b><div class="sm muted" style="margin-top:2px">${a.s}</div>
       <div class="chips" style="margin-top:8px">${chip(K[0], 'ol')}${a.p === 0 ? chip('طارئ', 'da', 'priority_high') : a.p === 1 ? chip('عاجل', 'wa') : ''}${a.open ? chip('لم يُقرأ', 'in') : chip('قُرئ', 'ok', 'done_all')}</div></div></div></div>
     ${a.late ? callout(`<b>وصل متأخراً</b><br>${a.late}. الوقت المعروض هو وقت الإرسال، لا وقت الوصول.`, 'wa', 'history') : ''}
-    ${list(row('schedule', 'وقت الحدث', '', { v: a.ago }), who ? row('person', 'يخص', '', { v: who }) : '', row(s ? s.i : 'groups', 'الخدمة', hid ? 'مخفية الآن · تنبيهاتها السابقة باقية' : '', { v: K[3] }))}
+    ${list(row('schedule', 'وقت الحدث', '', { v: a.ago }), who ? row('person', 'يخص', '', { v: who }) : '', row(s ? s.i : 'groups', 'الخدمة', hid ? 'أُزيلت من التطبيق · تنبيهاتها السابقة باقية' : '', { v: K[3] }))}
     ${hid ? '' : btn('افتح ' + K[3], alertGo(a), a.open && ack && !a.live && !going ? 'sec' : '', 'open_in_new')}<div class="gap"></div>
     ${a.live && a.open ? callout('الاستغاثة تبقى ظاهرة حتى تُحل من شاشتها.', 'da', 'sos') : going ? callout('المشكلة ما زالت قائمة. يبقى التنبيه حتى تُحل من شاشة الحماية.', 'wa', 'gpp_maybe') : a.open && ack ? btn('تمّت قراءته', `alertAck:${a.id}`, '', 'done_all') : ''}`;
   },
@@ -157,7 +150,10 @@ function alertLog() {
 }
 
 /* ---------- H09-12 / H09-13 سجل أفعال المساعد ---------- */
-const agentSees = g => isOwner() || (S.persona === 'delegate' && can(g.need)) || (!isAdult() && g.kid === me().id);
+/* الطفل والمراهق: ما يخصه ونُفّذ فعلاً فقط؛ الاقتراح الذي لم يقرره الأب، والمرفوض، لا يظهران له (Q-407). دون 7 بلا شاشة. */
+const agentDone = g => g.st !== 'بانتظارك' && g.st !== 'رُفض';
+const agentSees = g => isOwner() || (S.persona === 'delegate' && can(g.need)) || (!isAdult() && g.kid === me().id && agentDone(g));
+const agentKid = g => (g.st === 'تُرُوجع عنه' && g.ktu ? [g.ktu, g.kresu] : g.st.includes('نُفّذ') && g.ktd ? [g.ktd, g.kresd] : [g.kt, g.kres]);
 const agentTone = g => (g.st.includes('نُفّذ') || g.st === 'تمّ' ? 'ok' : g.st === 'رُفض' || g.st === 'تُرُوجع عنه' ? '' : 'wa');
 function agentLog() {
   const f = S.agF || 'all', L = S.agent.filter(agentSees).filter(g => f === 'all' || g.kid === f || g.kid === 'all');
@@ -170,17 +166,17 @@ surface('ai-act', {
   r(id) {
     const g = S.agent.find(x => x.id === id); if (!g || !agentSees(g)) return `<h4>لا يوجد فعل بهذا الوصف</h4><p class="d">ربما لم يعد من صلاحياتك.</p>${btn('حسناً', 'close')}`;
     const kid = !isAdult(), cap = (AIK.find(x => x[0] === g.k) || [0, 'يساعد'])[1];
-    return `<div class="fx" style="margin-bottom:10px"><span class="qi lg in">${ic('wand_stars')}</span><div><h4 style="margin:0">${kid ? g.kt : g.t}</h4><span class="sm muted">${g.at}${g.kid && g.kid !== 'all' && !kid ? ' · يخص ' + pname(M[g.kid]) : ''}</span></div></div>
-    ${list(row('', 'ما نوع الفعل', '', { v: cap }), row('', kid ? 'من يقرر' : 'بأي إذن', '', { v: kid ? 'والدك' : g.gate }), row('', 'إلى ماذا استند', g.ev), row('', 'النتيجة', kid ? g.kres : g.res, { v: chip(g.st === 'بانتظارك' && kid ? 'بانتظار والدك' : g.st, agentTone(g)) }))}
+    return `<div class="fx" style="margin-bottom:10px"><span class="qi lg in">${ic('wand_stars')}</span><div><h4 style="margin:0">${kid ? agentKid(g)[0] : g.t}</h4><span class="sm muted">${g.at}${g.kid && g.kid !== 'all' && !kid ? ' · يخص ' + pname(M[g.kid]) : ''}</span></div></div>
+    ${list(row('', 'ما نوع الفعل', '', { v: cap }), row('', kid ? 'من قرّر' : 'بأي إذن', '', { v: kid ? 'والدك' : g.gate }), row('', 'إلى ماذا استند', g.ev), row('', 'النتيجة', kid ? agentKid(g)[1] : g.res, { v: kid ? '' : chip(g.st, agentTone(g)) }))}
     ${kid ? '' : g.undo ? btn('تراجع عن هذا الفعل', `aiUndo:${g.id}`, 'sec', 'undo') : `<p class="sm muted" style="margin:2px 4px 10px">${g.st === 'بانتظارك' ? 'لم يُنفَّذ شيء بعد. القرار لك من بطاقة الاقتراح في الرئيسية.' : 'لا شيء يُتراجع عنه: هذا الفعل لم يغيّر إعداداً ولا بيانات.'}</p>`}
     ${btn(kid ? 'حسناً' : 'إغلاق', 'close', kid ? '' : 'txt')}`;
   },
 });
 surface('ai-mine', {
   t: 'المساعد وأنا', sys: 'S1-09', p: 'kid', req: '09:18',
-  note: 'شفافية للطفل والمراهق: يرى من سجل المساعد ما يخصه هو فقط، بكلمات على قدّه، وبلا أي إجراء. القالب المبسّط (دون 7) بلا هذه الشاشة.',
+  note: 'شفافية للطفل والمراهق: يرى من سجل المساعد ما يخصه هو ونُفّذ فعلاً، بكلمات على قدّه، وبلا أي إجراء. اقتراح لم يقرره الأب بعد، أو رفضه، لا يظهر. القالب المبسّط (دون 7) بلا هذه الشاشة: الأب يرى ما يخص الصغير في سجله (Q-407).',
   r() { const L = S.agent.filter(agentSees);
-    return `${callout('المساعد يساعد والدك في ترتيب أمور العائلة. لا يغيّر شيئاً يخصك دون أن يوافق والدك.', '', 'wand_stars')}${L.length ? list(L.map(g => row('wand_stars', g.kt, g.at, { a: `go:ai-act:${g.id}`, v: chip(g.st === 'بانتظارك' ? 'بانتظار والدك' : g.st, agentTone(g)) }))) : empty('wand_stars', 'لا شيء بعد', 'عندما يفعل المساعد شيئاً يخصك يظهر هنا.')}`; },
+    return `${callout('المساعد يساعد والدك في ترتيب أمور العائلة. لا يغيّر شيئاً يخصك دون أن يوافق والدك. هنا ترى ما فعله بخصوصك.', '', 'wand_stars')}${L.length ? list(L.map(g => row('wand_stars', agentKid(g)[0], g.at, { a: `go:ai-act:${g.id}` }))) : empty('wand_stars', 'لا شيء بعد', 'عندما يفعل المساعد شيئاً يخصك يظهر هنا.')}`; },
 });
 
 /* ---------- H09-14 البحث الشامل في الإعدادات ---------- */
@@ -189,7 +185,7 @@ function gsIndex() {
   const add = (t, s, a, syn, i) => I.push({ t, s, a, i: i || 'settings', q: norm(t + ' ' + s + ' ' + (syn || '')) });
   add('العائلة', 'الاسم والبلد والتوقيت', 'go:family-settings', 'اسم العائله بلد دوله منطقه زمنيه حذف العائله', 'family_home');
   add('الأعضاء', 'أفراد العائلة ودعوة فرد', 'tab:family', 'افراد اطفال اضافه طفل دعوه زوجه ام', 'groups');
-  add('الخدمات', 'ما يظهر في الرئيسية والتحكم', 'go:registry', 'انظمه اخفاء اظهار', 'widgets');
+  if (own) add('الخدمات', 'خدمات التطبيق وحالتها', 'go:registry', 'انظمه', 'widgets');
   add('القوالب', 'قوالب العرض والأدوار الجاهزة', 'go:templates', 'قالب عمر مبسط مراهق', 'view_agenda');
   add('الموافقات والاستثناءات', 'ما ينتظر قرارك', 'go:alerts', 'طلبات تنبيهات اشعارات وقت اضافي', 'pending_actions');
   if (can('protection.rule.view')) add('القواعد', 'الحماية ووقت الشاشة', 'go:protection', 'حمايه حظر تطبيقات', 'rule');
@@ -203,7 +199,7 @@ function gsIndex() {
   add('المساعدة والدعم', 'أسئلة شائعة · راسلنا', 'go:help', 'مشكله تواصل', 'contact_support');
   if (own) add('الأدوار', 'أدوار البالغين الجاهزة', 'go:roles', 'شريك وصي مراقب صلاحيات تفويض', 'handshake');
   if (can('location.view')) add('جهات الطوارئ', 'من يصله تنبيه الاستغاثة', 'go:emergency', 'استغاثه طوارئ رقم قريب', 'contact_emergency');
-  SVC.filter(s => can(s.k)).forEach(s => add(s.n, 'خدمة · ' + s.d, 'go:svc:' + s.id, '', s.i));
+  if (own) SVC.forEach(s => add(s.n, 'خدمة · ' + s.d, 'go:svc:' + s.id, '', s.i));
   CTL.filter(c => svcOn(c.s) && can(c.k)).forEach(c => add(c.t, `إعداد · ${svcOf(c.s).n}`, 'ctlFind:' + c.id, c.d + ' ' + c.syn, 'tune'));
   return I;
 }

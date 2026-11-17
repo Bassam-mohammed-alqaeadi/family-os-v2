@@ -11,7 +11,7 @@ surface('more', {
   r() { const m = me(), own = isOwner(), lock = (k, a) => (own || can(k) ? a : 'denied:' + k);
     const full = S.plan !== 'premium' && Object.keys(M).length >= PLAN[S.plan].mem;
     return `<label class="fld gs" style="margin-bottom:10px"><input type="search" data-gs placeholder="ابحث في الإعدادات" autocomplete="off" aria-label="ابحث في الإعدادات"></label><div id="gsOut" hidden></div><div id="gsBody"><button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
-    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', SVC.some(x => !svcOn(x.id)) ? `${SVC.filter(x => !svcOn(x.id)).length} مخفية` : 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
+    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), own ? row('widgets', 'الخدمات', 'خدمات التطبيق وحالتها', { a: 'go:registry' }) : '', row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
     ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', attention().length ? `${attention().length} بانتظار قرار` : 'لا شيء ينتظر قرارك', { a: 'go:alerts', v: attention().length ? chip(String(attention().length), 'in') : '' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: !own ? chip('عرض فقط', 'ol') : full ? chip('بلغت حدّ الأفراد', 'wa') : '' }))}
     ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'البصمة · أجهزتي · إن فقدت الهاتف', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button></div>`; },
 });
@@ -46,11 +46,11 @@ surface('templates', {
 });
 ACT.jumpP = p => { setPersona(p); };
 surface('registry', {
-  t: 'الخدمات', sys: 'S1-09', p: 'adult', req: '09:5,14,15',
-  note: 'قائمة الخدمات كما يراها الأب: اسم ووصف وحالة صادقة. الأعداد التقنية (مفاتيح، ودجات، رموز الأنظمة) مخفية. كل صف يفتح صفحة الخدمة. الخدمة المخفية تبقى هنا لتُعاد، وتنبيهاتها السابقة باقية في «كل التنبيهات».',
-  r() { return `${list(SVC.map(x => row(x.i, x.n, x.d, { a: 'go:svc:' + x.id, v: svcState(x) })))}
-    ${callout('إخفاء خدمة يزيل بطاقاتها من الرئيسية ومن «التحكم» فوراً. لا يحذف بياناتها ولا يوقف قواعدها.', 'nt', 'visibility_off')}
-    ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة فقط؛ الأسماء لم تُحسم بعد.</div></div>`; },
+  t: 'الخدمات', sys: 'S1-09', p: 'owner', req: '09:5,14,15',
+  note: 'للمالك وحده: قائمة خدمات التطبيق كما يراها الأب: اسم ووصف وحالة صادقة. الأعداد التقنية (مفاتيح، ودجات، رموز الأنظمة) مخفية. كل صف يفتح صفحة الخدمة. لا واجهة لتسجيل خدمة أو إزالتها: ذلك عند نشر التطبيق؛ والخدمة المُزالة تبقى مذكورة هنا وتنبيهاتها السابقة باقية.',
+  r() { if (!isOwner()) return empty('lock_person', 'هذه الصفحة للمالك', 'إعدادات ما سُمح لكِ به تجدينها في «التحكم».', btn('التحكم', 'tab:control', 'sm sec'));
+    return `${list(SVC.map(x => row(x.i, x.n, x.d, { a: 'go:svc:' + x.id, v: svcState(x) })))}
+    ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة فقط؛ الأسماء لم تُحسم بعد. كل خدمة جديدة تظهر هنا من نفسها عند إضافتها للتطبيق.</div></div>`; },
 });
 
 /* ---------- الخطة والفوترة ---------- */
