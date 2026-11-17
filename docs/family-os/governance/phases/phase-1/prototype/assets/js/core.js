@@ -103,7 +103,10 @@ const fresh = () => ({
     { id: 'a3', k: 'perm', kid: null, t: 'طلب مرفوض: سارة ← «قراءة محادثات الأطفال»', s: 'صلاحية حساسة لم تكن عندها حينها', who: 'سارة', ago: 'أمس 7:15 م', p: 3, open: 0 },
     { id: 'a4', k: 'sos', kid: 'khaled', t: 'استغاثة من خالد · حُلّت', s: 'كان في طريق العودة من المدرسة · اتصلتَ به وانتهت', ago: '9 نوفمبر 1:20 م', late: 'وصلت إلى هاتفك 1:26 م برسالة نصية لأن هاتفه كان بلا إنترنت', p: 0, open: 0 },
   ],
-  outbox: [], mapF: '', mapZ: 1, mapX: false, locLoad: false, myLocOff: false, locShare: { khaled: [], layan: [], yusuf: [] }, sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: AD_ROAD, by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms' }], ec: [], sms: { used: 14 }, aiUse: 212,
+  outbox: [], mapF: '', mapZ: 1.3, mapC: null, mapX: false, locRef: {}, adK: '', pause_ahmad: false, pause_sara: false,
+  /* مواقع الكبار (Q-409): يشاركونها بموافقتهم ويوقفونها متى شاؤوا. */
+  aloc: { ahmad: { x: 72, y: 62, place: 'التحرير · شارع علي عبدالمغني', area: 'التحرير', bat: 72, ago: 1, moving: false }, sara: { x: 40, y: 34, place: 'حدة · شارع حدة', area: 'حدة', bat: 55, ago: 3, moving: false } },
+  locLoad: false, myLocOff: false, locShare: { khaled: [], layan: [], yusuf: [] }, sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: AD_ROAD, by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms', days: 6 }, { from: 'layan', at: '2 أكتوبر 5:05 م', place: AD_HOME, by: 'سارة', note: 'ضغطت الزر وهي تلعب', ch: 'server', days: 44 }], ec: [], sms: { used: 14 }, aiUse: 212,
   audit: [
     { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply', who: 'sara', act: 'role', sc: 'all', un: '', d: 1, sn: 'صار دوركِ «شريك»', rd: 1 },
     { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit', who: 'layan', act: 'other', d: 1 },

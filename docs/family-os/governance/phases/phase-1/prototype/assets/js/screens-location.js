@@ -5,14 +5,22 @@
 
 /* قيم المختبر المعتمدة (Q-027 · 2026-11-08): الموقع حي حتى 15 دقيقة، والدقة ضعيفة فوق 50 متراً، والبطارية منخفضة دون 15%. */
 const LOC_FRESH = 15, LOC_POOR = 50, BAT_LOW = 15;
+/* حفظ الاستغاثة المغلقة (REQ-022): السجل 90 يوماً، ومكانه 7 أيام. */
+const SOS_KEEP = 90, SOS_PLACE = 7;
 const minTxt = m => (m < 1 ? 'الآن' : m < 60 ? `قبل ${m} د` : `قبل ${Math.floor(m / 60)} س${m % 60 ? ' و' + (m % 60) + ' د' : ''}`);
 
 /* حال موقع فرد كما يراه من يحمل الهاتف. «موقع خالد» و«هواتف الأطفال iPhone» و«منقطع» من الاستوديو تغيّره. */
+/* الكبار يظهرون على الخريطة أيضاً (Q-409): البالغ يشارك موقعه بموافقته، ويوقفه متى شاء، والإيقاف ظاهر لبقية الكبار. */
+const ADULTS_LOC = ['ahmad', 'sara'];
+const paused = id => !!S['pause_' + id];
+/* سلّم العنوان الصادق (Q-409): شارع وحي، وإلا أقرب معلم ببعده، وإلا الحي وحده، وإلا «موقع على الخريطة». لا إحداثيات خام في الواجهة. */
+const AD_STEP = { poi: ['قرب مستشفى الثورة · نحو 300 م', 'الصافية'], area: ['مديرية الصافية', 'الصافية'], none: ['موقع على الخريطة', 'موقع على الخريطة'] };
 function locOf(id) {
-  const k = S.kid[id]; if (!k) return null;
-  const o = { id, place: k.place, area: k.area, x: k.x, y: k.y, ago: k.ago, acc: 12, bat: k.bat, moving: k.moving, why: '' };
-  if (!isAdult() && me().id === id) {   /* الطفل على جهازه: موقعه من هاتفه مباشرة */
-    if (S.gpsOff) { o.ago = 18; o.why = 'gps'; } else o.ago = 0;
+  const adult = !S.kid[id], k = S.kid[id] || (S.aloc || {})[id]; if (!k) return null;
+  if (adult && paused(id)) return { id, adult, none: 1, paused: 1, bat: k.bat, low: false };
+  const o = { id, adult, place: k.place, area: k.area, x: k.x, y: k.y, ago: k.ago, acc: 12, bat: k.bat, moving: k.moving, why: '' };
+  if (me().id === id) {   /* صاحب الهاتف: موقعه من هاتفه مباشرة */
+    if (!isAdult() && S.gpsOff) { o.ago = 18; o.why = 'gps'; } else o.ago = 0;
   } else {
     const v = id === 'khaled' ? S.locK : '';
     if (v === 'none') return { id, none: 1, bat: k.bat, low: k.bat < BAT_LOW };
@@ -21,7 +29,8 @@ function locOf(id) {
     if (v === 'poor') o.acc = 120;
     if (v === 'low') o.bat = 12;
     if (v === 'mov') { o.moving = true; o.ago = 1; o.x = 58; o.y = 38; o.place = AD_ROAD; o.area = 'الصافية'; }
-    if (S.os === 'ios' && !o.why) { o.ago += 20; o.why = 'ios'; }
+    if (id === 'khaled' && AD_STEP[S.adK]) { o.place = AD_STEP[S.adK][0]; o.area = AD_STEP[S.adK][1]; }
+    if (S.os === 'ios' && !o.why && !adult) { o.ago += 20; o.why = 'ios'; }
     if (offline() || S.stale) { o.ago += 42; o.why = o.why || 'me'; }
   }
   o.live = o.ago <= LOC_FRESH; o.poor = o.acc > LOC_POOR; o.low = o.bat < BAT_LOW;
@@ -33,15 +42,19 @@ const locWhy = (l, m) => ({ net: `${vb(m, 'جهازه', 'جهازها')} بلا 
 const batChip = l => chip(l.bat + '%', l.low ? 'da' : 'ol', l.low ? 'battery_alert' : 'battery_5_bar');
 /* من يظهر لي على الخريطة: البالغ يرى من سُمح له برؤيته، والطفل يرى نفسه فقط. */
 const locIds = () => (isAdult() ? KIDS.filter(id => can('location.view', id)) : S.kid[me().id] ? [me().id] : []);
+/* من يظهر لي من الكبار: كل بالغ يرى مواقع أحد يرى بقية الكبار الذين يشاركون مواقعهم. */
+const adultIds = () => (isAdult() && (isOwner() || gLive(S.g['location.view'])) ? ADULTS_LOC.filter(a => a !== me().id) : []);
+const mapIds = () => [...locIds(), ...adultIds()];
+const pausedTxt = m => `${vb(m, 'أوقف', 'أوقفت')} مشاركة ${vb(m, 'موقعه', 'موقعها')}`;
 const kidNo = () => empty('lock', 'هذه الصفحة للأهل', 'تجد مكانك في «موقعي».', btn('موقعي', 'go:map', 'sm sec'));
 const saraSees = id => { if (S.co) return true; const g = S.g['location.view']; return gLive(g) && (g.sc === 'all' || g.sc === 'fam' || g.sc.includes(id)); };
 
 /* مكاني أنا: من هاتفي مباشرة. يظهر لي وحدي ولا يُرسل لأحد (ظهور البالغين على خريطة غيرهم لم يُحكم فيه). */
-const ME_AT = { ahmad: { x: 84, y: 74 }, sara: { x: 30, y: 66 } };
-const meAt = () => (isAdult() && !S.myLocOff ? ME_AT[me().id] || null : null);
+const meAt = () => (isAdult() && !S.myLocOff ? (S.aloc || {})[me().id] || null : null);
 /* البعد عني: تقريبي ومدوَّر، لأن موقعين كلٌّ منهما بدقة أمتار لا يعطيان مسافة دقيقة. */
 const distTxt = l => { const p = meAt(); if (!p || !l || l.none || S.privacy) return ''; const m = Math.hypot(l.x - p.x, l.y - p.y) * 45; return m < 150 ? 'قريب منك' : m < 950 ? `يبعد نحو ${Math.round(m / 50) * 50} م` : `يبعد نحو ${(m / 1000).toFixed(1)} كم`; };
-const MAP_Z = [1, 1.6, 2.4];
+/* درجات أزرار التكبير. الأولى تُظهر العائلة كلها مع هامش للسحب؛ والإصبعان والعجلة يتحركان بينها بلا درجات، من 1 إلى الأخيرة. */
+const MAP_Z = [1.3, 2, 3];
 const mapOff = () => S.privacy || (S.lbw && !S.mapLoaded) || S.tilesFail;
 
 /* الخريطة: توضيحية في النموذج (المصدر الفعلي OpenStreetMap). لا تُعكس في RTL.
@@ -62,12 +75,12 @@ function fMap(h = 150, o = {}) {
   const isSos = l => S.sos && S.sos.from === l.id && S.sos.st === 'sent';
   /* العلامات المتقاربة على الشاشة تُجمع في علامة واحدة بعددها، فلا تتراكب علامتان لا تُقرآن. */
   const G = [];
-  ids.forEach(id => { const l = locOf(id); if (!l || l.none) return; const X = px(l.x), Y = py(l.y), g = G.find(g => Math.abs(g.X - X) < 13 && Math.abs(g.Y - Y) < 11); if (g) g.L.push(l); else G.push({ X, Y, L: [l] }); });
+  ids.forEach(id => { const l = locOf(id); if (!l || l.none || (o.me && id === me().id)) return; const X = px(l.x), Y = py(l.y), g = G.find(g => Math.abs(g.X - X) < 13 && Math.abs(g.Y - Y) < 11); if (g) g.L.push(l); else G.push({ X, Y, L: [l] }); });
   const pins = o.sk ? G.map(g => `<i class="pin sk" style="left:${g.X}%;top:${g.Y}%"></i>`).join('') : G.map(g => {
     const st = `style="left:${g.X}%;top:${g.Y}%"`;
     if (g.L.length > 1) {
       const N = g.L.map(l => pname(M[l.id])), I = g.L.map(l => l.id);
-      return `<button class="pin clu ${g.L.some(l => l.live) ? '' : 'old'} ${g.L.some(isSos) ? 'sosp' : ''} ${I.every(i => on.includes(i)) ? 'on' : ''}" ${st} ${A(cact(I))} aria-label="${N.join(' و')} في المكان نفسه">${o.big ? `<label>${N.length > 2 ? N.length + ' في المكان نفسه' : N.join(' و')}</label>` : ''}<span class="pa">${g.L.slice(0, 2).map(l => av(M[l.id])).join('')}<b class="cn">${g.L.length}</b></span></button>`;
+      return `<button class="pin clu ${g.L.some(l => l.live) ? '' : 'old'} ${g.L.some(isSos) ? 'sosp' : ''} ${I.every(i => on.includes(i)) ? 'on' : ''}" ${st} ${A(cact(I))} aria-label="${N.join(' و')}: متقاربون">${o.big ? `<label>${N.length > 2 ? N.length + ' متقاربون' : N.join(' و')}</label>` : ''}<span class="pa">${g.L.slice(0, 2).map(l => av(M[l.id])).join('')}<b class="cn">${g.L.length}</b></span></button>`;
     }
     const l = g.L[0], mv = l.live && l.moving;
     return `${l.poor ? `<i class="unc" style="left:${g.X}%;top:${g.Y}%;width:${96 * z}px;height:${96 * z}px"></i>` : ''}<button class="pin ${l.live ? '' : 'old'} ${isSos(l) ? 'sosp' : ''} ${mv ? 'mv' : ''} ${on.includes(l.id) ? 'on' : ''}" ${st} ${A(act(l.id))} aria-label="${pname(M[l.id])}">${o.big ? `<label>${lab(l)}</label>` : ''}<span class="pa">${av(M[l.id])}${mv ? `<i class="mvb">${ic('directions_walk')}</i>` : ''}</span></button>`;
@@ -76,15 +89,15 @@ function fMap(h = 150, o = {}) {
   /* محطات السجل: المحطات في المكان نفسه تُجمع في علامة واحدة بأرقامها. */
   const H = {}; (o.pts || []).forEach((p, i) => { const k = p.x + ',' + p.y; (H[k] = H[k] || { p, n: [] }).n.push(i); });
   const pts = Object.values(H).map(g => `<button class="hp ${g.n.includes(o.hon) ? 'on' : ''}" style="left:${px(g.p.x)}%;top:${py(g.p.y)}%" data-a="histPt:${g.n.includes(o.hon) ? o.hon : g.n[0]}" aria-label="المحطة ${g.n.map(i => i + 1).join(' و')}">${g.n.map(i => i + 1).join('،')}</button>`).join('');
-  const zi = MAP_Z.indexOf(z);
-  const ctl = o.ctl ? `<div class="mctl"><button data-a="mapZ:1" aria-label="تكبير" ${zi >= MAP_Z.length - 1 ? 'disabled' : ''}>${ic('add')}</button><button data-a="mapZ:-1" aria-label="تصغير" ${zi <= 0 ? 'disabled' : ''}>${ic('remove')}</button><button data-a="mapFit" aria-label="أظهر الجميع">${ic('groups')}</button></div>` : '';
-  const tf = z === 1 ? '' : `style="transform-origin:0 0;transform:translate(${50 - cx * z}%,${50 - cy * z}%) scale(${z})"`;
+  const ctl = o.ctl ? `<div class="mctl"><button data-a="mapZ:1" aria-label="تكبير" ${z >= MAP_Z[MAP_Z.length - 1] - 0.01 ? 'disabled' : ''}>${ic('add')}</button><button data-a="mapZ:-1" aria-label="تصغير" ${z <= 1.01 ? 'disabled' : ''}>${ic('remove')}</button><button data-a="mapFit" aria-label="أظهر الجميع">${ic('groups')}</button></div>` : '';
+  const tf = `style="transform-origin:0 0;transform:translate(${50 - cx * z}%,${50 - cy * z}%) scale(${z})"`;
   return `<div class="map ${o.fill ? 'fill' : ''}" ${o.fill ? '' : `style="height:${h}px"`}><svg class="m" ${tf} viewBox="0 0 400 ${o.fill ? 470 : h * 400 / 358}" preserveAspectRatio="xMidYMid slice"><rect width="400" height="640" fill="${blk}"/><path d="M-10 250 Q120 210 210 260 T420 230 V640 H-10Z" fill="${wat}" opacity=".7"/><rect x="250" y="20" width="120" height="70" rx="10" fill="${grn}"/><rect x="30" y="120" width="90" height="60" rx="10" fill="${grn}"/><g stroke="${road}" stroke-linecap="round" fill="none"><path d="M-10 100 H420" stroke-width="14"/><path d="M140 -10 V200 Q140 230 180 232" stroke-width="12"/><path d="M-10 190 H420" stroke-width="9"/><path d="M240 -10 V240" stroke-width="9"/><path d="M320 100 V230" stroke-width="7"/><path d="M60 100 V190" stroke-width="7"/><path d="M-10 40 H250" stroke-width="6"/></g></svg>${pts}${meDot}${pins}${ctl}<span class="attr">خريطة توضيحية · المصدر الفعلي OpenStreetMap</span></div>`;
 }
 const miniMap = (h = 150, big) => fMap(h, { big });
 /* شرائح الأماكن تحت الخريطة المصغرة في الرئيسية (LO-07): كل طفل بحيّه وبطاريته، وعمر الموقع إن لم يكن حياً. */
 function locChips() {
-  return locIds().map(id => { const l = locOf(id), n = pname(M[id]);
+  return mapIds().map(id => { const l = locOf(id), n = pname(M[id]);
+    if (l.paused) return chip(`${n}: المشاركة متوقفة`, 'stale', 'location_off');
     if (l.none) return chip(`${n}: لا موقع بعد`, 'stale', 'location_off');
     return chip(`${n}: ${S.privacy ? '••••' : l.area} · ${l.bat}%${l.live ? '' : ' · ' + minTxt(l.ago)}`, l.low ? 'da' : l.live ? '' : 'stale', l.low ? 'battery_alert' : l.live ? 'location_on' : 'history'); }).join('');
 }
@@ -93,69 +106,165 @@ function locChips() {
 /* سطر الحال تحت العنوان: الحي يقول الحركة والعمر والبعد، والقديم يقول عمره وسببه. */
 const locStat = (l, m) => (l.live ? [l.moving ? 'يتحرك' : 'ثابت', minTxt(l.ago), distTxt(l)].filter(Boolean).join(' · ') : [`آخر موقع معروف ${minTxt(l.ago)}`, locWhy(l, m)].filter(Boolean).join(' · '));
 /* من يراهم هذا الابن من إخوته بقرار الأب. الافتراضي: لا أحد. */
-const sibSeen = id => ((S.locShare || {})[id] || []).filter(k => S.kid[k] && k !== id);
+const sibSeen = id => ((S.locShare || {})[id] || []).filter(k => (S.kid[k] || (S.aloc || {})[k]) && k !== id);
+/* اسم الفرد كما يقرؤه الابن: «بابا» و«ماما» للطفل، و«والدك» و«والدتك» للمراهق. */
+const kidNm = k => (M[k].role === 'adult' ? (me().role === 'teen' ? (k === 'ahmad' ? 'والدك' : 'والدتك') : (k === 'ahmad' ? 'بابا' : 'ماما')) : pname(M[k]));
 const sibSees = id => KIDS.filter(k => k !== id && sibSeen(k).includes(id));
+/* ما تعرضه الخريطة الآن: من يظهر، ومن المختار، والتكبير، والمركز. المركز التلقائي يجمع المعروضين ونقطة «أنت»؛ والسحب يثبّت مركزاً يختاره المستخدم. */
+function mapView() {
+  const ids = mapIds(), F = (S.mapF || '').split(',').filter(id => ids.includes(id));
+  const z = Math.max(1, Math.min(MAP_Z[MAP_Z.length - 1], S.mapZ || MAP_Z[0])), lo = 50 / z, hi = 100 - 50 / z, cl = v => Math.max(lo, Math.min(hi, v));
+  const P = (F.length ? F : ids).map(locOf).filter(l => l && !l.none), me0 = F.length ? null : meAt(), Q = me0 ? P.concat(me0) : P;
+  const X = Q.map(l => l.x), Y = Q.map(l => l.y);
+  const auto = Q.length ? { x: (Math.min(...X) + Math.max(...X)) / 2, y: (Math.min(...Y) + Math.max(...Y)) / 2 - 6 / z } : { x: 50, y: 50 };
+  const c = S.mapC || auto;
+  return { ids, F, z, c: { x: cl(c.x), y: cl(c.y) } };
+}
+function mapMain() { const v = mapView(); return fMap(0, { fill: 1, big: 1, ids: v.F.length ? v.F : v.ids, z: v.z, c: v.c, me: 1, ctl: !S.mapX, on: v.F, pin: id => 'mapF:' + id, clu: I => 'mapF:' + I.join(',') }); }
+/* أثناء السحب والتكبير تُعاد رسم الخريطة وحدها، لا الشاشة كلها. */
+function mapPaint() { const m = document.querySelector('#phone #scr .map.fill'); if (!m) return; const t = document.createElement('div'); t.innerHTML = mapMain(); const n = t.firstElementChild; if (n && n.classList.contains('map')) m.innerHTML = n.innerHTML; }
+
+/* ---------- «حدّث الآن» (REQ-020): طلب قراءة فورية من جهاز الفرد، بنتيجة صادقة ---------- */
+const refSt = id => (S.locRef || {})[id] || '';
+const refBtn = (id, cls) => { const st = refSt(id);
+  return st === 'wait' ? `<button class="btn ${cls} dis spin" disabled>${ic('sync')}جارٍ التحديث…</button>`
+    : st === 'ok' ? `<button class="btn ${cls} dis" disabled>${ic('check')}حُدّث الآن</button>`
+    : btn('حدّث الآن', 'locRefresh:' + id, cls, 'refresh'); };
+const REF_WHY = { net: m => `جهاز ${pname(m)} بلا اتصال الآن. يصلك مكانه فور عودة اتصاله.`, off: m => `جهاز ${pname(m)} مغلق أو نفدت بطاريته. يبقى آخر موقع معروف.`, nodev: m => `لم يتصل جهاز ${pname(m)} بعد، فلا موقع يُطلب منه.`, late: m => `أُرسل الطلب. هاتف ${pname(m)} iPhone وقد لا يرد حتى يُفتح التطبيق فيه.` };
+const refNote = id => (REF_WHY[refSt(id)] ? `<p class="sm" style="margin:8px 2px 0" role="status">${ic(refSt(id) === 'late' ? 'schedule' : 'cloud_off')} ${REF_WHY[refSt(id)](M[id])}</p>` : '');
+/* نتيجة الطلب: تُحسب من حال الجهاز الفعلية، لا تُفترض ناجحة. */
+function locRefDone(id) {
+  if (refSt(id) !== 'wait') return '';
+  const k = S.kid[id] || (S.aloc || {})[id], v = id === 'khaled' ? S.locK : '';
+  const r = v === 'none' ? 'nodev' : v === 'off' ? 'off' : v === 'old' ? 'net' : S.os === 'ios' && S.kid[id] ? 'late' : 'ok';
+  if (r === 'ok' && k) { k.ago = 0; if (S.locK === 'poor' && id === 'khaled') S.locK = ''; }
+  S.locRef[id] = r; return r;
+}
+Object.assign(ACT, {
+  locRefresh(id) {
+    if (offline()) { toast('تحديث الموقع يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
+    const ids = id === 'all' ? mapIds().filter(i => !(locOf(i) || {}).paused && refSt(i) !== 'ok') : [id];
+    S.locRef = S.locRef || {}; ids.forEach(i => { S.locRef[i] = 'wait'; });
+    setTimeout(() => {
+      const R = ids.map(i => [i, locRefDone(i)]).filter(x => x[1]);
+      if (!R.length) return;
+      const ok = R.filter(x => x[1] === 'ok').length, bad = R.filter(x => x[1] !== 'ok').map(x => pname(M[x[0]]));
+      toast(id === 'all' ? (bad.length ? `حُدّث ${ok} من ${R.length} · لم يصل الطلب إلى: ${bad.join('، ')}` : 'حُدّثت كل المواقع الآن') : R[0][1] === 'ok' ? `حُدّث موقع ${pname(M[id])} الآن` : `لم يُحدَّث موقع ${pname(M[id])}`, null, bad.length ? 'cloud_off' : 'check');
+      render();
+    }, 1400);
+  },
+});
+
 surface('map', {
-  t: () => (isAdult() ? 'خريطة العائلة' : 'موقعي'), sys: 'S1-07', p: 'any', flush: true, req: '07:1,2,3,6,11,12,15 09:10,11 01:10',
-  note: 'الخريطة تملأ الشاشة والقائمة لوحة سفلية. شرائح الأسماء تصفّي الخريطة على فرد واحد وتقرّبه. على كل علامة: الاسم والبطارية وعمر الموقع. الموقع الأقدم من 15 دقيقة يُكتب «آخر موقع معروف» مع سببه ويتغيّر شكل علامته. من في المكان نفسه يُجمعون في علامة بعددهم. نقطة «أنت» من هاتفك وتظهر لك وحدك. العناوين من الخريطة نفسها: لا أماكن مسمّاة ولا تنبيه وصول ومغادرة هنا (المرحلة 5، Q-056). جرّب من الاستوديو: «موقع خالد» و«تحميل المواقع» و«منقطع» و«iOS».',
+  t: () => (isAdult() ? 'خريطة العائلة' : 'موقعي'), sys: 'S1-07', p: 'any', flush: true, req: '07:1,2,3,6,11,12,15,19,20,21,23 09:10,11 01:10',
+  note: 'الخريطة تملأ الشاشة وتُسحب بالإصبع وتُكبَّر بإصبعين (وبعجلة الفأرة وبالأزرار)، والقائمة لوحة سفلية. عليها كل أفراد العائلة: الأبناء والكبار. البالغ يشارك موقعه بموافقته ويوقفه من «مشاركة موقعي»، والإيقاف ظاهر للبقية. شرائح الأسماء تصفّي الخريطة على فرد وتقرّبه. على كل علامة الاسم والبطارية وعمر الموقع. «حدّث الآن» يطلب قراءة فورية ويقول الحقيقة إن لم يصل الطلب. الموقع الأقدم من 15 دقيقة «آخر موقع معروف» مع سببه. المتقاربون يُجمعون في علامة بعددهم. العناوين من الخريطة، بسلّم صادق حين لا اسم للشارع. لا أماكن مسمّاة ولا تنبيه وصول ومغادرة هنا (المرحلة 5، Q-056). جرّب من الاستوديو: «موقع خالد» و«عنوان خالد» و«سارة أوقفت مشاركة موقعها».',
+  act: () => (isAdult() && mapIds().length && !S.locLoad ? `<button class="ib ${mapIds().some(i => refSt(i) === 'wait') ? 'spin' : ''}" data-a="locRefresh:all" aria-label="حدّث المواقع الآن">${ic(mapIds().some(i => refSt(i) === 'wait') ? 'sync' : 'refresh')}</button>` : ''),
   r() {
     if (!isAdult()) return `<div class="mpad">${locSelf()}</div>`;
-    const ids = locIds();
-    if (!ids.length) return `<div class="mpad">${empty('location_off', 'لا مواقع مرئية لكِ', 'لم يُسمح لكِ برؤية موقع أحد من الأطفال.', why('nd:location.view'))}</div>`;
-    if (S.locLoad) return `<div class="mapscr" aria-busy="true"><div class="fch mfch">${ids.map(() => '<span class="skel" style="width:78px;height:36px;border-radius:99px;margin:0;flex:none"></span>').join('')}</div>${fMap(0, { fill: 1, ids, sk: 1 })}<section class="mpanel ${mapOff() ? 'nomap' : ''}"><p class="sm muted fx" style="margin:16px 4px 12px;gap:6px" role="status">${ic('sync')}<span>جارٍ جلب المواقع…</span></p>${ids.map(() => '<div class="skel" style="height:54px"></div>').join('')}</section></div>`;
-    const Ls = ids.map(locOf), F = (S.mapF || '').split(',').filter(id => ids.includes(id)), one = F.length === 1 ? F[0] : '';
-    const P = (F.length ? F.map(locOf) : Ls).filter(l => !l.none), z = S.mapZ || 1;
-    const c = P.length ? { x: P.reduce((s, l) => s + l.x, 0) / P.length, y: P.reduce((s, l) => s + l.y, 0) / P.length } : { x: 50, y: 50 };
+    const ids = mapIds();
+    if (!ids.length) return `<div class="mpad">${empty('location_off', 'لا مواقع مرئية لكِ', 'لم يُسمح لكِ برؤية موقع أحد من العائلة.', why('nd:location.view'))}</div>`;
+    if (S.locLoad) return `<div class="mapscr" aria-busy="true"><div class="fch mfch">${ids.map(() => '<span class="skel" style="width:78px;height:36px;border-radius:99px;margin:0;flex:none"></span>').join('')}</div>${fMap(0, { fill: 1, ids, sk: 1, z: MAP_Z[0], c: mapView().c })}<section class="mpanel ${mapOff() ? 'nomap' : ''}"><p class="sm muted fx" style="margin:16px 4px 12px;gap:6px" role="status">${ic('sync')}<span>جارٍ جلب المواقع…</span></p>${ids.map(() => '<div class="skel" style="height:54px"></div>').join('')}</section></div>`;
+    const V = mapView(), F = V.F, one = F.length === 1 ? F[0] : '', Ls = ids.map(locOf);
     const old = Ls.filter(l => !l.none && !l.live), sos = S.sos && S.sos.st === 'sent' && S.sos.from !== me().id;
     const strip = sos ? `<button class="mstrip da" data-a="go:sos-status">${ic('sos')}<span><b>${M[S.sos.from].n} ${vb(M[S.sos.from], 'يستغيث', 'تستغيث')} الآن</b> · افتح التنبيه</span></button>`
       : offline() ? `<div class="mstrip wa">${ic('cloud_off')}<span>أنت دون اتصال: تُعرض آخر المواقع المعروفة، لا المواقع الحية.</span></div>`
       : S.os === 'ios' ? `<div class="mstrip nt">${ic('info')}<span>هواتف الأطفال iPhone: النظام يؤخر تحديث الموقع في الخلفية. ${why('ios')}</span></div>`
       : old.length ? `<div class="mstrip wa">${ic('history')}<span>${old.map(l => pname(M[l.id])).join(' و')}: يُعرض آخر موقع معروف، لا الموقع الحي.</span></div>` : '';
     const chips = ids.length > 1 && !S.privacy ? `<div class="fch mfch"><button aria-pressed="${!F.length}" data-a="mapFit">${ic('groups')}الكل</button>${ids.map(id => `<button aria-pressed="${one === id}" data-a="mapF:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>` : '';
-    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: 'mapF:' + id, v: batChip(l), chev: false }); };
+    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.paused ? pausedTxt(m) : l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: 'mapF:' + id, v: l.paused ? chip('متوقفة', 'stale', 'location_off') : batChip(l), chev: false }); };
     let body;
     if (one) {
-      const l = locOf(one), m = M[one], d = distTxt(l);
-      body = `<div class="mhead">${av(m)}<div class="grow"><b>${pname(m)}</b><div class="sm muted">${l.none ? 'لا موقع معروف بعد' : S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div>
-      ${l.none ? `<p class="sm muted" style="margin:10px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:10px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
+      const l = locOf(one), m = M[one], d = distTxt(l), kid = !!S.kid[one];
+      body = `<div class="mhead">${av(m)}<div class="grow"><b>${pname(m)}</b><div class="sm muted">${l.paused ? pausedTxt(m) : l.none ? 'لا موقع معروف بعد' : S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div>
+      ${l.paused ? `<p class="sm muted" style="margin:10px 2px">${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة. الاستغاثة ترسل المكان في كل حال.</p>` : l.none ? `<p class="sm muted" style="margin:10px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:10px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
       ${l.live ? '' : `<p class="sm" style="margin:0 2px 10px">${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.</p>`}`}
-      <div class="btns3">${l.none ? '' : btn('الاتجاهات', 'locDir:' + one, 'sm sec', 'route')}${btn('اتصال', 'locCall:' + one, 'sm sec', 'call')}${btn('مراسلة', 'locMsg:' + one, 'sm sec', 'chat')}</div>
-      ${l.none ? '' : list(row('location_on', 'التفاصيل وسجل التنقل', '', { a: 'go:loc:' + one }))}`;
+      <div class="btns3">${l.paused ? '' : refBtn(one, 'sm ton')}${l.none ? '' : btn('الاتجاهات', 'locDir:' + one, 'sm sec', 'route')}${btn('اتصال', 'locCall:' + one, 'sm sec', 'call')}${btn('مراسلة', 'locMsg:' + one, 'sm sec', 'chat')}</div>${refNote(one)}
+      ${l.none ? '' : `<div class="gap"></div>${list(row('location_on', kid ? 'التفاصيل وسجل التنقل' : 'التفاصيل', '', { a: 'go:loc:' + one }))}`}`;
     } else if (F.length) {
-      body = `<div class="mhead"><div class="grow"><b>في المكان نفسه</b><div class="sm muted">${S.privacy ? '••••' : locOf(F[0]).place}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div><div class="gap"></div>${list(F.map(rowOf))}`;
+      const P = F.map(locOf).filter(l => !l.none), same = P.every(l => l.place === P[0].place);
+      body = `<div class="mhead"><div class="grow"><b>${same ? 'في المكان نفسه' : 'متقاربون على الخريطة'}</b><div class="sm muted">${same ? (S.privacy ? '••••' : P[0].place) : 'قرّب الخريطة لتفصل بينهم'}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div><div class="gap"></div>${list(F.map(rowOf))}`;
     } else {
-      const sh = KIDS.reduce((n, k) => n + sibSeen(k).length, 0);
+      const sh = KIDS.reduce((n, k) => n + sibSeen(k).length, 0), mine = paused(me().id);
       body = `${list(ids.map(rowOf))}
-      ${ids.length < KIDS.length ? `<p class="xs muted" style="margin:6px 4px">تظهر مواقع من سُمح لكِ برؤيتهم فقط.</p>` : ''}
-      ${S.myLocOff ? `<p class="xs muted" style="margin:6px 4px">تحديد الموقع متوقف في هاتفك: لا يظهر مكانك على الخريطة ولا بُعد أبنائك عنك.</p>` : ''}
-      <p class="xs muted" style="margin:6px 4px">الموقع يتحدّث كل دقيقة أثناء الحركة، وكل 5 دقائق عند السكون.</p>
-      ${sec('المشاركة والاستغاثة')}${list(isOwner() && KIDS.length > 1 ? row('visibility', 'ما يراه الأبناء', sh ? 'بعضهم يرى مكان إخوته' : 'كل ابن يرى مكانه فقط', { a: 'go:loc-share' }) : '', row('contact_emergency', 'جهات الطوارئ', (S.ec || []).length ? `${(S.ec || []).length} غير أهل البيت` : 'لا أحد غير أهل البيت بعد', { a: 'go:emergency' }), row('sos', 'تنبيهات الاستغاثة', sos ? 'استغاثة نشطة الآن' : 'لا استغاثة الآن', { a: 'go:sos-log' }))}`;
+      ${locIds().length < KIDS.length ? `<p class="xs muted" style="margin:6px 4px">من الأبناء يظهر من سُمح لكِ برؤيتهم فقط.</p>` : ''}
+      ${S.myLocOff ? `<p class="xs muted" style="margin:6px 4px">تحديد الموقع متوقف في هاتفك: لا يظهر مكانك على الخريطة ولا بُعد العائلة عنك.</p>` : ''}
+      <p class="xs muted" style="margin:6px 4px">الموقع يتحدّث كل دقيقة أثناء الحركة، وكل 5 دقائق عند السكون. «حدّث الآن» يطلب قراءة فورية.</p>
+      ${sec('المشاركة والاستغاثة')}${list(row('location_on', 'مشاركة موقعي', mine ? 'متوقفة: لا يظهر مكانك لأحد على الخريطة' : isOwner() ? 'يظهر مكانك للكبار في العائلة، ولمن تختاره من الأبناء' : `يظهر مكانك للكبار في العائلة، ولمن يختاره ${M.ahmad.n} من الأبناء`, { tg: !mine, ta: 'myShare' }), isOwner() ? row('visibility', 'ما يراه الأبناء', sh ? 'بعضهم يرى مكان غيره' : 'كل ابن يرى مكانه فقط', { a: 'go:loc-share' }) : '', row('contact_emergency', 'جهات الطوارئ', (S.ec || []).length ? `${(S.ec || []).length} غير أهل البيت` : 'لا أحد غير أهل البيت بعد', { a: 'go:emergency' }), row('sos', 'تنبيهات الاستغاثة', sos ? 'استغاثة نشطة الآن' : 'لا استغاثة الآن', { a: 'go:sos-log' }))}`;
     }
-    return `<div class="mapscr">${chips}${strip}${fMap(0, { fill: 1, big: 1, ids: F.length ? F : ids, z, c, me: 1, ctl: !S.mapX, on: F, pin: id => 'mapF:' + id, clu: I => 'mapF:' + I.join(',') })}
+    return `<div class="mapscr">${chips}${strip}${mapMain()}
     <section class="mpanel ${S.mapX ? 'x' : ''} ${mapOff() ? 'nomap' : ''}"><button class="mgrab" data-a="mapX" aria-expanded="${!!S.mapX}" aria-label="${S.mapX ? 'صغّر اللوحة' : 'كبّر اللوحة'}"><i></i></button>${body}</section></div>`;
   },
 });
 Object.assign(ACT, {
   /* لمس الاسم أو العلامة: الخريطة تقتصر عليه وتقترب. لمسه ثانية يعيد الجميع. */
-  mapF(v) { v = typeof v === 'string' ? v : ''; if (!v || v === S.mapF) { S.mapF = ''; S.mapZ = 1; } else { S.mapF = v; S.mapZ = Math.max(S.mapZ || 1, 1.6); } },
-  mapFit() { S.mapF = ''; S.mapZ = 1; },
-  mapZ(d) { const i = Math.max(0, MAP_Z.indexOf(S.mapZ || 1)); S.mapZ = MAP_Z[Math.max(0, Math.min(MAP_Z.length - 1, i + (+d)))]; },
+  mapF(v) { v = typeof v === 'string' ? v : ''; S.mapC = null; if (!v || v === S.mapF) { S.mapF = ''; S.mapZ = MAP_Z[0]; } else { S.mapF = v; S.mapZ = Math.max(S.mapZ || MAP_Z[0], MAP_Z[1]); } },
+  mapFit() { S.mapF = ''; S.mapZ = MAP_Z[0]; S.mapC = null; },
+  /* الأزرار تتحرك على الدرجات: إلى أقرب درجة أعلى أو أدنى من التكبير الحالي. */
+  mapZ(d) { const z = S.mapZ || MAP_Z[0], Z = [1, ...MAP_Z]; S.mapZ = +d > 0 ? (Z.find(x => x > z + 0.01) || Z[Z.length - 1]) : ([...Z].reverse().find(x => x < z - 0.01) || 1); },
   mapX() { S.mapX = !S.mapX; },
   locDir(id) { toast(`يفتح تطبيق الخرائط في هاتفك على مكان ${pname(M[id])}`, null, 'route'); },
+  /* البالغ يملك مشاركة موقعه: يوقفها بتأكيد، ويعيدها بلمسة. الإيقاف ظاهر لبقية الكبار، والاستغاثة ترسل المكان في كل حال. */
+  myShare() {
+    const k = 'pause_' + me().id;
+    if (offline()) { toast('تغيير المشاركة يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
+    if (S[k]) { S[k] = false; toast('عادت مشاركة موقعك', null, 'location_on'); return; }
+    confirmDlg('إيقاف مشاركة موقعك؟', 'لن يظهر مكانك لأحد على الخريطة، وسيعرف الكبار في العائلة أن المشاركة متوقفة. مواقع الأبناء تبقى ظاهرة لك. عند الضغط على زر الاستغاثة يُرسل مكانك في كل حال.', 'أوقف المشاركة', () => { S[k] = true; toast('توقفت مشاركة موقعك', null, 'location_off'); });
+  },
 });
+
+/* سحب الخريطة بالإصبع، والتكبير بإصبعين أو بعجلة الفأرة أو بنقرتين.
+   المستمعون على المستند لأن الشاشة يُعاد رسمها. تبدأ الحركة بعد 6 نقاط كي لا تُفسد اللمسة العادية على علامة. */
+(function () {
+  const PT = new Map(); let g = null, eat = false;
+  const box = e => (e.target && e.target.closest ? e.target.closest('#phone #scr .map.fill') : null);
+  const zMax = MAP_Z[MAP_Z.length - 1], cz = z => Math.max(1, Math.min(zMax, z));
+  const setC = (x, y, z) => { const lo = 50 / z, hi = 100 - 50 / z; S.mapC = { x: Math.max(lo, Math.min(hi, x)), y: Math.max(lo, Math.min(hi, y)) }; };
+  const two = () => { const [a, b] = [...PT.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+  document.addEventListener('pointerdown', e => {
+    const m = box(e); if (!m || e.target.closest('.mctl')) return;
+    PT.set(e.pointerId, { x: e.clientX, y: e.clientY }); const v = mapView();
+    if (PT.size === 1) g = { m, x: e.clientX, y: e.clientY, c: v.c, z: v.z, drag: false, pinch: 0 };
+    else if (PT.size === 2 && g) { const t = two(); Object.assign(g, { pinch: t.d, mx: t.x, my: t.y, c: v.c, z: v.z, drag: true }); g.m.classList.add('drag'); }
+  });
+  document.addEventListener('pointermove', e => {
+    if (!g || !PT.has(e.pointerId)) return;
+    PT.set(e.pointerId, { x: e.clientX, y: e.clientY }); const r = g.m.getBoundingClientRect();
+    if (PT.size >= 2 && g.pinch) { const t = two(), z = cz(g.z * t.d / g.pinch); S.mapZ = z; setC(g.c.x - (t.x - g.mx) / r.width * 100 / z, g.c.y - (t.y - g.my) / r.height * 100 / z, z); mapPaint(); return; }
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.drag) { if (Math.hypot(dx, dy) < 6) return; g.drag = true; g.m.classList.add('drag'); try { g.m.setPointerCapture(e.pointerId); } catch (_) { /* مؤشر اصطناعي في الفحص */ } }
+    setC(g.c.x - dx / r.width * 100 / g.z, g.c.y - dy / r.height * 100 / g.z, g.z); mapPaint();
+  });
+  const up = e => {
+    if (!PT.has(e.pointerId)) return; PT.delete(e.pointerId); if (!g) return;
+    if (g.drag) eat = true;
+    if (PT.size === 0) { g.m.classList.remove('drag'); g = null; setTimeout(() => { eat = false; }, 80); }
+    else { const a = [...PT.values()][0], v = mapView(); Object.assign(g, { x: a.x, y: a.y, c: v.c, z: v.z, pinch: 0 }); }
+  };
+  document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+  /* اللمسة التي انتهت بها حركة سحب ليست نقرة على علامة. */
+  document.addEventListener('click', e => { if (!eat) return; eat = false; if (box(e) && !e.target.closest('.mctl')) { e.stopPropagation(); e.preventDefault(); } }, true);
+  document.addEventListener('wheel', e => { if (!box(e)) return; e.preventDefault(); const v = mapView(), z = cz(v.z * Math.exp(-e.deltaY * 0.0015)); S.mapZ = z; setC(v.c.x, v.c.y, z); mapPaint(); }, { passive: false });
+  document.addEventListener('dblclick', e => {
+    const m = box(e); if (!m || e.target.closest('.pin,.mctl,.hp')) return;
+    const v = mapView(), r = m.getBoundingClientRect(), z = cz(v.z * 1.5);
+    /* النقطة التي نُقرت تبقى تحت الإصبع بعد التكبير. */
+    const wx = v.c.x + ((e.clientX - r.left) / r.width * 100 - 50) / v.z, wy = v.c.y + ((e.clientY - r.top) / r.height * 100 - 50) / v.z;
+    S.mapZ = z; setC(wx - ((e.clientX - r.left) / r.width * 100 - 50) / z, wy - ((e.clientY - r.top) / r.height * 100 - 50) / z, z); mapPaint();
+  });
+})();
 
 /* موقعي كما يراه الطفل والمراهق: أين أنا، ومن أراه من إخوتي بقرار الأب، ومن يرى مكاني. شفافية بلا أرقام تقنية. */
 function locSelf() {
   const m = me(), id = m.id, l = locOf(id), teen = m.role === 'teen', P = teen ? ['والدك', 'والدتك'] : ['بابا', 'ماما'];
   if (!l) return empty('location_off', 'لا موقع', '');
   const see = sibSeen(id), seen = sibSees(id);
-  const sibRow = k => { const s = locOf(k), n = M[k]; return row('', pname(n), s.none ? 'لا مكان معروف بعد' : `${S.privacy ? '••••' : s.place}<br>${s.live ? minTxt(s.ago) : 'آخر مكان معروف ' + minTxt(s.ago)}`, { lead: av(n) }); };
+  const sibRow = k => { const s = locOf(k), n = M[k]; return row('', kidNm(k), s.paused ? pausedTxt(n) : s.none ? 'لا مكان معروف بعد' : `${S.privacy ? '••••' : s.place}<br>${s.live ? minTxt(s.ago) : 'آخر مكان معروف ' + minTxt(s.ago)}`, { lead: av(n) }); };
   const foot = [seen.length ? '' : 'إخوتك لا يرون مكانك', see.length ? '' : (seen.length ? 'لا ترى مكان إخوتك' : 'وأنت لا ترى مكانهم')].filter(Boolean).join('، ');
-  return `${fMap(230, { ids: [id, ...see], big: 1, pin: () => '', clu: () => '', lab: s => (s.id === id ? 'أنت' : `${pname(M[s.id])} · ${minTxt(s.ago)}`) })}<div class="gap"></div>
+  return `${fMap(230, { ids: [id, ...see], big: 1, pin: () => '', clu: () => '', lab: s => (s.id === id ? 'أنت' : `${kidNm(s.id)} · ${minTxt(s.ago)}`) })}<div class="gap"></div>
   <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${l.why === 'gps' ? 'آخر مكان عرفه هاتفك' : 'أنت هنا'}</b><div class="sm muted">${S.privacy ? '••••' : l.place}${l.why === 'gps' ? ' · ' + minTxt(l.ago) : ''}</div></div>${batChip(l)}</div>
   ${l.why === 'gps' ? callout(`<b>تحديد الموقع متوقف في هاتفك</b><br>${teen ? 'شغّله ليعرف أهلك مكانك.' : 'اطلب من بابا أن يشغّله.'} زر الاستغاثة يعمل في كل حال، ويرسل آخر مكان معروف.`, 'wa', 'location_off') : ''}
   ${l.low ? callout('بطارية هاتفك منخفضة. اشحنه حين تستطيع.', 'wa', 'battery_alert') : ''}
-  ${see.length ? sec(teen ? 'من أراه من إخوتي' : 'إخوتي') + list(see.map(sibRow)) + `<p class="xs muted" style="margin:6px 4px">${teen ? 'والدك هو من سمح لك برؤيتهم.' : 'بابا سمح لك أن ترى مكانهم.'}</p>` : ''}
+  ${see.length ? sec(teen ? 'من أراه على الخريطة' : 'أرى مكان') + list(see.map(sibRow)) + `<p class="xs muted" style="margin:6px 4px">${teen ? 'والدك هو من سمح لك برؤيتهم.' : 'بابا سمح لك أن ترى مكانهم.'}</p>` : ''}
   ${sec('من يرى مكاني')}${list(row('', P[0], teen ? 'يرى مكانك الدقيق دائماً، وسجل تنقلك 7 أيام' : 'يرى مكانك دائماً ليطمئن عليك', { lead: av(M.ahmad) }), saraSees(id) ? row('', P[1], teen ? 'ترى مكانك لأن والدك سمح لها' : 'ترى مكانك أيضاً', { lead: av(M.sara) }) : '', seen.map(k => row('', pname(M[k]), teen ? `${vb(M[k], 'يرى', 'ترى')} مكانك الآن فقط، بلا سجل، لأن والدك سمح` : `${vb(M[k], 'يرى', 'ترى')} مكانك لأن بابا سمح`, { lead: av(M[k]) })))}
   <p class="xs muted" style="margin:6px 4px">${foot ? foot + '. ' : ''}${teen ? 'مشاركة الموقع مع الوالد لا تُطفأ.' : ''}</p>
   ${callout(`في الخطر اضغط زر الاستغاثة ${S.sos2 ? 'ثم أكّد' : '3 ثوانٍ'}: يصل مكانك ${teen ? 'لأهلك' : 'لبابا وماما'} فوراً.`, '', 'sos')}`;
@@ -163,13 +272,15 @@ function locSelf() {
 
 /* ما يراه الأبناء: «الطفل يرى موقعه وموقع من يشاركه الأب» (LO-01 و§9-4). المواصفة تذكر القرار ولا تذكر له تحكماً ولا مفتاح صلاحية: فجوة مرفوعة للمالك. */
 surface('loc-share', {
-  t: 'ما يراه الأبناء', sys: 'S1-07', p: 'owner', req: '07:11,12',
-  note: 'الأب يقرر من يظهر لكل ابن من إخوته على خريطته. الافتراضي: كل ابن يرى مكانه فقط. من يُعرض مكانه يجد اسم أخيه في «من يرى مكاني». الأخ يرى المكان الحالي فقط: لا سجل تنقل ولا بطارية. التغيير يحتاج اتصالاً. المواصفة تذكر «من يشاركه الأب» ولا تذكر أين يقرر الأب ذلك ولا بأي صلاحية (فجوة مرفوعة).',
+  t: 'ما يراه الأبناء', sys: 'S1-07', p: 'owner', req: '07:19,21',
+  note: 'صاحب العائلة (أو من أعطاه الصلاحية الكاملة) يقرر من يظهر لكل ابن على خريطته: من إخوته ومن والديه. الافتراضي: كل ابن يرى مكانه فقط. الإظهار اتجاه واحد لا متبادل. من يُعرض مكانه يجد اسم من يراه في «من يرى مكاني». الابن يرى المكان الحالي فقط: لا سجل تنقل ولا بطارية. التغيير يحتاج اتصالاً. قرار للمالك وحده بلا مفتاح يُفوَّض (REQ-021).',
   r() {
-    if (!isOwner()) return empty('lock', 'هذا القرار لصاحب العائلة', 'أحمد هو من يحدد ما يراه الأبناء من مواقع إخوتهم.');
-    return `${callout('كل ابن يرى مكانه هو فقط. هنا تختار من يظهر له من إخوته.<br>من تُظهر مكانه يعرف من يراه، والأخ يرى المكان الحالي فقط بلا سجل تنقل.', '', 'visibility')}
+    if (!isOwner()) return empty('lock', 'هذا القرار لصاحب العائلة', 'أحمد هو من يحدد ما يراه الأبناء من مواقع العائلة.');
+    const nm = s => (s === me().id ? 'أنت' : pname(M[s]));
+    const sub = (k, s) => (sibSeen(k).includes(s) ? `${s === me().id ? 'تظهر' : vb(M[s], 'يظهر', 'تظهر')} ${vb(M[k], 'له', 'لها')} الآن${paused(s) ? ' · المشاركة متوقفة حالياً' : ''}` : `لا ${s === me().id ? 'تظهر' : vb(M[s], 'يظهر', 'تظهر')}`);
+    return `${callout('كل ابن يرى مكانه هو فقط. هنا تختار من يظهر له من إخوته ومن والديه.<br>من تُظهر مكانه يعرف من يراه، والابن يرى المكان الحالي فقط بلا سجل تنقل.', '', 'visibility')}
     ${offline() ? callout('أنت دون اتصال: التغيير هنا يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}
-    ${KIDS.map(k => sec(`على خريطة ${pname(M[k])}`) + list(KIDS.filter(s => s !== k).map(s => row('', pname(M[s]), sibSeen(k).includes(s) ? `${vb(M[s], 'يظهر', 'تظهر')} ${vb(M[k], 'له', 'لها')} الآن` : `لا ${vb(M[s], 'يظهر', 'تظهر')}`, { lead: av(M[s]), tg: sibSeen(k).includes(s), ta: `shareT:${k}:${s}` })))).join('')}
+    ${KIDS.map(k => sec(`على خريطة ${pname(M[k])}`) + list([...KIDS.filter(s => s !== k), ...ADULTS_LOC].map(s => row('', nm(s), sub(k, s), { lead: av(M[s]), tg: sibSeen(k).includes(s), ta: `shareT:${k}:${s}` })))).join('')}
     <p class="xs muted" style="margin:10px 4px">مكان الأبناء الدقيق يبقى ظاهراً لك دائماً مهما اخترت هنا.</p>`;
   },
 });
@@ -178,29 +289,34 @@ Object.assign(ACT, {
     if (offline()) { toast('يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
     const L = S.locShare = S.locShare || {}, A = L[k] = L[k] || [], i = A.indexOf(s);
     if (i >= 0) A.splice(i, 1); else A.push(s);
-    toast(i >= 0 ? `${pname(M[k])} لم ${vb(M[k], 'يعد يرى', 'تعد ترى')} مكان ${pname(M[s])}` : `${pname(M[k])} ${vb(M[k], 'يرى', 'ترى')} مكان ${pname(M[s])} الآن`, null, 'visibility');
+    const who = s === me().id ? 'مكانك' : 'مكان ' + pname(M[s]);
+    toast(i >= 0 ? `${pname(M[k])} لم ${vb(M[k], 'يعد يرى', 'تعد ترى')} ${who}` : `${pname(M[k])} ${vb(M[k], 'يرى', 'ترى')} ${who} الآن`, null, 'visibility');
   },
 });
 
 /* ---------- LO-02 موقع فرد ---------- */
 surface('loc', {
-  t: id => (isAdult() ? 'موقع ' + pname(M[id] || M.khaled) : 'موقعي'), sys: 'S1-07', p: 'any', a: ['khaled'], req: '07:2,3,6,11,12',
+  t: id => (isAdult() ? 'موقع ' + pname(M[id] || M.khaled) : 'موقعي'), sys: 'S1-07', p: 'any', a: ['khaled'], req: '07:2,3,6,11,12,19,20,23',
   note: 'آخر موقع لفرد واحد بوسمه الصادق: حي أم آخر موقع معروف، وسبب القِدم بكلمة مفهومة (جهازه بلا اتصال، مغلق، iPhone، أنت دون اتصال). الدقة الضعيفة تُرسم دائرة لا نقطة. من هنا: مراسلة، اتصال، سجل التنقل. الطفل يرى موقعه هو فقط.',
   r(id) {
     if (!isAdult()) return id === me().id ? locSelf() : empty('location_off', 'هذه التفاصيل للأهل', 'تجد مكانك ومن تراه من إخوتك في «موقعي».', btn('موقعي', 'go:map', 'sm sec'));
     const m = M[id];
-    if (!m || !S.kid[id]) return empty('location_off', 'لا يوجد فرد بهذا الوصف', '');
-    if (!can('location.view', id)) return empty('location_off', `موقع ${pname(m)} غير مسموح لكِ`, 'لم يُسمح لكِ برؤية موقعه.', why('nd:location.view'));
+    const grown = !!m && !S.kid[id] && ADULTS_LOC.includes(id);
+    if (!m || (!S.kid[id] && !grown) || id === me().id) return empty('location_off', 'لا يوجد فرد بهذا الوصف', '');
+    if (grown ? !adultIds().includes(id) : !can('location.view', id)) return empty('location_off', `موقع ${pname(m)} غير مسموح لكِ`, 'لم يُسمح لكِ برؤية موقعه.', why('nd:location.view'));
     const l = locOf(id), sos = S.sos && S.sos.from === id && S.sos.st === 'sent';
     const talk = `<div class="btns">${btn('مراسلة ' + pname(m), 'locMsg:' + id, 'sec', 'chat')}${btn('اتصال', 'locCall:' + id, 'sec', 'call')}</div>`;
+    if (l.paused) return `${empty('location_off', pausedTxt(m), `${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة. الاستغاثة ترسل المكان في كل حال.`)}${talk}`;
     if (l.none) return `${empty('location_off', 'لا موقع معروف بعد', `لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.`)}${talk}`;
     return `${sos ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:sos-status">${ic('sos')}<div><b>${m.n} ${vb(m, 'يستغيث', 'تستغيث')} الآن</b><br>افتح التنبيه</div></button>` : ''}
     <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(19px*var(--ts))">${S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${locLine(l)}</div><div class="chips" style="margin-top:6px">${l.live ? chip('موقع حي', 'ok', 'check') : chip('ليس موقعاً حياً', 'stale', 'history')}${batChip(l)}</div></div></div>
     ${l.live ? '' : callout(`<b>آخر موقع معروف ${minTxt(l.ago)}</b><br>${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.${l.why === 'ios' ? ' ' + why('ios') : ''}`, 'wa', 'history')}
     ${fMap(210, { ids: [id], big: 1 })}<div class="gap"></div>
+    ${refBtn(id, 'ton')}${refNote(id)}<div class="gap"></div>
     ${list(row('schedule', 'آخر تحديث', '', { v: minTxt(l.ago) }), row('location_on', 'الدقة', l.poor ? `تقريبي: ${vb(m, 'هو', 'هي')} في مكان ما داخل الدائرة` : '', { v: l.poor ? `ضمن ${l.acc} متراً` : `بحدود ${l.acc} متراً` }), row(l.low ? 'battery_alert' : 'battery_5_bar', 'البطارية', l.low ? 'منخفضة: يقلّ تحديث الموقع ليبقى ما يكفي للاستغاثة' : '', { v: l.bat + '%' }), distTxt(l) ? row('route', 'البعد عنك', l.live ? 'تقريبي' : 'من آخر موقع معروف', { v: distTxt(l).replace('يبعد ', '') }) : '')}
     ${l.low && l.why !== 'off' ? `<div class="gap"></div>${btn(`اطلب من ${pname(m)} شحن الهاتف`, 'locMsg:' + id, 'ton', 'chat')}` : ''}<div class="gap"></div>${talk}<div class="gap"></div>
-    ${list(row('route', 'الاتجاهات', l.live ? 'يفتح تطبيق الخرائط في هاتفك' : 'إلى آخر موقع معروف', { a: 'locDir:' + id }), can('location.history.view', id) ? row('history', 'سجل التنقل', 'آخر 7 أيام', { a: 'go:history:' + id }) : row('history', 'سجل التنقل', avail('not_delegated'), { a: 'denied:location.history.view', c: 'dis' }))}`;
+    ${list(row('route', 'الاتجاهات', l.live ? 'يفتح تطبيق الخرائط في هاتفك' : 'إلى آخر موقع معروف', { a: 'locDir:' + id }), grown ? '' : can('location.history.view', id) ? row('history', 'سجل التنقل', 'آخر 7 أيام', { a: 'go:history:' + id }) : row('history', 'سجل التنقل', avail('not_delegated'), { a: 'denied:location.history.view', c: 'dis' }))}
+    ${grown ? '<p class="xs muted" style="margin:6px 4px">لا سجل تنقل للكبار: يظهر المكان الحالي فقط.</p>' : ''}`;
   },
 });
 Object.assign(ACT, {
@@ -355,7 +471,7 @@ Object.assign(ACT, {
   sosSend() {
     clearInterval(sosTimer);
     const id = PERSONA[S.persona].m, off = offline(), R = sosRcp(id), k = S.kid[id];
-    const s = S.sos = { from: id, st: 'sent', ch: off ? 'sms' : 'server', via: off ? 'عبر SMS (دون اتصال)' : 'عبر الإنترنت', place: k ? k.place : AD_HOME, fix: S.gpsOff ? 'last' : 'new', lk: 18, ack: null, exh: 0, pend: '', R, got: R.length, tot: R.length };
+    const s = S.sos = { from: id, st: 'sent', ch: off ? 'sms' : 'server', via: off ? 'عبر SMS (دون اتصال)' : 'عبر الإنترنت', place: (k || (S.aloc || {})[id] || {}).place || AD_HOME, fix: S.gpsOff ? 'last' : 'new', lk: 18, ack: null, exh: 0, pend: '', R, got: R.length, tot: R.length };
     if (off) { if (S.os === 'ios') { s.st = 'pending'; s.pend = 'composer'; } else sosSms(s); }
     S.full = { id: 'sos-sent', a: [] };
   },
@@ -402,15 +518,15 @@ surface('sos-resolve', {
     ${btn('نعم، أغلق الاستغاثة', 'sosDone', 'ok', 'check')}<div class="gap"></div>${btn('ليس بعد', 'close', 'txt')}`; },
 });
 surface('sos-log', {
-  t: 'تنبيهات الاستغاثة', sys: 'S1-07', p: 'adult', req: '07:8,16,18',
-  note: 'الاستغاثة الحالية إن وُجدت، ثم السابقة بمن أغلقها وملاحظته. استغاثة لم يؤكدها أحد تبقى هنا بشارتها. مدة بقاء الاستغاثات السابقة غير مذكورة في المواصفة (فجوة مسجلة).',
+  t: 'تنبيهات الاستغاثة', sys: 'S1-07', p: 'adult', req: '07:8,16,18,22',
+  note: 'الاستغاثة الحالية إن وُجدت، ثم السابقة بمن أغلقها وملاحظته. استغاثة لم يؤكدها أحد تبقى هنا بشارتها. الاستغاثة المغلقة تبقى 90 يوماً ثم تُحذف، ومكانها يُحذف بعد 7 أيام مثل سجل التنقل (REQ-022). الاستغاثة غير المغلقة لا تُحذف.',
   r() {
     if (!isAdult()) return kidNo();
-    const cur = S.sos && S.sos.st !== 'pending' && S.sos.from !== me().id ? S.sos : null, past = S.sosLog || [];
+    const cur = S.sos && S.sos.st !== 'pending' && S.sos.from !== me().id ? S.sos : null, past = (S.sosLog || []).filter(p => (p.days || 0) <= SOS_KEEP);
     if (!cur && !past.length) return empty('check_circle', 'لا تنبيهات استغاثة', 'كل شيء على ما يرام.');
     const st = cur && sosStTxt(cur);
     return `${cur ? sec(cur.st === 'resolved' ? 'الأخيرة' : 'الآن') + list(row('sos', `${M[cur.from].n} · ${S.privacy ? '••••' : cur.place}`, cur.st === 'resolved' ? `أغلقها ${cur.by || 'أحمد'}${cur.note ? ' · ' + cur.note : ''}` : 'قبل لحظات', { a: 'go:sos-status', v: chip(st[0], st[1], st[2]) })) : callout('لا استغاثة الآن. كل شيء على ما يرام.', 'ok', 'check_circle')}
-    ${past.length ? sec('السابقة') + list(past.map(p => row('sos', `${M[p.from].n} · ${p.at}`, `${S.privacy ? '••••' : p.place} · أغلقها ${p.by}${p.note ? ' · ' + p.note : ''}`, { v: chip('حُلّت', 'ok', 'check') }))) : ''}`;
+    ${past.length ? sec('السابقة') + list(past.map(p => row('sos', `${M[p.from].n} · ${p.at}`, `${(p.days || 0) > SOS_PLACE ? 'المكان حُذف بعد 7 أيام' : S.privacy ? '••••' : p.place} · أغلقها ${p.by}${p.note ? ' · ' + p.note : ''}`, { v: chip('حُلّت', 'ok', 'check') }))) + '<p class="xs muted" style="margin:8px 4px">الاستغاثة المغلقة تبقى هنا 90 يوماً ثم تُحذف. مكانها يُحذف بعد 7 أيام، مثل سجل التنقل.</p>' : ''}`;
   },
 });
 Object.assign(ACT, {

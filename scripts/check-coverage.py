@@ -43,8 +43,8 @@ Plus the R2-CI-03 extensions (2026-11-08):
      a REQ by meaning) is explicitly out of scope here.
 
 Run from the repo root:  python3 scripts/check-coverage.py
-Expected grand total: 211 REQ
-(194 with a screen, 17 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave) + REQ-019 in S1-04 (AUD-014 follow-up, Q-334) + REQ-028/029/030/031 in S1-10 (D-13 web-filter rules, Q-343) + REQ-032/033 in S1-10 (father-defined modes and the single decision ladder, Q-405).
+Expected grand total: 216 REQ
+(199 with a screen, 17 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave) + REQ-019 in S1-04 (AUD-014 follow-up, Q-334) + REQ-028/029/030/031 in S1-10 (D-13 web-filter rules, Q-343) + REQ-032/033 in S1-10 (father-defined modes and the single decision ladder, Q-405) + REQ-019…023 in S1-07 (adults on the map, refresh-now, children-visibility, SOS retention, address ladder, Q-409).
 """
 import glob
 import re
@@ -212,8 +212,8 @@ for path in sorted(glob.glob(
             acc_entries.append(current)
 
 print(f"coverage: total={grand_total} screen={grand_screen} no-ui={grand_no_ui}")
-if grand_total != 211:
-    FAIL.append(f"grand total is {grand_total}, expected 211")
+if grand_total != 216:
+    FAIL.append(f"grand total is {grand_total}, expected 216")
 
 # --- second pass: cross-file REQ refs (needs every SPEC's defined set) ---
 global_defined = set()

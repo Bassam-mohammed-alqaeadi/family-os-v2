@@ -403,7 +403,9 @@ button.chip{min-height:28px}
 .mapscr{height:100%;display:flex;flex-direction:column;min-height:0}
 .fch.mfch{margin:0;padding:6px 16px 8px;flex:none}
 .fch.mfch button svg.ic{width:18px;height:18px}
-.map.fill{flex:1;min-height:170px;border-radius:0;border-width:1px 0 0}
+.map.fill{flex:1;min-height:170px;border-radius:0;border-width:1px 0 0;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.map.fill.drag{cursor:grabbing}
+.map.fill.drag .pin{pointer-events:none}
 .map.fill .attr{bottom:24px}
 .mapx{padding:8px 16px 0;flex:none}
 .mstrip{display:flex;gap:8px;align-items:center;padding:7px 16px;font-size:calc(13px*var(--ts));line-height:1.5;text-align:start;width:100%;flex:none;color:var(--text)}
@@ -419,8 +421,11 @@ button.chip{min-height:28px}
 .mgrab i{display:block;width:40px;height:4px;border-radius:9px;background:var(--border-strong);opacity:.6;margin:auto}
 .mhead{display:flex;gap:12px;align-items:center}
 .mhead b{font-size:calc(18px*var(--ts))}
-.btns3{display:flex;gap:8px;margin-bottom:10px}.btns3 .btn{flex:1;padding-inline:6px}
-.map svg.m{transition:transform var(--mid) var(--ease)}
+.btns3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.btns3 .btn{padding-inline:6px}
+.btn.dis[disabled]{opacity:.6}
+.spin svg.ic,.btn.dis .ic.sp{animation:spn 1s linear infinite}
+@keyframes spn{to{transform:rotate(360deg)}}
+.phone[data-motion="off"] .spin svg.ic{animation:none}
 .map .pin .pa{position:relative;display:flex}
 .map .pin.clu .pa .av+.av{margin-inline-start:-16px}
 .map .pin .cn{position:absolute;top:-7px;inset-inline-end:-9px;min-width:22px;height:22px;padding:0 4px;border-radius:99px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
