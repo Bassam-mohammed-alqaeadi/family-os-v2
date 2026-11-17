@@ -18,6 +18,7 @@ function jump(id, args) {
   if ((id === 'sos-status' || id === 'sos-resolve') && !(S.sos && S.sos.st === 'sent')) S.sos = { from: 'layan', st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
   if (id === 'sos-sent' && !S.sos) S.sos = { from: PERSONA[need].m, st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
   if (id === 'grant-points') S.gp = null; if (id === 'grant-time') S.gt = null; if (id === 'time-decide') S.td = null; if (id === 'obj-decide') S.od = null; if (id === 'objection') { S.obQ = ''; S.obT = ''; } if (id === 'rw-edit') S.rwD = null; if (id === 'redeem') { S.rdA = ''; S.rdN = 10; }
+  if (id === 'task-new') S.nt = null; if (id === 'event-new') S.ev = null; if (id === 'tk-edit') S.tkE = null; if (id === 'tk-ai') S.tkA = null; if (id === 'tk-cat-new') S.tkC = null; if (id === 't-task-new') { S.tt = null; S.teenTasks = true; } if (id === 'c-task' || id === 'm-task') S.tkP = null; if (id === 'tk-sug') { TK().sug.forEach(x => { if (x.st === 'no') x.st = 'new'; }); }
   if (id === 'ec-add') S.ecF = {};
   if (id === 'sos-count') S.sosN = 10;
   if (id === 'recover-review' && !(S.recReq && S.recReq.st !== 'cancelled')) S.recReq = { st: 'pending', kind: 'num' };
@@ -68,12 +69,29 @@ const JOURNEYS = [
     ['عدنا إلى ليان: ترى النتيجة فوراً، والوقت أُضيف إلى التطبيق نفسه فقط.', () => { const r = S.reqs.find(x => x.st === 'PENDING'); if (r) ACT.reqGrant(r.id, 15); $('#toast').innerHTML = ''; jump('c-home'); }],
   ] },
   { t: 'مهمة ← إثبات ← اعتماد ← صرف', d: 'من الإنشاء إلى المكافأة', s: [
-    ['الأب ينشئ مهمة: عنوان، فرد، فئة، نقاط، إثبات.', () => jump('task-new')],
-    ['ليان ترى مهامها محطاتٍ في «مسار اليوم».', () => jump('c-home')],
-    ['تسلّم المهمة بالإثبات المطلوب. النقاط لا تودَع قبل الموافقة.', () => { const t = S.tasks.find(x => x.id === 't2'); t.st = 'PENDING'; jump('c-task', ['t2']); }],
-    ['الأب يراجع: المساعد تحقق أولاً وأحال ما لم يجزم به.', () => jump('task-review', ['t1'])],
-    ['بعد الاعتماد تدخل النقاط محفظتها وتظهر في «آخر الحركات» بدليلها. السلسلة تزيد مرة واحدة في اليوم.', () => { const t = S.tasks.find(x => x.id === 't1'); if (t.st === 'SUBMITTED') { ACT.taskOk('t1'); $('#toast').innerHTML = ''; } jump('c-rewards'); }],
+    ['الأب ينشئ مهمة: عنوان، فرد واحد، فئة، نقاط، وطريقة إثبات تشرح نفسها عند الاختيار.', () => jump('task-new')],
+    ['ليان ترى مهامها محطاتٍ في «مسار اليوم»، وتحتها القادم في تقويم العائلة.', () => jump('c-home')],
+    ['تفتح المهمة وتصوّر ما أنجزت، وتراجع صورتها قبل الإرسال.', () => { const t = S.tasks.find(x => x.id === 't2'); t.st = 'PENDING'; t.re = 0; jump('c-task', ['t2']); ACT.tkCap('t2'); ACT.tkShot(); render(); }],
+    ['المساعد يتحقق من الصورة فتدخل النقاط محفظتها فوراً. ما لم يجزم به يذهب إلى الأب.', () => { const t = S.tasks.find(x => x.id === 't2'); if (t.st === 'PENDING') { setPersona('child'); ACT.tkSend('t2'); } jump('c-task', ['t2']); }],
+    ['وهذه مهمة لم يجزم بها المساعد: الأب يرى الدليل وسبب الإحالة، فيعتمد أو يعيدها بملاحظة.', () => jump('task-review', ['t1'])],
+    ['بعد الاعتماد تدخل النقاط محفظتها وتظهر في «آخر الحركات» بدليلها. السلسلة تزيد مرة واحدة في اليوم.', () => { const t = S.tasks.find(x => x.id === 't1'); if (t.st === 'SUBMITTED') { setPersona('owner'); ACT.taskOk('t1'); $('#toast').innerHTML = ''; } jump('c-rewards'); }],
     ['تحوّل نقاطها إلى وقت للتطبيق الذي نفد، ضمن حدّ اليوم.', () => jump('redeem')],
+  ] },
+  { t: 'المساعد يُعدّ المهام بتفويضك', d: 'يقترح فتوافق، أو يسند ضمن حدودك', s: [
+    ['المساعد يقترح مهاماً في بطاقة هادئة أعلى قائمة المهام. لا تصل الأبناء حتى يوافق بالغ.', () => { S.tv = 'tasks'; jump('tasks'); }],
+    ['كل اقتراح يعرض سببه وما استند إليه. توافق كما هو، أو تعدّل ثم تسند، أو تصرفه.', () => { jump('tk-ai'); jump('tk-sug', ['s1']); }],
+    ['المالك يختار كم يفوّض المساعد: لا يُعدّ، يقترح، أو يسند مباشرة. كل خيار يشرح نفسه.', () => { S.tkA = null; jump('tk-ai'); }],
+    ['«يسند مباشرة» يفتح الحدود: أقصى نقاط للمهمة، وعدد المهام في اليوم، ولمن يسند.', () => { jump('tk-ai'); ACT.tkAi('lv', 'assign'); render(); }],
+    ['بعد الحفظ يسند المساعد ما يقع داخل الحدود ويخبرك، وما فوقها يبقى اقتراحاً ينتظر قرارك.', () => { jump('tk-ai'); if (TK().ai.lv !== 'assign') { ACT.tkAi('lv', 'assign'); ACT.tkAiSave(); $('#toast').innerHTML = ''; } render(); }],
+    ['ليان ترى المهمة في مسار يومها، ومكتوب عليها أنها من المساعد بإذن بابا.', () => { const t = S.tasks.find(x => x.by === 'ai' && x.kid === 'layan'); if (t) jump('c-task', [t.id]); else jump('c-home'); }],
+    ['وكل ما أسنده يظهر في سجل المساعد بسببه، وتلغيه من صفحة المهمة متى شئت.', () => jump('ai')],
+  ] },
+  { t: 'حدث في التقويم ← تذكير', d: 'تقويم بالتاريخين وتذكير يصل صاحبه', s: [
+    ['التقويم بالتاريخين الهجري والميلادي: نقطة للحدث ونقطة للمهمة، وثلاثة أشهر قادمة.', () => { S.tv = 'cal'; S.tkM = 0; S.tkDay = null; jump('tasks'); }],
+    ['حدث جديد: عنوان، يوم، وقت، لمن، وتذكير يقول من يصله.', () => { S.tv = 'cal'; jump('tasks'); ACT.tkEvNew('2026-11-20'); render(); }],
+    ['تفصيل الحدث بالتاريخين، ومن أضافه، ومن يصله التذكير.', () => { S.tv = 'cal'; jump('tasks'); jump('event', ['e1']); }],
+    ['هكذا يصل التذكير: لصاحب الحدث وللأب فقط، مرة واحدة، ولو بلا إنترنت.', () => { jump('tasks'); jump('tk-remind', ['e1']); }],
+    ['ليان ترى تقويم العائلة عرضاً فقط، بأحداثه ومهامها هي.', () => jump('fam-cal')],
   ] },
   { t: 'اعتراض ← قرار الأب', d: 'مهمة لم تُعتمد، والطفل يرى أنها أُنجزت', s: [
     ['المساعد لم يعتمد «قراءة 15 دقيقة». ليان تفتح «قرار لم يكن عادلاً؟» من محفظتها وتختار القرار.', () => { RW().obj = []; jump('objection', ['']); }],

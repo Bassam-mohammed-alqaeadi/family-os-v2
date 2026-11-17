@@ -18,7 +18,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const HUB=['home','alerts','alert','control','svc','ctl-edit','more','registry','ai','ai-act','ai-mine','why'];
  // 1 التسجيل والبذرة
  S=fresh();ok('seed: all S1-09 surfaces registered',HUB.every(k=>SC[k]&&SC[k].sys==='S1-09'),HUB.filter(k=>!SC[k]));
- ok('seed: six services, sixteen controls',SVC.length===6&&CTL.length===16);
+ ok('seed: six services, twenty-two controls',SVC.length===6&&CTL.length===22);
  ok('seed: every S1-09 REQ 1..18 cited by a surface',Array.from({length:18},(_,i)=>i+1).every(n=>Object.values(SC).some(d=>new RegExp('(^| )09:[0-9,]*\\b'+n+'\\b').test(d.req||''))),Array.from({length:18},(_,i)=>i+1).filter(n=>!Object.values(SC).some(d=>new RegExp('(^| )09:[0-9,]*\\b'+n+'\\b').test(d.req||''))));
  // 2 اللوحة: الوضع العادي والحالات الثلاث
  S=fresh();tab('home');render();ok('home: attention cards + modes + map + screen time',ph.querySelectorAll('#scr .att').length===3&&!!q('[data-a="go:presets:study"]')&&!!q('[data-a="go:map"]')&&has(/وقت الشاشة اليوم/));
@@ -47,7 +47,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('alert','zz');ok('missing alert: calm empty state',has(/لم يعد موجوداً/));
  // 4 التحكم: سريع ومتقدم
  S=fresh();tab('control');render();ok('control quick: modes + six services + role link',!!q('#scr [data-a="go:presets:sleep"]')&&ph.querySelectorAll('#scr .card.fx').length===6&&!!q('[data-a="go:roles"]')&&!!q('[data-a="go:registry"]'));
- S.ctl='adv';render();ok('control advanced: sixteen settings from the registry',rows()===16+2&&!!q('[data-a="psFor:layan"]')&&!!q('[data-a="go:ctl-edit:cap:layan"]')&&!!q('[data-a="go:audit"]'),rows());
+ S.ctl='adv';render();ok('control advanced: twenty-two settings from the registry',rows()===22+2&&!!q('[data-a="psFor:layan"]')&&!!q('[data-a="go:ctl-edit:cap:layan"]')&&!!q('[data-a="go:audit"]'),rows());
  S=fresh();S.os='ios';S.ctl='adv';tab('control');render();ok('iOS: unavailable settings say so',has(/غير متاح على هذا الجهاز/)&&!q('[data-a="go:quota:layan"]'));
  // 5 تعديل إعداد
  S=fresh();open('ctl-edit','cap','layan');ok('edit sheet: name, current value, source, save disabled until changed',has(/حدّ الوقت الإضافي اليومي/)&&has(/القيمة الآن/)&&has(/60 د/)&&dis('.btn[data-a="ctlSave"]'));
@@ -63,7 +63,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S.svcGone='loc';render();ok('removed service: page says so, SOS note kept',has(/أُزيلت من التطبيق/)&&has(/زر الاستغاثة يبقى ظاهراً/)&&!q('.btn[data-a="go:map"]'));
  tab('home');render();ok('removed service: its widgets leave the board at once, SOS stays',!has(/أين العائلة الآن/)&&!q('#scr [data-a="go:map"]')&&!!q('#scr .sos'));
  tab('control');render();ok('removed service: card gone from quick view',ph.querySelectorAll('#scr .card.fx:not(.flat)').length===5);
- S.ctl='adv';render();ok('removed service: its settings gone from advanced view',!has(/مشاركة الموقع/)&&rows()===14+2);
+ S.ctl='adv';render();ok('removed service: its settings gone from advanced view',!has(/مشاركة الموقع/)&&rows()===20+2);
  open('registry');ok('removed service stays listed',has(/أُزيلت/)&&rows()===6);
  S=fresh();S.svcGone='prot';tab('home');render();ok('protection removed: tiles and screen time gone, attention stays',!q('[data-a="go:presets:study"]')&&!has(/وقت الشاشة اليوم/)&&ph.querySelectorAll('#scr .att').length===3);
  open('alerts');ACT.set('alV','log');render();ok('old alerts of a removed service stay',has(/تعطّلت خدمة الوصول/));open('alert','a1');ok('…and say the service was removed',has(/أُزيلت من التطبيق/));

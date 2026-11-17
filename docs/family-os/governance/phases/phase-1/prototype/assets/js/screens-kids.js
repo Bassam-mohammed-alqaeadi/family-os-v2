@@ -6,26 +6,20 @@ const timeMood = k => { const l = left(k), w = fmOf(k) ? '' : winNow(k); return 
 surface('c-home', {
   t: 'الرئيسية', sys: 'S1-01', p: 'child', bar: false, req: '01:2,4,7,15,18 10:25 05:2,7 06:6', st: 'un',
   note: 'UNKNOWN (Q-090): محتوى القالب القياسي غير محسوم — هذا اقتراح. الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
-  r() { const id = kidId(), m = M[id], k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED'), md = timeMood(id), pc = left(id) / (k.quota + k.extra);
+  r() { const id = kidId(), m = M[id], k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), md = timeMood(id), pc = left(id) / (k.quota + k.extra);
     const cele = T.find(t => t.cele); if (cele) { cele.cele = 0; setTimeout(() => { rwCele(); if (RW().cele !== 'off') notif('أحسنتِ يا ' + m.n + '!', `اعتُمدت «${cele.t}» · +${cele.pts} نقاط`, 'celebration'); }, 250); }
     const req = S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen);
-    return `<header class="bar"><button data-a="go:c-me" aria-label="ملفي" style="margin-inline-start:8px">${av(m)}</button><h2>أهلاً ${m.n}</h2><button class="chip go" data-a="tab:c-rewards" style="min-height:40px;padding:0 12px;font-size:15px">${coin()}&nbsp;${k.pts}</button>${sosBtn()}</header>
+    return `<header class="bar"><button data-a="go:c-me" aria-label="ملفي" style="margin-inline-start:8px">${av(m)}</button><h2>أهلاً ${m.n}</h2><button class="chip go" data-a="tab:c-rewards" style="min-height:48px;padding:0 12px;font-size:15px">${coin()}&nbsp;${k.pts}</button>${sosBtn()}</header>
     <div class="khero">${ring(fmOf(id) ? 1 : pc, 92, 9, '#F3DC9B', ic(md[0]), '#ffffff2e')}<div style="position:relative;z-index:1"><h4>${md[1]}</h4><p>${md[2]}</p></div></div>
     ${req ? rwReqCard(id, req) : ''}
-    <div class="fx sb" style="margin:4px 4px 6px"><b style="font-size:calc(18px*var(--ts)*var(--tk))">مسار اليوم</b>${rwHas(id) ? `<button class="chip ac" style="min-height:40px;padding:0 12px" data-a="go:streak">${ic('local_fire_department')}${k.streak ? rwDy(k.streak) + (k.streak > 2 && k.streak < 11 ? ' متتالية' : '') : 'ابدئي سلسلتك'}</button>` : ''}</div>
-    <div class="path">${T.map(t => { const st = t.st === 'APPROVED' ? 'done' : t.st === 'SUBMITTED' ? 'wait' : ''; return `<button class="stop ${st}" style="--kc:${st ? '' : CAT[t.cat][2]}" data-a="go:c-task:${t.id}"><span class="nd">${ic(st === 'done' ? 'check' : st === 'wait' ? 'hourglass_top' : CAT[t.cat][1])}</span><span class="tx" style="text-align:start"><b>${t.t}</b><span>${st === 'done' ? 'تمّت' : st === 'wait' ? 'عند بابا للمراجعة' : t.note ? ic('reply') + 'أعيدي المحاولة' : coin() + ' ' + t.pts + ' نقاط'}</span></span></button>`; }).join('')}</div>
+    <div class="fx sb" style="margin:4px 4px 6px"><b style="font-size:calc(18px*var(--ts)*var(--tk))">مسار اليوم</b>${rwHas(id) ? `<button class="chip ac" style="min-height:48px;padding:0 12px" data-a="go:streak">${ic('local_fire_department')}${k.streak ? rwDy(k.streak) + (k.streak > 2 && k.streak < 11 ? ' متتالية' : '') : 'ابدئي سلسلتك'}</button>` : ''}</div>
+    <div class="path">${T.map(t => { const st = t.st === 'APPROVED' ? 'done' : t.st === 'SUBMITTED' ? 'wait' : ''; return `<button class="stop ${st}" style="--kc:${st ? '' : tkCat(t.cat)[2]}" data-a="go:c-task:${t.id}"><span class="nd">${ic(st === 'done' ? 'check' : st === 'wait' ? 'hourglass_top' : tkCat(t.cat)[1])}</span><span class="tx" style="text-align:start"><b>${t.t}</b><span>${st === 'done' ? 'تمّت' : st === 'wait' ? 'عند بابا للمراجعة' : t.note ? ic('reply') + 'أعيدي المحاولة' : coin() + ' ' + t.pts + ' نقاط'}</span></span></button>`; }).join('')}</div>
+    ${tkNext(id)}
     ${chWidget(1)}
     <div class="fx sb" style="margin:14px 4px 8px"><b style="font-size:calc(18px*var(--ts)*var(--tk))">تطبيقاتي</b></div>
     <div class="qa" style="grid-template-columns:repeat(4,1fr)">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok; return `<button data-a="openApp:${a.id}" style="${ok ? '' : 'opacity:.6'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><span>${a.n}</span></button>`; }).join('')}</div>`; },
 });
-surface('c-task', {
-  kind: 'sheet', t: 'مهمة الطفل', sys: 'S1-06', p: 'child', a: ['t2'], req: '06:6,8,9,16 05:5',
-  note: 'الطفل يسلّم المهمة مع الإثبات المطلوب (صورة / تسجيل / إقرار). النقاط لا تودَع قبل التحقق. التسليم دون اتصال يُحفظ ويُرسل لاحقاً. الاحتفال للأطفال فقط (800–1500ms) ويحترم «تقليل الحركة».',
-  r(id) { const t = S.tasks.find(x => x.id === id), P = { photo: ['photo_camera', 'صوّري ما أنجزتِ'], audio: ['mic', 'سجّلي بصوتك'], self: ['thumb_up', 'أنجزتها!'] }[t.proof];
-    return `<div class="c"><span class="av xl" style="--c:${CAT[t.cat][2]};margin:0 auto 10px">${ic(CAT[t.cat][1])}</span><h4>${t.t}</h4><p class="d">${t.due} · ${coin()} ${t.pts} نقاط بعد موافقة بابا</p></div>
-    ${t.note ? callout('ملاحظة بابا: ' + t.note, 'wa', 'reply') : ''}${t.sub ? list(t.sub.map(s => row('check_box', s, ''))) : ''}
-    ${t.st === 'APPROVED' ? callout('أحسنتِ! هذه المهمة تمّت ونقاطها في محفظتك.', 'ok', 'celebration') : t.st === 'SUBMITTED' ? callout('أرسلتِها. بابا يراجعها الآن.', '', 'hourglass_top') : btn(P[1], 'cSubmit:' + id, 'ok', P[0])}`; },
-});
+/* مهمة الطفل وتسليمها (S1-06): في screens-tasks.js */
 surface('c-me', {
   t: 'ملفي', sys: 'S1-01', p: 'kid', req: '01:2,5,6,15,18 02:17',
   note: 'لا شاشات إدارية في وضع الطفل. قسم «للأهل» خلف بوابة الوالدين. صف «وضع الجهاز» يشرح ثبات الوضع بلا طلب رقم سري (ACC-019).',
@@ -52,7 +46,6 @@ Object.assign(ACT, {
       if (rem > 5) { const d = rem - 5; a.used += d; S.kid[id].used += d; if (!S.warned[id + ':' + aid]) { S.warned[id + ':' + aid] = 1; S.sheet = { id: 'warn5', a: [aid] }; } return; }
       S.kid[id].used += rem; a.used = a.lim; S.full = { id: 'block', a: [aid] }; return; }
     toast('يفتح ' + a.n); },
-  cSubmit(id) { const t = S.tasks.find(x => x.id === id); t.st = 'SUBMITTED'; t.note = ''; t.ai = t.proof === 'photo' ? 'unsure' : ''; S.sheet = null; const off = queue('تسليم «' + t.t + '»', 'S1-06'); toast(off ? 'حُفظ التسليم · يُرسل عند الاتصال' : 'أُرسلت! بابا سيراجعها', null, off ? 'cloud_upload' : 'check_circle'); },
   reportGo() { toast('وصلت رسالتك إلى بابا. أنت بأمان.', null, 'front_hand'); },
   askDad() { toast(mode() === 'teen' ? 'يعدّلها والدك من جهازه' : 'اطلب من بابا', null, 'front_hand'); },
   kidGate() { gate('إعدادات الجهاز للأهل', () => go('kid-admin')); },
@@ -75,25 +68,21 @@ surface('m-home', {
     <button class="tile" style="--kc:#7A3E65" data-a="openAppM">${ic('smart_display')}<span>أفلامي</span></button>
     <button class="tile w" style="--kc:#CF5B2C" data-a="reportGo">${ic('front_hand')}<span>شيء أزعجني</span></button></div>`; },
 });
-surface('m-task', {
-  t: 'مهامي', sys: 'S1-06', p: 'mini', req: '06:6',
-  r() { const t = S.tasks.find(x => x.kid === 'yusuf' && x.st === 'PENDING'); return t ? `<div class="c" style="padding-top:20px"><span class="av" style="--c:${CAT[t.cat][2]};width:130px;height:130px;margin:0 auto 18px">${ic(CAT[t.cat][1])}</span><p class="ttl">${t.t}</p></div><button class="tile w" style="--kc:#1F6B3B;width:100%" data-a="mDone:${t.id}">${ic('thumb_up')}<span>خلّصت!</span></button>` : `<div class="c" style="padding-top:40px"><span class="av" style="--c:#C8A24A;width:130px;height:130px;margin:0 auto 18px">${ic('celebration')}</span><p class="ttl">خلّصت كل شيء!</p><p class="sub">بطل يا يوسف</p></div>`; },
-});
 Object.assign(ACT, {
   openAppM() { if (!decide('yusuf', 'ytk').ok) return void (S.full = { id: 'block', a: ['ytk'] }); toast('يفتح YouTube Kids'); },
-  mDone(id) { const t = S.tasks.find(x => x.id === id); t.st = 'SUBMITTED'; confetti(); toast('شاطر! بابا بيشوفها', null, 'celebration'); },
 });
 
 /* ============ المراهق (13–17) ============ */
 surface('t-home', {
   t: 'الرئيسية', sys: 'S1-01', p: 'teen', req: '01:2,4,7,15 10:25 06:6 03:15 07:3', st: 'un',
   note: 'UNKNOWN (Q-090): محتوى قالب المراهق غير محسوم — اقتراح. نبرة راشدة بلا تلعيب: أرقام مباشرة، شفافية كاملة عمّا يُشارَك، واستقلالية في إدارة مهامه.',
-  r() { const id = 'khaled', k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED'), d = dateAr(), e = ENF[k.enf];
+  r() { const id = 'khaled', k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), d = dateAr(), e = ENF[k.enf];
     const N = pnNew('khaled');
     return `<p class="sm muted" style="margin:0 4px 10px">${d.g} · ${d.h}</p>${N.length ? `<div class="callout in">${ic('key')}<div><b>${N[0].sn}</b><br>يسري الآن.<div style="margin-top:8px">${btn('عرض', 'go:t-me', 'sm sec')} ${btn('تمّ', 'pnSeen', 'sm txt')}</div></div></div>` : ''}<div class="card fx">${ring(left(id) / k.quota, 84, 8, 'var(--primary)', `<b style="font-size:22px;line-height:1">${left(id)}</b><span class="xs muted" style="position:absolute;bottom:18px">د</span>`)}<div class="grow"><b>${fmOf(id) ? 'وقت حر الآن' : winNow(id) === 'sleep' ? 'وقت نوم الآن' : winNow(id) === 'school' ? 'وقت مدرسة الآن' : `بقي ${left(id)} دقيقة اليوم`}</b><div class="sm muted">استخدمت ${k.used} من ${k.quota} · ${nextEdge(id)}</div></div></div>
     ${k.enf !== 'active' ? `<div class="callout wa">${ic('gpp_maybe')}<div><b>خدمة الوصول متوقفة على جهازك</b><br>قد يكون السبب تحديث النظام. أعد تفعيلها ليعود كل شيء طبيعياً. والدك يعلم بذلك.<div style="margin-top:8px">${btn('أعد التفعيل', 'teenFix', 'sm')}</div></div></div>` : ''}
     ${(r => (r ? rwReqCard(id, r) : ''))(S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen))}
-    ${sec('مهامي', 'جديدة', 'teenTask')}${list(T.map(t => row(CAT[t.cat][1], t.t, t.due, { ic: CAT[t.cat][2], a: t.st === 'PENDING' ? 'teenDone:' + t.id : '', chev: false, v: t.st === 'PENDING' ? `<span class="btn sm ton">أنجزتها</span>` : chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) })))}
+    ${sec('مهامي', 'جديدة', 'teenTask')}${list(T.map(t => row(tkCat(t.cat)[1], t.t, t.due, { ic: tkCat(t.cat)[2], a: t.st === 'PENDING' && t.by === id ? 'teenDone:' + t.id : 'go:c-task:' + t.id, chev: false, v: t.st === 'PENDING' && t.by === id ? `<span class="btn sm ton">أنجزتها</span>` : t.st === 'PENDING' ? chip(t.note ? 'أُعيدت' : 'من والدك', t.note ? 'wa' : 'ol', t.note ? 'reply' : '') : chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) })))}
+    ${tkNext(id)}
     ${chWidget(1)}
     ${sec('تطبيقاتي')}${list(S.apps[id].map(a => row(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية` : a.study ? 'متاح دائماً' : 'مسموح', { a: 'openApp:' + a.id, chev: false, v: a.act === 'LIMIT' ? `${a.used}/${a.lim}` : '' })))}
     ${sec('ما يُشارَك الآن')}<div class="card"><div class="chips">${chip('موقعك · ' + (offline() ? 'آخر موقع معروف' : 'الآن'), 'in', 'location_on')}${chip('وقت الشاشة', 'in', 'hourglass_top')}${chip('محادثات العائلة', 'in', 'forum')}</div><button class="why" style="margin-top:8px" data-a="tab:t-me">ماذا يرى أهلي بالضبط؟</button></div>`; },
@@ -108,8 +97,6 @@ surface('t-me', {
 });
 Object.assign(ACT, {
   teenFix() { tamBack('khaled', 'من جهاز خالد'); toast('عادت الخدمة · شكراً'); },
-  teenDone(id) { const t = S.tasks.find(x => x.id === id); t.st = 'APPROVED'; toast('أُنجزت', () => { t.st = 'PENDING'; render(); }); },
-  teenTask() { S.tasks.unshift({ id: 't' + Date.now(), kid: 'khaled', t: 'مهمة شخصية جديدة', cat: 'self', pts: 0, due: 'غداً', proof: 'self', st: 'PENDING' }); toast('أُضيفت مهمة شخصية'); },
 });
 surface('learn', {
   t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9', st: 'pr',

@@ -73,14 +73,15 @@ const fresh = () => ({
     ],
   },
   tasks: [
-    { id: 't1', kid: 'layan', t: 'ترتيب الغرفة', cat: 'home', pts: 10, due: 'اليوم 5:00 م', proof: 'photo', st: 'SUBMITTED', ai: 'unsure', sub: ['ترتيب السرير', 'جمع الألعاب'] },
+    { id: 't1', kid: 'layan', t: 'ترتيب الغرفة', cat: 'home', pts: 10, due: 'اليوم 5:00 م', proof: 'photo', st: 'SUBMITTED', ai: 'unsure', sub: ['ترتيب السرير', 'جمع الألعاب'], dn: [true, true] },
     { id: 't2', kid: 'layan', t: 'حلّ واجب الرياضيات', cat: 'school', pts: 15, due: 'اليوم 7:00 م', proof: 'photo', st: 'PENDING', rep: 'كل يوم دراسي' },
     { id: 't3', kid: 'layan', t: 'صلاة المغرب في وقتها', cat: 'deen', pts: 10, due: 'اليوم 5:40 م', proof: 'self', st: 'PENDING', rep: 'يومياً' },
     { id: 't4', kid: 'layan', t: 'تنظيف الأسنان', cat: 'self', pts: 5, due: 'اليوم 8:30 م', proof: 'self', st: 'APPROVED', rep: 'يومياً' },
-    { id: 't5', kid: 'yusuf', t: 'جمع الألعاب في الصندوق', cat: 'home', pts: 5, due: 'اليوم', proof: 'self', st: 'PENDING' },
+    { id: 't5', kid: 'yusuf', t: 'جمع الألعاب في الصندوق', cat: 'home', pts: 5, due: 'اليوم', proof: 'photo', st: 'PENDING' },
     { id: 't6', kid: 'yusuf', t: 'غسل اليدين قبل الأكل', cat: 'self', pts: 5, due: 'اليوم', proof: 'self', st: 'APPROVED' },
-    { id: 't7', kid: 'khaled', t: 'مراجعة الفيزياء — الفصل 3', cat: 'school', pts: 0, due: 'غداً 4:00 م', proof: 'self', st: 'PENDING' },
+    { id: 't7', kid: 'khaled', t: 'مراجعة الفيزياء — الفصل 3', cat: 'school', pts: 0, due: 'غداً 4:00 م', proof: 'self', st: 'PENDING', by: 'khaled' },
     { id: 't8', kid: 'khaled', t: 'إخراج القمامة', cat: 'home', pts: 0, due: 'اليوم 9:00 م', proof: 'self', st: 'PENDING', rep: 'الأحد والأربعاء' },
+    { id: 't9', kid: 'layan', t: 'قراءة قصة قبل النوم', cat: 'school', pts: 10, due: 'أمس 8:00 م', proof: 'audio', st: 'EXPIRED', rep: 'يومياً' },
   ],
   reqs: [],            // طلبات الوقت الإضافي
   /* S1-10: الجدول الأسبوعي لكل طفل (نوافذ نوم/مدرسة تبدأ في أيامها؛ النهاية قبل البداية = حتى اليوم التالي). يوسف بلا نوافذ (Q-222). */
@@ -140,7 +141,13 @@ const fresh = () => ({
     ],
   },
   deleted: {}, pin: { bad: 0, lock: 0, code: DEMO_PIN, set: true }, sos2: false, num: 'latn', saver: 'auto', notifPerm: true, lastSync: null, rank: ['sleep', 'school', 'app', 'quota'], web: { safe: true, unknown: 'ALLOW', cats: { adult: 'BLOCK', gamble: 'BLOCK', social: 'ALERT', games: 'ALLOW', video: 'ALERT', news: 'ALLOW' } },
-  redeemCap: 60, events: [{ d: 19, t: 'موعد طبيب يوسف', at: '4:00 م', rem: 60 }, { d: 21, t: 'اجتماع أولياء الأمور', at: '10:00 ص', rem: 1440 }], ob: {},
+  redeemCap: 60, events: [
+    { id: 'e1', dk: '2026-11-19', hm: '1600', t: 'موعد طبيب يوسف', who: 'yusuf', rem: 60, by: 'ahmad', loc: 'عيادة الأطفال', rr: 'none' },
+    { id: 'e2', dk: '2026-11-21', hm: '1000', t: 'اجتماع أولياء الأمور', who: 'sara', rem: 1440, by: 'sara', loc: 'مدرسة ليان', rr: 'none' },
+    { id: 'e3', dk: '2026-11-18', hm: '0800', t: 'اختبار الرياضيات', who: 'layan', rem: 1440, by: 'sara', loc: '', rr: 'none' },
+    { id: 'e4', dk: '2026-11-15', hm: '1930', t: 'عشاء عند الجدة', who: 'all', rem: 60, by: 'ahmad', loc: 'بيت الجدة', rr: 'week' },
+    { id: 'e5', dk: '2026-12-04', hm: '1500', t: 'رحلة العائلة', who: 'all', rem: 1440, by: 'ahmad', loc: '', rr: 'none' },
+  ], ob: {},
 });
 let S = fresh();
 

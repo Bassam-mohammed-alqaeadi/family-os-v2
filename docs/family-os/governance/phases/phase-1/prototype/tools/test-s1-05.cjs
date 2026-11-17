@@ -89,7 +89,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.rwTdSet('t','1');ACT.rwTdSet('pts','25');render();q('.sheet [data-a="rwTdGo"]').click();render();
  ok('swap task: request refused, task assigned with its points',S.reqs[0].st==='DENIED'&&S.reqs[0].task==='ترتيب الغرفة'&&S.tasks[0].kid==='layan'&&S.tasks[0].pts===25&&S.tasks[0].st==='PENDING'&&S.kid.layan.spent===0);noT();
  kid();render();ok('child home: told about the task instead',has(/ليس الآن يا بطلة/)&&has(/أعطاك بابا مهمة «ترتيب الغرفة»/));
- S=fresh();REQ();ACT.reqDeny('r0');noT();ok('plain refusal: no task, nothing granted',S.reqs[0].st==='DENIED'&&!S.reqs[0].task&&S.tasks.length===8&&S.kid.layan.spent===0);
+ S=fresh();REQ();ACT.reqDeny('r0');noT();ok('plain refusal: no task, nothing granted',S.reqs[0].st==='DENIED'&&!S.reqs[0].task&&S.tasks.length===9&&S.kid.layan.spent===0);
  ACT.reqGrant('r0',15);ok('a decided request cannot be decided twice',S.kid.layan.spent===0&&/سبق القرار/.test(T()));noT();
  S=fresh();setPersona('delegate');REQ();tab('home');render();ok('delegate with the key decides requests too',!!q('#scr [data-a="reqGrant:r0:15"]'));
  // 7 الكسب من المهام والسلسلة

@@ -14,7 +14,7 @@ function attention() {
   if (can('rewards.objection.decide')) RW().obj.filter(o => o.st === 'PENDING' && !o.q).forEach(o => { const k = M[o.kid]; A.push({ p: 2, c: 'var(--info)', i: 'balance', t: `${k.n} ${vb(k, 'يعترض', 'تعترض')} على قرار`, s: rwSub(o.kid, o.sub).t, b: [['اقرأ وقرّر', `go:obj-decide:${o.id}`, 'ton']] }); });
   if (can('protection.tamper.view')) S.alerts.filter(a => a.k === 'tamper' && a.open).forEach(a => A.push({ p: 1, c: 'var(--warning)', i: 'gpp_maybe', t: a.t, s: a.s, b: [['عرض التفاصيل', `go:tamper:${a.id}`, 'ton']] }));
   if (can('protection.rule.view')) reviews().forEach(r => A.push({ p: 2, c: 'var(--info)', i: 'rule', t: r.k === 'teen' ? `قواعد ${M[r.kid].n} تحتاج مراجعتك` : `جهاز جديد ل${pname(M[r.kid])}: قواعده أُعيدت إليه`, s: r.k === 'teen' ? 'بلغت 13 سنة · قواعدها ما زالت سارية' : 'راجعها أو أبقِها كما هي', b: [['راجع', 'go:rules-review', 'ton']] }));
-  if (can('tasks.approve')) S.tasks.filter(t => t.st === 'SUBMITTED').forEach(t => { const k = M[t.kid]; A.push({ p: 2, c: 'var(--info)', i: 'task_alt', t: `${k.n} ${vb(k, 'سلّم', 'سلّمت')} «${t.t}»`, s: t.ai === 'unsure' ? 'تعذّر على المساعد التحقق من الصورة · القرار لك' : 'بانتظار اعتمادك', b: [['اعتماد', `taskOk:${t.id}`, 'ok'], ['مراجعة', `go:task-review:${t.id}`, 'sec']] }); });
+  if (can('tasks.approve')) S.tasks.filter(t => t.st === 'SUBMITTED' && can('tasks.approve', t.kid)).forEach(t => { const k = M[t.kid]; A.push({ p: 2, c: 'var(--info)', i: 'task_alt', t: `${k.n} ${vb(k, 'سلّم', 'سلّمت')} «${t.t}»`, s: tkWhyHere(t), b: [['اعتماد', `taskOk:${t.id}`, 'ok'], ['مراجعة', `go:task-review:${t.id}`, 'sec']] }); });
   if (can('chat.minor.view')) S.alerts.filter(a => a.k === 'chat' && a.open).forEach(a => A.push({ p: 2, c: 'var(--info)', i: 'chat_error', t: a.t, s: a.s, b: [[a.rv ? 'راجع الرسالة' : 'عرض التنبيه', a.rv ? 'go:chat-review' : 'go:chat-flag:dm-khaled-layan:0', 'ton'], ['تجاهل', `alertClose:${a.id}`, 'sec']] }));
   if (isOwner()) S.alerts.filter(a => a.k === 'perm' && a.open).forEach(a => A.push({ p: 3, c: 'var(--border-strong)', i: 'lock_person', t: a.t, s: a.s, b: [['التفاصيل', `go:denial:${a.id}`, 'ton'], ['تمّ', `alertClose:${a.id}`, 'sec']] }));
   if (isOwner()) S.preq.forEach((q, i) => { if (q.st === 'pending') A.push({ p: 3, c: 'var(--info)', i: 'key', t: preqTxt(q), s: 'تقبل أو تؤجل', b: [['اقرأ وقرّر', `go:perm-request:${i}`, 'ton']] }); });
@@ -38,7 +38,7 @@ surface('home', {
   note: 'مركز الأوامر: ترويسة «نبض العائلة» ← شريط الحالة ← قائمة الانتباه بالأهم ← أوضاع جاهزة ← بطاقات. الرئيسية تعرض لكل بالغ ما يستطيعه فقط، بلا أقفال (Q-096، Q-407)؛ والأقفال وطلب الصلاحية مكانهما «التحكم» و«صلاحياتي». غيّر الشخصية إلى «سارة» وبدّل دورها لترى اللوحة تتقلص.',
   r() {
     const A = attention(), d = dateAr(), m = me();
-    const tasksToday = S.tasks.filter(t => t.st !== 'CANCELLED'), done = tasksToday.filter(t => t.st === 'APPROVED').length;
+    const tasksToday = S.tasks.filter(t => t.st !== 'CANCELLED' && t.st !== 'EXPIRED' && can('tasks.view', t.kid)), done = tasksToday.filter(t => t.st === 'APPROVED').length;
     const ck = Object.values(S.checklist), ckDone = ck.filter(Boolean).length;
     const un = S.plan === 'premium';
     const hs = S.hub || '', bad = hs === 'nosnap' || hs === 'bad', nk = hs === 'empty';
@@ -80,17 +80,7 @@ Object.assign(ACT, {
   aiApply() { gate('تغيير قاعدة باقتراح المساعد يتطلب تأكيدك', () => { const g = S.agent.find(x => x.id === 'g3'); g.st = 'نُفّذ بموافقتك'; g.undo = 1; audit('قُدّمت نافذة نوم خالد 30 د (اقتراح المساعد)', 'agent.rule.change'); toast('عُدّلت نافذة النوم · يمكنك التراجع من سجل المساعد', () => { g.st = 'بانتظارك'; g.undo = 0; render(); }); }, 'stepup'); },
   aiDismiss() { S.agent.find(x => x.id === 'g3').st = 'رُفض'; toast('لن يُنفَّذ الاقتراح'); },
   alertClose(id) { const a = S.alerts.find(x => x.id === id); a.open = 0; toast('أُغلق التنبيه', () => { a.open = 1; render(); }); },
-  taskOk(id) {
-    const t = S.tasks.find(x => x.id === id), k = S.kid[t.kid]; t.st = 'APPROVED'; S.sheet = null;
-    /* الإيداع عبر دفتر المكافآت (S1-05): أول كسب في اليوم يمدّ السلسلة، وكل سبعة أيام تودِع مكافأتها */
-    const r = t.pts && RW().src.tasks ? rwEarn(t.kid, { k: 'task', n: t.pts, t: t.t, as: t.by || 'ahmad', vf: me().id, ev: (t.proof === 'photo' ? 'صورة الإثبات' : t.proof === 'audio' ? 'تسجيل صوتي' : 'إقرار ' + M[t.kid].n) + ' واعتماد ' + me().n }) : null; t.cele = r ? 1 : 0;
-    queue(`اعتماد «${t.t}»`, 'S1-06');
-    toast(`اعتُمدت المهمة${r ? ` · أُودعت ${rwPt(t.pts)} في محفظة ${M[t.kid].n}${r.b ? ` ومعها مكافأة السلسلة ${r.b.n}` : ''}` : t.pts && rwHas(t.kid) ? ' · بلا نقاط: كسب النقاط من المهام متوقف' : ''}`, () => { t.st = 'SUBMITTED'; t.cele = 0; if (r) { if (r.b) rwRev(t.kid, r.b.id, 'undo'); rwRev(t.kid, r.x.id, 'undo'); } render(); });
-  },
-  taskReject(id) { const t = S.tasks.find(x => x.id === id); const n = ($('#rejNote') || {}).value || 'أعيدي المحاولة بصورة أوضح'; t.st = 'PENDING'; t.note = n; S.sheet = null;
-    /* قرار عدم الاعتماد يدخل قائمة ما يصح الاعتراض عليه (S1-05 REQ-018) */
-    RW().dec = RW().dec.filter(d => d.tid !== id); RW().dec.unshift({ id: 'd' + (++RW().n), tid: id, kid: t.kid, t: t.t, pts: t.pts, by: me().id, why: n, ev: t.proof === 'photo' ? 'صورة الإثبات' : t.proof === 'audio' ? 'تسجيل صوتي' : 'إقرار ' + M[t.kid].n, at: 'اليوم' });
-    toast('أُعيدت المهمة مع ملاحظتك'); },
+  /* اعتماد المهام وإعادتها: في screens-tasks.js */
 });
 
 surface('alerts', {
@@ -98,19 +88,6 @@ surface('alerts', {
   note: 'تبويبان: «تحتاج قرارك» بطاقات بقرار من نقرة واحدة، مرتبة بالأهم. و«كل التنبيهات» سجل ما نشرته الخدمات، يُصفّى بالنوع وبغير المقروء، وكل صف يفتح تفصيله. يظهر لكل بالغ ما يخص صلاحياته فقط.',
   r() { const A = attention(), v = S.alV || 'todo';
     return seg([['todo', `تحتاج قرارك${A.length ? ' · ' + A.length : ''}`], ['log', 'كل التنبيهات']], v, 'set:alV') + (v === 'log' ? alertLog() : A.length ? A.map(attCard).join('') : empty('task_alt', 'لا شيء يحتاج قرارك', 'عندما يطلب أحد الأطفال وقتاً أو يسلّم مهمة سيظهر هنا.')); },
-});
-surface('task-review', {
-  kind: 'sheet', t: 'مراجعة تسليم مهمة', sys: 'S1-06', p: 'adult', a: ['t1'], req: '06:7,8,9 05:5 09:17',
-  note: 'المساعد يتحقق أولاً؛ إن لم يجزم بقيت المهمة معلّقة لاعتماد الأب. لا تودَع نقطة قبل التحقق. الرفض يعيدها مع ملاحظة.',
-  r(id) {
-    const t = S.tasks.find(x => x.id === id), k = M[t.kid];
-    return `<h4>«${t.t}»</h4><p class="d">${k.n} · ${CAT[t.cat][0]} · ${t.pts} نقاط عند الاعتماد</p>
-    <div class="msg" style="max-width:none;align-self:stretch;margin-bottom:10px"><div class="ph" style="width:100%;height:150px">${S.lbw ? ic('image') + 'الصورة لم تُحمَّل (نطاق منخفض)' : ic('photo_camera') + 'صورة الإثبات من ' + k.n}</div></div>
-    <div class="ai"><div class="lb">${ic('wand_stars')}تحقّق المساعد</div><p style="margin:0">لم أستطع الجزم من الصورة: السرير مرتّب، لكن جزءاً من الأرضية خارج الإطار. تركتُ القرار لك.</p></div>
-    ${t.sub ? list(t.sub.map(s => row('check_circle', s, '', { ic: 'var(--success)' }))) : ''}
-    <label class="fld"><span>ملاحظة عند الإعادة (اختياري)</span><input id="rejNote" placeholder="مثال: صوّري الأرضية أيضاً"></label>
-    <div class="btns">${btn('أعِد للطفل', `taskReject:${id}`, 'sec')}${btn('اعتمد وأودع النقاط', `taskOk:${id}`, 'ok')}</div>`;
-  },
 });
 surface('checklist', {
   t: 'قائمة الإعداد الأولي', sys: 'S1-01', p: 'owner', req: '09:1 07:10', st: 'pr',
@@ -547,53 +524,6 @@ function srow(t, v, src, a, key, o = {}) {
 }
 /* الموقع والاستغاثة (S1-07): في screens-location.js */
 
-/* ============ المهام والتقويم ============ */
-const TST = { PENDING: ['قيد التنفيذ', 'ol', 'radio_button_unchecked'], SUBMITTED: ['بانتظار الاعتماد', 'in', 'pending'], APPROVED: ['منجزة', 'ok', 'check_circle'], CANCELLED: ['ملغاة', '', 'cancel'], EXPIRED: ['فاتت', '', 'timer_off'] };
-surface('tasks', {
-  t: 'المهام والتقويم', sys: 'S1-06', p: 'adult', a: [''], req: '06:1,2,5,10,11,12,13,16 09:17',
-  note: 'المهام دون اتصال أولاً. النسخة الفائتة من مهمة متكررة تنتهي بنهاية اليوم ولا تتراكم.',
-  act: () => `<button class="ib" data-a="go:task-new" aria-label="مهمة جديدة">${ic('add')}</button>`,
-  r(kid) { const v = S.tv || 'tasks', f = S.tf || kid || 'all', T = S.tasks.filter(t => f === 'all' || t.kid === f);
-    return seg([['tasks', 'المهام'], ['cal', 'التقويم']], v, 'set:tv') + (v === 'cal' ? calView() : `<div class="fch"><button aria-pressed="${f === 'all'}" data-a="set:tf:all">الكل</button>${KIDS.map(id => `<button aria-pressed="${f === id}" data-a="set:tf:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>
-    ${T.length ? list(T.map(t => row(CAT[t.cat][1], t.t, `${pname(M[t.kid])} · ${t.due}${t.rep ? ' · ' + ic('repeat', 'xs') + t.rep : ''}`, { ic: CAT[t.cat][2], a: t.st === 'SUBMITTED' ? `go:task-review:${t.id}` : `go:task:${t.id}`, v: chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) }))) : empty('add_task', 'لا مهام بعد', 'أنشئ أول مهمة وحدّد نقاطها.', btn('أنشئ مهمة', 'go:task-new', 'sm'))}`); },
-});
-function calView() {
-  const ev = S.events, sel = S.cDay || 15, H = n => { try { return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', { day: 'numeric' }).format(new Date(2026, 10, n)); } catch (e) { return ''; } };
-  return `<div class="card"><div class="fx sb" style="margin-bottom:8px"><b>نوفمبر 2026</b><span class="sm muted">جمادى الأولى – جمادى الآخرة 1448</span></div><div class="cal">${['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'].map(d => `<span class="dn">${d}</span>`).join('')}${Array.from({ length: 30 }, (_, i) => i + 1).map(n => `<button class="${n === 15 ? 'td' : ''} ${ev.some(e => e.d === n) ? 'ev' : ''}" style="${n === sel && n !== 15 ? 'box-shadow:inset 0 0 0 2px var(--primary)' : ''}" data-a="set:cDay:${n}">${n}<small>${H(n)}</small></button>`).join('')}</div></div>
-  ${sec(sel === 15 ? 'اليوم' : `${sel} نوفمبر`, 'حدث جديد', can('calendar.event.create') ? 'go:event-new' : 'denied:calendar.event.create')}${(l => l.length ? list(l.map(e => row('event', e.t, `${e.at} · تذكير قبل ${e.rem >= 1440 ? 'يوم' : e.rem + ' دقيقة'}`))) : `<div class="card flat c sm muted">لا أحداث في هذا اليوم</div>`)(ev.filter(e => e.d === sel))}`;
-}
-surface('task', {
-  t: 'مهمة', sys: 'S1-06', p: 'adult', a: ['t2'], req: '06:1,3,4,5,10,11',
-  r(id) { const t = S.tasks.find(x => x.id === id), k = M[t.kid];
-    return `<div class="card"><div class="fx top">${av(k)}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${t.t}</b><div class="sm muted">${k.n} · ${t.due}</div><div class="chips" style="margin-top:6px">${chip(CAT[t.cat][0], '', CAT[t.cat][1])}${chip(TST[t.st][0], TST[t.st][1], TST[t.st][2])}${chip(t.pts + ' نقاط', 'go', 'star')}</div></div></div></div>
-    ${t.note ? callout('ملاحظتك عند الإعادة: ' + t.note, 'wa', 'reply') : ''}
-    ${list(row('photo_camera', 'طريقة الإثبات', '', { v: { photo: 'صورة', audio: 'تسجيل صوتي', self: 'إقرار ذاتي' }[t.proof] }), row('repeat', 'التكرار', t.rep ? 'النسخة الفائتة تنتهي بنهاية يومها ولا تتراكم' : '', { v: t.rep || 'مرة واحدة' }), row('alarm', 'التذكير', '', { v: 'قبل 60 دقيقة' }))}
-    ${t.sub ? sec('قائمة الفحص') + list(t.sub.map(s => row('check_box', s, ''))) : ''}
-    ${t.st === 'PENDING' ? btn('ألغِ المهمة', can('tasks.cancel') ? 'taskCancel:' + id : 'denied:tasks.cancel', 'dng sec') : ''}`; },
-});
-ACT.taskCancel = id => { const t = S.tasks.find(x => x.id === id), was = t.st; t.st = 'CANCELLED'; back(); toast('أُلغيت المهمة', () => { t.st = was; render(); }); };
-surface('task-new', {
-  t: 'مهمة جديدة', sys: 'S1-06', p: 'adult', req: '06:1,2,3,4,10,14,16',
-  note: 'عنوان + مُسنَد إليه واحد + فئة + نقاط + استحقاق + طريقة إثبات. النقاط الافتراضية 10 وللمراهق 0. الفئات الأربع الافتراضية والأب يضيف فئاته.',
-  r() { const n = S.nt = S.nt || { kid: 'layan', cat: 'home', pts: 10, proof: 'photo', rep: 'none' };
-    return `<label class="fld"><span>ماذا يجب أن يُنجَز؟</span><input id="ntT" placeholder="مثال: سقي النباتات" value="${n.t || ''}"></label>
-    <div class="fld"><span>لمن؟</span><div class="chips">${KIDS.map(id => `<button class="chip ${n.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="ntSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div></div>
-    <div class="fld"><span>الفئة</span><div class="chips">${Object.entries(CAT).map(([k, [t, i]]) => `<button class="chip ${n.cat === k ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" data-a="ntSet:cat:${k}">${ic(i)}${t}</button>`).join('')}<button class="chip ol" style="min-height:40px" data-a="${isOwner() ? 'soonC' : 'denied:tasks.category.create'}">${ic(isOwner() ? 'add' : 'lock')}فئة</button></div></div>
-    <div class="fld"><span>النقاط ${n.kid === 'khaled' ? '· الافتراضي للمراهق صفر' : ''}</span>${seg([[5, '5'], [10, '10'], [15, '15'], [25, '25']].concat(n.kid === 'khaled' ? [[0, '0']] : []), n.pts, 'ntSet:pts')}</div>
-    <div class="fld"><span>كيف يثبت الإنجاز؟</span>${seg([['photo', 'صورة'], ['audio', 'تسجيل صوتي'], ['self', 'إقرار ذاتي']], n.proof, 'ntSet:proof')}</div>
-    <div class="fld"><span>التكرار</span>${seg([['none', 'مرة'], ['daily', 'يومياً'], ['week', 'أيام محددة']], n.rep, 'ntSet:rep')}</div>
-    ${list(row('event', 'الاستحقاق', '', { v: 'اليوم 6:00 م', a: 'schedEdit' }), row('alarm', 'التذكير', '15 · 30 · 60 دقيقة · يوم', { v: 'قبل 60 دقيقة' }), row('checklist', 'بنود فرعية', 'قائمة فحص داخل المهمة', { v: 'لا يوجد', a: 'soonC' }))}
-    ${btn(offline() ? 'احفظ · تُرسل عند الاتصال' : 'أسند المهمة', 'ntSave', '', offline() ? 'cloud_upload' : '')}`; },
-});
-Object.assign(ACT, {
-  ntSet(k, v) { S.nt.t = ($('#ntT') || {}).value; S.nt[k] = isNaN(v) ? v : +v; if (k === 'kid') S.nt.pts = v === 'khaled' ? 0 : 10; },
-  soonC() { toast('حقل إضافي — خارج هذا الإصدار من النموذج', null, 'info'); },
-  ntSave() { const n = S.nt, t = ($('#ntT') || {}).value.trim(); if (!t) { toast('اكتب عنوان المهمة أولاً', null, 'error'); return; } S.tasks.unshift({ id: 't' + Date.now(), kid: n.kid, t, cat: n.cat, pts: n.pts, due: 'اليوم 6:00 م', proof: n.proof, st: 'PENDING', rep: n.rep === 'daily' ? 'يومياً' : '' }); const off = queue('مهمة «' + t + '»', 'S1-06'); S.nt = null; back(); toast(off ? 'حُفظت المهمة في الصندوق الصادر' : `أُسندت المهمة إلى ${M[n.kid].n}`, null, off ? 'cloud_upload' : 'check_circle'); },
-});
-surface('event-new', {
-  kind: 'sheet', t: 'حدث تقويم', sys: 'S1-06', p: 'adult', req: '06:12,13,14',
-  r() { return `<h4>حدث عائلي جديد</h4><p class="d">يظهر لكل أفراد العائلة بالتاريخين.</p><label class="fld"><span>العنوان</span><input id="evT" placeholder="مثال: زيارة الجدة"></label>${list(row('today', 'التاريخ', `${S.cDay || 15} نوفمبر 2026`, { v: 'ميلادي + هجري' }), row('schedule', 'الوقت', '', { v: '5:00 م' }), row('alarm', 'التذكير', 'الافتراضي 60 دقيقة', { v: 'قبل 60 دقيقة' }))}${btn('أضف الحدث', 'evSave')}`; },
-});
-ACT.evSave = () => { const t = ($('#evT') || {}).value.trim(); if (!t) { toast('اكتب عنوان الحدث', null, 'error'); return; } S.events.push({ d: S.cDay || 15, t, at: '5:00 م', rem: 60 }); S.sheet = null; S.tv = 'cal'; toast('أُضيف الحدث إلى تقويم العائلة'); };
+/* المهام والتقويم (S1-06): في screens-tasks.js */
 
 /* ============ المكافآت (إدارة) ============ */
