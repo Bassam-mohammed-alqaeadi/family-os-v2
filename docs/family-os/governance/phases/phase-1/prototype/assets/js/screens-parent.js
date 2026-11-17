@@ -30,14 +30,6 @@ function kidOrb(id) {
   const r = 26, c = 2 * Math.PI * r;
   return `<button class="orb" data-a="go:member:${id}" aria-label="${m.n}"><span class="rw"><svg class="rg" width="58" height="58"><circle cx="29" cy="29" r="${r}" stroke="#ffffff26"/><circle cx="29" cy="29" r="${r}" stroke="${pct < .2 ? '#F6A77F' : '#8FD3A5'}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg>${av(m)}<span class="bd" style="background:${st[1]}">${ic(st[0])}</span></span><b>${pname(m)}</b><small>${fmOf(id) ? 'وضع حر' : pmOf(id) ? modeN(pmOf(id)) : `بقي ${left(id)} د`}</small></button>`;
 }
-function miniMap(h = 150, big) {
-  if (S.lbw && !S.mapLoaded) return `<div class="card flat c"><div class="muted sm" style="margin-bottom:8px">${ic('map')} لم تُحمَّل الخريطة لتوفير البيانات</div>${btn('تحميل الخريطة (≈ 180 ك.ب)', 'set:mapLoaded:true', 'sm sec', 'download')}</div>`;
-  const old = offline() || S.stale, dk = S.theme === 'dark';
-  const road = dk ? '#22324d' : '#fff', blk = dk ? '#15233b' : '#DDE3D3', wat = dk ? '#0d2a45' : '#BFD8EA', grn = dk ? '#12301f' : '#C9DDBE';
-  const pins = KIDS.map(id => { const k = S.kid[id]; return `<button class="pin ${old ? 'old' : ''}" style="left:${k.x}%;top:${k.y}%" data-a="go:member:${id}">${big ? `<label>${pname(M[id])}</label>` : ''}${av(M[id])}</button>`; }).join('');
-  return `<div class="map" style="height:${h}px"><svg class="m" viewBox="0 0 400 ${h * 400 / 358}" preserveAspectRatio="xMidYMid slice"><rect width="400" height="400" fill="${blk}"/><path d="M-10 250 Q120 210 210 260 T420 230 V420 H-10Z" fill="${wat}" opacity=".7"/><rect x="250" y="20" width="120" height="70" rx="10" fill="${grn}"/><rect x="30" y="120" width="90" height="60" rx="10" fill="${grn}"/><g stroke="${road}" stroke-linecap="round" fill="none"><path d="M-10 100 H420" stroke-width="14"/><path d="M140 -10 V200 Q140 230 180 232" stroke-width="12"/><path d="M-10 190 H420" stroke-width="9"/><path d="M240 -10 V240" stroke-width="9"/><path d="M320 100 V230" stroke-width="7"/><path d="M60 100 V190" stroke-width="7"/><path d="M-10 40 H250" stroke-width="6"/></g></svg>${pins}<span class="attr">خريطة توضيحية · المصدر الفعلي OpenStreetMap</span></div>`;
-}
-
 /* ============ الرئيسية: مركز الأوامر ============ */
 surface('home', {
   t: 'الرئيسية', sys: 'S1-09', p: 'adult', bar: false, flush: true, hero: true,
@@ -61,7 +53,7 @@ surface('home', {
     ${svcOn('prot') && (can('protection.mode_preset.apply') || can('protection.rule.create')) ? sec('الأوضاع') + modeTiles(1) : ''}
     <div class="qa" style="grid-template-columns:repeat(3,1fr);margin-top:8px">${[['add_task', 'مهمة جديدة', 'go:task-new', 'tasks.create', 'tasks'], ['more_time', 'منح وقت', 'go:grant-time', 'rewards.grant.create', 'rew'], ['stars', 'منح نقاط', 'go:grant-points', 'rewards.grant.create', 'rew']].filter(x => svcOn(x[4]) && can(x[3])).map(([i, t, a, k]) => `<button data-a="${can(k) ? a : 'denied:' + k}" class="${can(k) ? '' : 'dis'}"><span class="qi ${can(k) ? toneOf(i) : ''}">${ic(can(k) ? i : 'lock')}</span>${t}</button>`).join('')}</div>
     ${(can('agent.summary.read') || isOwner()) && svcOn('ai') ? aiCard() : ''}
-    ${can('location.view') && svcOn('loc') ? sec('أين العائلة الآن', 'الخريطة', 'go:map') + miniMap(140) + `<div class="chips" style="margin:8px 0 2px">${KIDS.map(id => chip(`${pname(M[id])}: ${S.privacy ? '••••' : S.kid[id].place} · ${S.kid[id].bat}%`, S.kid[id].bat < 20 ? 'da' : '', S.kid[id].bat < 20 ? 'battery_alert' : 'location_on')).join('')}${age(2)}</div>` : ''}
+    ${locIds().length && svcOn('loc') ? sec('أين العائلة الآن', 'الخريطة', 'go:map') + fMap(140) + `<div class="chips" style="margin:8px 0 2px">${locChips()}${age(2)}</div>` : ''}
     ${!svcOn('prot') ? '' : sec('وقت الشاشة اليوم', 'القواعد', 'tab:control') + `<div class="card">${KIDS.map(id => { const k = S.kid[id], pc = k.used / (k.quota + k.extra) * 100; return `<button class="fx" style="width:100%;padding:6px 0" data-a="go:member:${id}">${av(M[id], 'sm')}<span class="grow"><span class="fx sb sm"><b>${pname(M[id])}</b><span class="muted">${k.used} من ${k.quota + k.extra} د</span></span><span style="display:block;margin-top:5px">${pbar(pc, pc > 85 ? 'wa' : 'ok')}</span></span></button>`; }).join('')}</div>`}
     <div class="g2">${can('tasks.view') && svcOn('tasks') ? `<button class="card stat" data-a="go:tasks"><span class="qi ac">${ic('task_alt')}</span><b>${done}/${tasksToday.length}</b><span>مهام اليوم المنجزة</span></button>` : ''}
     ${can('rewards.wallet.view') && svcOn('rew') ? `<button class="card stat" data-a="go:rewards-admin"><span class="qi go">${ic('stars')}</span><b>${S.kid.layan.pts + S.kid.yusuf.pts}</b><span>نقاط الأطفال · سلسلة ليان ${S.kid.layan.streak} أيام</span></button>` : ''}
@@ -177,7 +169,7 @@ surface('member', {
     const R = (i, t, s, key, a, v) => can(key, id) ? row(i, t, s, { a, v }) : row(i, t, s, { a: 'denied:' + key, v: avail('not_delegated'), c: 'dis', chev: false });
     return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${pname(m)}</b><div class="sm muted">${m.rel} · ${m.role === 'teen' ? 'قالب المراهق' : m.mini ? 'القالب المبسّط' : 'القالب القياسي'}</div><div class="chips" style="margin-top:6px">${chip(e[0], e[2], e[1])}${chip(k.bat + '%', k.bat < 20 ? 'da' : '', k.bat < 20 ? 'battery_alert' : 'battery_5_bar')}</div></div></div>
     <div class="card fx">${ring(pc, 76, 8, pc < .2 ? 'var(--accent)' : 'var(--success)', `<b style="font-size:20px;line-height:1">${left(id)}</b>`)}<div class="grow"><b>${fmOf(id) ? `وضع حر · بقي ${fmOf(id)} د` : pmOf(id) ? `${modeQ(pmOf(id))} حتى ${S.pm[id].until}` : `بقي ${left(id)} دقيقة اليوم`}</b><div class="sm muted">استُخدم ${k.used} من ${k.quota + k.extra} د${k.extra ? ` · منها ${k.extra} د ممنوحة` : ''}</div>${lim.length ? `<div class="sm" style="color:var(--accent-text);margin-top:2px">${lim.map(a => a.n).join('، ')}: نفد الحد</div>` : ''}</div>${can('rewards.grant.create') ? btn('منح وقت', `go:grant-time:${id}`, 'sm ton') : ''}</div>
-    ${can('location.view') ? `<button class="card fx" data-a="go:map">${ic('location_on')}<div class="grow"><b>${S.privacy ? 'الموقع مخفي (وضع الخصوصية)' : k.place}</b><div class="sm muted">${offline() || S.stale ? 'آخر موقع معروف' : 'الموقع الآن'}</div></div>${age(k.ago)}</button>` : `<div class="card fx dis">${ic('location_off')}<div class="grow"><b>الموقع</b></div>${avail('not_delegated')}</div>`}
+    ${can('location.view', id) ? (l => `<button class="card fx" data-a="go:loc:${id}">${ic(l.none ? 'location_off' : 'location_on')}<div class="grow"><b>${l.none ? 'لا موقع معروف بعد' : S.privacy ? 'الموقع مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${l.none ? 'يظهر عند أول اتصال للجهاز' : l.live ? 'الموقع الآن' : 'آخر موقع معروف'}</div></div>${l.none ? '' : chip(minTxt(l.ago), l.live ? 'ol' : 'stale', l.live ? 'schedule' : 'history')}</button>`)(locOf(id)) : `<div class="card fx dis">${ic('location_off')}<div class="grow"><b>الموقع</b></div>${avail('not_delegated')}</div>`}
     ${sec('القواعد')}${list(
       R('apps', 'التطبيقات', `${apps.filter(a => a.act === 'LIMIT').length} بحدّ · ${apps.filter(a => a.act === 'BLOCK').length} محظور · ${apps.filter(a => a.study).length} للدراسة`, 'protection.rule.view', `go:apps:${id}`),
       R('hourglass_top', 'الحصة اليومية', 'لكل يوم من أيام الأسبوع', 'protection.rule.view', `go:quota:${id}`, `${k.quota} د`),
@@ -573,32 +565,7 @@ function srow(t, v, src, a, key, o = {}) {
   const ok = can(key), ios = o.ios && S.os === 'ios';
   return `<button class="row noic ${ok && !ios ? '' : 'dis'} ${o.hl ? 'hl' : ''}" data-a="${ios ? 'why:ios' : ok ? a : 'denied:' + key}"><span class="tx"><b>${t}</b><span>${ios ? avail('unavailable_on_device') : !ok ? avail('not_delegated') : chip(src, 'ol', src === 'قالب العمر' ? 'category' : src === 'الأب' ? 'person' : 'tune')}${o.own && !isOwner() ? '' : ''}</span></span><span class="val">${v}</span><span class="chev">${ic(ok && !ios ? 'chevron_right' : 'lock')}</span></button>`;
 }
-/* ============ الموقع ============ */
-surface('map', {
-  t: 'موقع العائلة', sys: 'S1-07', p: 'adult', req: '07:1,2,3,6,11,12,13,15 09:10,11 01:10',
-  note: 'الخريطة لا تُعكس في RTL. كل فرد ببطاريته ووسم زمني صريح؛ والموقع القديم يظهر بمظهر مختلف ولا يُعرض كأنه حي. المصطلح «مشاركة الموقع» لا «تعقّب».',
-  act: () => `<button class="ib" data-a="go:emergency" aria-label="جهات الطوارئ">${ic('contact_emergency')}</button>`,
-  r() { if (!can('location.view')) return empty('location_off', 'الموقع غير مفوَّض لك', 'اطلب من الأب صلاحية عرض الموقع.', why('nd:location.view'));
-    const old = offline() || S.stale;
-    return `${old ? callout('تعرض الخريطة آخر موقع معروف، لا الموقع الحي.', 'wa', 'history') : ''}${miniMap(300, true)}<div class="gap"></div>${list(KIDS.map(id => { const k = S.kid[id]; return row('', pname(M[id]), `${S.privacy ? '••••' : k.place} · ${old ? 'آخر موقع معروف' : k.moving ? 'يتحرك' : 'ثابت'}`, { lead: av(M[id]), a: can('location.history.view') ? 'go:history:' + id : 'denied:location.history.view', v: `${chip(k.bat + '%', k.bat < 20 ? 'da' : 'ol', k.bat < 20 ? 'battery_alert' : 'battery_5_bar')}` }); }))}<div class="chips">${age(2)}${chip('يتحدث كل 5 د عند السكون وكل دقيقة عند الحركة', 'ol', 'avg_pace')}</div>`; },
-});
-surface('history', {
-  t: id => 'سجل مواقع ' + M[id].n, sys: 'S1-07', p: 'adult', a: ['layan'], req: '07:13,14,6',
-  note: 'سجل 7 أيام يُحذف تلقائياً. الخط الزمني يبقى من الأقدم إلى الأحدث (Q-386).',
-  r() { const d = S.hDay ?? 6; return `<div class="fch">${['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'أمس', 'اليوم'].map((n, i) => `<button aria-pressed="${i === d}" data-a="set:hDay:${i}">${n}</button>`).join('')}</div>${miniMap(170)}<div class="gap"></div><div class="card"><div class="tl">${[['6:10 ص', 'البيت', 'غادرت'], ['7:25 ص', 'المدرسة', 'وصلت'], ['1:05 م', 'المدرسة', 'غادرت'], ['1:32 م', 'البيت', 'وصلت']].map(([t, p, a]) => `<div class="ev"><b>${a} ${S.privacy ? '••••' : p}</b><span>${t}</span></div>`).join('')}</div></div>${callout('يُحتفظ بالسجل 7 أيام ثم يُحذف تلقائياً. النقاط الملتقطة دون اتصال تُرفع عند عودته بلا تكرار.', 'nt', 'delete')}`; },
-});
-surface('emergency', {
-  t: 'جهات الطوارئ', sys: 'S1-07', p: 'adult', req: '07:9,10,17 04:11',
-  note: 'يديرها الأب (location.emergency.manage — مالك حصري). عند SOS دون اتصال تُرسل SMS بالإحداثيات إليهم وإلى كل البالغين، وتُحسب من حصة الخطة مع 3 رسائل طوارئ بعد النفاد.',
-  r() { const own = isOwner(), C = S.ec || [], q = { free: 20, basic: 50, premium: 100 }[S.plan];
-    return `${C.length ? list(C.map(c => row('contact_emergency', c.n, `<span class="ltr">${c.p}</span>`, { v: own ? `<button class="ib" data-a="ecDel:${c.p}" aria-label="حذف">${ic('delete')}</button>` : '' }))) : empty('contact_emergency', 'لا توجد جهات طوارئ بعد', 'أضف قريباً أو جاراً يصله تنبيه الاستغاثة مع الموقع، حتى لو انقطع الإنترنت.')}
-    ${btn('أضف جهة طوارئ', own ? 'ecAdd' : 'denied:location.emergency.manage', own ? '' : 'sec', own ? 'add' : 'lock')}<div class="gap"></div>
-    <div class="card"><div class="fx sb sm"><b>رصيد SMS هذا الشهر</b><span>${S.sms.used} من ${q}</span></div><div style="margin:8px 0">${pbar(S.sms.used / q * 100, S.sms.used / q > .8 ? 'wa' : '')}</div><div class="xs muted">إن نفد الرصيد تبقى 3 رسائل استغاثة للطوارئ كل شهر.</div></div>`; },
-});
-Object.assign(ACT, {
-  ecAdd() { S.ec = (S.ec || []).concat({ n: 'العم ناصر', p: '+967 77 123 4567' }); S.checklist.emergency = 1; toast('أُضيفت جهة الطوارئ'); },
-  ecDel(p) { S.ec = S.ec.filter(c => c.p !== p); },
-});
+/* الموقع والاستغاثة (S1-07): في screens-location.js */
 
 /* ============ المهام والتقويم ============ */
 const TST = { PENDING: ['قيد التنفيذ', 'ol', 'radio_button_unchecked'], SUBMITTED: ['بانتظار الاعتماد', 'in', 'pending'], APPROVED: ['منجزة', 'ok', 'check_circle'], CANCELLED: ['ملغاة', '', 'cancel'], EXPIRED: ['فاتت', '', 'timer_off'] };

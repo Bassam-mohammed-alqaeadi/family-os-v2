@@ -390,38 +390,7 @@ Object.assign(ACT, {
   },
 });
 
-/* ============ الاستغاثة SOS ============ */
-let sosTimer;
-surface('sos-count', {
-  kind: 'full', cls: 'red', t: 'عدّ تنازلي للاستغاثة', sys: 'S1-07', p: 'any', req: '07:7 01:7',
-  note: 'ضغط مطوّل 3 ثوانٍ مع اهتزاز، ثم 10 ثوانٍ للإلغاء قبل الإرسال — لمنع الإرسال الخاطئ دون تأخير الطارئ الحقيقي.',
-  r() { return `<div class="body" style="justify-content:center"><p class="ttl">تُرسل الاستغاثة بعد</p><div class="cnt">${S.sosN}</div><p class="sub">سيصل موقعك الآن إلى ${me() && me().role === 'adult' ? 'كل البالغين في العائلة' : 'بابا وماما'} وجهات الطوارئ.</p>${btn('ألغِ', 'sosCancel', 'sec" style="background:#fff;color:#B42318;box-shadow:none;min-height:64px;font-size:20px')}<div class="gap"></div>${btn('أرسل الآن', 'sosSend', 'txt" style="color:#fff;width:100%')}</div>`; },
-});
-surface('sos-sent', {
-  kind: 'full', cls: 'red', t: 'الاستغاثة أُرسلت', sys: 'S1-07', p: 'any', req: '07:8,9,17 04:11 01:7',
-  note: 'حالة صادقة: «وصلت إلى N من M». دون اتصال تُرسل SMS بالإحداثيات إلى الأب وكل البالغين وجهات الطوارئ، وتُحسب من حصة الخطة مع تجاوز طوارئ.',
-  r() { const s = S.sos, R = [['أحمد', 1], ['سارة', s.via.includes('SMS') ? 0 : 1]].concat((S.ec || []).map(c => [c.n, 0])), n = R.filter(r => r[1]).length;
-    return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic('sos')}</div><p class="ttl">${s.st === 'resolved' ? 'انتهت الاستغاثة' : 'أُرسلت استغاثتك'}</p><p class="sub">${s.st === 'resolved' ? 'أكّد أحد البالغين أنك بخير.' : `وصلت إلى ${n} من ${R.length} · ${s.via}`}</p>
-    <div style="background:#ffffff1a;border-radius:18px;padding:6px 14px">${R.map(([nm, ok]) => `<div class="fx sb" style="padding:9px 0;border-bottom:1px solid #ffffff22"><b>${nm}</b><span class="fx" style="gap:5px;font-size:13px">${ic(ok ? 'done_all' : 'schedule')}${ok ? 'وصلت' : 'في الطريق'}</span></div>`).join('')}<div class="fx sb" style="padding:9px 0"><span>موقعك المرسل</span><b>${s.place}</b></div></div>
-    ${s.via.includes('SMS') ? `<p class="c" style="font-size:13px;opacity:.85;margin:12px 0 0">لا يوجد إنترنت، فأرسلنا رسالة SMS بإحداثياتك.</p>` : ''}</div>
-    ${s.st === 'resolved' ? btn('أغلق', 'close', 'sec" style="background:#fff;color:#B42318;box-shadow:none') : `${btn('أنا بخير — ألغِ الاستغاثة', 'sosSelfEnd', 'sec" style="background:#fff;color:#B42318;box-shadow:none')}<div class="gap"></div>${btn('أخفِ هذه الشاشة', 'close', 'txt" style="color:#fff;width:100%')}`}</div>`; },
-});
-surface('sos-status', {
-  t: 'استغاثة', sys: 'S1-07', p: 'adult', req: '07:8,16,18 09:3',
-  note: 'تنبيه SOS يصل الأب وكل البالغين خلال أقل من 10 ثوانٍ مع الموقع لحظتها، ويظهر في تنبيهات مركز الأوامر. الحل للأب أو للبالغ المفوَّض حسب قالبه.',
-  r() { const s = S.sos; if (!s) return empty('sos', 'لا استغاثة نشطة', 'عند ضغط أي فرد على زر SOS ثلاث ثوانٍ يظهر التنبيه هنا مع موقعه.'); const m = M[s.from];
-    return `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)"><div class="fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n} ${vb(m, 'يستغيث', 'تستغيث')}</b><div class="sm">${s.st === 'resolved' ? 'حُلّت' : 'قبل لحظات'} · ${s.via}</div></div></div></div>${miniMap(200, true)}<div class="gap"></div>${list(row('location_on', s.place, 'الموقع لحظة الاستغاثة', {}), row('battery_5_bar', 'بطارية الجهاز', '', { v: S.kid[s.from] ? S.kid[s.from].bat + '%' : '72%' }), row('done_all', 'وصل إلى', 'أحمد · سارة', {}))}
-    ${s.st === 'resolved' ? callout('حُلّ التنبيه وسُجّل في التدقيق.', 'ok', 'check_circle') : `<div class="btns">${btn('اتصل', 'sosCall', 'sec', 'call')}${btn('أنا في الطريق', can('location.sos.acknowledge') ? 'sosAck' : 'denied:location.sos.acknowledge', 'ton')}</div><div class="gap"></div>${btn('حُلّ الأمر — أغلق التنبيه', can('location.sos.resolve') ? 'sosResolve' : 'denied:location.sos.resolve', can('location.sos.resolve') ? 'ok' : 'sec', can('location.sos.resolve') ? 'check' : 'lock')}`}`; },
-});
-Object.assign(ACT, {
-  sosStart() { S.sheet = null; S.dlg = null; S.sosN = 10; S.full = { id: 'sos-count', a: [] }; clearInterval(sosTimer); sosTimer = setInterval(() => { S.sosN -= 1; if (S.sosN <= 0) { ACT.sosSend(); render(); } else if (S.full && S.full.id === 'sos-count') renderOv(); }, 1000); },
-  sosCancel() { clearInterval(sosTimer); S.full = null; toast('أُلغيت الاستغاثة · لم يُرسل شيء'); },
-  sosSend() { clearInterval(sosTimer); const off = offline(), id = PERSONA[S.persona].m; S.sos = { from: id, st: 'sent', via: off ? 'عبر SMS (دون اتصال)' : 'عبر الإنترنت', place: S.kid[id] ? S.kid[id].place : 'البيت' }; if (off) S.sms.used += 2 + (S.ec || []).length; S.full = { id: 'sos-sent', a: [] }; },
-  sosSelfEnd() { S.sos.st = 'resolved'; },
-  sosCall() { toast('يفتح تطبيق الهاتف للاتصال', null, 'call'); },
-  sosAck() { toast('أُبلغ المستغيث أنك في الطريق'); },
-  sosResolve() { S.sos.st = 'resolved'; audit(`حُلّت استغاثة ${M[S.sos.from].n}`, 'location.sos.resolve'); toast('أُغلق تنبيه الاستغاثة'); },
-});
+/* الاستغاثة (S1-07): في screens-location.js */
 
 /* ============ حالات النظام الكاملة ============ */
 surface('sys-update', {

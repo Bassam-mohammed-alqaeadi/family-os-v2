@@ -35,7 +35,7 @@ const CTL = [
   { id: 'rank', s: 'prot', g: 'الوقت والتطبيقات', t: 'ترتيب أنواع القواعد', d: 'أيّ قاعدة تغلب عند التعارض', syn: 'اولويه تعارض ترتيب', v: id => RANK[rankOf(id)[0]][0] + ' أولاً', src: id => (S.rankKid[id] ? 'خاص به' : rankOf(id).join() === 'sleep,school,app,quota' ? 'افتراضي' : 'الأب'), a: () => 'go:priority', k: 'protection.priority.edit' },
   { id: 'safe', s: 'prot', g: 'الويب', t: 'البحث الآمن', d: 'يحجب النتائج غير اللائقة في محركات البحث', syn: 'انترنت نت جوجل بحث متصفح', v: id => (wfFlagOf(id, 'safe') ? 'مفعّل' : 'مطفأ'), src: () => 'افتراضي', a: id => `go:webfilter:${id}`, k: 'protection.filter.view' },
   { id: 'cats', s: 'prot', g: 'الويب', t: 'فئات المواقع', d: 'ما يُحجب من المواقع بحسب نوعه', syn: 'انترنت نت مواقع حجب متصفح اباحي قمار', v: () => '30 فئة', src: () => 'افتراضي', a: id => `go:webfilter:${id}`, k: 'protection.filter.view' },
-  { id: 'share', s: 'loc', g: 'الموقع', t: 'مشاركة الموقع', d: 'يظهر مكان الطفل على خريطة العائلة', syn: 'مكان تتبع خريطه اين gps', v: () => 'مفعّلة', src: () => 'الأب', a: () => 'go:map', k: 'location.view' },
+  { id: 'share', s: 'loc', g: 'الموقع', t: 'مشاركة الموقع', d: 'مكان الطفل يظهر لوالده دائماً ولا يُطفأ', syn: 'مكان تتبع خريطه اين gps', v: () => 'دائماً', src: () => 'ثابت', a: id => 'go:loc:' + id, k: 'location.view' },
   { id: 'hist', s: 'loc', g: 'الموقع', t: 'سجل المواقع', d: 'يُحفظ سبعة أيام ثم يُحذف تلقائياً', syn: 'مكان اماكن سابقه تاريخ', v: () => '7 أيام', src: () => 'ثابت', a: id => 'go:history:' + id, k: 'location.history.view' },
   { id: 'cap', s: 'rew', g: 'المكافآت', t: 'حدّ الصرف اليومي', d: 'أقصى وقت يشتريه الطفل بنقاطه في اليوم', syn: 'نقاط شراء وقت صرف مكافاه', v: () => S.redeemCap + ' د', src: () => 'الأب', type: 'pick', opts: [30, 45, 60], k: 'rewards.settings.edit', all: 1,
     fx: v => `يشتري كل طفل بنقاطه ${v} دقيقة في اليوم على الأكثر. ما صُرف اليوم يبقى محسوباً.`, set: v => { S.redeemCap = +v; } },
@@ -101,7 +101,7 @@ function alertSees(a) { return a.k === 'tamper' ? can('protection.tamper.view') 
 function allAlerts() {
   if (!can('hub.alerts.view')) return [];
   const A = [], ack = S.ackd || {};
-  if (S.sos && S.sos.from !== me().id) A.push({ id: 'sos', k: 'sos', kid: S.sos.from, t: `استغاثة من ${M[S.sos.from].n}`, s: `${S.sos.via} · ${S.sos.place}`, ago: 'الآن', p: 0, open: S.sos.st === 'sent' ? 1 : 0, live: 1, late: /SMS/.test(S.sos.via) ? 'وصلت برسالة نصية لأن الهاتف كان بلا إنترنت' : '' });
+  if (S.sos && S.sos.st !== 'pending' && S.sos.from !== me().id) A.push({ id: 'sos', k: 'sos', kid: S.sos.from, t: `استغاثة من ${M[S.sos.from].n}`, s: `${S.sos.via} · ${S.sos.place}`, ago: 'الآن', p: 0, open: S.sos.st === 'sent' ? 1 : 0, live: 1, late: /SMS/.test(S.sos.via) ? 'وصلت برسالة نصية لأن الهاتف كان بلا إنترنت' : '' });
   S.alerts.forEach(a => A.push(a));
   if (isOwner() && S.persona === 'owner') soonList().forEach(k => A.push({ id: 'gx-' + k, k: 'grant', kid: null, who: 'سارة', t: gDays(S.g[k]) < 0 ? 'انتهت صلاحية لسارة' : `صلاحية لسارة تنتهي بعد ${dTxt(gDays(S.g[k]))}`, s: PL[k][0], ago: 'اليوم', p: 2, open: ack['gx-' + k] ? 0 : 1, gk: k }));
   return A.filter(alertSees);
@@ -198,7 +198,8 @@ function gsIndex() {
   add('البيانات والمزامنة', 'ما ينتظر الإرسال', 'go:outbox', 'انترنت اتصال توفير', 'sync');
   add('المساعدة والدعم', 'أسئلة شائعة · راسلنا', 'go:help', 'مشكله تواصل', 'contact_support');
   if (own) add('الأدوار', 'أدوار البالغين الجاهزة', 'go:roles', 'شريك وصي مراقب صلاحيات تفويض', 'handshake');
-  if (can('location.view')) add('جهات الطوارئ', 'من يصله تنبيه الاستغاثة', 'go:emergency', 'استغاثه طوارئ رقم قريب', 'contact_emergency');
+  if (can('location.view')) add('جهات الطوارئ', 'من يصله تنبيه الاستغاثة', 'go:emergency', 'استغاثه طوارئ رقم قريب جار', 'contact_emergency');
+  if (can('location.sos.acknowledge')) add('تنبيهات الاستغاثة', 'الحالية والسابقة', 'go:sos-log', 'نداء خطر طوارئ', 'sos');
   if (own) SVC.forEach(s => add(s.n, 'خدمة · ' + s.d, 'go:svc:' + s.id, '', s.i));
   CTL.filter(c => svcOn(c.s) && can(c.k)).forEach(c => add(c.t, `إعداد · ${svcOf(c.s).n}`, 'ctlFind:' + c.id, c.d + ' ' + c.syn, 'tune'));
   return I;

@@ -391,6 +391,13 @@ button.chip{min-height:28px}
 .map .pin::after{content:"";width:8px;height:8px;background:#fff;transform:rotate(45deg);margin-top:-5px;box-shadow:2px 2px 3px #0003}
 .map .pin.old .av{filter:grayscale(.8);opacity:.75;border-style:dashed}
 .map .pin label{background:var(--surface);color:var(--text);font-size:11px;font-weight:600;padding:1px 7px;border-radius:9px;margin-bottom:3px;box-shadow:0 1px 4px #0003;white-space:nowrap}
+.map .pin.sosp .av{border-color:var(--danger);box-shadow:0 0 0 6px #B4231840,0 3px 8px #0005}
+.map .unc{position:absolute;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;background:#1F6B3B24;border:1.5px dashed #1F6B3Baa;pointer-events:none}
+.map .hp{position:absolute;transform:translate(-50%,-50%);min-width:26px;padding:0 6px;height:26px;border-radius:99px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px #0004}
+.map .hp.on{background:var(--accent);min-width:32px;height:32px;font-size:14px;z-index:2}
+.lead.hn{font-weight:700;font-size:14px;background:var(--primary-soft);color:var(--primary)}
+.lead.hn.on{background:var(--accent);color:#fff}
+.btn.dis{opacity:.55}
 .map .attr{position:absolute;bottom:4px;left:6px;font-size:9.5px;color:#494536;background:#ffffffc9;padding:1px 6px;border-radius:5px}
 
 /* ---------- المحادثة ---------- */
