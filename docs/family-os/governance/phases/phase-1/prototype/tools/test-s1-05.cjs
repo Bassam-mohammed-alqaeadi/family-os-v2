@@ -112,6 +112,15 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  tU().click();render();ok('undo gift: one compensating line',S.kid.layan.pts===85&&L('layan')[0].k==='rev'&&L('layan')[0].n===-20&&S.audit[0].k==='rewards.grant.reverse');noT();
  S=fresh();setPersona('delegate');open('grant-points','layan');ok('delegate with the grant key can gift',!!q('.sheet [data-a="gpGo"]'));
  S=fresh();setRole('guardian');setPersona('delegate');open('rewards-admin');ok('guardian: sees wallets, cannot grant, rules are the owner’s',!!q('#scr [data-a="go:wallet-admin:layan"]')&&!q('#scr [data-a="go:grant-points"]')&&!q('#scr [data-a="go:rw-settings"]')&&has(/قواعد المكافآت يضبطها أحمد/));
+ // 8-ب الفرق بين النقاط والوقت ظاهر حيث يختار الأب
+ S=fresh();open('rewards-admin');ok('give: two choices that explain themselves',ph.querySelectorAll('#scr .rwch button').length===2&&has(/تبقى في المحفظة، وتُصرف وقتاً متى شاء/)&&has(/دقائق الآن لتطبيق واحد، تنتهي عند منتصف الليل/)&&!!q('#scr [data-a="why:rwgive"]'));
+ open('why','rwgive');ok('give: the difference in plain words',/ما الفرق بين منح النقاط ومنح الوقت؟/.test(sh())&&/رصيد يدخل محفظة الطفل/.test(sh())&&/تنتهي عند منتصف الليل/.test(sh())&&/طريق المراهق/.test(sh()));
+ S=fresh();open('wallet-admin','khaled');ok('give for a teen: time only',ph.querySelectorAll('#scr .rwch button').length===1&&!!q('#scr .rwch [data-a="go:grant-time:khaled"]'));
+ S=fresh();open('grant-points','yusuf');ok('points sheet says what points are and offers the other way',/تدخل محفظة يوسف وتبقى فيها/.test(sh())&&!!q('.sheet [data-a="rwSwap:time"]'));
+ q('.sheet [data-a="rwSwap:time"]').click();render();ok('switch to time keeps the same child',S.sheet.id==='grant-time'&&S.gt.kid==='yusuf'&&/لا تدخل المحفظة/.test(sh())&&!!q('.sheet [data-a="rwSwap:points"]'));
+ q('.sheet [data-a="rwSwap:points"]').click();render();ok('…and back',S.sheet.id==='grant-points'&&S.gp.kid==='yusuf');
+ S=fresh();open('grant-time','khaled');ok('teen time sheet offers no points',!q('.sheet [data-a="rwSwap:points"]'));
+ S=fresh();open('help');ok('help answers the same question',has(/ما الفرق بين منح النقاط ومنح الوقت؟/));
  // 9 منح الوقت
  S=fresh();open('grant-time','layan');
  ok('grant time: kid, limited app, durations within the cap',ph.querySelectorAll('.sheet [data-a^="gtSet:kid:"]').length===3&&ph.querySelectorAll('.sheet [data-a^="gtSet:app:"]').length>=2&&ph.querySelectorAll('.sheet .seg button').length===4);

@@ -713,5 +713,10 @@ button.chip{min-height:28px}
 .rwms .hf{opacity:.4;font-size:24px;align-self:center}
 .rwmf{display:flex;gap:6px;justify-content:center;color:var(--accent);margin-top:6px}
 .rwmf svg{width:30px;height:30px}
+.rwch{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.rwch button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;padding:12px;min-height:118px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);box-shadow:var(--lift)}
+.rwch button:active{background:var(--subtle)}
+.rwch b{font-size:calc(15.5px*var(--ts));font-weight:600;margin-top:4px}
+.rwch small{font-size:calc(12.5px*var(--ts));color:var(--muted);line-height:1.5}
 /* أزرار النص في أسطح الطفل: هدف لمس كامل */
 .phone[data-mode="child"] .btn.txt,.phone[data-mode="mini"] .btn.txt{min-height:var(--touch)}
