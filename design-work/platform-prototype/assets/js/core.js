@@ -43,7 +43,7 @@ function roleCopy(keys, sc, un, at) { const g = {}; keys.forEach(k => { g[k] = {
 const seedRoles = () => ({ partner: { n: 'شريك', d: 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.', keys: window.FOS_PERM.partner.slice() }, guardian: { n: 'وصي محدود', d: 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.', keys: window.FOS_PERM.guardian.slice() }, observer: { n: 'مراقب', d: 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.', keys: window.FOS_PERM.observer.slice() } });
 const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
-  tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, freeMode: 0, preset: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
+  tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, fm: {}, pm: {}, rankKid: {}, warned: {}, pendR: {}, rvT: 0, kidOff: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
   invs: [{ c: 'MNSR-7K2P', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
@@ -58,6 +58,7 @@ const fresh = () => ({
       { id: 'mc', n: 'Minecraft', i: 'sports_esports', act: 'LIMIT', lim: 30, used: 12 },
       { id: 'mad', n: 'مدرستي', i: 'school', act: 'ALLOW', study: 1, used: 39 },
       { id: 'tt', n: 'TikTok', i: 'music_note', act: 'BLOCK', used: 0 },
+      { id: 'cam', n: 'الكاميرا', i: 'photo_camera', used: 3 },
     ],
     khaled: [
       { id: 'wa', n: 'WhatsApp', i: 'chat', act: 'ALLOW', used: 25 },
@@ -80,6 +81,20 @@ const fresh = () => ({
     { id: 't8', kid: 'khaled', t: 'إخراج القمامة', cat: 'home', pts: 0, due: 'اليوم 9:00 م', proof: 'self', st: 'PENDING', rep: 'الأحد والأربعاء' },
   ],
   reqs: [],            // طلبات الوقت الإضافي
+  /* S1-10: الجدول الأسبوعي لكل طفل (نوافذ نوم/مدرسة تبدأ في أيامها؛ النهاية قبل البداية = حتى اليوم التالي). يوسف بلا نوافذ (Q-222). */
+  sched: {
+    layan: [{ id: 'w1', type: 'sleep', days: [0, 1, 2, 3, 4, 5, 6], s: '21:00', e: '06:00' }, { id: 'w2', type: 'school', days: [0, 1, 2, 3, 4], s: '07:30', e: '13:00' }],
+    khaled: [{ id: 'w3', type: 'sleep', days: [0, 1, 2, 3, 4, 5, 6], s: '22:30', e: '06:00' }, { id: 'w4', type: 'school', days: [0, 1, 2, 3, 4], s: '07:30', e: '13:30' }],
+    yusuf: [],
+  },
+  /* S1-10: أحداث العبث (REQ-021/022) ومراجعات القواعد المعلقة (REQ-027) وتصفية الويب لكل طفل (REQ-028…031) */
+  tam: [
+    { id: 'e2', kid: 'khaled', ty: 'acc', at: 'اليوم 5:00 م', st: 'trying', tries: 12, open: 1 },
+    { id: 'e1', kid: 'khaled', ty: 'vpn', at: 'الخميس 8:14 م', st: 'ok', back: 'الخميس 8:15 م', tries: 1, open: 0 },
+  ],
+  rv: [{ id: 'rv1', k: 'device', kid: 'khaled', at: 'أمس 6:40 م' }],
+  wfc: { layan: {}, khaled: {}, yusuf: {} }, wfl: { layan: {}, khaled: {}, yusuf: {} },
+  wdom: { layan: [{ d: 'khanacademy.org', a: 'ALLOW' }], khaled: [{ d: 'reddit.com', a: 'ALERT' }], yusuf: [] },
   alerts: [
     { id: 'a1', k: 'tamper', kid: 'khaled', t: 'تعطّلت خدمة الوصول على جهاز خالد', s: 'الحماية تعمل جزئياً · نحاول إعادة التفعيل تلقائياً', ago: 'قبل 12 د', p: 1, open: 1 },
     { id: 'a2', k: 'chat', kid: 'layan', t: 'رسالة تحتاج مراجعتك في محادثة ليان', s: 'رصدها المصنّف الآلي · قد يكون التقدير خاطئاً', ago: 'قبل ساعة', p: 2, open: 1 },
@@ -157,6 +172,9 @@ const dateAr = () => {
 };
 const CAT = { home: ['منزل', 'cleaning_services', '#1F3A6B'], school: ['مدرسة', 'school', '#2457A6'], deen: ['صلاة وقرآن', 'mosque', '#1F6B3B'], self: ['عناية ذاتية', 'self_care', '#CF5B2C'] };
 const left = k => Math.max(0, S.kid[k].quota - S.kid[k].used) + S.kid[k].extra;
+/* S1-10: الوضع الحر والوضع المؤقت لكل طفل على حدة — لا تفعيل عائلي (REQ-018/024) */
+const fmOf = k => (S.fm[k] || 0);
+const fmAny = () => KIDS.filter(k => S.fm[k] > 0);
 
 /* ---------- مكوّنات صغيرة ---------- */
 const av = (m, c = '') => `<span class="av ${c}" style="--c:${m.c}">${ic(m.i)}</span>`;
@@ -249,7 +267,8 @@ function banners() {
     ? `<div class="sys off" role="status">${ic('cloud_off')}<span>غير متصل${S.outbox.length ? ' · ما فعلته يُرسل عند عودة الاتصال' : ' · كل شيء محفوظ'}</span></div>`
     : `<div class="sys off" role="status">${ic('cloud_off')}<span>${L('غير متصل', 'Offline')}${S.outbox.length ? ` · ${S.outbox.length} بانتظار الإرسال` : ' · تعمل بآخر بيانات محفوظة'}</span>${S.outbox.length ? '<button data-a="go:outbox">عرض</button>' : ''}</div>`;
   if (S.lbw && !offline()) h += `<div class="sys lbw" role="status">${ic('data_saver_on')}<span>توفير البيانات · الصور والخرائط عند الطلب</span></div>`;
-  if (S.freeMode && S.persona !== 'guest') h += `<div class="sys free" role="status">${ic('lock_open')}<span>وضع حر — ينتهي خلال ${S.freeMode} د</span>${isOwner() ? '<button data-a="freeOff">إنهاء</button>' : ''}</div>`;
+  { const mk = PERSONA[S.persona].m, fk = isAdult() ? fmAny() : (S.persona !== 'guest' && fmOf(mk) ? [mk] : []);
+    fk.forEach(k => { h += `<div class="sys free" role="status">${ic('lock_open')}<span>${isAdult() ? `وضع حر: ${M[k].n} — ينتهي خلال ${fmOf(k)} د` : `وضع حر — ينتهي خلال ${fmOf(k)} د`}</span>${isAdult() && isOwner() ? `<button data-a="freeOff:${k}">إنهاء</button>` : ''}</div>`; }); }
   /* الإصدار دون الحد الأدنى: حثّ غير حاجب (Q-069)، للبالغين فقط */
   if (S.sys === 'soft' && isAdult()) h += `<div class="sys upd" role="status">${ic('system_update_alt')}<span>حدّث التطبيق · هذا الإصدار قديم</span><button data-a="updGo">حدّث</button></div>`;
   /* غياب إذن الإشعارات: بانر صادق مع طريق الإصلاح */
@@ -276,7 +295,7 @@ function render() {
   ph.dataset.theme = S.theme; ph.dataset.mode = mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
   const old = $('#scr'), keep = old && old.dataset.id === t.id + t.a.join() ? old.scrollTop : 0;
-  const hero = d.hero && !offline() && !(S.lbw) && !(S.freeMode && isAdult());
+  const hero = d.hero && !offline() && !(S.lbw) && !(fmAny().length && isAdult());
   $('#sbar').className = 'sbar' + (hero ? ' onhero' : '');
   $('#sbar').innerHTML = `<span>5:12</span><span class="g">${ic(offline() ? 'signal_wifi_off' : S.lbw ? 'signal_cellular_alt_1_bar' : 'wifi')}${ic(offline() ? 'signal_cellular_alt_1_bar' : 'signal_cellular_alt')}${ic('battery_5_bar')}</span>`;
   $('#app').innerHTML = banners() + (d.bar === false ? '' : appbar(d, t)) +
@@ -336,7 +355,7 @@ const ACT = {
   why(id) { S.sheet = { id: 'why', a: [id] }; },
   set(k, v) { S[k] = v === 'true' ? true : v === 'false' ? false : isNaN(v) || v === '' ? v : +v; },
   flip(k) { S[k] = !S[k]; },
-  freeOff() { S.freeMode = 0; audit('أُنهي الوضع الحر', 'protection.free_mode.activate'); toast('انتهى الوضع الحر · عادت القواعد'); },
+  freeOff(k) { const was = S.fm[k]; if (!was) return; delete S.fm[k]; S.audit.unshift({ t: `أُلغي الوضع الحر لـ${M[k].n} قبل انتهائه`, w: me().n, at: 'الآن', k: 'protection.free_mode.activate', kid: k, ty: 'free', d: 0 }); toast(`انتهى الوضع الحر لـ${M[k].n} · عادت القواعد`, () => { S.fm[k] = was; render(); }); },
   notifFix() { S.notifPerm = true; toast('فُعّلت الإشعارات', null, 'notifications_active'); },
   soon() { toast('خارج نطاق المرحلة 1 — يُضاف عبر سجل الخدمات لاحقاً', null, 'hourglass_empty'); },
   /* القفل الظاهر يشرح السبب ويعرض طلب الصلاحية. الرفض العادي صامت وواضح (S1-03 سيناريو 2-1)؛ ورفض صلاحية حساسة يُسجَّل ويُنبَّه الأب (REQ-007). */

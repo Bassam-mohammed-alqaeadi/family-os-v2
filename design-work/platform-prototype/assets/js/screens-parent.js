@@ -27,7 +27,7 @@ const attCard = a => `<div class="att" style="--pc:${a.c}"><div class="hd"><span
 function kidOrb(id) {
   const m = M[id], k = S.kid[id], pct = left(id) / (k.quota + k.extra), st = S.sos && S.sos.from === id && S.sos.st === 'sent' ? ['sos', '#B42318'] : k.enf !== 'active' ? ['priority_high', '#9A5B00'] : left(id) === 0 ? ['hourglass_empty', '#CF5B2C'] : ['check', '#1F6B3B'];
   const r = 26, c = 2 * Math.PI * r;
-  return `<button class="orb" data-a="go:member:${id}" aria-label="${m.n}"><span class="rw"><svg class="rg" width="58" height="58"><circle cx="29" cy="29" r="${r}" stroke="#ffffff26"/><circle cx="29" cy="29" r="${r}" stroke="${pct < .2 ? '#F6A77F' : '#8FD3A5'}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg>${av(m)}<span class="bd" style="background:${st[1]}">${ic(st[0])}</span></span><b>${pname(m)}</b><small>${S.freeMode ? 'وضع حر' : `بقي ${left(id)} د`}</small></button>`;
+  return `<button class="orb" data-a="go:member:${id}" aria-label="${m.n}"><span class="rw"><svg class="rg" width="58" height="58"><circle cx="29" cy="29" r="${r}" stroke="#ffffff26"/><circle cx="29" cy="29" r="${r}" stroke="${pct < .2 ? '#F6A77F' : '#8FD3A5'}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg>${av(m)}<span class="bd" style="background:${st[1]}">${ic(st[0])}</span></span><b>${pname(m)}</b><small>${fmOf(id) ? 'وضع حر' : pmOf(id) === 'sleep' ? 'وضع النوم' : pmOf(id) === 'study' ? 'وضع الدراسة' : `بقي ${left(id)} د`}</small></button>`;
 }
 function miniMap(h = 150, big) {
   if (S.lbw && !S.mapLoaded) return `<div class="card flat c"><div class="muted sm" style="margin-bottom:8px">${ic('map')} لم تُحمَّل الخريطة لتوفير البيانات</div>${btn('تحميل الخريطة (≈ 180 ك.ب)', 'set:mapLoaded:true', 'sm sec', 'download')}</div>`;
@@ -57,7 +57,7 @@ surface('home', {
     ${!can('hub.dashboard.view') ? empty('lock_person', 'لا توجد صلاحيات بعد', 'انضممتِ إلى العائلة بدور بالغ بلا أي منح. اطلبي من الأب تفويضك لتظهر هنا لوحة العائلة.', btn('عرض صلاحياتي', 'go:my-perms', 'sm ton')) : `
     ${A.length ? sec('يتطلب انتباهك', 'الكل', 'go:alerts') + A.slice(0, 3).map(attCard).join('') : ''}
     ${ckDone < ck.length && isOwner() ? `<button class="card" data-a="go:checklist"><div class="fx sb"><b>أكمل إعداد عائلتك</b>${chip(`${ckDone} من ${ck.length}`, 'in')}</div><div style="margin:8px 0 6px">${pbar(ckDone / ck.length * 100, 'ok')}</div><span class="sm muted">بقي: إضافة جهات الطوارئ</span></button>` : ''}
-    ${sec('أوضاع جاهزة')}<div class="qa" style="grid-template-columns:repeat(3,1fr)">${P.map(([k, t, i]) => { const on = k === 'free' ? S.freeMode > 0 : S.preset === k, ok = k === 'free' ? isOwner() : can('protection.mode_preset.apply'); return `<button aria-pressed="${on}" data-a="${ok ? 'preset:' + k : 'denied:' + (k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply')}" class="${ok ? '' : 'dis'}"><span class="qi">${ic(ok ? i : 'lock')}</span>${t}${on ? '<span class="xs" style="color:var(--success);font-weight:700">مفعّل</span>' : ''}</button>`; }).join('')}</div>
+    ${sec('أوضاع جاهزة')}<div class="qa" style="grid-template-columns:repeat(3,1fr)">${P.map(([k, t, i]) => { const on = KIDS.filter(x => (k === 'free' ? fmOf(x) > 0 : pmOf(x) === k)), ok = k === 'free' ? isOwner() : can('protection.mode_preset.apply'); return `<button aria-pressed="${on.length > 0}" data-a="${ok ? 'go:presets:' + k : 'denied:' + (k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply')}" class="${ok ? '' : 'dis'}"><span class="qi">${ic(ok ? i : 'lock')}</span>${t}${on.length ? `<span class="xs" style="color:var(--success);font-weight:700">${on.map(x => M[x].n).join('، ')}</span>` : ''}</button>`; }).join('')}</div>
     <div class="qa" style="grid-template-columns:repeat(3,1fr);margin-top:8px">${[['add_task', 'مهمة جديدة', 'go:task-new', 'tasks.create'], ['more_time', 'منح وقت', 'go:grant-time', 'rewards.grant.create'], ['stars', 'منح نقاط', 'go:grant-points', 'rewards.grant.create']].map(([i, t, a, k]) => `<button data-a="${can(k) ? a : 'denied:' + k}" class="${can(k) ? '' : 'dis'}"><span class="qi">${ic(can(k) ? i : 'lock')}</span>${t}</button>`).join('')}</div>
     ${can('agent.summary.read') || isOwner() ? aiCard() : ''}
     ${can('location.view') ? sec('أين العائلة الآن', 'الخريطة', 'go:map') + miniMap(140) + `<div class="chips" style="margin:8px 0 2px">${KIDS.map(id => chip(`${pname(M[id])}: ${S.privacy ? '••••' : S.kid[id].place}`, '', 'location_on')).join('')}${age(2)}</div>` : ''}
@@ -76,13 +76,6 @@ function aiCard() {
   return `<div class="ai" style="margin-top:14px"><div class="lb">${ic('wand_stars')}اقتراح من المساعد · لا يُنفَّذ دون موافقتك</div><p>لاحظتُ أن خالد يستخدم هاتفه بعد 10:30 م في ليالي المدرسة ثلاث مرات هذا الأسبوع. أقترح تقديم نافذة النوم 30 دقيقة.</p><div class="btns">${btn('طبّق الاقتراح', isOwner() ? 'aiApply' : 'denied:agent.rule.change', 'sm')}${btn('ليس الآن', 'aiDismiss', 'sm sec')}<button class="why" data-a="why:ai">لماذا هذا؟</button></div></div>`;
 }
 Object.assign(ACT, {
-  preset(k) {
-    if (k === 'free') { if (S.freeMode) return ACT.freeOff(); return go('freemode'); }
-    const was = S.preset; S.preset = was === k ? '' : k;
-    if (queue(`تطبيق وضع «${k === 'study' ? 'الدراسة' : 'النوم'}»`, 'S1-10')) return toast('محفوظ في الصندوق الصادر · يُطبَّق عند عودة الاتصال', null, 'cloud_upload');
-    audit(S.preset ? `طُبّق وضع «${k === 'study' ? 'الدراسة' : 'النوم'}» على كل الأطفال` : 'أُلغي الوضع الجاهز', 'protection.mode_preset.apply');
-    toast(S.preset ? (k === 'study' ? 'وقت الدراسة: تطبيقات الدراسة فقط' : 'وقت النوم بدأ الآن على أجهزة الأطفال') : 'أُلغي الوضع · عادت القواعد المعتادة', () => { S.preset = was; render(); });
-  },
   aiApply() { gate('تغيير قاعدة باقتراح المساعد يتطلب تأكيدك', () => { const g = S.agent.find(x => x.id === 'g3'); g.st = 'نُفّذ بموافقتك'; g.undo = 1; audit('قُدّمت نافذة نوم خالد 30 د (اقتراح المساعد)', 'agent.rule.change'); toast('عُدّلت نافذة النوم · يمكنك التراجع من سجل المساعد', () => { g.st = 'بانتظارك'; g.undo = 0; render(); }); }, 'stepup'); },
   aiDismiss() { S.agent.find(x => x.id === 'g3').st = 'رُفض'; toast('لن يُنفَّذ الاقتراح'); },
   alertClose(id) { const a = S.alerts.find(x => x.id === id); a.open = 0; toast('أُغلق التنبيه', () => { a.open = 1; render(); }); },
@@ -174,14 +167,14 @@ surface('member', {
     const k = S.kid[id], e = ENF[k.enf], pc = left(id) / (k.quota + k.extra), apps = S.apps[id], lim = apps.filter(a => a.act === 'LIMIT' && a.used >= a.lim);
     const R = (i, t, s, key, a, v) => can(key, id) ? row(i, t, s, { a, v }) : row(i, t, s, { a: 'denied:' + key, v: avail('not_delegated'), c: 'dis', chev: false });
     return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${pname(m)}</b><div class="sm muted">${m.rel} · ${m.role === 'teen' ? 'قالب المراهق' : m.mini ? 'القالب المبسّط' : 'القالب القياسي'}</div><div class="chips" style="margin-top:6px">${chip(e[0], e[2], e[1])}${chip(k.bat + '%', k.bat < 20 ? 'da' : '', k.bat < 20 ? 'battery_alert' : 'battery_5_bar')}</div></div></div>
-    <div class="card fx">${ring(pc, 76, 8, pc < .2 ? 'var(--accent)' : 'var(--success)', `<b style="font-size:20px;line-height:1">${left(id)}</b>`)}<div class="grow"><b>${S.freeMode ? 'وضع حر مفعّل' : `بقي ${left(id)} دقيقة اليوم`}</b><div class="sm muted">استُخدم ${k.used} من ${k.quota + k.extra} د${k.extra ? ` · منها ${k.extra} د ممنوحة` : ''}</div>${lim.length ? `<div class="sm" style="color:var(--accent-text);margin-top:2px">${lim.map(a => a.n).join('، ')}: نفد الحد</div>` : ''}</div>${can('rewards.grant.create') ? btn('منح وقت', `go:grant-time:${id}`, 'sm ton') : ''}</div>
+    <div class="card fx">${ring(pc, 76, 8, pc < .2 ? 'var(--accent)' : 'var(--success)', `<b style="font-size:20px;line-height:1">${left(id)}</b>`)}<div class="grow"><b>${fmOf(id) ? `وضع حر · بقي ${fmOf(id)} د` : pmOf(id) ? `${pmOf(id) === 'sleep' ? 'وضع النوم' : 'وضع الدراسة'} حتى ${S.pm[id].until}` : `بقي ${left(id)} دقيقة اليوم`}</b><div class="sm muted">استُخدم ${k.used} من ${k.quota + k.extra} د${k.extra ? ` · منها ${k.extra} د ممنوحة` : ''}</div>${lim.length ? `<div class="sm" style="color:var(--accent-text);margin-top:2px">${lim.map(a => a.n).join('، ')}: نفد الحد</div>` : ''}</div>${can('rewards.grant.create') ? btn('منح وقت', `go:grant-time:${id}`, 'sm ton') : ''}</div>
     ${can('location.view') ? `<button class="card fx" data-a="go:map">${ic('location_on')}<div class="grow"><b>${S.privacy ? 'الموقع مخفي (وضع الخصوصية)' : k.place}</b><div class="sm muted">${offline() || S.stale ? 'آخر موقع معروف' : 'الموقع الآن'}</div></div>${age(k.ago)}</button>` : `<div class="card fx dis">${ic('location_off')}<div class="grow"><b>الموقع</b></div>${avail('not_delegated')}</div>`}
     ${sec('القواعد')}${list(
       R('apps', 'التطبيقات', `${apps.filter(a => a.act === 'LIMIT').length} بحدّ · ${apps.filter(a => a.act === 'BLOCK').length} محظور · ${apps.filter(a => a.study).length} للدراسة`, 'protection.rule.view', `go:apps:${id}`),
       R('hourglass_top', 'الحصة اليومية', 'لكل يوم من أيام الأسبوع', 'protection.rule.view', `go:quota:${id}`, `${k.quota} د`),
-      R('calendar_month', 'الجدول الأسبوعي', 'نافذتا النوم والمدرسة', 'protection.rule.view', `go:schedule:${id}`),
-      R('travel_explore', 'تصفية الويب', '30 فئة · بحث آمن', 'protection.filter.view', `go:webfilter:${id}`),
-      R('verified_user', 'حالة الفرض على الجهاز', e[0], 'protection.state.view', `go:enf-state:${id}`))}
+      R('calendar_month', 'الجدول الأسبوعي', schedSum(id), 'protection.rule.view', `go:schedule:${id}`),
+      R('travel_explore', 'تصفية الويب', `${wfCount(id)} فئة محظورة · ${S.wdom[id].length ? S.wdom[id].length + ' مواقع مستثناة' : 'بلا مواقع مستثناة'}`, 'protection.filter.view', `go:webfilter:${id}`),
+      R('verified_user', 'حالة الحماية على الجهاز', e[0], 'protection.state.view', `go:enf-state:${id}`))}
     ${sec('المهام والمكافآت')}${list(
       R('task_alt', 'المهام', `${S.tasks.filter(t => t.kid === id && t.st === 'PENDING').length} قيد التنفيذ`, 'tasks.view', `go:tasks:${id}`),
       R('stars', 'المحفظة', m.role === 'teen' ? 'نقاط المراهق الافتراضية صفر' : `سلسلة ${k.streak} أيام`, 'rewards.wallet.view', `go:wallet-admin:${id}`, `${k.pts} نقطة`),
@@ -569,125 +562,12 @@ function srow(t, v, src, a, key, o = {}) {
 }
 function advTree(id) {
   const k = S.kid[id], ap = S.apps[id];
-  return `${sec('الوقت والتطبيقات')}<div class="list">${srow('الحصة اليومية', k.quota + ' د', 'الأب', `go:quota:${id}`, 'protection.quota.edit', { ios: 1 })}${srow('قواعد التطبيقات', ap.length + ' تطبيقات', 'الأب', `go:apps:${id}`, 'protection.rule.view', { ios: 1 })}${srow('نافذة النوم', '9:00 م – 6:00 ص', 'قالب العمر', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('نافذة المدرسة', '7:30 ص – 1:00 م', 'الأب', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('ترتيب أنواع القواعد', 'النوم أولاً', 'افتراضي', 'go:priority', 'protection.priority.edit')}</div>
-  ${sec('الويب')}<div class="list">${srow('البحث الآمن', 'مفعّل', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}${srow('فئات المواقع', '30 فئة', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}</div>
+  return `${sec('الوقت والتطبيقات')}<div class="list">${srow('الحصة اليومية', k.quota + ' د', 'الأب', `go:quota:${id}`, 'protection.quota.edit', { ios: 1 })}${srow('قواعد التطبيقات', ap.filter(a => a.act).length + ' قواعد', 'الأب', `go:apps:${id}`, 'protection.rule.view', { ios: 1 })}${srow('نافذة النوم', winTxt(id, 'sleep'), 'الأب', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('نافذة المدرسة', winTxt(id, 'school'), 'الأب', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('ترتيب أنواع القواعد', RANK[rankOf(id)[0]][0] + ' أولاً', S.rankKid[id] ? 'خاص به' : rankOf(id).join() === 'sleep,school,app,quota' ? 'افتراضي' : 'الأب', 'go:priority', 'protection.priority.edit')}</div>
+  ${sec('الويب')}<div class="list">${srow('البحث الآمن', wfFlagOf(id, 'safe') ? 'مفعّل' : 'مطفأ', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}${srow('فئات المواقع', '30 فئة', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}</div>
   ${sec('الموقع')}<div class="list">${srow('مشاركة الموقع', 'مفعّلة', 'الأب', 'go:map', 'location.view')}${srow('سجل المواقع', '7 أيام', 'ثابت', 'go:history:' + id, 'location.history.view')}</div>
   ${sec('المكافآت')}<div class="list">${srow('حدّ الصرف اليومي', S.redeemCap + ' د', 'الأب', 'go:rewards-admin', 'rewards.settings.edit')}${srow('سعر الصرف', '10 نقاط = 10 د', 'افتراضي', 'go:rewards-admin', 'rewards.settings.edit')}</div>
   ${sec('المحادثة')}<div class="list">${srow('المصنّف الآلي للرسائل', M[id].role === 'teen' ? 'مفعّل' : 'دائم', M[id].role === 'teen' ? 'الأب' : 'ثابت', 'go:chat-settings', 'chat.minor.view')}</div>`;
 }
-surface('protection', {
-  t: 'الحماية ووقت الشاشة', sys: 'S1-10', p: 'adult', req: '10:1,2,6,10,18,24,25,28 09:8,9 01:19',
-  note: 'صفحة الخدمة مولّدة من السجل: ترويسة ← قوالب ← مجموعات ← قيم لكل فرد ← سجل التغييرات.',
-  r() {
-    return `${S.os === 'ios' ? callout('أجهزة iOS: الفرض العميق غير متاح في هذه المرحلة. تبقى القواعد محفوظة وتتبع الطفل إلى أي جهاز Android يقترن به.', 'wa', 'ios') : ''}
-    <div class="card">${KIDS.map(id => { const e = ENF[S.kid[id].enf]; return `<button class="fx" style="width:100%;padding:7px 0" data-a="go:enf-state:${id}">${av(M[id], 'sm')}<b class="grow">${pname(M[id])}</b>${chip(e[0], e[2], e[1])}</button>`; }).join('')}</div>
-    ${sec('لكل طفل')}<div class="fch">${KIDS.map(id => `<button aria-pressed="${(S.ctlKid || 'layan') === id}" data-a="set:ctlKid:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>
-    ${(id => list(row('apps', 'التطبيقات', 'سماح · حظر · حدّ يومي', { a: `go:apps:${id}` }), row('hourglass_top', 'الحصة اليومية الإجمالية', 'لكل يوم أسبوع', { a: `go:quota:${id}`, v: S.kid[id].quota + ' د' }), row('calendar_month', 'الجدول الأسبوعي', 'النوم والمدرسة', { a: `go:schedule:${id}` }), row('travel_explore', 'تصفية الويب', '30 فئة وتجاوزات النطاقات', { a: `go:webfilter:${id}` })))(S.ctlKid || 'layan')}
-    ${sec('للعائلة كلها')}${list(row('swap_vert', 'ترتيب أنواع القواعد', 'النوم ← المدرسة ← حدود التطبيقات ← الحصة', { a: can('protection.priority.edit') ? 'go:priority' : 'denied:protection.priority.edit' }), row('lock_open', 'الوضع الحر', S.freeMode ? `مفعّل · بقي ${S.freeMode} د` : 'يعلّق كل القواعد مؤقتاً', { a: isOwner() ? 'go:freemode' : 'denied:protection.free_mode.activate', v: isOwner() ? '' : ic('lock') }), row('gpp_maybe', 'تنبيهات العبث', `${S.alerts.filter(a => a.k === 'tamper' && a.open).length} مفتوح`, { a: 'go:tamper:a1' }), row('receipt_long', 'سجل تغييرات الحماية', 'كل تغيير قاعدة مسجَّل', { a: 'go:audit' }))}`;
-  },
-});
-surface('apps', {
-  t: id => 'تطبيقات ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:1,3,5,7,12,27',
-  note: 'قاعدة واحدة لكل طفل ولكل تطبيق: ALLOW / BLOCK / LIMIT. تطبيقات الدراسة تبقى مفتوحة في نافذة المدرسة. القواعد تتبع الطفل لا الجهاز.',
-  r(id) { const A = { ALLOW: ['مسموح', 'ok', 'check'], BLOCK: ['محظور', 'da', 'block'], LIMIT: ['حدّ يومي', 'in', 'timer'] };
-    return callout('القواعد تتبع ' + M[id].n + ' إلى أي جهاز يقترن به، لا الجهاز نفسه.', 'nt', 'devices') + list(S.apps[id].map(a => { const out = a.act === 'LIMIT' && a.used >= a.lim; return row(a.i, a.n, a.act === 'LIMIT' ? `${a.used} من ${a.lim} د اليوم${out ? ' · نفد' : ''}` : a.study ? 'تطبيق دراسة · يبقى مفتوحاً في وقت المدرسة' : a.act === 'BLOCK' ? 'لا يُفتح' : `${a.used} د اليوم`, { a: can('protection.rule.edit') ? `go:app-rule:${id}:${a.id}` : 'denied:protection.rule.edit', v: chip(A[a.act][0], out ? 'ac' : A[a.act][1], A[a.act][2]) }); })) + callout('تظهر هنا التطبيقات المثبتة على جهاز الطفل بعد الإقران.', 'nt', 'info'); },
-});
-surface('app-rule', {
-  kind: 'sheet', t: 'قاعدة تطبيق', sys: 'S1-10', p: 'adult', a: ['layan', 'ytk'], req: '10:1,4,9,17,26',
-  note: 'تعديل منخفض/متوسط الخطورة: يُحفظ فوراً مع تراجع 10 ثوانٍ. إن كان جهاز الطفل منقطعاً ينتظر التغيير على الخادم ويسري عند استلامه.',
-  r(kid, id) { const a = appOf(kid, id);
-    return `<div class="fx" style="margin-bottom:12px"><span class="av" style="--c:var(--primary)">${ic(a.i)}</span><div><h4>${a.n}</h4><span class="sm muted">قاعدة ${M[kid].n} لهذا التطبيق</span></div></div>
-    ${seg([['ALLOW', 'اسمح'], ['LIMIT', 'حدّ يومي'], ['BLOCK', 'احظر']], a.act, `appAct:${kid}:${id}`)}
-    ${a.act === 'LIMIT' ? `<div class="card flat"><div class="stepper"><button data-a="appLim:${kid}:${id}:-15" aria-label="أقل">${ic('remove')}</button><b>${a.lim}<small>دقيقة في اليوم</small></b><button data-a="appLim:${kid}:${id}:15" aria-label="أكثر">${ic('add')}</button></div><div class="days" style="margin-top:12px">${['أحد', 'اثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'].map((d, i) => `<button aria-pressed="${i < 5}">${d}<b>${i < 5 ? a.lim : a.lim + 30}</b></button>`).join('')}</div><div class="xs muted">الحد يُضبط لكل يوم من أيام الأسبوع. يظهر تحذير للطفل قبل 5 دقائق من النفاد.</div></div>` : ''}
-    ${list(row('school', 'تطبيق دراسة', 'يبقى مفتوحاً أثناء نافذة المدرسة', { tg: !!a.study, ta: `appStudy:${kid}:${id}` }))}
-    ${callout(S.kid[kid].online && !offline() ? 'يسري على جهاز ' + M[kid].n + ' خلال ثوانٍ.' : 'جهاز الطفل غير متصل الآن: يُحفظ التغيير ويسري عند أول اتصال.', S.kid[kid].online && !offline() ? 'ok' : 'wa', S.kid[kid].online && !offline() ? 'sync' : 'cloud_off')}`; },
-});
-Object.assign(ACT, {
-  appAct(kid, id, v) { const a = appOf(kid, id), was = a.act; a.act = v; if (v === 'LIMIT' && !a.lim) a.lim = 30; queue(`قاعدة ${a.n}`, 'S1-10'); audit(`قاعدة ${a.n} لـ${M[kid].n}: ${was} ← ${v}`, 'protection.rule.edit'); toast('حُفظت القاعدة', () => { a.act = was; render(); }); },
-  appLim(kid, id, d) { const a = appOf(kid, id); a.lim = Math.max(15, a.lim + +d); },
-  appStudy(kid, id) { const a = appOf(kid, id); a.study = a.study ? 0 : 1; },
-});
-surface('quota', {
-  t: id => 'حصة ' + M[id].n + ' اليومية', sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:2,10,26 03:20',
-  note: 'الحصة الإجمالية لكل طفل ولكل يوم أسبوع. مفتاح التعديل protection.quota.edit للمالك حصراً — جرّبها بشخصية سارة لترى القفل والتنبيه.',
-  r(id) { const k = S.kid[id], d = S.qDay ?? 0, D = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], val = i => (i > 4 ? k.quota + 60 : k.quota), own = isOwner();
-    return `${own ? '' : callout('تعديل الحصة للأب فقط. يمكنك الاطلاع على القيم. ' + why('nd:protection.quota.edit'), 'nt', 'lock')}<div class="days">${D.map((n, i) => `<button aria-pressed="${i === d}" data-a="set:qDay:${i}">${n.replace('ال', '').slice(0, 3)}<b>${val(i)}</b></button>`).join('')}</div>
-    <div class="card c"><div class="sm muted" style="margin-bottom:8px">${D[d]}</div><div class="stepper"><button data-a="${own ? `quotaAdj:${id}:-15` : 'denied:protection.quota.edit'}" aria-label="أقل">${ic(own ? 'remove' : 'lock')}</button><b>${val(d)}<small>دقيقة</small></b><button data-a="${own ? `quotaAdj:${id}:15` : 'denied:protection.quota.edit'}" aria-label="أكثر">${ic(own ? 'add' : 'lock')}</button></div></div>
-    ${callout('الحصة آخر ما يُفحص: النوم ثم المدرسة ثم حدود التطبيقات ثم الحصة. ' + why('rank'), '', 'info')}`; },
-});
-ACT.quotaAdj = (id, d) => { const k = S.kid[id], was = k.quota; k.quota = Math.max(15, k.quota + +d); audit(`عُدّلت حصة ${M[id].n}: ${was} ← ${k.quota} د`, 'protection.quota.edit'); };
-surface('schedule', {
-  t: id => 'جدول ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:6,7,9,14',
-  note: 'الجدول الأسبوعي قائمة 7 أيام. محور الوقت يبقى من اليسار إلى اليمين (Q-386). في نافذة النوم لا يُفتح أي تطبيق، وزر SOS يعمل دائماً.',
-  r() { const D = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    return `<div class="chips" style="margin-bottom:10px">${chip('نوم', '', 'bedtime')}${chip('مدرسة', 'in', 'school')}${chip('وقت متاح', 'ok', 'wb_sunny')}</div><div class="card">${D.map((d, i) => { const we = i > 4; return `<div style="margin-bottom:10px"><div class="fx sb sm"><b>${d}</b><span class="muted">${we ? 'نوم 10:00 م' : 'نوم 9:00 م · مدرسة 7:30 ص'}</span></div><div class="sched"><i class="sl" style="left:0;width:25%">نوم</i>${we ? '' : '<i class="sc" style="left:31.25%;width:22.9%">مدرسة</i>'}<i class="sl" style="left:${we ? 91.7 : 87.5}%;width:${we ? 8.3 : 12.5}%"></i></div></div>`; }).join('')}<div class="axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
-    ${list(row('bedtime', 'نافذة النوم', 'لا يُفتح أي تطبيق · SOS يعمل دائماً', { a: can('protection.schedule.edit') ? 'schedEdit' : 'denied:protection.schedule.edit', v: '9:00 م – 6:00 ص' }), row('school', 'نافذة المدرسة', 'تطبيقات الدراسة فقط', { a: can('protection.schedule.edit') ? 'schedEdit' : 'denied:protection.schedule.edit', v: '7:30 ص – 1:00 م' }))}
-    ${callout('تغيير الجدول يسري على جهاز الطفل عند استلامه، ويُفرض دون اتصال من آخر إعداد مزامَن.', 'nt', 'sync')}`; },
-});
-ACT.schedEdit = () => toast('منتقي الوقت (FosDateTimePicker) — خارج هذا الإصدار من النموذج', null, 'schedule');
-const RANK = { sleep: ['النوم', 'bedtime'], school: ['المدرسة', 'school'], app: ['حدود التطبيقات', 'timer'], quota: ['الحصة الإجمالية', 'hourglass_top'] };
-surface('priority', {
-  t: 'ترتيب أنواع القواعد', sys: 'S1-10', p: 'adult', req: '10:10,11,12,13',
-  note: 'الترتيب الافتراضي يعمل فوراً بلا إعداد. الأب يعيد الترتيب بحرية، والشاشة تعرض نتيجة ترتيبه بلغة صريحة قبل الحفظ.',
-  r() { const r = S.rank, dflt = r.join() === 'sleep,school,app,quota';
-    return `<p class="sm muted" style="margin:0 4px 10px">عند تعارض قاعدتين يفوز النوع الأعلى في القائمة.</p>${list(r.map((k, i) => `<div class="row"><span class="lead">${ic(RANK[k][1])}</span><span class="tx"><b>${i + 1}. ${RANK[k][0]}</b></span><button class="ib" data-a="rankMv:${i}:-1" aria-label="ارفع" ${i ? '' : 'disabled style="opacity:.3"'}>${ic('arrow_upward')}</button><button class="ib" data-a="rankMv:${i}:1" aria-label="أنزل" ${i < 3 ? '' : 'disabled style="opacity:.3"'}>${ic('arrow_downward')}</button></div>`))}
-    ${sec('نتيجة ترتيبك')}<div class="card flat sm" style="line-height:1.9">${r.map((k, i) => i < 3 ? `<div>${ic('arrow_downward', 'xs')}<b>${RANK[k][0]}</b> ${k === 'sleep' ? 'يغلق كل التطبيقات' : k === 'school' ? 'تسمح بتطبيقات الدراسة فقط' : k === 'app' ? 'تحدّ كل تطبيق على حدة' : 'تحدّ مجموع اليوم'}، حتى لو سمح ${RANK[r[i + 1]][0].replace(/^ال/, 'ال')} بغير ذلك.</div>` : '').join('')}<div style="margin-top:6px">الوقت المكتسب أو الممنوح يضيف دقائق إلى حدّ التطبيق فقط، ولا يرفع نوعاً فوق نوع.</div></div>
-    <div class="btns">${btn('أعد الافتراضي', 'rankReset', 'sec' + (dflt ? '" disabled="' : ''))}${btn('احفظ الترتيب', 'rankSave')}</div>`; },
-});
-Object.assign(ACT, {
-  rankMv(i, d) { i = +i; d = +d; const r = S.rank, j = i + d; if (j < 0 || j > 3) return; [r[i], r[j]] = [r[j], r[i]]; },
-  rankReset() { S.rank = ['sleep', 'school', 'app', 'quota']; },
-  rankSave() { audit('عُدّل ترتيب أنواع القواعد: ' + S.rank.map(k => RANK[k][0]).join(' ← '), 'protection.priority.edit'); toast('حُفظ الترتيب · يسري على كل الأطفال'); back(); },
-});
-surface('freemode', {
-  kind: 'sheet', t: 'الوضع الحر', sys: 'S1-10', p: 'owner', req: '10:18,19,20,26 03:12',
-  note: 'للمالك حصراً. المدة يحددها الأب بالدقائق عند التفعيل (بلا مدة افتراضية محكومة). لافتة واضحة تبقى في لوحة الأهل، وSOS يعمل كالمعتاد.',
-  r() { const n = S.fmN || 60; return `<h4>تفعيل الوضع الحر</h4><p class="d">يعلّق كل قواعد الفرض على أجهزة الأطفال مؤقتاً، ثم تعود تلقائياً. زر الاستغاثة يبقى يعمل.</p><div class="card flat"><div class="stepper"><button data-a="fmAdj:-15" aria-label="أقل">${ic('remove')}</button><b>${n}<small>دقيقة</small></b><button data-a="fmAdj:15" aria-label="أكثر">${ic('add')}</button></div></div>${btn('فعّل بالرقم السري', 'fmGo', '', 'lock')}`; },
-});
-Object.assign(ACT, {
-  fmAdj(d) { S.fmN = Math.max(15, (S.fmN || 60) + +d); },
-  fmGo() { S.sheet = null; gate('الوضع الحر يعلّق كل القواعد', () => { S.freeMode = S.fmN || 60; S.preset = ''; audit(`فُعّل الوضع الحر ${S.freeMode} د`, 'protection.free_mode.activate'); toast('الوضع الحر مفعّل'); }, 'stepup'); },
-});
-surface('tamper', {
-  t: 'تنبيه عبث', sys: 'S1-10', p: 'adult', a: ['a1'], req: '10:21,22,23,25 01:6 09:3',
-  note: 'كشف العبث: تنبيه فوري + إعادة تفعيل تلقائية تستمر عند كل نبضة تقييم. الصياغة تصف ما حدث بلا اتهام للطفل (microcopy: لا لوم).',
-  r(id) { const a = S.alerts.find(x => x.id === id) || S.alerts[0], k = S.kid.khaled;
-    return `<div class="card fx">${av(M.khaled, 'lg')}<div class="grow"><b>${a.open ? 'الحماية تعمل جزئياً على جهاز خالد' : 'عادت الحماية للعمل'}</b><div class="sm muted">خدمة الوصول (Accessibility) ${a.open ? 'متوقفة' : 'تعمل'}</div></div>${chip(a.open ? 'مفتوح' : 'محلول', a.open ? 'wa' : 'ok')}</div>
-    ${sec('ما الذي حدث')}<div class="card"><div class="tl"><div class="ev wa"><b>توقفت خدمة الوصول</b><span>اليوم 5:00 م · قد يكون السبب تحديث النظام أو إيقافاً يدوياً</span></div><div class="ev"><b>محاولة إعادة تفعيل تلقائية (1)</b><span>5:00 م · لم تنجح</span></div><div class="ev"><b>محاولة إعادة تفعيل تلقائية (2)</b><span>5:01 م · لم تنجح · تستمر كل دقيقة</span></div>${a.open ? '' : '<div class="ev ok"><b>أُعيد التفعيل</b><span>الآن</span></div>'}</div></div>
-    ${sec('ما الذي يعمل الآن')}${list(row('check_circle', 'حدود الوقت اليومية', 'تعمل', { ic: 'var(--success)' }), row(a.open ? 'error' : 'check_circle', 'حظر التطبيقات فوراً', a.open ? 'متوقف حتى تعود الخدمة' : 'يعمل', { ic: a.open ? 'var(--warning)' : 'var(--success)' }), row('check_circle', 'زر الاستغاثة والموقع', 'يعملان', { ic: 'var(--success)' }))}
-    ${a.open ? `${callout('تحدّث مع خالد أولاً؛ كثيراً ما يكون السبب تقنياً. إعادة التفعيل من جهازه تحتاج دقيقة.', '', 'forum')}<div class="btns">${btn('أرسل له تذكيراً', 'tamperPing', 'sec')}${btn('علّمه محلولاً', isOwner() ? 'tamperOk:' + a.id : 'denied:protection.tamper.resolve', isOwner() ? '' : 'sec')}</div>` : ''}
-    ${list(row('delete_forever', 'إلغاء تثبيت التطبيق من جهاز الطفل', 'يتطلب الرقم السري للأب دائماً', { v: ic('lock') }))}`; },
-});
-Object.assign(ACT, {
-  tamperPing() { toast('أُرسل تذكير لطيف إلى خالد'); },
-  tamperOk(id) { const a = S.alerts.find(x => x.id === id); a.open = 0; S.kid.khaled.enf = 'active'; audit('حُلّ تنبيه العبث على جهاز خالد', 'protection.tamper.resolve'); toast('عُلّم التنبيه محلولاً'); },
-});
-surface('enf-state', {
-  t: id => 'حالة الفرض — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:14,15,16,17,25,27 01:22,23',
-  note: 'حالة الفرض مكشوفة لبقية الأنظمة: القواعد النشطة، المتبقي لكل تطبيق، الحد التالي، الوضع الحر، العبث. القواعد تُفرض دون اتصال من آخر إعداد مزامَن.',
-  r(id) { const k = S.kid[id], e = ENF[k.enf], off = offline();
-    return `<div class="card fx"><span class="bigic" style="width:56px;height:56px;border-radius:18px;margin:0">${ic(e[1])}</span><div class="grow"><b>${e[0]}</b><div class="sm muted">${off ? 'الجهاز يفرض القواعد محلياً من آخر إعداد مزامَن' : 'القواعد على الجهاز مطابقة للخادم'}</div></div></div>
-    ${list(row('sync', 'آخر مزامنة للقواعد', 'نسخة الإعداد 42', { v: age(k.ago) }), row('timer', 'نبضة خصم الوقت', 'كل 60 ثانية · تعمل دون اتصال بالساعة الرتيبة', { v: chip('تعمل', 'ok') }), row('hourglass_top', 'الحد التالي', left(id) ? `الحصة اليومية بعد ${left(id)} د` : 'انتهت الحصة', {}), row('lock_open', 'الوضع الحر', S.freeMode ? `مفعّل · ${S.freeMode} د` : 'غير مفعّل', {}), row('gpp_maybe', 'العبث', k.enf === 'active' ? 'لا يوجد' : 'حدث مفتوح', { a: k.enf === 'active' ? '' : 'go:tamper:a1' }), row('verified', 'توقيع الجهاز', 'أمر الأب موقَّع والجهاز يقرّ بالاستلام', { v: chip('موثَّق', 'ok', 'check') }))}
-    ${sec('المتبقي لكل تطبيق')}${list(S.apps[id].filter(a => a.act === 'LIMIT').map(a => row(a.i, a.n, `${Math.max(0, a.lim - a.used)} د متبقية`, { v: `${a.used}/${a.lim}` })))}
-    ${callout('إن غيّرت قاعدة وجهاز الطفل منقطع، ينتظر التغيير على الخادم ويُسلَّم عند أول اتصال. أحداث الاستخدام دون اتصال تُسجَّل محلياً ثم تُزامَن.', 'nt', 'cloud_upload')}`; },
-});
-surface('enf-all', { t: 'حالة الحماية', sys: 'S1-10', p: 'adult', req: '10:25 09:1', r() { return list(KIDS.map(id => { const e = ENF[S.kid[id].enf]; return row('', pname(M[id]), e[0], { lead: av(M[id]), a: 'go:enf-state:' + id, v: chip('', e[2], e[1]) }); })); } });
-const WCAT = [['pornography', 'محتوى إباحي', 'BLOCK'], ['matureContent', 'محتوى للبالغين', 'BLOCK'], ['gambling', 'قمار', 'BLOCK'], ['drugs', 'مخدرات', 'BLOCK'], ['alcohol', 'كحول'], ['tobacco', 'تبغ'], ['violence', 'عنف'], ['weapons', 'أسلحة'], ['profanity', 'ألفاظ نابية'], ['proxiesLoopholes', 'بروكسي وتحايل'], ['socialNetwork', 'شبكات اجتماعية'], ['chat', 'دردشة'], ['forums', 'منتديات'], ['webmail', 'بريد ويب'], ['fileSharing', 'مشاركة ملفات'], ['games', 'ألعاب'], ['entertainment', 'ترفيه'], ['shopping', 'تسوّق'], ['ai', 'ذكاء اصطناعي'], ['searchPortals', 'محركات بحث'], ['news', 'أخبار'], ['sports', 'رياضة'], ['travel', 'سفر'], ['technology', 'تقنية'], ['business', 'أعمال'], ['employment', 'توظيف'], ['government', 'حكومي'], ['health', 'صحة'], ['religion', 'دين'], ['educational', 'تعليمي']];
-surface('webfilter', {
-  t: id => 'تصفية الويب — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:28,29,30,31', st: 'un',
-  note: 'الفئات الثلاثون بمعرّفاتها من المواصفة. UNKNOWN: المواصفة تسمّي من الافتراضيات المحظورة خمساً فقط («…كما في Qustodio»)، فتُعرض البقية «غير محسوم» لا كقيمة مخترعة. الأعلام الخمسة بافتراضياتها الحرفية. التعديل للمالك حصراً.',
-  r(id) { const own = isOwner(), A = { BLOCK: ['حظر', 'da', 'block'], ALERT: ['تنبيه', 'wa', 'notifications'], ALLOW: ['سماح', 'ok', 'check'] }, ov = S.wov || {}, open = S.wAll;
-    const F = [['isSafeSearch', 'البحث الآمن', 'يفرض البحث الآمن في محركات البحث', true], ['isReportBlockedSites', 'أبلغني بالمواقع المحظورة', 'تنبيه عند محاولة فتح موقع محظور', true], ['isAllowUnknownSites', 'اسمح بالمواقع غير المصنّفة', '', false], ['isSearchAlertsNotificationsEnabled', 'تنبيهات كلمات البحث', '', false], ['isCategoryList', 'وضع قائمة الفئات', '', false]];
-    return `${own ? '' : callout('تعديل التصفية للأب فقط؛ يمكنك الاطلاع.', 'nt', 'lock')}${sec('الأعلام الخمسة')}${list(F.map(([k, t, s, d]) => row('', t, (s ? s + ' · ' : '') + `<span class="mono xs">${k}</span>`, { tg: (S.wf || {})[k] ?? d, ta: own ? 'wfFlag:' + k : 'denied:protection.filter.edit' })))}
-    ${sec(`الفئات (${WCAT.length})`, open ? 'أقل' : 'عرض الكل', 'flip:wAll')}${list(WCAT.slice(0, open ? 30 : 7).map(([k, t, d]) => { const v = ov[k] || d; return `<button class="row noic" data-a="${own ? 'wfCat:' + k : 'denied:protection.filter.edit'}"><span class="tx"><b>${t}</b><span class="mono xs">${k}</span></span>${v ? chip(A[v][0], A[v][1], A[v][2]) : chip('غير محسوم', 'ol', 'help')}</button>`; }))}
-    ${sec('تجاوزات النطاقات')}${list(row('public', '<span class="ltr">khanacademy.org</span>', 'يفوز على إجراء الفئة (الأخص يفوز)', { v: chip('سماح', 'ok', 'check') }), row('add', 'أضف نطاقاً', 'سماح · حظر · تنبيه · تجاهل', { a: own ? 'soonD' : 'denied:protection.filter.edit' }))}`; },
-});
-Object.assign(ACT, {
-  wfFlag(k) { S.wf = S.wf || {}; const d = ['isSafeSearch', 'isReportBlockedSites'].includes(k); S.wf[k] = !(S.wf[k] ?? d); audit('عُدّل علم التصفية ' + k, 'protection.filter.edit'); },
-  wfCat(k) { S.wov = S.wov || {}; const d = (WCAT.find(c => c[0] === k)[2]) || 'ALLOW', cur = S.wov[k] || d, nx = { BLOCK: 'ALERT', ALERT: 'ALLOW', ALLOW: 'BLOCK' }[cur]; S.wov[k] = nx; audit(`فئة ${k}: ${cur} ← ${nx}`, 'protection.filter.edit'); },
-  soonD() { toast('إضافة نطاق: حقل LTR + اختيار الإجراء', null, 'public'); },
-});
-
 /* ============ الموقع ============ */
 surface('map', {
   t: 'موقع العائلة', sys: 'S1-07', p: 'adult', req: '07:1,2,3,6,11,12,13,15 09:10,11 01:10',

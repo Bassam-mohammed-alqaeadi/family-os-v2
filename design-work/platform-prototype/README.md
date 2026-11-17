@@ -54,6 +54,7 @@ assets/js/screens-parent.js   الرئيسية، العائلة والصلاحي
 assets/js/screens-more.js     الإعدادات، الخطة والفوترة، الخصوصية، الأمان، المساعد، الاستغاثة، شاشات النظام
 assets/js/screens-kids.js     المحادثة، واجهات الطفل والطفل الصغير والمراهق، شاشة الحجب
 assets/js/screens-identity.js التهيئة والدخول، إضافة الأفراد، الإقران
+assets/js/screens-protection.js الحماية والفرض (S1-10): محرك القرار، القواعد، الحصة، الجدول، الترتيب، الأوضاع، العبث، الويب
 assets/js/studio.js           كل ما حول الهاتف: الشخصيات، الرحلات، الحالات، التغطية
 assets/js/req-data.js         ⟵ مولَّد. لا يُحرَّر يدوياً
 assets/js/icons.js            ⟵ مولَّد. لا يُحرَّر يدوياً
@@ -61,6 +62,7 @@ tools/build-req-data.py       يقرأ §3 من الـ SPEC العشرة وقو�
 tools/build-icons.mjs         يمسح المصدر ويضمّن الأيقونات المستعملة فقط
 tools/test-s1-02.cjs          يمشي في مسارات S1-02 في متصفح آلي (يحتاج puppeteer-core و@sparticuz/chromium)
 tools/test-s1-03.cjs          يمشي في مسارات S1-03 (الأدوار والصلاحيات) بالطريقة نفسها
+tools/test-s1-10.cjs          يمشي في مسارات S1-10 (الحماية والفرض) بالطريقة نفسها
 ```
 
 كل شاشة تُسجَّل بـ `surface(id, { t, sys, req, st, note, r() })`. الحقل `req` (مثل `'09:1,2 01:4'`) هو مصدر
