@@ -26,6 +26,8 @@ const M = {
   yusuf: { id: 'yusuf', n: 'يوسف', en: 'Yusuf', rel: 'طفل · 5 سنوات', role: 'child', by: 2021, mini: 1, c: '#1F6B3B', i: 'face_2' },
 };
 const KIDS = ['khaled', 'layan', 'yusuf'];
+/* عناوين توضيحية كما تعيدها الخريطة (الحي والشارع). لا أماكن تسمّيها العائلة في المرحلة 1 (Q-056). */
+const AD_HOME = 'حدة · قرب شارع الخمسين', AD_SCHOOL = 'الصافية · شارع الزبيري', AD_ROAD = 'الصافية · شارع تعز';
 const PERSONA = {
   guest: { n: 'جهاز جديد', d: 'قبل الدخول: التهيئة والإقران', i: 'mobile', c: '#494536', mode: 'parent' },
   owner: { m: 'ahmad', n: 'أحمد — الأب', d: 'المالك · كل الصلاحيات', mode: 'parent' },
@@ -48,9 +50,9 @@ const fresh = () => ({
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
   invs: [{ c: 'MNSR-7K2P', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
   kid: {
-    khaled: { quota: 180, used: 75, pts: 0, streak: 0, bat: 64, place: 'المدرسة', ago: 4, moving: false, online: true, enf: 'degraded', x: 68, y: 30, extra: 0, spent: 0 },
-    layan: { quota: 120, used: 96, pts: 85, streak: 5, bat: 41, place: 'البيت', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },
-    yusuf: { quota: 60, used: 20, pts: 30, streak: 2, bat: 88, place: 'البيت', ago: 2, moving: false, online: true, enf: 'active', x: 40, y: 62, extra: 0, spent: 0 },
+    khaled: { quota: 180, used: 75, pts: 0, streak: 0, bat: 64, place: AD_SCHOOL, area: 'الصافية', ago: 4, moving: false, online: true, enf: 'degraded', x: 68, y: 30, extra: 0, spent: 0 },
+    layan: { quota: 120, used: 96, pts: 85, streak: 5, bat: 41, place: AD_HOME, area: 'حدة', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },
+    yusuf: { quota: 60, used: 20, pts: 30, streak: 2, bat: 88, place: AD_HOME, area: 'حدة', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },
   },
   apps: {
     layan: [
@@ -101,7 +103,7 @@ const fresh = () => ({
     { id: 'a3', k: 'perm', kid: null, t: 'طلب مرفوض: سارة ← «قراءة محادثات الأطفال»', s: 'صلاحية حساسة لم تكن عندها حينها', who: 'سارة', ago: 'أمس 7:15 م', p: 3, open: 0 },
     { id: 'a4', k: 'sos', kid: 'khaled', t: 'استغاثة من خالد · حُلّت', s: 'كان في طريق العودة من المدرسة · اتصلتَ به وانتهت', ago: '9 نوفمبر 1:20 م', late: 'وصلت إلى هاتفك 1:26 م برسالة نصية لأن هاتفه كان بلا إنترنت', p: 0, open: 0 },
   ],
-  outbox: [], sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: 'طريق المدرسة', by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms' }], ec: [], sms: { used: 14 }, aiUse: 212,
+  outbox: [], mapF: '', mapZ: 1, mapX: false, locLoad: false, myLocOff: false, locShare: { khaled: [], layan: [], yusuf: [] }, sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: AD_ROAD, by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms' }], ec: [], sms: { used: 14 }, aiUse: 212,
   audit: [
     { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply', who: 'sara', act: 'role', sc: 'all', un: '', d: 1, sn: 'صار دوركِ «شريك»', rd: 1 },
     { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit', who: 'layan', act: 'other', d: 1 },

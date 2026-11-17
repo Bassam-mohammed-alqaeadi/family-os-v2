@@ -17,28 +17,54 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const rows=()=>ph.querySelectorAll('#scr .list .row').length;const typeGs=v=>{const e=q('[data-gs]');e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))};
  const pins=()=>ph.querySelectorAll('#scr .map .pin').length;const SOS=x=>Object.assign({from:'layan',st:'sent',ch:'server',via:'عبر الإنترنت',place:'البيت'},x||{});
  const kidSos=p=>{setPersona(p||'child');ACT.sosStart();ACT.sosSend();render()};const tU=()=>document.querySelector('#toast [data-a="undo"]');
- const LOCS=['map','loc','history','emergency','ec-add','sos-count','sos-sent','sos-status','sos-resolve','sos-log'];
+ const LOCS=['map','loc','history','emergency','ec-add','sos-count','sos-sent','sos-status','sos-resolve','sos-log','loc-share'];
  // 1 البذرة
- S=fresh();ok('seed: ten S1-07 surfaces',LOCS.every(k=>SC[k]&&SC[k].sys==='S1-07'),LOCS.filter(k=>!SC[k]));
+ S=fresh();ok('seed: eleven S1-07 surfaces',LOCS.every(k=>SC[k]&&SC[k].sys==='S1-07'),LOCS.filter(k=>!SC[k]));
  ok('seed: thresholds are the approved lab values',LOC_FRESH===15&&LOC_POOR===50&&BAT_LOW===15);
  ok('seed: no emergency contacts, no SOS, one past SOS',S.ec.length===0&&S.sos===null&&S.sosLog.length===1);
  // 2 الخريطة
- open('map');ok('two children at home: pins kept apart so both labels read',(()=>{const P=[...ph.querySelectorAll('#scr .map .pin')].map(e=>[parseFloat(e.style.left),parseFloat(e.style.top)]);return P.length===3&&P.every((a,i)=>P.every((b,j)=>i===j||Math.abs(a[0]-b[0])>=14||Math.abs(a[1]-b[1])>=12))})());
- ok('map: three pins labelled with battery, three rows',pins()===3&&has(/خالد · 64%/)&&has(/ليان · 41%/)&&!!q('#scr [data-a="go:loc:khaled"]'));
- ok('map: all live by default, nothing marked old',!q('#scr .pin.old')&&!has(/آخر موقع معروف/));
- S.locK='old';render();ok('stale location is marked and never shown as live',ph.querySelectorAll('#scr .pin.old').length===1&&has(/خالد: يُعرض آخر موقع معروف/)&&has(/آخر موقع معروف · قبل 25 د/));
+ const PIN=()=>[...ph.querySelectorAll('#scr .map .pin')];
+ open('map');ok('map fills the screen: title, chips, map, bottom panel',q('.bar h2').textContent==='خريطة العائلة'&&!!q('#scr .mapscr .map.fill')&&!!q('#scr .mpanel')&&q('#scr .map.fill').offsetHeight>=300,q('#scr .map.fill')&&q('#scr .map.fill').offsetHeight);
+ ok('member switcher: «all» plus one chip per child',ph.querySelectorAll('#scr .mfch button').length===4&&q('#scr .mfch [data-a="mapFit"]').getAttribute('aria-pressed')==='true');
+ ok('two children in one place: one marker with a count',PIN().length===2&&q('#scr .pin.clu .cn').textContent==='2'&&/ليان ويوسف/.test(q('#scr .pin.clu').textContent));
+ ok('live marker carries name, battery and age',/خالد · 64% · قبل 4 د/.test(q('#scr .pin:not(.clu)').textContent));
+ ok('touch target of a marker is at least 48',PIN().every(e=>e.offsetWidth>=48&&e.offsetHeight>=48),PIN().map(e=>e.offsetWidth+'x'+e.offsetHeight).join());
+ ok('own position: «you» dot, and distance on each row',!!q('#scr .map .medot')&&has(/يبعد نحو 2\.1 كم/)&&has(/يبعد نحو 2\.3 كم/));
+ ok('addresses come from the map: no family-named places',has(/الصافية · شارع الزبيري/)&&has(/حدة · قرب شارع الخمسين/)&&!has(/المدرسة/)&&!has(/البيت ·/));
+ ok('map: all live by default, nothing marked old',!q('#scr .pin.old')&&!has(/آخر موقع معروف/)&&!q('#scr .mstrip'));
+ ok('map controls: zoom in, zoom out, show all',!!q('#scr .mctl [data-a="mapZ:1"]')&&q('#scr .mctl [data-a="mapZ:-1"]').disabled&&!!q('#scr .mctl [data-a="mapFit"]'));
+ ok('one entry each for sharing, contacts and SOS log',!!q('#scr [data-a="go:loc-share"]')&&ph.querySelectorAll('[data-a="go:emergency"]').length===1&&!!q('#scr [data-a="go:sos-log"]'));
+ q('#scr .mfch [data-a="mapF:khaled"]').click();ok('chip filters the map to one child: his marker only, zoomed, his card',PIN().length===1&&S.mapZ===1.6&&/scale\(1\.6\)/.test(q('#scr svg.m').getAttribute('style')||'')&&!!q('#scr .mhead')&&!!q('#scr [data-a="locCall:khaled"]')&&!!q('#scr [data-a="go:loc:khaled"]')&&has(/موقع حي · قبل 4 د/));
+ q('#scr [data-a="locDir:khaled"]').click();ok('directions: hands over to the phone maps app',/تطبيق الخرائط/.test(document.querySelector('#toast').textContent));
+ q('#scr .mctl [data-a="mapZ:1"]').click();ok('zoom in to the limit, then the button locks',S.mapZ===2.4&&q('#scr .mctl [data-a="mapZ:1"]').disabled);
+ q('#scr .mhead [data-a="mapFit"]').click();ok('close returns everyone',PIN().length===2&&S.mapZ===1&&!q('#scr .mhead'));
+ q('#scr .pin.clu').click();ok('tapping the group lists who is there',has(/في المكان نفسه/)&&rows()===2&&PIN().length===1);
+ ACT.mapFit();render();q('#scr .pin:not(.clu)').click();ok('tapping a marker focuses, does not leave the map',top()==='map'&&S.mapF==='khaled');
+ ACT.mapFit();render();q('#scr .mgrab').click();ok('panel grows on demand and map controls step aside',!!q('#scr .mpanel.x')&&!q('#scr .mctl'));q('#scr .mgrab').click();
+ S.locK='old';render();ok('stale location is marked with its reason, never shown as live',ph.querySelectorAll('#scr .pin.old').length===1&&has(/خالد: يُعرض آخر موقع معروف/)&&has(/آخر موقع معروف قبل 25 د · جهازه بلا اتصال الآن/)&&/قبل 25 د/.test(q('#scr .pin.old').textContent));
  ok('threshold: 15 minutes is live, 16 is not',(()=>{S.locK='';S.kid.khaled.ago=15;const a=locOf('khaled').live;S.kid.khaled.ago=16;const b=locOf('khaled').live;S.kid.khaled.ago=4;return a&&!b})());
+ S.locK='mov';render();ok('moving: badge on the marker and the word in the row',!!q('#scr .pin.mv .mvb')&&has(/يتحرك · قبل 1 د/));
  S.locK='poor';render();ok('poor accuracy: a circle, not a false point',!!q('#scr .map .unc'));
- S.locK='none';render();ok('no reading yet: no pin, says so',pins()===2&&has(/لا موقع معروف بعد/));
- S=fresh();S.net='off';open('map');ok('offline: banner, every location is last-known',has(/أنت دون اتصال/)&&ph.querySelectorAll('#scr .pin.old').length===3);
- S=fresh();S.os='ios';open('map');ok('iOS: honest limit, ages shown',has(/iPhone/)&&ph.querySelectorAll('#scr .pin.old').length===3);
- S=fresh();S.tilesFail=true;open('map');ok('map failed to load: card with retry, list still works',has(/تعذّر تحميل الخريطة/)&&!q('#scr .map')&&rows()>=3);q('[data-a="set:tilesFail:false"]').click();ok('…retry brings it back',!!q('#scr .map'));
- S=fresh();S.privacy=true;open('map');ok('privacy mode: no map, no place names',!q('#scr .map')&&!has(/المدرسة/));
- S=fresh();S.sos=SOS();open('map');ok('map during SOS: banner and marked pin',!!q('#scr [data-a="go:sos-status"]')&&!!q('#scr .pin.sosp'));
+ S.locK='none';render();ok('no reading yet: no pin, says so',PIN().length===1&&has(/لا موقع معروف بعد/));
+ S=fresh();S.locLoad=true;open('map');ok('loading: placeholders, no names or places yet',q('#scr .mapscr').getAttribute('aria-busy')==='true'&&ph.querySelectorAll('#scr .pin.sk').length===2&&has(/جارٍ جلب المواقع/)&&!/خالد|حدة/.test(q('#scr').innerText));
+ S=fresh();S.myLocOff=true;open('map');ok('my own location off: no dot, no distances, said',!q('#scr .medot')&&!has(/يبعد/)&&has(/تحديد الموقع متوقف في هاتفك/));
+ S=fresh();S.net='off';open('map');ok('offline: strip, every location is last-known',has(/أنت دون اتصال: تُعرض آخر المواقع المعروفة/)&&ph.querySelectorAll('#scr .pin.old').length===2&&ph.querySelectorAll('#scr .pin').length===2);
+ S=fresh();S.os='ios';open('map');ok('iOS: honest limit, ages shown',has(/iPhone/)&&ph.querySelectorAll('#scr .pin.old').length===2);
+ S=fresh();S.tilesFail=true;open('map');ok('map failed to load: card with retry, list still works',has(/تعذّر تحميل الخريطة/)&&!q('#scr .map')&&rows()>=3&&!!q('#scr .mpanel.nomap'));q('[data-a="set:tilesFail:false"]').click();ok('…retry brings it back',!!q('#scr .map'));
+ S=fresh();S.privacy=true;open('map');ok('privacy mode: no map, no addresses, no distances, no name chips',!q('#scr .map')&&!has(/الصافية/)&&!has(/حدة/)&&!has(/يبعد/)&&!q('#scr .mfch'));
+ S=fresh();S.sos=SOS();open('map');ok('map during SOS: strip and marked pin',!!q('#scr .mstrip[data-a="go:sos-status"]')&&!!q('#scr .pin.sosp'));
  S=fresh();setPersona('delegate');setRole('partner');delete S.g['location.view'];open('map');ok('adult without the grant: honest state, no map',has(/لا مواقع مرئية/)&&!q('#scr .map'));
- S=fresh();setPersona('delegate');setRole('partner');S.g['location.view'].sc=['layan'];open('map');ok('adult scoped to one child sees one pin',pins()===1&&has(/من سُمح لكِ/));
+ S=fresh();setPersona('delegate');setRole('partner');S.g['location.view'].sc=['layan'];open('map');ok('adult scoped to one child sees one pin, no switcher, no sharing row',PIN().length===1&&has(/من سُمح لكِ/)&&!q('#scr .mfch')&&!q('#scr [data-a="go:loc-share"]'));
  open('loc','khaled');ok('…and cannot open another child',has(/غير مسموح لكِ/)&&!q('#scr .map'));
- tab('home');render();ok('…home widget shows only that child',has(/ليان: البيت/)&&!has(/خالد: المدرسة/));
+ tab('home');render();ok('…home widget shows only that child',has(/ليان: حدة/)&&!has(/خالد: الصافية/));
+ // 2-ب ما يراه الأبناء من مواقع إخوتهم
+ S=fresh();open('loc-share');ok('sharing: by default nobody sees a sibling',ph.querySelectorAll('#scr .tg').length===6&&ph.querySelectorAll('#scr .tg[aria-checked="true"]').length===0);
+ q('#scr [data-a="shareT:khaled:layan"]').click();ok('father shows one sibling to one child, one direction only',S.locShare.khaled.join()==='layan'&&S.locShare.layan.length===0&&ph.querySelectorAll('#scr .tg[aria-checked="true"]').length===1);
+ S.net='off';render();q('#scr [data-a="shareT:layan:khaled"]').click();ok('sharing change refused offline',S.locShare.layan.length===0&&/يحتاج اتصالاً/.test(document.querySelector('#toast').textContent));S.net='on';document.querySelector('#toast').innerHTML='';
+ setPersona('teen',1);open('map');ok('teen now sees himself and that sibling only, markers do not open details',PIN().length===2&&/ليان/.test(q('#scr .map').textContent)&&!/يوسف/.test(q('#scr').innerText)&&has(/من أراه من إخوتي/)&&!q('#scr .map .pin[data-a]'));
+ ok('…sibling shown without battery',!/41%/.test(q('#scr').innerText));
+ setPersona('child',1);open('map');ok('the shown child is told who sees her, and sees no one herself',has(/يرى مكانك لأن بابا سمح/)&&PIN().length===1&&has(/لا ترى مكان إخوتك/));
+ setPersona('delegate',1);setRole('partner');open('loc-share');ok('only the family owner decides sharing',has(/هذا القرار لصاحب العائلة/)&&!q('#scr .tg'));
  // 3 موقع فرد
  S=fresh();open('loc','khaled');ok('member: live chip, accuracy, battery, actions',has(/موقع حي/)&&has(/بحدود 12 متراً/)&&!!q('[data-a="locMsg:khaled"]')&&!!q('[data-a="locCall:khaled"]')&&!!q('[data-a="go:history:khaled"]'));
  S.locK='old';render();ok('member stale: "not live", age and reason',has(/ليس موقعاً حياً/)&&has(/آخر موقع معروف قبل 25 د/)&&has(/جهازه بلا اتصال/));
@@ -109,16 +135,16 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S.sosLog=[];render();ok('log empty: positive wording',has(/كل شيء على ما يرام/));
  // 9 الطفل والمراهق
  S=fresh();setPersona('teen');open('map');ok('teen: own location only, told who sees it and that it cannot be turned off',pins()===1&&has(/أنت هنا/)&&has(/يرى مكانك الدقيق دائماً/)&&has(/لا تُطفأ/)&&!/ليان/.test(q('#scr').innerText));
- open('loc','layan');ok('teen cannot open a sibling',has(/ترى موقعك أنت فقط/));
+ open('loc','layan');ok('teen cannot open a sibling detail page',has(/هذه التفاصيل للأهل/)&&!q('#scr .map'));
  for(const id of ['history','emergency','sos-status','sos-log']){open(id);ok('parent screen closed to the teen: '+id,has(/هذه الصفحة للأهل/))}
  S=fresh();setPersona('teen');open('t-me');ok('teen profile links to my location',!!q('#scr [data-a="go:map"]'));S=fresh();setPersona('child');open('c-me');ok('child profile links to it',!!q('#scr [data-a="go:map"]'));
  S=fresh();setPersona('child');open('map');ok('child: simple words, no numbers',has(/بابا/)&&has(/ليطمئن عليك/)&&!has(/متراً/));
  S.gpsOff=true;render();ok('location off on the child device: says so, SOS still works',has(/تحديد الموقع متوقف/)&&has(/زر الاستغاثة يعمل/));
  S=fresh();S.g['location.view'].sc=['khaled'];setPersona('child');open('map');ok('child is told truthfully whether mum sees her',!has(/ترى مكانك أيضاً/));
  // 10 الربط بمركز الأوامر
- S=fresh();tab('home');render();ok('home widget: chips with battery, no age while live',has(/خالد: المدرسة · 64%/)&&!has(/خالد: المدرسة · 64% · قبل/));
- S.locK='old';render();ok('home widget: stale child carries his age',has(/خالد: المدرسة · 64% · قبل 25 د/));
- S.locK='low';render();ok('home widget: battery flagged below 15%',has(/خالد: المدرسة · 12%/)&&!!q('#scr .chips .chip.da'));
+ S=fresh();tab('home');render();ok('home widget: chips with battery, no age while live',has(/خالد: الصافية · 64%/)&&!has(/خالد: الصافية · 64% · قبل/));
+ S.locK='old';render();ok('home widget: stale child carries his age',has(/خالد: الصافية · 64% · قبل 25 د/));
+ S.locK='low';render();ok('home widget: battery flagged below 15%',has(/خالد: الصافية · 12%/)&&!!q('#scr .chips .chip.da'));
  S=fresh();open('member','khaled');ok('member page links to his location',!!q('#scr [data-a="go:loc:khaled"]'));
  S=fresh();tab('more');render();typeGs('استغاثة');ok('search finds SOS alerts and contacts',!!q('[data-a="go:sos-log"]')&&!!q('[data-a="go:emergency"]'));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}

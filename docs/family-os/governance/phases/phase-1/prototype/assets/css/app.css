@@ -386,7 +386,7 @@ button.chip{min-height:28px}
 .map{position:relative;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:#E8ECE2;direction:ltr}
 .phone[data-theme="dark"] .map{background:#101B2E}
 .map svg.m{display:block;width:100%;height:100%}
-.map .pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;direction:rtl}
+.map .pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;direction:rtl;min-width:var(--touch);min-height:var(--touch)}
 .map .pin .av{width:36px;height:36px;border:3px solid #fff;box-shadow:0 3px 8px #0005}
 .map .pin::after{content:"";width:8px;height:8px;background:#fff;transform:rotate(45deg);margin-top:-5px;box-shadow:2px 2px 3px #0003}
 .map .pin.old .av{filter:grayscale(.8);opacity:.75;border-style:dashed}
@@ -398,6 +398,44 @@ button.chip{min-height:28px}
 .lead.hn{font-weight:700;font-size:14px;background:var(--primary-soft);color:var(--primary)}
 .lead.hn.on{background:var(--accent);color:#fff}
 .btn.dis{opacity:.55}
+/* خريطة العائلة ملء الشاشة (LO-01): شرائح الأسماء، الخريطة، ثم لوحة سفلية */
+.mpad{padding:4px 16px 24px}
+.mapscr{height:100%;display:flex;flex-direction:column;min-height:0}
+.fch.mfch{margin:0;padding:6px 16px 8px;flex:none}
+.fch.mfch button svg.ic{width:18px;height:18px}
+.map.fill{flex:1;min-height:170px;border-radius:0;border-width:1px 0 0}
+.map.fill .attr{bottom:24px}
+.mapx{padding:8px 16px 0;flex:none}
+.mstrip{display:flex;gap:8px;align-items:center;padding:7px 16px;font-size:calc(13px*var(--ts));line-height:1.5;text-align:start;width:100%;flex:none;color:var(--text)}
+.mstrip svg.ic{width:18px;height:18px;flex:none}
+.mstrip.wa{background:var(--warning-soft)}.mstrip.wa svg.ic{color:var(--warning)}
+.mstrip.nt{background:var(--subtle)}
+.mstrip.da{background:var(--danger);color:#fff}
+.mpanel{flex:none;max-height:50%;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;margin-top:-18px;position:relative;z-index:5;padding:0 14px 18px;box-shadow:0 -6px 18px #0002;scrollbar-width:none}
+.mpanel::-webkit-scrollbar{display:none}
+.mpanel.x{max-height:82%}
+.mpanel.nomap{flex:1;min-height:0;max-height:none;margin-top:8px;box-shadow:none}
+.mgrab{display:block;width:100%;height:26px;position:sticky;top:0;background:var(--bg);z-index:2;border-radius:22px 22px 0 0}
+.mgrab i{display:block;width:40px;height:4px;border-radius:9px;background:var(--border-strong);opacity:.6;margin:auto}
+.mhead{display:flex;gap:12px;align-items:center}
+.mhead b{font-size:calc(18px*var(--ts))}
+.btns3{display:flex;gap:8px;margin-bottom:10px}.btns3 .btn{flex:1;padding-inline:6px}
+.map svg.m{transition:transform var(--mid) var(--ease)}
+.map .pin .pa{position:relative;display:flex}
+.map .pin.clu .pa .av+.av{margin-inline-start:-16px}
+.map .pin .cn{position:absolute;top:-7px;inset-inline-end:-9px;min-width:22px;height:22px;padding:0 4px;border-radius:99px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid #fff}
+.map .pin .mvb{position:absolute;bottom:-3px;inset-inline-start:-9px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;display:grid;place-items:center;border:2px solid #fff}
+.map .pin .mvb svg.ic{width:13px;height:13px}
+.map .pin.mv .av{animation:mvp 1.6s ease-out infinite}
+@keyframes mvp{0%{box-shadow:0 0 0 0 #1F6B3B77,0 3px 8px #0005}100%{box-shadow:0 0 0 14px #1F6B3B00,0 3px 8px #0005}}
+.phone[data-motion="off"] .map .pin.mv .av{animation:none;box-shadow:0 0 0 5px #1F6B3B40,0 3px 8px #0005}
+.map .pin.on .av{border-color:var(--accent)}
+.map .pin.sk{width:36px;height:36px;min-width:0;min-height:0;border-radius:50%;border:3px solid #fff;background:var(--sunken);animation:sk 1.3s linear infinite;opacity:.8}
+.map .medot{position:absolute;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--info);border:3px solid #fff;box-shadow:0 0 0 7px #2457A62e,0 1px 4px #0005;z-index:1}
+.map .medot label{position:absolute;top:19px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;background:var(--surface);color:var(--text);padding:0 7px;border-radius:8px;white-space:nowrap;direction:rtl;box-shadow:0 1px 4px #0003}
+.map .mctl{position:absolute;left:8px;bottom:48px;display:flex;flex-direction:column;gap:6px;z-index:4}
+.map .mctl button{width:var(--touch);height:var(--touch);border-radius:14px;background:var(--surface);color:var(--text);box-shadow:0 2px 6px #0003;display:grid;place-items:center}
+.map .mctl button[disabled]{opacity:.4}
 .map .attr{position:absolute;bottom:4px;left:6px;font-size:9.5px;color:#494536;background:#ffffffc9;padding:1px 6px;border-radius:5px}
 
 /* ---------- المحادثة ---------- */

@@ -76,7 +76,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('observer home: suggestion card has no action buttons',!q('#scr [data-a="aiApply"]')&&!q('#scr [data-a="aiDismiss"]'));
  tab('control');render();ok('observer has no control tab at all',top()!=='control'&&!can('hub.settings.view'));
  S=fresh();setPersona('delegate');setRole('guardian');tab('control');render();ok('control keeps locks with a reason and a request path',top()==='control'&&!!q('#scr [data-a^="denied:"]')&&!!q('#scr .dis'));q('#scr [data-a^="denied:"]').click();ok('…tapping a lock explains it',!!S.sheet&&S.sheet.id==='why',S.sheet&&S.sheet.id);
- S=fresh();tab('home');render();ok('owner home unchanged: all tiles + battery beside place',!!q('[data-a="go:presets:free"]')&&!!q('[data-a="go:task-new"]')&&!!q('[data-a="go:add-member"]')&&has(/خالد: المدرسة · 64%/)&&!q('#scr [data-a="go:my-perms"]'));
+ S=fresh();tab('home');render();ok('owner home unchanged: all tiles + battery beside place',!!q('[data-a="go:presets:free"]')&&!!q('[data-a="go:task-new"]')&&!!q('[data-a="go:add-member"]')&&has(/خالد: الصافية · 64%/)&&!q('#scr [data-a="go:my-perms"]'));
  // 7 مركز الإعدادات والبحث
  S=fresh();tab('more');render();ok('settings: nine fixed sections',['العائلة','الأعضاء','الخدمات','القوالب','الموافقات والاستثناءات','القواعد','التدقيق','الخصوصية والبيانات','الخطة والفوترة'].every(t=>[...ph.querySelectorAll('#scr .row .tx b')].some(b=>b.textContent.trim()===t)));
  ok('settings: badges where attention is needed',has(/بلغت حدّ الأفراد/)&&has(new RegExp(attention().length+' بانتظار قرار')));
