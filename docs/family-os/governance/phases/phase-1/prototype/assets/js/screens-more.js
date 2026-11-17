@@ -6,13 +6,14 @@ const PLAN = {
   premium: { n: 'المميزة', mem: Infinity, sms: 100, ai: 3000, sar: 19.99, sarY: 179.99, yer: 600 },
 };
 surface('more', {
-  t: 'المزيد', sys: 'S1-09', p: 'adult', req: '09:5,12,13,15 01:11,21',
-  note: 'الإعدادات في تسعة أقسام ثابتة (settings-patterns.md). كل صف يظهر فقط لمن يملك مفتاحه، وما للمالك حصراً يظهر مقفلاً مع سببه.',
+  t: 'المزيد', sys: 'S1-09', p: 'adult', req: '09:4,5,12,13,15 01:11,21',
+  note: 'مركز الإعدادات: بحث شامل في الأعلى يفتح الإعداد المقصود ويبرزه (يفهم المرادفات: «السهر» ← نافذة النوم، «كلمة السر» ← الأمان)، ثم الأقسام التسعة الثابتة، ثم «حسابي وهذا الجهاز». القسم الذي يحتاج انتباهاً يحمل شارة. كل صف يظهر فقط لمن يملك مفتاحه، وما للمالك حصراً يظهر مقفلاً مع سببه.',
   r() { const m = me(), own = isOwner(), lock = (k, a) => (own || can(k) ? a : 'denied:' + k);
-    return `<button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
-    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
-    ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', `${attention().length} بانتظار قرار`, { a: 'go:alerts' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: own ? '' : chip('عرض فقط', 'ol') }))}
-    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'البصمة · أجهزتي · إن فقدت الهاتف', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button>`; },
+    const full = S.plan !== 'premium' && Object.keys(M).length >= PLAN[S.plan].mem;
+    return `<label class="fld gs" style="margin-bottom:10px"><input type="search" data-gs placeholder="ابحث في الإعدادات" autocomplete="off" aria-label="ابحث في الإعدادات"></label><div id="gsOut" hidden></div><div id="gsBody"><button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
+    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), row('widgets', 'الخدمات', SVC.some(x => !svcOn(x.id)) ? `${SVC.filter(x => !svcOn(x.id)).length} مخفية` : 'ما يظهر في التحكم والرئيسية', { a: 'go:registry' }), row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
+    ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', attention().length ? `${attention().length} بانتظار قرار` : 'لا شيء ينتظر قرارك', { a: 'go:alerts', v: attention().length ? chip(String(attention().length), 'in') : '' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: !own ? chip('عرض فقط', 'ol') : full ? chip('بلغت حدّ الأفراد', 'wa') : '' }))}
+    ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'البصمة · أجهزتي · إن فقدت الهاتف', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button></div>`; },
 });
 surface('account', {
   t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,25,26',
@@ -45,14 +46,12 @@ surface('templates', {
 });
 ACT.jumpP = p => { setPersona(p); };
 surface('registry', {
-  t: 'الخدمات', sys: 'S1-09', p: 'adult', req: '09:5,8,9,15',
-  note: 'الأنظمة التي تظهر في «التحكم» و«الرئيسية». الواجهة تُبنى من السجل المركزي لا من قوائم ثابتة. تفاصيل السجلات والأعلام التقنية في «عن التطبيق ← معلومات تشخيصية».',
-  r() { const sv = [['S1-10', 'الحماية والفرض', 15, 4], ['S1-07', 'الموقع والاستغاثة', 6, 3], ['S1-06', 'المهام والتقويم', 9, 3], ['S1-05', 'المكافآت', 12, 3], ['S1-08', 'المحادثة', 8, 2], ['S1-04', 'الخطط', 5, 1]], off = S.svcOff || {};
-    return `
-    ${sec('الأنظمة المسجَّلة')}${list(sv.map(([id, n, k, w]) => row('', n, `${k} مفتاحاً · ${w} ودجات · <span class="mono">${id}</span>`, { tg: !off[id], ta: isOwner() ? 'svcT:' + id : 'denied:shell.config.edit' })))}
-    ${callout('إيقاف نظام يخفي ودجاته وأسطح تحكمه من المركز فوراً، دون حذف بياناته.', 'nt', 'visibility_off')}`; },
+  t: 'الخدمات', sys: 'S1-09', p: 'adult', req: '09:5,14,15',
+  note: 'قائمة الخدمات كما يراها الأب: اسم ووصف وحالة صادقة. الأعداد التقنية (مفاتيح، ودجات، رموز الأنظمة) مخفية. كل صف يفتح صفحة الخدمة. الخدمة المخفية تبقى هنا لتُعاد، وتنبيهاتها السابقة باقية في «كل التنبيهات».',
+  r() { return `${list(SVC.map(x => row(x.i, x.n, x.d, { a: 'go:svc:' + x.id, v: svcState(x) })))}
+    ${callout('إخفاء خدمة يزيل بطاقاتها من الرئيسية ومن «التحكم» فوراً. لا يحذف بياناتها ولا يوقف قواعدها.', 'nt', 'visibility_off')}
+    ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة فقط؛ الأسماء لم تُحسم بعد.</div></div>`; },
 });
-ACT.svcT = id => { S.svcOff = S.svcOff || {}; S.svcOff[id] = !S.svcOff[id]; toast(S.svcOff[id] ? 'أُخفيت أسطح النظام من المركز' : 'عادت أسطح النظام'); };
 
 /* ---------- الخطة والفوترة ---------- */
 surface('plan', {
@@ -217,15 +216,15 @@ Object.assign(ACT, {
 const AIK = [['agent.summary.read', 'يلخّص ويقرأ', 'بلا موافقة'], ['agent.plan.create', 'يقترح خطة', 'موافقتك'], ['agent.task.verify', 'يتحقق من المهام', 'يحيل ما لا يجزم به'], ['agent.message.send', 'يرسل رسالة', 'موافقتك'], ['agent.rule.change', 'يغيّر قاعدة', 'موافقتك + الرقم السري'], ['agent.payment.execute', 'ينفّذ دفعاً', 'موافقتك + الرقم السري'], ['agent.data.delete', 'يحذف بيانات', 'موافقتك + الرقم السري']];
 surface('ai', {
   t: 'المساعد الذكي', sys: 'S1-09', p: 'adult', req: '09:18 01:14 04:16 05:17,18 06:7,17',
-  note: 'الذكاء مضمَّن في كل خدمة لا تبويباً منفصلاً. الأب يضبط الاستقلالية (الافتراضي «يقترح فقط»). ترتيب الفحص: مفتاح الإيقاف ← مفتاح القدرة + بوابة الموافقة ← الميزانية. كل فعل مسجَّل وقابل للتراجع.',
+  note: 'الذكاء مضمَّن في كل خدمة لا تبويباً منفصلاً. الأب يضبط الاستقلالية (الافتراضي «يقترح فقط»). ترتيب الفحص: مفتاح الإيقاف ← مفتاح القدرة + بوابة الموافقة ← الميزانية. السجل يُصفّى بالطفل، وكل صف يفتح تفصيله (إذنه، دليله، نتيجته، التراجع عنه). البالغ المفوَّض يرى ما يخص صلاحياته فقط. أسماء القدرات التقنية مخفية.',
   r() { const own = isOwner(), q = PLAN[S.plan].ai;
     return `<div class="card"><div class="fx sb"><div class="fx">${ic('power_settings_new')}<div><b>مفتاح الإيقاف</b><div class="sm muted">يوقف كل أفعال المساعد فوراً</div></div></div>${tg(!S.aiKill, own ? 'flip:aiKill' : 'denied:agent.rule.change', 'تشغيل المساعد')}</div></div>
     ${S.aiKill ? callout('المساعد متوقف. لا اقتراحات ولا تحقق آلي من المهام؛ كل تسليم يأتيك مباشرة.', 'wa', 'power_settings_new') : `${sec('مستوى الاستقلالية')}${seg([['suggest', 'يقترح فقط'], ['ask', 'ينفّذ بموافقة'], ['auto', 'ينفّذ البسيط']], S.aiLevel, own ? 'set:aiLevel' : 'denied:agent.rule.change')}<p class="xs muted" style="margin:-4px 4px 10px">${{ suggest: 'الافتراضي: لا ينفّذ شيئاً. يعرض اقتراحه وأنت تقرر.', ask: 'يجهّز الفعل ثم ينتظر موافقتك عليه.', auto: 'ينفّذ الأفعال منخفضة الخطورة القابلة للتراجع فقط، ويبلغك.' }[S.aiLevel]}</p>
     <div class="card"><div class="fx sb sm"><b>ميزانية هذا الشهر</b><span>${S.aiUse} من ${q}</span></div><div style="margin:8px 0 4px">${pbar(S.aiUse / q * 100)}</div><div class="xs muted">عند نفادها يتوقف المساعد بهدوء وتبقى كل الخدمات تعمل يدوياً.</div></div>
-    ${sec('ما يستطيع فعله')}${list(AIK.map(([k, t, g], i) => row(i < 3 ? 'check_circle' : 'lock', t, `${g} · <span class="mono xs">${k}</span>`, { ic: i < 3 ? 'var(--success)' : 'var(--muted)', v: i < 3 ? chip('ممنوح', 'ok') : chip('غير ممنوح', 'ol') })))}`}
-    ${sec('سجل أفعال المساعد')}<div class="card"><div class="tl">${S.agent.map(g => `<div class="ev ${g.st.includes('نُفّذ') || g.st === 'تمّ' ? 'ok' : g.st === 'رُفض' ? 'da' : 'wa'}"><b>${g.t}</b><span>${g.at} · ${g.gate} · <span class="mono">${g.k}</span></span><span>${chip(g.st, g.st === 'بانتظارك' ? 'wa' : '')} ${g.undo ? `<button class="why" data-a="aiUndo:${g.id}">${ic('undo')}تراجع</button>` : ''}</span></div>`).join('')}</div></div>`; },
+    ${sec('ما يستطيع فعله')}${list(AIK.map(([k, t, g], i) => row(i < 3 ? 'check_circle' : 'lock', t, g, { ic: i < 3 ? 'var(--success)' : 'var(--muted)', v: i < 3 ? chip('ممنوح', 'ok') : chip('غير ممنوح', 'ol') })))}`}
+    ${sec('سجل أفعال المساعد')}${agentLog()}`; },
 });
-ACT.aiUndo = id => { const g = S.agent.find(x => x.id === id); g.undo = 0; g.st = 'تُرُوجع عنه'; audit('تراجع عن فعل المساعد: ' + g.t, g.k); toast('أُعيدت نافذة النوم إلى ما كانت'); };
+ACT.aiUndo = id => { const g = S.agent.find(x => x.id === id); g.undo = 0; g.st = 'تُرُوجع عنه'; audit('تراجع عن فعل المساعد: ' + g.t, g.k); S.sheet = null; toast('أُعيدت نافذة النوم إلى ما كانت'); };
 
 /* ---------- العرض، المنصة، الصندوق الصادر ---------- */
 surface('display', {

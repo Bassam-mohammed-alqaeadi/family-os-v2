@@ -99,6 +99,7 @@ const fresh = () => ({
     { id: 'a1', k: 'tamper', kid: 'khaled', t: 'تعطّلت خدمة الوصول على جهاز خالد', s: 'الحماية تعمل جزئياً · نحاول إعادة التفعيل تلقائياً', ago: 'قبل 12 د', p: 1, open: 1 },
     { id: 'a2', k: 'chat', kid: 'layan', t: 'رسالة تحتاج مراجعتك في محادثة ليان', s: 'رصدها المصنّف الآلي · قد يكون التقدير خاطئاً', ago: 'قبل ساعة', p: 2, open: 1 },
     { id: 'a3', k: 'perm', kid: null, t: 'طلب مرفوض: سارة ← «قراءة محادثات الأطفال»', s: 'صلاحية حساسة لم تكن عندها حينها', who: 'سارة', ago: 'أمس 7:15 م', p: 3, open: 0 },
+    { id: 'a4', k: 'sos', kid: 'khaled', t: 'استغاثة من خالد · حُلّت', s: 'كان في طريق العودة من المدرسة · اتصلتَ به وانتهت', ago: '9 نوفمبر 1:20 م', late: 'وصلت إلى هاتفك 1:26 م برسالة نصية لأن هاتفه كان بلا إنترنت', p: 0, open: 0 },
   ],
   outbox: [], sos: null, sms: { used: 14 }, aiUse: 212,
   audit: [
@@ -109,9 +110,9 @@ const fresh = () => ({
     { t: 'انضمت سارة إلى العائلة بلا صلاحيات', w: 'النظام', at: '1 نوفمبر', k: 'identity.family.join', who: 'sara', act: 'other', d: 14 },
   ],
   agent: [
-    { id: 'g1', t: 'ملخّص يوم الأطفال', k: 'agent.summary.read', gate: 'بلا موافقة (قراءة)', at: 'اليوم 6:00 ص', undo: 0, st: 'تمّ' },
-    { id: 'g2', t: 'تحقّق من صورة مهمة «ترتيب الغرفة»', k: 'agent.task.verify', gate: 'تعذّر الجزم ← أُحيل إليك', at: 'اليوم 3:12 م', undo: 0, st: 'محال' },
-    { id: 'g3', t: 'اقتراح: تقديم نافذة النوم 30 دقيقة ليالي المدرسة', k: 'agent.rule.change', gate: 'يتطلب موافقتك', at: 'اليوم 3:30 م', undo: 0, st: 'بانتظارك' },
+    { id: 'g1', t: 'ملخّص يوم الأطفال', k: 'agent.summary.read', gate: 'بلا موافقة (قراءة)', at: 'اليوم 6:00 ص', undo: 0, st: 'تمّ', kid: 'all', need: 'hub.dashboard.view', ev: 'وقت الشاشة والمهام المنجزة أمس لكل طفل. لم يقرأ أي رسالة.', res: 'ملخّص من ثلاثة أسطر ظهر في الرئيسية.', kt: 'لخّص المساعد يومك لوالدك', kres: 'عرف والدك كم استخدمت الجهاز وما أنجزت من مهام.' },
+    { id: 'g2', t: 'تحقّق من صورة مهمة «ترتيب الغرفة»', k: 'agent.task.verify', gate: 'تعذّر الجزم ← أُحيل إليك', at: 'اليوم 3:12 م', undo: 0, st: 'محال', kid: 'layan', need: 'tasks.approve', ev: 'صورة الإثبات: السرير مرتّب، وجزء من الأرضية خارج الإطار.', res: 'لم يجزم، فبقيت المهمة بانتظار اعتمادك ولم تودَع نقاط.', kt: 'نظر المساعد في صورة مهمتك «ترتيب الغرفة»', kres: 'لم يتأكد من الصورة، فالقرار لوالدك.' },
+    { id: 'g3', t: 'اقتراح: تقديم نافذة النوم 30 دقيقة ليالي المدرسة', k: 'agent.rule.change', gate: 'يتطلب موافقتك', at: 'اليوم 3:30 م', undo: 0, st: 'بانتظارك', kid: 'khaled', need: 'protection.schedule.edit', ev: 'استخدام الهاتف بعد 10:30 م في ثلاث ليالٍ مدرسية هذا الأسبوع. المدة فقط، لا ما فُتح.', res: 'اقتراح ينتظر قرارك. لم يتغيّر شيء.', kt: 'اقترح المساعد على والدك تقديم وقت نومك 30 دقيقة', kres: 'لم يتغيّر شيء. القرار لوالدك.' },
   ],
   chat: {
     majlis: [
@@ -188,9 +189,19 @@ const why = (id, t = 'لماذا؟') => `<button class="why" data-a="why:${id}">
 const seg = (opts, cur, a) => `<div class="seg" role="group">${opts.map(([v, t]) => `<button aria-pressed="${v === cur}" data-a="${a}:${v}">${t}</button>`).join('')}</div>`;
 const pbar = (pct, c = '') => `<div class="pbar ${c}"><i style="width:${Math.min(100, Math.max(0, pct))}%"></i></div>`;
 const coin = () => `<span class="coin">${ic('star-fill')}</span>`;
+/* لون خانة الأيقونة بحسب المجال (color-tokens.md — الألوان الدلالية وألوان العلامة فقط):
+   الحماية والإعدادات كحلي (الافتراضي) · الموقع والأمان أخضر · المهام والتقويم برتقالي العلامة · المكافآت والخطة ذهبي · المحادثة والمساعد أزرق المعلومات · الحذف والمنع أحمر. */
+const TONE = {};
+[['ok', 'location_on map near_me pin_drop my_location verified_user verified check_circle done_all thumb_up family_home child_care handshake'],
+ ['ac', 'task_alt add_task checklist check_box event today event_upcoming calendar_month alarm schedule cake school menu_book'],
+ ['go', 'stars star workspace_premium redeem local_fire_department credit_card confirmation_number inventory_2 sms'],
+ ['in', 'forum chat chat_error mail forward_to_inbox wand_stars smart_toy support_agent contact_support help quiz info translate notifications'],
+ ['da', 'delete_forever delete block person_remove logout link_off key_off location_off mobile_off emergency_home contact_emergency gpp_maybe flag'],
+].forEach(([t, L]) => L.split(' ').forEach(k => { TONE[k] = t; }));
+const toneOf = i => TONE[String(i).replace(/-fill$/, '')] || '';
 function row(i, t, s, o = {}) {
   const tag = o.a ? 'button' : 'div';
-  const lead = o.lead || (i ? `<span class="lead" ${o.ic ? `style="color:${o.ic}"` : ''}>${ic(i)}</span>` : '');
+  const lead = o.lead || (i ? `<span class="lead ${o.ic ? 't-raw' : toneOf(i)}" ${o.ic ? `style="color:${o.ic}"` : ''}>${ic(i)}</span>` : '');
   const end = (o.v ? `<span class="val">${o.v}</span>` : '') + (o.tg !== undefined ? tg(o.tg, o.ta || '', t) : '') + (o.a && o.chev !== false ? `<span class="chev">${ic('chevron_right')}</span>` : '');
   return `<${tag} class="row ${i || o.lead ? '' : 'noic'} ${o.c || ''}" ${o.a ? `data-a="${o.a}"` : ''}>${lead}<span class="tx"><b>${t}</b>${s ? `<span>${s}</span>` : ''}</span>${end}</${tag}>`;
 }

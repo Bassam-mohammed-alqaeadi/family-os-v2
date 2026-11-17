@@ -23,7 +23,7 @@ function attention() {
   if (isOwner() && S.persona === 'owner') soonList().forEach(k => A.push({ p: 2, c: 'var(--warning)', i: 'schedule', t: gDays(S.g[k]) < 0 ? `انتهت صلاحية لسارة: ${PL[k][0]}` : `صلاحية لسارة تنتهي بعد ${dTxt(gDays(S.g[k]))}`, s: gDays(S.g[k]) < 0 ? 'توقفت · جدّدها إن أردت' : PL[k][0], b: [['جدّد', `keyOpen:${k}`, 'ton']] }));
   return A.sort((x, y) => x.p - y.p);
 }
-const attCard = a => `<div class="att" style="--pc:${a.c}"><div class="hd"><span class="lead" style="color:${a.c}">${ic(a.i)}</span><span class="tx"><b>${a.t}</b><span>${a.s}</span></span><span class="pr" title="الأولوية">P${a.p}</span></div><div class="ft">${a.b.map(([t, act, c]) => btn(t, act, 'sm ' + c)).join('')}</div></div>`;
+const attCard = a => `<div class="att" style="--pc:${a.c}"><div class="hd"><span class="lead" style="color:${a.c}">${ic(a.i)}</span><span class="tx"><b>${a.t}</b><span>${a.s}</span></span>${a.p <= 1 ? `<span class="pr ${a.p ? '' : 'p0'}">${a.p ? 'عاجل' : 'طارئ'}</span>` : ''}</div><div class="ft">${a.b.map(([t, act, c]) => btn(t, act, 'sm ' + c)).join('')}</div></div>`;
 
 function kidOrb(id) {
   const m = M[id], k = S.kid[id], pct = left(id) / (k.quota + k.extra), st = S.sos && S.sos.from === id && S.sos.st === 'sent' ? ['sos', '#B42318'] : k.enf !== 'active' ? ['priority_high', '#9A5B00'] : left(id) === 0 ? ['hourglass_empty', '#CF5B2C'] : ['check', '#1F6B3B'];
@@ -48,28 +48,34 @@ surface('home', {
     const tasksToday = S.tasks.filter(t => t.st !== 'CANCELLED'), done = tasksToday.filter(t => t.st === 'APPROVED').length;
     const ck = Object.values(S.checklist), ckDone = ck.filter(Boolean).length;
     const un = S.plan === 'premium';
-    const P = [['study', 'وقت الدراسة', 'school'], ['sleep', 'وقت النوم', 'bedtime'], ['free', 'وضع حر', 'lock_open'], ...S.modes.map(x => [x.id, x.n, x.i])];
+    const hs = S.hub || '', bad = hs === 'nosnap' || hs === 'bad', nk = hs === 'empty';
     return `<div class="hero"><div class="top"><button data-a="tab:more" aria-label="حسابي" style="margin-inline-start:8px">${av(m)}</button><div class="hi"><small>${d.s}</small><b>${L('مساء الخير، ' + m.n, 'Good evening, ' + m.en)}</b></div>
       <button class="ib" data-a="flip:privacy" aria-label="وضع الخصوصية" aria-pressed="${S.privacy}">${ic(S.privacy ? 'visibility_off' : 'visibility')}</button>
       ${can('hub.alerts.view') ? `<button class="ib" data-a="go:alerts" aria-label="التنبيهات">${ic('notifications')}${S.alerts.filter(a => a.open).length ? `<span class="dot">${S.alerts.filter(a => a.open).length}</span>` : ''}</button>` : ''}${sosBtn()}</div>
-      ${can('hub.dashboard.view') ? `<div class="pulse">${kidsVisible().map(kidOrb).join('')}<button class="orb" data-a="go:add-member"><span class="rw"><span class="av" style="--c:#ffffff1f">${ic('add')}</span></span><b>إضافة</b><small>فرد جديد</small></button></div>
-      <button class="strip ${A.length ? 'at' : ''}" data-a="${A.length ? 'go:alerts' : 'go:enf-all'}">${ic(A.length ? 'pending_actions' : 'verified_user')}<span>${A.length ? `${A.length} ${A.length === 1 ? 'أمر يحتاج' : 'أمور تحتاج'} انتباهك` : 'كل شيء على ما يرام · لا شيء يحتاج قرارك'}</span>${age(2)}</button>` : ''}
+      ${can('hub.dashboard.view') && !bad ? `<div class="pulse">${nk ? '' : kidsVisible().map(kidOrb).join('')}<button class="orb" data-a="go:add-member"><span class="rw"><span class="av" style="--c:#ffffff1f">${ic('add')}</span></span><b>إضافة</b><small>فرد جديد</small></button></div>
+      ${nk ? '' : `<button class="strip ${A.length ? 'at' : ''}" data-a="${A.length ? 'go:alerts' : 'go:enf-all'}">${ic(A.length ? 'pending_actions' : 'verified_user')}<span>${A.length ? `${A.length} ${A.length === 1 ? 'أمر يحتاج' : 'أمور تحتاج'} انتباهك` : 'كل شيء على ما يرام · لا شيء يحتاج قرارك'}</span>${age(2)}</button>`}` : ''}
     </div><div style="padding:14px 16px 24px">
-    ${!can('hub.dashboard.view') ? empty('lock_person', 'لا توجد صلاحيات بعد', 'انضممتِ إلى العائلة بدور بالغ بلا أي منح. اطلبي من الأب تفويضك لتظهر هنا لوحة العائلة.', btn('عرض صلاحياتي', 'go:my-perms', 'sm ton')) : `
+    ${!can('hub.dashboard.view') ? empty('lock_person', 'لا توجد صلاحيات بعد', 'انضممتِ إلى العائلة بدور بالغ بلا أي منح. اطلبي من الأب تفويضك لتظهر هنا لوحة العائلة.', btn('عرض صلاحياتي', 'go:my-perms', 'sm ton')) : hs === 'nosnap' ? empty('cloud_off', 'لا بيانات بعد', 'اتصل بالإنترنت مرة واحدة لعرض اللوحة. بعدها تفتح فوراً حتى دون اتصال.', btn('حاول الآن', 'hubRetry', 'sm')) : hs === 'bad' ? empty('sync_problem', 'لا بيانات موثوقة', 'تعذّرت قراءة آخر نسخة محفوظة على هذا الهاتف، فلا نعرضها. نجلب نسخة جديدة عند الاتصال.', btn('حدّث الآن', 'hubRetry', 'sm')) : nk ? empty('child_care', 'أضف طفلاً من الإعدادات لتبدأ', 'تظهر هنا حالة كل طفل: مكانه، وقته، وما يحتاج قرارك.', btn('أضف طفلاً', 'go:add-member', 'sm', 'person_add')) : `
     ${A.length ? sec('يتطلب انتباهك', 'الكل', 'go:alerts') + A.slice(0, 3).map(attCard).join('') : ''}
     ${ckDone < ck.length && isOwner() ? `<button class="card" data-a="go:checklist"><div class="fx sb"><b>أكمل إعداد عائلتك</b>${chip(`${ckDone} من ${ck.length}`, 'in')}</div><div style="margin:8px 0 6px">${pbar(ckDone / ck.length * 100, 'ok')}</div><span class="sm muted">بقي: إضافة جهات الطوارئ</span></button>` : ''}
-    ${sec('الأوضاع')}<div class="qa" style="grid-template-columns:repeat(3,1fr)">${P.map(([k, t, i]) => { const on = KIDS.filter(x => (k === 'free' ? fmOf(x) > 0 : pmOf(x) === k)), ok = k === 'free' ? isOwner() : can('protection.mode_preset.apply'); return `<button aria-pressed="${on.length > 0}" data-a="${ok ? 'go:presets:' + k : 'denied:' + (k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply')}" class="${ok ? '' : 'dis'}"><span class="qi">${ic(ok ? i : 'lock')}</span>${t}${on.length ? `<span class="xs" style="color:var(--success);font-weight:700">${on.map(x => M[x].n).join('، ')}</span>` : ''}</button>`; }).join('')}${can('protection.rule.create') ? `<button data-a="go:mode-edit:new"><span class="qi">${ic('add')}</span>وضع جديد</button>` : ''}</div>
-    <div class="qa" style="grid-template-columns:repeat(3,1fr);margin-top:8px">${[['add_task', 'مهمة جديدة', 'go:task-new', 'tasks.create'], ['more_time', 'منح وقت', 'go:grant-time', 'rewards.grant.create'], ['stars', 'منح نقاط', 'go:grant-points', 'rewards.grant.create']].map(([i, t, a, k]) => `<button data-a="${can(k) ? a : 'denied:' + k}" class="${can(k) ? '' : 'dis'}"><span class="qi">${ic(can(k) ? i : 'lock')}</span>${t}</button>`).join('')}</div>
-    ${can('agent.summary.read') || isOwner() ? aiCard() : ''}
-    ${can('location.view') ? sec('أين العائلة الآن', 'الخريطة', 'go:map') + miniMap(140) + `<div class="chips" style="margin:8px 0 2px">${KIDS.map(id => chip(`${pname(M[id])}: ${S.privacy ? '••••' : S.kid[id].place}`, '', 'location_on')).join('')}${age(2)}</div>` : ''}
-    ${sec('وقت الشاشة اليوم', 'القواعد', 'tab:control')}<div class="card">${KIDS.map(id => { const k = S.kid[id], pc = k.used / (k.quota + k.extra) * 100; return `<button class="fx" style="width:100%;padding:6px 0" data-a="go:member:${id}">${av(M[id], 'sm')}<span class="grow"><span class="fx sb sm"><b>${pname(M[id])}</b><span class="muted">${k.used} من ${k.quota + k.extra} د</span></span><span style="display:block;margin-top:5px">${pbar(pc, pc > 85 ? 'wa' : 'ok')}</span></span></button>`; }).join('')}</div>
-    <div class="g2">${can('tasks.view') ? `<button class="card stat" data-a="go:tasks">${ic('task_alt')}<b>${done}/${tasksToday.length}</b><span>مهام اليوم المنجزة</span></button>` : ''}
-    ${can('rewards.wallet.view') ? `<button class="card stat" data-a="go:rewards-admin">${ic('stars')}<b>${S.kid.layan.pts + S.kid.yusuf.pts}</b><span>نقاط الأطفال · سلسلة ليان ${S.kid.layan.streak} أيام</span></button>` : ''}
-    <button class="card stat" data-a="tab:chat">${ic('forum')}<b>3</b><span>رسائل جديدة · بلا عرض للمحتوى هنا</span></button>
-    ${can('hub.plan.view') ? `<button class="card stat" data-a="go:plan">${ic('workspace_premium')}<b>${{ free: 'المجانية', basic: 'الأساسية', premium: 'المميزة' }[S.plan]}</b><span>SMS: ${S.sms.used} من ${{ free: 20, basic: 50, premium: 100 }[S.plan]} هذا الشهر</span></button>` : ''}</div>`}
+    ${svcOn('prot') ? sec('الأوضاع') + modeTiles() : ''}
+    <div class="qa" style="grid-template-columns:repeat(3,1fr);margin-top:8px">${[['add_task', 'مهمة جديدة', 'go:task-new', 'tasks.create', 'tasks'], ['more_time', 'منح وقت', 'go:grant-time', 'rewards.grant.create', 'rew'], ['stars', 'منح نقاط', 'go:grant-points', 'rewards.grant.create', 'rew']].filter(x => svcOn(x[4])).map(([i, t, a, k]) => `<button data-a="${can(k) ? a : 'denied:' + k}" class="${can(k) ? '' : 'dis'}"><span class="qi ${can(k) ? toneOf(i) : ''}">${ic(can(k) ? i : 'lock')}</span>${t}</button>`).join('')}</div>
+    ${(can('agent.summary.read') || isOwner()) && svcOn('ai') ? aiCard() : ''}
+    ${can('location.view') && svcOn('loc') ? sec('أين العائلة الآن', 'الخريطة', 'go:map') + miniMap(140) + `<div class="chips" style="margin:8px 0 2px">${KIDS.map(id => chip(`${pname(M[id])}: ${S.privacy ? '••••' : S.kid[id].place}`, '', 'location_on')).join('')}${age(2)}</div>` : ''}
+    ${!svcOn('prot') ? '' : sec('وقت الشاشة اليوم', 'القواعد', 'tab:control') + `<div class="card">${KIDS.map(id => { const k = S.kid[id], pc = k.used / (k.quota + k.extra) * 100; return `<button class="fx" style="width:100%;padding:6px 0" data-a="go:member:${id}">${av(M[id], 'sm')}<span class="grow"><span class="fx sb sm"><b>${pname(M[id])}</b><span class="muted">${k.used} من ${k.quota + k.extra} د</span></span><span style="display:block;margin-top:5px">${pbar(pc, pc > 85 ? 'wa' : 'ok')}</span></span></button>`; }).join('')}</div>`}
+    <div class="g2">${can('tasks.view') && svcOn('tasks') ? `<button class="card stat" data-a="go:tasks"><span class="qi ac">${ic('task_alt')}</span><b>${done}/${tasksToday.length}</b><span>مهام اليوم المنجزة</span></button>` : ''}
+    ${can('rewards.wallet.view') && svcOn('rew') ? `<button class="card stat" data-a="go:rewards-admin"><span class="qi go">${ic('stars')}</span><b>${S.kid.layan.pts + S.kid.yusuf.pts}</b><span>نقاط الأطفال · سلسلة ليان ${S.kid.layan.streak} أيام</span></button>` : ''}
+    ${svcOn('chat') ? `<button class="card stat" data-a="tab:chat"><span class="qi in">${ic('forum')}</span><b>3</b><span>رسائل جديدة · بلا عرض للمحتوى هنا</span></button>` : ''}
+    ${can('hub.plan.view') ? `<button class="card stat" data-a="go:plan"><span class="qi go">${ic('workspace_premium')}</span><b>${{ free: 'المجانية', basic: 'الأساسية', premium: 'المميزة' }[S.plan]}</b><span>SMS: ${S.sms.used} من ${{ free: 20, basic: 50, premium: 100 }[S.plan]} هذا الشهر</span></button>` : ''}</div>`}
     </div>`;
   },
 });
+/* بلاطات الأوضاع: يملكها نظام الحماية ويعرضها المركز في الرئيسية وفي «التحكم ← سريع» (REQ-007) */
+function modeTiles() {
+  const P = [['study', 'وقت الدراسة', 'school'], ['sleep', 'وقت النوم', 'bedtime'], ['free', 'وضع حر', 'lock_open'], ...S.modes.map(x => [x.id, x.n, x.i])];
+  return `<div class="qa" style="grid-template-columns:repeat(3,1fr)">${P.map(([k, t, i]) => { const on = KIDS.filter(x => (k === 'free' ? fmOf(x) > 0 : pmOf(x) === k)), ok = k === 'free' ? isOwner() : can('protection.mode_preset.apply'); return `<button aria-pressed="${on.length > 0}" data-a="${ok ? 'go:presets:' + k : 'denied:' + (k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply')}" class="${ok ? '' : 'dis'}"><span class="qi ${ok && k === 'free' ? 'ac' : ''}">${ic(ok ? i : 'lock')}</span>${t}${on.length ? `<span class="xs" style="color:var(--success);font-weight:700">${on.map(x => M[x].n).join('، ')}</span>` : ''}</button>`; }).join('')}${can('protection.rule.create') ? `<button data-a="go:mode-edit:new"><span class="qi">${ic('add')}</span>وضع جديد</button>` : ''}</div>`;
+}
+ACT.hubRetry = () => { if (offline()) return toast('ما زلت غير متصل', null, 'cloud_off'); S.hub = ''; toast('حُدّثت اللوحة'); };
 function aiCard() {
   const g = S.agent.find(x => x.id === 'g3');
   if (S.aiKill) return `<div class="callout nt" style="margin-top:14px">${ic('power_settings_new')}<div>المساعد الذكي متوقف بمفتاح الإيقاف. <button class="why" data-a="go:ai">إدارته</button></div></div>`;
@@ -102,9 +108,10 @@ Object.assign(ACT, {
 });
 
 surface('alerts', {
-  t: 'التنبيهات', sys: 'S1-09', p: 'adult', req: '09:3,17 07:16 03:7 10:21 08:12 05:14',
-  note: 'كل الأنظمة تنشر تنبيهاتها هنا عبر السجل المركزي. مرتبة بالأولوية P0–P4، والقرار بنقرة واحدة حيث يمكن.',
-  r() { const A = attention(), old = S.alerts.filter(a => !a.open); return (A.length ? sec('تحتاج قرارك') + A.map(attCard).join('') : empty('task_alt', 'لا شيء يحتاج قرارك', 'عندما يطلب أحد الأطفال وقتاً أو يسلّم مهمة سيظهر هنا.')) + (old.length ? sec('سابقة') + list(old.map(a => row(a.k === 'perm' ? 'lock_person' : 'notifications', a.t, a.ago + ' · ' + a.s))) : ''); },
+  t: 'التنبيهات', sys: 'S1-09', p: 'adult', req: '09:3,4,15,17 07:16 03:7 10:21 08:12 05:14',
+  note: 'تبويبان: «تحتاج قرارك» بطاقات بقرار من نقرة واحدة، مرتبة بالأهم. و«كل التنبيهات» سجل ما نشرته الخدمات، يُصفّى بالنوع وبغير المقروء، وكل صف يفتح تفصيله. يظهر لكل بالغ ما يخص صلاحياته فقط.',
+  r() { const A = attention(), v = S.alV || 'todo';
+    return seg([['todo', `تحتاج قرارك${A.length ? ' · ' + A.length : ''}`], ['log', 'كل التنبيهات']], v, 'set:alV') + (v === 'log' ? alertLog() : A.length ? A.map(attCard).join('') : empty('task_alt', 'لا شيء يحتاج قرارك', 'عندما يطلب أحد الأطفال وقتاً أو يسلّم مهمة سيظهر هنا.')); },
 });
 surface('time-decide', {
   kind: 'sheet', t: 'قرار طلب الوقت', sys: 'S1-05', p: 'adult', a: ['r0'], req: '05:11,12,13,14 10:12 09:17',
@@ -545,30 +552,26 @@ document.addEventListener('input', e => { const el = e.target.closest && e.targe
 
 /* ============ التحكم ============ */
 surface('control', {
-  t: 'التحكم', sys: 'S1-09', p: 'adult', req: '09:5,6,7,8,9,15 10:24 01:11,19',
-  note: 'عرض مزدوج: «سريع» ببطاقات جاهزة، ثم «متقدّم» بشجرة لكل فرد. الخدمات تُبنى من السجل المركزي؛ والتوفر صادق لكل منصة (جرّب تبديل Android / iOS من الاستوديو).',
+  t: 'التحكم', sys: 'S1-09', p: 'adult', req: '09:2,5,6,7,8,9,15 10:24 01:11,19',
+  note: 'عرض مزدوج: «سريع» أولاً بالأوضاع الجاهزة ثم الخدمات، و«متقدّم» عند الطلب بإعدادات كل طفل: القيمة السارية ومصدرها. إعطاء دور لبالغ إجراء منفصل لا بطاقة سريعة. كل شيء هنا يتولّد من سجل واحد للخدمات؛ والخدمة المخفية تختفي بطاقتها وإعداداتها فوراً. التوفر صادق لكل جهاز (جرّب Android / iOS من الاستوديو).',
   r() {
     const v = S.ctl || 'quick', ios = S.os === 'ios';
-    const svc = [['shield', 'الحماية ووقت الشاشة', 'قواعد التطبيقات والحصة والجدول', 'go:protection', 'protection.rule.view', ios ? 'unavailable_on_device' : ''], ['location_on', 'الموقع والاستغاثة', 'الخريطة والسجل وجهات الطوارئ', 'go:map', 'location.view', ''], ['task_alt', 'المهام والتقويم', 'مهام بنقاط وتقويم هجري وميلادي', 'go:tasks', 'tasks.view', ''], ['stars', 'المكافآت', 'المحفظة والسلاسل وحدّ الصرف', 'go:rewards-admin', 'rewards.wallet.view', ''], ['forum', 'المحادثة العائلية', 'القنوات ورؤية محادثات القاصرين', 'go:chat-settings', 'chat.minor.view', ''], ['wand_stars', 'المساعد الذكي', 'مستوى الاستقلالية وسجل الأفعال', 'go:ai', 'hub.settings.view', '']];
+    const own = isOwner(), vis = SVC.filter(x => svcOn(x.id));
     return seg([['quick', 'سريع'], ['adv', 'متقدّم']], v, 'set:ctl') + (v === 'quick' ? `
       ${ios ? callout('على iOS لا يتوفر التحكم العميق بالتطبيقات. نعرض ما يعمل فعلاً فقط، ونسمّي ما لا يعمل.', 'wa', 'ios') : ''}
-      ${svc.map(([i, t, s, a, k, un]) => `<button class="card fx ${can(k) ? '' : 'dis'}" data-a="${can(k) ? a : 'denied:' + k}"><span class="qi" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary);flex:none">${ic(i)}</span><div class="grow"><b>${t}</b><div class="sm muted">${s}</div>${!can(k) ? `<div style="margin-top:4px">${avail('not_delegated')}</div>` : un ? `<div style="margin-top:4px">${avail(un)} ${why('ios')}</div>` : ''}</div>${ic('chevron_right')}</button>`).join('')}
-      ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة توضيحية: أسماء الأنظمة 11–60 غير محسومة في الحوكمة. أي نظام جديد يظهر هنا تلقائياً بتسجيله في السجل المركزي، وإلغاء تسجيله يخفيه فوراً.</div></div>` :
-      `<div class="fch">${KIDS.map(id => `<button aria-pressed="${(S.ctlKid || 'layan') === id}" data-a="set:ctlKid:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>${advTree(S.ctlKid || 'layan')}`);
+      ${svcOn('prot') ? sec('الأوضاع', 'كل الأوضاع', can('protection.mode_preset.apply') ? 'go:presets:study' : 'denied:protection.mode_preset.apply') + modeTiles() : ''}
+      ${sec('الخدمات', 'إدارة', 'go:registry')}${vis.map(x => `<button class="card fx ${can(x.k) ? '' : 'dis'}" data-a="${can(x.k) ? x.go : 'denied:' + x.k}"><span class="qi lg ${can(x.k) ? toneOf(x.i) : ''}">${ic(x.i)}</span><div class="grow"><b>${x.n}</b><div class="sm muted">${x.d}</div>${!can(x.k) ? `<div style="margin-top:4px">${avail('not_delegated')}</div>` : svcIos(x) ? `<div style="margin-top:4px">${avail('unavailable_on_device')} ${why('ios')}</div>` : ''}</div>${ic('chevron_right')}</button>`).join('')}
+      ${vis.length < SVC.length ? `<button class="card flat fx sm" data-a="go:registry">${ic('visibility_off')}<span class="grow">${SVC.length - vis.length === 1 ? 'خدمة واحدة مخفية' : (SVC.length - vis.length) + ' خدمات مخفية'}</span>${ic('chevron_right')}</button>` : ''}
+      ${own ? list(row('handshake', 'أعطِ بالغاً دوراً جاهزاً', 'شريك · وصي محدود · مراقب', { a: 'go:roles' })) : ''}
+      ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة فقط؛ الأسماء لم تُحسم بعد. كل خدمة جديدة تظهر هنا من نفسها عند إضافتها.</div></div>` :
+      `<div class="fch">${KIDS.map(id => `<button aria-pressed="${(S.ctlKid || 'layan') === id}" data-a="set:ctlKid:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>${advTree(S.ctlKid || 'layan')}
+      ${own ? list(row('key', 'صلاحيات البالغين', 'ما سُمح به لكل بالغ، مفتاحاً مفتاحاً', { a: 'go:member:sara' }), row('receipt_long', 'سجل التغييرات', 'من غيّر ماذا ومتى', { a: 'go:audit' })) : ''}`);
   },
 });
 /* صف الإعداد الموحّد: الاسم + القيمة + شريحة المصدر + القفل + «لماذا؟» (settings-patterns.md) */
 function srow(t, v, src, a, key, o = {}) {
   const ok = can(key), ios = o.ios && S.os === 'ios';
-  return `<button class="row noic ${ok && !ios ? '' : 'dis'}" data-a="${ios ? 'why:ios' : ok ? a : 'denied:' + key}"><span class="tx"><b>${t}</b><span>${ios ? avail('unavailable_on_device') : !ok ? avail('not_delegated') : chip(src, 'ol', src === 'قالب العمر' ? 'category' : src === 'الأب' ? 'person' : 'tune')}${o.own && !isOwner() ? '' : ''}</span></span><span class="val">${v}</span><span class="chev">${ic(ok && !ios ? 'chevron_right' : 'lock')}</span></button>`;
-}
-function advTree(id) {
-  const k = S.kid[id], ap = S.apps[id];
-  return `${sec('الوقت والتطبيقات')}<div class="list">${srow('الحصة اليومية', k.quota + ' د', 'الأب', `go:quota:${id}`, 'protection.quota.edit', { ios: 1 })}${srow('قواعد التطبيقات', ap.filter(a => a.act).length + ' قواعد', 'الأب', `go:apps:${id}`, 'protection.rule.view', { ios: 1 })}${srow('نافذة النوم', winTxt(id, 'sleep'), 'الأب', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('نافذة المدرسة', winTxt(id, 'school'), 'الأب', `go:schedule:${id}`, 'protection.schedule.edit', { ios: 1 })}${srow('الوضع الساري', fmOf(id) ? 'وضع حر' : pmOf(id) ? modeN(pmOf(id)) : 'لا وضع الآن', fmOf(id) || pmOf(id) ? 'مؤقت' : 'افتراضي', `psFor:${id}`, 'protection.mode_preset.apply', { ios: 1 })}${srow('ترتيب أنواع القواعد', RANK[rankOf(id)[0]][0] + ' أولاً', S.rankKid[id] ? 'خاص به' : rankOf(id).join() === 'sleep,school,app,quota' ? 'افتراضي' : 'الأب', 'go:priority', 'protection.priority.edit')}</div>
-  ${sec('الويب')}<div class="list">${srow('البحث الآمن', wfFlagOf(id, 'safe') ? 'مفعّل' : 'مطفأ', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}${srow('فئات المواقع', '30 فئة', 'افتراضي', `go:webfilter:${id}`, 'protection.filter.view')}</div>
-  ${sec('الموقع')}<div class="list">${srow('مشاركة الموقع', 'مفعّلة', 'الأب', 'go:map', 'location.view')}${srow('سجل المواقع', '7 أيام', 'ثابت', 'go:history:' + id, 'location.history.view')}</div>
-  ${sec('المكافآت')}<div class="list">${srow('حدّ الصرف اليومي', S.redeemCap + ' د', 'الأب', 'go:rewards-admin', 'rewards.settings.edit')}${srow('سعر الصرف', '10 نقاط = 10 د', 'افتراضي', 'go:rewards-admin', 'rewards.settings.edit')}</div>
-  ${sec('المحادثة')}<div class="list">${srow('المصنّف الآلي للرسائل', M[id].role === 'teen' ? 'مفعّل' : 'دائم', M[id].role === 'teen' ? 'الأب' : 'ثابت', 'go:chat-settings', 'chat.minor.view')}</div>`;
+  return `<button class="row noic ${ok && !ios ? '' : 'dis'} ${o.hl ? 'hl' : ''}" data-a="${ios ? 'why:ios' : ok ? a : 'denied:' + key}"><span class="tx"><b>${t}</b><span>${ios ? avail('unavailable_on_device') : !ok ? avail('not_delegated') : chip(src, 'ol', src === 'قالب العمر' ? 'category' : src === 'الأب' ? 'person' : 'tune')}${o.own && !isOwner() ? '' : ''}</span></span><span class="val">${v}</span><span class="chev">${ic(ok && !ios ? 'chevron_right' : 'lock')}</span></button>`;
 }
 /* ============ الموقع ============ */
 surface('map', {

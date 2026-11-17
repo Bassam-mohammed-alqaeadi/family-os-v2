@@ -33,6 +33,7 @@
   --accent:#CF5B2C;--accent-text:#7F300E;--accent-soft:#FDEDE5;--gold:#C8A24A;--gold-soft:#F8F0DA;
   --hero:#1F3A6B;--hero2:#142749;--on-hero:#FFFFFF;--on-hero-2:#D5DDEC;
   --shadow:0 1px 2px rgba(10,21,42,.06),0 6px 18px rgba(10,21,42,.06);
+  --lift:0 1px 2px rgba(10,21,42,.04),0 2px 8px rgba(10,21,42,.035);   /* رفع خفيف للبطاقة عن الخلفية الكريمية */
   --ts:1;                       /* مضاعف حجم النص (إمكانية الوصول) */
   --tk:1;                       /* مضاعف وضع الطفل ×1.15 / المبسط ×1.35 */
   --touch:48px;
@@ -48,6 +49,7 @@
   --accent:#E9865C;--accent-text:#F3B79C;--accent-soft:#3A1A0C;--gold:#C8A24A;--gold-soft:#2C2410;
   --hero:#0F1E39;--hero2:#0A152A;--on-hero:#F7F6F0;--on-hero-2:#B3BED0;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);
+  --lift:none;
 }
 .phone[data-mode="child"]{--tk:1.15;--touch:56px}
 .phone[data-mode="mini"]{--tk:1.35;--touch:76px}
@@ -211,16 +213,29 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 h3.sec{font-size:calc(14px*var(--ts)*var(--tk));font-weight:600;color:var(--muted);margin:20px 4px 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 h3.sec button{color:var(--primary);font-weight:600;font-size:calc(13px*var(--ts));min-height:32px}
 .phone[data-theme="dark"] h3.sec button{color:var(--primary-strong)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;display:block;width:100%}
-.card.flat{background:var(--subtle)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;display:block;width:100%;box-shadow:var(--lift)}
+.card.flat{background:var(--subtle);box-shadow:none}
 .card.tight{padding:4px 0}
-.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px;box-shadow:var(--lift)}
 .row{display:flex;align-items:center;gap:12px;min-height:calc(var(--touch) + 8px);padding:9px 14px;width:100%;position:relative}
-.row + .row::before{content:"";position:absolute;top:0;inset-inline:52px 0;height:1px;background:var(--border)}
+.row + .row::before{content:"";position:absolute;top:0;inset-inline:60px 0;height:1px;background:var(--border)}
 .row.noic + .row.noic::before,.row.full + .row::before{inset-inline-start:14px}
 button.row:active,a.row:active{background:var(--subtle)}
-.row .lead{width:26px;display:grid;place-items:center;color:var(--primary);flex:none}
+.row .lead{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--primary);background:var(--primary-soft);flex:none}
+.row .lead svg.ic{width:20px;height:20px}
 .phone[data-theme="dark"] .row .lead{color:var(--primary-strong)}
+/* خانة الأيقونة الملوّنة بحسب المجال — تُستعمل في الصفوف والبلاطات وبطاقات الخدمات */
+.lead.ok,.qi.ok{background:var(--success-soft);color:var(--success)}
+.lead.ac,.qi.ac{background:var(--accent-soft);color:var(--accent-text)}
+.lead.go,.qi.go{background:var(--gold-soft);color:var(--warning)}
+.lead.in,.qi.in{background:var(--info-soft);color:var(--info)}
+.lead.da,.qi.da{background:var(--danger-soft);color:var(--danger)}
+.phone[data-theme="dark"] .row .lead.ok,.phone[data-theme="dark"] .qi.ok{color:var(--success)}
+.phone[data-theme="dark"] .row .lead.ac,.phone[data-theme="dark"] .qi.ac{color:var(--accent-text)}
+.phone[data-theme="dark"] .row .lead.go,.phone[data-theme="dark"] .qi.go{color:var(--gold)}
+.phone[data-theme="dark"] .row .lead.in,.phone[data-theme="dark"] .qi.in{color:var(--info)}
+.phone[data-theme="dark"] .row .lead.da,.phone[data-theme="dark"] .qi.da{color:var(--danger)}
+.row .lead.t-raw{background:color-mix(in srgb,currentColor 12%,transparent)}
 .row .tx{flex:1;min-width:0}
 .row .tx b{display:block;font-weight:500;font-size:calc(16px*var(--ts)*var(--tk));line-height:1.45}
 .row .tx span{display:block;font-size:calc(13px*var(--ts)*var(--tk));color:var(--muted);line-height:1.5;margin-top:1px}
@@ -341,12 +356,21 @@ button.chip{min-height:28px}
 .att .hd span{font-size:calc(13px*var(--ts));color:var(--muted);display:block}
 .att .ft{display:flex;gap:8px;padding:8px 14px 12px}
 .att .ft .btn{flex:1}
-.att .pr{font-size:10.5px;font-weight:700;font-family:var(--mono);color:var(--muted);flex:none;margin-top:3px}
+.att .hd .pr{font-size:calc(11.5px*var(--ts));font-weight:700;color:var(--warning);background:var(--warning-soft);padding:2px 8px;border-radius:99px;flex:none;margin-top:2px;display:inline-block}
+.att .hd .pr.p0{color:var(--danger);background:var(--danger-soft)}
+/* S1-09: إبراز الإعداد القادم من البحث · نقطة «لم يُقرأ» */
+.row.hl{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold);border-radius:var(--r-md);animation:hl 1.1s var(--ease) 2}
+@keyframes hl{50%{background:var(--surface)}}
+.row.unread .tx b{font-weight:700}
+.udot{width:9px;height:9px;border-radius:50%;background:var(--info);display:inline-block}
+.fld.gs input{background:var(--surface)}
 .qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
-.qa button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);font-size:calc(12px*var(--ts));font-weight:500;text-align:center;line-height:1.35;min-height:76px}
+.qa button{box-shadow:var(--lift);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);font-size:calc(12px*var(--ts));font-weight:500;text-align:center;line-height:1.35;min-height:76px}
 .qa button:active{background:var(--subtle)}
-.qa .qi{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}
-.phone[data-theme="dark"] .qa .qi{color:var(--primary-strong)}
+.qi{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary);flex:none}
+.qi.lg{width:44px;height:44px;border-radius:14px}
+.stat .qi{margin-bottom:8px}
+.phone[data-theme="dark"] .qi{color:var(--primary-strong)}
 .qa button[aria-pressed="true"]{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
 .qa button[aria-pressed="true"] .qi{background:var(--primary);color:var(--on-primary)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
