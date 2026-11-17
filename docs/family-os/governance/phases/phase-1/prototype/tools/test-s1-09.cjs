@@ -23,8 +23,20 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 2 اللوحة: الوضع العادي والحالات الثلاث
  S=fresh();tab('home');render();ok('home: attention cards + modes + map + screen time',ph.querySelectorAll('#scr .att').length===3&&!!q('[data-a="go:presets:study"]')&&!!q('[data-a="go:map"]')&&has(/وقت الشاشة اليوم/));
  ok('home: priority shown in words, not P1',!/\bP[0-4]\b/.test(txt())&&has(/عاجل/));
- S.hub='empty';render();ok('home empty: add-a-child message, no child orbs, SOS stays',has(/أضف طفلاً من الإعدادات لتبدأ/)&&!q('#scr .orb[data-a^="go:member"]')&&!!q('#scr .sos')&&!q('#scr .att'));
- S.hub='nosnap';render();ok('home no snapshot: says so, shows no data, SOS stays',has(/لا بيانات بعد/)&&has(/اتصل بالإنترنت مرة واحدة/)&&!q('#scr .pulse')&&!!q('#scr .sos')&&!has(/وقت الشاشة اليوم/));
+ // Q-416: لا زر استغاثة في وضع الأهل؛ وبطاقات الرئيسية تُخفى بإكس
+ ok('Q-416 owner: no SOS button on home, on an inner screen, in a sheet, or floating',(()=>{const none=()=>!ph.querySelector('.sos');let r=none();open('tasks');r=r&&none();open('alerts');r=r&&none();go('grant-time');render();r=r&&none();S.sheet=null;tab('home');render();return r&&none()})());
+ setPersona('delegate');tab('home');render();ok('Q-416 other adult: no SOS button either, and nothing starts one',!ph.querySelector('.sos')&&(ACT.sosStart(),!S.full&&!S.sos));
+ setPersona('child');render();ok('Q-416 child keeps the SOS button',!!ph.querySelector('.sos'));setPersona('teen');render();ok('Q-416 teen keeps the SOS button',!!ph.querySelector('.sos'));
+ S=fresh();tab('home');render();const qn=attention().length,qx=ph.querySelectorAll('#scr .att .atx');ok('Q-416 home cards: each has a small close button, 48 touch target',qx.length===3&&[...qx].every(b=>b.getBoundingClientRect().height>=48&&b.getBoundingClientRect().width>=48&&b.getAttribute('aria-label')));
+ const qt=q('#scr .att .hd b').textContent;qx[0].click();render();ok('Q-416 close: the card leaves the home, the next one takes its place',![...ph.querySelectorAll('#scr .att .hd b')].some(b=>b.textContent===qt)&&ph.querySelectorAll('#scr .att').length===Math.min(3,qn-1));
+ ok('Q-416 close: the matter itself is untouched: same count in the strip, toast says where it is',attention().length===qn&&new RegExp(qn+' أمور تحتاج انتباهك').test(txt())&&/تجده في «التنبيهات»/.test(document.querySelector('#toast').innerText));
+ open('alerts');ok('Q-416 alerts page still lists it, with no close button there',[...ph.querySelectorAll('#scr .att .hd b')].some(b=>b.textContent===qt)&&!q('#scr .atx')&&ph.querySelectorAll('#scr .att').length===qn);
+ tab('home');render();document.querySelector('#toast [data-a="undo"]').click();render();ok('Q-416 undo brings the card back',[...ph.querySelectorAll('#scr .att .hd b')].some(b=>b.textContent===qt));
+ [...Array(qn)].forEach(()=>{const b=q('#scr .att .atx');if(b){b.click();render()}});ok('Q-416 all closed: the section leaves the home, the strip still leads to them',!q('#scr .att')&&!has(/يتطلب انتباهك/)&&!!q('#scr .strip.at[data-a="go:alerts"]'));
+ setPersona('delegate');tab('home');render();ok('Q-416 closing is per adult: the other adult still sees her cards',ph.querySelectorAll('#scr .att').length===Math.min(3,attention().length)&&attention().length>0);
+ S=fresh();setPersona('owner');S.sos={from:'layan',st:'sent',via:'عبر الإنترنت',place:'البيت'};tab('home');render();ok('Q-416 a live SOS card has no close button',/استغاثة من ليان/.test(q('#scr .att').innerText)&&!q('#scr .att').querySelector('.atx')&&ph.querySelectorAll('#scr .att .atx').length===2);
+ S.hub='empty';render();ok('home empty: add-a-child message, no child orbs',has(/أضف طفلاً من الإعدادات لتبدأ/)&&!q('#scr .orb[data-a^="go:member"]')&&!q('#scr .att'));
+ S.hub='nosnap';render();ok('home no snapshot: says so, shows no data',has(/لا بيانات بعد/)&&has(/اتصل بالإنترنت مرة واحدة/)&&!q('#scr .pulse')&&!has(/وقت الشاشة اليوم/));
  S.hub='bad';render();ok('home corrupt snapshot: no trusted data, nothing stale shown',has(/لا بيانات موثوقة/)&&!q('#scr .pulse')&&!has(/أين العائلة الآن/));
  S.net='off';ACT.hubRetry();render();ok('…retry offline keeps the state',S.hub==='bad');S.net='on';ACT.hubRetry();render();ok('…retry online restores the board',S.hub===''&&has(/وقت الشاشة اليوم/));
  S=fresh();S.net='off';tab('home');render();ok('home offline: last state with explicit age',has(/آخر تحديث/)&&has(/غير متصل/));
@@ -61,7 +73,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('svc','loc');ok('service page: state, home content, settings per child',has(/تعمل/)&&has(/ما تعرضه في الرئيسية/)&&has(/مشاركة الموقع/)&&!!q('.btn[data-a="go:map"]'));
  ok('no hide switch for the father anywhere',!q('#scr .tg')&&!ACT.svcT);
  S.svcGone='loc';render();ok('removed service: page says so, SOS note kept',has(/أُزيلت من التطبيق/)&&has(/زر الاستغاثة يبقى ظاهراً/)&&!q('.btn[data-a="go:map"]'));
- tab('home');render();ok('removed service: its widgets leave the board at once, SOS stays',!has(/أين العائلة الآن/)&&!q('#scr [data-a="go:map"]')&&!!q('#scr .sos'));
+ tab('home');render();ok('removed service: its widgets leave the board at once',!has(/أين العائلة الآن/)&&!q('#scr [data-a="go:map"]'));
  tab('control');render();ok('removed service: card gone from quick view',ph.querySelectorAll('#scr .card.fx:not(.flat)').length===5);
  S.ctl='adv';render();ok('removed service: its settings gone from advanced view',!has(/مشاركة الموقع/)&&rows()===20+2);
  open('registry');ok('removed service stays listed',has(/أُزيلت/)&&rows()===6);

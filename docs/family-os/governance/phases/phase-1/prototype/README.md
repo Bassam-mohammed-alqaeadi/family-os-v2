@@ -122,7 +122,7 @@ node tools/build-icons.mjs <node_modules>/@material-symbols/svg-400/rounded
 node tools/test-s1-02.cjs      # الهوية والتهيئة
 node tools/test-s1-03.cjs      # الأدوار والصلاحيات — 169 فحصاً
 node tools/test-s1-10.cjs      # الحماية والفرض — 227 فحصاً
-node tools/test-s1-09.cjs      # مركز التحكم والإعدادات — 95 فحصاً
+node tools/test-s1-09.cjs      # مركز التحكم والإعدادات — 107 فحوص
 node tools/test-s1-07.cjs      # الموقع والاستغاثة — 177 فحصاً
 node tools/test-s1-08.cjs      # المحادثة العائلية — 156 فحصاً
 node tools/test-s1-05.cjs      # المكافآت — 167 فحصاً

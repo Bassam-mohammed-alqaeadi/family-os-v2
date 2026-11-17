@@ -300,7 +300,8 @@ function banners() {
     : `<div class="sys perm" role="status">${ic('notifications_off')}<span>الإشعارات متوقفة على هذا الجهاز · أخبر بابا</span></div>`;
   return h;
 }
-function sosBtn() { return `<button class="sos" data-hold="sos" aria-label="${S.sos2 ? 'استغاثة — اضغط ثم أكّد' : 'استغاثة — اضغط مطولاً 3 ثوانٍ'}"><i></i>${ic('emergency_home-fill')}<span>SOS</span></button>`; }
+/* Q-416: لا زر استغاثة في وضع الأهل (المالك وكل بالغ). يبقى في كل شاشة على أجهزة الأبناء؛ والبالغ يستقبل الاستغاثة ولا يرسلها. */
+function sosBtn() { if (isAdult()) return ''; return `<button class="sos" data-hold="sos" aria-label="${S.sos2 ? 'استغاثة — اضغط ثم أكّد' : 'استغاثة — اضغط مطولاً 3 ثوانٍ'}"><i></i>${ic('emergency_home-fill')}<span>SOS</span></button>`; }
 function appbar(d, t) {
   const root = S.stack.length === 1;
   const title = typeof d.t === 'function' ? d.t(...t.a) : d.t;
@@ -344,7 +345,7 @@ function renderOv() {
 let sosLiftT;
 function sosLift() {
   const ph = $('#phone'), L = $('#sosL'); if (!L) return;
-  const off = S.persona === 'guest' || (S.full && /^(sos-|sys-first)/.test(S.full.id)) || (S.dlg && S.dlg.sos);
+  const off = S.persona === 'guest' || isAdult() || (S.full && /^(sos-|sys-first)/.test(S.full.id)) || (S.dlg && S.dlg.sos);
   if (off) { L.innerHTML = ''; L.className = ''; ph.dataset.sosup = ''; return; }
   const pr = ph.getBoundingClientRect(), k = pr.width / ph.offsetWidth || 1;
   const all = [...ph.querySelectorAll('.sos')].filter(e => !L.contains(e)).map(e => [e, e.getBoundingClientRect()]).filter(([, r]) => r.width > 0);

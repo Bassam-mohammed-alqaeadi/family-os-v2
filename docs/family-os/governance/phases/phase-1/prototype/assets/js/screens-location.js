@@ -176,7 +176,7 @@ surface('map', {
     if (one) {
       const l = locOf(one), m = M[one], d = distTxt(l), kid = !!S.kid[one];
       body = `<div class="mhead">${av(m)}<div class="grow"><b>${pname(m)}</b><div class="sm muted">${l.paused ? pausedTxt(m) : l.none ? 'لا موقع معروف بعد' : S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div>
-      ${l.paused ? `<p class="sm muted" style="margin:10px 2px">${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة. الاستغاثة ترسل المكان في كل حال.</p>` : l.none ? `<p class="sm muted" style="margin:10px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:10px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
+      ${l.paused ? `<p class="sm muted" style="margin:10px 2px">${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.</p>` : l.none ? `<p class="sm muted" style="margin:10px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:10px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
       ${l.live ? '' : `<p class="sm" style="margin:0 2px 10px">${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.</p>`}`}
       <div class="btns3">${l.paused ? '' : refBtn(one, 'sm ton')}${l.none ? '' : btn('الاتجاهات', 'locDir:' + one, 'sm sec', 'route')}${btn('اتصال', 'locCall:' + one, 'sm sec', 'call')}${btn('مراسلة', 'locMsg:' + one, 'sm sec', 'chat')}</div>${refNote(one)}
       ${l.none ? '' : `<div class="gap"></div>${list(row('location_on', kid ? 'التفاصيل وسجل التنقل' : 'التفاصيل', '', { a: 'go:loc:' + one }))}`}`;
@@ -203,12 +203,12 @@ Object.assign(ACT, {
   mapZ(d) { const z = S.mapZ || MAP_Z[0], Z = [1, ...MAP_Z]; S.mapZ = +d > 0 ? (Z.find(x => x > z + 0.01) || Z[Z.length - 1]) : ([...Z].reverse().find(x => x < z - 0.01) || 1); },
   mapX() { S.mapX = !S.mapX; },
   locDir(id) { toast(`يفتح تطبيق الخرائط في هاتفك على مكان ${pname(M[id])}`, null, 'route'); },
-  /* البالغ يملك مشاركة موقعه: يوقفها بتأكيد، ويعيدها بلمسة. الإيقاف ظاهر لبقية الكبار، والاستغاثة ترسل المكان في كل حال. */
+  /* البالغ يملك مشاركة موقعه: يوقفها بتأكيد، ويعيدها بلمسة. الإيقاف ظاهر لبقية الكبار، ولا زر استغاثة للبالغ (Q-416). */
   myShare() {
     const k = 'pause_' + me().id;
     if (offline()) { toast('تغيير المشاركة يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
     if (S[k]) { S[k] = false; toast('عادت مشاركة موقعك', null, 'location_on'); return; }
-    confirmDlg('إيقاف مشاركة موقعك؟', 'لن يظهر مكانك لأحد على الخريطة، وسيعرف الكبار في العائلة أن المشاركة متوقفة. مواقع الأبناء تبقى ظاهرة لك. عند الضغط على زر الاستغاثة يُرسل مكانك في كل حال.', 'أوقف المشاركة', () => { S[k] = true; toast('توقفت مشاركة موقعك', null, 'location_off'); });
+    confirmDlg('إيقاف مشاركة موقعك؟', 'لن يظهر مكانك لأحد على الخريطة، وسيعرف الكبار في العائلة أن المشاركة متوقفة. مواقع الأبناء تبقى ظاهرة لك.', 'أوقف المشاركة', () => { S[k] = true; toast('توقفت مشاركة موقعك', null, 'location_off'); });
   },
 });
 
@@ -306,7 +306,7 @@ surface('loc', {
     if (grown ? !adultIds().includes(id) : !can('location.view', id)) return empty('location_off', `موقع ${pname(m)} غير مسموح لكِ`, 'لم يُسمح لكِ برؤية موقعه.', why('nd:location.view'));
     const l = locOf(id), sos = S.sos && S.sos.from === id && S.sos.st === 'sent';
     const talk = `<div class="btns">${btn('مراسلة ' + pname(m), 'locMsg:' + id, 'sec', 'chat')}${btn('اتصال', 'locCall:' + id, 'sec', 'call')}</div>`;
-    if (l.paused) return `${empty('location_off', pausedTxt(m), `${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة. الاستغاثة ترسل المكان في كل حال.`)}${talk}`;
+    if (l.paused) return `${empty('location_off', pausedTxt(m), `${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.`)}${talk}`;
     if (l.none) return `${empty('location_off', 'لا موقع معروف بعد', `لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.`)}${talk}`;
     return `${sos ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:sos-status">${ic('sos')}<div><b>${m.n} ${vb(m, 'يستغيث', 'تستغيث')} الآن</b><br>افتح التنبيه</div></button>` : ''}
     <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(19px*var(--ts))">${S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${locLine(l)}</div><div class="chips" style="margin-top:6px">${l.live ? chip('موقع حي', 'ok', 'check') : chip('ليس موقعاً حياً', 'stale', 'history')}${batChip(l)}</div></div></div>
@@ -461,6 +461,7 @@ function sosFlush() {
 }
 Object.assign(ACT, {
   sosStart() {
+    if (isAdult()) return;   /* Q-416: البالغ لا يرسل استغاثة من التطبيق */
     const mine = S.sos && S.sos.from === PERSONA[S.persona].m && S.sos.st !== 'resolved';
     S.sheet = null; S.dlg = null;
     if (mine) { S.full = { id: 'sos-sent', a: [] }; return; }   /* استغاثة قائمة: تُعاد حالتها ولا يُنشأ تنبيه ثانٍ */
@@ -489,7 +490,7 @@ surface('sos-status', {
   r() {
     if (!isAdult()) return kidNo();
     const s = S.sos && S.sos.st !== 'pending' ? S.sos : null;
-    if (!s) return `${empty('check_circle', 'لا استغاثة الآن', 'كل شيء على ما يرام. عند ضغط أي فرد زر الاستغاثة يظهر التنبيه هنا مع مكانه.')}${list(row('history', 'الاستغاثات السابقة', '', { a: 'go:sos-log' }), row('contact_emergency', 'جهات الطوارئ', '', { a: 'go:emergency' }))}`;
+    if (!s) return `${empty('check_circle', 'لا استغاثة الآن', 'كل شيء على ما يرام. عند ضغط أحد الأبناء زر الاستغاثة يظهر التنبيه هنا مع مكانه.')}${list(row('history', 'الاستغاثات السابقة', '', { a: 'go:sos-log' }), row('contact_emergency', 'جهات الطوارئ', '', { a: 'go:emergency' }))}`;
     const m = M[s.from], k = S.kid[s.from], R = s.R || sosRcp(s.from), got = s.got ?? R.length, st = sosStTxt(s), off = offline(), sms = s.ch === 'sms' || /SMS/.test(s.via || '');
     if (s.from === me().id) return `${empty('sos', 'هذه استغاثتك أنت', 'يغلقها بالغ آخر في العائلة.')}${btn('حالة استغاثتي', 'sosStart', 'sec')}`;
     const ackOk = can('location.sos.acknowledge'), resOk = can('location.sos.resolve');

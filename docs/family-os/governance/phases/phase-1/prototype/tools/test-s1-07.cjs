@@ -159,10 +159,10 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('loc','ahmad');ok('own detail page does not exist: the phone already knows where it is',has(/لا يوجد فرد بهذا الوصف/));
  S=fresh();setPersona('delegate');setRole('partner');open('map');
  ok('the other adult sees the owner on her map and herself as «you»',!!q('#scr .pin[data-a="mapF:ahmad"]')&&!q('#scr .pin[data-a="mapF:sara"]')&&!!q('#scr .medot')&&has(/لمن يختاره أحمد من الأبناء/));
- q('#scr [data-a="myShare"]').click();ok('pausing own sharing asks first and says the pause is visible',!!S.dlg&&has(/سيعرف الكبار في العائلة أن المشاركة متوقفة/)&&has(/يُرسل مكانك في كل حال/)&&!S.pause_sara);
+ q('#scr [data-a="myShare"]').click();ok('pausing own sharing asks first and says the pause is visible',!!S.dlg&&has(/سيعرف الكبار في العائلة أن المشاركة متوقفة/)&&!/استغاثة/.test(S.dlg.b)&&!S.pause_sara);
  dlgYes();ok('paused: switch off, wording says nobody sees her',S.pause_sara===true&&q('#scr [data-a="myShare"]').getAttribute('aria-checked')==='false'&&/متوقفة: لا يظهر مكانك لأحد/.test(q('#scr').innerText));
  setPersona('owner',1);open('map');ok('owner sees the pause in words, with no marker and no stale place',!q('#scr .pin[data-a="mapF:sara"]')&&/أوقفت مشاركة موقعها/.test(q('#scr').innerText)&&!/حدة · شارع حدة/.test(q('#scr').innerText));
- q('#scr .mfch [data-a="mapF:sara"]').click();ok('paused adult card: reason, call and message, no refresh, no directions',/الاستغاثة ترسل المكان في كل حال/.test(q('#scr').innerText)&&!q('#scr [data-a="locRefresh:sara"]')&&!q('#scr [data-a="locDir:sara"]')&&!!q('#scr [data-a="locCall:sara"]'));
+ q('#scr .mfch [data-a="mapF:sara"]').click();ok('paused adult card: reason, call and message, no refresh, no directions',/إلى الخريطة حين تشغّل المشاركة/.test(q('#scr').innerText)&&!/الاستغاثة/.test(q('#scr').innerText)&&!q('#scr [data-a="locRefresh:sara"]')&&!q('#scr [data-a="locDir:sara"]')&&!!q('#scr [data-a="locCall:sara"]'));
  tab('home');render();ok('home widget: every member, the paused adult in words',has(/سارة: المشاركة متوقفة/)&&has(/أين العائلة الآن/));
  setPersona('delegate',1);open('map');q('#scr [data-a="myShare"]').click();ok('resuming is one touch, no confirmation',S.pause_sara===false&&!S.dlg);
  S.net='off';render();q('#scr [data-a="myShare"]').click();ok('changing own sharing is refused offline',S.pause_sara===false&&!S.dlg&&/يحتاج اتصالاً/.test(document.querySelector('#toast').textContent));S.net='on';document.querySelector('#toast').innerHTML='';
@@ -211,7 +211,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // حفظ الاستغاثات السابقة
  S=fresh();open('sos-log');ok('past SOS: kept 90 days, place removed after 7 days, and the page says so',rows()===2&&has(/المكان حُذف بعد 7 أيام/)&&has(/الصافية · شارع تعز/)&&has(/تبقى هنا 90 يوماً ثم تُحذف/)&&SOS_KEEP===90&&SOS_PLACE===7);
  S.sosLog.push({from:'khaled',at:'1 أغسطس 9:00 ص',place:'مكان قديم',by:'أحمد',note:'',ch:'server',days:108});render();ok('past SOS older than 90 days is gone',rows()===2&&!has(/1 أغسطس/));
- S=fresh();setPersona('delegate');ACT.sosStart();ACT.sosSend();render();ok('an adult SOS carries her place even with sharing paused',!!S.sos&&S.sos.from==='sara'&&/حدة/.test(S.sos.place));
+ S=fresh();setPersona('delegate');render();ACT.sosStart();render();ok('Q-416: an adult has no SOS button and cannot start one',!ph.querySelector('.sos')&&!S.sos&&!S.full);
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-07: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-07');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

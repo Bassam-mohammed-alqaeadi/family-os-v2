@@ -358,6 +358,9 @@ button.chip{min-height:28px}
 .att .ft .btn{flex:1}
 .att .hd .pr{font-size:calc(11.5px*var(--ts));font-weight:700;color:var(--warning);background:var(--warning-soft);padding:2px 8px;border-radius:99px;flex:none;margin-top:2px;display:inline-block}
 .att .hd .pr.p0{color:var(--danger);background:var(--danger-soft)}
+.att .hd .atx{flex:none;width:48px;height:48px;margin:-12px -14px -14px -4px;display:grid;place-items:center;color:var(--muted);border-radius:50%}
+.att .hd .atx svg.ic{width:18px;height:18px}
+.att .hd .atx:active{background:var(--subtle);color:var(--text)}
 /* S1-09: إبراز الإعداد القادم من البحث · نقطة «لم يُقرأ» */
 .row.hl{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold);border-radius:var(--r-md);animation:hl 1.1s var(--ease) 2}
 @keyframes hl{50%{background:var(--surface)}}
