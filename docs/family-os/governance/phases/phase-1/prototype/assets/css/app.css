@@ -971,3 +971,24 @@ button.chip{min-height:28px}
 .bcfp.bad{background:var(--danger-soft);color:var(--danger);animation:shake .35s}
 .pinwhy{display:flex;gap:6px;align-items:flex-start;justify-content:center;text-align:start;color:var(--text2);background:var(--sunken);border-radius:var(--r-md);padding:10px 12px;margin:0 0 4px}
 .pinwhy svg{width:18px;height:18px;flex:none;margin-top:2px}
+
+/* Q-419: بطاقة التعارض الواحدة — الطرفان، ما سيحدث، الحلول */
+.cfc{background:var(--surface);border:1.5px solid var(--warning);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:10px;text-align:start}
+.cfc.blk{border-color:var(--danger)}
+.cfc .cfh{display:flex;align-items:center;gap:8px;margin-bottom:10px;line-height:1.5}
+.cfc .cfh b{flex:1;min-width:0;font-weight:600}
+.cfc .cfh>svg.ic{color:var(--warning);width:22px;height:22px;flex:none}.cfc.blk .cfh>svg.ic{color:var(--danger)}
+.cfc .cfp{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.cfc .cfx{background:var(--sunken);border-radius:var(--r-md);padding:8px 10px;min-width:0}
+.cfc .cfx b{display:flex;gap:6px;align-items:center;font-weight:600;font-size:calc(13.5px*var(--ts)*var(--tk));line-height:1.5}
+.cfc .cfx b span{min-width:0;overflow-wrap:anywhere}
+.cfc .cfx b svg.ic{width:18px;height:18px;flex:none;color:var(--text2)}
+.cfc .cfx small{display:block;color:var(--text2);font-size:calc(12.5px*var(--ts)*var(--tk));line-height:1.6;margin-top:2px;overflow-wrap:anywhere}
+.cfc .cfv{align-self:center;color:var(--text2);font-size:calc(12.5px*var(--ts)*var(--tk))}
+.cfc .cfe{margin:10px 0 0;line-height:1.75;font-size:calc(14px*var(--ts)*var(--tk))}
+.cfc .cfs{margin:8px 0 0;display:flex;align-items:center;gap:6px;color:var(--text2);font-size:calc(12.5px*var(--ts)*var(--tk))}
+.cfc .cfs svg.ic{width:16px;height:16px}
+.cfc .cff{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cfc .cff .btn{min-height:var(--touch,44px)}
+.sheet .cfc{margin-bottom:12px}
+.card.cfl{border-color:var(--warning)}.card.cfl>svg.ic:first-child{color:var(--warning)}

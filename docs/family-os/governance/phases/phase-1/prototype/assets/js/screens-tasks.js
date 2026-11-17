@@ -102,7 +102,7 @@ const tkFits = (s, A = TK().ai) => A.kids.includes(s.kid) && s.pts <= A.mx && tk
 const tkWhyNot = (s, A = TK().ai) => (!A.kids.includes(s.kid) ? `${M[s.kid].n} خارج من يسند لهم` : s.pts > A.mx ? `فوق حدّ ${rwPt(A.mx)}` : 'بلغ عدد مهامه اليوم');
 function tkRowT(t) {
   const c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '';
-  return row(c[1], t.t, [pname(M[t.kid]), t.due, rep && ic('repeat', 'xs') + rep, t.by === 'ai' && ic('wand_stars', 'xs') + 'من المساعد'].filter(Boolean).join(' · '), { ic: c[2], a: t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? `go:task-review:${t.id}` : `go:task:${t.id}`, v: chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) });
+  return row(c[1], t.t, [pname(M[t.kid]), t.due, rep && ic('repeat', 'xs') + rep, t.by === 'ai' && ic('wand_stars', 'xs') + 'من المساعد', t.hm && t.st === 'PENDING' && cfLive(t.kid).some(c => cfHas(c, 'task.' + t.id)) && ic('warning', 'xs') + 'متعارض'].filter(Boolean).join(' · '), { ic: c[2], a: t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? `go:task-review:${t.id}` : `go:task:${t.id}`, v: chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) });
 }
 function tkSugCard() {
   const P = tkSugs(); if (!P.length) return '';
@@ -140,7 +140,7 @@ function tkCal(add) {
   <div class="cal">${['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'].map(d => `<span class="dn">${d}</span>`).join('')}${'<span></span>'.repeat(off)}${Array.from({ length: n }, (_, i) => cell(i + 1)).join('')}</div>
   <div class="tklg"><span><u class="e"></u>حدث</span><span><u class="t"></u>مهمة</span>${mi === 3 ? '<span>يُعرض حتى 15 فبراير: ثلاثة أشهر قادمة</span>' : ''}</div></div>
   ${sec(`${tkDayT(sel)} · ${tkHj(sel)}`, add ? 'حدث جديد' : '', add ? 'tkEvNew:' + sel : '')}
-  ${E.length || T.length ? list(E.map(e => row('event', e.t, `${tkTm(e.hm)} · ${tkWho(e)}${e.loc ? ' · ' + e.loc : ''}`, { ic: 'var(--accent)', a: 'go:event:' + e.id })), T.map(t => row(tkCat(t.cat)[1], t.t, `${adult ? pname(M[t.kid]) + ' · ' : ''}مهمة${tkRR(t) !== 'none' ? ' متكررة' : ''}`, { ic: tkCat(t.cat)[2], a: adult ? 'go:task:' + t.id : sel === TK_TODAY ? 'go:c-task:' + t.id : '' }))) : `<div class="card flat c sm muted">لا شيء في هذا اليوم</div>`}`;
+  ${E.length || T.length ? list(E.map(e => row('event', e.t + (adult ? cfEvTag(e) : ''), `${tkTm(e.hm)} · ${tkWho(e)}${e.loc ? ' · ' + e.loc : ''}`, { ic: 'var(--accent)', a: 'go:event:' + e.id })), T.map(t => row(tkCat(t.cat)[1], t.t, `${adult ? pname(M[t.kid]) + ' · ' : ''}مهمة${tkRR(t) !== 'none' ? ' متكررة' : ''}`, { ic: tkCat(t.cat)[2], a: adult ? 'go:task:' + t.id : sel === TK_TODAY ? 'go:c-task:' + t.id : '' }))) : `<div class="card flat c sm muted">لا شيء في هذا اليوم</div>`}`;
 }
 const tkWho = e => (e.who === 'all' ? 'العائلة كلها' : pname(M[e.who]));
 const tkRemWho = (e, kidV) => (e.who === 'all' ? 'يصل كل أفراد العائلة' : kidV ? (e.who === me().id ? `يصلك أنت و${rwDad()}` : `يصل ${M[e.who].n} و${rwDad()}`) : e.who === 'ahmad' ? 'يصل أحمد وحده' : `يصل ${M[e.who].n} وأحمد فقط`);
@@ -159,7 +159,7 @@ surface('event', {
     const kidV = !isAdult(), ed = can('calendar.event.create');
     return `<div class="fx" style="margin-bottom:10px"><span class="qi lg ac">${ic('event')}</span><div><h4 style="margin:0">${e.t}</h4><span class="sm muted">${tkWho(e)}</span></div></div>
     ${list(row('today', tkLong(e.dk), tkHj(e.dk, { day: 'numeric', month: 'long', year: 'numeric' }) + ' هـ'), row('schedule', tkTm(e.hm), e.rr && e.rr !== 'none' ? 'يتكرر ' + TK_ER[e.rr] : ''), e.loc ? row('location_on', e.loc, 'المكان') : '', row('alarm', 'التذكير ' + tkRm(e.rem), tkRemWho(e, kidV), { a: 'go:tk-remind:' + id }))}
-    ${kidV ? '' : `<p class="sm muted" style="margin:0 4px 10px">أضافه ${M[e.by || 'ahmad'].n}.</p>`}
+    ${kidV ? '' : `<p class="sm muted" style="margin:0 4px 10px">أضافه ${M[e.by || 'ahmad'].n}.</p>${cfEvHere(e)}`}
     ${ed ? `<div class="btns">${btn('احذف', 'tkEvDel:' + id, 'dng sec')}${btn('عدّل', 'tkEvEdit:' + id, 'sec')}</div>` : ''}`;
   },
 });
@@ -204,7 +204,7 @@ surface('task', {
     if (!can('tasks.view', t.kid)) return empty('lock_person', 'هذه المهمة خارج صلاحياتك', 'يمنحك المالك صلاحية مهام هذا الابن من «العائلة».');
     const k = M[t.kid], c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '', dn = t.dn || [], own = t.by === t.kid;
     return `<div class="card"><div class="fx top">${av(k)}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${t.t}</b><div class="sm muted">${pname(k)} · ${t.due}</div><div class="chips" style="margin-top:6px">${chip(c[0], '', c[1])}${chip(TST[t.st][0], TST[t.st][1], TST[t.st][2])}${t.pts ? chip(rwPt(t.pts), 'go', 'star') : chip('بلا نقاط', 'ol')}</div></div></div><p class="sm" style="margin:10px 0 0">${tkSay(t)}</p></div>
-    ${t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? btn('راجع التسليم', 'go:task-review:' + id, 'ok', 'task_alt') + '<div class="gap"></div>' : ''}
+    ${t.hm && t.st === 'PENDING' ? cfHere(t.kid, 'task.' + t.id, 1) : ''}${t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? btn('راجع التسليم', 'go:task-review:' + id, 'ok', 'task_alt') + '<div class="gap"></div>' : ''}
     ${list(row(t.by === 'ai' ? 'wand_stars' : 'person', 'من أسندها', tkBy(t, false), t.by === 'ai' ? { a: 'go:tk-ai' } : {}), row(TK_PF[t.proof][1], 'طريقة الإثبات', own ? 'مهمة شخصية: ينجزها بلا اعتماد' : t.proof === 'self' ? 'يعتمدها بالغ دائماً' : 'يتحقق المساعد، وما لم يجزم به يأتيك', { v: TK_PF[t.proof][0] }), row('repeat', 'التكرار', rep ? 'ما فات يومه ينتهي عند منتصف الليل ولا يتراكم' : '', { v: rep || 'مرة واحدة' }), row('alarm', 'التذكير', `يصل ${k.n}`, { v: tkRm(t.rem || TK().rem) }))}
     ${t.sub && t.sub.length ? sec(`قائمة الفحص · ${dn.filter(Boolean).length} من ${t.sub.length}`) + list(t.sub.map((s, i) => row(dn[i] ? 'check_box' : 'check_box_outline_blank', s, '', dn[i] ? { ic: 'var(--success)' } : {}))) : ''}
     ${(t.st === 'PENDING' || t.st === 'SUBMITTED') && !own ? `<div class="btns">${can('tasks.cancel', t.kid) ? btn('ألغِ المهمة', 'taskCancel:' + id, 'dng sec') : ''}${t.st === 'PENDING' && can('tasks.create', t.kid) ? btn('عدّل', 'go:task-new:' + id, 'sec', 'edit') : ''}</div>` : ''}
@@ -420,7 +420,7 @@ Object.assign(ACT, {
   tkEvTm(n) { ACT.tkEvRead(); S.ev.hm = tkTmAdd(S.ev.hm, +n * 30); },
   evSave() {
     if (!can('calendar.event.create')) return ACT.denied('calendar.event.create'); ACT.tkEvRead(); const d = S.ev, t = (d.t || '').trim(); if (!t) { toast('اكتب عنوان الحدث', null, 'error'); return; }
-    const old = d.id ? S.events.find(x => x.id === d.id) : null, was = old ? Object.assign({}, old) : null, e = old || { id: 'e' + Date.now(), by: me().id };
+    const old = d.id ? S.events.find(x => x.id === d.id) : null, was = old ? Object.assign({}, old) : null, e = old || { id: d.nid || 'e' + Date.now(), by: me().id };
     Object.assign(e, { t, dk: d.dk, hm: d.hm, who: d.who, rem: +d.rem, loc: (d.loc || '').trim(), rr: d.rr }); if (!old) S.events.push(e);
     const off = queue(`حدث «${t}»`, 'S1-06'); audit(`${old ? 'تعديل' : 'إضافة'} حدث «${t}»`, 'calendar.event.create'); S.ev = null; S.sheet = null; S.tv = 'cal'; S.tkM = Math.max(0, Math.min(3, (tkDt(e.dk).getFullYear() - 2026) * 12 + tkDt(e.dk).getMonth() - 10)); S.tkDay = e.dk;
     toast(off ? 'حُفظ الحدث · يُرسل عند الاتصال' : old ? 'حُفظ تعديل الحدث' : `أُضيف الحدث · التذكير ${tkRm(e.rem)}`, () => { if (old) Object.assign(old, was); else S.events = S.events.filter(x => x !== e); render(); }, off ? 'cloud_upload' : 'check_circle');
@@ -443,7 +443,7 @@ Object.assign(ACT, {
     if (n.rr === 'days' && !n.wd.length) { toast('اختر يوماً واحداً على الأقل', null, 'error'); return; }
     if (old && old.st !== 'PENDING') { toast('سُلّمت المهمة قبل الحفظ · راجع التسليم أولاً', null, 'error'); return; }
     const rr = TK().rec ? n.rr : 'none', f = { t, cat: n.cat, proof: n.proof, dk: n.dk, hm: n.hm, due: `${tkDayT(n.dk)} ${tkTm(n.hm)}`, rr, wd: n.wd.slice(), rep: tkRepT(rr, n.wd), rem: +n.rem, sub: n.sub.slice() };
-    const was = old ? Object.assign({}, old) : null, x = old || { id: 't' + Date.now(), kid: n.kid, by: me().id, pts: tkTeen(n.kid) ? 0 : n.pts, st: 'PENDING' };
+    const was = old ? Object.assign({}, old) : null, x = old || { id: n.nid || 't' + Date.now(), kid: n.kid, by: me().id, pts: tkTeen(n.kid) ? 0 : n.pts, st: 'PENDING' };
     Object.assign(x, f); if (!old) { if (n.sg) { x.sg = 1; const s = TK().sug.find(q => q.id === n.sg); if (s) s.st = 'ok'; } S.tasks.unshift(x); }
     const off = queue('مهمة «' + t + '»', 'S1-06'), sg = n.sg; audit(`${old ? 'تعديل' : 'إسناد'} مهمة «${t}» ${old ? '' : 'إلى ' + M[x.kid].n}`, 'tasks.create'); S.nt = null; back();
     toast(off ? 'حُفظت المهمة في الصندوق الصادر' : old ? 'حُفظ تعديل المهمة' : `أُسندت المهمة إلى ${M[x.kid].n}`, () => { if (old) { Object.keys(old).forEach(k => delete old[k]); Object.assign(old, was); } else { S.tasks = S.tasks.filter(q => q !== x); const s = TK().sug.find(q => q.id === sg); if (s) s.st = 'new'; } render(); }, off ? 'cloud_upload' : 'check_circle');
