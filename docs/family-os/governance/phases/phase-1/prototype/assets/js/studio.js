@@ -13,9 +13,11 @@ function jump(id, args) {
   if (need !== cur) setPersona(need); else { S.sheet = S.full = S.dlg = null; }
   const root = rootOf(S.persona), a = args || d.a || [];
   if (id === 'time-decide' && !S.reqs.some(r => r.st === 'PENDING')) S.reqs.push({ id: 'r0', kid: 'layan', app: 'ytk', min: 15, msg: 'بقيت حلقة واحدة', st: 'PENDING' });
-  const a2 = id === 'time-decide' ? [S.reqs.find(r => r.st === 'PENDING').id] : a;
+  if (id === 'obj-decide' && !RW().obj.some(o => o.st === 'PENDING')) { RW().obj = RW().obj.filter(o => o.sub !== 'd1'); RW().obj.push({ id: 'o' + (++RW().n), kid: 'layan', sub: 'd1', txt: 'أنجزتها كما طُلب. قرأت القصة كلها لكن التسجيل انقطع', st: 'PENDING', at: 'قبل 10 د' }); }
+  const a2 = id === 'time-decide' ? [S.reqs.find(r => r.st === 'PENDING').id] : id === 'obj-decide' ? [RW().obj.find(o => o.st === 'PENDING').id] : a;
   if ((id === 'sos-status' || id === 'sos-resolve') && !(S.sos && S.sos.st === 'sent')) S.sos = { from: 'layan', st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
   if (id === 'sos-sent' && !S.sos) S.sos = { from: PERSONA[need].m, st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
+  if (id === 'grant-points') S.gp = null; if (id === 'grant-time') S.gt = null; if (id === 'time-decide') S.td = null; if (id === 'obj-decide') S.od = null; if (id === 'objection') { S.obQ = ''; S.obT = ''; } if (id === 'rw-edit') S.rwD = null; if (id === 'redeem') { S.rdA = ''; S.rdN = 10; }
   if (id === 'ec-add') S.ecF = {};
   if (id === 'sos-count') S.sosN = 10;
   if (id === 'recover-review' && !(S.recReq && S.recReq.st !== 'cancelled')) S.recReq = { st: 'pending', kind: 'num' };
@@ -62,7 +64,7 @@ const JOURNEYS = [
     ['ليان فتحت YouTube Kids وقد نفد حدّه: شاشة الحظر تظهر فوراً. اضغط «اطلبي وقتاً من بابا».', () => { S.reqs = S.reqs.filter(r => r.st !== 'PENDING'); setPersona('child'); S.full = { id: 'block', a: ['ytk'] }; render(); }],
     ['اختاري المدة وأرسلي الطلب.', () => { setPersona('child'); S.sheet = { id: 'ask-time', a: ['ytk'] }; render(); }],
     ['انتقلنا إلى جهاز الأب: الطلب أعلى قائمة «يتطلب انتباهك» بقرار من نقرة واحدة.', () => { ensureReq(); jump('home'); }],
-    ['«خيارات أخرى»: امنح مدة مختلفة، أو ارفض وأسند مهمة بديلة.', () => { ensureReq(); jump('time-decide'); }],
+    ['«خيارات أخرى»: امنح مدة لا تتجاوز ما بقي من حد اليوم، أو ارفض وأسند مهمة بديلة بقيمتها، أو ارفض فقط.', () => { ensureReq(); jump('time-decide'); }],
     ['عدنا إلى ليان: ترى النتيجة فوراً، والوقت أُضيف إلى التطبيق نفسه فقط.', () => { const r = S.reqs.find(x => x.st === 'PENDING'); if (r) ACT.reqGrant(r.id, 15); $('#toast').innerHTML = ''; jump('c-home'); }],
   ] },
   { t: 'مهمة ← إثبات ← اعتماد ← صرف', d: 'من الإنشاء إلى المكافأة', s: [
@@ -70,8 +72,21 @@ const JOURNEYS = [
     ['ليان ترى مهامها محطاتٍ في «مسار اليوم».', () => jump('c-home')],
     ['تسلّم المهمة بالإثبات المطلوب. النقاط لا تودَع قبل الموافقة.', () => { const t = S.tasks.find(x => x.id === 't2'); t.st = 'PENDING'; jump('c-task', ['t2']); }],
     ['الأب يراجع: المساعد تحقق أولاً وأحال ما لم يجزم به.', () => jump('task-review', ['t1'])],
-    ['بعد الاعتماد تحتفل ليان وتزيد نقاطها وسلسلتها.', () => { const t = S.tasks.find(x => x.id === 't1'); if (t.st === 'SUBMITTED') { ACT.taskOk('t1'); $('#toast').innerHTML = ''; } jump('c-rewards'); }],
+    ['بعد الاعتماد تدخل النقاط محفظتها وتظهر في «آخر الحركات» بدليلها. السلسلة تزيد مرة واحدة في اليوم.', () => { const t = S.tasks.find(x => x.id === 't1'); if (t.st === 'SUBMITTED') { ACT.taskOk('t1'); $('#toast').innerHTML = ''; } jump('c-rewards'); }],
     ['تحوّل نقاطها إلى وقت للتطبيق الذي نفد، ضمن حدّ اليوم.', () => jump('redeem')],
+  ] },
+  { t: 'اعتراض ← قرار الأب', d: 'مهمة لم تُعتمد، والطفل يرى أنها أُنجزت', s: [
+    ['المساعد لم يعتمد «قراءة 15 دقيقة». ليان تفتح «قرار لم يكن عادلاً؟» من محفظتها وتختار القرار.', () => { RW().obj = []; jump('objection', ['']); }],
+    ['تختار جملة جاهزة أو تكتب جملة قصيرة، ثم ترسل.', () => { S.obQ = '0'; S.obT = ''; jump('objection', ['d1']); }],
+    ['يصل الاعتراض الأب بطاقةً في «يتطلب انتباهك».', () => { RW().obj = []; jump('obj-decide'); S.sheet = null; render(); }],
+    ['يرى القرار وسببه ودليله وكلام ليان. القبول يعتمد المهمة ويودِع نقاطها، والرفض يلزمه سبب.', () => jump('obj-decide')],
+    ['قبل الأب. ليان ترى الخبر في محفظتها والنقاط في «آخر الحركات».', () => { jump('obj-decide'); const o = RW().obj.find(x => x.st === 'PENDING'); if (o) ACT.rwObjYes(o.id); $('#toast').innerHTML = ''; jump('c-rewards'); }],
+  ] },
+  { t: 'سلسلة سبعة أيام', d: 'مكافأة السلسلة والشارة الفضية والتجميد', s: [
+    ['سلسلة ليان ستة أيام ولم تُعتمد لها مهمة اليوم بعد.', () => { RW(); S.kid.layan.streak = 6; S.rw.day.layan = 0; jump('streak', ['layan']); setPersona('child', 1); jump('streak'); }],
+    ['يعتمد الأب مهمتها: هذا أول كسب اليوم، فتكتمل سبعة أيام وتودَع مكافأة السلسلة.', () => { const t = S.tasks.find(x => x.id === 't1'); if (S.kid.layan.streak === 6 && t.st === 'SUBMITTED') { setPersona('owner'); ACT.taskOk('t1'); $('#toast').innerHTML = ''; } jump('c-rewards'); }],
+    ['نالت الشارة الفضية، والشارة التالية عند ثلاثين يوماً.', () => jump('streak')],
+    ['في يوم مرض يجمّد الأب السلسلة: يوم واحد في كل مرة، ومرتان في السلسلة.', () => { RW().day.layan = 0; setPersona('owner'); jump('streak', ['layan']); }],
   ] },
   { t: 'استغاثة SOS', d: '3 ثوانٍ ← 10 ثوانٍ ← وصلت', s: [
     ['زر SOS ظاهر في كل شاشة. اضغطه مطوّلاً 3 ثوانٍ (في الهاتف) لتبدأ.', () => { S.sos = null; jump('c-home'); }],
@@ -145,6 +160,16 @@ const Studio = {
     ecFlip() { if ((S.ec || []).length) S.ec = []; else ACT.ecAdd(); render(); },
     odFlip() { if (S.ownDel) S.ownDel = 0; else { S.ownDel = 30; if (!S.co) S.co = { since: 'اليوم', seen: 1 }; } render(); },
     r13Flip() { S.rev13 = S.rev13 === 1 ? 0 : 1; render(); },
+    /* المكافآت: أحداث وحالات للمعاينة */
+    rwEv(v) { const R = RW(), L = S.kid.layan; S.sheet = S.full = S.dlg = null;
+      if (v === 'day') { rwNextDay(); toast('انتقلنا إلى اليوم التالي', null, 'bedtime'); }
+      else if (v === 'six') { L.streak = 6; R.day.layan = 0; R.frz.layan = { n: 0, on: 0 }; }
+      else if (v === 'cap') { KIDS.forEach(id => { S.kid[id].spent = S.redeemCap; }); }
+      else if (v === 'zero') { L.pts = 5; }
+      else if (v === 'fz') { S.kid.khaled.pts = S.kid.khaled.pts ? 0 : 40; }
+      else if (v === 'obj') { jump('obj-decide'); return; }
+      else if (v === 'rev') { if (!R.led.layan.some(e => e.k === 'rev')) rwRev('layan', 'l5', 'ahmad'); setPersona('child'); jump('c-rewards'); return; }
+      render(); },
     coFlip() { S.co = S.co ? null : { since: 'اليوم', seen: 0 }; render(); },
     expFlip() { const g = S.g['location.history.view']; if (g) { g.un = g.un ? '' : addDays(5); g.ed = g.un ? 1 : 0; } render(); },
     sys(id) { Studio.open[id] = !Studio.open[id]; Studio.sync(); },
@@ -182,6 +207,7 @@ const Studio = {
     return `<div class="st-h" style="margin-top:0">العرض</div>${c('المظهر', '', sg('theme', [['light', 'فاتح'], ['dark', 'داكن']]))}${c('اللغة والاتجاه', 'الغلاف والتهيئة مترجمان', sg('lang', [['ar', 'ع RTL'], ['en', 'EN LTR']]))}${c('حجم النص', '', sg('ts', [[0.9, 'ص'], [1, 'ع'], [1.15, 'ك'], [1.3, 'ك+']]))}${c('تقليل الحركة', '', `<button class="sw" role="switch" aria-checked="${S.motion === 'off'}" data-st="set:motion:${S.motion === 'off' ? 'on' : 'off'}"></button>`)}${c('وضع الخصوصية', 'يخفي الأسماء والأماكن', sw('privacy'))}
     <div class="st-h">الشبكة والبيانات</div>${c('الاتصال', 'الأفعال تُحفظ وتُرسل لاحقاً', sg('net', [['on', 'متصل'], ['off', 'منقطع']]))}${c('اتصال ضعيف', 'يفعّل توفير البيانات', sw('lbw'))}${c('تعارض مزامنة', 'يظهر في «البيانات والمزامنة»', sw('syncConflict'))}${c('بيانات قديمة', 'وسوم «آخر تحديث»', sw('stale'))}${c('خدمة أُزيلت', 'تختفي بطاقاتها فوراً', sg('svcGone', [['', 'لا شيء'], ['loc', 'الموقع'], ['chat', 'المحادثة'], ['prot', 'الحماية']]))}${c('حالة اللوحة', 'الرئيسية عند الأب', sg('hub', [['', 'عادية'], ['empty', 'بلا أطفال'], ['nosnap', 'بلا نسخة'], ['bad', 'نسخة تالفة']]))}${c('جهاز ليان', 'تغيير القاعدة ينتظر اتصاله', sg('kidOff', [['', 'متصل'], ['layan', 'منقطع']]))}
     <div class="st-h">المحادثة</div>${c('يكتب الآن', 'مؤشر الكتابة في مجلس العائلة', sw('typing'))}${c('فشل الإرسال', 'الرسالة التالية لا تصل للخادم', sw('sendFail'))}${c('صورة أكبر من الحد', 'أكبر من 10 م.ب', sw('bigMedia'))}${c('المصنّف يوقف الرسالة التالية', 'في محادثة فيها ابن', sw('blockNext'))}${c('فئة التنبيه', 'كما تظهر في «تنبيه المصنّف»', sg('flagCat', [['', 'تنمّر'], ['threat', 'تهديد'], ['sexual', 'غير لائق'], ['distress', 'ضيق']]))}${c('تحميل المحادثات', 'قبل وصول القائمة', sw('chLoad'))}${c('تعذّر جلب المحادثات', 'خطأ من الخادم', sw('chErr'))}${c('السجل القديم لا يُسترد', 'تغيّر الرقم السري دون القديم', sw('crDead'))}
+    <div class="st-h">المكافآت</div><button class="jr" data-st="rwEv:day">${ic('bedtime')}<span>انتقل إلى اليوم التالي<small>ينتهي الوقت الإضافي، ويوم بلا كسب يقطع السلسلة</small></span></button><button class="jr" data-st="rwEv:six">${ic('local_fire_department')}<span>سلسلة ليان ستة أيام<small>اعتماد مهمة اليوم يكمل السبعة ويودِع المكافأة</small></span></button><button class="jr" data-st="rwEv:cap">${ic('hourglass_top')}<span>بلغ الحد اليومي<small>لا صرف ولا منح ولا طلب حتى الغد</small></span></button><button class="jr" data-st="rwEv:zero">${ic('stars')}<span>نقاط ليان لا تكفي<small>أقل من عشر نقاط</small></span></button><button class="jr" data-st="rwEv:obj">${ic('balance')}<span>اعتراض ينتظر الأب<small>ليان تعترض على مهمة لم تُعتمد</small></span></button><button class="jr" data-st="rwEv:rev">${ic('undo')}<span>الأب ألغى إيداعاً<small>ليان تراه في سجلها وتعترض</small></span></button>${c('لخالد رصيد مجمّد', 'كان له رصيد قبل بلوغه 13', `<button class="sw" role="switch" aria-checked="${S.kid.khaled.pts > 0}" data-st="rwEv:fz"></button>`)}
     <div class="st-h">الموقع والاستغاثة</div>${c('موقع خالد', 'كما يراه الأب', sg('locK', [['', 'حي'], ['old', 'قديم'], ['poor', 'تقريبي'], ['mov', 'يتحرك'], ['low', 'بطارية'], ['off', 'مغلق'], ['none', 'لا موقع']]))}${c('عنوان خالد', 'ما تعرفه الخريطة عن مكانه', sg('adK', [['', 'شارع'], ['poi', 'معلم'], ['area', 'حي فقط'], ['none', 'بلا اسم']]))}${c('سارة أوقفت مشاركة موقعها', 'يظهر ذلك لأحمد', sw('pause_sara'))}${c('تحميل المواقع', 'قبل وصول أول قراءة', sw('locLoad'))}${c('موقع هاتفي متوقف', 'لا نقطة «أنت» ولا مسافات', sw('myLocOff'))}${c('استغاثة ليان', 'كما يراها الأهل', `<div class="sg">${[['', 'لا شيء'], ['live', 'نشطة'], ['sms', 'نصية'], ['last', 'بلا موقع جديد'], ['ack', 'أُكّدت'], ['exh', 'لم يؤكد أحد'], ['done', 'حُلّت']].map(([v, t]) => `<button aria-pressed="${sosDemoCur() === v}" data-st="sosDemo:${v}">${t}</button>`).join('')}</div>`)}${c('رصيد الرسائل النصية', 'يحكم الاستغاثة بلا إنترنت', `<div class="sg">${[['ok', 'كافٍ'], ['out', 'انتهى'], ['none', 'انتهى مع الطارئة']].map(([v, t]) => `<button aria-pressed="${(S.smsOut ? (smsEm() ? 'out' : 'none') : 'ok') === v}" data-st="smsDemo:${v}">${t}</button>`).join('')}</div>`)}${c('تحديد الموقع متوقف', 'في الهاتف المحمول الآن', sw('gpsOff'))}${c('تعذّر تحميل الخريطة', '', sw('tilesFail'))}${c('جهة طوارئ خارجية', 'العم ناصر', `<button class="sw" role="switch" aria-checked="${(S.ec || []).length > 0}" data-st="ecFlip"></button>`)}
     <div class="st-h">المنصة والخطة</div>${c('نظام التشغيل', 'مصفوفة التوفر الصادقة', sg('os', [['android', 'Android'], ['ios', 'iOS']]))}${c('الخطة', 'حارس الحصص', sg('plan', [['free', 'مجانية'], ['basic', 'أساسية'], ['premium', 'مميزة']]))}${c('حالة الاشتراك', '', sg('planSt', [['', 'فعّال'], ['trial', 'تجربة'], ['grace', 'مهلة']]))}${c('دور سارة', 'يغيّر ما تراه البالغة المفوَّضة', sg('tpl', [['partner', 'شريك'], ['guardian', 'وصي'], ['observer', 'مراقب'], ['none', 'بلا']]))}${c('الصلاحية الكاملة لسارة', 'تصير مثل المالك', `<button class="sw" role="switch" aria-checked="${!!S.co}" data-st="coFlip"></button>`)}${c('المالك يحذف حسابه', 'والصلاحية الكاملة عند سارة', `<button class=\"sw\" role=\"switch\" aria-checked=\"${!!S.ownDel}\" data-st=\"odFlip\"></button>`)}${c('ليان بلغت 13', 'مراجعة ما يُسمح به لها', `<button class=\"sw\" role=\"switch\" aria-checked=\"${S.rev13 === 1}\" data-st=\"r13Flip\"></button>`)}${c('صلاحية لسارة تنتهي قريباً', 'تنبيه قبل 7 أيام', `<button class="sw" role="switch" aria-checked="${!!(S.g['location.history.view'] && S.g['location.history.view'].un)}" data-st="expFlip"></button>`)}
     <div class="st-h">حالات النظام</div>${c('حالة التطبيق', '', sg('sys', [['ok', 'عادي'], ['maint', 'صيانة'], ['first', 'أول فتح بلا اتصال']]))}${c('التحديث', 'متاح: صف في «عن التطبيق» · قديم: حثّ غير حاجب', sg('sys', [['ok', 'لا شيء'], ['avail', 'متاح'], ['soft', 'قديم'], ['update', 'إجباري']]))}${c('إذن الإشعارات', 'إيقافه يُظهر بانراً', sw('notifPerm'))}${c('استغاثة بنقرة ثم تأكيد', 'بديل الوصول', sw('sos2'))}${c('الوضع الجاهز للأطفال', '', sg('preset', [['', 'لا شيء'], ['study', 'دراسة'], ['sleep', 'نوم']]))}${c('تعارض تعديل متزامن', 'يفشل الحفظ التالي للصلاحيات', sw('conflict'))}

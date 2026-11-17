@@ -10,7 +10,8 @@ const ENF = { active: ['الحماية تعمل', 'verified_user', 'ok'], degrad
 function attention() {
   const A = [];
   if (S.sos && S.sos.st === 'sent' && S.sos.from !== me().id) A.push({ p: 0, c: 'var(--danger)', i: 'sos', t: `استغاثة من ${M[S.sos.from].n}`, s: `${S.sos.via} · ${S.sos.place}`, b: [['عرض الموقع والحالة', 'go:sos-status', 'dng']] });
-  if (can('rewards.time_request.decide')) S.reqs.filter(r => r.st === 'PENDING').forEach(r => { const k = M[r.kid]; A.push({ p: 1, c: 'var(--accent)', i: 'more_time', t: `${k.n} ${vb(k, 'يطلب', 'تطلب')} ${r.min} دقيقة إضافية`, s: `${appOf(r.kid, r.app).n} · نفد حدّه اليوم`, b: [[`منح ${r.min} د`, `reqGrant:${r.id}:${r.min}`, 'ok'], ['خيارات أخرى', `go:time-decide:${r.id}`, 'sec']] }); });
+  if (can('rewards.time_request.decide')) S.reqs.filter(r => r.st === 'PENDING').forEach(r => { const k = M[r.kid], g = Math.min(r.min, rwCapLeft(r.kid)); A.push({ p: 1, c: 'var(--accent)', i: 'more_time', t: `${k.n} ${vb(k, 'يطلب', 'تطلب')} ${r.min} دقيقة إضافية`, s: g ? `${appOf(r.kid, r.app).n} · نفد حدّه اليوم` : `${appOf(r.kid, r.app).n} · بلغ حد الوقت الإضافي اليوم`, b: g ? [[`منح ${g} د`, `reqGrant:${r.id}:${g}`, 'ok'], ['خيارات أخرى', `go:time-decide:${r.id}`, 'sec']] : [['اقرأ وقرّر', `go:time-decide:${r.id}`, 'ton']] }); });
+  if (can('rewards.objection.decide')) RW().obj.filter(o => o.st === 'PENDING' && !o.q).forEach(o => { const k = M[o.kid]; A.push({ p: 2, c: 'var(--info)', i: 'balance', t: `${k.n} ${vb(k, 'يعترض', 'تعترض')} على قرار`, s: rwSub(o.kid, o.sub).t, b: [['اقرأ وقرّر', `go:obj-decide:${o.id}`, 'ton']] }); });
   if (can('protection.tamper.view')) S.alerts.filter(a => a.k === 'tamper' && a.open).forEach(a => A.push({ p: 1, c: 'var(--warning)', i: 'gpp_maybe', t: a.t, s: a.s, b: [['عرض التفاصيل', `go:tamper:${a.id}`, 'ton']] }));
   if (can('protection.rule.view')) reviews().forEach(r => A.push({ p: 2, c: 'var(--info)', i: 'rule', t: r.k === 'teen' ? `قواعد ${M[r.kid].n} تحتاج مراجعتك` : `جهاز جديد ل${pname(M[r.kid])}: قواعده أُعيدت إليه`, s: r.k === 'teen' ? 'بلغت 13 سنة · قواعدها ما زالت سارية' : 'راجعها أو أبقِها كما هي', b: [['راجع', 'go:rules-review', 'ton']] }));
   if (can('tasks.approve')) S.tasks.filter(t => t.st === 'SUBMITTED').forEach(t => { const k = M[t.kid]; A.push({ p: 2, c: 'var(--info)', i: 'task_alt', t: `${k.n} ${vb(k, 'سلّم', 'سلّمت')} «${t.t}»`, s: t.ai === 'unsure' ? 'تعذّر على المساعد التحقق من الصورة · القرار لك' : 'بانتظار اعتمادك', b: [['اعتماد', `taskOk:${t.id}`, 'ok'], ['مراجعة', `go:task-review:${t.id}`, 'sec']] }); });
@@ -57,7 +58,7 @@ surface('home', {
     ${!svcOn('prot') ? '' : sec('وقت الشاشة اليوم', 'القواعد', 'tab:control') + `<div class="card">${KIDS.map(id => { const k = S.kid[id], pc = k.used / (k.quota + k.extra) * 100; return `<button class="fx" style="width:100%;padding:6px 0" data-a="go:member:${id}">${av(M[id], 'sm')}<span class="grow"><span class="fx sb sm"><b>${pname(M[id])}</b><span class="muted">${k.used} من ${k.quota + k.extra} د</span></span><span style="display:block;margin-top:5px">${pbar(pc, pc > 85 ? 'wa' : 'ok')}</span></span></button>`; }).join('')}</div>`}
     ${svcOn('chat') ? chWidget() : ''}
     <div class="gap"></div><div class="g2 fill">${can('tasks.view') && svcOn('tasks') ? `<button class="card stat" data-a="go:tasks"><span class="qi ac">${ic('task_alt')}</span><b>${done}/${tasksToday.length}</b><span>مهام اليوم المنجزة</span></button>` : ''}
-    ${can('rewards.wallet.view') && svcOn('rew') ? `<button class="card stat" data-a="go:rewards-admin"><span class="qi go">${ic('stars')}</span><b>${S.kid.layan.pts + S.kid.yusuf.pts}</b><span>نقاط الأطفال · سلسلة ليان ${S.kid.layan.streak} أيام</span></button>` : ''}
+    ${can('rewards.wallet.view') && svcOn('rew') ? `<button class="card stat" data-a="go:rewards-admin"><span class="qi go">${ic('stars')}</span><b>${S.kid.layan.pts + S.kid.yusuf.pts}</b><span>نقاط الأطفال${RW().obj.some(o => o.st === 'PENDING' && !o.q) && can('rewards.objection.decide') ? ' · اعتراض ينتظرك' : S.kid.layan.streak ? ' · سلسلة ليان ' + rwDy(S.kid.layan.streak) : ''}</span></button>` : ''}
     ${can('hub.plan.view') ? `<button class="card stat" data-a="go:plan"><span class="qi go">${ic('workspace_premium')}</span><b>${{ free: 'المجانية', basic: 'الأساسية', premium: 'المميزة' }[S.plan]}</b><span>SMS: ${S.sms.used} من ${{ free: 20, basic: 50, premium: 100 }[S.plan]} هذا الشهر</span></button>` : ''}</div>
     ${isOwner() ? '' : `<div class="gap"></div>` + list(row('key', 'صلاحياتي', 'ما أستطيعه هنا، وما أطلبه من أحمد', { a: 'go:my-perms' }))}`}
     </div>`;
@@ -79,25 +80,17 @@ Object.assign(ACT, {
   aiApply() { gate('تغيير قاعدة باقتراح المساعد يتطلب تأكيدك', () => { const g = S.agent.find(x => x.id === 'g3'); g.st = 'نُفّذ بموافقتك'; g.undo = 1; audit('قُدّمت نافذة نوم خالد 30 د (اقتراح المساعد)', 'agent.rule.change'); toast('عُدّلت نافذة النوم · يمكنك التراجع من سجل المساعد', () => { g.st = 'بانتظارك'; g.undo = 0; render(); }); }, 'stepup'); },
   aiDismiss() { S.agent.find(x => x.id === 'g3').st = 'رُفض'; toast('لن يُنفَّذ الاقتراح'); },
   alertClose(id) { const a = S.alerts.find(x => x.id === id); a.open = 0; toast('أُغلق التنبيه', () => { a.open = 1; render(); }); },
-  reqGrant(id, min) {
-    const r = S.reqs.find(x => x.id === id), k = S.kid[r.kid], a = appOf(r.kid, r.app); min = +min;
-    r.st = 'GRANTED'; r.got = min; a.lim += min; k.extra += min; S.sheet = null;
-    const off = queue(`منح ${min} د لـ${M[r.kid].n}`, 'S1-05');
-    audit(`مُنحت ${M[r.kid].n} ${min} دقيقة إضافية لتطبيق ${a.n}`, 'rewards.time_request.decide');
-    toast(off ? 'محفوظ · يصل جهاز الطفل عند عودة الاتصال' : `مُنحت ${min} دقيقة · ينتهي أثرها بنهاية اليوم`, () => { r.st = 'PENDING'; a.lim -= min; k.extra -= min; render(); }, off ? 'cloud_upload' : 'check_circle');
-  },
-  reqDeny(id, withTask) {
-    const r = S.reqs.find(x => x.id === id); r.st = 'DENIED'; S.sheet = null;
-    if (withTask) { S.tasks.unshift({ id: 't' + Date.now(), kid: r.kid, t: 'قراءة 15 دقيقة', cat: 'school', pts: 15, due: 'اليوم', proof: 'self', st: 'PENDING', swap: 1 }); r.task = 1; toast(`رُفض الطلب وأُسندت مهمة بديلة إلى ${M[r.kid].n}`); } else toast('رُفض الطلب · أُبلغ الطفل بلطف');
-    audit(`رُفض طلب وقت إضافي من ${M[r.kid].n}${withTask ? ' مع إسناد مهمة' : ''}`, 'rewards.time_request.decide');
-  },
   taskOk(id) {
-    const t = S.tasks.find(x => x.id === id), k = S.kid[t.kid]; t.st = 'APPROVED'; k.pts += t.pts; S.sheet = null;
-    const bonus = t.kid === 'layan' && k.streak === 6; if (t.kid !== 'khaled') k.streak += 1; if (bonus) k.pts += 50; t.cele = 1;
+    const t = S.tasks.find(x => x.id === id), k = S.kid[t.kid]; t.st = 'APPROVED'; S.sheet = null;
+    /* الإيداع عبر دفتر المكافآت (S1-05): أول كسب في اليوم يمدّ السلسلة، وكل سبعة أيام تودِع مكافأتها */
+    const r = t.pts && RW().src.tasks ? rwEarn(t.kid, { k: 'task', n: t.pts, t: t.t, as: t.by || 'ahmad', vf: me().id, ev: (t.proof === 'photo' ? 'صورة الإثبات' : t.proof === 'audio' ? 'تسجيل صوتي' : 'إقرار ' + M[t.kid].n) + ' واعتماد ' + me().n }) : null; t.cele = r ? 1 : 0;
     queue(`اعتماد «${t.t}»`, 'S1-06');
-    toast(`اعتُمدت المهمة${t.pts ? ` · أُودعت ${t.pts} نقاط في محفظة ${M[t.kid].n}` : ''}`, () => { t.st = 'SUBMITTED'; k.pts -= t.pts; if (t.kid !== 'khaled') k.streak -= 1; render(); });
+    toast(`اعتُمدت المهمة${r ? ` · أُودعت ${rwPt(t.pts)} في محفظة ${M[t.kid].n}${r.b ? ` ومعها مكافأة السلسلة ${r.b.n}` : ''}` : t.pts && rwHas(t.kid) ? ' · بلا نقاط: كسب النقاط من المهام متوقف' : ''}`, () => { t.st = 'SUBMITTED'; t.cele = 0; if (r) { if (r.b) rwRev(t.kid, r.b.id, 'undo'); rwRev(t.kid, r.x.id, 'undo'); } render(); });
   },
-  taskReject(id) { const t = S.tasks.find(x => x.id === id); const n = ($('#rejNote') || {}).value || 'أعيدي المحاولة بصورة أوضح'; t.st = 'PENDING'; t.note = n; S.sheet = null; toast('أُعيدت المهمة مع ملاحظتك'); },
+  taskReject(id) { const t = S.tasks.find(x => x.id === id); const n = ($('#rejNote') || {}).value || 'أعيدي المحاولة بصورة أوضح'; t.st = 'PENDING'; t.note = n; S.sheet = null;
+    /* قرار عدم الاعتماد يدخل قائمة ما يصح الاعتراض عليه (S1-05 REQ-018) */
+    RW().dec = RW().dec.filter(d => d.tid !== id); RW().dec.unshift({ id: 'd' + (++RW().n), tid: id, kid: t.kid, t: t.t, pts: t.pts, by: me().id, why: n, ev: t.proof === 'photo' ? 'صورة الإثبات' : t.proof === 'audio' ? 'تسجيل صوتي' : 'إقرار ' + M[t.kid].n, at: 'اليوم' });
+    toast('أُعيدت المهمة مع ملاحظتك'); },
 });
 
 surface('alerts', {
@@ -105,19 +98,6 @@ surface('alerts', {
   note: 'تبويبان: «تحتاج قرارك» بطاقات بقرار من نقرة واحدة، مرتبة بالأهم. و«كل التنبيهات» سجل ما نشرته الخدمات، يُصفّى بالنوع وبغير المقروء، وكل صف يفتح تفصيله. يظهر لكل بالغ ما يخص صلاحياته فقط.',
   r() { const A = attention(), v = S.alV || 'todo';
     return seg([['todo', `تحتاج قرارك${A.length ? ' · ' + A.length : ''}`], ['log', 'كل التنبيهات']], v, 'set:alV') + (v === 'log' ? alertLog() : A.length ? A.map(attCard).join('') : empty('task_alt', 'لا شيء يحتاج قرارك', 'عندما يطلب أحد الأطفال وقتاً أو يسلّم مهمة سيظهر هنا.')); },
-});
-surface('time-decide', {
-  kind: 'sheet', t: 'قرار طلب الوقت', sys: 'S1-05', p: 'adult', a: ['r0'], req: '05:11,12,13,14 10:12 09:17',
-  note: 'ورقة القرار: منح مباشر بلا نقاط، أو رفض، أو رفض مع إسناد مهمة بديلة. الوقت الممنوح يضاف إلى حد التطبيق فقط ولا يفتح نافذة نوم أو مدرسة.',
-  r(id) {
-    const r = S.reqs.find(x => x.id === id); if (!r) return `<h4>لا يوجد طلب معلّق</h4><p class="d">شغّل رحلة «نفد الوقت» من الاستوديو، أو انتقل إلى ليان واطلب وقتاً من شاشة الحظر.</p>`;
-    const k = M[r.kid], a = appOf(r.kid, r.app);
-    return `<div class="fx" style="margin-bottom:10px">${av(k)}<div><h4>${k.n} ${vb(k, 'يطلب', 'تطلب')} وقتاً إضافياً</h4><span class="sm muted">${a.n} · استُخدم ${a.used} من ${a.lim} د اليوم</span></div></div>
-    ${r.msg ? `<div class="card flat sm">«${r.msg}»</div>` : ''}
-    <p class="d">الوقت الممنوح يضاف إلى هذا التطبيق فقط، وينتهي بنهاية اليوم، ولا يفتحه أثناء النوم أو المدرسة. ${why('extra')}</p>
-    <div class="btns" style="margin-bottom:8px">${[10, 15, 30].map(n => btn(`${n} د`, `reqGrant:${id}:${n}`, n === r.min ? '' : 'ton')).join('')}</div>
-    ${btn('ارفض وأسند مهمة بدلاً منه', `reqDeny:${id}:1`, 'sec', 'add_task')}<div class="gap"></div>${btn('ارفض فقط', `reqDeny:${id}`, 'txt')}`;
-  },
 });
 surface('task-review', {
   kind: 'sheet', t: 'مراجعة تسليم مهمة', sys: 'S1-06', p: 'adult', a: ['t1'], req: '06:7,8,9 05:5 09:17',
@@ -179,7 +159,7 @@ surface('member', {
       R('verified_user', 'حالة الحماية على الجهاز', e[0], 'protection.state.view', `go:enf-state:${id}`))}
     ${sec('المهام والمكافآت')}${list(
       R('task_alt', 'المهام', `${S.tasks.filter(t => t.kid === id && t.st === 'PENDING').length} قيد التنفيذ`, 'tasks.view', `go:tasks:${id}`),
-      R('stars', 'المحفظة', m.role === 'teen' ? 'نقاط المراهق الافتراضية صفر' : `سلسلة ${k.streak} أيام`, 'rewards.wallet.view', `go:wallet-admin:${id}`, `${k.pts} نقطة`),
+      R('stars', m.role === 'teen' ? 'الوقت الإضافي' : 'المحفظة', m.role === 'teen' ? 'لا محفظة للمراهقين · يطلب وقتاً والقرار لك' : `سلسلة ${k.streak ? rwDy(k.streak) : 'لم تبدأ'}`, 'rewards.wallet.view', `go:wallet-admin:${id}`, m.role === 'teen' ? `${k.spent} د اليوم` : `${k.pts} نقطة`),
       R('forum', 'محادثاته', 'مرئية للأب دائماً', 'chat.minor.view', 'go:minor-chats:' + id))}
     ${sec('الملف والجهاز')}${list(
       row('badge', 'بيانات الملف', `اسم مستعار · سنة الميلاد ${m.by} · لا تاريخ ميلاد كامل`, { a: can('identity.child.profile.edit') ? `go:child-profile:${id}` : 'denied:identity.child.profile.edit' }),
@@ -617,43 +597,3 @@ surface('event-new', {
 ACT.evSave = () => { const t = ($('#evT') || {}).value.trim(); if (!t) { toast('اكتب عنوان الحدث', null, 'error'); return; } S.events.push({ d: S.cDay || 15, t, at: '5:00 م', rem: 60 }); S.sheet = null; S.tv = 'cal'; toast('أُضيف الحدث إلى تقويم العائلة'); };
 
 /* ============ المكافآت (إدارة) ============ */
-surface('rewards-admin', {
-  t: 'المكافآت', sys: 'S1-05', p: 'adult', req: '05:1,2,6,7,10,11,18 10:12',
-  note: 'محفظة واحدة لكل طفل، ورصيدها ظاهر للطفل وللأب دائماً. الإعدادات للمالك حصراً (rewards.settings.edit).',
-  r() { const own = isOwner();
-    return `${['layan', 'yusuf', 'khaled'].map(id => { const k = S.kid[id]; return `<button class="card fx" data-a="go:wallet-admin:${id}">${av(M[id])}<div class="grow"><b>${pname(M[id])}</b><div class="sm muted">${id === 'khaled' ? 'مهام المراهق بلا نقاط افتراضياً' : `سلسلة ${k.streak} ${k.streak > 2 && k.streak < 11 ? 'أيام' : 'يوماً'}`}</div></div><b style="font-size:calc(20px*var(--ts))">${k.pts}</b>${coin()}</button>`; }).join('')}
-    <div class="btns" style="margin-bottom:10px">${btn('امنح نقاطاً', can('rewards.grant.create') ? 'go:grant-points' : 'denied:rewards.grant.create', 'sm ton', 'stars')}${btn('امنح وقتاً', can('rewards.grant.create') ? 'go:grant-time' : 'denied:rewards.grant.create', 'sm ton', 'more_time')}</div>
-    ${sec('القواعد')}${list(row('swap_horiz', 'سعر الصرف', 'يصرفها الطفل وقتاً للتطبيق الذي نفد وقته', { v: '10 نقاط = 10 د' }), row('hourglass_top', 'حدّ الصرف اليومي', 'أقصى وقت يُشترى بالنقاط في اليوم', { v: S.redeemCap + ' د', a: own ? 'capAdj' : 'denied:rewards.settings.edit' }), row('local_fire_department', 'مكافأة السلسلة', '7 أيام إنجاز متتالية', { v: '50 نقطة' }), row('ac_unit', 'تجميد السلسلة', 'يحفظ السلسلة في يوم غياب', { a: own ? 'soonC' : 'denied:rewards.streak.freeze', v: own ? '' : ic('lock') }), row('wand_stars', 'منح المساعد', 'كل منح ذكاء قابل للتراجع من سجله', { a: 'go:ai' }))}`; },
-});
-ACT.capAdj = () => { S.redeemCap = S.redeemCap === 60 ? 30 : S.redeemCap === 30 ? 45 : 60; toast('حدّ الصرف اليومي: ' + S.redeemCap + ' دقيقة'); };
-surface('wallet-admin', {
-  t: id => 'محفظة ' + M[id].n, sys: 'S1-05', p: 'adult', a: ['layan'], req: '05:1,2,5,6,7,9,18',
-  r(id) { const k = S.kid[id];
-    return `<div class="wallet"><small>الرصيد</small><div class="big">${k.pts} ${coin()}</div><small>سلسلة ${k.streak} أيام · صُرف اليوم ${k.spent} من ${S.redeemCap} د</small></div>
-    ${sec('الحركات')}<div class="card"><div class="tl">${S.tasks.filter(t => t.kid === id && t.st === 'APPROVED' && t.pts).map(t => `<div class="ev ok"><b>+${t.pts} · ${t.t}</b><span>بعد الاعتماد · اليوم</span></div>`).join('')}${(S.grants || []).filter(g => g.kid === id).map(g => `<div class="ev ok"><b>+${g.n} · منحة من ${g.by}</b><span>${g.why || 'بلا سبب مذكور'} · الآن</span></div>`).join('')}<div class="ev"><b>−10 · صرف 10 د لـYouTube Kids</b><span>أمس · انتهى أثره منتصف الليل</span></div></div></div>
-    ${can('rewards.grant.create') ? btn('امنح نقاطاً', 'go:grant-points:' + id, '', 'stars') : ''}`; },
-});
-surface('grant-points', {
-  kind: 'sheet', t: 'منح نقاط', sys: 'S1-05', p: 'adult', a: ['layan'], req: '05:6',
-  note: 'منح يدوي فوري بسقف 60 نقطة للمنحة الواحدة.',
-  r(kid) { const g = S.gp = S.gp || { kid: kid || 'layan', n: 10 };
-    return `<h4>امنح نقاطاً</h4><p class="d">تودَع فوراً في المحفظة. الحد 60 نقطة للمنحة.</p><div class="chips" style="margin-bottom:12px">${['layan', 'yusuf'].map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gpSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>
-    <div class="card flat"><div class="stepper"><button data-a="gpSet:n:${Math.max(5, g.n - 5)}" aria-label="أقل">${ic('remove')}</button><b>${g.n}<small>نقطة</small></b><button data-a="gpSet:n:${Math.min(60, g.n + 5)}" aria-label="أكثر">${ic('add')}</button></div></div>
-    <label class="fld"><span>السبب (يراه الطفل)</span><input id="gpW" placeholder="مثال: ساعدتِ أخاكِ اليوم"></label>${btn('امنح الآن', 'gpGo')}`; },
-});
-Object.assign(ACT, {
-  gpSet(k, v) { S.gp[k] = isNaN(v) ? v : +v; },
-  gpGo() { const g = S.gp, w = ($('#gpW') || {}).value; S.kid[g.kid].pts += g.n; (S.grants = S.grants || []).push({ kid: g.kid, n: g.n, by: me().n, why: w }); S.sheet = null; S.gp = null; queue('منح نقاط', 'S1-05'); toast(`أُودعت ${g.n} نقطة في محفظة ${M[g.kid].n}`, () => { if (S.kid[g.kid]) S.kid[g.kid].pts -= g.n; (S.grants || []).pop(); render(); }); },
-});
-surface('grant-time', {
-  kind: 'sheet', t: 'منح وقت مباشر', sys: 'S1-05', p: 'adult', a: ['layan'], req: '05:11 10:12',
-  note: 'الأب يمنح وقتاً إضافياً مباشرة بلا نقاط. يضاف إلى حدّ تطبيق محدد وينتهي بنهاية اليوم.',
-  r(kid) { const g = S.gt = S.gt || { kid: kid || 'layan', n: 15 }, ap = S.apps[g.kid].filter(a => a.act === 'LIMIT'); g.app = ap.some(a => a.id === g.app) ? g.app : ap[0].id;
-    return `<h4>امنح وقتاً إضافياً</h4><p class="d">بلا نقاط. يُضاف إلى تطبيق واحد وينتهي بنهاية اليوم.</p><div class="chips" style="margin-bottom:10px">${KIDS.map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gtSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>
-    <div class="chips" style="margin-bottom:12px">${ap.map(a => `<button class="chip ${g.app === a.id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" data-a="gtSet:app:${a.id}">${ic(a.i)}${a.n}</button>`).join('')}</div>
-    ${seg([[10, '10 د'], [15, '15 د'], [30, '30 د'], [60, '60 د']], g.n, 'gtSet:n')}${btn('امنح الوقت', 'gtGo')}`; },
-});
-Object.assign(ACT, {
-  gtSet(k, v) { S.gt[k] = isNaN(v) ? v : +v; },
-  gtGo() { const g = S.gt, a = appOf(g.kid, g.app); a.lim += g.n; S.kid[g.kid].extra += g.n; S.sheet = null; S.gt = null; const off = queue('منح وقت', 'S1-05'); audit(`مُنح ${M[g.kid].n} ${g.n} د لتطبيق ${a.n}`, 'rewards.grant.create'); toast(off ? 'محفوظ · يصل الجهاز عند الاتصال' : `مُنحت ${g.n} دقيقة لـ${a.n}`, () => { a.lim -= g.n; S.kid[g.kid].extra -= g.n; render(); }); },
-});

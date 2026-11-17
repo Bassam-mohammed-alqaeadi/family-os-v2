@@ -684,3 +684,34 @@ button.chip{min-height:28px}
 .fld.srch{margin-bottom:10px}
 .fld.srch input{min-height:44px}
 .fch.w{flex-wrap:wrap;overflow:visible;margin:0 0 10px;padding:0}
+
+/* ---------- S1-05 المكافآت ---------- */
+.wallet.fz{background:linear-gradient(150deg,#5b6472,#7a8494);}
+.rwv{font-weight:700;font-size:calc(16px*var(--ts));direction:ltr;unicode-bidi:isolate}
+.rwv.pos{color:var(--success)}.rwv.neg{color:var(--text2)}.rwv.off{text-decoration:line-through;opacity:.55}
+.rwbig{font-size:calc(30px*var(--ts));font-weight:700;margin:2px 0 8px;display:flex;align-items:center;justify-content:center;gap:8px;direction:ltr}
+.rwbig.pos{color:var(--success)}.rwbig.neg{color:var(--text2)}
+.rwkv{padding:4px 14px;margin-bottom:12px}
+.rwkv > div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:calc(14.5px*var(--ts))}
+.rwkv > div:last-child{border-bottom:0}
+.rwkv span{color:var(--muted);flex:none}
+.rwkv b{font-weight:600;text-align:end}
+.rwstk{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 16px;text-align:center}
+.rwstk .fl{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft,#fbe9e1);color:var(--accent)}
+.rwstk .fl svg{width:42px;height:42px}
+.rwstk .fl.off{background:var(--sunken);color:var(--muted)}
+.rwstk > b{font-size:calc(46px*var(--ts));font-weight:700;line-height:1.1}
+.rwstk > span{color:var(--muted);margin-bottom:6px}
+.rwbdg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rwbdg > div{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rwbdg i{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted);margin-bottom:4px}
+.rwbdg i svg{width:26px;height:26px}
+.rwbdg .got i{background:var(--bc);color:#fff}
+.rwbdg b{font-size:calc(14px*var(--ts));font-weight:600}
+.rwbdg span{font-size:calc(12px*var(--ts));color:var(--muted)}
+.rwms{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:34px;margin:16px 0}
+.rwms .hf{opacity:.4;font-size:24px;align-self:center}
+.rwmf{display:flex;gap:6px;justify-content:center;color:var(--accent);margin-top:6px}
+.rwmf svg{width:30px;height:30px}
+/* أزرار النص في أسطح الطفل: هدف لمس كامل */
+.phone[data-mode="child"] .btn.txt,.phone[data-mode="mini"] .btn.txt{min-height:var(--touch)}

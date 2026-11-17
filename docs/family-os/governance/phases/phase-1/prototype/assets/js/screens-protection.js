@@ -604,5 +604,5 @@ surface('warn5', {
 Object.assign(ACT, {
   blkLearn() { S.full = null; ACT.tab('learn'); },
   say() { toast('يُقرأ النص بصوت مسموع', null, 'volume_up'); return undefined; },
-  askGoM(aid) { const id = kidId(); S.reqs.push({ id: 'r' + Date.now(), kid: id, app: aid, min: 15, st: 'PENDING' }); queue('طلب وقت إضافي', 'S1-05'); toast(offline() ? 'يوصل لبابا لما يرجع النت' : 'وصل طلبك لبابا', null, 'send'); },
+  askGoM(aid) { const id = kidId(), cl = rwCapLeft(id); if (cl <= 0) return toast('وقت اللعب الزيادة خلص اليوم. يرجع بكرة', null, 'bedtime'); S.reqs.push({ id: 'r' + Date.now(), kid: id, app: aid, min: Math.min(15, cl), st: 'PENDING' }); queue('طلب وقت إضافي', 'S1-05'); toast(offline() ? 'يوصل لبابا لما يرجع النت' : 'وصل طلبك لبابا', null, 'send'); },
 });
