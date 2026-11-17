@@ -44,7 +44,7 @@ const FAMK = ['identity.family.invite', 'identity.child.create', 'chat.parents.v
 function roleCopy(keys, sc, un, at) { const g = {}; keys.forEach(k => { g[k] = { d: 0, sc: FAMK.includes(k) ? 'fam' : (Array.isArray(sc) ? sc.slice() : sc), un, src: 'role', at: at || 'الآن' }; }); return g; }
 const seedRoles = () => ({ partner: { n: 'شريك', d: 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.', keys: window.FOS_PERM.partner.slice() }, guardian: { n: 'وصي محدود', d: 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.', keys: window.FOS_PERM.guardian.slice() }, observer: { n: 'مراقب', d: 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.', keys: window.FOS_PERM.observer.slice() } });
 const fresh = () => ({
-  persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', os: 'android', sys: 'ok',
+  persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', reg: 'YE', os: 'android', sys: 'ok',
   tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, fm: {}, pm: {}, modes: [{ id: 'm1', n: 'رحلة السيارة', i: 'route', open: 'list', apps: ['ytk', 'mc'], lim: 0 }], rankKid: {}, warned: {}, pendR: {}, rvT: 0, kidOff: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */

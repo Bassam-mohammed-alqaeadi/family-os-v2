@@ -53,48 +53,7 @@ surface('registry', {
     ${sec('خدمات قادمة')}<div class="card flat"><div class="chips">${['التعليم', 'القرآن والصلاة', 'الصحة', 'المالية العائلية'].map(x => chip(x, 'ol', 'hourglass_empty')).join('')}</div><div class="xs muted" style="margin-top:8px">أمثلة فقط؛ الأسماء لم تُحسم بعد. كل خدمة جديدة تظهر هنا من نفسها عند إضافتها للتطبيق.</div></div>`; },
 });
 
-/* ---------- الخطة والفوترة ---------- */
-surface('plan', {
-  t: 'الخطة والفوترة', sys: 'S1-04', p: 'adult', req: '04:1,2,9,12,13,14,15,16,17 09:12,13',
-  note: 'القسم في مركز الأوامر للقراءة فقط، وزر الترقية ينقل إلى الخطط. الاستهلاك يُقرأ من حارس الحصص. التراجع لبق: عودة للمجانية بلا قفل ولا حذف بيانات.',
-  r() { const p = PLAN[S.plan], own = isOwner(), U = (i, t, u, q) => `<div style="margin-bottom:12px"><div class="fx sb sm"><span class="fx" style="gap:6px">${ic(i)}<b>${t}</b></span><span>${u} من ${q === Infinity ? 'غير محدود' : q}</span></div><div style="margin-top:6px">${pbar(q === Infinity ? 8 : u / q * 100, u / q > .9 ? 'da' : u / q > .7 ? 'wa' : '')}</div></div>`;
-    return `<div class="plan cur"><div class="fx sb"><h5>الخطة ${p.n}</h5>${chip(S.planSt === 'trial' ? 'تجربة · بقي 7 أيام' : S.planSt === 'grace' ? 'مهلة · بقي 3 أيام' : 'فعّالة', S.planSt === 'grace' ? 'wa' : 'ok', 'check_circle')}</div><div class="sm muted" style="margin:4px 0 14px">${S.plan === 'free' ? 'بلا تكلفة · بلا مدة' : `${p.yer} ر.ي شهرياً · تتجدد 15 ديسمبر`}</div>
-    ${U('groups', 'الأفراد', 5, p.mem)}${U('sms', 'رسائل SMS هذا الشهر', S.sms.used, p.sms)}${U('wand_stars', 'ميزانية المساعد', S.aiUse, p.ai)}</div>
-    ${S.planSt === 'grace' ? callout('انتهى الاشتراك ولم يُجدَّد. أمامك 3 أيام مهلة، بعدها تعود العائلة إلى المجانية دون قفل ودون حذف أي بيانات، ويبقى كل الأعضاء الحاليين.', 'wa', 'schedule') : ''}
-    ${own ? btn(S.plan === 'premium' ? 'قارن الخطط' : 'رقِّ الخطة', 'go:plans', '', 'arrow_circle_up') : callout('الفوترة للأب حصراً. يمكنك الاطلاع على الخطة والاستهلاك فقط.', 'nt', 'lock')}
-    ${own ? `<div class="gap"></div>${list(row('sms', 'عبّئ رصيد SMS', '50 رسالة تضاف لرصيد الشهر', { v: '250 ر.ي', a: 'go:topup' }), row('confirmation_number', 'استخدم قسيمة', 'من وكيل معتمد', { a: 'go:voucher' }), row('receipt_long', 'سجل المدفوعات', '', { a: 'soonC' }), row('replay', 'استعد المشتريات', 'من متجر Google Play', { a: 'restoreP' }))}` : ''}`; },
-});
-ACT.restoreP = () => toast('لا مشتريات سابقة على هذا الحساب', null, 'info');
-surface('plans', {
-  t: 'الخطط', sys: 'S1-04', p: 'owner', req: '04:1,3,4,5,6,12',
-  note: 'ثلاث خطط بمصفوفة حصص قابلة للتعديل من ملف الخطط. الأسعار حسب المنطقة: اليمن بالريال، الخليج بالريال السعودي. لا مشتريات تظهر للطفل أو المراهق أبداً.',
-  r() { const yr = S.yr, ye = (S.reg || 'YE') === 'YE', cur = S.plan, price = k => { const p = PLAN[k]; return k === 'free' ? 'مجاناً' : ye ? `${p.yer} <small>ر.ي / شهر</small>` : yr ? `${p.sarY} <small>ر.س / سنة</small>` : `${p.sar} <small>ر.س / شهر</small>`; };
-    const F = k => { const p = PLAN[k]; return `<ul><li>${ic('check')}${p.mem === Infinity ? 'أفراد بلا حد' : 'حتى ' + p.mem + ' أفراد'}</li><li>${ic('check')}${p.sms} رسالة SMS شهرياً</li><li>${ic('check')}${p.ai} عملية للمساعد شهرياً</li></ul>`; };
-    return `${seg([['YE', 'اليمن'], ['GCC', 'الخليج']], S.reg || 'YE', 'set:reg')}${ye ? '' : seg([['', 'شهري'], ['1', 'سنوي · وفّر ~25%']], yr ? '1' : '', 'set:yr')}
-    ${['free', 'basic', 'premium'].map(k => `<div class="plan ${cur === k ? 'cur' : k === 'premium' ? 'best' : ''}"><div class="fx sb"><h5>${PLAN[k].n}</h5>${cur === k ? chip('خطتك الحالية', 'ok', 'check') : k === 'premium' ? chip('تجربة 7 أيام مجاناً', 'go') : ''}</div><div class="pr">${price(k)}</div>${F(k)}${cur === k ? '' : k === 'free' ? btn('عُد إلى المجانية', 'planDown', 'sec sm') : btn(k === 'premium' && cur === 'free' ? 'ابدأ التجربة المجانية' : 'اختر ' + PLAN[k].n, 'go:pay:' + k, 'sm')}</div>`).join('')}
-    <p class="xs muted c">الترقية فورية عند تأكيد الدفع من الخادم. يمكنك الإلغاء في أي وقت.</p>`; },
-});
-ACT.planDown = () => confirmDlg('العودة إلى الخطة المجانية؟', 'لا يُقفل شيء ولا تُحذف بيانات. يبقى أعضاؤك الحاليون، ولا يمكن إضافة أعضاء جدد فوق حد المجانية.', 'عُد إلى المجانية', () => { S.plan = 'free'; S.planSt = ''; toast('أنت الآن على الخطة المجانية'); render(); });
-surface('pay', {
-  t: 'الدفع', sys: 'S1-04', p: 'owner', a: ['basic'], req: '04:4,5,6,7,8',
-  note: 'طرق الدفع من ملف المنطقة. اليمن: محافظ + دفع يدوي مسبق + قسائم وكلاء. الخليج: Google Play + بطاقات عبر الويب. التحقق خادمي دائماً، والترقية لا تتم قبل تأكيده.',
-  r(k) { const ye = (S.reg || 'YE') === 'YE', p = PLAN[k], m = S.pm || (ye ? 'onecash' : 'gplay');
-    const O = ye ? [['onecash', 'محفظة OneCash', 'account_balance_wallet'], ['mahfathati', 'محفظتي', 'wallet'], ['voucher', 'قسيمة وكيل', 'confirmation_number'], ['manual', 'دفع يدوي مسبق', 'storefront']] : [['gplay', 'Google Play', 'android'], ['card', 'بطاقة عبر الويب (Tap / Moyasar)', 'credit_card']];
-    return `<div class="card flat fx sb"><div><b>الخطة ${p.n}</b><div class="sm muted">${k === 'premium' && S.plan === 'free' ? 'تجربة 7 أيام ثم ' : ''}${ye ? p.yer + ' ر.ي شهرياً' : p.sar + ' ر.س شهرياً'}</div></div>${ic('workspace_premium')}</div>${sec('طريقة الدفع')}${list(O.map(([id, n, i]) => row(i, n, id === 'manual' ? 'ادفع لدى وكيل ثم أدخل رقم الإيصال' : '', { a: 'set:pm:' + id, chev: false, v: ic(m === id ? 'check_circle-fill' : 'radio_button_unchecked') })))}
-    ${m === 'voucher' ? btn('أدخل رمز القسيمة', 'go:voucher', 'sec') + '<div class="gap"></div>' : ''}${btn(S.paying ? 'نتحقق من الدفع…' : 'ادفع وفعّل', 'payGo:' + k, S.paying ? '" disabled="' : '', 'lock')}<p class="xs muted c" style="margin-top:10px">تُفعَّل الخطة بعد تحقق الخادم من الدفع، لا قبله.</p>`; },
-});
-ACT.payGo = k => { if (offline()) { toast('الدفع يحتاج اتصالاً. حاول عند عودة الشبكة.', null, 'cloud_off'); return; } S.paying = 1; render(); setTimeout(() => { S.paying = 0; S.planSt = k === 'premium' && S.plan === 'free' ? 'trial' : ''; S.plan = k; S.stack = S.stack.filter(s => !['pay', 'plans'].includes(s.id)); toast(`فُعّلت الخطة ${PLAN[k].n}`); render(); }, 1400); return false; };
-surface('voucher', {
-  kind: 'sheet', t: 'قسيمة', sys: 'S1-04', p: 'owner', req: '04:6,8',
-  note: 'كود لمرة واحدة يُتحقق منه خادمياً ثم يفعّل الاشتراك. الرمز يُعرض LTR معزولاً.',
-  r() { return `<h4>استخدم قسيمة</h4><p class="d">أدخل الرمز المطبوع على القسيمة. يُستخدم مرة واحدة فقط.</p><label class="fld ${S.vErr ? 'err' : ''}"><span>رمز القسيمة</span><input id="vc" class="mono" style="text-align:center;letter-spacing:3px" placeholder="FAM-XXXX-XXXX" dir="ltr">${S.vErr ? '<small>الرمز غير صحيح أو استُخدم من قبل. تحقق منه وحاول مجدداً.</small>' : '<small>جرّب: FAM-2026-DEMO</small>'}</label>${btn('فعّل القسيمة', 'vGo')}`; },
-});
-ACT.vGo = () => { const v = ($('#vc') || {}).value.trim().toUpperCase(); if (v !== 'FAM-2026-DEMO') { S.vErr = 1; return; } S.vErr = 0; S.sheet = null; S.plan = 'basic'; S.planSt = ''; toast('فُعّلت الخطة الأساسية بالقسيمة'); };
-surface('topup', {
-  kind: 'sheet', t: 'تعبئة SMS', sys: 'S1-04', p: 'owner', req: '04:10,11 07:17',
-  r() { return `<h4>عبّئ رصيد الرسائل</h4><p class="d">50 رسالة تُضاف لرصيد هذا الشهر. رسائل الاستغاثة لا تتوقف: تبقى 3 رسائل طوارئ بعد نفاد الرصيد في كل شهر.</p><div class="card flat fx sb"><div><b>حزمة 50 رسالة</b><div class="sm muted">اليمن 250 ر.ي · الخليج 5.99 ر.س</div></div>${ic('sms')}</div>${btn('اشترِ الحزمة', 'topGo')}`; },
-});
-ACT.topGo = () => { S.sheet = null; S.sms.used = Math.max(0, S.sms.used - 50); S.smsExtra = (S.smsExtra || 0) + 50; toast('أُضيفت 50 رسالة إلى رصيد الشهر'); };
+/* الخطة والفوترة (S1-04) في screens-billing.js */
 
 /* ---------- الخصوصية والأمان ---------- */
 surface('privacy', {
@@ -220,7 +179,7 @@ surface('ai', {
   r() { const own = isOwner(), q = PLAN[S.plan].ai;
     return `<div class="card"><div class="fx sb"><div class="fx">${ic('power_settings_new')}<div><b>مفتاح الإيقاف</b><div class="sm muted">يوقف كل أفعال المساعد فوراً</div></div></div>${tg(!S.aiKill, own ? 'flip:aiKill' : 'denied:agent.rule.change', 'تشغيل المساعد')}</div></div>
     ${S.aiKill ? callout('المساعد متوقف. لا اقتراحات ولا تحقق آلي من المهام؛ كل تسليم يأتيك مباشرة.', 'wa', 'power_settings_new') : `${sec('مستوى الاستقلالية')}${seg([['suggest', 'يقترح فقط'], ['ask', 'ينفّذ بموافقة'], ['auto', 'ينفّذ البسيط']], S.aiLevel, own ? 'set:aiLevel' : 'denied:agent.rule.change')}<p class="xs muted" style="margin:-4px 4px 10px">${{ suggest: 'الافتراضي: لا ينفّذ شيئاً. يعرض اقتراحه وأنت تقرر.', ask: 'يجهّز الفعل ثم ينتظر موافقتك عليه.', auto: 'ينفّذ الأفعال منخفضة الخطورة القابلة للتراجع فقط، ويبلغك.' }[S.aiLevel]}</p>
-    <div class="card"><div class="fx sb sm"><b>ميزانية هذا الشهر</b><span>${S.aiUse} من ${q}</span></div><div style="margin:8px 0 4px">${pbar(S.aiUse / q * 100)}</div><div class="xs muted">عند نفادها يتوقف المساعد بهدوء وتبقى كل الخدمات تعمل يدوياً.</div></div>
+    <div class="card"><div class="fx sb sm"><b>ميزانية هذا الشهر</b><span>${S.aiUse} من ${q}</span></div><div style="margin:8px 0 4px">${pbar(S.aiUse / q * 100)}</div><div class="xs muted">عند نفادها يتوقف المساعد بهدوء وتبقى كل الخدمات تعمل يدوياً.</div></div>${S.aiUse >= q ? callout(`<b>نفدت عمليات هذا الشهر</b><br>المساعد متوقف بهدوء حتى يبدأ العدّ من جديد. كل تسليم مهمة يأتيك أنت.<div style="margin-top:8px">${btn('ما العمل؟', 'go:plan-limit:ai', 'sm sec')}</div>`, 'wa', 'wand_stars') : ''}
     ${sec('ما يستطيع فعله')}${list(AIK.map(([k, t, g, x], i) => { const tk = x === 'tk', on = tk ? TK().ai.lv !== 'off' : i < 3; return row(on ? 'check_circle' : 'lock', t, tk ? TK_LV[TK().ai.lv][own ? 1 : 4] : g, Object.assign({ ic: on ? 'var(--success)' : 'var(--muted)', v: tk && on ? chip(TK_LV[TK().ai.lv][3], 'ok') : on ? chip('ممنوح', 'ok') : chip('غير ممنوح', 'ol') }, tk ? { a: 'go:tk-ai' } : {})); }))}`}
     ${sec('سجل أفعال المساعد')}${agentLog()}`; },
 });

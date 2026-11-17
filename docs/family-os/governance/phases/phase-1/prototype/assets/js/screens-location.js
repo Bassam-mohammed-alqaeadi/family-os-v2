@@ -363,7 +363,7 @@ Object.assign(ACT, {
 
 /* ---------- LO-04 جهات الطوارئ ---------- */
 const SMS_Q = { free: 20, basic: 50, premium: 100 };
-const smsLeft = () => (S.smsOut ? 0 : Math.max(0, SMS_Q[S.plan] - S.sms.used));
+const smsLeft = () => (S.smsOut ? 0 : Math.max(0, SMS_Q[S.plan] + (S.smsTop || 0) - S.sms.used));   /* حصة الخطة + رصيد التعبئة (S1-04 REQ-010) */
 const smsEm = () => S.smsEm ?? 3;
 /* من يصله تنبيه الاستغاثة: كل بالغ في العائلة غير المستغيث، ثم جهات الطوارئ التي أضافها الأب. بهذا الترتيب تُرسل الرسائل النصية. */
 function sosRcp(from) { return ['ahmad', 'sara'].filter(id => id !== from).map(id => ({ n: M[id].n, m: id })).concat((S.ec || []).map(c => ({ n: c.n, ext: 1 }))); }
@@ -372,7 +372,7 @@ surface('emergency', {
   note: 'كل بالغ في العائلة يصله تنبيه الاستغاثة بلا إضافة. هنا يضيف الأب من هم خارج البيت: قريباً أو جاراً برقمه (Q-287). الجهة الخارجية يصلها اسم المستغيث ومكانه فقط، ولا ترى الخريطة. الإضافة والحذف للأب وحده ويحتاجان الإنترنت. منتقي «بالغ من العائلة» في المواصفة أُسقط: البالغون يصلهم التنبيه أصلاً (اختيار تصميم).',
   r() {
     if (!isAdult()) return kidNo();
-    const own = isOwner(), C = S.ec || [], q = SMS_Q[S.plan], left = smsLeft(), em = smsEm(), per = sosRcp('layan').length;
+    const own = isOwner(), C = S.ec || [], q = SMS_Q[S.plan] + (S.smsTop || 0), left = smsLeft(), em = smsEm(), per = sosRcp('layan').length;
     return `${sec('يصلهم التنبيه دائماً')}${list(row('', M.ahmad.n, 'صاحب العائلة', { lead: av(M.ahmad) }), row('', M.sara.n, 'بالغة في العائلة', { lead: av(M.sara) }))}
     <p class="xs muted" style="margin:6px 4px">كل بالغ في العائلة يصله تنبيه الاستغاثة ومكان المستغيث، بلا إضافة.</p>
     ${sec('من خارج البيت')}${C.length ? list(C.map(c => row('contact_emergency', c.n, `<span class="ltr">${c.p}</span> · أضافه ${c.by} ${c.at}`, { v: own ? `<button class="ib" data-a="ecDel:${c.id}" aria-label="حذف ${c.n}">${ic('delete')}</button>` : '' })))

@@ -22,6 +22,7 @@ function attention() {
   if (S.persona === 'delegate' && S.ownDel && S.co) A.push({ k: 'owndel', p: 1, c: 'var(--danger)', i: 'auto_delete', t: 'أحمد يحذف حسابه', s: `أنتِ تديرين العائلة الآن · إن لم يتراجع خلال ${S.ownDel} يوماً صرتِ مالكتها`, b: [['عرض', 'go:my-perms', 'ton']] });
   if (S.persona === 'delegate') { const N = pnNew(); if (N.length) A.push({ k: 'pn:' + N.length, p: 2, c: 'var(--info)', i: 'key', t: N.length === 1 ? N[0].sn : `${N.length} تغييرات في صلاحياتكِ`, s: N.length === 1 ? 'يسري الآن على كل أجهزتكِ' : `آخرها: ${N[0].sn}`, b: [['عرض', 'go:my-perms', 'ton'], ['تمّ', 'pnSeen', 'sec']] }); }
   if (isOwner() && S.persona === 'owner') soonList().forEach(k => A.push({ k: 'soon:' + k, p: 2, c: 'var(--warning)', i: 'schedule', t: gDays(S.g[k]) < 0 ? `انتهت صلاحية لسارة: ${PL[k][0]}` : `صلاحية لسارة تنتهي بعد ${dTxt(gDays(S.g[k]))}`, s: gDays(S.g[k]) < 0 ? 'توقفت · جدّدها إن أردت' : PL[k][0], b: [['جدّد', `keyOpen:${k}`, 'ton']] }));
+  blAtt().forEach(a => A.push(a));   /* S1-04: المهلة، دفعة لم تتأكد، العودة إلى المجانية، طلب ترقية من بالغ */
   return A.sort((x, y) => x.p - y.p);
 }
 /* Q-416: بطاقة الرئيسية تذكير ومدخل سريع. الإكس يخفيها من الرئيسية لهذا البالغ فقط؛ الأمر نفسه يبقى في «التنبيهات» وفي العدّاد حتى يُحسم. الاستغاثة القائمة لا تُخفى. */

@@ -189,7 +189,7 @@ surface('add-member', {
   t: 'إضافة فرد', sys: 'S1-02', p: 'adult', req: '02:9,11 04:9,14 03:2',
   note: 'حارس الحصص: عدد الأفراد يُفحص على الخادم. على المجانية (5 أفراد) تظهر الترقية بدل خطأ غامض — جرّب تبديل الخطة من الاستوديو.',
   r() { const cap = PLAN[S.plan].mem, full = Object.keys(M).length >= cap;
-    return full ? `<div class="bigic" style="background:var(--gold-soft);color:var(--text)">${ic('groups')}</div><p class="ttl" style="font-size:22px">بلغت حدّ الخطة ${PLAN[S.plan].n}</p><p class="sub">خطتك تتسع لـ${cap} أفراد وعائلتك مكتملة. أفرادك الحاليون يبقون كما هم.</p>${isOwner() ? btn('اعرض الخطط', 'go:plans', '', 'arrow_circle_up') : callout('الترقية للأب فقط.', 'nt', 'lock')}<div class="c" style="margin-top:10px">${avail('requires_upgrade')}</div>` :
+    return full ? blLimit('mem') :
       `<button class="card fx" data-a="${can('identity.family.invite') ? 'go:invite' : 'denied:identity.family.invite'}"><span class="av" style="--c:#7A3E65">${ic('person_add')}</span><div class="grow"><b>ادعُ بالغاً</b><div class="sm muted">أمّ، جدّ، عمّ… ينضم برمز دعوة، ثم تحدد أنت ما يراه ويتحكم فيه</div></div>${ic('chevron_right')}</button>
       <button class="card fx" data-a="${can('identity.child.create') ? 'go:child-new' : 'denied:identity.child.create'}"><span class="av" style="--c:#CF5B2C">${ic('child_care')}</span><div class="grow"><b>أضف طفلاً أو مراهقاً</b><div class="sm muted">لا يحتاج رقماً ولا بريداً. تقرن جهازه برمز</div></div>${ic('chevron_right')}</button>${callout('الأطفال يضيفهم الأب أو بالغ سمح له الأب بذلك.', 'nt', 'info')}`; },
 });
