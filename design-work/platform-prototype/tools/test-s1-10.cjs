@@ -15,7 +15,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const open=(id,...a)=>{go(id,...a);render()};
  try{
  // 1 محرك التقييم بالترتيب الجاهز
- S=fresh();ok('seed: 16 screens registered',['protection','apps','app-rule','quota','schedule','win-edit','study-apps','priority','presets','tamper','enf-state','enf-all','prot-audit','rules-review','webfilter','wf-cat','web-domains','block','warn5','kid-free'].every(k=>SC[k]),Object.keys(SC).filter(k=>SC[k].sys==='S1-10'));
+ S=fresh();ok('seed: all S1-10 surfaces registered',['protection','apps','app-rule','quota','schedule','win-edit','study-apps','priority','presets','mode-edit','tamper','enf-state','enf-all','prot-audit','rules-review','webfilter','wf-cat','web-domains','block','warn5','kid-free'].every(k=>SC[k]),Object.keys(SC).filter(k=>SC[k].sys==='S1-10'));
  ok('no freemode surface left',!SC.freemode);
  ok('default: limit exhausted → blocked by app',decide('layan','ytk').ok===false&&decide('layan','ytk').why==='app');
  ok('default: limit with balance → open',decide('layan','mc').ok===true);
@@ -25,7 +25,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.pm.layan={k:'sleep',left:60,until:'6:12 م'};ok('sleep window: nothing opens',['ytk','mc','mad','cam'].every(a=>!decide('layan',a).ok&&decide('layan',a).why==='sleep'));
  S.pm.layan={k:'study',left:60,until:'6:12 م'};ok('school window: study only',decide('layan','mad').ok&&!decide('layan','mc').ok&&decide('layan','mc').why==='school');
  S.fm.layan=30;ok('free mode checked first',decide('layan','tt').ok&&decide('layan','tt').why==='free');ok('free is per child',!decide('yusuf','ytk').why.includes('free'));
- S=fresh();S.rank=['app','sleep','school','quota'];S.pm.layan={k:'sleep',left:60,until:'x'};ok('reorder: app above sleep → balance usable in sleep',decide('layan','mc').ok&&!decide('layan','cam').ok);
+ S=fresh();S.rank=['app','sleep','school','quota'];S.sched.layan=[{id:'z',type:'sleep',days:[0],s:'17:00',e:'18:00'}];ok('reorder: app above sleep → balance usable in a scheduled sleep window',decide('layan','mc').ok&&!decide('layan','cam').ok);
  S.rankKid.layan=['sleep','school','app','quota'];ok('child override beats family order',!decide('layan','mc').ok);ok('other child keeps family order',rankOf('yusuf').join()==='app,sleep,school,quota');
  // 2 الجدول: الآن، الحد التالي، التداخل
  S=fresh();ok('now: Sunday 5:12pm is free time',winNow('layan')===''&&winNow('khaled')==='');ok('next edge: sleep tonight',/النوم 9:00 م/.test(nextEdge('layan')),nextEdge('layan'));ok('next edge yusuf: no windows',/منتصف الليل/.test(nextEdge('yusuf')));
@@ -67,7 +67,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  setPersona('delegate');open('quota','layan');ok('partner: quota locked (owner only)',!q('[data-a^="qdDay"]')&&has(/الأب وحده/)&&!q('.btn[data-a="qdSave"]'));
  // 6 تطبيقات الدراسة
  S=fresh();open('study-apps','layan');ok('study list: blocked app not selectable',!!q('.row.dis[data-q="TikTok"]')&&q('[data-q="مدرستي"]').getAttribute('aria-checked')==='true');
- ACT.sdT('mad');render();ok('none selected → effect stated',has(/كل التطبيقات تُغلق في وقت المدرسة/));ACT.sdT('mad');ACT.sdT('cam');ACT.sdSave();ok('study saved; no-rule app gets allow rule',appOf('layan','cam').study===1&&appOf('layan','cam').act==='ALLOW'&&appOf('layan','mad').study===1);
+ ACT.sdT('mad');render();ok('none selected → effect stated',has(/كل التطبيقات تُغلق في وقت المدرسة/));ACT.sdT('mad');ACT.sdT('cam');ACT.sdSave();ok('study saved; flag creates no rule (Q-405)',appOf('layan','cam').study===1&&appOf('layan','cam').act===undefined&&appOf('layan','mad').study===1);S.kid.layan.used=120;ok('study app with no rule still follows the daily quota outside school time',!decide('layan','cam').ok&&decide('layan','cam').why==='quota');S.sched.layan=[{id:'z',type:'school',days:[0],s:'17:00',e:'18:00'}];ok('…and opens in school time',decide('layan','cam').ok&&decide('layan','cam').why==='school');
  // 7 الترتيب والمعاينة
  S=fresh();open('priority','fam');ok('priority default preview: 3 moments, no warning',has(/في وقت النوم/)&&has(/لا يُفتح أي تطبيق/)&&has(/في وقت المدرسة/)&&has(/في باقي اليوم/)&&!q('.callout.da')&&dis('.btn[data-a="pdSave"]'));
  ACT.pdMv('2','-1');ACT.pdMv('1','-1');render();ok('app on top → spec warning shown before save',S.pd.r[0]==='app'&&has(/يستطيع طفلك استخدام رصيد تطبيقاته حتى بعد وقت النوم/)&&!!q('.callout.da'));
@@ -79,7 +79,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 8 الأوضاع الجاهزة
  S=fresh();open('home');ok('home: 3 preset cards open the presets screen',!!q('[data-a="go:presets:study"]')&&!!q('[data-a="go:presets:sleep"]')&&!!q('[data-a="go:presets:free"]'));
  open('presets','sleep');ok('preset: nothing preselected, apply disabled',!S.psN&&dis('.btn[data-a^="psGo"]')&&has(/اختر الطفل والمدة/));
- ACT.psKid('layan');ACT.psKid('yusuf');render();ok('kids chosen, still no duration → disabled',dis('.btn[data-a^="psGo"]'));ACT.set('psN','60');render();ok('preview names each child and end time',has(/6:12 م/)&&has(/لا يُفتح أي تطبيق/)&&has(/الجدول الأسبوعي لا يتغير/)&&!dis('.btn[data-a^="psGo"]'));
+ ACT.psKid('layan');ACT.psKid('yusuf');render();ok('kids chosen, still no duration → disabled',dis('.btn[data-a^="psGo"]'));ACT.set('psN','60');render();ok('preview names each child and end time',has(/6:12 م/)&&has(/لا يُفتح أي تطبيق/)&&has(/الجدول الأسبوعي والقواعد لا تتغير/)&&!dis('.btn[data-a^="psGo"]'));
  const sch=JSON.stringify(S.sched);ACT.psGo('sleep');render();ok('sleep applied to both, weekly schedule untouched',S.pm.layan.k==='sleep'&&S.pm.yusuf.k==='sleep'&&!S.pm.khaled&&JSON.stringify(S.sched)===sch&&S.audit[0].ty==='mode');
  ok('active list with end button',has(/مفعّل الآن/)&&!!q('[data-a="pmOff:layan"]'));ok('kid now in sleep',winNow('layan')==='sleep'&&!decide('layan','mad').ok);
  ACT.pmOff('layan');ok('ended early + audit',!S.pm.layan&&/قبل وقته/.test(S.audit[0].t));
@@ -89,7 +89,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.psKid('khaled');render();ok('free already active: honest state',has(/الوضع الحر سارٍ/)&&!q('.btn[data-a^="psGo"]'));ACT.freeOff('khaled');ok('free cancelled + audit',!S.fm.khaled&&/قبل انتهائه/.test(S.audit[0].t));
  S=fresh();S.net='off';open('presets','sleep');ACT.psKid('layan');ACT.set('psN','30');render();ok('offline: preset disabled with reason',dis('.btn[data-a^="psGo"]')&&has(/يحتاج اتصالاً/));
  S=fresh();setPersona('delegate');open('presets','free');ok('delegate: free is father only',has(/يفعّله الأب وحده/)&&!q('[data-a^="psKid"]'));ACT.psM('sleep');render();ok('partner may apply sleep',!!q('[data-a^="psKid"]'));
- S=fresh();S.rank=['app','sleep','school','quota'];open('presets','sleep');ACT.psKid('layan');ACT.set('psN','30');render();ok('preset preview honest about custom order',has(/قد تبقى بعض تطبيقاته مفتوحة/));
+ S=fresh();S.rank=['app','sleep','school','quota'];S.pm.layan={k:'sleep',left:30,until:'5:42 م'};ok('an active mode decides before the rule order: sleep mode closes everything',['ytk','mc','mad','cam','tt'].every(a=>!decide('layan',a).ok));
  // 9 الوضع الحر من جهاز الطفل
  S=fresh();setPersona('child');go('kid-admin');render();ACT.kidExit();render();ok('kid-free: no default duration',top()==='kid-free'&&dis('.sheet .btn[data-a="kidFreeGo"]'));ACT.set('fmN','60');render();ACT.kidFreeGo();ok('kid-free: this child only',S.fm.layan===60&&!S.fm.yusuf&&S.audit[0].kid==='layan');render();ok('kid banner',/وضع حر — ينتهي خلال 60 د/.test(document.body.innerText));
  // 10 العبث
@@ -120,7 +120,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('per child: yusuf untouched',!S.wfc.yusuf[19]);
  S=fresh();setPersona('delegate');open('webfilter','layan');ok('partner: web filter read-only (owner only)',has(/الأب وحده/)&&!q('.btn[data-a="wrSave"]')&&!!q('[data-a="denied:protection.filter.edit"]'));
  // 15 المواقع المستثناة
- S=fresh();open('web-domains','layan');ok('domains list + rule stated',has(/khanacademy\.org/)&&has(/يفوز على فئة الموقع/));
+ S=fresh();open('web-domains','layan');ok('domains list + rule stated',has(/khanacademy\.org/)&&has(/يفوز على فئة الموقع/));ok('three actions only: no «ignore» in the UI (Q-405)',ph.querySelectorAll('[data-a^="wdomA:"]').length===3&&!q('[data-a="wdomA:IGNORE"]')&&!has(/تجاهل/));
  const setD=v=>{q('#wdomN').value=v};setD('not a site');ACT.wdomA('BLOCK');render();ACT.wdomAdd('layan');render();ok('invalid domain inline error',S.wdom.layan.length===1&&has(/ليس عنوان موقع صحيحاً/));
  setD('https://www.Example.com/path?x=1');ACT.wdomAdd('layan');render();ok('domain normalised and added',S.wdom.layan.some(x=>x.d==='example.com'&&x.a==='BLOCK')&&S.audit[0].ty==='web');
  setD('example.com');ACT.wdomA('ALLOW');render();ACT.wdomAdd('layan');render();ok('duplicate refused',S.wdom.layan.length===2&&has(/مضاف من قبل/));
@@ -138,6 +138,58 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('teen');jump('block');render();ok('teen block renders (no crash)',top()==='block'&&has(/PUBG|WhatsApp/));
  S=fresh();setPersona('child');S.fm.layan=30;render();ACT.openApp('tt');ok('free mode opens blocked app on child device',!S.full);
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
+ // 18 أوضاع الأب الخاصة (S10-17) ومنع التعارض
+ S=fresh();ok('seed: one custom mode',S.modes.length===1&&modeOf('m1').n==='رحلة السيارة'&&modeOf('study').open==='study');
+ open('home');ok('home: custom mode tile + new-mode tile',!!q('[data-a="go:presets:m1"]')&&!!q('[data-a="go:mode-edit:new"]'));
+ open('presets','study');ok('modes screen: my modes section + new link',has(/أوضاعي/)&&!!q('[data-a="psM:m1"]')&&!!q('.sec [data-a="go:mode-edit:new"]'));
+ open('mode-edit','new');ok('new mode: empty, save disabled, says what is missing',dis('.btn[data-a="mdSave"]')&&has(/اكتب اسماً للوضع/)&&!S.md.open);
+ ACT.mdN('وضع النوم');render();ok('name of a built-in mode refused',has(/عندك وضع بهذا الاسم/)&&!!q('.fld.err'));
+ ACT.mdN('رحلة السيارة');render();ok('name of another custom mode refused',has(/عندك وضع بهذا الاسم/));
+ ACT.mdN('وقت <b>الضيوف');render();ok('name cleaned of markup',S.md.n==='وقت bالضيوف'||!/[<>]/.test(S.md.n));ACT.mdN('وقت الضيوف');render();
+ ok('name ok → asks what opens',has(/اختر ماذا يُفتح في هذا الوضع/)&&dis('.btn[data-a="mdSave"]'));
+ ACT.mdOpen('list');render();ok('list chosen → needs one app',has(/اختر تطبيقاً واحداً على الأقل/)&&dis('.btn[data-a="mdSave"]'));
+ ok('app blocked for every child that has it cannot be chosen',(()=>{const r=[...ph.querySelectorAll('.row[role="checkbox"]')].find(x=>/TikTok/.test(x.innerText));return r&&r.classList.contains('dis')&&r.dataset.a==='noop'})());
+ ACT.mdApp('mc');render();ok('preview per child before save',has(/ماذا يحدث لكل طفل/)&&has(/يُفتح Minecraft فقط، ما دام له وقت اليوم/)&&!dis('.btn[data-a="mdSave"]'));
+ ok('child without the app: said plainly',KIDS.some(k=>!appOf(k,'mc'))?has(/لا تطبيق من هذا الوضع على جهاز/):true);
+ ACT.mdLim('0');render();ok('no-limit option reflected',has(/بلا حد ما دام الوضع سارياً/));
+ back();render();ok('mode editor leave guard',top()==='dlg'&&has(/تغييرات غير محفوظة/));ACT.dlgNo();render();
+ ACT.mdSave();render();ok('mode created, audited, selected in the modes screen',S.modes.length===2&&S.modes[1].n==='وقت الضيوف'&&S.audit[0].ty==='mode'&&/أُنشئ وضع «وقت الضيوف»/.test(S.audit[0].t)&&top()==='presets'&&S.stack[S.stack.length-1].a[0]==='m2');
+ ok('no duration stored in the mode (chosen at every apply)',!('n' in S.modes[1]&&typeof S.modes[1].n==='number')&&!S.modes[1].dur&&!S.psN&&dis('.btn[data-a^="psGo"]'));
+ ACT.psKid('layan');ACT.set('psN','60');render();ok('custom mode preview + apply enabled',has(/حتى 6:12 م: يُفتح Minecraft فقط/)&&!dis('.btn[data-a^="psGo"]'));
+ ACT.psGo('m2');render();ok('custom mode applied to layan only',S.pm.layan.k==='m2'&&!S.pm.yusuf&&/طُبّق وضع «وقت الضيوف»/.test(S.audit[0].t));
+ ok('engine: in-list app opens, others closed, blocked stays blocked',decide('layan','mc').ok&&decide('layan','mc').why==='mode'&&!decide('layan','mad').ok&&decide('layan','mad').why==='mode'&&decide('layan','tt').why==='blocked');
+ appOf('layan','mc').used=appOf('layan','mc').lim;ok('no-limit mode: opens even with the daily limit used up',decide('layan','mc').ok);S.modes[1].lim=1;ok('limits-kept mode: closed when the limit is used up, reason = app limit',!decide('layan','mc').ok&&decide('layan','mc').why==='app');
+ ok('state names the mode',nowRule('layan')[1]==='وضع «وقت الضيوف»'&&winNow('layan')==='mode');open('enf-state','layan');ok('enforcement state shows the active mode',has(/وضع «وقت الضيوف»/)&&has(/6:12 م/));
+ // وضع واحد لكل طفل
+ open('presets','sleep');ACT.psKid('layan');ACT.set('psN','30');render();ok('one mode per child: replacing is said before applying',has(/ينتهي وضع «وقت الضيوف» الجاري: وضع واحد لكل طفل/));ACT.psGo('sleep');ok('new mode replaced the old one',S.pm.layan.k==='sleep'&&Object.keys(S.pm).length===1);
+ ACT.psM('free');ACT.psKid('layan');ACT.set('psN','30');render();ok('free mode also replaces the active mode (said)',has(/ينتهي وضع النوم الجاري/));ACT.psGo('free');pin();ok('free on, mode gone',S.fm.layan===30&&!S.pm.layan);
+ ACT.psM('m1');ACT.psKid('layan');ACT.set('psN','30');render();ok('mode over free: said',has(/ينتهي الوضع الحر الجاري/));ACT.psGo('m1');ok('mode on, free gone',S.pm.layan.k==='m1'&&!S.fm.layan);
+ // تقاطع مع الجدول
+ S=fresh();open('presets','m1');ACT.psKid('layan');ACT.durSet('psN','300');render();ok('crossing the sleep window: father must choose',has(/يتقاطع مع الجدول/)&&has(/يبدأ وقت النوم 9:00 م قبل انتهاء المدة/)&&dis('.btn[data-a^="psGo"]')&&ph.querySelectorAll('[data-a^="set:psX"]').length===2);
+ ACT.psGo('m1');ok('cannot apply without the choice',!S.pm.layan);
+ ACT.set('psX','stop');render();ok('choice stop: preview says it ends at 9:00',has(/حتى 9:00 م/)&&has(/يتوقف عند بدء وقت النوم 9:00 م/)&&!dis('.btn[data-a^="psGo"]'));ACT.psGo('m1');ok('stops at the window start',S.pm.layan.left===228&&S.pm.layan.until==='9:00 م');
+ S=fresh();open('presets','m1');ACT.psKid('layan');ACT.psKid('yusuf');ACT.durSet('psN','300');ACT.set('psX','over');render();ok('choice over: said; child with no schedule unaffected',has(/يستمر فوق وقت النوم/));ACT.psGo('m1');ok('continues for the full duration',S.pm.layan.left===300&&S.pm.yusuf.left===300);
+ S=fresh();open('presets','sleep');ACT.psKid('layan');ACT.durSet('psN','300');render();ok('sleep mode into sleep window: same effect, no question',!has(/يتقاطع مع الجدول/)&&!dis('.btn[data-a^="psGo"]'));
+ ACT.psM('study');render();ok('study mode into sleep window: question asked',has(/يتقاطع مع الجدول/));
+ ACT.psM('free');render();ok('free mode over sleep window: stated, no question',has(/يمتد فوق وقت النوم/)&&!has(/يتقاطع مع الجدول/));
+ S=fresh();S.sched.layan=[{id:'z',type:'school',days:[0],s:'17:00',e:'18:00'}];open('presets','m1');ACT.psKid('layan');ACT.set('psN','30');render();ok('mode applied inside a running window: said',has(/الآن وقت المدرسة في جدوله: الوضع يحلّ مكانه/));
+ // كل التطبيقات بحدودها + لا شيء
+ S=fresh();S.modes.push({id:'m2',n:'سهرة العيد',i:'celebration',open:'all',apps:[],lim:1});S.sched.layan=[{id:'z',type:'sleep',days:[0],s:'17:00',e:'18:00'}];ok('before: scheduled sleep closes everything',!decide('layan','mc').ok);S.pm.layan={k:'m2',left:60,until:'6:12 م'};
+ ok('mode «all»: skips the sleep window, limits and blocks stay',decide('layan','mc').ok&&!decide('layan','ytk').ok&&decide('layan','ytk').why==='app'&&decide('layan','tt').why==='blocked'&&decide('layan','cam').ok);
+ S.modes.push({id:'m3',n:'وقت الصلاة',i:'mosque',open:'none',apps:[],lim:1});S.pm.layan={k:'m3',left:20,until:'5:32 م'};ok('mode «none»: nothing opens',S.apps.layan.every(a=>!decide('layan',a.id).ok));
+ setPersona('child');render();ok('child home names the mode',/وقت الصلاة/.test(txt())&&/5:32 م/.test(txt()));ACT.openApp('mc');render();ok('child block screen: mode by name, no ask button, SOS stays',top()==='block'&&has(/الآن وضع «وقت الصلاة»/)&&has(/5:32 م/)&&!q('[data-a^="go:ask-time"]')&&!!q('.sos'));
+ S.full=null;S.pm.layan={k:'m1',left:60,until:'6:12 م'};render();ACT.openApp('mad');render();ok('child block screen in a list mode: says what is open',has(/الآن وضع «رحلة السيارة»/)&&has(/المفتوح الآن: .*Minecraft/));S.full=null;ACT.openApp('ytk');ok('list mode without limits opens an exhausted app',!S.full);
+ // تعديل وحذف وضع سارٍ
+ S=fresh();S.pm.layan={k:'m1',left:60,until:'6:12 م'};open('presets','m1');open('mode-edit','m1');ok('editing an active mode: told it applies at once',has(/سارٍ الآن على ليان: التعديل يسري فور الحفظ/)&&dis('.btn[data-a="mdSave"]'));
+ ACT.mdOpen('none');render();ACT.mdSave();ok('edit saved and effective immediately',S.modes[0].open==='none'&&!decide('layan','mc').ok&&/عُدّل وضع «رحلة السيارة»/.test(S.audit[0].t));
+ open('mode-edit','m1');ACT.mdDel();render();ok('delete active mode: consequence stated',top()==='dlg'&&has(/سارٍ الآن على ليان: ينتهي وتعود القواعد والجدول/));dlgYes();render();ok('deleted: mode gone, child released, screen falls back',S.modes.length===0&&!S.pm.layan&&top()==='presets'&&S.stack[S.stack.length-1].a[0]==='study'&&has(/لا أوضاع خاصة بعد/));
+ ok('delete audited',/حُذف وضع «رحلة السيارة» وانتهى عند ليان/.test(S.audit[0].t));
+ // حظر تطبيق داخل وضع
+ S=fresh();open('app-rule','layan','mc');ACT.adAct('BLOCK');render();ok('blocking an app that a mode opens: told the block wins',has(/Minecraft ضمن وضع «رحلة السيارة»/)&&has(/المحظور يبقى مغلقاً/));ACT.adSave();S.pm.layan={k:'m1',left:60,until:'x'};ok('…and it does',decide('layan','mc').why==='blocked'&&decide('layan','ytk').ok);
+ // الصلاحيات ودون اتصال
+ S=fresh();setPersona('delegate');setRole('observer');open('presets','m1');ok('no create permission → no new-mode link, no edit link',can('protection.rule.create')===!!q('[data-a="go:mode-edit:new"]')&&can('protection.rule.edit')===!!q('[data-a="go:mode-edit:m1"]'));
+ open('mode-edit','m1');ok('editor read-only without permission',can('protection.rule.edit')||(!q('.btn[data-a="mdSave"]')&&has(/ترى الوضع ولا تعدّله/)));
+ S=fresh();S.net='off';open('mode-edit','new');ACT.mdN('تجربة');ACT.mdOpen('none');render();ok('offline: mode save disabled with reason',dis('.btn[data-a="mdSave"]')&&has(/يحتاج اتصالاً/));
  // 17 كل أسطح S1-10: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-10');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;
  for(const id of ids){for(const pre of [null,'guardian','none','co','ios','off']){try{S=fresh();if(pre==='co')S.co={since:'اليوم',seen:0};else if(pre==='ios')S.os='ios';else if(pre==='off')S.net='off';else if(pre)setRole(pre);jump(id);render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id);const sh=ph.querySelector('.sheet');if(sh&&sh.scrollWidth>sh.clientWidth+1)over.push(id+':sheet');

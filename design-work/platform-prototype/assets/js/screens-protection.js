@@ -28,8 +28,22 @@ const hit = (a, b, c, d) => a < d && c < b;
 const hitWk = (a, b, c, d) => (hit(a, b, c, d) ? [Math.max(a, c), Math.min(b, d)] : hit(a, b, c + WK, d + WK) ? [Math.max(a, c + WK), Math.min(b, d + WK)] : hit(a, b, c - WK, d - WK) ? [Math.max(a, c - WK), Math.min(b, d - WK)] : null);
 const WT = { sleep: ['نوم', 'bedtime', 'sl', 'لا يُفتح أي تطبيق · زر الاستغاثة يعمل'], school: ['مدرسة', 'school', 'sc', 'تطبيقات الدراسة فقط'] };
 const pmOf = k => (S.pm[k] ? S.pm[k].k : '');
-/* نوع النافذة السارية الآن: الوضع المؤقت أولاً (نافذة فورية لا تغيّر الجدول — REQ-024) ثم الجدول */
-function winNow(kid) { const p = S.pm[kid]; if (p) return p.k === 'study' ? 'school' : 'sleep'; const t = NOW.d * 1440 + NOW.m; const w = S.sched[kid].find(x => spans(x).some(([a, b]) => hitWk(a, b, t, t + 1))); return w ? w.type : ''; }
+/* الأوضاع: جاهزان ثابتان (دراسة، نوم) + أوضاع الأب الخاصة S.modes. الوضع الحر مسار وحده (S.fm).
+   لكل طفل وضع واحد سارٍ على الأكثر، والوضع الساري يحسم قبل ترتيب القواعد (لا تعارض بين وضع وقاعدة). */
+const MODE0 = { study: { id: 'study', n: 'وضع الدراسة', i: 'school', open: 'study' }, sleep: { id: 'sleep', n: 'وضع النوم', i: 'bedtime', open: 'none' } };
+const modeOf = k => MODE0[k] || (S.modes || []).find(m => m.id === k) || null;
+const modeAct = kid => (S.pm[kid] ? modeOf(S.pm[kid].k) : null);
+const modeN = k => (k === 'free' ? 'وضع حر' : (modeOf(k) || { n: 'وضع' }).n);
+const modeQ = k => (k === 'free' ? 'الوضع الحر' : MODE0[k] ? MODE0[k].n : `وضع «${(modeOf(k) || { n: '' }).n}»`);
+const modeI = k => (k === 'free' ? 'lock_open' : (modeOf(k) || { i: 'bolt' }).i);
+/* نافذة الجدول السارية الآن (الجدول وحده) */
+function schedNow(kid) { const t = NOW.d * 1440 + NOW.m; const w = S.sched[kid].find(x => spans(x).some(([a, b]) => hitWk(a, b, t, t + 1))); return w ? w.type : ''; }
+/* ما يحكم «الآن» كما يراه الطفل: الوضع الساري أولاً ثم نافذة الجدول. يرجع sleep | school | mode | '' */
+function winNow(kid) { const m = modeAct(kid); if (m) return m.id === 'sleep' ? 'sleep' : m.id === 'study' ? 'school' : 'mode'; return schedNow(kid); }
+/* أول نافذة في الجدول تبدأ قبل انتهاء المدة: [دقائق من الآن، النوع] أو null */
+function crossOf(kid, n) { const t = NOW.d * 1440 + NOW.m; let best = null; S.sched[kid].forEach(x => spans(x).forEach(([a]) => { const d = (((a - t) % WK) + WK) % WK; if (d > 0 && d < n && (!best || d < best[0])) best = [d, x.type]; })); return best; }
+/* هل يحتاج التقاطع قراراً من الأب؟ لا يحتاجه إن كان أثر الوضع هو أثر النافذة نفسها */
+const crossAsk = (k, c) => { const m = modeOf(k); return !!c && !!m && !(m.open === 'none' && c[1] === 'sleep') && !(m.open === 'study' && c[1] === 'school'); };
 function winEnd(kid) { const p = S.pm[kid]; if (p) return p.until; const t = NOW.d * 1440 + NOW.m; for (const x of S.sched[kid]) for (const [a, b] of spans(x)) { const h = hitWk(a, b, t, t + 1); if (h) return hm(t2m(x.e)); } return ''; }
 /* كشف التداخل على خط الأسبوع لا في اليوم نفسه فقط (REQ-006): يرجع وصف أول تداخل أو '' */
 function winClash(kid, w) {
@@ -45,8 +59,8 @@ const schedSum = kid => { const s = S.sched[kid]; return s.length ? s.map(w => `
 /* الحد التالي بلغة الناس */
 function nextEdge(kid) {
   if (fmOf(kid)) return `ينتهي الوضع الحر بعد ${fmOf(kid)} د`;
-  const p = S.pm[kid]; if (p) return `ينتهي ${p.k === 'sleep' ? 'وضع النوم' : 'وضع الدراسة'} ${p.until}`;
-  const w = winNow(kid); if (w) return `تنتهي نافذة ${w === 'sleep' ? 'النوم' : 'المدرسة'} ${winEnd(kid)}`;
+  const p = S.pm[kid]; if (p) return `ينتهي ${modeQ(p.k)} ${p.until}`;
+  const w = schedNow(kid); if (w) return `تنتهي نافذة ${w === 'sleep' ? 'النوم' : 'المدرسة'} ${winEnd(kid)}`;
   const t = NOW.d * 1440 + NOW.m; let best = null;
   S.sched[kid].forEach(x => spans(x).forEach(([a]) => { const d = (((a - t) % WK) + WK) % WK; if (!best || d < best[0]) best = [d, x, a]; }));
   if (!best) return 'تُصفَّر الحصة عند منتصف الليل';
@@ -59,10 +73,27 @@ const RANK = { sleep: ['النوم', 'bedtime'], school: ['المدرسة', 'sch
 const RANK0 = ['sleep', 'school', 'app', 'quota'];
 const rankOf = kid => S.rankKid[kid] || S.rank;
 const limLeft = a => Math.max(0, (a.lim || 0) - a.used);
-/* يرجع { ok, why }: why = free | sleep | school | app | blocked | quota */
+/* القواعد الدائمة دون نوافذ الجدول: قاعدة التطبيق والحصة بترتيبهما عند هذا الطفل */
+function limCheck(kid, a) {
+  for (const t of rankOf(kid)) {
+    if (t === 'app' && a.act) return a.act === 'ALLOW' ? { ok: true, why: 'app' } : a.act === 'BLOCK' ? { ok: false, why: 'blocked' } : { ok: limLeft(a) > 0, why: 'app' };
+    if (t === 'quota') return { ok: left(kid) > 0, why: 'quota' };
+  }
+  return { ok: true, why: '' };
+}
+/* يرجع { ok, why }: why = free | mode | sleep | school | app | blocked | quota
+   السلّم واحد لكل الشاشات: الوضع الحر ← الوضع الساري ← ترتيب القواعد. فلا يجتمع حكمان على تطبيق. */
 function decide(kid, aid) {
-  if (fmOf(kid)) return { ok: true, why: 'free' };                       // الفحص الأول: الوضع الحر
-  const a = appOf(kid, aid), w = winNow(kid);
+  if (fmOf(kid)) return { ok: true, why: 'free' };                       // 1) الوضع الحر
+  const a = appOf(kid, aid), m = modeAct(kid);
+  if (m) {                                                               // 2) الوضع الساري يحسم وحده
+    if (a.act === 'BLOCK') return { ok: false, why: 'blocked' };         //    المحظور محظور في كل وضع
+    if (m.open === 'none') return { ok: false, why: m.id === 'sleep' ? 'sleep' : 'mode' };
+    if (m.open === 'study') return a.study ? { ok: true, why: 'mode' } : { ok: false, why: 'school' };
+    if (m.open === 'list') return !m.apps.includes(aid) ? { ok: false, why: 'mode' } : m.lim ? limCheck(kid, a) : { ok: true, why: 'mode' };
+    return limCheck(kid, a);                                             //    all: الحدود باقية، والنوافذ متجاوَزة
+  }
+  const w = schedNow(kid);                                               // 3) ترتيب الأب: أول نوع مطابق يفوز
   for (const t of rankOf(kid)) {
     if (t === 'sleep' && w === 'sleep') return { ok: false, why: 'sleep' };
     if (t === 'school' && w === 'school') return { ok: !!a.study, why: 'school' };
@@ -71,10 +102,13 @@ function decide(kid, aid) {
   }
   return { ok: true, why: '' };
 }
+const nApps = n => (n === 1 ? 'تطبيق واحد' : n === 2 ? 'تطبيقان' : n <= 10 ? n + ' تطبيقات' : n + ' تطبيقاً');
+const modeShort = m => (m.open === 'none' ? 'لا يُفتح أي تطبيق' : m.open === 'study' ? 'تطبيقات الدراسة فقط' : m.open === 'all' ? 'كل التطبيقات بحدودها · يتجاوز النوم والمدرسة' : `${nApps(m.apps.length)} فقط · ${m.lim ? 'بحدودها' : 'بلا حد داخل الوضع'}`);
 /* ما الذي يحكم الطفل الآن — لحالة الحماية ولوحة الأهل (REQ-025) */
 function nowRule(kid) {
   if (fmOf(kid)) return ['lock_open', 'وضع حر', `كل القواعد متوقفة · بقي ${fmOf(kid)} د`, 'ac'];
-  const w = winNow(kid), r = rankOf(kid), top = r.find(t => (t === 'sleep' && w === 'sleep') || (t === 'school' && w === 'school') || t === 'app' || t === 'quota');
+  const m = modeAct(kid); if (m) return [m.i, modeQ(m.id), `${modeShort(m)} · حتى ${S.pm[kid].until}`, 'in'];
+  const w = schedNow(kid), r = rankOf(kid), top = r.find(t => (t === 'sleep' && w === 'sleep') || (t === 'school' && w === 'school') || t === 'app' || t === 'quota');
   if (w === 'sleep' && top === 'sleep') return ['bedtime', 'وقت نوم', 'لا يُفتح أي تطبيق', 'in'];
   if (w === 'school' && top === 'school') return ['school', 'وقت مدرسة', 'تطبيقات الدراسة فقط', 'in'];
   return left(kid) > 0 ? ['wb_sunny', 'وقت متاح', `بقي ${left(kid)} د من الحصة اليومية`, 'ok'] : ['hourglass_empty', 'نفدت الحصة اليومية', 'تُفتح التطبيقات التي لها رصيد خاص فقط', 'wa'];
@@ -137,7 +171,7 @@ surface('protection', {
       R('travel_explore', 'تصفية الويب', `${wfCount(id)} فئات محظورة`, 'protection.filter.view', `go:webfilter:${id}`),
       R('gpp_maybe', 'تنبيهات العبث', tamOpen(id).length ? 'محاولة تعطيل تنتظر مراجعتك' : 'لا محاولات تعطيل', 'protection.tamper.view', `go:tamper:${id}`, tamOpen(id).length ? chip(String(tamOpen(id).length), 'wa') : ''))}
     ${sec('للعائلة كلها')}${list(
-      row('bolt', 'أوضاع جاهزة', 'دراسة · نوم · وضع حر — لمدة تختارها', { a: 'go:presets:study' }),
+      row('bolt', 'الأوضاع', `دراسة · نوم · حر${S.modes.length ? ' · ' + S.modes.map(m => m.n).join(' · ') : ''}`, { a: 'go:presets:study' }),
       row('swap_vert', 'ترتيب أنواع القواعد', rankOf(id).map(k => RANK[k][0]).join(' ← '), { a: can('protection.priority.edit') ? 'go:priority' : 'denied:protection.priority.edit', v: can('protection.priority.edit') ? '' : ic('lock') }),
       row('receipt_long', 'سجل تغييرات الحماية', 'من غيّر، وماذا، ومتى', { a: can('protection.audit.view') ? 'go:prot-audit' : 'denied:protection.audit.view', v: can('protection.audit.view') ? '' : ic('lock') }))}`; },
 });
@@ -168,6 +202,7 @@ surface('app-rule', {
     return `<div class="fx" style="margin-bottom:12px"><span class="av" style="--c:var(--primary)">${ic(a.i)}</span><div class="grow"><b>${a.n}</b><div class="sm muted">${isNew ? `لا قاعدة له عند ${kn(kid)} · مسموح الآن` : `قاعدة ${kn(kid)} لهذا التطبيق`}</div></div>${dirty ? chip('غير محفوظ', 'wa') : ''}</div>
     ${ok ? '' : callout('ترى القاعدة ولا تعدّلها. ' + why('nd:' + (isNew ? 'protection.rule.create' : 'protection.rule.edit')), 'nt', 'lock')}${offNote()}
     ${O.map(([v, i, t, s]) => `<button class="opt" aria-pressed="${d.act === v}" data-a="${ok ? 'adAct:' + v : 'noop'}">${ic(d.act === v ? 'radio_button_checked' : 'radio_button_unchecked')}<span class="grow"><b>${t}</b><span>${s}</span></span>${ic(i)}</button>`).join('')}
+    ${d.act === 'BLOCK' && S.modes.some(m => m.open === 'list' && m.apps.includes(id)) ? callout(`${a.n} ضمن ${S.modes.filter(m => m.open === 'list' && m.apps.includes(id)).map(m => modeQ(m.id)).join(' و')}. المحظور يبقى مغلقاً عند ${kn(kid)} في كل وضع عدا الوضع الحر.`, 'nt', 'bolt') : ''}
     ${d.act === 'LIMIT' ? `${sec('كم دقيقة في اليوم؟')}${d.per ? `<div class="list">${DAYN.map((_, i) => dayRow(i, d.limD[i], 'adDay', 5)).join('')}</div>` : `<div class="card">${numStep(d.lim, 'adLim', 'دقيقة في اليوم')}<div class="chs" style="margin-top:12px;justify-content:center">${[15, 30, 45, 60, 90, 120].map(v => `<button aria-pressed="${d.lim === v}" data-a="adLim:=:${v}">${v}</button>`).join('')}</div></div>`}
     ${list(row('calendar_month', 'حدّ مختلف لكل يوم', 'مثلاً أطول في الجمعة والسبت', { tg: !!d.per, ta: ok ? 'adPer' : 'noop' }))}
     <p class="sm muted" style="margin:6px 4px 0">${adValid(d) ? `ينبَّه ${kn(kid)} قبل انتهاء الوقت بخمس دقائق. صفر يعني لا يُفتح في ذلك اليوم.` : 'اختر عدد الدقائق لتحفظ. لا نقترح رقماً: القرار لك.'}</p>` : ''}
@@ -250,18 +285,19 @@ Object.assign(ACT, {
 const sdOf = kid => S.apps[kid].filter(a => a.study).map(a => a.id).sort();
 surface('study-apps', {
   t: id => 'تطبيقات الدراسة — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:7,26',
-  note: 'S10-05. تختار من تطبيقات جهاز الطفل ما يبقى مفتوحاً في وقت المدرسة. المحظور لا يُختار. بحث بتطبيع عربي. حفظ صريح. إن لم تختر شيئاً قلنا الأثر صراحة: يُغلق كل شيء في وقت المدرسة.',
+  note: 'S10-05. تختار من تطبيقات جهاز الطفل ما يبقى مفتوحاً في وقت المدرسة. المحظور لا يُختار. العلامة لا تغيّر قاعدة التطبيق ولا حصته خارج وقت المدرسة. بحث بتطبيع عربي. حفظ صريح. إن لم تختر شيئاً قلنا الأثر صراحة: يُغلق كل شيء في وقت المدرسة.',
   r(id) { if (!S.sd || S.sd.kid !== id) S.sd = { kid: id, on: sdOf(id) }; const d = S.sd, ed = can('protection.rule.edit', id), dirty = DRAFT['study-apps'].dirty();
     return `${ed ? '' : callout('ترى القائمة ولا تعدّلها. ' + why('nd:protection.rule.edit'), 'nt', 'lock')}${offNote()}${searchBox('ابحث عن تطبيق', '.list .row[data-q]')}
     <div class="list">${S.apps[id].map(a => { const on = d.on.includes(a.id), bl = a.act === 'BLOCK'; return `<button class="row ${bl ? 'dis' : ''}" data-q="${a.n}" data-a="${bl || !ed ? 'noop' : 'sdT:' + a.id}" role="checkbox" aria-checked="${on}"><span class="lead">${ic(a.i)}</span><span class="tx"><b>${a.n}</b><span>${bl ? 'محظور دائماً · لا يُفتح في أي وقت' : on ? 'يبقى مفتوحاً في وقت المدرسة' : 'يُغلق في وقت المدرسة'}</span></span>${ic(bl ? 'block' : on ? 'check_box' : 'check_box_outline_blank')}</button>`; }).join('')}</div>
     <div data-none hidden>${empty('search_off', 'لا تطبيق بهذا الاسم', 'جرّب اسماً آخر.')}</div>
     ${d.on.length ? '' : callout('لم تختر تطبيقات دراسة بعد: كل التطبيقات تُغلق في وقت المدرسة.', 'wa', 'school')}
+    <p class="sm muted" style="margin:8px 4px 0">العلامة تفتح التطبيق في وقت المدرسة فقط. خارج وقت المدرسة يبقى على قاعدته وعلى الحصة اليومية كما كان.</p>
     ${ed ? saveBar('احفظ القائمة', 'sdSave', dirty) : ''}`; },
 });
 Object.assign(ACT, {
   sdT(aid) { const o = S.sd.on; o.includes(aid) ? o.splice(o.indexOf(aid), 1) : o.push(aid); o.sort(); },
-  sdSave() { const d = S.sd, A = S.apps[d.kid], was = A.map(a => [a.study, a.act]), un = () => { A.forEach((a, i) => { a.study = was[i][0]; if (was[i][1] === undefined) delete a.act; else a.act = was[i][1]; }); render(); }; if (offline()) return;
-    A.forEach(a => { a.study = d.on.includes(a.id) ? 1 : 0; if (a.study && !a.act) a.act = 'ALLOW'; });   /* الوسم حقل في قاعدة التطبيق (Q-190): تطبيق بلا قاعدة تُنشأ له قاعدة «مسموح» */
+  sdSave() { const d = S.sd, A = S.apps[d.kid], was = A.map(a => a.study), un = () => { A.forEach((a, i) => { a.study = was[i]; }); render(); }; if (offline()) return;
+    A.forEach(a => { a.study = d.on.includes(a.id) ? 1 : 0; });   /* العلامة تعني شيئاً واحداً: يُفتح في وقت المدرسة. لا تنشئ قاعدة ولا تغيّر الحصة (Q-405) */
     xaud(`تطبيقات دراسة ${M[d.kid].n}: ${d.on.length ? A.filter(a => a.study).map(a => a.n).join('، ') : 'لا شيء'}`, 'protection.rule.edit', d.kid, 'rule', un); S.sd = null; pushed(d.kid, 'حُفظت قائمة تطبيقات الدراسة', un); },
 });
 
@@ -305,38 +341,103 @@ Object.assign(ACT, {
 
 /* ============ S10-09 الوضع الحر + S10-10 الأوضاع الجاهزة ============ */
 const PM = { study: ['وضع الدراسة', 'school', 'تطبيقات الدراسة فقط'], sleep: ['وضع النوم', 'bedtime', 'لا يُفتح أي تطبيق'], free: ['وضع حر', 'lock_open', 'تتوقف كل القواعد'] };
-function psLine(k, id, n) { const A = S.apps[id], st = A.filter(a => a.study), r = rankOf(id), u = untilTxt(n), X = [];
-  if (k === 'study') X.push(st.length ? `حتى ${u} تُفتح تطبيقات الدراسة فقط: ${st.map(a => a.n).join('، ')}. ${A.length - st.length ? `تُغلق ${A.length - st.length === 1 ? 'التطبيق الآخر' : A.length - st.length === 2 ? 'التطبيقان الآخران' : `التطبيقات الأخرى (${A.length - st.length})`}.` : ''}` : `حتى ${u} يُغلق كل شيء: لم تُختر تطبيقات دراسة ل${kn(id)}.`);
-  if (k === 'sleep') X.push(`حتى ${u} لا يُفتح أي تطبيق. زر الاستغاثة يعمل.`);
-  if (k === 'free') X.push(`حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. استخدامه يُحسب في التقارير ولا يُحدّ.`);
+const MICON = ['star', 'route', 'mosque', 'menu_book', 'sports_esports', 'celebration', 'family_home', 'music_note'];
+const anames = L => L.map(a => a.n).join('، ');
+const allApps = () => { const o = {}; KIDS.forEach(k => S.apps[k].forEach(a => { const x = o[a.id] || (o[a.id] = { id: a.id, n: a.n, i: a.i, kids: [], bl: [] }); x.kids.push(k); if (a.act === 'BLOCK') x.bl.push(k); })); return Object.values(o); };
+/* أثر وضع على طفل بعينه بلغة صريحة — يُعرض قبل الحفظ وقبل التطبيق (REQ-013 بالقياس) */
+function modeLine(m, id) { const A = S.apps[id];
+  if (m.open === 'none') return 'لا يُفتح أي تطبيق. زر الاستغاثة يعمل.';
+  if (m.open === 'study') { const st = A.filter(a => a.study && a.act !== 'BLOCK'), o = A.length - st.length; return st.length ? `تُفتح تطبيقات الدراسة فقط: ${anames(st)}.${o ? ` ${o === 1 ? 'يُغلق التطبيق الآخر' : o === 2 ? 'يُغلق التطبيقان الآخران' : `تُغلق التطبيقات الأخرى (${o})`}.` : ''}` : `يُغلق كل شيء: لم تُختر تطبيقات دراسة ل${kn(id)}.`; }
+  if (m.open === 'all') return 'تُفتح التطبيقات بحدودها وبالحصة كالعادة، ولا يغلقها وقت النوم أو المدرسة. المحظور يبقى مغلقاً.';
+  const inM = A.filter(a => m.apps.includes(a.id)), bl = inM.filter(a => a.act === 'BLOCK'), op = inM.filter(a => a.act !== 'BLOCK'), out = m.lim ? op.filter(a => !limCheck(id, a).ok) : [], X = [];
+  if (!inM.length) return `لا يُفتح شيء: لا تطبيق من هذا الوضع على جهاز ${kn(id)}.`;
+  X.push(op.length ? `${op.length === 1 ? 'يُفتح' : 'تُفتح'} ${anames(op)} فقط، ${m.lim ? 'ما دام له وقت اليوم' : 'بلا حد ما دام الوضع سارياً'}.` : 'لا يُفتح شيء.');
+  if (out.length) X.push(`${anames(out)}: نفد الوقت اليوم، فلن ${out.length === 1 ? 'يُفتح' : 'تُفتح'}.`);
+  if (bl.length) X.push(`${anames(bl)} محظور عند ${kn(id)} ويبقى مغلقاً.`);
+  return X.join(' '); }
+const WTN = { sleep: 'النوم', school: 'المدرسة' };
+function psLine(k, id, n) { const c = crossOf(id, n), ask = k !== 'free' && crossAsk(k, c), stop = ask && S.psX === 'stop', u = untilTxt(stop ? c[0] : n), wn = schedNow(id), cur = S.pm[id], X = [];
+  X.push(k === 'free' ? `حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. استخدامه يُحسب في التقارير ولا يُحدّ.` : `حتى ${u}: ${modeLine(modeOf(k), id)}`);
   if (k !== 'free' && fmOf(id)) X.push('ينتهي الوضع الحر الجاري.');
-  if (S.pm[id] && (k === 'free' || S.pm[id].k !== k)) X.push(`ينتهي ${PM[S.pm[id].k][0]} الجاري.`);
-  if (k !== 'free' && (r.indexOf('app') < r.indexOf(k === 'sleep' ? 'sleep' : 'school') || r.indexOf('quota') < r.indexOf(k === 'sleep' ? 'sleep' : 'school'))) X.push('<b>بحسب ترتيبك للقواعد قد تبقى بعض تطبيقاته مفتوحة.</b>');
+  if (cur && cur.k !== k) X.push(`ينتهي ${modeQ(cur.k)} الجاري: وضع واحد لكل طفل.`);
+  if (cur && cur.k === k) X.push('سارٍ الآن: تبدأ مدته من جديد.');
+  if (k !== 'free' && wn && crossAsk(k, [0, wn])) X.push(`الآن وقت ${WTN[wn]} في جدوله: الوضع يحلّ مكانه حتى ينتهي.`);
+  if (ask) X.push(stop ? `يتوقف عند بدء وقت ${WTN[c[1]]} ${hm(NOW.m + c[0])}.` : S.psX === 'over' ? `<b>يستمر فوق وقت ${WTN[c[1]]} (${hm(NOW.m + c[0])}).</b>` : `<b>يبدأ وقت ${WTN[c[1]]} ${hm(NOW.m + c[0])} قبل انتهاء المدة.</b>`);
+  if (k === 'free' && c) X.push(`يمتد فوق وقت ${WTN[c[1]]} (${hm(NOW.m + c[0])}).`);
   if (k === 'free' && tamOpen(id).length) X.push('تنبيه العبث المفتوح على جهازه يبقى.');
   return X.join(' '); }
 surface('presets', {
-  t: 'أوضاع جاهزة', sys: 'S1-10', p: 'adult', a: ['study'], req: '10:18,19,20,24,26 09:7 03:12',
-  note: 'S10-09 + S10-10. ثلاثة أوضاع: دراسة، نوم، حر. لكل تطبيق تختار الطفل والمدة، ولا مدة جاهزة: بلا مدة لا يعمل الزر. قبل التطبيق ترى ما سيتغير لكل طفل باسمه ووقت الانتهاء. الوضع نافذة مؤقتة لا تغيّر الجدول الأسبوعي، وينتهي وحده. الوضع الحر للأب وحده، لطفل واحد في كل مرة، وبالرقم السري. يحتاج اتصالاً.',
-  r(k0) { const k = PM[k0] ? k0 : 'study', okM = k === 'free' ? isOwner() : can('protection.mode_preset.apply'), sel = (S.psK || []).filter(id => KIDS.includes(id)), n = S.psN || 0, act = KIDS.filter(id => fmOf(id) || S.pm[id]), busy = k === 'free' && sel.length === 1 && fmOf(sel[0]), ready = okM && sel.length && n && !offline() && !busy;
-    return `${act.length ? sec('مفعّل الآن') + list(act.map(id => { const f = fmOf(id), m = f ? 'free' : S.pm[id].k, may = f ? isOwner() : can('protection.mode_preset.apply'); return `<div class="row">${av(M[id], 'sm')}<span class="tx"><b>${kn(id)} · ${PM[m][0]}</b><span>${f ? `ينتهي خلال ${f} د` : `حتى ${S.pm[id].until}`} · ${PM[m][2]}</span></span>${may ? btn(f ? 'إلغاء' : 'أنهِ', f ? 'freeOff:' + id : 'pmOff:' + id, 'sm sec') : ic('lock')}</div>`; })) : ''}
-    ${sec('الوضع')}<div class="qa" style="grid-template-columns:repeat(3,1fr)">${Object.keys(PM).map(m => `<button aria-pressed="${k === m}" data-a="psM:${m}"><span class="qi">${ic(m === 'free' && !isOwner() ? 'lock' : PM[m][1])}</span>${PM[m][0]}</button>`).join('')}</div>
-    <p class="sm muted" style="margin:8px 4px 0">${k === 'study' ? 'نافذة مدرسة تبدأ الآن: تُفتح تطبيقات الدراسة فقط.' : k === 'sleep' ? 'نافذة نوم تبدأ الآن: لا يُفتح أي تطبيق، وزر الاستغاثة يعمل.' : 'يوقف كل القواعد مؤقتاً لطفل واحد، ثم تعود وحدها. زر الاستغاثة يعمل كالعادة.'}</p>
+  t: 'الأوضاع', sys: 'S1-10', p: 'adult', a: ['study'], req: '10:18,19,20,24,26,32,33 09:7 03:12',
+  note: 'S10-09 + S10-10. وضعان جاهزان (دراسة، نوم) والوضع الحر، ثم أوضاع الأب الخاصة. تختار الطفل والمدة، ولا مدة جاهزة: بلا مدة لا يعمل الزر. قبل التطبيق ترى ما سيتغير لكل طفل باسمه ووقت الانتهاء. لكل طفل وضع واحد: تطبيق وضع ينهي السابق ويقال ذلك قبل التطبيق. وإن بدأ وقت النوم أو المدرسة قبل انتهاء المدة سُئل الأب: يتوقف الوضع عنده أم يستمر؟ الوضع لا يغيّر الجدول الأسبوعي، وينتهي وحده. الوضع الحر للأب وحده، لطفل واحد، وبالرقم السري. يحتاج اتصالاً.',
+  r(k0) { const k = PM[k0] || modeOf(k0) ? k0 : 'study', cm = PM[k] ? null : modeOf(k), okM = k === 'free' ? isOwner() : can('protection.mode_preset.apply'), sel = (S.psK || []).filter(id => KIDS.includes(id)), n = S.psN || 0, act = KIDS.filter(id => fmOf(id) || S.pm[id]), busy = k === 'free' && sel.length === 1 && fmOf(sel[0]);
+    const X = k !== 'free' && n ? sel.filter(id => crossAsk(k, crossOf(id, n))) : [], ready = okM && sel.length && n && !offline() && !busy && (!X.length || S.psX), mk = can('protection.rule.create');
+    const tile = (m, t, i) => `<button aria-pressed="${k === m}" data-a="psM:${m}"><span class="qi">${ic(i)}</span>${t}</button>`;
+    return `${act.length ? sec('مفعّل الآن') + list(act.map(id => { const f = fmOf(id), m = f ? 'free' : S.pm[id].k, may = f ? isOwner() : can('protection.mode_preset.apply'); return `<div class="row">${av(M[id], 'sm')}<span class="tx"><b>${kn(id)} · ${modeN(m)}</b><span>${f ? `ينتهي خلال ${f} د · تتوقف كل القواعد` : `حتى ${S.pm[id].until} · ${modeShort(modeOf(m))}`}</span></span>${may ? btn(f ? 'إلغاء' : 'أنهِ', f ? 'freeOff:' + id : 'pmOff:' + id, 'sm sec') : ic('lock')}</div>`; })) : ''}
+    ${sec('جاهزة')}<div class="qa" style="grid-template-columns:repeat(3,1fr)">${Object.keys(PM).map(m => tile(m, PM[m][0], m === 'free' && !isOwner() ? 'lock' : PM[m][1])).join('')}</div>
+    ${sec('أوضاعي', mk ? 'وضع جديد' : '', 'go:mode-edit:new')}${S.modes.length ? `<div class="qa" style="grid-template-columns:repeat(3,1fr)">${S.modes.map(m => tile(m.id, m.n, m.i)).join('')}</div>` : `<p class="sm muted" style="margin:0 4px">لا أوضاع خاصة بعد. ${mk ? 'أنشئ وضعاً باسمك وحدّد ما يُفتح فيه، ثم طبّقه متى شئت.' : 'ينشئها الأب.'}</p>`}
+    <p class="sm muted" style="margin:10px 4px 0">${k === 'study' ? 'تُفتح تطبيقات الدراسة فقط.' : k === 'sleep' ? 'لا يُفتح أي تطبيق، وزر الاستغاثة يعمل.' : k === 'free' ? 'يوقف كل القواعد مؤقتاً لطفل واحد، ثم تعود وحدها. زر الاستغاثة يعمل كالعادة.' : `${modeQ(k)}: ${modeShort(cm)}.`}</p>${cm && can('protection.rule.edit') ? `<div style="margin:4px 0 0">${btn('عدّل هذا الوضع', 'go:mode-edit:' + k, 'sm txt', 'edit')}</div>` : ''}
     ${!okM ? callout(k === 'free' ? 'الوضع الحر يفعّله الأب وحده.' : 'تطبيق الأوضاع ليس من صلاحياتك. ' + why('nd:protection.mode_preset.apply'), 'nt', 'lock') : `${S.os === 'ios' ? callout('الأثر يظهر على أجهزة Android فقط. على iOS لا يستطيع التطبيق إغلاق التطبيقات. ' + why('ios'), 'wa', 'ios') : ''}
     ${sec(k === 'free' ? 'لمن؟ (طفل واحد)' : 'لمن؟')}<div class="chs">${KIDS.map(id => `<button aria-pressed="${sel.includes(id)}" data-a="psKid:${id}">${av(M[id], 'sm')}${kn(id)}</button>`).join('')}</div>
     ${busy ? callout(`الوضع الحر سارٍ ل${kn(sel[0])} · ينتهي خلال ${fmOf(sel[0])} د. ألغِه أولاً إن أردت مدة أخرى.`, 'nt', 'lock_open') : `${sec('كم المدة؟')}${durPick('psN')}
-    ${sec('ما الذي سيتغير')}${sel.length && n ? `<div class="list">${sel.map(id => `<div class="row">${av(M[id], 'sm')}<span class="tx"><b>${kn(id)}</b><span>${psLine(k, id, n)}</span></span></div>`).join('')}</div><p class="sm muted" style="margin:6px 4px 0">الجدول الأسبوعي لا يتغير. ينتهي الوضع وحده ${untilTxt(n)}، وتستطيع إنهاءه قبل ذلك.</p>` : `<p class="sm muted" style="margin:0 4px">اختر ${sel.length ? '' : 'الطفل و'}المدة لترى ما سيتغير قبل أن تطبّق.</p>`}
+    ${X.length ? `${sec('يتقاطع مع الجدول')}<p class="sm muted" style="margin:0 4px 8px">وقت ${[...new Set(X.map(id => WTN[crossOf(id, n)[1]]))].join(' أو ')} عند ${X.map(kn).join(' و')} يبدأ قبل انتهاء المدة. اختر ما يحدث عنده:</p>${[['stop', 'يتوقف الوضع عند وقت الجدول', 'ينتهي الوضع حين يبدأ وقت النوم أو المدرسة، ويحكم الجدول.'], ['over', 'يستمر الوضع حتى نهاية المدة', 'يبقى الوضع سارياً فوق وقت الجدول، ثم يعود الجدول.']].map(([v, t, d]) => `<button class="opt" aria-pressed="${S.psX === v}" data-a="set:psX:${v}">${ic(S.psX === v ? 'radio_button_checked' : 'radio_button_unchecked')}<span class="grow"><b>${t}</b><span>${d}</span></span></button>`).join('')}` : ''}
+    ${sec('ما الذي سيتغير')}${sel.length && n ? `<div class="list">${sel.map(id => `<div class="row">${av(M[id], 'sm')}<span class="tx"><b>${kn(id)}</b><span>${psLine(k, id, n)}</span></span></div>`).join('')}</div><p class="sm muted" style="margin:6px 4px 0">الجدول الأسبوعي والقواعد لا تتغير. ينتهي الوضع وحده، وتستطيع إنهاءه قبل ذلك.</p>` : `<p class="sm muted" style="margin:0 4px">اختر ${sel.length ? '' : 'الطفل و'}المدة لترى ما سيتغير قبل أن تطبّق.</p>`}
     ${offline() ? callout('تطبيق الوضع يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}
-    <div class="btns" style="margin-top:14px">${btn(k === 'free' ? 'فعّل الوضع الحر بالرقم السري' : 'طبّق ' + PM[k][0], ready ? 'psGo:' + k : 'noop', ready ? '' : '" disabled="', k === 'free' ? 'lock' : '')}</div>`}`}`; },
+    <div class="btns" style="margin-top:14px">${btn(k === 'free' ? 'فعّل الوضع الحر بالرقم السري' : 'طبّق ' + modeQ(k), ready ? 'psGo:' + k : 'noop', ready ? '' : '" disabled="', k === 'free' ? 'lock' : '')}</div>${sel.length && n && X.length && !S.psX ? '<p class="sm muted c" style="margin-top:6px">اختر ما يحدث عند وقت الجدول لتطبّق.</p>' : ''}`}`}`; },
 });
 Object.assign(ACT, {
-  psM(m) { S.stack[S.stack.length - 1].a = [m]; if (m === 'free' && (S.psK || []).length > 1) S.psK = []; },
+  psM(m) { S.stack[S.stack.length - 1].a = [m]; S.psX = ''; if (m === 'free' && (S.psK || []).length > 1) S.psK = []; },
   psKid(id) { const k = S.stack[S.stack.length - 1].a[0], o = S.psK || (S.psK = []); if (k === 'free') S.psK = o[0] === id ? [] : [id]; else o.includes(id) ? o.splice(o.indexOf(id), 1) : o.push(id); },
-  psGo(k) { const sel = (S.psK || []).slice(), n = S.psN; if (!sel.length || !n || offline()) return;
+  psGo(k) { const sel = (S.psK || []).slice(), n = S.psN; if (!sel.length || !n || offline() || (k !== 'free' && !modeOf(k))) return;
+    if (k !== 'free' && !S.psX && sel.some(id => crossAsk(k, crossOf(id, n)))) return;
     const run = () => { const snap = { fm: { ...S.fm }, pm: { ...S.pm } }, un = () => { S.fm = snap.fm; S.pm = snap.pm; render(); };   /* ذرّي: كل الحزمة أو لا شيء، والتراجع دفعة واحدة */
-      sel.forEach(id => { if (k === 'free') { S.fm[id] = n; delete S.pm[id]; } else { S.pm[id] = { k, left: n, until: untilTxt(n) }; delete S.fm[id]; } xaud(`${k === 'free' ? 'فُعّل الوضع الحر' : 'طُبّق ' + PM[k][0]} لـ${M[id].n} ${durTxt(n)} · حتى ${untilTxt(n)}`, k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply', id, k === 'free' ? 'free' : 'mode'); });
-      S.psK = []; S.psN = 0; toast(`${k === 'free' ? 'الوضع الحر مفعّل' : 'طُبّق ' + PM[k][0]} · ${sel.map(kn).join('، ')} · حتى ${untilTxt(n)}`, un, PM[k][1]); };
+      sel.forEach(id => { let nn = n; if (k === 'free') { S.fm[id] = n; delete S.pm[id]; } else { const c = crossOf(id, n); if (crossAsk(k, c) && S.psX === 'stop') nn = c[0]; S.pm[id] = { k, left: nn, until: untilTxt(nn) }; delete S.fm[id]; }   /* وضع واحد لكل طفل: الجديد يحلّ مكان السابق */
+        xaud(`${k === 'free' ? 'فُعّل الوضع الحر' : 'طُبّق ' + modeQ(k)} لـ${M[id].n} ${durTxt(nn)} · حتى ${untilTxt(nn)}`, k === 'free' ? 'protection.free_mode.activate' : 'protection.mode_preset.apply', id, k === 'free' ? 'free' : 'mode'); });
+      S.psK = []; S.psN = 0; S.psX = ''; toast(`${k === 'free' ? 'الوضع الحر مفعّل' : 'طُبّق ' + modeQ(k)} · ${sel.map(kn).join('، ')}`, un, modeI(k)); };
     k === 'free' ? gate('الوضع الحر يوقف كل القواعد', run, 'stepup') : run(); },
-  pmOff(id) { const was = S.pm[id]; if (!was) return; delete S.pm[id]; xaud(`أُنهي ${PM[was.k][0]} لـ${M[id].n} قبل وقته`, 'protection.mode_preset.apply', id, 'mode'); toast(`انتهى ${PM[was.k][0]} ل${kn(id)} · عادت قواعده`, () => { S.pm[id] = was; render(); }); },
+  pmOff(id) { const was = S.pm[id]; if (!was) return; delete S.pm[id]; xaud(`أُنهي ${modeQ(was.k)} لـ${M[id].n} قبل وقته`, 'protection.mode_preset.apply', id, 'mode'); toast(`انتهى ${modeQ(was.k)} ل${kn(id)} · عادت قواعده`, () => { S.pm[id] = was; render(); }); },
+});
+
+/* ============ S10-17 وضع خاص: إنشاء وتعديل ============ */
+const mdOf = id => { const m = S.modes.find(x => x.id === id); return m ? { id, n: m.n, i: m.i, open: m.open, apps: m.apps.slice().sort(), lim: m.lim ? 1 : 0 } : { id: 'new', n: '', i: 'star', open: '', apps: [], lim: 1 }; };
+/* يرجع [الحقل، الرسالة] لأول نقص، أو null. الاسم لا يتكرر، فلا يلتبس وضعان في السجل ولا في اللوحة. */
+function mdErr(d) { const n = d.n.trim(), q = arNorm(n).replace(/^وضع\s+/, ''), taken = ['الدراسه', 'النوم', 'حر', 'الحر', ...S.modes.filter(m => m.id !== d.id).map(m => arNorm(m.n).replace(/^وضع\s+/, ''))];
+  if (!n) return ['n', 'اكتب اسماً للوضع.']; if (n.length > 24) return ['n', 'الاسم أطول من 24 حرفاً.']; if (taken.includes(q)) return ['n', 'عندك وضع بهذا الاسم. اختر اسماً آخر.'];
+  if (!d.open) return ['open', 'اختر ماذا يُفتح في هذا الوضع.']; if (d.open === 'list' && !d.apps.length) return ['apps', 'اختر تطبيقاً واحداً على الأقل، أو اختر «لا شيء».']; return null; }
+DRAFT['mode-edit'] = { key: 'md', dirty: () => !!S.md && !same(mdOf(S.md.id), S.md) };
+surface('mode-edit', {
+  t: id => (S.modes.some(m => m.id === id) ? 'تعديل وضع' : 'وضع جديد'), sys: 'S1-10', p: 'adult', a: ['new'], req: '10:32,33,26',
+  note: 'S10-17. الأب ينشئ وضعاً باسمه: اسم وأيقونة، ثم ماذا يُفتح فيه (لا شيء، تطبيقات يختارها، أو كل التطبيقات بحدودها مع تجاوز النوم والمدرسة). لا مدة في الوضع: تُختار عند كل تطبيق. قبل الحفظ يرى أثره على كل طفل باسمه. ما يمنع التعارض: الاسم لا يتكرر، المحظور يبقى مغلقاً في كل وضع، وفتح كل شيء بلا حدود للوضع الحر وحده. إن كان الوضع سارياً قيل إن التعديل يسري فوراً، والحذف ينهيه أولاً. حفظ صريح وتحذير عند الخروج.',
+  r(id0) { const isNew = !S.modes.some(m => m.id === id0), mid = isNew ? 'new' : id0; if (!S.md || S.md.id !== mid) S.md = mdOf(mid); const d = S.md, ok = can(isNew ? 'protection.rule.create' : 'protection.rule.edit'), err = mdErr(d), dirty = DRAFT['mode-edit'].dirty(), on = isNew ? [] : KIDS.filter(k => pmOf(k) === mid), ne = err && err[0] === 'n' && d.n.trim() ? err[1] : '';
+    const O = [['none', 'block', 'لا شيء', 'كل التطبيقات مغلقة. مثل وقت الطعام أو الصلاة.'], ['list', 'checklist', 'تطبيقات أختارها فقط', 'ما تختاره يُفتح، والباقي مغلق.'], ['all', 'wb_sunny', 'كل التطبيقات كالعادة', 'يتجاوز وقت النوم والمدرسة فقط. الحدود والحصة باقية. مثل سهرة العيد.']];
+    const Lm = [[1, 'الحدود باقية', 'يُفتح التطبيق ما دام له وقت اليوم، ووقته يُحسب من حدّه ومن الحصة.'], [0, 'بلا حد داخل الوضع', 'يُفتح طول مدة الوضع ولو نفد وقته. الاستخدام يُحسب في التقارير ولا يُحدّ.']];
+    return `${ok ? '' : callout('ترى الوضع ولا تعدّله. ' + why('nd:' + (isNew ? 'protection.rule.create' : 'protection.rule.edit')), 'nt', 'lock')}${offNote()}
+    ${on.length ? callout(`سارٍ الآن على ${on.map(kn).join(' و')}: التعديل يسري فور الحفظ.`, 'nt', 'bolt') : ''}
+    <label class="fld ${ne ? 'err' : ''}"><span>اسم الوضع</span><input id="mdN" data-ch="mdN" maxlength="30" autocomplete="off" placeholder="مثال: وقت الضيوف" value="${d.n}" ${ok ? '' : 'disabled'}><small>${ne || 'يظهر بهذا الاسم لك ولطفلك.'}</small></label>
+    ${sec('الأيقونة')}<div class="chs">${MICON.map(i => `<button aria-pressed="${d.i === i}" data-a="${ok ? 'mdI:' + i : 'noop'}" aria-label="أيقونة ${MICON.indexOf(i) + 1}" style="padding:0 12px">${ic(i)}</button>`).join('')}</div>
+    ${sec('ماذا يُفتح في هذا الوضع؟')}${O.map(([v, i, t, x]) => `<button class="opt" aria-pressed="${d.open === v}" data-a="${ok ? 'mdOpen:' + v : 'noop'}">${ic(d.open === v ? 'radio_button_checked' : 'radio_button_unchecked')}<span class="grow"><b>${t}</b><span>${x}</span></span>${ic(i)}</button>`).join('')}
+    ${d.open === 'list' ? `${sec('التطبيقات المفتوحة')}<div class="list">${allApps().map(a => { const sel = d.apps.includes(a.id), dead = a.bl.length === a.kids.length; return `<button class="row ${dead ? 'dis' : ''}" data-a="${dead || !ok ? 'noop' : 'mdApp:' + a.id}" role="checkbox" aria-checked="${sel}"><span class="lead">${ic(a.i)}</span><span class="tx"><b>${a.n}</b><span>${dead ? 'محظور دائماً · لا يُفتح في أي وضع' : `على جهاز ${a.kids.map(kn).join(' و')}${a.bl.length ? ` · محظور عند ${a.bl.map(kn).join(' و')}` : ''}`}</span></span>${ic(dead ? 'block' : sel ? 'check_box' : 'check_box_outline_blank')}</button>`; }).join('')}</div>
+    ${sec('حدود هذه التطبيقات داخل الوضع')}${Lm.map(([v, t, x]) => `<button class="opt" aria-pressed="${d.lim === v}" data-a="${ok ? 'mdLim:' + v : 'noop'}">${ic(d.lim === v ? 'radio_button_checked' : 'radio_button_unchecked')}<span class="grow"><b>${t}</b><span>${x}</span></span></button>`).join('')}` : ''}
+    ${d.open && !(d.open === 'list' && !d.apps.length) ? `${sec('ماذا يحدث لكل طفل')}<div class="list">${KIDS.map(k => `<div class="row">${av(M[k], 'sm')}<span class="tx"><b>${kn(k)}</b><span>${modeLine(d, k)}</span></span></div>`).join('')}</div>` : ''}
+    <p class="sm muted" style="margin:10px 4px 0">المدة تختارها في كل مرة تطبّق الوضع. المحظور يبقى مغلقاً، وزر الاستغاثة يعمل دائماً. لفتح كل شيء بلا حدود استعمل الوضع الحر.</p>
+    ${ok ? saveBar(isNew ? 'أنشئ الوضع' : 'احفظ الوضع', 'mdSave', dirty && !err) + (err && (dirty || isNew) ? `<p class="sm muted c" style="margin-top:6px">${err[1]}</p>` : '') : ''}
+    ${!isNew && can('protection.rule.delete') ? `<div class="c" style="margin-top:10px">${btn('احذف الوضع', offline() ? 'noop' : 'mdDel', 'txt" style="color:var(--danger)' + (offline() ? '" disabled="' : ''), 'delete')}</div>` : ''}`; },
+});
+Object.assign(ACT, {
+  mdN(v) { S.md.n = String(v).replace(/[<>"&`]/g, ''); },
+  mdI(i) { S.md.i = i; },
+  mdOpen(o) { S.md.open = o; },
+  mdApp(aid) { const o = S.md.apps; o.includes(aid) ? o.splice(o.indexOf(aid), 1) : o.push(aid); o.sort(); },
+  mdLim(v) { S.md.lim = +v; },
+  mdSave() { const d = S.md; if (!d || mdErr(d) || offline()) return; const isNew = d.id === 'new', was = JSON.stringify(S.modes), wpm = { ...S.pm }, un = () => { S.modes = JSON.parse(was); S.pm = wpm; render(); };
+    const m = { id: isNew ? 'm' + (Math.max(0, ...S.modes.map(x => +x.id.slice(1))) + 1) : d.id, n: d.n.trim(), i: d.i, open: d.open, apps: d.open === 'list' ? d.apps.slice() : [], lim: d.open === 'list' ? d.lim : 1 };
+    if (isNew) S.modes.push(m); else S.modes[S.modes.findIndex(x => x.id === m.id)] = m;
+    xaud(`${isNew ? 'أُنشئ' : 'عُدّل'} وضع «${m.n}»: ${modeShort(m)}`, isNew ? 'protection.rule.create' : 'protection.rule.edit', undefined, 'mode', un);
+    S.md = null; back(); const t = S.stack[S.stack.length - 1]; if (t.id === 'presets') { t.a = [m.id]; S.psX = ''; }
+    toast(isNew ? `أُنشئ وضع «${m.n}» · طبّقه متى شئت` : `حُفظ وضع «${m.n}»`, un, m.i); },
+  mdDel() { const d = S.md, m = S.modes.find(x => x.id === d.id); if (!m || offline()) return; const on = KIDS.filter(k => pmOf(k) === m.id);
+    confirmDlg(`حذف وضع «${m.n}»؟`, `${on.length ? `سارٍ الآن على ${on.map(kn).join(' و')}: ينتهي وتعود القواعد والجدول. ` : ''}لا يتغير شيء في قواعد التطبيقات ولا في الجدول.`, 'احذف الوضع', () => { const was = JSON.stringify(S.modes), wpm = { ...S.pm }, un = () => { S.modes = JSON.parse(was); S.pm = wpm; render(); };
+      S.modes = S.modes.filter(x => x.id !== m.id); on.forEach(k => delete S.pm[k]); xaud(`حُذف وضع «${m.n}»${on.length ? ` وانتهى عند ${on.map(k => M[k].n).join(' و')}` : ''}`, 'protection.rule.delete', undefined, 'mode', un);
+      S.md = null; back(); const t = S.stack[S.stack.length - 1]; if (t.id === 'presets' && t.a[0] === m.id) t.a = ['study']; toast(`حُذف وضع «${m.n}»`, un, 'delete'); }, true); },
 });
 
 /* ============ S10-11 تنبيهات العبث وإعادة التفعيل ============ */
@@ -379,7 +480,7 @@ surface('enf-state', {
     return `${iosNote()}${kidTabs(id)}
     <div class="card fx"><span class="bigic" style="width:56px;height:56px;border-radius:18px;margin:0">${ic(e[1])}</span><div class="grow"><b>${e[0]}</b><div class="sm muted">${on && !offline() ? 'الجهاز متصل ويطبّق آخر قواعدك' : 'الجهاز يطبّق آخر قواعد وصلته، حتى دون إنترنت'}</div></div>${age(on ? k.ago : k.ago + 95)}</div>
     ${pend ? callout(`<b>${pend === 1 ? 'تغيير واحد' : pend === 2 ? 'تغييران' : pend + ' تغييرات'} بانتظار اتصال الجهاز</b><br>حُفظ عندنا ويصل إلى جهاز ${kn(id)} عند أول اتصال.`, 'wa', 'cloud_upload') : ''}
-    ${sec('الآن')}${list(row(nr[0], nr[1], nr[2], { v: chip('الآن', nr[3]) }), row('update', 'الحد التالي', nextEdge(id), {}), row('lock_open', 'الوضع الحر', fmOf(id) ? `سارٍ · ينتهي خلال ${fmOf(id)} د` : 'غير مفعّل', { a: 'go:presets:free' }), row('gpp_maybe', 'العبث', T.length ? (T.some(x => x.st !== 'ok') ? 'محاولة تعطيل مفتوحة' : 'عادت الحماية · بانتظار المراجعة') : 'لا شيء', { a: can('protection.tamper.view', id) ? 'go:tamper:' + id : 'denied:protection.tamper.view', v: T.length ? chip('مفتوح', 'wa') : '' }))}
+    ${sec('الآن')}${list(row(nr[0], nr[1], nr[2], { v: chip('الآن', nr[3]) }), row('update', 'الحد التالي', nextEdge(id), {}), row('bolt', 'الوضع الساري', fmOf(id) ? `وضع حر · ينتهي خلال ${fmOf(id)} د` : S.pm[id] ? `${modeQ(S.pm[id].k)} · حتى ${S.pm[id].until}` : 'لا وضع مفعّل', { a: 'go:presets:' + (fmOf(id) ? 'free' : S.pm[id] ? S.pm[id].k : 'study') }), row('gpp_maybe', 'العبث', T.length ? (T.some(x => x.st !== 'ok') ? 'محاولة تعطيل مفتوحة' : 'عادت الحماية · بانتظار المراجعة') : 'لا شيء', { a: can('protection.tamper.view', id) ? 'go:tamper:' + id : 'denied:protection.tamper.view', v: T.length ? chip('مفتوح', 'wa') : '' }))}
     ${sec('المتبقي لكل تطبيق')}${L2.length ? list(L2.map(a => row(a.i, a.n, limLeft(a) ? `بقي ${limLeft(a)} د` : 'نفد وقته اليوم', { v: `${a.used} من ${a.lim}` }))) : '<p class="sm muted" style="margin:0 4px">لا تطبيق له حدّ يومي.</p>'}
     ${list(row('hourglass_top', 'الحصة اليومية', left(id) ? `بقي ${left(id)} د` : 'نفدت', { v: `${k.used} من ${k.quota + k.extra}` }))}
     ${sec('المزامنة')}${list(row('sync', 'آخر مزامنة للقواعد', on ? 'القواعد على الجهاز هي آخر ما حفظت' : 'الجهاز غير متصل الآن', { v: age(on ? k.ago : k.ago + 95) }))}<div class="btns" style="margin-top:10px">${btn('مزامنة الآن', offline() ? 'noop' : 'enfSync:' + id, 'sec' + (offline() ? '" disabled="' : ''), 'sync')}</div>
@@ -389,7 +490,7 @@ ACT.enfSync = id => { if (!devOn(id)) return toast(`جهاز ${kn(id)} غير م
 surface('enf-all', { t: 'حالة الحماية', sys: 'S1-10', p: 'adult', req: '10:25 09:1', note: 'حالة كل جهاز طفل في سطر، وما يحكمه الآن.', r() { return list(KIDS.map(id => { const e = ENF[S.kid[id].enf], nr = nowRule(id); return row('', kn(id), `${e[0]} · الآن: ${nr[1]}`, { lead: av(M[id]), a: 'go:enf-state:' + id, v: chip('', e[2], e[1]) }); })); } });
 
 /* ============ S10-13 سجل تدقيق الحماية ============ */
-const PAT = [['all', 'كل الأنواع'], ['rule', 'قاعدة'], ['sched', 'جدول'], ['rank', 'ترتيب'], ['mode', 'وضع جاهز'], ['free', 'وضع حر'], ['tamper', 'عبث'], ['web', 'تصفية']];
+const PAT = [['all', 'كل الأنواع'], ['rule', 'قاعدة'], ['sched', 'جدول'], ['rank', 'ترتيب'], ['mode', 'وضع'], ['free', 'وضع حر'], ['tamper', 'عبث'], ['web', 'تصفية']];
 const PATI = { rule: 'apps', sched: 'calendar_month', rank: 'swap_vert', mode: 'bolt', free: 'lock_open', tamper: 'gpp_maybe', web: 'travel_explore' };
 const paList = f => S.audit.map((a, i) => [a, i]).filter(([a]) => /^protection\./.test(a.k || '') && (!f.kid || f.kid === 'all' || a.kid === f.kid) && (!f.ty || f.ty === 'all' || a.ty === f.ty) && (f.per == null || f.per === 'all' || (a.d || 0) <= +f.per));
 surface('prot-audit', {
@@ -430,14 +531,14 @@ const WCAT = [
 const WGRP = ['غير لائق أو خطر', 'تواصل ومشاركة', 'ترفيه وتسوّق', 'معرفة وخدمات'];
 const WACT = { BLOCK: ['حظر', 'da', 'block', 'لا يُفتح الموقع'], ALERT: ['تنبيه', 'wa', 'notifications', 'يُفتح ويصلك تنبيه'], ALLOW: ['سماح', 'ok', 'check', 'يُفتح بلا تنبيه'], IGNORE: ['تجاهل', 'ol', 'visibility_off', 'يُفتح ولا يظهر في التقارير'] };
 const wDef = id => (WCAT.find(c => c[0] === +id)[3] || 'ALLOW');
-/* خيارات التصفية بافتراضياتها الحرفية (REQ-030). الخامس (isCategoryList) لا يُعرض: معناه للأب غير محسوم في المواصفة. */
+/* خيارات التصفية بافتراضياتها الحرفية (REQ-030). الخامس (isCategoryList) لا يُعرض: معناه للأب غير محسوم في المواصفة (G-S10-15). */
 const WFL = [['safe', 'البحث الآمن', 'يخفي النتائج غير اللائقة في محركات البحث', true], ['report', 'أبلغني بالمواقع المحظورة', 'يصلك تنبيه حين يحاول فتح موقع محظور', true], ['unknown', 'اسمح بالمواقع غير المصنّفة', 'مواقع لا نعرف فئتها. وهو مطفأ تُحظر.', false], ['search', 'تنبيهات البحث', 'يصلك تنبيه عن بعض كلمات البحث', false]];
 const wfFlagOf = (kid, f) => S.wfl[kid][f] ?? WFL.find(x => x[0] === f)[3];
 const wfCount = kid => WCAT.filter(c => (S.wfc[kid][c[0]] || wDef(c[0])) === 'BLOCK').length;
 const wrOf = kid => ({ kid, c: { ...S.wfc[kid] }, f: { ...S.wfl[kid] } });
 surface('webfilter', {
-  t: id => 'تصفية الويب — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:28,30,31,26', st: 'un',
-  note: 'S10-15. ثلاثون فئة في أربع مجموعات، لكل فئة: حظر أو تنبيه أو سماح. غير محسوم (1): المصدر يسمّي خمس فئات محظورة افتراضياً فقط؛ أضفت خمساً اقتراحاً (تبغ، عنف، أسلحة، ألفاظ بذيئة، مواقع تجاوز الحجب) والباقي سماح. غير محسوم (2): الخيار الخامس «قائمة فئات» لا معنى واضحاً له للأب فلم يُعرض. التعديل للأب وحده، بحفظ صريح وتحذير عند الخروج.',
+  t: id => 'تصفية الويب — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:28,30,31,26',
+  note: 'S10-15. ثلاثون فئة في أربع مجموعات، لكل فئة: حظر أو تنبيه أو سماح. عشر فئات محظورة من أول يوم (Q-405): خمس من المرجع (إباحي، للكبار، قمار، مخدرات، كحول) وخمس معها (تبغ، عنف، أسلحة، ألفاظ بذيئة، مواقع تجاوز الحجب)، والباقي سماح. الخيار الخامس في المرجع «قائمة فئات» لا يُعرض: معناه للأب غير محسوم. التعديل للأب وحده، بحفظ صريح وتحذير عند الخروج.',
   r(id) { if (!S.wr || S.wr.kid !== id) S.wr = wrOf(id); const d = S.wr, own = can('protection.filter.edit', id), dirty = DRAFT.webfilter.dirty(), val = c => d.c[c[0]] || wDef(c[0]), chg = WCAT.filter(c => d.c[c[0]] && d.c[c[0]] !== wDef(c[0])).length;
     return `${S.os === 'ios' ? callout('تصفية المواقع تعمل على أجهزة Android. على iOS تُحفظ القواعد ولا نعد بتطبيقها. ' + why('ios'), 'wa', 'ios') : ''}${kidTabs(id)}${own ? '' : callout('تصفية الويب يغيّرها الأب وحده. ترى القيم هنا. ' + why('nd:protection.filter.edit'), 'nt', 'lock')}${offNote()}
     ${sec('خيارات')}${list(WFL.map(([k, t, s]) => row('', t, s, { tg: d.f[k] ?? wfFlagOf(id, k), ta: own ? 'wrFlag:' + k : 'denied:protection.filter.edit' })))}
@@ -463,13 +564,13 @@ Object.assign(ACT, {
 });
 const domFix = s => (s || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').replace(/^www\./, '').replace(/[\/?#].*$/, '');
 surface('web-domains', {
-  t: id => 'مواقع مستثناة — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:29,26', st: 'un',
-  note: 'S10-16 (مصطلح المسرد: «تجاوزات النطاقات»). موقع بعينه بإجراء يفوز على إجراء فئته: سماح، حظر، تنبيه، تجاهل. حذف الاستثناء يعيد الموقع إلى فئته. غير محسوم: معنى «تجاهل» مأخوذ من سلوك المنتج المرجعي (يُفتح ولا يظهر في التقارير) وليس منصوصاً في المواصفة. التعديل للأب وحده، ويحتاج اتصالاً.',
+  t: id => 'مواقع مستثناة — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:29,26',
+  note: 'S10-16 (مصطلح المسرد: «تجاوزات النطاقات»). موقع بعينه بإجراء يفوز على إجراء فئته: سماح، حظر، تنبيه. حذف الاستثناء يعيد الموقع إلى فئته. الإجراء الرابع في المرجع («تجاهل») لا يُعرض: يُخفي عن الأب شيئاً من تصفح ولده (Q-405). التعديل للأب وحده، ويحتاج اتصالاً.',
   r(id) { const D = S.wdom[id], own = can('protection.filter.edit', id), n = S.wdN || { a: '' }, off = offline();
     return `${own ? '' : callout('المواقع المستثناة يغيّرها الأب وحده. ' + why('nd:protection.filter.edit'), 'nt', 'lock')}${off ? callout('الإضافة والحذف يحتاجان اتصالاً. ترى آخر ما حُفظ.', 'wa', 'cloud_off') : ''}
     ${callout('الاستثناء يفوز على فئة الموقع. مثال: تحظر «شبكات التواصل» وتسمح بموقع واحد منها.', 'nt', 'info')}
     ${D.length ? `${D.length > 4 ? searchBox('ابحث عن موقع', '.list .row[data-q]') : ''}<div class="list">${D.map((x, i) => `<div class="row" data-q="${x.d}"><span class="lead">${ic('public')}</span><span class="tx"><b><span class="ltr">${x.d}</span></b><span>${WACT[x.a][3]}</span></span>${chip(WACT[x.a][0], WACT[x.a][1], WACT[x.a][2])}${own && !off ? `<button class="ib" data-a="wdomDel:${id}:${i}" aria-label="احذف استثناء ${x.d}">${ic('delete')}</button>` : ''}</div>`).join('')}</div><div data-none hidden>${empty('search_off', 'لا موقع بهذا الاسم', '')}</div>` : empty('public', 'لا مواقع مستثناة', 'كل موقع يتبع إجراء فئته.')}
-    ${own ? `${sec('أضف استثناء')}<label class="fld ${n.err ? 'err' : ''}"><span>عنوان الموقع</span><input id="wdomN" dir="ltr" inputmode="url" autocomplete="off" placeholder="example.com" value="${n.d || ''}"><small>${n.err || 'اكتب اسم الموقع فقط، بلا http ولا مسار.'}</small></label><div class="seg" role="group">${['ALLOW', 'BLOCK', 'ALERT', 'IGNORE'].map(a => `<button aria-pressed="${n.a === a}" data-a="wdomA:${a}">${WACT[a][0]}</button>`).join('')}</div><p class="sm muted" style="margin:-4px 4px 10px">${n.a ? WACT[n.a][3] + '.' : 'اختر ماذا يحدث حين يفتحه.'}</p>${btn('أضف استثناء', off ? 'noop' : 'wdomAdd:' + id, off ? '" disabled="' : '', 'add')}` : ''}`; },
+    ${own ? `${sec('أضف استثناء')}<label class="fld ${n.err ? 'err' : ''}"><span>عنوان الموقع</span><input id="wdomN" dir="ltr" inputmode="url" autocomplete="off" placeholder="example.com" value="${n.d || ''}"><small>${n.err || 'اكتب اسم الموقع فقط، بلا http ولا مسار.'}</small></label><div class="seg" role="group">${['ALLOW', 'BLOCK', 'ALERT'].map(a => `<button aria-pressed="${n.a === a}" data-a="wdomA:${a}">${WACT[a][0]}</button>`).join('')}</div><p class="sm muted" style="margin:-4px 4px 10px">${n.a ? WACT[n.a][3] + '.' : 'اختر ماذا يحدث حين يفتحه.'}</p>${btn('أضف استثناء', off ? 'noop' : 'wdomAdd:' + id, off ? '" disabled="' : '', 'add')}` : ''}`; },
 });
 Object.assign(ACT, {
   wdomA(a) { S.wdN = { ...(S.wdN || {}), a, d: ($('#wdomN') || {}).value || '', err: '' }; },
@@ -482,14 +583,14 @@ Object.assign(ACT, {
 /* ============ S10-07 شاشة الحظر (للطفل) ============ */
 surface('block', {
   kind: 'full', cls: 'dark', t: 'شاشة الحظر', sys: 'S1-10', p: 'kid', a: ['ytk'], req: '10:3,5,7,12,14 05:8,12 01:7',
-  note: 'S10-07. تظهر فوراً وتعمل دون إنترنت. السبب بلغة صريحة حسب النوع الذي حسم: وقت نوم، وقت مدرسة، نفد وقت التطبيق، نفدت الحصة، أو تطبيق محظور. «اطلب وقتاً إضافياً» يظهر حين ينفع فقط: الوقت الممنوح لا يفتح شيئاً في وقت النوم أو المدرسة. زر الاستغاثة دائماً. ثلاث صياغات: طفل صغير (بلاطة وزر واحد)، طفل، مراهق. بلا لوم.',
-  r(aid) { const id = kidId(), m = M[id], f = m.f, a = appOf(id, aid) || S.apps[id].find(x => !decide(id, x.id).ok) || S.apps[id].find(x => x.act === 'LIMIT') || S.apps[id][0], dc = decide(id, a.id), y = dc.ok ? (a.act === 'BLOCK' ? 'blocked' : 'app') : dc.why, teen = mode() === 'teen', mini = mode() === 'mini', r = S.reqs.find(x => x.kid === id && x.app === a.id && x.st === 'PENDING'), ask = y === 'app' || y === 'quota', end = winEnd(id);
-    const T = { sleep: ['bedtime', 'وقت نوم', teen ? `كل التطبيقات مغلقة حتى ${end}.` : `كل التطبيقات تنام الآن وتعود ${end}.`, 'وقت النوم'], school: ['school', 'وقت مدرسة — تطبيقات الدراسة فقط', `${a.n} يعود بعد ${end}. تطبيقات الدراسة مفتوحة.`, 'وقت المدرسة'], app: ['hourglass_empty', `نفد وقت ${a.n} اليوم`, teen ? 'وصلت إلى حدّه اليومي. يعود غداً.' : `${f ? 'لعبتِ' : 'لعبتَ'} وقته كله. يعود غداً من جديد!`, 'انتهى وقت اللعبة'], quota: ['hourglass_empty', 'نفدت حصتك اليومية', teen ? 'انتهى وقت الشاشة لليوم. يعود غداً.' : 'انتهى وقت الشاشة لليوم. نكمل غداً!', 'انتهى وقت اللعب'], blocked: ['lock', `${a.n} غير متاح`, teen ? 'اختار والدك ألا يُفتح هذا التطبيق.' : 'اختار بابا ألا يُفتح هذا التطبيق.', 'مقفل'] }[y];
+  note: 'S10-07. تظهر فوراً وتعمل دون إنترنت. السبب بلغة صريحة حسب ما حسم: وضع فعّله الأب باسمه، وقت نوم، وقت مدرسة، نفد وقت التطبيق، نفدت الحصة، أو تطبيق محظور. «اطلب وقتاً إضافياً» يظهر حين ينفع فقط: الوقت الممنوح لا يفتح شيئاً في وقت النوم أو المدرسة. زر الاستغاثة دائماً. ثلاث صياغات: طفل صغير (بلاطة وزر واحد)، طفل، مراهق. بلا لوم.',
+  r(aid) { const id = kidId(), m = M[id], f = m.f, a = appOf(id, aid) || S.apps[id].find(x => !decide(id, x.id).ok) || S.apps[id].find(x => x.act === 'LIMIT') || S.apps[id][0], dc = decide(id, a.id), y = dc.ok ? (a.act === 'BLOCK' ? 'blocked' : 'app') : dc.why, teen = mode() === 'teen', mini = mode() === 'mini', r = S.reqs.find(x => x.kid === id && x.app === a.id && x.st === 'PENDING'), ask = y === 'app' || y === 'quota', end = winEnd(id), ma = modeAct(id), mo = ma && ma.open === 'list' ? S.apps[id].filter(x => decide(id, x.id).ok) : [];
+    const T = { sleep: ['bedtime', 'وقت نوم', teen ? `كل التطبيقات مغلقة حتى ${end}.` : `كل التطبيقات تنام الآن وتعود ${end}.`, 'وقت النوم'], school: ['school', 'وقت مدرسة — تطبيقات الدراسة فقط', `${a.n} يعود بعد ${end}. تطبيقات الدراسة مفتوحة.`, 'وقت المدرسة'], app: ['hourglass_empty', `نفد وقت ${a.n} اليوم`, teen ? 'وصلت إلى حدّه اليومي. يعود غداً.' : `${f ? 'لعبتِ' : 'لعبتَ'} وقته كله. يعود غداً من جديد!`, 'انتهى وقت اللعبة'], quota: ['hourglass_empty', 'نفدت حصتك اليومية', teen ? 'انتهى وقت الشاشة لليوم. يعود غداً.' : 'انتهى وقت الشاشة لليوم. نكمل غداً!', 'انتهى وقت اللعب'], mode: [ma ? ma.i : 'bolt', ma ? `الآن ${modeQ(ma.id)}` : 'وضع مؤقت', ma && ma.open === 'list' && mo.length ? `${a.n} يعود ${end}. المفتوح الآن: ${mo.map(x => x.n).join('، ')}.` : teen ? `كل التطبيقات مغلقة حتى ${end}.` : `كل التطبيقات مغلقة الآن وتعود ${end}.`, 'مقفل الآن'], blocked: ['lock', `${a.n} غير متاح`, teen ? 'اختار والدك ألا يُفتح هذا التطبيق.' : 'اختار بابا ألا يُفتح هذا التطبيق.', 'مقفل'] }[y];
     const wait = `<div style="background:#ffffff1a;border-radius:18px;padding:14px;text-align:center;margin-bottom:12px">${ic('hourglass_top')}<b style="display:block;margin-top:6px">طلبك عند ${teen ? 'والدك' : 'بابا'}</b><span style="font-size:13px;opacity:.85">${offline() ? 'يُرسل عند عودة الاتصال' : 'سنخبرك حالما يرد'}</span></div>`;
     if (mini) return `<div class="body" style="justify-content:center;text-align:center"><div class="bigic" style="width:140px;height:140px;border-radius:44px">${ic(T[0])}</div><p class="ttl" style="font-size:30px">${T[3]}</p><div class="c" style="margin-bottom:16px"><button class="ib" style="color:#fff;background:#ffffff1c;margin:0 auto" data-a="say" aria-label="اسمع">${ic('volume_up')}</button></div>${ask ? (r ? wait : `<button class="btn" style="min-height:80px;font-size:22px;background:#fff;color:#142749" data-a="askGoM:${a.id}">${ic('front_hand')}اطلب من بابا</button>`) : ''}<div class="gap"></div>${btn('حسناً', 'close', 'txt" style="color:#fff;width:100%;min-height:72px;font-size:20px')}<div class="c" style="margin-top:14px">${sosBtn()}</div></div>`;
     return `<div class="body" style="justify-content:center"><div class="bigic">${ic(T[0])}</div><p class="ttl">${T[1]}</p><p class="sub">${T[2]}</p>${ask ? `<p class="c" style="margin:-6px 0 14px;opacity:.85">المتبقي: 0 دقيقة</p>` : ''}
     ${!ask ? (y === 'school' ? btn(f ? 'افتحي تطبيقات الدراسة' : 'افتح تطبيقات الدراسة', 'blkLearn', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'school') : '') : r ? wait : `${btn(teen ? 'اطلب وقتاً إضافياً' : f ? 'اطلبي وقتاً إضافياً' : 'اطلب وقتاً إضافياً', 'go:ask-time:' + a.id, 'sec" style="background:#fff;color:#142749;box-shadow:none', 'front_hand')}<div class="gap"></div>${teen ? '' : btn(f ? 'استخدمي نقاطي' : 'استخدم نقاطي', 'blkRedeem', 'sec" style="box-shadow:inset 0 0 0 1.5px #ffffff80;color:#fff', 'stars')}`}
-    <div class="gap"></div>${btn(y === 'sleep' ? 'حسناً' : 'افتح شيئاً آخر', 'close', 'txt" style="color:#fff;width:100%')}<div class="c" style="margin-top:14px">${sosBtn()}</div><div class="c" style="margin-top:10px"><button class="why" style="color:#D5DDEC" data-a="why:${y === 'sleep' ? 'sleep' : y === 'school' ? 'kidschool' : y === 'quota' ? 'kidquota' : y === 'blocked' ? 'kidblocked' : 'kidlimit'}">${ic('help')}لماذا؟</button></div></div>`; },
+    <div class="gap"></div>${btn(y === 'sleep' || (y === 'mode' && !mo.length) ? 'حسناً' : 'افتح شيئاً آخر', 'close', 'txt" style="color:#fff;width:100%')}<div class="c" style="margin-top:14px">${sosBtn()}</div><div class="c" style="margin-top:10px"><button class="why" style="color:#D5DDEC" data-a="why:${y === 'sleep' ? 'sleep' : y === 'school' ? 'kidschool' : y === 'quota' ? 'kidquota' : y === 'blocked' ? 'kidblocked' : y === 'mode' ? 'kidmode' : 'kidlimit'}">${ic('help')}لماذا؟</button></div></div>`; },
 });
 /* ============ S10-08 التحذير قبل 5 دقائق (للطفل) ============ */
 surface('warn5', {
