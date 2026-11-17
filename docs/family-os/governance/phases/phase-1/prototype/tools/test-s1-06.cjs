@@ -287,6 +287,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  setPersona('teen');ACT.tab('learn');render();ok('teen learn: study apps only, opens the app, shows school hours, no points',!!q('#scr .tnla [data-a="openApp:mad"]')&&!q('#scr [data-a="openApp:pubg"]')&&/تطبيقات الدراسة مفتوحة/.test(txt())&&/وقت المدرسة/.test(txt())&&/10 د/.test(txt())&&!/نقط|نجم/.test(txt())&&!/undefined|null|NaN/.test(txt()));
  ok('teen learn: every touch target 48',[...document.querySelectorAll('#scr button')].filter(b=>!b.closest('.sec')&&b.getBoundingClientRect().height<48).length===0);
  S.pm.khaled={k:'study',left:60,until:'6:12 م'};render();ok('teen learn in study time: says so, study app still opens',/وقت مدرسة الآن/.test(txt())&&/افتح/.test(q('#scr .tnla button').textContent));S=fresh();
+ S=fresh();setPersona('teen');ACT.tab('t-home');render();ok('teen day: a now line sits before the next item and says when it is',(()=>{const L=q('#scr .agl'),n=L.querySelector('.agn');return !!n&&n===L.firstElementChild&&/الآن · 5:12 م/.test(n.innerText)&&/التالي بعد 2 س و18 د/.test(n.innerText)&&!L.querySelector('.ag.ps')})());
+ NOW.m=20*60;render();ok('teen day after 8 pm: the dinner is behind the now line and dimmed, next is the 9:00 task',(()=>{const K=[...q('#scr .agl').children];return K[0].classList.contains('ps')&&K[1].classList.contains('agn')&&/التالي بعد 1 س/.test(K[1].innerText)&&!K[2].classList.contains('ps')})());
+ NOW.m=22*60;render();ok('teen day late: now line last, says nothing is left',(()=>{const K=[...q('#scr .agl').children];return K[K.length-1].classList.contains('agn')&&/لا شيء بقي اليوم/.test(K[K.length-1].innerText)})());NOW.m=17*60+12;S=fresh();
  // 14 الأصغر
  S=fresh();kid('mini');open('m-task');
  ok('little one: one task, one button, today\'s event as a picture',has(/جمع الألعاب في الصندوق/)&&!!q('#scr [data-a="mDone:t5"]')&&has(/عشاء عند الجدة/)&&!/\d/.test(q('#scr').innerText));

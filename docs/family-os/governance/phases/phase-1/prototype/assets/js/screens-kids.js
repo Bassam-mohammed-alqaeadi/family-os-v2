@@ -87,15 +87,23 @@ function tnNext(id) {
   for (let n = 1; n <= 7 && out.length < 3; n++) { const k = tkAdd(TK_TODAY, n); tnDay(id, k).forEach(x => { const i = (x.e || x.t).id; if (!today.includes(i) && !out.some(o => (o.e || o.t).id === i) && out.length < 3) out.push(Object.assign({ k }, x)); }); }
   return out;
 }
-function tnRow(x, k) {
+/* خط «الآن» داخل يوم المراهق: يفصل ما مضى عمّا بقي، ويقول متى التالي. */
+const tnIn = n => (n < 60 ? `بعد ${n} د` : `بعد ${Math.floor(n / 60)} س${n % 60 ? ` و${n % 60} د` : ''}`);
+function tnAgenda(TD) {
+  const i = TD.findIndex(x => tnK(x.tm) >= NOW.m), nx = i < 0 ? null : TD[i];
+  const line = `<div class="agn"><i></i><b>الآن · ${hm(NOW.m)}</b><small>${nx ? `التالي ${tnIn(tnK(nx.tm) - NOW.m)}` : 'لا شيء بقي اليوم'}</small></div>`;
+  const R = TD.map((x, j) => tnRow(x, TK_TODAY, i < 0 || j < i));
+  R.splice(i < 0 ? R.length : i, 0, line); return R.join('');
+}
+function tnRow(x, k, past) {
   const day = k !== TK_TODAY, [hh, ap] = x.tm.split(' '), tm = `<span class="agt">${day ? `<small>${tkDayT(k).split(' ')[0]}</small><b class="s">${x.tm}</b>` : `<b>${hh || '—'}</b><small>${ap || ''}</small>`}</span>`;
-  if (x.e) return `<div class="ag">${tm}<i style="--c:var(--accent)"></i><button class="agm" data-a="go:event:${x.e.id}"><b>${x.e.t}</b><span>${[x.e.who === 'all' ? 'العائلة كلها' : 'موعدك', x.e.loc].filter(Boolean).join(' · ')}</span></button><span class="age">${ic('event')}</span></div>`;
+  if (x.e) return `<div class="ag ${past ? 'ps' : ''}">${tm}<i style="--c:var(--accent)"></i><button class="agm" data-a="go:event:${x.e.id}"><b>${x.e.t}</b><span>${[x.e.who === 'all' ? 'العائلة كلها' : 'موعدك', x.e.loc].filter(Boolean).join(' · ')}</span></button><span class="age">${ic('event')}</span></div>`;
   const t = x.t, own = t.by === t.kid, c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '', once = tkRR(t) === 'none', done = t.st === 'APPROVED' && (!day || once), st = day && !once ? 'PENDING' : t.st;
   return `<div class="ag ${done ? 'dn' : ''}">${tm}<i style="--c:${done ? 'var(--success)' : c[2]}"></i><button class="agm" data-a="go:c-task:${t.id}"><b>${t.t}</b><span>${[own ? 'مهمة شخصية' : c[0], rep].filter(Boolean).join(' · ')}</span></button>${done ? `<span class="age ok">${ic('check_circle')}</span>` : st === 'PENDING' && own ? `<button class="agc" data-a="teenDone:${t.id}" aria-label="أنجزتها: ${t.t}">${ic('check')}</button>` : st === 'PENDING' ? chip(t.note ? 'أُعيدت' : 'من والدك', t.note ? 'wa' : 'ol', t.note ? 'reply' : '') : chip(TST[st][0], TST[st][1], TST[st][2])}</div>`;
 }
 surface('t-home', {
-  t: 'الرئيسية', sys: 'S1-01', p: 'teen', bar: false, flush: true, hero: true, req: '01:2,4,7,15 10:25 06:6 03:15 07:3', st: 'un',
-  note: 'قالب المراهق (Q-090 — اقتراح يحكم فيه المالك من الشاشة): واجهة أقرب للكبار بلا تلعيب. ترويسة برقم واحد (ما بقي من وقت اليوم) وحال اللحظة، ثم «يومي» مرتباً بالوقت يجمع مهامه ومواعيد العائلة، ثم القادم، ثم تطبيقاته بما بقي لكل منها، ثم سطر واحد يقول ما يراه أهله. مهمته الشخصية ينجزها بلمسة، ومهمة والده تفتح ورقتها.',
+  t: 'الرئيسية', sys: 'S1-01', p: 'teen', bar: false, flush: true, hero: true, req: '01:2,4,7,15 10:25 06:6 03:15 07:3',
+  note: 'قالب المراهق (Q-090 — اعتمده المالك من الشاشة، Q-417): واجهة أقرب للكبار بلا تلعيب. ترويسة برقم واحد (ما بقي من وقت اليوم) وحال اللحظة، ثم «يومي» مرتباً بالوقت يجمع مهامه ومواعيد العائلة وفيه خط «الآن» يقول متى التالي، ثم القادم، ثم تطبيقاته بما بقي لكل منها، ثم سطر واحد يقول ما يراه أهله. مهمته الشخصية ينجزها بلمسة، ومهمة والده تفتح ورقتها.',
   r() { const id = 'khaled', m = M[id], k = S.kid[id], d = dateAr(), N = pnNew(id), tot = k.quota + k.extra, lf = left(id), w = winNow(id);
     const TD = tnDay(id, TK_TODAY), NX = tnNext(id), tl = TD.filter(x => x.t && x.t.st === 'PENDING').length, evn = TD.filter(x => x.e).length;
     const unr = myChs().filter(c => chUnread(c) && !chOf(c).closed).reduce((n, c) => n + chUnread(c), 0);
@@ -111,7 +119,7 @@ surface('t-home', {
     ${k.enf !== 'active' ? `<div class="tnw">${ic('gpp_maybe')}<div><b>خدمة الوصول متوقفة على جهازك</b><span>قد يكون السبب تحديث النظام. أعد تفعيلها ليعود كل شيء طبيعياً. والدك يعلم بذلك.</span></div>${btn('أعد التفعيل', 'teenFix', 'sm')}</div>` : ''}
     ${(r => (r ? rwReqCard(id, r) : ''))(S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen))}
     <div class="qa tnq">${[['add_task', 'مهمة جديدة', 'teenTask', ''], ['calendar_month', 'التقويم', 'go:fam-cal', 'ac'], ['location_on', 'موقعي', 'go:map', 'ok'], ask ? ['more_time', 'اطلب وقتاً', 'go:ask-time:' + ask.id, 'go'] : 0].filter(Boolean).map(([i, t, a, c]) => `<button data-a="${a}"><span class="qi ${c}">${ic(i)}</span>${t}</button>`).join('')}</div>
-    ${sec('يومي', 'التقويم', 'go:fam-cal')}${TD.length ? `<div class="agl">${TD.map(x => tnRow(x, TK_TODAY)).join('')}</div>` : `<div class="card flat c sm muted">لا مهام ولا مواعيد اليوم.</div>`}
+    ${sec('يومي', 'التقويم', 'go:fam-cal')}${TD.length ? `<div class="agl">${tnAgenda(TD)}</div>` : `<div class="card flat c sm muted">لا مهام ولا مواعيد اليوم.</div>`}
     ${NX.length ? sec('القادم') + `<div class="agl">${NX.map(x => tnRow(x, x.k)).join('')}</div>` : ''}
     ${chWidget(1)}
     ${sec('تطبيقاتي')}<div class="tna">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok, lim = a.act === 'LIMIT', rest = Math.max(0, a.lim - a.used); return `<button data-a="openApp:${a.id}" class="${ok ? '' : 'off'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><b>${/[A-Za-z]/.test(a.n) ? `<span class="ltr">${a.n}</span>` : a.n}</b><small>${lim ? (rest ? `بقي ${rest} د` : 'انتهى وقته') : a.study ? 'متاح دائماً' : 'مسموح'}</small>${lim ? `<span class="pbar ${rest ? '' : 'wa'}"><i style="width:${Math.min(100, a.used / Math.max(1, a.lim) * 100)}%"></i></span>` : ''}</button>`; }).join('')}</div>
