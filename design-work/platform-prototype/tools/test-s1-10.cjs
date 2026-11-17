@@ -137,6 +137,15 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('mini');S.apps.yusuf[0].used=30;render();ACT.openAppM();render();ok('mini block: big tile, one button',top()==='block'&&has(/انتهى وقت اللعبة/)&&!!q('[data-a="askGoM:ytk"]')&&!has(/المتبقي/));ACT.askGoM('ytk');render();ok('mini request sent',S.reqs.length===1&&has(/طلبك عند بابا/));
  S=fresh();setPersona('teen');jump('block');render();ok('teen block renders (no crash)',top()==='block'&&has(/PUBG|WhatsApp/));
  S=fresh();setPersona('child');S.fm.layan=30;render();ACT.openApp('tt');ok('free mode opens blocked app on child device',!S.full);
+ // الربط بباقي النموذج: كل شاشة من مكانها الطبيعي
+ S=fresh();open('home');ok('home attention: new-device rules review card',!!q('[data-a="go:rules-review"]')&&has(/جهاز جديد لخالد/));
+ S=fresh();S.rev13=1;ok('attention lists the 13th-birthday rules review',attention().some(a=>/قواعد ليان تحتاج مراجعتك/.test(a.t)));ACT.rvKeep('teen');ACT.rvKeep('rv1');ok('review done → leaves the attention list',!attention().some(a=>a.b[0][1]==='go:rules-review'));
+ S=fresh();S.rev13=1;open('turn13','now');ok('turn13 links to the rules review',!!q('[data-a="go:rules-review"]'));
+ S=fresh();open('member','layan');ok('member card: modes row',!!q('[data-a="psFor:layan"]')&&has(/لا وضع الآن/));ACT.psFor('layan');render();ok('modes row opens the modes screen with the child chosen',top()==='presets'&&S.psK.join()==='layan'&&!S.psN);
+ S=fresh();S.pm.layan={k:'m1',left:60,until:'6:12 م'};open('member','layan');ok('member card names the active mode',has(/رحلة السيارة حتى 6:12/));ACT.psFor('layan');render();ok('…and opens that mode',S.stack[S.stack.length-1].a[0]==='m1');
+ S=fresh();S.ctl='adv';tab('control');render();ok('control tree: active mode row',!!q('[data-a="psFor:layan"]')&&has(/الوضع الساري/));
+ S=fresh();open('app-rule','layan','mc');ACT.adLim('=','40');ACT.adSave();open('audit');ok('family log links to the protection log',!!q('[data-a="go:prot-audit:all"]'));open('prot-audit','all');ok('protection log links back to the permissions log',has(/Minecraft/)&&!!q('[data-a="go:audit"]'));
+ S=fresh();setPersona('delegate');setRole('guardian');open('member','layan');ok('guardian: modes row follows the permission',!!q('[data-a="psFor:layan"]')||!!q('[data-a="denied:protection.mode_preset.apply"]'));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // 18 أوضاع الأب الخاصة (S10-17) ومنع التعارض
  S=fresh();ok('seed: one custom mode',S.modes.length===1&&modeOf('m1').n==='رحلة السيارة'&&modeOf('study').open==='study');
