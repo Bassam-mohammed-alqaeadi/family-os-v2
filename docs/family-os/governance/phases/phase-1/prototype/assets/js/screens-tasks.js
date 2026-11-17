@@ -207,7 +207,7 @@ surface('task', {
     ${t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? btn('راجع التسليم', 'go:task-review:' + id, 'ok', 'task_alt') + '<div class="gap"></div>' : ''}
     ${list(row(t.by === 'ai' ? 'wand_stars' : 'person', 'من أسندها', tkBy(t, false), t.by === 'ai' ? { a: 'go:tk-ai' } : {}), row(TK_PF[t.proof][1], 'طريقة الإثبات', own ? 'مهمة شخصية: ينجزها بلا اعتماد' : t.proof === 'self' ? 'يعتمدها بالغ دائماً' : 'يتحقق المساعد، وما لم يجزم به يأتيك', { v: TK_PF[t.proof][0] }), row('repeat', 'التكرار', rep ? 'ما فات يومه ينتهي عند منتصف الليل ولا يتراكم' : '', { v: rep || 'مرة واحدة' }), row('alarm', 'التذكير', `يصل ${k.n}`, { v: tkRm(t.rem || TK().rem) }))}
     ${t.sub && t.sub.length ? sec(`قائمة الفحص · ${dn.filter(Boolean).length} من ${t.sub.length}`) + list(t.sub.map((s, i) => row(dn[i] ? 'check_box' : 'check_box_outline_blank', s, '', dn[i] ? { ic: 'var(--success)' } : {}))) : ''}
-    ${t.st === 'PENDING' && !own ? `<div class="btns">${can('tasks.cancel', t.kid) ? btn('ألغِ المهمة', 'taskCancel:' + id, 'dng sec') : ''}${can('tasks.create', t.kid) ? btn('عدّل', 'go:task-new:' + id, 'sec', 'edit') : ''}</div>` : ''}
+    ${(t.st === 'PENDING' || t.st === 'SUBMITTED') && !own ? `<div class="btns">${can('tasks.cancel', t.kid) ? btn('ألغِ المهمة', 'taskCancel:' + id, 'dng sec') : ''}${t.st === 'PENDING' && can('tasks.create', t.kid) ? btn('عدّل', 'go:task-new:' + id, 'sec', 'edit') : ''}</div>` : ''}
     ${t.st === 'APPROVED' && !own && can('tasks.revoke') ? btn('ألغِ التحقق', 'tkRevoke:' + id, 'dng sec', 'undo') + `<p class="xs muted c" style="margin:6px 0 0">في يومه فقط. تعود المهمة إلى ${k.n}${t.pts && rwHas(t.kid) ? ' وتُخصم نقاطها' : ''}.</p>` : ''}`;
   },
 });
@@ -353,7 +353,9 @@ surface('c-task', {
   r(id) {
     const t = tkT(id); if (!t) return `<h4>لم تعد هذه المهمة موجودة</h4>${btn('حسناً', 'close')}`;
     const k = M[t.kid], c = tkCat(t.cat), P = S.tkP && S.tkP.id === id ? S.tkP : null, own = t.by === t.kid, pts = t.pts && rwHas(t.kid), dn = t.dn || [], g = (a, b) => vb(k, a, b), dad = rwDad();
-    const head = `<div class="c"><span class="av xl" style="--c:${c[2]};margin:0 auto 10px">${ic(c[1])}</span><h4>${t.t}</h4><p class="d">${t.due}${pts ? ` · ${coin()} ${rwPt(t.pts)} بعد التحقق` : ''}</p></div>`;
+    const teen = k.role === 'teen', rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '';
+    const head = teen ? `<div class="fx" style="margin-bottom:10px"><span class="qi lg" style="background:${c[2]}1f;color:${c[2]}">${ic(c[1])}</span><div><h4 style="margin:0">${t.t}</h4><span class="sm muted">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</span></div></div><div class="chips" style="margin-bottom:12px">${chip(t.due, 'ol', 'schedule')}${chip(c[0], '', c[1])}${rep ? chip(rep, 'ol', 'repeat') : ''}${t.rem ? chip(tkRm(t.rem), 'ol', 'notifications') : ''}</div>`
+      : `<div class="c"><span class="av xl" style="--c:${c[2]};margin:0 auto 10px">${ic(c[1])}</span><h4>${t.t}</h4><p class="d">${t.due}${pts ? ` · ${coin()} ${rwPt(t.pts)} بعد التحقق` : ''}</p></div>`;
     if (P && P.step === 'cap') return `${head}<div class="tkcam">${ic('photo_camera')}<span>${g('وجّه', 'وجّهي')} الكاميرا إلى ما ${g('أنجزت', 'أنجزتِ')}</span></div><div class="btns">${btn('رجوع', 'tkPx', 'sec')}${btn(g('التقط', 'التقطي'), 'tkShot', 'ok', 'photo_camera')}</div>`;
     if (P && P.step === 'rec') return `${head}<div class="tkcam rec">${ic('mic')}<span>يسجّل الآن · 0:12</span></div><div class="btns">${btn('رجوع', 'tkPx', 'sec')}${btn(g('أنهِ التسجيل', 'أنهي التسجيل'), 'tkShot', 'ok', 'stop')}</div>`;
     if (P && P.step === 'ready') return `${head}${t.proof === 'photo' ? `<div class="ph tkev">${ic('image')}صورتك</div>` : `<div class="tkau">${ic('play_arrow')}<i></i><span>0:12</span></div>`}<p class="sm muted c" style="margin:0 0 10px">${offline() ? 'لا اتصال الآن. تُحفظ هنا وتُرسل حين يعود.' : (t.re || t.note) ? `${dad} طلب إعادتها، فتذهب إليه.` : 'المساعد يتحقق منها، وإن لم يتأكد أرسلها إلى ' + dad + '.'}</p><div class="btns">${btn(g('أعد', 'أعيدي'), 'tkCap:' + id, 'sec', 'replay')}${btn(g('أرسل', 'أرسلي'), 'tkSend:' + id, 'ok', 'send')}</div>`;
@@ -364,7 +366,7 @@ surface('c-task', {
       : own ? `<div class="btns">${btn('احذفها', 'tkOwnDel:' + id, 'dng sec')}${btn(g('أنجزتها', 'أنجزتُها'), 'teenDone:' + id, 'ok', 'check')}</div>`
       : t.proof === 'photo' ? btn(g('صوّر ما أنجزت', 'صوّري ما أنجزتِ'), 'tkCap:' + id, 'ok', 'photo_camera') : t.proof === 'audio' ? btn(g('سجّل بصوتك', 'سجّلي بصوتك'), 'tkCap:' + id, 'ok', 'mic')
       : btn('أنجزتها', 'tkSend:' + id, 'ok', 'thumb_up') + `<p class="sm muted c" style="margin:8px 0 0">${dad} يعتمدها${pts ? '، ثم تأتي النقاط' : ''}.</p>`;
-    return `${head}<p class="sm muted c" style="margin:-4px 0 10px">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</p>
+    return `${head}${teen ? '' : `<p class="sm muted c" style="margin:-4px 0 10px">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</p>`}
     ${t.note && t.st === 'PENDING' ? callout(`ملاحظة ${rwWho(t.nby || 'ahmad', true)}: ${t.note}`, 'wa', 'reply') : ''}
     ${t.sub && t.sub.length ? list(t.sub.map((s, i) => row(dn[i] ? 'check_box' : 'check_box_outline_blank', s, '', Object.assign({ chev: false }, t.st === 'PENDING' ? { a: `tkTick:${id}:${i}` } : {}, dn[i] ? { ic: 'var(--success)' } : {})))) : ''}
     ${body}`;
@@ -463,7 +465,7 @@ Object.assign(ACT, {
   },
   taskCancel(id) {
     const t = tkT(id); if (!can('tasks.cancel', t.kid)) return ACT.denied('tasks.cancel'); const rep = tkRR(t) !== 'none';
-    confirmDlg('إلغاء المهمة؟', `تُلغى «${t.t}»${rep ? ' وكل تكراراتها القادمة' : ''}، وتختفي من مهام ${M[t.kid].n}. ما اعتُمد منها من قبل يبقى بنقاطه.`, 'ألغِ المهمة', () => { const was = t.st; t.st = 'CANCELLED'; queue(`إلغاء «${t.t}»`, 'S1-06'); audit(`إلغاء مهمة «${t.t}»`, 'tasks.cancel'); back(); toast('أُلغيت المهمة', () => { t.st = was; render(); }); }, true);
+    confirmDlg('إلغاء المهمة؟', `تُلغى «${t.t}»${rep ? ' وكل تكراراتها القادمة' : ''}، وتختفي من مهام ${M[t.kid].n}.${t.st === 'SUBMITTED' ? ' تسليمها الذي ينتظر لن يُراجَع، ولا نقاط عنه.' : ''} ما اعتُمد منها من قبل يبقى بنقاطه.`, 'ألغِ المهمة', () => { const was = t.st; t.st = 'CANCELLED'; queue(`إلغاء «${t.t}»`, 'S1-06'); audit(`إلغاء مهمة «${t.t}»`, 'tasks.cancel'); back(); toast('أُلغيت المهمة', () => { t.st = was; render(); }); }, true);
   },
   tkRevoke(id) {
     const t = tkT(id), k = M[t.kid]; if (!can('tasks.revoke')) return ACT.denied('tasks.revoke');
@@ -538,7 +540,7 @@ const tkFromSug = (s, by) => ({ id: 't' + s.id + (++TK().n), kid: s.kid, by, t: 
 function tkAiRun() {
   const A = TK().ai, made = [];
   TK().sug.filter(s => s.st === 'new' && s.proof !== 'self').forEach(s => { if (!tkFits(s)) return; const k = M[s.kid], t = tkFromSug(s, 'ai'); S.tasks.unshift(t); s.st = 'ai';
-    const g = tkLog({ t: `أسند مهمة «${s.t}» إلى ${k.n}`, k: 'agent.task.create', gate: `ضمن حدود تفويضك: حتى ${rwPt(A.mx)}، و${A.pd === 1 ? 'مهمة واحدة' : A.pd === 2 ? 'مهمتان' : 'ثلاث مهام'} في اليوم`, st: 'نُفّذ', kid: s.kid, need: 'tasks.view', tid: t.id, ev: `${s.why} استند إلى: ${s.src}. لم يقرأ رسالة ولم يفتح صورة.`, res: `المهمة عند ${k.n} الآن. تلغيها من صفحتها متى شئت.`, kt: 'أعدّ لك المساعد مهمة', kres: `«${s.t}» في مهامك، بإذن ${k.role === 'teen' ? 'والدك' : 'بابا'}.` });
+    const g = tkLog({ t: `أسند مهمة «${s.t}» إلى ${k.n}`, k: 'agent.plan.create', cap: 'يُعدّ المهام', op: 'assign', gate: `ضمن حدود تفويضك: حتى ${rwPt(A.mx)}، و${A.pd === 1 ? 'مهمة واحدة' : A.pd === 2 ? 'مهمتان' : 'ثلاث مهام'} في اليوم`, st: 'نُفّذ', kid: s.kid, need: 'tasks.view', tid: t.id, ev: `${s.why} استند إلى: ${s.src}. لم يقرأ رسالة ولم يفتح صورة.`, res: `المهمة عند ${k.n} الآن. تلغيها من صفحتها متى شئت.`, kt: 'أعدّ لك المساعد مهمة', kres: `«${s.t}» في مهامك، بإذن ${k.role === 'teen' ? 'والدك' : 'بابا'}.` });
     made.push([t, s, g]); });
   return made;
 }

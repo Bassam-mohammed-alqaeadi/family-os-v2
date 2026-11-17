@@ -73,27 +73,59 @@ Object.assign(ACT, {
 });
 
 /* ============ المراهق (13–17) ============ */
+/* ---------- المراهق: الرئيسية و«أنا» ----------
+   واجهة أقرب للكبار (child-mode-ui §3.3): ترويسة كحلية برقم واحد واضح، ثم يومه مرتباً بالوقت (مهامه ومواعيد العائلة معاً)،
+   ثم تطبيقاته بما بقي لكل منها، ثم سطر واحد يقول ما يراه أهله. لا تلعيب ولا نقاط. */
+const tnT = t => (t.hm ? tkTm(t.hm) : ((t.due || '').match(/\d+:\d+ [صم]/) || [''])[0]);
+const tnK = x => { const m = /(\d+):(\d+) ([صم])/.exec(x); return m ? ((+m[1] % 12) + (m[3] === 'م' ? 12 : 0)) * 60 + +m[2] : 1439; };
+function tnDay(id, k) {
+  return S.events.filter(e => (e.who === 'all' || e.who === id) && tkEvOn(e, k)).map(e => ({ e, tm: tkTm(e.hm) }))
+    .concat(S.tasks.filter(t => t.kid === id && tkOn(t, k)).map(t => ({ t, tm: tnT(t) }))).sort((x, y) => tnK(x.tm) - tnK(y.tm));
+}
+function tnNext(id) {
+  const today = tnDay(id, TK_TODAY).map(x => (x.e || x.t).id), out = [];
+  for (let n = 1; n <= 7 && out.length < 3; n++) { const k = tkAdd(TK_TODAY, n); tnDay(id, k).forEach(x => { const i = (x.e || x.t).id; if (!today.includes(i) && !out.some(o => (o.e || o.t).id === i) && out.length < 3) out.push(Object.assign({ k }, x)); }); }
+  return out;
+}
+function tnRow(x, k) {
+  const day = k !== TK_TODAY, [hh, ap] = x.tm.split(' '), tm = `<span class="agt">${day ? `<small>${tkDayT(k).split(' ')[0]}</small><b class="s">${x.tm}</b>` : `<b>${hh || '—'}</b><small>${ap || ''}</small>`}</span>`;
+  if (x.e) return `<div class="ag">${tm}<i style="--c:var(--accent)"></i><button class="agm" data-a="go:event:${x.e.id}"><b>${x.e.t}</b><span>${[x.e.who === 'all' ? 'العائلة كلها' : 'موعدك', x.e.loc].filter(Boolean).join(' · ')}</span></button><span class="age">${ic('event')}</span></div>`;
+  const t = x.t, own = t.by === t.kid, c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '', once = tkRR(t) === 'none', done = t.st === 'APPROVED' && (!day || once), st = day && !once ? 'PENDING' : t.st;
+  return `<div class="ag ${done ? 'dn' : ''}">${tm}<i style="--c:${done ? 'var(--success)' : c[2]}"></i><button class="agm" data-a="go:c-task:${t.id}"><b>${t.t}</b><span>${[own ? 'مهمة شخصية' : c[0], rep].filter(Boolean).join(' · ')}</span></button>${done ? `<span class="age ok">${ic('check_circle')}</span>` : st === 'PENDING' && own ? `<button class="agc" data-a="teenDone:${t.id}" aria-label="أنجزتها: ${t.t}">${ic('check')}</button>` : st === 'PENDING' ? chip(t.note ? 'أُعيدت' : 'من والدك', t.note ? 'wa' : 'ol', t.note ? 'reply' : '') : chip(TST[st][0], TST[st][1], TST[st][2])}</div>`;
+}
 surface('t-home', {
-  t: 'الرئيسية', sys: 'S1-01', p: 'teen', req: '01:2,4,7,15 10:25 06:6 03:15 07:3', st: 'un',
-  note: 'UNKNOWN (Q-090): محتوى قالب المراهق غير محسوم — اقتراح. نبرة راشدة بلا تلعيب: أرقام مباشرة، شفافية كاملة عمّا يُشارَك، واستقلالية في إدارة مهامه.',
-  r() { const id = 'khaled', k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), d = dateAr(), e = ENF[k.enf];
-    const N = pnNew('khaled');
-    return `<p class="sm muted" style="margin:0 4px 10px">${d.g} · ${d.h}</p>${N.length ? `<div class="callout in">${ic('key')}<div><b>${N[0].sn}</b><br>يسري الآن.<div style="margin-top:8px">${btn('عرض', 'go:t-me', 'sm sec')} ${btn('تمّ', 'pnSeen', 'sm txt')}</div></div></div>` : ''}<div class="card fx">${ring(left(id) / k.quota, 84, 8, 'var(--primary)', `<b style="font-size:22px;line-height:1">${left(id)}</b><span class="xs muted" style="position:absolute;bottom:18px">د</span>`)}<div class="grow"><b>${fmOf(id) ? 'وقت حر الآن' : winNow(id) === 'sleep' ? 'وقت نوم الآن' : winNow(id) === 'school' ? 'وقت مدرسة الآن' : `بقي ${left(id)} دقيقة اليوم`}</b><div class="sm muted">استخدمت ${k.used} من ${k.quota} · ${nextEdge(id)}</div></div></div>
-    ${k.enf !== 'active' ? `<div class="callout wa">${ic('gpp_maybe')}<div><b>خدمة الوصول متوقفة على جهازك</b><br>قد يكون السبب تحديث النظام. أعد تفعيلها ليعود كل شيء طبيعياً. والدك يعلم بذلك.<div style="margin-top:8px">${btn('أعد التفعيل', 'teenFix', 'sm')}</div></div></div>` : ''}
+  t: 'الرئيسية', sys: 'S1-01', p: 'teen', bar: false, flush: true, hero: true, req: '01:2,4,7,15 10:25 06:6 03:15 07:3', st: 'un',
+  note: 'قالب المراهق (Q-090 — اقتراح يحكم فيه المالك من الشاشة): واجهة أقرب للكبار بلا تلعيب. ترويسة برقم واحد (ما بقي من وقت اليوم) وحال اللحظة، ثم «يومي» مرتباً بالوقت يجمع مهامه ومواعيد العائلة، ثم القادم، ثم تطبيقاته بما بقي لكل منها، ثم سطر واحد يقول ما يراه أهله. مهمته الشخصية ينجزها بلمسة، ومهمة والده تفتح ورقتها.',
+  r() { const id = 'khaled', m = M[id], k = S.kid[id], d = dateAr(), N = pnNew(id), tot = k.quota + k.extra, lf = left(id), w = winNow(id);
+    const TD = tnDay(id, TK_TODAY), NX = tnNext(id), tl = TD.filter(x => x.t && x.t.st === 'PENDING').length, evn = TD.filter(x => x.e).length;
+    const unr = myChs().filter(c => chUnread(c) && !chOf(c).closed).reduce((n, c) => n + chUnread(c), 0);
+    const now = fmOf(id) ? ['وقت حر الآن', 'lock_open'] : w === 'sleep' ? ['وقت نوم الآن', 'bedtime'] : w === 'school' ? ['وقت مدرسة الآن', 'school'] : w === 'mode' ? ['وضع مؤقت الآن', 'timer'] : lf <= 0 ? ['انتهى وقت اليوم', 'hourglass_empty'] : ['متاح الآن', 'check_circle'];
+    const ask = S.apps[id].find(a => a.act === 'LIMIT');
+    return `<div class="hero tn"><div class="top"><button data-a="tab:t-me" aria-label="ملفي" style="margin-inline-start:8px">${av(m)}</button><div class="hi"><small>${d.s}</small><b>${L('مساء الخير، ' + m.n, 'Good evening, ' + m.en)}</b></div>${sosBtn()}</div>
+      <div class="tnm"><div class="tnn"><b>${lf}</b><span>دقيقة باقية<br>من وقت اليوم</span></div><span class="tns ${now[1] === 'check_circle' || now[1] === 'lock_open' ? 'ok' : ''}">${ic(now[1])}${now[0]}</span></div>
+      <div class="tnp"><i style="width:${Math.min(100, Math.round(k.used / Math.max(1, tot) * 100))}%;background:${lf / Math.max(1, tot) < .2 ? '#F6C38F' : '#8FD3A5'}"></i></div>
+      <div class="tnc"><span>استخدمت ${k.used} من ${tot} د</span><span>${nextEdge(id)}</span></div>
+      <div class="tnst"><div><b>${tl}</b><span>${tl === 1 ? 'مهمة باقية اليوم' : 'مهام باقية اليوم'}</span></div><div><b>${evn}</b><span>${evn === 1 ? 'موعد اليوم' : 'مواعيد اليوم'}</span></div><div><b>${unr}</b><span>${unr === 1 ? 'رسالة جديدة' : 'رسائل جديدة'}</span></div></div>
+    </div><div style="padding:14px 16px 24px">
+    ${N.length ? `<div class="callout in">${ic('key')}<div><b>${N[0].sn}</b><br>يسري الآن.<div style="margin-top:8px">${btn('عرض', 'go:t-me', 'sm sec')} ${btn('تمّ', 'pnSeen', 'sm txt')}</div></div></div>` : ''}
+    ${k.enf !== 'active' ? `<div class="tnw">${ic('gpp_maybe')}<div><b>خدمة الوصول متوقفة على جهازك</b><span>قد يكون السبب تحديث النظام. أعد تفعيلها ليعود كل شيء طبيعياً. والدك يعلم بذلك.</span></div>${btn('أعد التفعيل', 'teenFix', 'sm')}</div>` : ''}
     ${(r => (r ? rwReqCard(id, r) : ''))(S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen))}
-    ${sec('مهامي', 'جديدة', 'teenTask')}${list(T.map(t => row(tkCat(t.cat)[1], t.t, t.due, { ic: tkCat(t.cat)[2], a: t.st === 'PENDING' && t.by === id ? 'teenDone:' + t.id : 'go:c-task:' + t.id, chev: false, v: t.st === 'PENDING' && t.by === id ? `<span class="btn sm ton">أنجزتها</span>` : t.st === 'PENDING' ? chip(t.note ? 'أُعيدت' : 'من والدك', t.note ? 'wa' : 'ol', t.note ? 'reply' : '') : chip(TST[t.st][0], TST[t.st][1], TST[t.st][2]) })))}
-    ${tkNext(id)}
+    <div class="qa tnq">${[['add_task', 'مهمة جديدة', 'teenTask', ''], ['calendar_month', 'التقويم', 'go:fam-cal', 'ac'], ['location_on', 'موقعي', 'go:map', 'ok'], ask ? ['more_time', 'اطلب وقتاً', 'go:ask-time:' + ask.id, 'go'] : 0].filter(Boolean).map(([i, t, a, c]) => `<button data-a="${a}"><span class="qi ${c}">${ic(i)}</span>${t}</button>`).join('')}</div>
+    ${sec('يومي', 'التقويم', 'go:fam-cal')}${TD.length ? `<div class="agl">${TD.map(x => tnRow(x, TK_TODAY)).join('')}</div>` : `<div class="card flat c sm muted">لا مهام ولا مواعيد اليوم.</div>`}
+    ${NX.length ? sec('القادم') + `<div class="agl">${NX.map(x => tnRow(x, x.k)).join('')}</div>` : ''}
     ${chWidget(1)}
-    ${sec('تطبيقاتي')}${list(S.apps[id].map(a => row(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية` : a.study ? 'متاح دائماً' : 'مسموح', { a: 'openApp:' + a.id, chev: false, v: a.act === 'LIMIT' ? `${a.used}/${a.lim}` : '' })))}
-    ${sec('ما يُشارَك الآن')}<div class="card"><div class="chips">${chip('موقعك · ' + (offline() ? 'آخر موقع معروف' : 'الآن'), 'in', 'location_on')}${chip('وقت الشاشة', 'in', 'hourglass_top')}${chip('محادثات العائلة', 'in', 'forum')}</div><button class="why" style="margin-top:8px" data-a="tab:t-me">ماذا يرى أهلي بالضبط؟</button></div>`; },
+    ${sec('تطبيقاتي')}<div class="tna">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok, lim = a.act === 'LIMIT', rest = Math.max(0, a.lim - a.used); return `<button data-a="openApp:${a.id}" class="${ok ? '' : 'off'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><b>${/[A-Za-z]/.test(a.n) ? `<span class="ltr">${a.n}</span>` : a.n}</b><small>${lim ? (rest ? `بقي ${rest} د` : 'انتهى وقته') : a.study ? 'متاح دائماً' : 'مسموح'}</small>${lim ? `<span class="pbar ${rest ? '' : 'wa'}"><i style="width:${Math.min(100, a.used / Math.max(1, a.lim) * 100)}%"></i></span>` : ''}</button>`; }).join('')}</div>
+    <button class="card tnsh" data-a="tab:t-me">${ic('visibility')}<span><b>ما يراه أهلك الآن</b><small>موقعك${offline() ? ' (آخر موقع معروف)' : ''} · وقت الشاشة · محادثات العائلة</small></span>${ic('chevron_left')}</button></div>`; },
 });
 surface('t-me', {
   t: 'أنا', sys: 'S1-03', p: 'teen', req: '03:15 02:17 08:12 01:5,6,18,21',
-  note: 'شفافية للمراهق: الفئات التي تُتابَع لا المحتوى، وحالة المصنّف، وما فُوّض له. لا مشتريات ولا روابط خارجية.',
-  r() { const m = me(); return `<div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n}</b><div class="sm muted">مراهق · 15 سنة</div></div></div>
-    ${sec('ما يراه أهلي')}${list(row('hourglass_top', 'وقت الشاشة', 'المدة لكل تطبيق، لا ما تفعله داخله', { v: chip('يُشارَك', 'in') }), row('location_on', 'موقعي', 'الآن وسجل 7 أيام', { a: 'go:map', v: chip('يُشارَك', 'in') }), row('forum', 'محادثات العائلة', 'مرئية لوالدك', { v: chip('يُشارَك', 'in') }), row('chat_error', 'المصنّف الآلي للرسائل', (S.clsTeen ?? true) ? 'مفعّل · ينبّه والدك عند خطر فقط' : 'أوقفه والدك', { v: chip((S.clsTeen ?? true) ? 'مفعّل' : 'متوقف', (S.clsTeen ?? true) ? 'ok' : 'ol') }), row('travel_explore', 'المواقع', 'فئة الموقع، لا كل صفحة', { v: chip('يُشارَك', 'in') }))}
+  note: 'شفافية للمراهق: لكل فئة تُتابَع سطر يقول ما يراه أهله وسطر يقول ما لا يرونه، ثم ما سُمح له به، ثم حقوقه (ما اتُّفق عليه، ما فعله المساعد بخصوصه، مناقشة قرار)، ثم الجهاز. لا مشتريات ولا روابط خارجية.',
+  r() { const m = me(), on = S.clsTeen ?? true, see = (y, n) => `<span class="tsee">${ic('visibility')}${y}</span>${n ? `<span class="tsee no">${ic('visibility_off')}${n}</span>` : ''}`;
+    return `<div class="tnpf">${av(m, 'lg')}<div><b>${m.n}</b><span>15 سنة · حساب مراهق</span></div></div>
+    ${sec('ما يراه أهلي')}<p class="sm muted" style="margin:-4px 4px 8px">الفئات التي تُتابَع، لا المحتوى.</p>${list(row('hourglass_top', 'وقت الشاشة', see('المدة لكل تطبيق', 'ما تفعله داخله'), { chev: false }), row('location_on', 'موقعي', see('الآن وسجل 7 أيام'), { a: 'go:map' }), row('forum', 'محادثات العائلة', see('مرئية لوالدك'), { chev: false }), row('chat_error', 'المصنّف الآلي للرسائل', see(on ? 'مفعّل · ينبّه والدك عند خطر فقط' : 'أوقفه والدك'), { chev: false, v: chip(on ? 'مفعّل' : 'متوقف', on ? 'ok' : 'ol') }), row('travel_explore', 'المواقع', see('فئة الموقع', 'كل صفحة تفتحها'), { chev: false }))}
     ${sec('ما سُمح لي به')}${list(row('task_alt', `أنشئ مهامي بنفسي${pnNew('khaled').length ? ' ' + chip('جديد', 'in') : ''}`, S.teenTasks ? `مهامك أنت فقط · ${unTxt(S.teenUn).replace('تلغيها', 'يلغيها والدك')}` : 'لم يسمح بها والدك بعد', { v: S.teenTasks ? chip('مسموح', 'ok', 'check') : (S.preq.find(q => q.k === 'teen' && q.st === 'pending') ? chip('بانتظار والدك', 'wa', 'pending') : btn('اطلب', 'preqSend:teen', 'sm txt')) }), row('supervisor_account', 'الإشراف على إخوتي', 'لا يُفوَّض للمراهق', { v: ic('lock'), c: 'dis' }))}
-    ${list(row('handshake', 'ما اتفقنا عليه', '', { a: 'go:consent-view' }), row('wand_stars', 'المساعد وأنا', 'ما فعله المساعد بخصوصي', { a: 'go:ai-mine' }), row('balance', 'ناقش قراراً', 'مهمة لم تُعتمد؟ اكتب لوالدك ما حدث', { a: 'go:objection' }), row('translate', 'اللغة والعرض', '', { a: 'go:display' }), row('lock', 'إعدادات الجهاز للأهل', 'تحتاج الرقم السري', { a: 'kidGate' }))}`; },
+    ${sec('حقوقي')}${list(row('handshake', 'ما اتفقنا عليه', 'ما وافقتَ عليه أنت ووالدك عند إعداد جهازك', { a: 'go:consent-view' }), row('wand_stars', 'المساعد وأنا', 'ما فعله المساعد بخصوصي', { a: 'go:ai-mine' }), row('balance', 'ناقش قراراً', 'مهمة لم تُعتمد؟ اكتب لوالدك ما حدث', { a: 'go:objection' }))}
+    ${sec('الجهاز')}${list(row('translate', 'اللغة والعرض', '', { a: 'go:display' }), row('lock', 'إعدادات الجهاز للأهل', 'تحتاج الرقم السري', { a: 'kidGate' }))}`; },
 });
 Object.assign(ACT, {
   teenFix() { tamBack('khaled', 'من جهاز خالد'); toast('عادت الخدمة · شكراً'); },
@@ -102,6 +134,13 @@ surface('learn', {
   t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9', st: 'pr',
   note: 'مقترح: التبويب في التنقل المعتمد ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002).',
   r() { const id = kidId(), A = S.apps[id].filter(a => a.act !== 'BLOCK'), st = A.filter(a => a.study), pl = A.filter(a => !a.study), teen = mode() === 'teen';
+    if (teen) {
+      const on = winNow(id) === 'school', sc = S.sched[id].find(x => x.type === 'school'), used = st.reduce((n, a) => n + (a.used || 0), 0);
+      return `<div class="tnl ${on ? 'on' : ''}"><span class="qi ${on ? 'go' : 'ok'}">${ic('school')}</span><div><b>${on ? 'وقت مدرسة الآن' : 'تطبيقات الدراسة مفتوحة'}</b><span>${on ? 'تطبيقات الدراسة وحدها تعمل الآن.' : 'تبقى متاحة لك في وقت المدرسة أيضاً.'}</span>${on ? `<span>${nextEdge(id)}</span>` : ''}</div></div>
+      ${st.length ? sec('تطبيقات الدراسة') + `<div class="tnla">${st.map(a => { const ok = decide(id, a.id).ok; return `<button data-a="openApp:${a.id}"><span class="qi">${ic(a.i)}</span><span class="tx"><b>${/[A-Za-z]/.test(a.n) ? `<span class="ltr">${a.n}</span>` : a.n}</b><small>${a.used ? `استخدمته ${a.used} د اليوم` : 'لم تفتحه اليوم'}</small></span><span class="go ${ok ? '' : 'off'}">${ok ? 'افتح' : 'مغلق الآن'}</span></button>`; }).join('')}</div>` : empty('school', 'لا تطبيقات دراسة بعد', 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.')}
+      ${sec('وقتي الدراسي')}${list(sc ? row('schedule', 'وقت المدرسة', daysTxt(sc.days), { v: winRange(sc) }) : row('schedule', 'وقت المدرسة', 'لم يحدده والدك بعد', {}), row('timer', 'في تطبيقات الدراسة اليوم', '', { v: `${used} د` }))}
+      <p class="xs muted c" style="margin:10px 12px 0">والدك هو من يحدد تطبيقات الدراسة. إن احتجت تطبيقاً آخر فاطلبه منه.</p>`;
+    }
     return `${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + list(st.map(a => row(a.i, a.n, 'مفتوح حتى في وقت المدرسة', { a: 'openApp:' + a.id, v: chip('متاح', 'ok', 'check') }))) : ''}${pl.length && !teen ? sec('ألعب') + list(pl.map(a => row(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', { a: 'openApp:' + a.id, v: a.act === 'LIMIT' && a.used >= a.lim ? chip('انتهى وقته', 'ol') : '' }))) : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
 });
 
