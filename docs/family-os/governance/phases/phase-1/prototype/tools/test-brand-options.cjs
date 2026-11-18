@@ -13,7 +13,7 @@ try{const page=await b.newPage();page.on('pageerror',e=>R.errs.push(String(e)));
    const ids=q('svg.lg [id]').length;
    return{secs,load:moving('loading'),wait:moving('waiting'),sync:moving('sync'),prog:moving('progress'),rest:moving('rest'),off:moving('offline'),over:document.documentElement.scrollWidth-document.documentElement.clientWidth,small,ids,
     badge:['waiting','sync','success','error','offline','attention'].map(k=>q(`#list .states svg[data-s=${k}]`).every(v=>v.querySelector('.bd')))}});
-  ok(w+': five proposals (the current one and four new)',d.secs.length===5,d.secs.map(s=>s.id));
+  ok(w+': five marks (the chosen one, Q-433, and four not chosen)',d.secs.length===5,d.secs.map(s=>s.id));
   ok(w+': each has the nine states in the same order',d.secs.every(s=>s.states.join()==='rest,loading,waiting,progress,sync,success,error,offline,attention'),d.secs.map(s=>s.states.length));
   ok(w+': each is shown on light and dark, and in context',d.secs.every(s=>s.hero===2&&s.ctx>=5&&s.texts));
   ok(w+': loading, waiting, progress and sync move in every proposal',[d.load,d.wait,d.prog,d.sync].every(a=>a.length===5&&a.every(Boolean)),[d.load,d.wait,d.prog,d.sync]);

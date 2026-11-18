@@ -1,4 +1,4 @@
-/* يبني كل ملفات شعار «عائلتي» وأيقونة التطبيق من تعريف واحد (Q-398 · brand-and-logo.md §3–§4).
+/* يبني كل ملفات شعار «عائلتي» وأيقونة التطبيق من تعريف واحد (Q-398 · Q-433 · brand-and-logo.md §3–§4).
    التشغيل من أي مكان:  node client/assets/brand/tools/build-brand.mjs
    بلا اعتماديات. حدود الاسم مأخوذة من src/wordmark-paths.json (يولّده extract-wordmark.cjs). */
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
@@ -15,9 +15,11 @@ const PAL = {
   white: { roof: C.white, a: C.white, b: C.white, c: C.white, text: C.white },         /* أحادي أبيض */
 };
 
-/* الرمز: سقف واحد وتحته ثلاثة أفراد. صندوقه 364×337، والنقطة قطرها 74 وهي وحدة منطقة الأمان. */
-const MW = 364, MH = 337, DOT = 74;
-const mark = p => `<path d="M26 214V164L182 26 338 164v50" fill="none" stroke="${p.roof}" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/><circle cx="182" cy="186" r="37" fill="${p.a}"/><circle cx="108" cy="300" r="37" fill="${p.b}"/><circle cx="256" cy="300" r="37" fill="${p.c}"/>`;
+/* الرمز: «القمرية» (حكم المالك 2026-11-18 — Q-433): قوس نافذة البيت الصنعاني، وفيه ثلاث بتلات من الزجاج الملوّن.
+   صندوقه 366×282، ورأس البتلة قطره 72 وهو وحدة منطقة الأمان. الهندسة نفسها المعروضة في brand-options.html (المقترح د). */
+const MW = 366, MH = 282, DOT = 72;
+const petal = (d, k = 36) => `M0-28C12-44 ${k}-${d - 32} ${k}-${d}A${k} ${k} 0 0 0-${k}-${d}C-${k}-${d - 32}-12-44 0-28Z`;
+const mark = p => `<path d="M23 259V183A160 160 0 0 1 343 183V259" fill="none" stroke="${p.roof}" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/><circle cx="183" cy="233" r="17" fill="${p.roof}"/><path transform="translate(183 233) rotate(52)" d="${petal(98)}" fill="${p.a}"/><path transform="translate(183 233)" d="${petal(114)}" fill="${p.b}"/><path transform="translate(183 233) rotate(-52)" d="${petal(98)}" fill="${p.c}"/>`;
 const g = (x, y, s, inner) => `<g transform="translate(${r(x)} ${r(y)}) scale(${s})">${inner}</g>`;
 const r = v => Math.round(v * 100) / 100;
 const svg = (w, h, body, title) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${r(w)} ${r(h)}" role="img" aria-label="${title}"><title>${title}</title>${body}</svg>\n`;
@@ -51,8 +53,8 @@ for (const lang of ['ar', 'en']) {
   put(`logo-wordmark-${lang}-dark.svg`, word(lang, PAL.dark));
 }
 
-/* أيقونة التطبيق. الرمز داخل دائرة الأمان (قطر 66 من 108): نصف قطر صندوقه = 0.13 × 248 ≈ 32.2 < 33 */
-const AS = 0.13, ax = (108 - MW * AS) / 2, ay = (108 - MH * AS) / 2 - 0.6;
+/* أيقونة التطبيق. الرمز داخل دائرة الأمان (قطر 66 من 108): نصف قطر صندوقه = 0.14 × 231 ≈ 32.3 < 33 */
+const AS = 0.14, ax = (108 - MW * AS) / 2, ay = (108 - MH * AS) / 2 - 0.6;
 const layer = body => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">${body}</svg>\n`;
 put('icon/android-adaptive-foreground.svg', layer(g(ax, ay, AS, mark(PAL.dark))));
 put('icon/android-adaptive-background.svg', layer(`<rect width="108" height="108" fill="${C.navy}"/>`));
