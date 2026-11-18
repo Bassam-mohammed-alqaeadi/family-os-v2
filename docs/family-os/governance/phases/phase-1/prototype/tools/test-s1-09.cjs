@@ -84,7 +84,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const st0=JSON.stringify(S.stack);const inner=q('#scr .vaw [data-a]');inner.click();ok('view as: a press inside changes nothing',JSON.stringify(S.stack)===st0&&!S.sheet&&!S.full);
  ok('view as: no message text',!S.msgs||!Object.values(S.chat||{}).flat().some(m=>m&&m.t&&m.t.length>12&&q('#scr .vaw').innerText.includes(m.t)));
  q('#scr .vabar [data-a="back"]').click();ok('view as: end returns to the member page',S.stack[S.stack.length-1].id==='member'&&ph.dataset.mode==='parent');
- S=fresh();open('view-as','khaled');ok('view as: teen template',ph.dataset.mode==='teen'&&has(/خالد/));S=fresh();open('view-as','yusuf');ok('view as: a child under 7 gets the child template with his own data',ph.dataset.mode==='child'&&has(/أهلاً يوسف/)&&!has(/أهلاً ليان/));
+ S=fresh();open('view-as','khaled');ok('view as: teen template',ph.dataset.mode==='teen'&&has(/خالد/));S=fresh();open('view-as','layan');ok('view as: child template with her own data',ph.dataset.mode==='child'&&has(/أهلاً ليان/)&&!has(/خالد/));
  S=fresh();open('templates');ok('templates: rows open the preview, not a switch of person',['layan','khaled'].every(k=>!!q('#scr [data-a="go:view-as:'+k+'"]'))&&typeof ACT.jumpP==='undefined');
  S=fresh();setPersona('delegate');setRole('observer');open('view-as','layan');ok('view as: honest refusal without the home key',can('hub.dashboard.view')||(!q('#scr .vaw')&&has(/غير مسموحة/)));
  // 6 الخدمات وصفحة الخدمة (للمالك) وأثر إزالة خدمة من التطبيق
@@ -110,7 +110,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();tab('home');render();ok('owner home unchanged: all tiles + battery beside place',!!q('[data-a="go:presets:free"]')&&!!q('[data-a="go:task-new"]')&&!!q('[data-a="go:add-member"]')&&has(/خالد: الصافية · 64%/)&&!q('#scr [data-a="go:my-perms"]'));
  // 7 مركز الإعدادات والبحث
  S=fresh();tab('more');render();ok('settings: nine fixed sections',['العائلة','الأعضاء','الخدمات','القوالب','الموافقات والاستثناءات','القواعد','التدقيق','الخصوصية والبيانات','الخطة والفوترة'].every(t=>[...ph.querySelectorAll('#scr .row .tx b')].some(b=>b.textContent.trim()===t)));
- ok('settings: badges where attention is needed',has(/بلغت حدّ الأفراد/)&&has(new RegExp(attention().length+' بانتظار قرار')));
+ ok('settings: badges where attention is needed',!has(/بلغت حدّ الأفراد/)&&has(new RegExp(attention().length+' بانتظار قرار')));S.memX=1;render();ok('settings: a full family is flagged on the plan row',has(/بلغت حدّ الأفراد/));S.memX=0;render();
  typeGs('السهر');ok('search synonym: السهر → نافذة النوم',q('#gsBody').hidden&&!q('#gsOut').hidden&&/نافذة النوم/.test(q('#gsOut').innerText));
  q('#gsOut [data-a="ctlFind:sleep"]').click();ok('search result opens the setting highlighted',top()==='control'&&S.ctl==='adv'&&!!q('#scr .row.hl')&&/نافذة النوم/.test(q('#scr .row.hl').innerText));
  tab('more');render();typeGs('كلمة السر');ok('search: كلمة السر → الأمان',/الأمان/.test(q('#gsOut').innerText));typeGs('الإشتراك');ok('search normalises hamza',/الخطة والفوترة/.test(q('#gsOut').innerText));
@@ -136,7 +136,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.agent.find(x=>x.id==='g3').st='رُفض';setPersona('teen');open('ai-mine');ok('teen: a refused suggestion is not shown',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===0);
  S=fresh();Object.assign(S.agent.find(x=>x.id==='g3'),{st:'نُفّذ بموافقتك',undo:1});setPersona('teen');open('ai-mine');ok('teen: sees it once executed, in his words',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===1&&has(/قُدّم وقت نومك 30 دقيقة/));
  open('ai-act','g3');ok('teen detail: no action, decided by the father',!q('[data-a^="aiUndo"]')&&has(/والدك/)&&!has(/بأي إذن/)&&has(/تغيّر وقت نومك/));open('ai-act','g2');ok('teen cannot open a sibling\'s entry',has(/لا يوجد فعل بهذا الوصف/));
- S=fresh();open('templates');ok('templates: child and teen only, no under-7 template (Q-426)',!has(/المبسّط/)&&!!document.querySelector('#scr [data-a="go:view-as:layan"]')&&!!document.querySelector('#scr [data-a="go:view-as:khaled"]')&&!document.querySelector('#scr [data-a="go:view-as:yusuf"]'));
+ S=fresh();open('templates');ok('templates: child and teen only, no under-7 template (Q-426)',!has(/المبسّط/)&&!!document.querySelector('#scr [data-a="go:view-as:layan"]')&&!!document.querySelector('#scr [data-a="go:view-as:khaled"]')&&document.querySelectorAll('#scr [data-a^="go:view-as:"]').length===2);
  S=fresh();setPersona('child');open('ai-mine');ok('child: only her own entry',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===1&&has(/ترتيب الغرفة/));
  S=fresh();setPersona('teen');open('t-me');ok('teen profile links to it',!!q('[data-a="go:ai-mine"]'));S=fresh();setPersona('child');open('c-me');ok('child profile links to it',!!q('[data-a="go:ai-mine"]'));
  S=fresh();open('more');q('[data-a="go:plan"]')&&0;ok('plan row for owner opens the plan',!!q('#scr [data-a="go:plan"]'));setPersona('delegate');setRole('observer');tab('more');render();ok('plan for delegate: read-only mark or locked',has(/عرض فقط/));

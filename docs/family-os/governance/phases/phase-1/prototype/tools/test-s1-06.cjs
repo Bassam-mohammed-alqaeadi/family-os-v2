@@ -23,30 +23,30 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const TKS=['tasks','task','task-new','task-review','tk-cats','tk-cat-new','tk-settings','tk-edit','tk-ai','tk-sug','event','event-new','tk-remind','fam-cal','c-task','t-task-new'];
  // 1 البذرة
  S=fresh();ok('seed: seventeen S1-06 surfaces',TKS.every(k=>SC[k]&&SC[k].sys==='S1-06'),TKS.filter(k=>!SC[k]));
- ok('seed: nine tasks, one expired, five dated events',S.tasks.length===9&&tk('t9').st==='EXPIRED'&&S.events.length===5&&S.events.every(e=>/^\d{4}-\d\d-\d\d$/.test(e.dk)));
+ ok('seed: seven tasks, one expired, five dated events',S.tasks.length===7&&tk('t9').st==='EXPIRED'&&S.events.length===5&&S.events.every(e=>/^\d{4}-\d\d-\d\d$/.test(e.dk)));
  ok('seed: defaults 10 points, photo, 60 minutes, recurrence on',TK().pts===10&&TK().proof==='photo'&&TK().rem===60&&TK().rec===true);
  ok('seed: assistant suggests only, three suggestions waiting',TK().ai.lv==='suggest'&&TK().sug.length===3&&TK().sug.every(x=>x.st==='new'));
  ok('seed: six task controls in the registry',CTL.filter(c=>c.s==='tasks').length===6);
  // 2 القائمة
  S=fresh();open('tasks');
- ok('list: grouped by what needs a decision first',has(/تنتظر قرارك · 1/)&&has(/قيد التنفيذ · 5/)&&has(/أُنجزت · 2/)&&has(/فاتت أو أُلغيت · 1/));
+ ok('list: grouped by what needs a decision first',has(/تنتظر قرارك · 1/)&&has(/قيد التنفيذ · 4/)&&has(/أُنجزت · 1/)&&has(/فاتت أو أُلغيت · 1/));
  ok('list: quiet suggestion card on top',has(/اقتراحات المساعد/)&&has(/3 مهام مقترحة/)&&has(/لا تصل أبناءك حتى توافق/)&&!!q('#scr [data-a="go:tk-ai"]'));
  ok('list: submitted row opens review, others open detail',!!q('#scr [data-a="go:task-review:t1"]')&&!!q('#scr [data-a="go:task:t2"]'));
  ok('list: add button and controls row for the owner',!!q('[data-a="go:task-new"]')&&!!q('#scr [data-a="go:tk-settings"]'));
  ok('list: missed instances explained',has(/ينتهي عند منتصف الليل ولا يتراكم/)&&!!q('#scr [data-a="why:tkexp"]'));
  ok('list: filter chips are full touch targets',[...ph.querySelectorAll('#scr .tkf button')].every(b=>b.getBoundingClientRect().height>=48));
- ACT.set('tf','yusuf');render();ok('list filter: one child',has(/قيد التنفيذ · 1/)&&!has(/ترتيب الغرفة/));
+ ACT.set('tf','khaled');render();ok('list filter: one child',has(/قيد التنفيذ · 2/)&&!has(/ترتيب الغرفة/));
  S=fresh();open('tasks','layan');ok('list: arriving from a member page filters to that child',S.tf==='layan'&&!has(/جمع الألعاب في الصندوق/));
  S=fresh();del();open('tasks');ok('delegate list: may create, no controls row',!!q('[data-a="go:task-new"]')&&!q('#scr [data-a="go:tk-settings"]')&&has(/اقتراحات المساعد/));
  S=fresh();obs();open('tasks');ok('observer list: reads only, no add, no suggestions, no review',!q('[data-a="go:task-new"]')&&!has(/اقتراحات المساعد/)&&!q('#scr [data-a^="go:task-review"]')&&!!q('#scr [data-a="go:task:t1"]'));
  S=fresh();obs('none');open('tasks');ok('no task permission: said plainly',has(/المهام ليست ضمن صلاحياتك/));
- S=fresh();render();ok('parent home: expired instance not counted',has(/2\/8/));
+ S=fresh();render();ok('parent home: expired instance not counted',has(/1\/6/));
  // 3 الإنشاء
  S=fresh();open('task-new');
  ok('create: defaults from the controls',S.nt.kid==='layan'&&S.nt.pts===10&&S.nt.proof==='photo'&&S.nt.rem===60&&S.nt.rr==='none'&&S.nt.dk==='2026-11-15');
  ok('create: three proof methods, each explains itself',ph.querySelectorAll('#scr .tkch button').length===3&&has(/المساعد يتحقق من الصورة ويودِع النقاط/)&&has(/للتلاوة والقراءة/)&&has(/لا تودَع نقطة حتى يعتمدها بالغ/));
  ok('create: one assignee, said in the label',has(/المهمة لفرد واحد/));
- ACT.ntSave();ok('create: title required',/اكتب عنوان المهمة/.test(T())&&S.tasks.length===9);noT();
+ ACT.ntSave();ok('create: title required',/اكتب عنوان المهمة/.test(T())&&S.tasks.length===7);noT();
  q('#scr [data-a="tkIdea:1"]').click();render();ok('create: an idea chip fills title, category and proof',q('#ntT').value==='قراءة عشر صفحات'&&S.nt.cat==='school'&&S.nt.proof==='audio');
  ACT.tkSet('kid','khaled');render();ok('create for the teen: zero points, locked with its reason',S.nt.pts===0&&has(/مهام خالد بلا نقاط/)&&!q('#scr [data-a="tkSet:pts:10"]')&&!!q('#scr [data-a="why:rwteen"]'));
  ACT.tkSet('kid','layan');render();ok('create: back to a child restores the default points',S.nt.pts===10&&!!q('#scr [data-a="tkSet:pts:25"]')&&q('#ntT').value==='قراءة عشر صفحات');
@@ -54,22 +54,22 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('create: cannot go before today',dis('#scr [data-a="tkDay2:-1"]')&&has(/5 جمادى الآخرة/));
  ACT.tkDay2(1);ACT.tkTm2(1);render();ok('create: day and time steppers, dual date',S.nt.dk==='2026-11-16'&&S.nt.hm==='1830'&&has(/غداً · 16 نوفمبر/)&&has(/6 جمادى الآخرة/)&&has(/6:30 م/));
  ACT.tkSet('rr','days');render();ok('create: chosen weekdays, with the no-accumulation rule',ph.querySelectorAll('#scr .tkwd button').length===7&&has(/ولا تتراكم/));
- ACT.tkWdT(0);ACT.tkWdT(3);ACT.ntSave();ok('create: chosen days need at least one day',/اختر يوماً واحداً على الأقل/.test(T())&&S.tasks.length===9);noT();ACT.tkWdT(4);ACT.tkWdT(1);
+ ACT.tkWdT(0);ACT.tkWdT(3);ACT.ntSave();ok('create: chosen days need at least one day',/اختر يوماً واحداً على الأقل/.test(T())&&S.tasks.length===7);noT();ACT.tkWdT(4);ACT.tkWdT(1);
  ACT.tkSet('rem','30');render();ok('create: reminder says when and who',has(/قبل 30 دقيقة من موعدها · يصل ليان/));
  ACT.tkSubAdd();ok('checklist: empty item refused',/اكتب البند أولاً/.test(T())&&S.nt.sub.length===0);noT();render();
  q('#ntI').value='الفصل الأول';ACT.tkSubAdd();render();ok('checklist: item added',S.nt.sub.length===1&&has(/1 من 10/)&&q('#ntI').value==='');
  for(let i=0;i<9;i++){q('#ntI').value='بند '+i;ACT.tkSubAdd();render()}ok('checklist: ten items at most',S.nt.sub.length===10&&!q('#ntI')&&has(/بلغت القائمة حدّها/));
  ACT.tkSubDel(9);render();ok('checklist: item removed',S.nt.sub.length===9&&!!q('#ntI'));
  ACT.ntSave();render();
- ok('create saved: assigner, points, proof, recurrence, due',S.tasks.length===10&&S.tasks[0].kid==='layan'&&S.tasks[0].by==='ahmad'&&S.tasks[0].pts===25&&S.tasks[0].proof==='audio'&&S.tasks[0].rep==='الاثنين والخميس'&&S.tasks[0].due==='غداً 6:30 م'&&S.tasks[0].st==='PENDING'&&S.tasks[0].sub.length===9,S.tasks[0]);
+ ok('create saved: assigner, points, proof, recurrence, due',S.tasks.length===8&&S.tasks[0].kid==='layan'&&S.tasks[0].by==='ahmad'&&S.tasks[0].pts===25&&S.tasks[0].proof==='audio'&&S.tasks[0].rep==='الاثنين والخميس'&&S.tasks[0].due==='غداً 6:30 م'&&S.tasks[0].st==='PENDING'&&S.tasks[0].sub.length===9,S.tasks[0]);
  ok('create saved: toast, audit, draft cleared',/أُسندت المهمة إلى ليان/.test(T())&&S.audit[0].k==='tasks.create'&&S.nt===null);
- tU().click();render();ok('create undo: task removed',S.tasks.length===9);noT();
- S=fresh();S.net='off';open('task-new');ok('create offline: allowed, button says it is sent later',has(/تُرسل عند الاتصال/));q('#ntT').value='سقي النباتات';ACT.ntSave();ok('create offline: saved and queued',S.tasks.length===10&&S.outbox.length===1&&/الصندوق الصادر/.test(T()));noT();
+ tU().click();render();ok('create undo: task removed',S.tasks.length===7);noT();
+ S=fresh();S.net='off';open('task-new');ok('create offline: allowed, button says it is sent later',has(/تُرسل عند الاتصال/));q('#ntT').value='سقي النباتات';ACT.ntSave();ok('create offline: saved and queued',S.tasks.length===8&&S.outbox.length===1&&/الصندوق الصادر/.test(T()));noT();
  S=fresh();TK().rec=false;open('task-new');ok('recurrence off in controls: locked with its reason',has(/التكرار متوقف من ضوابط المهام/)&&!q('#scr [data-a="tkSet:rr:daily"]'));q('#ntT').value='x';S.nt.rr='daily';ACT.ntSave();ok('recurrence off: saved as once',S.tasks[0].rr==='none');noT();
  S=fresh();del();open('task-new');ok('delegate create: no category button, may assign',!q('#scr [data-a="tkCatNew"]')&&!!q('#scr [data-a="tkSet:kid:layan"]'));q('#ntT').value='كيّ الملابس';ACT.ntSave();ok('delegate create: task carries her name',S.tasks[0].by==='sara');noT();
  S=fresh();obs();open('task-new');ok('no create permission: said plainly',has(/إنشاء المهام ليس ضمن صلاحياتك/)&&!q('#ntT'));
- S=fresh();open('task-new','t2');ok('edit: loaded, points fixed, assignee fixed',S.nt.id==='t2'&&q('#ntT').value==='حلّ واجب الرياضيات'&&has(/النقاط تثبت عند الإنشاء/)&&dis('#scr [data-a="tkSet:kid:yusuf"]')&&!q('#scr [data-a="tkIdea:0"]'));
- q('#ntT').value='حلّ واجب العلوم';ACT.ntSave();ok('edit saved: same task, same points',tk('t2').t==='حلّ واجب العلوم'&&tk('t2').pts===15&&S.tasks.length===9&&/حُفظ تعديل المهمة/.test(T()));tU().click();render();ok('edit undo: title back',tk('t2').t==='حلّ واجب الرياضيات');noT();
+ S=fresh();open('task-new','t2');ok('edit: loaded, points fixed, assignee fixed',S.nt.id==='t2'&&q('#ntT').value==='حلّ واجب الرياضيات'&&has(/النقاط تثبت عند الإنشاء/)&&dis('#scr [data-a="tkSet:kid:khaled"]')&&!q('#scr [data-a="tkIdea:0"]'));
+ q('#ntT').value='حلّ واجب العلوم';ACT.ntSave();ok('edit saved: same task, same points',tk('t2').t==='حلّ واجب العلوم'&&tk('t2').pts===15&&S.tasks.length===7&&/حُفظ تعديل المهمة/.test(T()));tU().click();render();ok('edit undo: title back',tk('t2').t==='حلّ واجب الرياضيات');noT();
  S=fresh();open('task-new','t2');tk('t2').st='SUBMITTED';ACT.ntSave();ok('edit refused once the child has submitted',/سُلّمت المهمة قبل الحفظ/.test(T())&&tk('t2').t==='حلّ واجب الرياضيات');noT();
  // 4 تسليم الطفل
  S=fresh();kid();open('c-task','t2');
@@ -132,8 +132,8 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();open('task','t9');ok('detail (expired): said why, no actions',has(/انتهت عند منتصف الليل ولم تتراكم/)&&!q('#scr [data-a^="taskCancel"]')&&!q('#scr [data-a^="go:task-new"]'));
  S=fresh();obs('none');open('task','t2');ok('detail without permission: locked',has(/هذه المهمة خارج صلاحياتك/));
  // 7 منتصف الليل
- S=fresh();tkMidnight();
- ok('midnight: unsubmitted one-time task expires',tk('t5').st==='EXPIRED');
+ S=fresh();S.tasks.push({id:'tx',kid:'layan',t:'إعادة كتاب المكتبة',cat:'school',pts:5,due:'اليوم',proof:'self',st:'PENDING'});tkMidnight();
+ ok('midnight: unsubmitted one-time task expires',tk('tx').st==='EXPIRED');
  ok('midnight: recurring task gets one fresh instance, the missed one is kept as expired',tk('t3').st==='PENDING'&&S.tasks.filter(t=>t.t==='صلاة المغرب في وقتها').length===2&&S.tasks.filter(t=>t.t==='صلاة المغرب في وقتها'&&t.st==='EXPIRED').length===1);
  ok('midnight: approved recurring task starts again',tk('t4').st==='PENDING'&&S.tasks.filter(t=>t.t==='تنظيف الأسنان').length===1);
  ok('midnight: a submission made in time still waits for approval',tk('t1').st==='SUBMITTED');
@@ -148,7 +148,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('delegation: suggestions listed',has(/اقتراحات تنتظر · 3/)&&ph.querySelectorAll('#scr [data-a^="go:tk-sug:"]').length===3);
  q('#scr [data-a="tkAi:lv:assign"]').click();render();ok('direct assignment opens the limits, nothing applied yet',has(/حدود ما يسنده/)&&has(/أقصى ما يكسبه كل ابن في اليوم من مهام المساعد: 10 نقاط/)&&!!q('#scr [data-a="tkAiSave"]')&&TK().ai.lv==='suggest'&&ai().length===0);
  ACT.tkAi('mx','15');ACT.tkAi('pd','2');render();ok('limits: preview follows the choice',has(/من مهام المساعد: 30 نقطة/));
- ACT.tkAiKid('layan');ACT.tkAiKid('yusuf');render();ok('limits: nobody chosen is said plainly',has(/لم تختر أحداً/));
+ ACT.tkAiKid('layan');ACT.tkAiKid('khaled');render();ok('limits: nobody chosen is said plainly',has(/لم تختر أحداً/));
  ACT.tkAiCancel();render();ok('delegation cancel: draft dropped',!has(/حدود ما يسنده/)&&TK().ai.lv==='suggest');
  ACT.tkAi('lv','assign');ACT.tkAiSave();render();
  ok('delegation saved: assistant assigns what fits the limits',TK().ai.lv==='assign'&&ai().length===2&&TK().sug.filter(x=>x.st==='ai').length===2&&TK().sug.find(x=>x.id==='s3').st==='new');
@@ -159,9 +159,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const at=ai().find(t=>t.kid==='layan');noT();open('task',at.id);ok('assistant task detail: labelled, cancellable by an adult',has(/المساعد، ضمن تفويض المالك/)&&!!q('#scr [data-a="go:tk-ai"]')&&!!q('#scr [data-a="taskCancel:'+at.id+'"]'));
  kid();open('c-task',at.id);ok('child sees the task came from the assistant with dad\'s permission',/من المساعد، ضمن تفويض بابا/.test(sh()));
  ACT.tkSend(at.id);ok('assistant task verified: ledger says assigned by and verified by the assistant',tk(at.id).st==='APPROVED'&&S.kid.layan.pts===95&&L('layan')[0].as==='ai'&&L('layan')[0].vf==='ai');noT();
- S=fresh();open('tk-ai');ACT.tkAi('lv','assign');ACT.tkAiSave();render();tU().click();render();ok('delegation undo: level back, tasks and log rows removed',TK().ai.lv==='suggest'&&S.tasks.length===9&&TK().sug.every(x=>x.st==='new')&&!S.agent.some(g=>g.op==='assign'));noT();
+ S=fresh();open('tk-ai');ACT.tkAi('lv','assign');ACT.tkAiSave();render();tU().click();render();ok('delegation undo: level back, tasks and log rows removed',TK().ai.lv==='suggest'&&S.tasks.length===7&&TK().sug.every(x=>x.st==='new')&&!S.agent.some(g=>g.op==='assign'));noT();
  S=fresh();open('tk-ai');ACT.tkAi('lv','assign');ACT.tkAi('mx','15');ACT.tkAi('pd','2');ACT.tkAiSave();ok('wider limits: all three assigned',ai().length===3);noT();
- S=fresh();open('tk-ai');ACT.tkAi('lv','assign');ACT.tkAiKid('layan');ACT.tkAiSave();ok('child left out: nothing assigned to her',ai().length===1&&ai()[0].kid==='yusuf');noT();
+ S=fresh();open('tk-ai');ACT.tkAi('lv','assign');ACT.tkAiKid('layan');ACT.tkAiSave();ok('child left out: nothing assigned to her',ai().length===1&&ai()[0].kid==='khaled');noT();
  S=fresh();open('tk-ai');ACT.tkAi('lv','off');ACT.tkAiSave();render();ok('level off: no suggestions anywhere',TK().ai.lv==='off'&&!has(/اقتراحات تنتظر/)&&ai().length===0);noT();open('tasks');ok('level off: no card in the list',!has(/اقتراحات المساعد/));
  S=fresh();S.aiKill=true;open('tk-ai');ok('kill switch: said on top, no suggestions',has(/المساعد متوقف من مفتاح الإيقاف/)&&!has(/اقتراحات تنتظر/));ACT.tkAi('lv','assign');ACT.tkAiSave();ok('kill switch: nothing assigned',ai().length===0);noT();
  S=fresh();S.net='off';open('tk-ai');ACT.tkAi('lv','assign');render();ok('delegation offline: warned',has(/أنت غير متصل/));ACT.tkAiSave();ok('delegation offline: queued, assistant waits for the connection',S.outbox.length===1&&ai().length===0&&/يُرسل عند الاتصال/.test(T()));noT();
@@ -170,12 +170,12 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('suggestion: three actions',!!q('.sheet [data-a="tkSugOk:s1"]')&&!!q('.sheet [data-a="tkSugNo:s1"]')&&!!q('.sheet [data-a="tkSugEdit:s1"]'));
  ACT.tkSugOk('s1');ok('suggestion accepted: task in the adult\'s name, marked as suggested',S.tasks[0].by==='ahmad'&&S.tasks[0].sg===1&&TK().sug[0].st==='ok'&&S.sheet===null&&/أُسندت «مراجعة جدول الضرب قبل الاختبار» إلى ليان/.test(T()));
  const sid=S.tasks[0].id;noT();open('task',sid);ok('accepted suggestion: detail says who and that it was suggested',has(/أحمد · باقتراح من المساعد/));
- S=fresh();ACT.tkSugOk('s1');tU().click();render();ok('accept undo: suggestion back',S.tasks.length===9&&TK().sug[0].st==='new');noT();
+ S=fresh();ACT.tkSugOk('s1');tU().click();render();ok('accept undo: suggestion back',S.tasks.length===7&&TK().sug[0].st==='new');noT();
  ACT.tkSugNo('s2');ok('suggestion dismissed',TK().sug[1].st==='no'&&/لن يعيده المساعد هذا الأسبوع/.test(T()));noT();open('tk-sug','s2');ok('dismissed suggestion no longer opens',/لم يعد هذا الاقتراح قائماً/.test(sh()));
  S=fresh();ACT.tkSugEdit('s3');render();ok('edit then assign: form filled from the suggestion',top()==='task-new'&&q('#ntT').value==='قراءة عشر صفحات قبل النوم'&&S.nt.pts===15&&S.nt.proof==='audio');
  ACT.tkSet('pts','10');ACT.ntSave();ok('edit then assign: saved with the change, suggestion closed',S.tasks[0].pts===10&&S.tasks[0].sg===1&&S.tasks[0].by==='ahmad'&&TK().sug.find(x=>x.id==='s3').st==='ok');noT();
  S=fresh();del();ACT.tkSugOk('s1');ok('delegate accepts a suggestion in her own name',S.tasks[0].by==='sara');noT();
- S=fresh();obs();ACT.tkSugOk('s1');ok('observer cannot accept',S.tasks.length===9);noT();
+ S=fresh();obs();ACT.tkSugOk('s1');ok('observer cannot accept',S.tasks.length===7);noT();
  S=fresh();open('ai');ok('assistant screen: task preparation listed with its level',has(/يُعدّ المهام/)&&!!q('#scr [data-a="go:tk-ai"]'));
  ok('help: how to let the assistant prepare tasks',HELP_Q.some(x=>/المساعد يُعدّ المهام/.test(x[0])));
  S=fresh();kid();ACT.tkSend('t2');noT();setPersona('owner');open('ai-act',S.agent[0].id);ok('assistant log detail (verified): says how to take it back, opens the task',/يتحقق من المهام/.test(sh())&&/«ألغِ التحقق» من صفحة المهمة، في يومه فقط، وللمالك وحده/.test(sh())&&!!q('.sheet [data-a="go:task:t2"]')&&!/لا شيء يُتراجع عنه/.test(sh()));
@@ -191,19 +191,19 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('calendar: today selected, dual date in the heading',has(/اليوم · 5 جمادى الآخرة/)&&has(/عشاء عند الجدة/)&&has(/7:30 م · العائلة كلها · بيت الجدة/));
  ok('calendar: event dot and task dot',!!q('#scr .cal [data-a="tkDay:2026-11-19"] u.e')&&!!q('#scr .cal [data-a="tkDay:2026-11-19"] u.t')&&!q('#scr .cal [data-a="tkDay:2026-11-17"] u.e'));
  ok('calendar: day cells are full touch targets',[...ph.querySelectorAll('#scr .cal button')].every(b=>b.getBoundingClientRect().height>=48));
- q('#scr [data-a="tkDay:2026-11-19"]').click();render();ok('calendar day: its events and the recurring instances',has(/الخميس 19 نوفمبر · 9 جمادى الآخرة/)&&has(/موعد طبيب يوسف/)&&has(/صلاة المغرب في وقتها/)&&has(/حلّ واجب الرياضيات/)&&!has(/إخراج القمامة/));
+ q('#scr [data-a="tkDay:2026-11-19"]').click();render();ok('calendar day: its events and the recurring instances',has(/الخميس 19 نوفمبر · 9 جمادى الآخرة/)&&has(/موعد طبيب ليان/)&&has(/صلاة المغرب في وقتها/)&&has(/حلّ واجب الرياضيات/)&&!has(/إخراج القمامة/));
  ACT.tkDay('2026-11-20');render();ok('calendar: school-day task absent on Friday, daily one present',!has(/حلّ واجب الرياضيات/)&&has(/صلاة المغرب في وقتها/));
  ACT.tkDay('2026-11-22');render();ok('calendar: weekly event repeats, Sunday task shows',has(/عشاء عند الجدة/)&&has(/إخراج القمامة/));
  ok('calendar: cannot go before the current month',dis('#scr [data-a="tkMon:-1"]'));
  ACT.tkMon(1);render();ok('calendar: next month, blanks before the first',has(/ديسمبر 2026/)&&ph.querySelectorAll('#scr .cal > span:not(.dn)').length===3&&ph.querySelectorAll('#scr .cal button').length===31);
  ACT.tkMon(1);ACT.tkMon(1);ACT.tkMon(1);render();ok('calendar: three months ahead and no further',has(/فبراير 2027/)&&S.tkM===3&&dis('#scr [data-a="tkMon:1"]')&&has(/ثلاثة أشهر قادمة/));
  ok('calendar: days beyond the horizon are closed',q('#scr .cal [aria-label="الثلاثاء 16 فبراير 2027"]').disabled&&!q('#scr .cal [aria-label="الاثنين 15 فبراير 2027"]').disabled);
- S=fresh();S.tv='cal';S.tf='yusuf';open('tasks');ACT.tkDay('2026-11-18');render();ok('calendar filter: another member\'s event hidden',!has(/اختبار الرياضيات/)&&!has(/ترتيب الغرفة/));ACT.tkDay('2026-11-19');render();ok('calendar filter: his own shown',has(/موعد طبيب يوسف/));
+ S=fresh();S.tv='cal';S.tf='khaled';open('tasks');ACT.tkDay('2026-11-18');render();ok('calendar filter: another member\'s event hidden',!has(/اختبار الرياضيات/)&&!has(/ترتيب الغرفة/));ACT.set('tf','layan');ACT.tkDay('2026-11-19');render();ok('calendar filter: her own shown',has(/موعد طبيب ليان/));
  S=fresh();S.tv='cal';open('tasks');ok('calendar: owner may add an event',!!q('#scr [data-a="tkEvNew:2026-11-15"]'));
  S=fresh();obs();S.tv='cal';open('tasks');ok('calendar: observer reads, cannot add',has(/نوفمبر 2026/)&&!q('#scr [data-a^="tkEvNew"]'));ACT.tkEvNew('2026-11-20');ok('observer: creating an event refused',!S.sheet||S.sheet.id!=='event-new');noT();
  // 10 الأحداث والتذكير
  S=fresh();S.tv='cal';open('tasks');ACT.tkEvNew('2026-11-20');render();
- ok('event form: both dates, family or one member',top()==='event-new'&&/الجمعة 20 نوفمبر 2026/.test(sh())&&/10 جمادى الآخرة 1448/.test(sh())&&ph.querySelectorAll('.sheet .tkp button').length===6&&S.ev.who==='all'&&S.ev.rem===60);
+ ok('event form: both dates, family or one member',top()==='event-new'&&/الجمعة 20 نوفمبر 2026/.test(sh())&&/10 جمادى الآخرة 1448/.test(sh())&&ph.querySelectorAll('.sheet .tkp button').length===5&&S.ev.who==='all'&&S.ev.rem===60);
  ACT.evSave();ok('event: title required',/اكتب عنوان الحدث/.test(T())&&S.events.length===5);noT();
  ACT.tkEvSet('who','layan');ACT.tkEvSet('rem','30');render();ok('reminder choice says who receives it',/قبل 30 دقيقة · يصل ليان وأحمد فقط/.test(sh())&&/يصل ولو كان الجهاز بلا إنترنت/.test(sh()));
  ACT.tkEvSet('who','all');render();ok('family event: reminder to everyone',/يصل كل أفراد العائلة/.test(sh()));ACT.tkEvSet('who','layan');
@@ -212,13 +212,13 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.evSave();render();const ne=S.events[5];
  ok('event saved: fields, creator, calendar moves to its day',S.events.length===6&&ne.t==='درس السباحة'&&ne.who==='layan'&&ne.rem===30&&ne.loc==='النادي'&&ne.rr==='week'&&ne.by==='ahmad'&&S.tkDay==='2026-11-21'&&S.tv==='cal'&&has(/درس السباحة/));
  ok('event saved: toast and audit',/أُضيف الحدث · التذكير قبل 30 دقيقة/.test(T())&&S.audit[0].k==='calendar.event.create');tU().click();render();ok('event undo',S.events.length===5);noT();
- open('event','e1');ok('event detail: both dates, time, place, who is reminded, who added it',/موعد طبيب يوسف/.test(sh())&&/الخميس 19 نوفمبر 2026/.test(sh())&&/9 جمادى الآخرة 1448 هـ/.test(sh())&&/4:00 م/.test(sh())&&/عيادة الأطفال/.test(sh())&&/يصل يوسف وأحمد فقط/.test(sh())&&/أضافه أحمد/.test(sh()));
+ open('event','e1');ok('event detail: both dates, time, place, who is reminded, who added it',/موعد طبيب ليان/.test(sh())&&/الخميس 19 نوفمبر 2026/.test(sh())&&/9 جمادى الآخرة 1448 هـ/.test(sh())&&/4:00 م/.test(sh())&&/عيادة الأطفال/.test(sh())&&/يصل ليان وأحمد فقط/.test(sh())&&/أضافه أحمد/.test(sh()));
  ok('event detail: edit and delete for whoever may',!!q('.sheet [data-a="tkEvEdit:e1"]')&&!!q('.sheet [data-a="tkEvDel:e1"]')&&!!q('.sheet [data-a="go:tk-remind:e1"]'));
- ACT.tkEvEdit('e1');render();ok('event edit: loaded',/تعديل الحدث/.test(sh())&&q('#evT').value==='موعد طبيب يوسف'&&S.ev.id==='e1');
+ ACT.tkEvEdit('e1');render();ok('event edit: loaded',/تعديل الحدث/.test(sh())&&q('#evT').value==='موعد طبيب ليان'&&S.ev.id==='e1');
  ACT.tkEvSet('rem','1440');ACT.evSave();ok('event edit saved: same event',S.events.length===5&&S.events.find(e=>e.id==='e1').rem===1440&&/حُفظ تعديل الحدث/.test(T()));tU().click();render();ok('event edit undo',S.events.find(e=>e.id==='e1').rem===60);noT();
  ACT.tkEvDel('e4');render();ok('event delete: confirms, mentions recurrences',!!S.dlg&&/وكل تكراراته/.test(txt()));dlgYes();ok('event deleted',S.events.length===4&&!S.events.some(e=>e.id==='e4'));tU().click();render();ok('event delete undo',S.events.length===5);noT();
  S=fresh();S.net='off';ACT.tkEvNew('2026-11-20');render();q('#evT').value='زيارة';ACT.evSave();ok('event offline: saved and queued',S.events.length===6&&S.outbox.length===1&&/يُرسل عند الاتصال/.test(T()));noT();
- S=fresh();open('tk-remind','e1');ok('reminder: one card per recipient, child and father only',/على جهاز يوسف/.test(sh())&&/على جهاز أحمد/.test(sh())&&/بعد ساعة: موعد طبيب يوسف/.test(sh())&&/يصل يوسف وأحمد فقط/.test(sh()));
+ S=fresh();open('tk-remind','e1');ok('reminder: one card per recipient, child and father only',/على جهاز ليان/.test(sh())&&/على جهاز أحمد/.test(sh())&&/بعد ساعة: موعد طبيب ليان/.test(sh())&&/يصل ليان وأحمد فقط/.test(sh()));
  ok('reminder: offline, once, no special wording for a small child',/يصل بلا إنترنت/.test(sh())&&/مرة واحدة/.test(sh())&&!/الأصغر سنّاً/.test(sh()));
  open('tk-remind','e4');ok('reminder of a family event: everyone',/على أجهزة العائلة كلها/.test(sh())&&/يصل كل أفراد العائلة/.test(sh()));
  S=fresh();kid();open('event','e3');ok('child event view: read only, reminder to her and dad',/اختبار الرياضيات/.test(sh())&&/يصلك أنت وبابا/.test(sh())&&!q('.sheet [data-a^="tkEvDel"]')&&!q('.sheet [data-a^="tkEvEdit"]')&&!/أضافه/.test(sh()));
@@ -262,7 +262,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('c-task','t7');ok('teen own task sheet: personal, done or delete',/مهمة شخصية · أنشأتها أنت/.test(sh())&&!!q('.sheet [data-a="teenDone:t7"]')&&!!q('.sheet [data-a="tkOwnDel:t7"]'));
  ACT.tkOwnDel('t7');ok('teen deletes his own task',!tk('t7'));tU().click();render();ok('teen delete undo',!!tk('t7'));noT();ACT.tkOwnDel('t8');ok('teen cannot delete a father task',!!tk('t8'));
  ACT.teenTask();render();ok('teen new task: title, day, recurrence, reminder, no points',top()==='t-task-new'&&!!q('#ttT')&&!/نقط|نقاط/.test(sh())&&/تنجزها بلا اعتماد، ووالدك يراها/.test(sh()));
- ACT.tkTtSave();ok('teen new task: title required',/اكتب عنوان المهمة/.test(T())&&S.tasks.length===9);noT();
+ ACT.tkTtSave();ok('teen new task: title required',/اكتب عنوان المهمة/.test(T())&&S.tasks.length===7);noT();
  q('#ttT').value='مراجعة الكيمياء';ACT.tkTt('rr','daily');render();ok('teen form keeps the title',q('#ttT').value==='مراجعة الكيمياء');
  ACT.tkTtSave();ok('teen task saved: his own, zero points, self',S.tasks[0].by==='khaled'&&S.tasks[0].kid==='khaled'&&S.tasks[0].pts===0&&S.tasks[0].rep==='يومياً'&&S.sheet===null&&/أُضيفت مهمتك/.test(T()));noT();
  S=fresh();S.teenTasks=false;kid('teen');ACT.teenTask();ok('teen without permission: told where to ask',!S.sheet&&/لم يسمح والدك/.test(T()));noT();
@@ -293,7 +293,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  NOW.m=20*60;render();ok('teen day after 8 pm: the dinner is behind the now line and dimmed, next is the 9:00 task',(()=>{const K=[...q('#scr .agl').children];return K[0].classList.contains('ps')&&K[1].classList.contains('agn')&&/التالي بعد 1 س/.test(K[1].innerText)&&!K[2].classList.contains('ps')})());
  NOW.m=22*60;render();ok('teen day late: now line last, says nothing is left',(()=>{const K=[...q('#scr .agl').children];return K[K.length-1].classList.contains('agn')&&/لا شيء بقي اليوم/.test(K[K.length-1].innerText)})());NOW.m=17*60+12;S=fresh();
  // 14 الأصغر
- S=fresh();ok('under seven: tasks go through the child template; no one-button task screen (Q-426)',!SC['m-task']&&!ACT.mDone&&S.tasks.some(t=>t.kid==='yusuf'));
+ S=fresh();ok('no one-button task screen for small children (Q-426)',!SC['m-task']&&!ACT.mDone);
  // 15 الروابط
  ok('every task link leads to a surface',TKS.every(id=>{try{S=fresh();jump(id);render();return [...ph.querySelectorAll('[data-a^="go:"]')].every(e=>!!SC[e.dataset.a.split(':')[1]])}catch(e){return false}}));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}

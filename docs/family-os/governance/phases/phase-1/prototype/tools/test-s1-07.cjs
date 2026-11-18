@@ -25,9 +25,10 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 2 الخريطة
  const PIN=()=>[...ph.querySelectorAll('#scr .map .pin')];
  open('map');ok('map fills the screen: title, chips, map, bottom panel',q('.bar h2').textContent==='خريطة العائلة'&&!!q('#scr .mapscr .map.fill')&&!!q('#scr .mpanel')&&q('#scr .map.fill').offsetHeight>=300,q('#scr .map.fill')&&q('#scr .map.fill').offsetHeight);
- ok('member switcher: «all» plus one chip per family member',ph.querySelectorAll('#scr .mfch button').length===5&&q('#scr .mfch [data-a="mapFit"]').getAttribute('aria-pressed')==='true');
- ok('two children in one place: one marker with a count',PIN().length===3&&q('#scr .pin.clu .cn').textContent==='2'&&/ليان ويوسف/.test(q('#scr .pin.clu').textContent));
- ok('live marker carries name, battery and age',/خالد · 64% · قبل 4 د/.test(q('#scr .pin:not(.clu)').textContent));
+ ok('member switcher: «all» plus one chip per family member',ph.querySelectorAll('#scr .mfch button').length===4&&q('#scr .mfch [data-a="mapFit"]').getAttribute('aria-pressed')==='true');
+ ok('each member has his own marker',PIN().length===3&&!q('#scr .pin.clu'));
+ ok('live marker carries name, battery and age',/خالد · 64% · قبل 4 د/.test(q('#scr .map').textContent));
+ {const k=S.kid.khaled,was=[k.x,k.y];k.x=S.kid.layan.x;k.y=S.kid.layan.y;render();ok('two children in one place: one marker with a count',PIN().length===2&&q('#scr .pin.clu .cn').textContent==='2'&&/خالد/.test(q('#scr .pin.clu').textContent)&&/ليان/.test(q('#scr .pin.clu').textContent));k.x=was[0];k.y=was[1];render();}
  ok('touch target of a marker is at least 48',PIN().every(e=>e.offsetWidth>=48&&e.offsetHeight>=48),PIN().map(e=>e.offsetWidth+'x'+e.offsetHeight).join());
  ok('own position: «you» dot, and distance on each row',!!q('#scr .map .medot')&&has(/يبعد نحو 1\.5 كم/)&&has(/يبعد نحو 1\.6 كم/));
  ok('addresses come from the map: no family-named places',has(/الصافية · شارع الزبيري/)&&has(/حدة · قرب شارع الخمسين/)&&!has(/المدرسة/)&&!has(/البيت ·/));
@@ -38,7 +39,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  q('#scr [data-a="locDir:khaled"]').click();ok('directions: hands over to the phone maps app',/تطبيق الخرائط/.test(document.querySelector('#toast').textContent));
  q('#scr .mctl [data-a="mapZ:1"]').click();ok('zoom in to the limit, then the button locks',S.mapZ===3&&q('#scr .mctl [data-a="mapZ:1"]').disabled);
  q('#scr .mhead [data-a="mapFit"]').click();ok('close returns everyone',PIN().length===3&&S.mapZ===1.3&&!q('#scr .mhead'));
- q('#scr .pin.clu').click();ok('tapping the group lists who is there',has(/في المكان نفسه/)&&rows()===2&&PIN().length===1);
+ {const k=S.kid.khaled,was=[k.x,k.y,k.place,k.area];k.x=S.kid.layan.x;k.y=S.kid.layan.y;k.place=S.kid.layan.place;k.area=S.kid.layan.area;render();q('#scr .pin.clu').click();ok('tapping the group lists who is there',has(/في المكان نفسه/)&&rows()===2&&PIN().length===1);k.x=was[0];k.y=was[1];k.place=was[2];k.area=was[3];}
  ACT.mapFit();render();q('#scr .pin:not(.clu)').click();ok('tapping a marker focuses, does not leave the map',top()==='map'&&S.mapF==='khaled');
  ACT.mapFit();render();q('#scr .mgrab').click();ok('panel grows on demand and map controls step aside',!!q('#scr .mpanel.x')&&!q('#scr .mctl'));q('#scr .mgrab').click();
  S.locK='old';render();ok('stale location is marked with its reason, never shown as live',ph.querySelectorAll('#scr .pin.old').length===1&&has(/خالد: يُعرض آخر موقع معروف/)&&has(/آخر موقع معروف قبل 25 د · جهازه بلا اتصال الآن/)&&/قبل 25 د/.test(q('#scr .pin.old').textContent));
@@ -58,10 +59,10 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('loc','khaled');ok('…and cannot open another child',has(/غير مسموح لكِ/)&&!q('#scr .map'));
  tab('home');render();ok('…home widget shows only that child',has(/ليان: حدة/)&&!has(/خالد: الصافية/));
  // 2-ب ما يراه الأبناء من مواقع إخوتهم
- S=fresh();open('loc-share');ok('sharing: by default nobody sees a sibling or a parent',ph.querySelectorAll('#scr .tg').length===12&&ph.querySelectorAll('#scr .tg[aria-checked="true"]').length===0);
+ S=fresh();open('loc-share');ok('sharing: by default nobody sees a sibling or a parent',ph.querySelectorAll('#scr .tg').length===6&&ph.querySelectorAll('#scr .tg[aria-checked="true"]').length===0);
  q('#scr [data-a="shareT:khaled:layan"]').click();ok('father shows one sibling to one child, one direction only',S.locShare.khaled.join()==='layan'&&S.locShare.layan.length===0&&ph.querySelectorAll('#scr .tg[aria-checked="true"]').length===1);
  S.net='off';render();q('#scr [data-a="shareT:layan:khaled"]').click();ok('sharing change refused offline',S.locShare.layan.length===0&&/يحتاج اتصالاً/.test(document.querySelector('#toast').textContent));S.net='on';document.querySelector('#toast').innerHTML='';
- setPersona('teen',1);open('map');ok('teen now sees himself and that sibling only, markers do not open details',PIN().length===2&&/ليان/.test(q('#scr .map').textContent)&&!/يوسف/.test(q('#scr').innerText)&&has(/من أراه على الخريطة/)&&!q('#scr .map .pin[data-a]'));
+ setPersona('teen',1);open('map');ok('teen now sees himself and that sibling only, markers do not open details',PIN().length===2&&/ليان/.test(q('#scr .map').textContent)&&has(/من أراه على الخريطة/)&&!q('#scr .map .pin[data-a]'));
  ok('…sibling shown without battery',!/41%/.test(q('#scr').innerText));
  setPersona('child',1);open('map');ok('the shown child is told who sees her, and sees no one herself',has(/يرى مكانك لأن بابا سمح/)&&PIN().length===1&&has(/لا ترى مكان إخوتك/));
  setPersona('delegate',1);setRole('partner');open('loc-share');ok('only the family owner decides sharing',has(/هذا القرار لصاحب العائلة/)&&!q('#scr .tg'));
@@ -151,7 +152,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('teen');render();ok('help: the teen home carries it under what the family sees',!!q('#scr .khelp[data-a="go:kid-help"]')&&!!q('#scr .tnsh[data-a="tab:t-me"]'));
  open('kid-help');ok('help: the teen reads it in his own register',rowsT()==='أكلّم والدي|أكلّم والدتي|شيء أزعجني|أنا في خطر'&&/رسالة قصيرة تصل والدك الآن/.test(txt()),rowsT());S.sheet=null;
  open('t-me');ok('help: the teen profile has it too',!!q('#scr [data-a="go:kid-help"]'));
- S=fresh();open('view-as','yusuf');ok('help: a child under seven gets the same help card as any child (Q-426)',!!document.querySelector('#phone [data-a="go:kid-help"]')&&!SC['m-home']);
+ S=fresh();open('view-as','layan');ok('help: the child home carries the help card (Q-426)',!!document.querySelector('#phone [data-a="go:kid-help"]')&&!SC['m-home']);
  S=fresh();setPersona('owner');render();ok('help: nothing of it in parent mode',!q('#scr [data-a="go:kid-help"]'));S=fresh();}
  S=fresh();setPersona('child');open('map');ok('child: simple words, no numbers',has(/بابا/)&&has(/ليطمئن عليك/)&&!has(/متراً/));
  S.gpsOff=true;render();ok('location off on the child device: says so, SOS still works',has(/تحديد الموقع متوقف/)&&has(/زر الاستغاثة يعمل/));
@@ -198,7 +199,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.net='off';open('map');ACT.mapF('khaled');render();q('#scr [data-a="locRefresh:khaled"]').click();ok('refresh refused offline, nothing pretends to load',!S.locRef.khaled&&/يحتاج اتصالاً/.test(document.querySelector('#toast').textContent));document.querySelector('#toast').innerHTML='';
  S=fresh();S.locK='old';S.pause_sara=true;open('map');ph.querySelector('[data-a="locRefresh:all"]').click();
  ok('refresh all: asks every sharing member, skips the paused one',S.locRef.khaled==='wait'&&S.locRef.layan==='wait'&&!S.locRef.sara);
- ['khaled','layan','yusuf'].forEach(locRefDone);render();ok('refresh all: honest mixed result',S.locRef.layan==='ok'&&S.locRef.khaled==='net'&&S.kid.layan.ago===0);
+ ['khaled','layan'].forEach(locRefDone);render();ok('refresh all: honest mixed result',S.locRef.layan==='ok'&&S.locRef.khaled==='net'&&S.kid.layan.ago===0);
  // السحب والتكبير
  S=fresh();open('map');let m0=mid(),t0=TF();
  pe('pointerdown',1,m0.x,m0.y);pe('pointermove',1,m0.x-3,m0.y);ok('a small finger wobble is not a drag',S.mapC===null&&TF()===t0);pe('pointerup',1,m0.x-3,m0.y);

@@ -23,7 +23,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();ok('seed: two Q-419 surfaces registered under S1-10',['conflict','conflicts'].every(k=>SC[k]&&SC[k].sys==='S1-10')&&SC.conflict.kind==='sheet');
  ok('seed: one standing conflict only (TikTok blocked, its site open), kept by the owner',cfAll().map(cfKey).join()==='layan|web.tt'&&okd('layan|web.tt').by==='ahmad',cfAll().map(cfKey));
  ok('seed: nothing about conflicts in the owner attention list',!attention().some(a=>String(a.k).startsWith('cf:')));
- ok('seed: Khaled and Yusuf have none',keys('khaled')===''&&keys('yusuf')==='');
+ ok('seed: Khaled has none',keys('khaled')==='');
  // 2 نص «ما سيحدث» يطابق المحرك
  S=fresh();{const a=appOf('layan','mc');a.lim=150;S.kid.layan.used=400;const c=cfScan('layan').find(x=>x.k==='lim.mc');
   ok('engine: an app with its own limit ignores the quota (default order)',left('layan')===0&&decide('layan','mc').ok===true&&decide('layan','mc').why==='app');
@@ -81,13 +81,13 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('delegate');open('app-rule','khaled','wa');ok('Sara may edit Khaled rules in this role',can('protection.rule.edit','khaled'));ACT.adAct('BLOCK');ACT.adSave();render();
  ok('non-owner: the filter fix is not offered (owner only), and the alert to Ahmad is stated',top()==='conflict'&&!fixBtn(/احظر موقعه/)&&/ووصل أحمد تنبيه/.test(sht()));scan('save-sara');
  // 10 الأوضاع
- S=fresh();appOf('yusuf','ytk').act='BLOCK';cfOkAll()['yusuf|web.ytk']={by:'ahmad',at:'x'};cfOkAll()['yusuf|mode.m1']={by:'ahmad',at:'x'};
- open('mode-edit','new');ACT.mdN('سهرة');ACT.mdOpen('list');ACT.mdApp('ytk');render();ACT.mdSave();render();
- ok('new mode opening an app blocked for one child: card names mode, app and child',top()==='conflict'&&/وضع «سهرة» يفتح تطبيقاً محظوراً/.test(sht())&&/يوسف/.test(sht())&&S.modes.length===1);scan('save-mode');
- ACT.cfKeep();ok('kept: mode created',S.modes.length===2&&!!okd('yusuf|mode.m2'));
- S=fresh();appOf('yusuf','draw').study=0;open('presets','study');S.psK=['yusuf'];S.psN=60;render();ACT.psGo('study');render();
- ok('applying study mode to a child with no study apps: card before applying',top()==='conflict'&&/وضع الدراسة يغلق كل شيء عند يوسف/.test(sht())&&!S.pm.yusuf&&/طبّق على أي حال/.test(sht())&&!/وسم «متعارض»/.test(sht()));scan('apply');
- ACT.cfKeep();ok('apply anyway: applied, no tag kept for a one-time warning',S.pm.yusuf.k==='study'&&!okd('yusuf|apply.yusuf'));
+ S=fresh();appOf('khaled','pubg').act='BLOCK';cfOkAll()['khaled|web.pubg']={by:'ahmad',at:'x'};
+ open('mode-edit','new');ACT.mdN('سهرة');ACT.mdOpen('list');ACT.mdApp('pubg');render();ACT.mdSave();render();
+ ok('new mode opening an app blocked for one child: card names mode, app and child',top()==='conflict'&&/وضع «سهرة» يفتح تطبيقاً محظوراً/.test(sht())&&/خالد/.test(sht())&&S.modes.length===1);scan('save-mode');
+ ACT.cfKeep();ok('kept: mode created',S.modes.length===2&&!!okd('khaled|mode.m2'));
+ S=fresh();appOf('khaled','mad').study=0;open('presets','study');S.psK=['khaled'];S.psN=60;render();ACT.psGo('study');render();
+ ok('applying study mode to a child with no study apps: card before applying',top()==='conflict'&&/وضع الدراسة يغلق كل شيء عند خالد/.test(sht())&&!S.pm.khaled&&/طبّق على أي حال/.test(sht())&&!/وسم «متعارض»/.test(sht()));scan('apply');
+ ACT.cfKeep();ok('apply anyway: applied, no tag kept for a one-time warning',S.pm.khaled.k==='study'&&!okd('khaled|apply.khaled'));
  // 11 المهام
  S=fresh();open('task-new','layan');S.nt.t='قراءة قصة';S.nt.hm='2200';S.nt.dirty=1;render();ACT.ntSave();render();const nT=S.tasks.length;
  ok('task due inside sleep time: card, not saved',top()==='conflict'&&/موعد مهمة في وقت النوم/.test(sht())&&/قبل 9:00 م/.test(sht())&&/لم تُحفظ المهمة بعد/.test(sht()));scan('save-task');
@@ -119,7 +119,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('page: one-tap fixes for both sides',!!fixBtn(/اجعل الحد 120 د/)&&!!fixBtn(/ارفع الحصة إلى 150 د/)&&!!fixBtn(/احظر موقعه أيضاً/)&&!!fixBtn(/عدّل قاعدة Minecraft/));
  tap(/احظر موقعه أيضاً/);ok('fix from the page: site blocked, card gone, undo offered',S.wdom.layan.some(x=>x.d==='tiktok.com'&&x.a==='BLOCK')&&qa('#scr .cfc').length===1&&!!document.querySelector('#toast [data-a="undo"]'));
  tap(/اجعل الحد 120 د/);ok('all fixed: empty state',qa('#scr .cfc').length===0&&/لا تعارض في قواعد ليان/.test(scr())&&appOf('layan','mc').lim===120);scan('page-empty');
- ACT.pkid('yusuf');render();ok('child tabs switch',/لا تعارض في قواعد يوسف/.test(scr()));
+ ACT.pkid('khaled');render();ok('child tabs switch',/لا تعارض في قواعد خالد/.test(scr()));
  // 15 «يتطلب انتباهك»
  S=fresh();cfEv('sara');{const a=attention().find(x=>x.k==='cf:layan');ok('another adult kept a conflict: the owner gets a card with «رتّب قواعد ليان»',!!a&&/حفظته سارة كما هو/.test(a.s)&&a.b[0][0]==='رتّب قواعد ليان'&&a.b[0][1]==='go:conflicts:layan',a);}
  S.alerts.forEach(a=>{a.open=0});S.rv=[];render();ok('card is on the home screen',/حدّ Minecraft أكبر من الحصة · ليان/.test(scr())&&/رتّب قواعد ليان/.test(scr()));scan('home');
@@ -134,7 +134,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.wdom.layan.push({d:'tiktok.com',a:'BLOCK'});cfSweep();ok('seed decision dropped after the site is blocked',!okd('layan|web.tt'));S.wdom.layan.pop();ok('exception deleted later: undecided conflict reaches the owner',attention().some(a=>a.k==='cf:layan'));
  // 17 الوصف الصادق لخيار «مسموح دائماً»
  S=fresh();open('app-rule','layan','mc');ok('«مسموح دائماً» for Layan says when it still closes',/يُفتح متى شاء عدا وقت النوم ووقت المدرسة/.test(scr()));
- open('app-rule','yusuf','ytk');ok('…for Yusuf (no windows) it is plain',/يُفتح متى شاء، ولا تحدّه الحصة اليومية/.test(scr()));
+ S.sched.khaled=[];open('app-rule','khaled','wa');ok('…for a child with no windows it is plain',/يُفتح متى شاء، ولا تحدّه الحصة اليومية/.test(scr()));
  // 18 دون اتصال، والورقة بلا سياق
  S=fresh();S.net='off';open('app-rule','layan','mc');ACT.adLim('=','150');ACT.adSave();render();ok('offline: saving is off, so no card',top()==='app-rule'&&appOf('layan','mc').lim===30);
  S=fresh();CFX=null;open('conflict');ok('sheet opened alone explains itself',/لا تعارض الآن/.test(sht()));scan('sheet-alone');ACT.cfKeep();ACT.cfEdit();ok('its actions are harmless without a save',!S.sheet);

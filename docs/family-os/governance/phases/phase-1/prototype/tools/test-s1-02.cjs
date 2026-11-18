@@ -92,9 +92,9 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  guest();go('ob-pair');render();document.getElementById('obC').value='kh4l37';ACT.obPair();render();ok('consent teen: what the father knows and does not, plus rights',top()==='ob-consent'&&S.ob.kid==='khaled'&&/نتفق معاً يا خالد/.test(txt())&&/لا يعرف ما تفعله داخله/.test(txt())&&/ولك دائماً/.test(txt())&&ph.querySelector('[data-a="consGo"]').disabled);
  ACT.consT('k');ACT.consT('p');render();ok('consent teen: both confirm',!ph.querySelector('[data-a="consGo"]').disabled&&!!ph.querySelector('[data-a="consT:no"]'));
  /* Q-426: لا قالب لمن هم دون 7؛ يُقبلون بقالب الطفل. */
- guest();S.ob={cons:{},kid:'yusuf'};go('ob-consent');render();ok('consent for a child under 7: the child wording, no picture variant',!ph.querySelector('.tile')&&!/بابا يشرح/.test(txt())&&!!ph.querySelector('[data-a="consT:k"]')&&!!ph.querySelector('[data-a="consT:no"]')&&ph.querySelector('[data-a="consGo"]').disabled);
+ ok('the demo family has four members and no child under seven (Q-431)',Object.keys(M).length===4&&KIDS.join()==='khaled,layan'&&KIDS.every(k=>2026-M[k].by>=7));
  ok('a birth year under 7 gives the child template',tplOf(2021)[1]==='واجهة الأطفال'&&tplOf(2021)[1]===tplOf(2016)[1]&&tplOf(2012)[1]==='واجهة المراهقين');
- ok('no under-7 persona, tab set or member flag is left',!PERSONA.mini&&!TABS.mini&&!M.yusuf.mini&&!OB_PAIR.YS4F51);
+ ok('no under-7 persona, tab set or member flag is left',!PERSONA.mini&&!TABS.mini&&!Object.values(M).some(m=>m.mini)&&!OB_PAIR.YS4F51);
  ACT.consT('no');render();ok('consent under 7: not now, no blame',/لم يكتمل الإقران/.test(txt())&&/الجهاز لم يُقرن/.test(txt()));
  guest();go('ob-pair');render();document.getElementById('obC').value='LY4N82';ACT.obPair();render();ok('consent child: Layan wording kept',S.ob.kid==='layan'&&/نتفق معاً يا ليان/.test(txt())&&/أنا ليان، فهمت/.test(txt()));
  // 13-د بريد للدخول يُضاف لاحقاً (REQ-029)

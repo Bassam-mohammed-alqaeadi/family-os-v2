@@ -24,10 +24,10 @@ const TK_MAXSUB = 10, TK_MAXCAT = 12;
 /* ---------- الحالة ---------- */
 const TK = () => S.tk || (S.tk = {
   pts: 10, rem: 60, proof: 'photo', rec: true, cats: {}, n: 0, sure: true,
-  ai: { lv: 'suggest', mx: 10, pd: 1, kids: ['layan', 'yusuf'] },
+  ai: { lv: 'suggest', mx: 10, pd: 1, kids: ['layan', 'khaled'] },
   sug: [
     { id: 's1', kid: 'layan', t: 'مراجعة جدول الضرب قبل الاختبار', cat: 'school', pts: 10, proof: 'photo', dk: '2026-11-16', hm: '1700', rr: 'none', why: 'في التقويم اختبار رياضيات لليان يوم الأربعاء، ولا مهمة مراجعة قبله.', src: 'تقويم العائلة ومهام ليان هذا الأسبوع', st: 'new' },
-    { id: 's2', kid: 'yusuf', t: 'ترتيب الحذاء عند الباب', cat: 'home', pts: 5, proof: 'photo', dk: '2026-11-15', hm: '1700', rr: 'daily', why: 'ليوسف مهمة واحدة اليوم، والمهمة القصيرة المتكررة تناسب سنّه.', src: 'عدد مهام يوسف اليوم وسنّه', st: 'new' },
+    { id: 's2', kid: 'khaled', t: 'ترتيب مكتب الدراسة', cat: 'home', pts: 0, proof: 'photo', dk: '2026-11-15', hm: '1700', rr: 'none', why: 'عند خالد مراجعة فيزياء غداً، والمكتب المرتب يسهّلها.', src: 'مهام خالد هذا الأسبوع', st: 'new' },
     { id: 's3', kid: 'layan', t: 'قراءة عشر صفحات قبل النوم', cat: 'school', pts: 15, proof: 'audio', dk: '2026-11-15', hm: '2000', rr: 'none', why: 'أنجزت ليان واجباتها أربعة أيام متتالية، ولا مهمة قراءة لها هذا الأسبوع.', src: 'سجل مهام ليان في آخر سبعة أيام', st: 'new' },
   ],
 });

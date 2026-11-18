@@ -251,7 +251,7 @@ Object.assign(ACT, {
 function dayBar(kid, D) { const lo = D * 1440, segs = []; S.sched[kid].forEach(w => spans(w).forEach(([a, b]) => [0, -WK, WK].forEach(k => { const s = Math.max(a + k, lo), e = Math.min(b + k, lo + 1440); if (s < e) segs.push([s - lo, e - lo, w.type]); }))); return `<div class="sched">${segs.map(([s, e, t]) => `<i class="${WT[t][2]}" style="left:${s / 14.4}%;width:${(e - s) / 14.4}%"></i>`).join('')}${D === NOW.d ? `<u style="left:${NOW.m / 14.4}%"></u>` : ''}</div>`; }
 surface('schedule', {
   t: id => 'جدول ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:6,7,8,9,14',
-  note: 'S10-04. سبعة أيام تبدأ بالأحد، ومحور الوقت من اليسار إلى اليمين (Q-386). كل نافذة نوم أو مدرسة، بأيامها ووقتيها. النافذة التي تنتهي قبل أن تبدأ تمتد إلى اليوم التالي. طفل جديد يبدأ بلا نوافذ (Q-222): جرّب يوسف. النافذتان المتداخلتان تُرفضان بذكر موضع التداخل.',
+  note: 'S10-04. سبعة أيام تبدأ بالأحد، ومحور الوقت من اليسار إلى اليمين (Q-386). كل نافذة نوم أو مدرسة، بأيامها ووقتيها. النافذة التي تنتهي قبل أن تبدأ تمتد إلى اليوم التالي. طفل جديد يبدأ بلا نوافذ (Q-222). النافذتان المتداخلتان تُرفضان بذكر موضع التداخل.',
   r(id) { const W = S.sched[id], ed = can('protection.schedule.edit', id), st = S.apps[id].filter(a => a.study);
     return `${iosNote()}${kidTabs(id)}${offNote()}
     ${W.length ? `<div class="card"><div class="chips" style="margin-bottom:10px">${chip('نوم', '', 'bedtime')}${chip('مدرسة', 'in', 'school')}<span class="xs muted" style="align-self:center">الباقي وقت متاح</span></div><div class="wk">${DAYN.map((n, i) => `<b class="${i === NOW.d ? 'td' : ''}">${n}</b>${dayBar(id, i)}`).join('')}<span></span><div class="axis"><span>12 ص</span><span>6 ص</span><span>12 م</span><span>6 م</span><span>12 ص</span></div></div></div>

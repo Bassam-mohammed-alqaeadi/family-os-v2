@@ -73,7 +73,7 @@ const JOURNEYS = [
     ['خالد أضاف لنفسه مهمة بعد وقت نومه: لم يُسأل هو، ووصل التعارض إلى الأب.', () => { cfDemo(); cfEv('teen'); setPersona('owner'); jump('home'); }],
   ] },
   { t: 'الخطة والدفع', d: 'مقارنة ← تأكيد ← دفع ← تحقق', s: [
-    ['الخطة وما استُهلك هذا الشهر: الأفراد، الرسائل النصية، عمليات المساعد. العائلة مكتملة على المجانية.', () => { S.plan = 'free'; S.planSt = ''; S.bl = null; jump('plan'); }],
+    ['الخطة وما استُهلك هذا الشهر: الأفراد، الرسائل النصية، عمليات المساعد. نفترض هنا أن فرداً خامساً انضم، فالعائلة مكتملة على المجانية.', () => { S.plan = 'free'; S.planSt = ''; S.bl = null; S.memX = 1; jump('plan'); }],
     ['ما تشترك فيه كل الخطط يُقال مرة واحدة، والبطاقات تعرض ما يختلف. الأسعار بعملة سوق العائلة.', () => jump('plans')],
     ['قبل أي دفع: ماذا يحدث ومتى، ثم طريقة الدفع. اضغط «رقِّ الآن» واكتب الرقم السري.', () => jump('plan-change', ['basic'])],
     ['في اليمن: تدفع من المحفظة ثم تكتب الرقم المرجعي. اكتب أي رقم واضغط «أكّد الدفع».', () => { BL().pend = null; jump('pay-wallet', ['basic', '', 'jaib']); }],
@@ -85,7 +85,7 @@ const JOURNEYS = [
     ['انتهت المهلة: عادت العائلة إلى المجانية بلا قفل ولا حذف، مع بيان ما تغيّر.', () => { blEv('fall'); jump('plan-grace'); }],
   ] },
   { t: 'إضافة طفل وإقران جهازه', d: 'ملف ← رمز ← موافقة مشتركة', s: [
-    ['على المجانية العائلة مكتملة (5/5): يظهر حارس الحصص. بدّلنا الخطة إلى الأساسية للمتابعة.', () => { S.plan = 'basic'; jump('add-member'); }],
+    ['المجانية تتسع لخمسة وعائلتنا أربعة، فالإضافة مفتوحة: طفل بملف، أو بالغ بدعوة.', () => { S.memX = 0; jump('add-member'); }],
     ['اسم مستعار وصورة ولون وسنة ميلاد فقط. غيّر السنة ولاحظ القالب يتبدل تلقائياً.', () => { S.cn = null; jump('child-new'); }],
     ['رمز إقران من 6 خانات صالح 15 دقيقة.', () => jump('pair-code')],
     ['الآن جهاز الطفل: أدخل LY4N82.', () => { S.ob = {}; jump('ob-pair'); }],
@@ -180,7 +180,7 @@ const Studio = {
   tab: 'ctx', open: {},
   init() {
     buildCover();
-    $('#paneR').innerHTML = `<div class="brand"><div class="mk"><img src="assets/brand/logo-symbol-dark.svg" alt="" width="30" height="28"></div><h1>عائلتي<small>النموذج الأولي التفاعلي · المرحلة 1</small></h1></div>
+    $('#paneR').innerHTML = `<div class="brand"><div class="mk"><img src="assets/brand/logo-symbol-dark.svg" alt="" width="30" height="25"></div><h1>عائلتي<small>النموذج الأولي التفاعلي · المرحلة 1</small></h1></div>
       <p class="lede">نظام التصميم المعتمد حيّاً داخل هاتف: خمس شخصيات تتشارك حالة عائلة واحدة، وكل سطح مربوط بمتطلباته في الحوكمة.</p>
       <button class="lgcard" data-st="brand"><img src="assets/brand/logo-horizontal-ar-dark.svg" alt="عائلتي" height="64"><span>الشعار وأيقونة التطبيق — اضغط للعرض</span></button>
       <div class="st-h">الشخصيات</div><div id="personas"></div><div class="st-h">رحلات موجَّهة</div><div id="journeys"></div>
@@ -294,11 +294,8 @@ const Studio = {
   },
 };
 window.Studio = Studio;
-function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="142"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
+function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="125"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
 addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot();
-  /* عرض الشعار مرة واحدة عند أول فتح حتى يحكم عليه المالك؛ ?quiet يمنعه (للاختبارات) */
-  /* الشعار ينتظر حكم المالك (Q-398): يُفتح مرة واحدة على آخر ما عُرض عليه — البدائل بحالاتها (Q-429) */
-  let seen = false, seenOpts = false; try { seen = localStorage.getItem('fos-brand-seen') === '1'; seenOpts = localStorage.getItem('fos-brand-opts-seen') === '1'; } catch (e) { /* لا شيء */ }
-  if (!/[?&]quiet/.test(location.search)) { if (!seenOpts) Studio.act.brand('opts'); else if (!seen) Studio.act.brand(); }
+  /* الشعار حُكم فيه («القمرية» — Q-433): لا تُفتح صفحته تلقائياً بعد الآن؛ مدخلها زر «الشعار والأيقونة». */
 });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#brandOv').hidden) Studio.act.brandClose(); });

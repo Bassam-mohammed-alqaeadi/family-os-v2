@@ -23,9 +23,8 @@ const M = {
   sara: { id: 'sara', n: 'سارة', en: 'Sara', rel: 'الأم · بالغ مفوَّض', role: 'adult', c: '#7A3E65', i: 'face_3' },
   khaled: { id: 'khaled', n: 'خالد', en: 'Khaled', rel: 'مراهق · 15 سنة', role: 'teen', by: 2011, c: '#1C6E73', i: 'face_5' },
   layan: { id: 'layan', n: 'ليان', en: 'Layan', rel: 'طفلة · 9 سنوات', role: 'child', by: 2017, c: '#CF5B2C', i: 'face_4' },
-  yusuf: { id: 'yusuf', n: 'يوسف', en: 'Yusuf', rel: 'طفل · 5 سنوات', role: 'child', by: 2021, c: '#1F6B3B', i: 'face_2' },
 };
-const KIDS = ['khaled', 'layan', 'yusuf'];
+const KIDS = ['khaled', 'layan'];
 /* عناوين توضيحية كما تعيدها الخريطة (الحي والشارع). لا أماكن تسمّيها العائلة في المرحلة 1 (Q-056). */
 const AD_HOME = 'حدة · قرب شارع الخمسين', AD_SCHOOL = 'الصافية · شارع الزبيري', AD_ROAD = 'الصافية · شارع تعز';
 const PERSONA = {
@@ -43,7 +42,7 @@ const FAMK = ['identity.family.invite', 'identity.child.create', 'chat.parents.v
 function roleCopy(keys, sc, un, at) { const g = {}; keys.forEach(k => { g[k] = { d: 0, sc: FAMK.includes(k) ? 'fam' : (Array.isArray(sc) ? sc.slice() : sc), un, src: 'role', at: at || 'الآن' }; }); return g; }
 const seedRoles = () => ({ partner: { n: 'شريك', d: 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.', keys: window.FOS_PERM.partner.slice() }, guardian: { n: 'وصي محدود', d: 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.', keys: window.FOS_PERM.guardian.slice() }, observer: { n: 'مراقب', d: 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.', keys: window.FOS_PERM.observer.slice() } });
 const fresh = () => ({
-  persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', reg: 'YE', os: 'android', sys: 'ok',
+  persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', memX: 0, reg: 'YE', os: 'android', sys: 'ok',
   tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, fm: {}, pm: {}, modes: [{ id: 'm1', n: 'رحلة السيارة', i: 'route', open: 'list', apps: ['ytk', 'mc'], lim: 0 }], rankKid: {}, cfOk: { 'layan|web.tt': { by: 'ahmad', at: 'أمس' } }, warned: {}, pendR: {}, rvT: 0, kidOff: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
@@ -51,7 +50,6 @@ const fresh = () => ({
   kid: {
     khaled: { quota: 180, used: 75, pts: 0, streak: 0, bat: 64, place: AD_SCHOOL, area: 'الصافية', ago: 4, moving: false, online: true, enf: 'degraded', x: 68, y: 30, extra: 0, spent: 0 },
     layan: { quota: 120, used: 96, pts: 85, streak: 5, bat: 41, place: AD_HOME, area: 'حدة', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },
-    yusuf: { quota: 60, used: 20, pts: 30, streak: 2, bat: 88, place: AD_HOME, area: 'حدة', ago: 2, moving: false, online: true, enf: 'active', x: 36, y: 58, extra: 0, spent: 0 },
   },
   apps: {
     layan: [
@@ -66,28 +64,21 @@ const fresh = () => ({
       { id: 'pubg', n: 'PUBG Mobile', i: 'sports_esports', act: 'LIMIT', lim: 60, used: 40 },
       { id: 'mad', n: 'مدرستي', i: 'school', act: 'ALLOW', study: 1, used: 10 },
     ],
-    yusuf: [
-      { id: 'ytk', n: 'YouTube Kids', i: 'smart_display', act: 'LIMIT', lim: 30, used: 20 },
-      { id: 'draw', n: 'ألوان ورسم', i: 'palette', act: 'ALLOW', study: 1, used: 0 },
-    ],
   },
   tasks: [
     { id: 't1', kid: 'layan', t: 'ترتيب الغرفة', cat: 'home', pts: 10, due: 'اليوم 5:00 م', proof: 'photo', st: 'SUBMITTED', ai: 'unsure', sub: ['ترتيب السرير', 'جمع الألعاب'], dn: [true, true] },
     { id: 't2', kid: 'layan', t: 'حلّ واجب الرياضيات', cat: 'school', pts: 15, due: 'اليوم 7:00 م', proof: 'photo', st: 'PENDING', rep: 'كل يوم دراسي' },
     { id: 't3', kid: 'layan', t: 'صلاة المغرب في وقتها', cat: 'deen', pts: 10, due: 'اليوم 5:40 م', proof: 'self', st: 'PENDING', rep: 'يومياً' },
     { id: 't4', kid: 'layan', t: 'تنظيف الأسنان', cat: 'self', pts: 5, due: 'اليوم 8:30 م', proof: 'self', st: 'APPROVED', rep: 'يومياً' },
-    { id: 't5', kid: 'yusuf', t: 'جمع الألعاب في الصندوق', cat: 'home', pts: 5, due: 'اليوم', proof: 'photo', st: 'PENDING' },
-    { id: 't6', kid: 'yusuf', t: 'غسل اليدين قبل الأكل', cat: 'self', pts: 5, due: 'اليوم', proof: 'self', st: 'APPROVED' },
     { id: 't7', kid: 'khaled', t: 'مراجعة الفيزياء — الفصل 3', cat: 'school', pts: 0, due: 'غداً 4:00 م', proof: 'self', st: 'PENDING', by: 'khaled' },
     { id: 't8', kid: 'khaled', t: 'إخراج القمامة', cat: 'home', pts: 0, due: 'اليوم 9:00 م', proof: 'self', st: 'PENDING', rep: 'الأحد والأربعاء' },
     { id: 't9', kid: 'layan', t: 'قراءة قصة قبل النوم', cat: 'school', pts: 10, due: 'أمس 8:00 م', proof: 'audio', st: 'EXPIRED', rep: 'يومياً' },
   ],
   reqs: [],            // طلبات الوقت الإضافي
-  /* S1-10: الجدول الأسبوعي لكل طفل (نوافذ نوم/مدرسة تبدأ في أيامها؛ النهاية قبل البداية = حتى اليوم التالي). يوسف بلا نوافذ (Q-222). */
+  /* S1-10: الجدول الأسبوعي لكل طفل (نوافذ نوم/مدرسة تبدأ في أيامها؛ النهاية قبل البداية = حتى اليوم التالي). */
   sched: {
     layan: [{ id: 'w1', type: 'sleep', days: [0, 1, 2, 3, 4, 5, 6], s: '21:00', e: '06:00' }, { id: 'w2', type: 'school', days: [0, 1, 2, 3, 4], s: '07:30', e: '13:00' }],
     khaled: [{ id: 'w3', type: 'sleep', days: [0, 1, 2, 3, 4, 5, 6], s: '22:30', e: '06:00' }, { id: 'w4', type: 'school', days: [0, 1, 2, 3, 4], s: '07:30', e: '13:30' }],
-    yusuf: [],
   },
   /* S1-10: أحداث العبث (REQ-021/022) ومراجعات القواعد المعلقة (REQ-027) وتصفية الويب لكل طفل (REQ-028…031) */
   tam: [
@@ -95,8 +86,8 @@ const fresh = () => ({
     { id: 'e1', kid: 'khaled', ty: 'vpn', at: 'الخميس 8:14 م', st: 'ok', back: 'الخميس 8:15 م', tries: 1, open: 0 },
   ],
   rv: [{ id: 'rv1', k: 'device', kid: 'khaled', at: 'أمس 6:40 م' }],
-  wfc: { layan: {}, khaled: {}, yusuf: {} }, wfl: { layan: {}, khaled: {}, yusuf: {} },
-  wdom: { layan: [{ d: 'khanacademy.org', a: 'ALLOW' }], khaled: [{ d: 'reddit.com', a: 'ALERT' }], yusuf: [] },
+  wfc: { layan: {}, khaled: {} }, wfl: { layan: {}, khaled: {} },
+  wdom: { layan: [{ d: 'khanacademy.org', a: 'ALLOW' }], khaled: [{ d: 'reddit.com', a: 'ALERT' }] },
   alerts: [
     { id: 'a1', k: 'tamper', kid: 'khaled', t: 'تعطّلت خدمة الوصول على جهاز خالد', s: 'الحماية تعمل جزئياً · نحاول إعادة التفعيل تلقائياً', ago: 'قبل 12 د', p: 1, open: 1 },
     { id: 'a2', k: 'chat', kid: 'layan', t: 'رسالة تحتاج مراجعتك في محادثة ليان', s: 'رصدها المصنّف الآلي · قد يكون التقدير خاطئاً', ago: 'قبل ساعة', p: 2, open: 1 },
@@ -106,7 +97,7 @@ const fresh = () => ({
   outbox: [], mapF: '', mapZ: 1.3, mapC: null, mapX: false, locRef: {}, adK: '', pause_ahmad: false, pause_sara: false,
   /* مواقع الكبار (Q-409): يشاركونها بموافقتهم ويوقفونها متى شاؤوا. */
   aloc: { ahmad: { x: 72, y: 62, place: 'التحرير · شارع علي عبدالمغني', area: 'التحرير', bat: 72, ago: 1, moving: false }, sara: { x: 40, y: 34, place: 'حدة · شارع حدة', area: 'حدة', bat: 55, ago: 3, moving: false } },
-  locLoad: false, myLocOff: false, locShare: { khaled: [], layan: [], yusuf: [] }, sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: AD_ROAD, by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms', days: 6 }, { from: 'layan', at: '2 أكتوبر 5:05 م', place: AD_HOME, by: 'سارة', note: 'ضغطت الزر وهي تلعب', ch: 'server', days: 44 }], ec: [], sms: { used: 14 }, aiUse: 212,
+  locLoad: false, myLocOff: false, locShare: { khaled: [], layan: [] }, sos: null, sosLog: [{ from: 'khaled', at: '9 نوفمبر 1:20 م', place: AD_ROAD, by: 'أحمد', note: 'كان عائداً من المدرسة · اتصلتُ به وانتهى الأمر', ch: 'sms', days: 6 }, { from: 'layan', at: '2 أكتوبر 5:05 م', place: AD_HOME, by: 'سارة', note: 'ضغطت الزر وهي تلعب', ch: 'server', days: 44 }], ec: [], sms: { used: 14 }, aiUse: 212,
   audit: [
     { t: 'صار دور سارة «شريك»', w: 'أحمد', at: 'أمس 8:02 م', k: 'roles.template.apply', who: 'sara', act: 'role', sc: 'all', un: '', d: 1, sn: 'صار دوركِ «شريك»', rd: 1 },
     { t: 'عُدّلت الحصة اليومية لليان: 150 ← 120 د', w: 'أحمد', at: 'أمس 7:40 م', k: 'protection.quota.edit', who: 'layan', act: 'other', d: 1 },
@@ -127,7 +118,7 @@ const fresh = () => ({
       { f: 'ahmad', x: 'ما شاء الله يا ليان 👏', at: '5:03', st: 2 },
     ],
     parents: [
-      { f: 'sara', x: 'موعد طبيب يوسف الخميس 4 العصر', at: '2:10', st: 2 },
+      { f: 'sara', x: 'موعد طبيب ليان الخميس 4 العصر', at: '2:10', st: 2 },
       { f: 'ahmad', x: 'تمام، أضفته إلى التقويم', at: '2:14', st: 2 },
     ],
     'dm-layan': [
@@ -141,7 +132,7 @@ const fresh = () => ({
   },
   deleted: {}, pin: { bad: 0, lock: 0, code: DEMO_PIN, set: true }, sos2: false, num: 'latn', saver: 'auto', notifPerm: true, lastSync: null, rank: ['sleep', 'school', 'app', 'quota'], web: { safe: true, unknown: 'ALLOW', cats: { adult: 'BLOCK', gamble: 'BLOCK', social: 'ALERT', games: 'ALLOW', video: 'ALERT', news: 'ALLOW' } },
   redeemCap: 60, events: [
-    { id: 'e1', dk: '2026-11-19', hm: '1600', t: 'موعد طبيب يوسف', who: 'yusuf', rem: 60, by: 'ahmad', loc: 'عيادة الأطفال', rr: 'none' },
+    { id: 'e1', dk: '2026-11-19', hm: '1600', t: 'موعد طبيب ليان', who: 'layan', rem: 60, by: 'ahmad', loc: 'عيادة الأطفال', rr: 'none' },
     { id: 'e2', dk: '2026-11-21', hm: '1000', t: 'اجتماع أولياء الأمور', who: 'sara', rem: 1440, by: 'sara', loc: 'مدرسة ليان', rr: 'none' },
     { id: 'e3', dk: '2026-11-18', hm: '0800', t: 'اختبار الرياضيات', who: 'layan', rem: 1440, by: 'sara', loc: '', rr: 'none' },
     { id: 'e4', dk: '2026-11-15', hm: '1930', t: 'عشاء عند الجدة', who: 'all', rem: 60, by: 'ahmad', loc: 'بيت الجدة', rr: 'week' },

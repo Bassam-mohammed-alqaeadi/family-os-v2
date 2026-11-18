@@ -24,10 +24,10 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const OBJ=x=>{const o=Object.assign({id:'o1',kid:'layan',sub:'d1',txt:'أنجزتها كما طُلب',st:'PENDING',at:'الآن'},x||{});RW().obj.push(o);return o};
  // 1 البذرة
  S=fresh();ok('seed: seventeen S1-05 surfaces',RWS.every(k=>SC[k]&&SC[k].sys==='S1-05'),RWS.filter(k=>!SC[k]));
- ok('seed: ledger balances match the wallets',L('layan')[0].bal===S.kid.layan.pts&&L('yusuf')[0].bal===S.kid.yusuf.pts&&L('khaled').length===0);
+ ok('seed: ledger balances match the wallets',L('layan')[0].bal===S.kid.layan.pts&&L('khaled').length===0);
  ok('seed: every ledger line carries its running balance',L('layan').every((e,i,a)=>i===a.length-1||e.bal===a[i+1].bal+e.n));
  ok('seed: daily cap 60, streak bonus 50, tasks the only source',S.redeemCap===60&&RW().bonus===50&&Object.keys(RW().src).join()==='tasks'&&RW().src.tasks===true);
- ok('wallet only under thirteen',rwHas('layan')&&rwHas('yusuf')&&!rwHas('khaled'));
+ ok('wallet only under thirteen',rwHas('layan')&&!rwHas('khaled'));
  // 2 محفظة الطفل
  S=fresh();kid();tab('c-rewards');render();
  ok('child wallet: balance, fixed rate, convert button',has(/نقاطي/)&&q('#scr .wallet .big').textContent.trim().startsWith('85')&&has(/كل 10 نقاط = 10 دقائق/)&&!!q('#scr [data-a="go:redeem:ytk"]'));
@@ -89,7 +89,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.rwTdSet('t','1');ACT.rwTdSet('pts','25');render();q('.sheet [data-a="rwTdGo"]').click();render();
  ok('swap task: request refused, task assigned with its points',S.reqs[0].st==='DENIED'&&S.reqs[0].task==='ترتيب الغرفة'&&S.tasks[0].kid==='layan'&&S.tasks[0].pts===25&&S.tasks[0].st==='PENDING'&&S.kid.layan.spent===0);noT();
  kid();render();ok('child home: told about the task instead',has(/ليس الآن يا بطلة/)&&has(/أعطاك بابا مهمة «ترتيب الغرفة»/));
- S=fresh();REQ();ACT.reqDeny('r0');noT();ok('plain refusal: no task, nothing granted',S.reqs[0].st==='DENIED'&&!S.reqs[0].task&&S.tasks.length===9&&S.kid.layan.spent===0);
+ S=fresh();REQ();ACT.reqDeny('r0');noT();ok('plain refusal: no task, nothing granted',S.reqs[0].st==='DENIED'&&!S.reqs[0].task&&S.tasks.length===7&&S.kid.layan.spent===0);
  ACT.reqGrant('r0',15);ok('a decided request cannot be decided twice',S.kid.layan.spent===0&&/سبق القرار/.test(T()));noT();
  S=fresh();setPersona('delegate');REQ();tab('home');render();ok('delegate with the key decides requests too',!!q('#scr [data-a="reqGrant:r0:15"]'));
  // 7 الكسب من المهام والسلسلة
@@ -104,7 +104,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.tasks.push({id:'tk',kid:'khaled',t:'تجربة',cat:'home',pts:10,due:'اليوم',proof:'self',st:'SUBMITTED'});ACT.taskOk('tk');ok('teen task never deposits points',S.kid.khaled.pts===0&&L('khaled').length===0);noT();
  // 8 منح النقاط
  S=fresh();open('grant-points','layan');
- ok('grant points: children only, default ten, reasons',ph.querySelectorAll('.sheet [data-a^="gpSet:kid:"]').length===2&&!q('.sheet [data-a="gpSet:kid:khaled"]')&&ph.querySelectorAll('.sheet [data-a^="gpSet:why:"]').length===3&&/أقصى ما يُمنح في المرة 60 نقطة/.test(sh()));
+ ok('grant points: one child so no chooser, the teen never offered, default ten, reasons',ph.querySelectorAll('.sheet [data-a^="gpSet:kid:"]').length===0&&S.gp.kid==='layan'&&ph.querySelectorAll('.sheet [data-a^="gpSet:why:"]').length===3&&/أقصى ما يُمنح في المرة 60 نقطة/.test(sh()));
  ACT.gpSet('n','200');render();ok('grant points: never above sixty',S.gp.n===60&&dis('.sheet [data-a="gpSet:n:65"]'));
  ACT.gpSet('n','20');ACT.gpSet('why','0');render();q('.sheet [data-a="gpGo"]').click();render();
  ok('gift deposited with the giver and the reason',S.kid.layan.pts===105&&L('layan')[0].k==='gift'&&L('layan')[0].by==='ahmad'&&L('layan')[0].why==='خُلق حسن'&&S.audit[0].k==='rewards.grant.create');
@@ -116,14 +116,14 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();open('rewards-admin');ok('give: two choices that explain themselves',ph.querySelectorAll('#scr .rwch button').length===2&&has(/تبقى في المحفظة، وتُصرف وقتاً متى شاء/)&&has(/دقائق الآن لتطبيق واحد، تنتهي عند منتصف الليل/)&&!!q('#scr [data-a="why:rwgive"]'));
  open('why','rwgive');ok('give: the difference in plain words',/ما الفرق بين منح النقاط ومنح الوقت؟/.test(sh())&&/رصيد يدخل محفظة الطفل/.test(sh())&&/تنتهي عند منتصف الليل/.test(sh())&&/طريق المراهق/.test(sh()));
  S=fresh();open('wallet-admin','khaled');ok('give for a teen: time only',ph.querySelectorAll('#scr .rwch button').length===1&&!!q('#scr .rwch [data-a="go:grant-time:khaled"]'));
- S=fresh();open('grant-points','yusuf');ok('points sheet says what points are and offers the other way',/تدخل محفظة يوسف وتبقى فيها/.test(sh())&&!!q('.sheet [data-a="rwSwap:time"]'));
- q('.sheet [data-a="rwSwap:time"]').click();render();ok('switch to time keeps the same child',S.sheet.id==='grant-time'&&S.gt.kid==='yusuf'&&/لا تدخل المحفظة/.test(sh())&&!!q('.sheet [data-a="rwSwap:points"]'));
- q('.sheet [data-a="rwSwap:points"]').click();render();ok('…and back',S.sheet.id==='grant-points'&&S.gp.kid==='yusuf');
+ S=fresh();open('grant-points','layan');ok('points sheet says what points are and offers the other way',/تدخل محفظة ليان وتبقى فيها/.test(sh())&&!!q('.sheet [data-a="rwSwap:time"]'));
+ q('.sheet [data-a="rwSwap:time"]').click();render();ok('switch to time keeps the same child',S.sheet.id==='grant-time'&&S.gt.kid==='layan'&&/لا تدخل المحفظة/.test(sh())&&!!q('.sheet [data-a="rwSwap:points"]'));
+ q('.sheet [data-a="rwSwap:points"]').click();render();ok('…and back',S.sheet.id==='grant-points'&&S.gp.kid==='layan');
  S=fresh();open('grant-time','khaled');ok('teen time sheet offers no points',!q('.sheet [data-a="rwSwap:points"]'));
  S=fresh();open('help');ok('help answers the same question',has(/ما الفرق بين منح النقاط ومنح الوقت؟/));
  // 9 منح الوقت
  S=fresh();open('grant-time','layan');
- ok('grant time: kid, limited app, durations within the cap',ph.querySelectorAll('.sheet [data-a^="gtSet:kid:"]').length===3&&ph.querySelectorAll('.sheet [data-a^="gtSet:app:"]').length>=2&&ph.querySelectorAll('.sheet .seg button').length===4);
+ ok('grant time: kid, limited app, durations within the cap',ph.querySelectorAll('.sheet [data-a^="gtSet:kid:"]').length===2&&ph.querySelectorAll('.sheet [data-a^="gtSet:app:"]').length>=2&&ph.querySelectorAll('.sheet .seg button').length===4);
  ACT.gtSet('n','30');render();q('.sheet [data-a="gtGo"]').click();render();
  ok('time granted: app limit up, cap counted, points untouched',appOf('layan','ytk').lim===75&&S.kid.layan.spent===30&&S.kid.layan.pts===85&&L('layan')[0].k==='time');
  tU().click();render();ok('undo time grant',appOf('layan','ytk').lim===45&&S.kid.layan.spent===0&&L('layan')[0].id==='l6');noT();
@@ -132,7 +132,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();open('grant-time','khaled');ok('teen gets direct time, no points involved',!!q('.sheet [data-a="gtGo"]')&&/امنح خالد/.test(sh()));q('.sheet [data-a="gtGo"]').click();render();ok('teen time grant: cap counted, no ledger line',S.kid.khaled.spent===15&&L('khaled').length===0);noT();
  // 10 لوحة الأب ومحفظة الطفل
  S=fresh();open('rewards-admin');
- ok('admin: two wallets, the teen without one, grant buttons, rules',rows()===2&&!!q('#scr [data-a="go:wallet-admin:layan"]')&&!!q('#scr [data-a="go:wallet-admin:yusuf"]')&&has(/لا محفظة للمراهقين/)&&!!q('#scr [data-a="go:grant-points"]')&&!!q('#scr [data-a="go:rw-settings"]')&&!!q('#scr [data-a="go:rw-ai"]'));
+ ok('admin: one wallet, the teen without one, grant buttons, rules',rows()===2&&ph.querySelectorAll('#scr [data-a^="go:wallet-admin:"]').length===2&&!!q('#scr [data-a="go:wallet-admin:layan"]')&&has(/لا محفظة للمراهقين/)&&!!q('#scr [data-a="go:grant-points"]')&&!!q('#scr [data-a="go:rw-settings"]')&&!!q('#scr [data-a="go:rw-ai"]'));
  REQ();OBJ();render();ok('admin: pending request and objection on top',has(/ينتظر قرارك/)&&!!q('#scr [data-a="go:time-decide:r0"]')&&!!q('#scr [data-a="go:obj-decide:o1"]'));
  S=fresh();open('wallet-admin','layan');ok('wallet (parent): balance as minutes, meter, streak, moves',has(/يكفي 80 دقيقة من الوقت الإضافي/)&&has(/الوقت الإضافي اليوم/)&&!!q('#scr [data-a="go:streak:layan"]')&&ph.querySelectorAll('#scr [data-a^="go:rw-move:layan:"]').length===5&&has(/هدية من أحمد/));
  open('wallet-admin','khaled');ok('teen page: no wallet, grant time only',has(/لا محفظة للمراهقين/)&&!q('#scr [data-a^="go:grant-points"]')&&!!q('#scr [data-a="go:grant-time:khaled"]'));
@@ -178,7 +178,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  q('#scr [data-a="rwFreeze:layan"]').click();render();ok('freeze asks first',S.dlg&&/التجميد 1 من 2/.test(txt()));dlgYes();
  ok('frozen for today',RW().frz.layan.on===1&&RW().frz.layan.n===1&&has(/مجمّدة اليوم/)&&S.audit[0].k==='rewards.streak.freeze');noT();
  rwNextDay();ok('a frozen day does not break the streak',S.kid.layan.streak===5&&RW().frz.layan.on===0);
- rwNextDay();ok('a day with no earning and no freeze breaks it',S.kid.layan.streak===0&&RW().broke.layan===1&&S.kid.yusuf.streak===0);
+ rwNextDay();ok('a day with no earning and no freeze breaks it',S.kid.layan.streak===0&&RW().broke.layan===1);
  kid();tab('c-rewards');render();ok('child told gently the streak ended',has(/انقطعت سلسلتك أمس/)&&has(/سلسلتي: لم تبدأ بعد/));
  S=fresh();open('streak','layan');ACT.rwFreeze('layan');ok('no freeze on a day already counted',RW().frz.layan.on===0&&/يوم اليوم محسوب/.test(T()));noT();
  S=fresh();RW().day.layan=0;RW().frz.layan.n=2;open('streak','layan');ok('two freezes per streak at most',!q('#scr [data-a="rwFreeze:layan"]')&&has(/2 من 2/));
@@ -216,7 +216,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('wallet-admin','layan');ok('parent sees the frozen balance and what he can do',has(/رصيد مجمّد/)&&has(/الرصيد لا يُصادَر/)&&!q('#scr [data-a^="go:grant-points"]')&&!!q('#scr [data-a="go:grant-time:layan"]'));
  open('grant-time','layan');ok('frozen balance can pay for granted time',!!q('.sheet [data-a="gtSet:fz:1"]'));ACT.gtSet('fz','1');ACT.gtSet('n','10');ACT.gtGo();ok('paid from the frozen balance',S.kid.layan.pts===75&&S.kid.layan.spent===10);noT();
  // 18 الطفل الصغير
- S=fresh();ok('under seven: the same wallet as any child, no separate stars screen (Q-426)',!SC['m-stars']&&!ACT.rwMini&&rwHas('yusuf'));
+ S=fresh();ok('no separate stars screen for small children (Q-426)',!SC['m-stars']&&!ACT.rwMini);
  // 19 دون اتصال
  S=fresh();S.net='off';kid();tab('c-rewards');render();ok('offline wallet: balance still readable, said plainly',has(/دون اتصال/)&&has(/رصيدك المحفوظ على جهازك/)&&q('#scr .wallet .big').textContent.trim().startsWith('85'));
  S=fresh();S.net='off';open('grant-points','layan');ACT.gpGo();ok('offline gift: queued and marked',S.outbox.length===1&&/عند الاتصال/.test(T()));noT();

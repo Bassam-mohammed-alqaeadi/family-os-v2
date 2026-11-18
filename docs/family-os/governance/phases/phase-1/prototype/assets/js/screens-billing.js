@@ -48,7 +48,7 @@ const blMonthEnd = () => { const d = tkDt(TK_TODAY); return tkKey(new Date(d.get
 const blNextMonth = () => tkAdd(blMonthEnd(), 1);
 /* الرسائل النصية: حصة الخطة أولاً، ثم رصيد التعبئة، ثم ثلاث رسائل احتياطية للاستغاثة وحدها */
 const blSms = () => { const q = PLAN[S.plan].sms, top = S.smsTop || 0, used = S.smsOut ? q + top : S.sms.used; return { q, used: Math.min(used, q), left: Math.max(0, q - used), top: Math.max(0, top - Math.max(0, used - q)), em: smsEm() }; };
-const blMemN = () => Object.keys(M).length;
+const blMemN = () => Object.keys(M).length + (S.memX || 0);   /* العائلة التجريبية أربعة؛ memX مقعد خامس مفترض لعرض حالة «العائلة مكتملة» (Q-431) */
 const blItem = (w, yr) => (w === 'topup' ? { t: 'حزمة 50 رسالة نصية', n: BL_TOP[blYE() ? 1 : 0], per: '' } : { t: `الخطة ${PLAN[w].n}`, n: blPrice(w, yr), per: yr ? 'سنة' : 'شهر' });
 const blMethods = () => (blYE() ? BL_WAL.slice() : [blStore(), 'card']);
 const blHow = () => (blYE() ? 'اختر المحفظة' : 'طريقة الدفع');   /* في اليمن القائمة كلها محافظ */

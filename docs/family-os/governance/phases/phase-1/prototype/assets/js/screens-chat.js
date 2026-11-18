@@ -2,7 +2,7 @@
    محادثات الأبناء (CH-05)، تنبيه المصنّف وما أوقفه (CH-06)، الحذف والإغلاق وإعادة الفتح (CH-07)، استرداد سجل قناة الوالدين (CH-08).
    ما ينتظر الإرسال (CH-09) يظهر داخل المحادثة وفي شاشة «البيانات والمزامنة» من الغلاف. بطاقة الرئيسية (CH-10) في screens-parent.js. */
 'use strict';
-const ALL = ['ahmad', 'sara', 'khaled', 'layan', 'yusuf'];
+const ALL = ['ahmad', 'sara', 'khaled', 'layan'];
 const IMG_MAX = 10, VOICE_MAX = 5, CR_OTP = '246810';
 const isMinor = id => M[id].role !== 'adult';
 /* القنوات في الحالة (لا ثابت عام) كي تعود كما كانت عند كل بداية. */
@@ -263,7 +263,7 @@ surface('chat-settings', {
   t: 'إعدادات المحادثة', sys: 'S1-08', p: 'adult', req: '08:3,4,11,12,13,15,17',
   note: 'المصنّف يعمل دائماً لمن دون 13، وللمراهق بمفتاح يملكه صاحب العائلة وحده (الافتراضي تشغيل)؛ إيقافه بتأكيد واتصال. الرسائل تبقى حتى يحذفها صاحب العائلة، والمحذوف يُمحى نهائياً بعد 7 أيام، وما رصده المصنّف بعد 30 يوماً.',
   r() { const own = isOwner(), on = S.clsTeen ?? true, rv = (S.review || []).length, kids = minorsSeen();
-    return `${sec('الأمان')}${list(row('chat_error', 'المصنّف الآلي: ليان ويوسف', 'دون 13 سنة: يعمل دائماً', { v: chip('دائم', 'ok', 'lock'), chev: false }),
+    return `${sec('الأمان')}${list(row('chat_error', 'المصنّف الآلي: ليان', 'دون 13 سنة: يعمل دائماً', { v: chip('دائم', 'ok', 'lock'), chev: false }),
       own ? row('chat_error', 'المصنّف الآلي: خالد', on ? 'ينبّهك عند رسالة مقلقة' : 'متوقف: لا تنبيهات عن رسائله', { tg: on, ta: 'clsT' }) : row('chat_error', 'المصنّف الآلي: خالد', `يتحكم به ${M.ahmad.n}`, { v: chip(on ? 'يعمل' : 'متوقف', on ? 'ok' : 'stale'), chev: false }),
       kids.length ? row('visibility', 'محادثات الأبناء', 'للقراءة فقط', { a: 'go:minor-chats:' + kids[0] }) : row('visibility_off', 'محادثات الأبناء', `${M.ahmad.n} هو من يسمح برؤيتها`, { v: avail('not_delegated'), chev: false }),
       own ? row('block', 'رسائل أوقفها المصنّف', rv ? 'لم تُسلَّم · تنتظر قرارك' : 'لا شيء الآن', { a: 'go:chat-review', v: rv ? chip(String(rv), 'da') : '' }) : '')}
@@ -331,7 +331,7 @@ Object.assign(ACT, {
     if (!isOwner()) return false; const on = S.clsTeen ?? true;
     if (offline()) { toast('تغيير المصنّف يحتاج اتصالاً', null, 'cloud_off'); return; }
     if (!on) { S.clsTeen = true; chLog('شغّل المصنّف لمحادثات خالد', 'chat.classifier.teen'); toast('المصنّف يعمل لمحادثات خالد', null, 'chat_error'); return; }
-    confirmDlg('إيقاف المصنّف لمحادثات خالد؟', 'لن يصلك تنبيه عن رسائله، ولن تُوقف رسالة خطيرة قبل وصولها. محادثاته تبقى مرئية لك. يبقى المصنّف يعمل لليان ويوسف.', 'أوقف المصنّف', () => { S.clsTeen = false; chLog('أوقف المصنّف لمحادثات خالد', 'chat.classifier.teen'); toast('أُوقف المصنّف لمحادثات خالد', null, 'chat_error'); }, true);
+    confirmDlg('إيقاف المصنّف لمحادثات خالد؟', 'لن يصلك تنبيه عن رسائله، ولن تُوقف رسالة خطيرة قبل وصولها. محادثاته تبقى مرئية لك. يبقى المصنّف يعمل لليان.', 'أوقف المصنّف', () => { S.clsTeen = false; chLog('أوقف المصنّف لمحادثات خالد', 'chat.classifier.teen'); toast('أُوقف المصنّف لمحادثات خالد', null, 'chat_error'); }, true);
   },
   crGo() { if (offline()) return false; CHS(); S.cr = { step: 0, otp: '', bad: 0 }; gate('استرداد سجل قناة الوالدين', () => { S.cr.step = S.crDead ? 9 : 1; }, 'stepup'); },
   crK(d) {
