@@ -77,7 +77,7 @@ function fMap(h = 150, o = {}) {
   const G = [];
   ids.forEach(id => { const l = locOf(id); if (!l || l.none || (o.me && id === me().id)) return; const X = px(l.x), Y = py(l.y), g = G.find(g => Math.abs(g.X - X) < 13 && Math.abs(g.Y - Y) < 11); if (g) g.L.push(l); else G.push({ X, Y, L: [l] }); });
   const pins = o.sk ? G.map(g => `<i class="pin sk" style="left:${g.X}%;top:${g.Y}%"></i>`).join('') : G.map(g => {
-    const st = `style="left:${g.X}%;top:${g.Y}%"`;
+    const st = `style="left:${g.X}%;top:max(${g.Y}%,50px)"`;   /* الدبوس القريب من الحافة العليا ينزل قليلاً كي لا تُقصّ مساحة لمسه (48) */
     if (g.L.length > 1) {
       const N = g.L.map(l => pname(M[l.id])), I = g.L.map(l => l.id);
       return `<button class="pin clu ${g.L.some(l => l.live) ? '' : 'old'} ${g.L.some(isSos) ? 'sosp' : ''} ${I.every(i => on.includes(i)) ? 'on' : ''}" ${st} ${A(cact(I))} aria-label="${N.join(' و')}: متقاربون">${o.big ? `<label>${N.length > 2 ? N.length + ' متقاربون' : N.join(' و')}</label>` : ''}<span class="pa">${g.L.slice(0, 2).map(l => av(M[l.id])).join('')}<b class="cn">${g.L.length}</b></span></button>`;

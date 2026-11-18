@@ -993,3 +993,33 @@ button.chip{min-height:28px}
 .cfc .cff .btn{min-height:var(--touch,44px)}
 .sheet .cfc{margin-bottom:12px}
 .card.cfl{border-color:var(--warning)}.card.cfl>svg.ic:first-child{color:var(--warning)}
+
+/* ============================================================ أهداف اللمس ≥ 48 (المراجعة الختامية — المرحلة 1)
+   القاعدة (spacing-and-grid §أهداف اللمس، components DS-CM-07): كل ما يُلمس مساحته 48 على الأقل.
+   الشكل يبقى كما هو؛ الذي يتسع هو مساحة اللمس وحدها: عنصر شفاف في وسط الزر يكمل الناقص حتى 48.
+   الزر الذي يقصّ ما يخرج عنه (الاستغاثة) يأخذ إطاراً شفافاً بدل ذلك. الفحص: tools/audit.cjs */
+h3.sec button,.btn.sm,.btn.txt,.why,button.chip,.fch button,.chs button,.seg button,.dq button,.stepper button,.hero .top > button,.bar > button{position:relative}
+h3.sec button::before,.btn.sm::before,.btn.txt::before,.why::before,button.chip::before,.fch button::before,.chs button::before,.seg button::before,
+.dq button::before,.stepper button::before,.hero .top > button::before,.bar > button::before,.ib::before,.tg::before,button.av::before,.map .hp::before,.mgrab::before{
+  content:"";position:absolute;top:50%;left:50%;width:max(100%,48px);height:max(100%,48px);transform:translate(-50%,-50%)}
+.sos::before{content:none}
+/* شريط التصفية يُمرَّر أفقياً: يُعطى حشواً يسع مساحة اللمس كي لا يهتز عمودياً، والهامش ينقص بالقدر نفسه */
+.fch{padding-block:6px;margin-block:-4px 6px}
+.fch.w{row-gap:12px;margin-bottom:12px}
+.scr > .fch.w:first-child{margin-top:2px}
+/* النص الزر (بلا خلفية): 48 حقيقية، فالذي يتغير مسافة حوله لا شكله */
+.btn.txt{min-height:48px}
+/* مسافات صغيرة حتى لا تتداخل مساحتا لمس متجاورتان */
+.hero .top{gap:6px}
+.chips{row-gap:8px}
+.rwch{margin-bottom:12px}
+/* مقبض لوحة الخريطة: منطقة لمس 48 كاملة، واللوحة تعلو بالقدر نفسه فلا تنقص القائمة */
+.mgrab{height:48px}
+.mpanel{max-height:calc(50% + 22px)}
+.mpanel.x{max-height:82%}
+.mpanel.nomap{max-height:none}
+/* الاستغاثة: 48 حقيقية بإطار شفاف؛ اللون داخل الإطار فلا يتغير حجم الزر الظاهر */
+.sos{height:48px;border:6px solid transparent;background-clip:padding-box;margin:-6px -2px}
+.phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:48px;border-width:2px;margin:-2px 2px}
+#sosL:not(.float) .sos{margin:0}   /* النسخة العليا تقع فوق الزر الأصلي تماماً */
+button.fx,button.strip{min-height:48px}

@@ -20,7 +20,8 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const LOCS=['map','loc','history','emergency','ec-add','sos-count','sos-sent','sos-status','sos-resolve','sos-log','loc-share'];
  const T=()=>document.querySelector('#toast').textContent;const noT=()=>{document.querySelector('#toast').innerHTML=''};const sh=()=>(q('.sheet')||q('#scr')).innerText.replace(/\s+/g,' ');
  const NT=()=>document.querySelector('#notif').textContent;const del=()=>{setPersona('delegate')};const obs=r=>{setRole(r||'observer');setPersona('delegate')};const ttl=()=>q('.bar h2').textContent;
- const cl=sel=>{q(sel).click();render()};const typ=(sel,v)=>{q(sel).value=v};const gcc=()=>{S.reg='GCC';S.bl=null};const b48=()=>[...ph.querySelectorAll('#scr button,.sheet button')].filter(b=>!b.closest('.sec')&&b.getBoundingClientRect().height<48).map(b=>b.textContent.trim().slice(0,24));
+ const cl=sel=>{q(sel).click();render()};const typ=(sel,v)=>{q(sel).value=v};const gcc=()=>{S.reg='GCC';S.bl=null};/* مساحة اللمس بوحدات التصميم: الزر نفسه أو العنصر الشفاف الذي يكمله إلى 48 (app.css، «أهداف اللمس») — بلا استثناء لأي زر */
+ const hit48=(b=>{const k=ph.getBoundingClientRect().width/ph.offsetWidth,p=getComputedStyle(b,'::before');return Math.max(b.getBoundingClientRect().height/k,p.content!=='none'&&p.position==='absolute'&&getComputedStyle(b).overflow==='visible'?parseFloat(p.height):0)});const b48=()=>[...ph.querySelectorAll('#scr button,.sheet button')].filter(b=>b.offsetParent&&hit48(b)<47.5).map(b=>b.textContent.trim().slice(0,24));
  const PD=x=>Object.assign({w:'basic',yr:false,ch:'jaib',ref:'70451300',at:'اليوم · 5:12 م'},x||{});const att=k=>attention().some(a=>a.k===k);
  const BLS=['plan','plans','plan-change','pay','store-buy','pay-wallet','topup','trial','plan-grace','plan-limit','plan-manage','receipts'];
  // 1 البذرة

@@ -121,7 +121,7 @@ surface('tasks', {
     const grp = (h, L, more, a) => (L.length ? sec(h + ' · ' + L.length, more, a) + list(L.map(tkRowT)) : '');
     return seg([['tasks', 'المهام'], ['cal', 'التقويم']], v, 'set:tv') + tkFilter(V) + (v === 'cal' ? tkCal(can('calendar.event.create')) : `${tkSugCard()}
     ${T.length ? grp('تنتظر قرارك', G('SUBMITTED')) + grp('قيد التنفيذ', G('PENDING')) + grp('أُنجزت', G('APPROVED')) + grp('فاتت أو أُلغيت', G('EXPIRED', 'CANCELLED')) : empty('add_task', 'لا مهام بعد', mk ? 'أنشئ أول مهمة وحدّد نقاطها.' : 'حين تُسند مهمة تظهر هنا.', mk ? btn('أنشئ مهمة', 'go:task-new') : '')}
-    ${G('EXPIRED').length ? `<p class="sm muted" style="margin:-4px 4px 10px">ما فات يومه ينتهي عند منتصف الليل ولا يتراكم. ${why('tkexp')}</p>` : ''}
+    ${G('EXPIRED').length ? `<p class="sm muted" style="margin:0 4px 10px">ما فات يومه ينتهي عند منتصف الليل ولا يتراكم. ${why('tkexp')}</p>` : ''}
     ${isOwner() ? list(row('tune', 'ضوابط المهام والتقويم', 'الافتراضات والفئات وتفويض المساعد', { a: 'go:tk-settings' })) : ''}`);
   },
 });
