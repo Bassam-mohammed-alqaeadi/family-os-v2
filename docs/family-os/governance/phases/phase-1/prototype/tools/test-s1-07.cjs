@@ -138,6 +138,21 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('loc','layan');ok('teen cannot open a sibling detail page',has(/هذه التفاصيل للأهل/)&&!q('#scr .map'));
  for(const id of ['history','emergency','sos-status','sos-log']){open(id);ok('parent screen closed to the teen: '+id,has(/هذه الصفحة للأهل/))}
  S=fresh();setPersona('teen');open('t-me');ok('teen profile links to my location',!!q('#scr [data-a="go:map"]'));S=fresh();setPersona('child');open('c-me');ok('child profile links to it',!!q('#scr [data-a="go:map"]'));
+ // «أحتاج مساعدة» للطفل والمراهق (child-mode-ui §10 · §9): غير زر الاستغاثة، ويفضي إليها
+ {const TT=()=>document.querySelector('#toast').textContent;const rowsT=()=>[...ph.querySelectorAll('.sheet .row b')].map(b=>b.textContent.trim()).join('|');
+ S=fresh();setPersona('child');render();ok('help: the child home carries a calm entry, apart from the SOS button',!!q('#scr .khelp[data-a="go:kid-help"]')&&/أحتاج مساعدة/.test(q('#scr .khelp').textContent)&&!!q('.bar .sos'));
+ q('#scr .khelp').click();render();ok('help: three simple doors and the emergency one, in the child\'s words',top()==='kid-help'&&rowsT()==='أكلّم بابا|أكلّم ماما|شيء أزعجني|أنا في خطر',rowsT());
+ q('.sheet [data-a="helpTalk:ahmad"]').click();render();ok('help: talking to dad opens his chat',top()==='thread'&&!S.sheet&&/أحمد/.test(q('.bar h2').textContent));
+ S=fresh();setPersona('child');open('kid-help');q('.sheet [data-a="helpTell"]').click();render();ok('help: «something bothered me» sends a short word to dad and closes',!S.sheet&&/وصلت رسالتك إلى بابا/.test(TT()));
+ S=fresh();setPersona('child');open('kid-help');q('.sheet [data-a="helpSos"]').click();ok('help: «I am in danger» asks first, never fires on one tap',!!S.dlg&&/إرسال استغاثة؟/.test(txt())&&!S.full);
+ ACT.dlgYes();render();ok('help: confirming starts the same ten-second SOS countdown',top()==='sos-count'&&S.sosN===10);ACT.sosCancel();render();ok('help: the countdown can be cancelled',!S.full&&!S.sos);
+ S=fresh();S.net='off';setPersona('child');open('kid-help');q('.sheet [data-a="helpSos"]').click();ok('help: the emergency door works offline too',!!S.dlg);S.dlg=null;
+ S=fresh();setPersona('child');open('c-me');ok('help: the child profile opens the same sheet',!!q('#scr [data-a="go:kid-help"]')&&!q('#scr [data-a="reportGo"]'));
+ S=fresh();setPersona('teen');render();ok('help: the teen home carries it under what the family sees',!!q('#scr .khelp[data-a="go:kid-help"]')&&!!q('#scr .tnsh[data-a="tab:t-me"]'));
+ open('kid-help');ok('help: the teen reads it in his own register',rowsT()==='أكلّم والدي|أكلّم والدتي|شيء أزعجني|أنا في خطر'&&/رسالة قصيرة تصل والدك الآن/.test(txt()),rowsT());S.sheet=null;
+ open('t-me');ok('help: the teen profile has it too',!!q('#scr [data-a="go:kid-help"]'));
+ S=fresh();setPersona('mini');render();ok('help: under seven keeps its two big tiles, no sheet',!q('#scr [data-a="go:kid-help"]')&&!!q('#scr [data-a="go:m-chat"]')&&!!q('#scr [data-a="reportGo"]'));
+ S=fresh();setPersona('owner');render();ok('help: nothing of it in parent mode',!q('#scr [data-a="go:kid-help"]'));S=fresh();}
  S=fresh();setPersona('child');open('map');ok('child: simple words, no numbers',has(/بابا/)&&has(/ليطمئن عليك/)&&!has(/متراً/));
  S.gpsOff=true;render();ok('location off on the child device: says so, SOS still works',has(/تحديد الموقع متوقف/)&&has(/زر الاستغاثة يعمل/));
  S=fresh();S.g['location.view'].sc=['khaled'];setPersona('child');open('map');ok('child is told truthfully whether mum sees her',!has(/ترى مكانك أيضاً/));

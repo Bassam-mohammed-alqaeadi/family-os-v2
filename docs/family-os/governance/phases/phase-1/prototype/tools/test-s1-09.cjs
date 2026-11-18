@@ -114,6 +114,18 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();open('more');q('[data-a="go:plan"]')&&0;ok('plan row for owner opens the plan',!!q('#scr [data-a="go:plan"]'));setPersona('delegate');setRole('observer');tab('more');render();ok('plan for delegate: read-only mark or locked',has(/عرض فقط/));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // 9 كل أسطح S1-09: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
+ // قائمة الإعداد الأولي: مدخل دائم في «المزيد»، وبطاقتها في الرئيسية تذكير يُخفى (Q-423)
+ {const TT=()=>document.querySelector('#toast').textContent;
+ S=fresh();setPersona('owner');render();ok('setup list: the home card opens it and can be dismissed',!!q('#scr .ckc .ckm[data-a="go:checklist"]')&&!!q('#scr .ckc .atx[data-a="ckHide"]')&&/بقي: إضافة جهات الطوارئ/.test(q('#scr .ckc').textContent)&&/6 من 7/.test(q('#scr .ckc').textContent));
+ ok('setup list: the X is a full touch target',q('#scr .ckc .atx').offsetHeight>=48&&q('#scr .ckc .atx').offsetWidth>=48);
+ q('#scr .ckc .atx').click();render();ok('setup list: dismissed from home, and the toast says where it lives',!q('#scr .ckc')&&/تجده في «المزيد»/.test(TT())&&!!document.querySelector('#toast [data-a="undo"]'));
+ ACT.tab('more');render();ok('setup list: its permanent row is in More, with what is left',!!q('#scr [data-a="go:checklist"]')&&/قائمة الإعداد الأولي/.test(q('#scr [data-a="go:checklist"]').textContent)&&/6 من 7/.test(q('#scr [data-a="go:checklist"]').textContent)&&/بقي: إضافة جهات الطوارئ/.test(q('#scr [data-a="go:checklist"]').textContent));
+ q('#scr [data-a="go:checklist"]').click();render();ok('setup list: the row opens the list',top()==='checklist'&&ph.querySelectorAll('#scr .list .row').length===7);
+ document.querySelector('#toast [data-a="undo"]').click();ACT.tab('home');render();ok('setup list: undo brings the home card back',!!q('#scr .ckc'));
+ S=fresh();setPersona('owner');S.checklist.emergency=1;render();ok('setup list: when all is done the home card goes',!q('#scr .ckc'));ACT.tab('more');render();ok('setup list: and the row stays, marked complete',/مكتملة/.test(q('#scr [data-a="go:checklist"]').textContent));
+ S=fresh();setPersona('owner');S.checklist.adult=0;render();ok('setup list: several items left are counted, the first is named',/بقي بندان، أولهما: دعوة بالغ آخر/.test(q('#scr .ckc').textContent)&&/5 من 7/.test(q('#scr .ckc').textContent),q('#scr .ckc').textContent);
+ S=fresh();setPersona('delegate');render();ok('setup list: owner only, on home and in More',!q('#scr .ckc')&&(ACT.tab('more'),render(),!q('#scr [data-a="go:checklist"]')));
+ S=fresh();setPersona('owner');ok('setup list: search finds it',gsIndex().some(e=>e.a==='go:checklist'));S=fresh();}
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-09');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;
  for(const id of ids){for(const pre of [null,'guardian','none','co','ios','off']){try{S=fresh();if(pre==='co')S.co={since:'اليوم',seen:0};else if(pre==='ios')S.os='ios';else if(pre==='off')S.net='off';else if(pre)setRole(pre);jump(id);render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id);const sh=ph.querySelector('.sheet');if(sh&&sh.scrollWidth>sh.clientWidth+1)over.push(id+':sheet');
    const m=txt().replace(/SOS/g,'').replace(/[a-z0-9-]+\.(org|com)/g,'').match(BAD);if(m)eng.push(id+(pre?'/'+pre:'')+':'+m[0]);}catch(e){F.push('ERR '+id+' '+(pre||'')+' '+e.message)}}}

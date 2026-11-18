@@ -17,13 +17,24 @@ surface('c-home', {
     ${tkNext(id)}
     ${chWidget(1)}
     <div class="fx sb" style="margin:14px 4px 8px"><b style="font-size:calc(18px*var(--ts)*var(--tk))">تطبيقاتي</b></div>
-    <div class="qa" style="grid-template-columns:repeat(4,1fr)">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok; return `<button data-a="openApp:${a.id}" style="${ok ? '' : 'opacity:.6'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><span>${a.n}</span></button>`; }).join('')}</div>`; },
+    <div class="qa" style="grid-template-columns:repeat(4,1fr)">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok; return `<button data-a="openApp:${a.id}" style="${ok ? '' : 'opacity:.6'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><span>${a.n}</span></button>`; }).join('')}</div>
+    ${helpCard()}`; },
 });
 /* مهمة الطفل وتسليمها (S1-06): في screens-tasks.js */
 surface('c-me', {
   t: 'ملفي', sys: 'S1-01', p: 'kid', req: '01:2,5,6,15,18 02:17',
   note: 'لا شاشات إدارية في وضع الطفل. قسم «للأهل» خلف بوابة الوالدين. صف «وضع الجهاز» يشرح ثبات الوضع بلا طلب رقم سري (ACC-019).',
-  r() { const m = me(); return `<div class="c" style="padding:6px 0 12px">${av(m, 'xl')}<div class="b" style="font-size:calc(22px*var(--ts));margin-top:8px">${m.n}</div></div>${list(row('location_on', 'موقعي', 'أين أنا، ومن يرى مكاني', { a: 'go:map' }), row('handshake', 'ما اتفقنا عليه أنا وبابا', 'ماذا يرى بابا وماذا لا يرى', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض وقتك المتبقي', { a: 'go:persist' }), row('wand_stars', 'المساعد وأنا', 'ماذا فعل المساعد بخصوصي', { a: 'go:ai-mine' }), row('palette', 'لوني وصورتي', '', { a: 'askDad' }), row('front_hand', 'شيء ما أزعجني', 'أخبر بابا الآن', { a: 'reportGo', ic: 'var(--accent)' }))}${sec('للأهل')}${list(row('lock', 'إعدادات هذا الجهاز', 'تحتاج الرقم السري لبابا', { a: 'kidGate' }), row('mobile', `وضع الجهاز: ${mode() === 'teen' ? 'مراهق' : 'طفل'}`, 'ثابت · لا يتحول إلى وضع الأهل', { a: 'modeWhy' }))}${list(row('description', 'الشروط والخصوصية', '', { a: 'go:legal' }))}`; },
+  r() { const m = me(); return `<div class="c" style="padding:6px 0 12px">${av(m, 'xl')}<div class="b" style="font-size:calc(22px*var(--ts));margin-top:8px">${m.n}</div></div>${list(row('location_on', 'موقعي', 'أين أنا، ومن يرى مكاني', { a: 'go:map' }), row('handshake', 'ما اتفقنا عليه أنا وبابا', 'ماذا يرى بابا وماذا لا يرى', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض وقتك المتبقي', { a: 'go:persist' }), row('wand_stars', 'المساعد وأنا', 'ماذا فعل المساعد بخصوصي', { a: 'go:ai-mine' }), row('palette', 'لوني وصورتي', '', { a: 'askDad' }), row('front_hand', 'أحتاج مساعدة', 'أكلّم أهلي، أو أخبرهم بما أزعجني', { a: 'go:kid-help', ic: 'var(--accent)' }))}${sec('للأهل')}${list(row('lock', 'إعدادات هذا الجهاز', 'تحتاج الرقم السري لبابا', { a: 'kidGate' }), row('mobile', `وضع الجهاز: ${mode() === 'teen' ? 'مراهق' : 'طفل'}`, 'ثابت · لا يتحول إلى وضع الأهل', { a: 'modeWhy' }))}${list(row('description', 'الشروط والخصوصية', '', { a: 'go:legal' }))}`; },
+});
+/* «أحتاج مساعدة» (child-mode-ui §10 · S1-07 §9): مدخل هادئ في آخر رئيسية الطفل والمراهق وفي ملفهما. غير زر الاستغاثة الطارئ. */
+const helpCard = () => `<button class="card tnsh khelp" data-a="go:kid-help">${ic('front_hand')}<span><b>أحتاج مساعدة</b><small>أكلّم أهلي، أو أخبرهم بما أزعجني</small></span>${ic('chevron_left')}</button>`;
+surface('kid-help', {
+  kind: 'sheet', t: 'أحتاج مساعدة', sys: 'S1-01', p: 'kid', req: '01:2,7,15 07:7 08:1',
+  note: 'للطفل والمراهق، لا لمن دون 7 (رئيسيته فيها «كلّم أهلي» و«شيء أزعجني» بلاطتين). ثلاثة أبواب بسيطة: أكلّم أحد والديّ (تفتح محادثته)، أو «شيء أزعجني» (رسالة قصيرة تصل الأب الآن بلا شرح)، أو «أنا في خطر» وهي الاستغاثة نفسها: تأكيد ثم عدّ 10 ثوانٍ يمكن الإلغاء خلاله (S1-07 REQ-007). لا لوم ولا تخويف في النص. تعمل دون اتصال إلا بدء محادثة جديدة.',
+  r() { const tn = mode() === 'teen', dad = tn ? 'والدي' : 'بابا', mom = tn ? 'والدتي' : 'ماما';
+    return `<h4>أحتاج مساعدة</h4><p class="d">اختر ما يناسبك الآن. أهلك معك.</p>
+    ${list(row('forum', `أكلّم ${dad}`, 'تفتح محادثتك معه', { a: 'helpTalk:ahmad' }), row('forum', `أكلّم ${mom}`, 'تفتح محادثتك معها', { a: 'helpTalk:sara' }), row('front_hand', 'شيء أزعجني', `رسالة قصيرة تصل ${tn ? 'والدك' : 'بابا'} الآن · الشرح متى أردت`, { a: 'helpTell', ic: 'var(--accent)' }))}
+    ${list(row('emergency_home', 'أنا في خطر', 'استغاثة تصل أهلك مع مكانك · 10 ثوانٍ للإلغاء', { a: 'helpSos', ic: 'var(--danger)' }))}`; },
 });
 surface('kid-admin', {
   t: 'للأهل — هذا الجهاز', sys: 'S1-01', p: 'kid', req: '01:5,6,18,23 02:15 10:18,23',
@@ -47,6 +58,9 @@ Object.assign(ACT, {
       S.kid[id].used += rem; a.used = a.lim; S.full = { id: 'block', a: [aid] }; return; }
     toast('يفتح ' + a.n); },
   reportGo() { toast('وصلت رسالتك إلى بابا. أنت بأمان.', null, 'front_hand'); },
+  helpTalk(x) { ACT.dmStart(x); },
+  helpTell() { S.sheet = null; ACT.reportGo(); },
+  helpSos() { S.sheet = null; sosAsk(); },
   askDad() { toast(mode() === 'teen' ? 'يعدّلها والدك من جهازه' : 'اطلب من بابا', null, 'front_hand'); },
   kidGate() { gate('إعدادات الجهاز للأهل', () => go('kid-admin')); },
   kidExit() { const id = kidId(); if (fmOf(id)) { delete S.fm[id]; S.audit.unshift({ t: `أُلغي الوضع الحر لـ${M[id].n} من ${gateDev()}`, w: 'أحمد', at: 'الآن', k: 'protection.free_mode.activate', kid: id, ty: 'free', d: 0 }); return toast('عادت القواعد'); } if (offline()) return toast('إيقاف القواعد يحتاج اتصالاً · الخادم يتحقق منه', null, 'cloud_off'); S.fmN = 0; S.sheet = { id: 'kid-free', a: [] }; },
@@ -123,7 +137,8 @@ surface('t-home', {
     ${NX.length ? sec('القادم') + `<div class="agl">${NX.map(x => tnRow(x, x.k)).join('')}</div>` : ''}
     ${chWidget(1)}
     ${sec('تطبيقاتي')}<div class="tna">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok, lim = a.act === 'LIMIT', rest = Math.max(0, a.lim - a.used); return `<button data-a="openApp:${a.id}" class="${ok ? '' : 'off'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><b>${/[A-Za-z]/.test(a.n) ? `<span class="ltr">${a.n}</span>` : a.n}</b><small>${lim ? (rest ? `بقي ${rest} د` : 'انتهى وقته') : a.study ? 'متاح دائماً' : 'مسموح'}</small>${lim ? `<span class="pbar ${rest ? '' : 'wa'}"><i style="width:${Math.min(100, a.used / Math.max(1, a.lim) * 100)}%"></i></span>` : ''}</button>`; }).join('')}</div>
-    <button class="card tnsh" data-a="tab:t-me">${ic('visibility')}<span><b>ما يراه أهلك الآن</b><small>موقعك${offline() ? ' (آخر موقع معروف)' : ''} · وقت الشاشة · محادثات العائلة</small></span>${ic('chevron_left')}</button></div>`; },
+    <button class="card tnsh" data-a="tab:t-me">${ic('visibility')}<span><b>ما يراه أهلك الآن</b><small>موقعك${offline() ? ' (آخر موقع معروف)' : ''} · وقت الشاشة · محادثات العائلة</small></span>${ic('chevron_left')}</button>
+    ${helpCard()}</div>`; },
 });
 surface('t-me', {
   t: 'أنا', sys: 'S1-03', p: 'teen', req: '03:15 02:17 08:12 01:5,6,18,21',
@@ -133,6 +148,7 @@ surface('t-me', {
     ${sec('ما يراه أهلي')}<p class="sm muted" style="margin:-4px 4px 8px">الفئات التي تُتابَع، لا المحتوى.</p>${list(row('hourglass_top', 'وقت الشاشة', see('المدة لكل تطبيق', 'ما تفعله داخله'), { chev: false }), row('location_on', 'موقعي', see('الآن وسجل 7 أيام'), { a: 'go:map' }), row('forum', 'محادثات العائلة', see('مرئية لوالدك'), { chev: false }), row('chat_error', 'المصنّف الآلي للرسائل', see(on ? 'مفعّل · ينبّه والدك عند خطر فقط' : 'أوقفه والدك'), { chev: false, v: chip(on ? 'مفعّل' : 'متوقف', on ? 'ok' : 'ol') }), row('travel_explore', 'المواقع', see('فئة الموقع', 'كل صفحة تفتحها'), { chev: false }))}
     ${sec('ما سُمح لي به')}${list(row('task_alt', `أنشئ مهامي بنفسي${pnNew('khaled').length ? ' ' + chip('جديد', 'in') : ''}`, S.teenTasks ? `مهامك أنت فقط · ${unTxt(S.teenUn).replace('تلغيها', 'يلغيها والدك')}` : 'لم يسمح بها والدك بعد', { v: S.teenTasks ? chip('مسموح', 'ok', 'check') : (S.preq.find(q => q.k === 'teen' && q.st === 'pending') ? chip('بانتظار والدك', 'wa', 'pending') : btn('اطلب', 'preqSend:teen', 'sm txt')) }), row('supervisor_account', 'الإشراف على إخوتي', 'لا يُفوَّض للمراهق', { v: ic('lock'), c: 'dis' }))}
     ${sec('حقوقي')}${list(row('handshake', 'ما اتفقنا عليه', 'ما وافقتَ عليه أنت ووالدك عند إعداد جهازك', { a: 'go:consent-view' }), row('wand_stars', 'المساعد وأنا', 'ما فعله المساعد بخصوصي', { a: 'go:ai-mine' }), row('balance', 'ناقش قراراً', 'مهمة لم تُعتمد؟ اكتب لوالدك ما حدث', { a: 'go:objection' }))}
+    ${sec('المساعدة')}${list(row('front_hand', 'أحتاج مساعدة', 'أكلّم أهلي، أو أخبرهم بما أزعجني', { a: 'go:kid-help', ic: 'var(--accent)' }))}
     ${sec('الجهاز')}${list(row('translate', 'اللغة والعرض', '', { a: 'go:display' }), row('lock', 'إعدادات الجهاز للأهل', 'تحتاج الرقم السري', { a: 'kidGate' }))}`; },
 });
 Object.assign(ACT, {
