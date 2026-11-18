@@ -78,9 +78,9 @@ The concepts above are names for visual directions only. They do not create new 
 | Compact width | Below 600dp | CURRENT FACT |
 | Compact page gutters | 16dp each side | CURRENT FACT |
 | Main content width at 393dp | 361dp | DERIVED: 393 − 32 |
-| Main content behavior | One column, vertical scroll | CURRENT FACT for Compact |
-| Primary orientation | Portrait | CURRENT FACT |
-| Landscape | Supported without promising the child-minimal composition | CURRENT FACT |
+| Main content behavior | One column, vertical scroll | PROPOSED for Compact |
+| Primary orientation | Portrait | PROPOSED reference orientation |
+| Landscape | Supported without promising the child-minimal composition | PROPOSED; validate against Q-392 window classes and device tests |
 | Base spacing | 4dp | CURRENT FACT |
 | Fine-detail exception | 2dp only inside components | CURRENT FACT |
 
@@ -517,7 +517,7 @@ No biometric shortcut is offered as a substitute for the PIN.
 
 ### 9.2 Trigger
 
-**CURRENT FACT:** Hold for three seconds, with progressively clearer haptic feedback. The SOS event is passed to S1-07 immediately. S1-07 owns transport, delivery, retries, SMS fallback, recipient acknowledgment, and resolution.
+**CURRENT FACT (Q-067/Q-234/Q-286):** Hold for three seconds, with progressively clearer haptic feedback. The shell passes the local `sos_triggered` event to S1-07 immediately. S1-07 owns the 10-second local cancellation window after the hold and before server/SMS dispatch (Q-286); cancelling there creates no alert, sends no SMS, and consumes no quota. S1-07 also owns transport, delivery, retries, SMS fallback, recipient acknowledgment, and resolution. The actor distinction between post-send accidental cancellation (Q-286: father only) and active-alert resolution (Q-136: father + delegated adult) is unresolved; do not merge these actions in the shell (GOV-040).
 
 **PROPOSED visual states:**
 1. Idle: stable SOS label and clear touch target.
@@ -530,7 +530,7 @@ Accessibility alternative: a two-step accessible trigger consistent with the app
 
 ### 9.3 Ownership boundary
 
-The S1-01 design includes only the global SOS control and its hand-off feedback. It does not design a duplicate incident timeline, recipient list, delivery state machine, map, or transport screen. Those belong to S1-07.
+**PROPOSED pending Q-231:** S1-01 includes only the global SOS control and its hand-off feedback. It does not design a duplicate incident timeline, recipient list, delivery state machine, map, or transport screen. Those belong to S1-07. Keep acknowledgment/status inside the S1-07-owned SOS presentation; do not add a dedicated S1-01 ACK screen. This recommendation does not close Q-231; final placement remains open.
 
 ---
 
