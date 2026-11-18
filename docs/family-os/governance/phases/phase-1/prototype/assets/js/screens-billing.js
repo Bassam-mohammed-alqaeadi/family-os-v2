@@ -1,4 +1,4 @@
-/* S1-04 الخطط والاشتراكات: الخطة والاستهلاك، المقارنة، تأكيد التغيير، الدفع (متجر وبطاقة في الخليج، محافظ يمنية ودفع عند وكيل في اليمن)،
+/* S1-04 الخطط والاشتراكات: الخطة والاستهلاك، المقارنة، تأكيد التغيير، الدفع (متجر وبطاقة في الخليج، ومحافظ يمنية وحدها في اليمن — Q-422)،
    تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات.
    ثوابت لا تُكسر: الأمان لا يتوقف على الخطة · لا تتغير الخطة قبل تحقق الخادم من الدفع · لا شيء من هذا يظهر لطفل أو مراهق.
    سوق العائلة (اليمن أو الخليج) يأتي من بلدها، لا من اختيار داخل الشاشة؛ في النموذج يُبدَّل من لوحة الضبط. */
@@ -10,10 +10,10 @@ const BL_TOP = [5.99, 250];                                   /* حزمة 50 ر�
 const BL_RANK = { free: 0, basic: 1, premium: 2 };
 const BL_CH = {
   gplay: ['Google Play', 'android'], appstore: ['App Store', 'ios'], card: ['بطاقة بنكية', 'credit_card'],
-  jaib: ['محفظة جيب', 'account_balance_wallet'], onecash: ['محفظة ون كاش', 'account_balance_wallet'], mahfathati: ['محفظتي', 'account_balance_wallet'], manual: ['دفع عند وكيل', 'storefront'],
+  jaib: ['محفظة جيب', 'account_balance_wallet'], onecash: ['محفظة ون كاش', 'account_balance_wallet'], mahfathati: ['محفظتي', 'account_balance_wallet'],
 };
 const BL_AI = { free: 'يكفي للتحقق من المهام', basic: 'تحقق من المهام ومساعدة محدودة', premium: 'كل ما يفعله المساعد' };
-const BL_WAL = ['jaib', 'onecash', 'mahfathati'];             /* محافظ اليمن: في المنتج تُقرأ من الخادم، فتُضاف محفظة بلا تحديث للتطبيق (Q-421) */
+const BL_WAL = ['jaib', 'onecash', 'mahfathati'];             /* قائمة محافظ اليمن، وهي طريق الدفع الوحيد فيه (Q-422): في المنتج تُقرأ من الخادم، فتُضاف محفظة بلا تحديث للتطبيق (Q-421) */
 const BL_FLOW = ['plans', 'plan-change', 'pay', 'pay-wallet', 'topup', 'trial', 'plan-grace', 'plan-manage'];
 
 /* ---------- الحالة ---------- */
@@ -50,7 +50,8 @@ const blNextMonth = () => tkAdd(blMonthEnd(), 1);
 const blSms = () => { const q = PLAN[S.plan].sms, top = S.smsTop || 0, used = S.smsOut ? q + top : S.sms.used; return { q, used: Math.min(used, q), left: Math.max(0, q - used), top: Math.max(0, top - Math.max(0, used - q)), em: smsEm() }; };
 const blMemN = () => Object.keys(M).length;
 const blItem = (w, yr) => (w === 'topup' ? { t: 'حزمة 50 رسالة نصية', n: BL_TOP[blYE() ? 1 : 0], per: '' } : { t: `الخطة ${PLAN[w].n}`, n: blPrice(w, yr), per: yr ? 'سنة' : 'شهر' });
-const blMethods = () => (blYE() ? BL_WAL.concat(['manual']) : [blStore(), 'card']);
+const blMethods = () => (blYE() ? BL_WAL.slice() : [blStore(), 'card']);
+const blHow = () => (blYE() ? 'اختر المحفظة' : 'طريقة الدفع');   /* في اليمن القائمة كلها محافظ */
 const blPm = () => { const b = BL(), L = blMethods(); return L.includes(b.pm) ? b.pm : L[0]; };
 const blIsStore = ch => ['gplay', 'appstore', 'card'].includes(ch);
 /* ما بقي من فترة مدفوعة عند الترقية يتحول إلى أيام على الخطة الجديدة بقيمته: لا مال يُردّ ولا يوم يضيع (Q-420).
@@ -126,7 +127,7 @@ const blPendCard = () => { const d = BL().pend, it = blItem(d.w, d.yr); return `
 function blBanners(own) {
   const b = BL(), st = blSt(), H = [];
   if (b.pend && own) H.push(blPendCard());
-  if (b.rej && own) H.push(callout(`<b>لم تتأكد دفعتك</b><br>${BL_CH[b.rej.ch][0]} لم تؤكد وصول ${blAmt(blItem(b.rej.w, b.rej.yr).n)}، فلم تتغير خطتك. إن خُصم المبلغ منك فراجع المحفظة أو الوكيل.<div class="fx" style="margin-top:8px;gap:8px">${btn('حاول مجدداً', b.rej.w === 'topup' ? 'go:topup' : 'go:plan-change:' + b.rej.w, 'sm t48')}${btn('فهمت', 'blRejOk', 'sm sec t48')}</div>`, 'da', 'error'));
+  if (b.rej && own) H.push(callout(`<b>لم تتأكد دفعتك</b><br>${BL_CH[b.rej.ch][0]} لم تؤكد وصول ${blAmt(blItem(b.rej.w, b.rej.yr).n)}، فلم تتغير خطتك. إن خُصم المبلغ منك فراجع المحفظة.<div class="fx" style="margin-top:8px;gap:8px">${btn('حاول مجدداً', b.rej.w === 'topup' ? 'go:topup' : 'go:plan-change:' + b.rej.w, 'sm t48')}${btn('فهمت', 'blRejOk', 'sm sec t48')}</div>`, 'da', 'error'));
   if (st === 'grace') H.push(`<button class="card blp wa" data-a="go:plan-grace"><span class="lead">${ic('schedule')}</span><span class="tx"><b>${blLeft(blEnd())} من المهلة</b><span>بعدها تعود العائلة إلى ${b.back ? PLAN[b.back.plan].n : 'المجانية'}، بلا قفل ولا حذف.</span></span>${ic('chevron_right')}</button>`);
   if (b.fell) H.push(`<button class="card blp" data-a="go:plan-grace"><span class="lead">${ic('info')}</span><span class="tx"><b>عادت العائلة إلى ${PLAN[b.fell.to].n}</b><span>لم يُقفل شيء ولم تُحذف بيانات. اعرف ما تغيّر.</span></span>${ic('chevron_right')}</button>`);
   if (b.tmp) H.push(callout('<b>تفعيل مؤقت 24 ساعة</b><br>المتجر لم يردّ علينا عند الدفع، ففعّلنا خطتك ونعيد التحقق من أنفسنا. إن لم يثبت الدفع تعود خطتك السابقة.', 'wa', 'schedule'));
@@ -206,7 +207,7 @@ surface('plans', {
     return `${offline() ? `<p class="xs muted blage">${age(0)}<span>قائمة محفوظة على هاتفك · الاختيار يحتاج اتصالاً</span></p>` : ''}
     <div class="blseg">${seg([['', 'شهري'], ['1', 'سنوي · أوفر']], yr ? '1' : '', 'blYr')}</div>
     <div class="card flat blall"><b>في كل الخطط، مجاناً ودائماً</b><div class="chips">${[['emergency_home', 'الاستغاثة'], ['location_on', 'الموقع'], ['forum', 'المحادثة'], ['task_alt', 'المهام']].map(([i, t]) => chip(t, 'ok', i)).join('')}</div><div class="xs muted">وسجل المواقع 7 أيام، والتحقق من المهام بالمساعد.</div></div>
-    <div class="card flat blhow"><b>${ic('account_balance_wallet')} طرق الدفع</b><div class="chips">${blMethods().map(id => chip(BL_CH[id][0], 'in', BL_CH[id][1])).join('')}</div></div>
+    <div class="card flat blhow"><b>${ic('account_balance_wallet')} ${blYE() ? 'محافظ الدفع' : 'طرق الدفع'}</b><div class="chips">${blMethods().map(id => chip(BL_CH[id][0], 'in', BL_CH[id][1])).join('')}</div></div>
     ${['free', 'basic', 'premium'].map(k => `<div class="plan ${cur === k ? 'cur' : k === 'premium' ? 'best' : ''}"><div class="fx sb"><h5>${PLAN[k].n}</h5>${C(k)}</div>${P(k)}${F(k)}<div class="pa">${A(k)}</div></div>`).join('')}
     <p class="xs muted c">الأسعار ${blYE() ? 'بالريال اليمني' : 'بالريال السعودي'}. اشتراك واحد يغطي كل أجهزة العائلة.</p>`;
   },
@@ -242,10 +243,10 @@ surface('plan-change', {
       ${blSt() === 'grace' ? li('check_circle', 'تنتهي المهلة فور التفعيل.') : ''}
       ${li(pm === blStore() ? 'sync' : 'event_busy', pm === blStore() ? `تتجدد من نفسها كل ${yr ? 'سنة' : 'شهر'} عبر ${BL_CH[pm][0]} حتى تلغيها.` : 'لا تتجدد من نفسها: تجدّدها أنت قبل نهايتها.')}
     </ul>
-    ${sec('طريقة الدفع')}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b><span>${{ gplay: 'من حسابك في المتجر', appstore: 'من حسابك في المتجر', card: 'تُكتب بياناتها في صفحة الدفع، لا في التطبيق', jaib: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', onecash: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', mahfathati: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', manual: 'تدفع نقداً وتكتب رقم السند' }[id]}</span></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
+    ${sec(blHow())}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b><span>${{ gplay: 'من حسابك في المتجر', appstore: 'من حسابك في المتجر', card: 'تُكتب بياناتها في صفحة الدفع، لا في التطبيق', jaib: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', onecash: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', mahfathati: 'تدفع من المحفظة ثم تكتب الرقم المرجعي' }[id]}</span></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
     ${offline() ? blOff() : b.pend ? callout('عندك دفعة بانتظار التحقق. انتظر نتيجتها قبل أن تبدأ دفعاً آخر.', 'wa', 'hourglass_top') : ''}
     ${btn(`${kind === 'renew' ? 'جدّد الآن' : kind === 'sub' ? 'اشترك الآن' : 'رقِّ الآن'} · ${blAmt(n)}`, 'plGo:' + k, offline() || b.pend ? 'dis" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'back', 'sec')}
-    <p class="xs muted c" style="margin-top:10px">${store ? 'تتغير الخطة بعد أن يتحقق خادمنا من الدفع، لا قبله.' : 'تتغير الخطة بعد أن تؤكد جهة الدفع وصول المبلغ، لا قبله.'}</p>`;
+    <p class="xs muted c" style="margin-top:10px">${store ? 'تتغير الخطة بعد أن يتحقق خادمنا من الدفع، لا قبله.' : 'تتغير الخطة بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.'}</p>`;
   },
 });
 
@@ -274,25 +275,25 @@ surface('store-buy', {
     return `<div class="osb"><div class="oh">${ic(BL_CH[ch][1])}<b>${card ? 'صفحة الدفع' : BL_CH[ch][0]}</b>${chip('من خارج التطبيق', 'ol')}</div><div class="oi"><span class="ap">${ic('family_home')}</span><span><b>عائلتي · ${it.t}</b><small>${it.per ? (card ? `دفعة واحدة عن ${it.per}` : `اشتراك يتجدد كل ${it.per} حتى تلغيه`) : 'شراء مرة واحدة'}</small></span><b class="pp">${blAmt(it.n)}</b></div>${btn(card ? `ادفع ${blAmt(it.n)}` : it.per ? 'اشترك' : 'اشترِ', `payBuy:${w}:${yr || ''}:${ch}`, 'ok')}<div class="gap"></div>${btn('إلغاء', 'close', 'txt t48')}</div>`; },
 });
 
-/* ---------- S04-05 الدفع بالمحفظة أو عند وكيل (اليمن) ---------- */
+/* ---------- S04-05 الدفع بالمحفظة (اليمن) ---------- */
 surface('pay-wallet', {
   t: 'الدفع', sys: 'S1-04', p: 'owner', a: ['basic', '', 'jaib'], req: '04:6,7,10',
-  note: 'S04-05. اليمن: محفظة جيب، ون كاش، محفظتي، أو نقداً عند وكيل؛ ولا قسائم (Q-421). خطوتان: تدفع خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد جهة الدفع وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة ومكان الوكلاء يُكتبان عند التعاقد، ولم يُخترع لهما شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
+  note: 'S04-05. اليمن: الدفع بالمحافظ وحدها — محفظة جيب، ون كاش، محفظتي؛ لا قسائم (Q-421) ولا دفع عند وكيل (Q-422). خطوتان: تدفع من المحفظة خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد المحفظة وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة تُكتب عند التعاقد، ولم يُخترع لها شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
   r(w, yr, ch) {
     if (!blCanM()) return blNo(1);
     if (!blYE()) return SC.pay.r(w, yr, ch);              /* سوق الخليج لا محافظ يمنية فيه */
-    w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.concat(['manual']).includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend, man = ch === 'manual';
+    w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend;
     if (d) { const it = blItem(d.w, d.yr);
-      return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن ${d.ch === 'manual' ? 'يؤكد الوكيل' : `تؤكد ${BL_CH[d.ch][0]}`} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
+      return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن تؤكد ${BL_CH[d.ch][0]} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
       <dl class="blkv"><dt>ما دفعت له</dt><dd>${it.t}${it.per ? ' · ' + it.per : ''}</dd><dt>المبلغ</dt><dd>${blAmt(it.n)}</dd><dt>الطريقة</dt><dd>${BL_CH[d.ch][0]}</dd><dt>الرقم المرجعي</dt><dd><span class="ltr">${blMask(d.ref)}</span></dd><dt>سُجّلت</dt><dd>${d.at}</dd></dl>
       ${callout('لا تدفع مرة ثانية. إن لم يثبت الدفع أخبرناك، ولا تتغير خطتك.', 'nt', 'info')}${btn('تمّ', 'blToPlan')}`; }
     const it = blItem(w, yr), e = b.pw.err;
     return `<div class="card blsum"><div><small>${it.per ? 'عن ' + it.per : 'شراء مرة واحدة'}</small><b>${it.t}</b></div><div class="am">${blNum(it.n)}<small>ريال</small></div></div>
-    <div class="blstep"><i>1</i><div><b>${man ? 'ادفع المبلغ عند وكيل' : `ادفع المبلغ من ${BL_CH[ch][0]}`}</b><span>${man ? `ادفع ${blAmt(it.n)} نقداً وخذ سند الدفع.` : `حوّل ${blAmt(it.n)} إلى حساب «عائلتي» من تطبيق المحفظة.`}</span><div class="callout nt" style="margin:8px 0 0">${ic('edit_note')}<div>${man ? 'عناوين الوكلاء تُكتب هنا عند اعتمادهم.' : 'طريقة التحويل (رقم الحساب أو الرمز) تُكتب هنا عند التعاقد مع المحفظة.'}</div></div></div></div>
-    <div class="blstep"><i>2</i><div><b>اكتب الرقم المرجعي</b><span>${man ? 'كما هو مكتوب على السند، دون تغيير.' : 'كما وصلك في إشعار المحفظة بعد الدفع، دون تغيير.'}</span>
+    <div class="blstep"><i>1</i><div><b>ادفع المبلغ من ${BL_CH[ch][0]}</b><span>حوّل ${blAmt(it.n)} إلى حساب «عائلتي» من تطبيق المحفظة.</span><div class="callout nt" style="margin:8px 0 0">${ic('edit_note')}<div>طريقة التحويل (رقم الحساب أو الرمز) تُكتب هنا عند التعاقد مع المحفظة.</div></div></div></div>
+    <div class="blstep"><i>2</i><div><b>اكتب الرقم المرجعي</b><span>كما وصلك في إشعار المحفظة بعد الدفع، دون تغيير.</span>
       <label class="fld ${e ? 'err' : ''}" style="margin:10px 0 0"><span class="sr">الرقم المرجعي</span><input id="pwr" class="mono" dir="ltr" inputmode="text" autocomplete="off" placeholder="مثال: 70451300" value="${b.pw.ref}">${e === 'empty' ? '<small>اكتب الرقم المرجعي أولاً.</small>' : e === 'dup' ? '<small>هذا الرقم المرجعي مستخدم من قبل. تأكد من رقم الدفعة الجديدة.</small>' : '<small>جرّب: أي رقم · والرقم 70451288 مستخدم من قبل</small>'}</label></div></div>
     ${offline() ? blOff('تأكيد الدفع يحتاج اتصالاً بالإنترنت.') : ''}${btn('أكّد الدفع', `pwGo:${w}:${yr || ''}:${ch}`, offline() ? 'dis" disabled="' : '')}
-    <p class="xs muted c" style="margin-top:10px">${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن ${man ? 'يؤكد الوكيل' : 'تؤكد المحفظة'} وصول المبلغ، لا قبله.</p>`;
+    <p class="xs muted c" style="margin-top:10px">${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.</p>`;
   },
 });
 
@@ -300,17 +301,17 @@ surface('pay-wallet', {
 /* ---------- S04-07 تعبئة الرسائل النصية ---------- */
 surface('topup', {
   t: 'تعبئة الرسائل النصية', sys: 'S1-04', p: 'owner', req: '04:10,11,19 07:17',
-  note: 'S04-07. حزمة واحدة: 50 رسالة نصية بسعر سوق العائلة. تُضاف إلى رصيد الشهر الحالي وتنتهي بنهايته ولا تنتقل، فيُقال كم بقي من الشهر قبل الشراء. الحصة والتعبئة ورسائل الاستغاثة الاحتياطية ثلاثة أرقام منفصلة. في اليمن يُضاف الرصيد بعد تأكيد جهة الدفع لا فور الضغط.',
+  note: 'S04-07. حزمة واحدة: 50 رسالة نصية بسعر سوق العائلة. تُضاف إلى رصيد الشهر الحالي وتنتهي بنهايته ولا تنتقل، فيُقال كم بقي من الشهر قبل الشراء. الحصة والتعبئة ورسائل الاستغاثة الاحتياطية ثلاثة أرقام منفصلة. في اليمن يُضاف الرصيد بعد تأكيد المحفظة لا فور الضغط.',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), s = blSms(), left = blDays(blMonthEnd()) + 1, pm = blPm(), n = BL_TOP[blYE() ? 1 : 0];
     return `<div class="card blbal"><div class="g3"><div><b>${s.left}</b><span>باقٍ من ${s.q}<br>حصة الخطة</span></div><div><b>${s.top}</b><span>رصيد<br>التعبئة</span></div><div><b>${s.em}</b><span>احتياطي<br>الاستغاثة</span></div></div>${s.left + s.top === 0 ? `<p class="sm" style="margin:10px 0 0">${ic('sms')} نفد الرصيد. تُرسل الآن رسائل الاستغاثة وحدها، من الاحتياطي.</p>` : ''}</div>
     <div class="card blsum"><div><small>تُضاف إلى رصيد هذا الشهر</small><b>حزمة 50 رسالة نصية</b></div><div class="am">${blNum(n)}<small>${blYE() ? 'ريال' : 'ر.س'}</small></div></div>
     ${callout(`${left <= 5 ? `<b>بقي من الشهر ${rwDy(left)} فقط.</b> ` : `بقي من الشهر ${rwDy(left)}. `}رصيد التعبئة ينتهي في ${blDate(blMonthEnd())} ولا ينتقل للشهر التالي.`, left <= 5 ? 'wa' : 'nt', 'event')}
-    ${sec('طريقة الدفع')}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
+    ${sec(blHow())}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
     ${offline() ? blOff('الشراء يحتاج اتصالاً بالإنترنت. الأرقام أعلاه من آخر نسخة محفوظة.') : b.pend ? callout('عندك دفعة بانتظار التحقق. انتظر نتيجتها قبل أن تبدأ دفعاً آخر.', 'wa', 'hourglass_top') : ''}
     ${btn('اشترِ حزمة 50 رسالة', 'topGo', offline() || b.pend ? 'dis" disabled="' : '', 'lock')}
-    <p class="xs muted c" style="margin-top:10px">${blYE() ? 'يُضاف الرصيد بعد أن تؤكد جهة الدفع وصول المبلغ.' : 'يُضاف الرصيد فور تحقق خادمنا من الدفع.'} الاستغاثة لها 3 رسائل احتياطية كل شهر ولو نفد كل شيء.</p>`;
+    <p class="xs muted c" style="margin-top:10px">${blYE() ? 'يُضاف الرصيد بعد أن تؤكد المحفظة وصول المبلغ.' : 'يُضاف الرصيد فور تحقق خادمنا من الدفع.'} الاستغاثة لها 3 رسائل احتياطية كل شهر ولو نفد كل شيء.</p>`;
   },
 });
 
@@ -367,7 +368,7 @@ surface('plan-limit', {
 /* ---------- S04-11 إدارة الاشتراك ---------- */
 surface('plan-manage', {
   t: 'إدارة الاشتراك', sys: 'S1-04', p: 'owner', req: '04:4,5,13',
-  note: 'S04-11. حالة التجديد بصدق: المتجر يجدّد من نفسه، والمحفظة والوكيل والبطاقة لا تتجدد من نفسها. إلغاء التجديد يُبقي الميزات حتى نهاية الفترة ثم تعود العائلة إلى المجانية. التجديد المبكر لمن لا يتجدد اشتراكه من نفسه: الفترة الجديدة تبدأ بعد نهاية الحالية (Q-420). استعادة المشتريات من متجر المنصة نفسه، في سوق الخليج فقط، بلا تفعيل مكرر.',
+  note: 'S04-11. حالة التجديد بصدق: المتجر يجدّد من نفسه، والمحفظة والبطاقة لا تتجدد من نفسها. إلغاء التجديد يُبقي الميزات حتى نهاية الفترة ثم تعود العائلة إلى المجانية. التجديد المبكر لمن لا يتجدد اشتراكه من نفسه: الفترة الجديدة تبدأ بعد نهاية الحالية (Q-420). استعادة المشتريات من متجر المنصة نفسه، في سوق الخليج فقط، بلا تفعيل مكرر.',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), st = blSt(), paid = S.plan !== 'free' && !st, e = blDate(blEnd()), ch = blChan(), auto = blAuto(), sn = BL_CH[blStore()][0];
@@ -439,6 +440,7 @@ Object.assign(ACT, {
   },
   pwGo(w, yr, ch) {
     const b = BL(), el = $('#pwr'), v = ((el ? el.value : b.pw.ref) || '').trim(); b.pw.ref = v;
+    ch = BL_WAL.includes(ch) ? ch : BL_WAL[0];            /* اليمن محافظ وحدها (Q-422) */
     if (offline()) { toast('تأكيد الدفع يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
     if (!v) { b.pw.err = 'empty'; return; }
     if (v === '70451288' || b.rc.some(r => r.ref === v)) { b.pw.err = 'dup'; return; }

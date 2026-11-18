@@ -1,5 +1,5 @@
 // اختبار مسارات S1-04 (الخطط والاشتراكات) في النموذج: الخطة والاستهلاك، المقارنة والأسعار بسوقين، تأكيد الترقية والتخفيض، الدفع بالمتجر والبطاقة،
-// الدفع بالمحفظة وعند وكيل وانتظار التحقق، تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات، والإخفاء عن الأبناء.
+// الدفع بالمحفظة وانتظار التحقق، تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات، والإخفاء عن الأبناء.
 // يحتاج puppeteer-core و@sparticuz/chromium (غير مضمَّنين في المستودع):  NODE_PATH=<node_modules> node tools/test-s1-04.cjs
 // النجاح: fail=[] و over=[] و eng=[] و errs=[].
 const puppeteer=require('puppeteer-core');let chromium=require('@sparticuz/chromium');chromium=chromium.default||chromium;
@@ -28,11 +28,11 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('seed: free plan, Yemen market, nothing paid, trial unused',S.plan==='free'&&S.reg==='YE'&&!S.planSt&&BL().rc.length===0&&!BL().trialUsed&&!BL().pend);
  ok('seed: plan matrix as ruled',PLAN.free.mem===5&&PLAN.basic.mem===10&&PLAN.premium.mem===Infinity&&PLAN.free.sms===20&&PLAN.basic.sms===50&&PLAN.premium.sms===100&&PLAN.free.ai===300&&PLAN.basic.ai===1000&&PLAN.premium.ai===3000);
  ok('seed: Yemen prices 300/2,700 and 600/5,400, pack 250',blPrice('basic',0)===300&&blPrice('basic',1)===2700&&blPrice('premium',0)===600&&blPrice('premium',1)===5400&&blItem('topup').n===250);
- S=fresh();open('plans');ok('plans Yemen: the ways to pay are named, Jaib first',/طرق الدفع/.test(q('#scr .blhow').textContent)&&[...ph.querySelectorAll('#scr .blhow .chip')].map(c=>c.textContent.trim()).join('|')==='محفظة جيب|محفظة ون كاش|محفظتي|دفع عند وكيل',q('#scr .blhow')&&q('#scr .blhow').textContent);
+ S=fresh();open('plans');ok('plans Yemen: the wallets list is named, Jaib first, wallets only',/محافظ الدفع/.test(q('#scr .blhow').textContent)&&[...ph.querySelectorAll('#scr .blhow .chip')].map(c=>c.textContent.trim()).join('|')==='محفظة جيب|محفظة ون كاش|محفظتي',q('#scr .blhow')&&q('#scr .blhow').textContent);
  S=fresh();open('pay');ok('pay opened directly in Yemen: the wallet flow with Jaib, no store',has(/ادفع المبلغ من محفظة جيب/)&&!has(/Google Play|App Store/)&&ph.querySelectorAll('#scr .blstep').length===2);
  S=fresh();gcc();open('plans');ok('plans Gulf: store and card, no Yemeni wallet',[...ph.querySelectorAll('#scr .blhow .chip')].map(c=>c.textContent.trim()).join('|')==='Google Play|بطاقة بنكية');open('pay-wallet');ok('wallet screen opened in the Gulf: the store flow, no wallet',has(/عبر Google Play/)&&!has(/محفظة جيب/));
  gcc();ok('seed: Gulf prices 9.99/89.99 and 19.99/179.99, pack 5.99',blPrice('basic',0)===9.99&&blPrice('basic',1)===89.99&&blPrice('premium',0)===19.99&&blPrice('premium',1)===179.99&&blItem('topup').n===5.99);
- ok('seed: payment ways follow the market and the device',blMethods().join()==='gplay,card'&&(S.os='ios',blMethods().join())==='appstore,card'&&(S.reg='YE',blMethods().join())==='jaib,onecash,mahfathati,manual'&&BL_CH.jaib[0]==='محفظة جيب');
+ ok('seed: payment ways follow the market and the device',blMethods().join()==='gplay,card'&&(S.os='ios',blMethods().join())==='appstore,card'&&(S.reg='YE',blMethods().join())==='jaib,onecash,mahfathati'&&BL_CH.jaib[0]==='محفظة جيب'&&!BL_CH.manual&&blMethods().every(id=>BL_WAL.includes(id)));
  // 2 الخطة والاستهلاك
  S=fresh();open('plan');
  ok('plan: name, state and period in one card',!!q('#scr .blc')&&has(/خطة العائلة/)&&/المجانية/.test(q('#scr .blc h5').textContent)&&has(/فعّالة/)&&has(/بلا تكلفة وبلا مدة/));
@@ -76,7 +76,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 4 تأكيد الترقية
  S=fresh();open('plan-change','basic');
  ok('upgrade: from, to, when it starts and until when',ttl()==='تأكيد الترقية'&&/المجانية/.test(q('#scr .blft').innerText)&&/الأساسية/.test(q('#scr .blft .to').innerText)&&has(/تبدأ الأساسية فور تحققنا من دفعك، وتمتد حتى 15 ديسمبر/));
- ok('upgrade Yemen: three wallets with Jaib first, then the agent; none renews by itself',ph.querySelectorAll('#scr .opt').length===4&&q('#scr .opt[aria-pressed="true"]').dataset.a==='blPm:jaib'&&has(/محفظة جيب/)&&has(/محفظة ون كاش/)&&has(/محفظتي/)&&has(/دفع عند وكيل/)&&has(/لا تتجدد من نفسها: تجدّدها أنت/)&&!has(/Google Play/));
+ ok('upgrade Yemen: a wallets list of three with Jaib first and no agent; none renews by itself',ph.querySelectorAll('#scr .opt').length===3&&q('#scr .opt[aria-pressed="true"]').dataset.a==='blPm:jaib'&&has(/اختر المحفظة/)&&has(/محفظة جيب/)&&has(/محفظة ون كاش/)&&has(/محفظتي/)&&!has(/وكيل/)&&has(/لا تتجدد من نفسها: تجدّدها أنت/)&&!has(/Google Play/));
  ok('upgrade: one confirm button with the amount, cancel beside it',/رقِّ الآن · 300 ريال/.test(q('#scr [data-a="plGo:basic"]').textContent)&&!!q('#scr [data-a="back"]')&&!q('#scr [data-a="go:voucher"]')&&!has(/قسيمة/));
  ok('upgrade: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a="blYr:1"]');ok('upgrade yearly: amount and end date follow',/رقِّ الآن · 2,700 ريال/.test(q('#scr [data-a="plGo:basic"]').textContent)&&has(/15 نوفمبر 2027/));
@@ -123,7 +123,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  cl('#scr [data-a^="payOpen"]');ok('card pay: one payment for the period, no renewal promised',/صفحة الدفع/.test(sh())&&/دفعة واحدة عن سنة/.test(sh())&&/ادفع 89\.99 ر\.س/.test(sh()));
  cl('.sheet [data-a^="payBuy"]');ACT.payEnd('basic','1','card');render();ok('card pay yearly: active for a year, does not renew by itself',S.plan==='basic'&&BL().yr===1&&BL().end==='2027-11-15'&&!blAuto()&&has(/تنتهي 15 نوفمبر 2027 · لا تتجدد من نفسها/)&&has(/89\.99 ر\.س في السنة/));noT();
  S=fresh();gcc();S.net='off';open('pay','premium','','gplay');ok('store pay offline: button off with the reason',q('#scr [data-a^="payOpen"]').disabled&&has(/الدفع يحتاج اتصالاً/));
- // 7 الدفع بالمحفظة وعند وكيل
+ // 7 الدفع بالمحفظة
  S=fresh();open('plan');open('plans');open('plan-change','basic');cl('#scr [data-a="plGo:basic"]');pin();
  ok('wallet pay: two numbered steps and the amount',top()==='pay-wallet'&&ph.querySelectorAll('#scr .blstep').length===2&&has(/ادفع المبلغ من محفظة جيب/)&&has(/اكتب الرقم المرجعي/)&&/300/.test(q('#scr .blsum .am').textContent));
  ok('wallet pay: nothing invented about the transfer',has(/تُكتب هنا عند التعاقد مع المحفظة/)&&has(/بعد أن تؤكد المحفظة وصول المبلغ، لا قبله/));
@@ -139,19 +139,19 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('receipts');ok('waiting payment: first in the payments log',has(/قيد التحقق/)&&has(/بانتظار التحقق/)&&has(/••••1300/));
  blEv('ver');ok('wallet verified: plan active, notice sent, payment logged with its reference',S.plan==='basic'&&!BL().pend&&BL().rc[0].st==='ok'&&BL().rc[0].ref==='70451300'&&/تمت الترقية/.test(NT())&&BL().ch==='jaib'&&BL().end==='2026-12-15');
  S.stack=[{id:'home',a:[]}];open('plan');ok('wallet verified: does not renew by itself, said',!blAuto()&&has(/تنتهي 15 ديسمبر · لا تتجدد من نفسها/)&&!q('#scr .blp'));
- S=fresh();BL().pend=PD();blEv('rej');open('plan');ok('wallet rejected: plan unchanged, said with what to do',S.plan==='free'&&!BL().pend&&!!BL().rej&&has(/لم تتأكد دفعتك/)&&has(/فلم تتغير خطتك/)&&has(/فراجع المحفظة أو الوكيل/)&&!!q('#scr [data-a="go:plan-change:basic"]')&&/لم تتأكد دفعتك/.test(NT()));
+ S=fresh();BL().pend=PD();blEv('rej');open('plan');ok('wallet rejected: plan unchanged, said with what to do',S.plan==='free'&&!BL().pend&&!!BL().rej&&has(/لم تتأكد دفعتك/)&&has(/فلم تتغير خطتك/)&&has(/فراجع المحفظة\./)&&!has(/الوكيل/)&&!!q('#scr [data-a="go:plan-change:basic"]')&&/لم تتأكد دفعتك/.test(NT()));
  ok('wallet rejected: on the home attention list and in the log',att('bl:rej')&&BL().rc[0].st==='rej'&&S.audit[0].deny===1);
  cl('#scr [data-a="blRejOk"]');ok('wallet rejected: dismissed by the owner',!BL().rej&&!att('bl:rej')&&!q('#scr .callout.da'));
- S=fresh();open('pay-wallet','premium','1','manual');ok('agent pay: cash, the slip number, yearly amount',has(/ادفع المبلغ عند وكيل/)&&has(/ادفع 5,400 ريال نقداً وخذ سند الدفع/)&&has(/كما هو مكتوب على السند/)&&has(/عناوين الوكلاء تُكتب هنا عند اعتمادهم/));
- typ('#pwr','A-5512');cl('#scr [data-a^="pwGo"]');ok('agent pay: waits for the agent, premium not active yet',BL().pend.ch==='manual'&&BL().pend.yr===true&&S.plan==='free'&&has(/يؤكد الوكيل/));
- blEv('ver');ok('agent pay verified: premium for a year',S.plan==='premium'&&BL().yr===1&&BL().end==='2027-11-15');
+ S=fresh();open('pay-wallet','premium','1','manual');ok('no agent way: an old agent link opens the first wallet, yearly amount',has(/ادفع المبلغ من محفظة جيب/)&&has(/حوّل 5,400 ريال إلى حساب «عائلتي»/)&&has(/كما وصلك في إشعار المحفظة/)&&!has(/وكيل|نقداً|السند/));
+ open('pay-wallet','premium','1','mahfathati');typ('#pwr','A-5512');cl('#scr [data-a^="pwGo"]');ok('yearly wallet pay: waits for that wallet, premium not active yet',BL().pend.ch==='mahfathati'&&BL().pend.yr===true&&S.plan==='free'&&has(/فور أن تؤكد محفظتي وصول المبلغ/));
+ blEv('ver');ok('yearly wallet pay verified: premium for a year',S.plan==='premium'&&BL().yr===1&&BL().end==='2027-11-15');
  S=fresh();S.net='off';open('pay-wallet','basic','','jaib');ok('wallet pay offline: confirm off with the reason',q('#scr [data-a^="pwGo"]').disabled&&has(/تأكيد الدفع يحتاج اتصالاً/));
  // 9 تعبئة الرسائل النصية
  S=fresh();open('topup');
  ok('top-up: three separate numbers',[...ph.querySelectorAll('#scr .blbal .g3 b')].map(b=>b.textContent).join()==='6,0,3'&&has(/حصة الخطة/)&&has(/رصيد التعبئة/)&&has(/احتياطي الاستغاثة/));
  ok('top-up: one pack with the market price, never a bare 50',has(/حزمة 50 رسالة نصية/)&&/250/.test(q('#scr .blsum .am').textContent)&&/اشترِ حزمة 50 رسالة/.test(q('#scr [data-a="topGo"]').textContent)&&!has(/5\.99/));
  ok('top-up: says how much of the month is left and that the balance does not carry over',has(/بقي من الشهر 16 يوماً/)&&has(/ينتهي في 30 نوفمبر ولا ينتقل للشهر التالي/));
- ok('top-up Yemen: honest about when the balance arrives',has(/يُضاف الرصيد بعد أن تؤكد جهة الدفع وصول المبلغ/)&&ph.querySelectorAll('#scr .opt').length===4);
+ ok('top-up Yemen: honest about when the balance arrives, wallets only',has(/يُضاف الرصيد بعد أن تؤكد المحفظة وصول المبلغ/)&&has(/اختر المحفظة/)&&ph.querySelectorAll('#scr .opt').length===3&&!has(/وكيل/));
  ok('top-up: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a="topGo"]');ok('top-up: secret number first',top()==='pin');pin();ok('top-up Yemen: goes to the wallet payment for the pack',top()==='pay-wallet'&&has(/حزمة 50 رسالة نصية/)&&has(/شراء مرة واحدة/));
  typ('#pwr','88001');cl('#scr [data-a^="pwGo"]');ok('top-up Yemen: waits, balance not added yet',BL().pend.w==='topup'&&!S.smsTop&&has(/نضيف الرصيد فور أن تؤكد محفظة جيب/));

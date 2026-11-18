@@ -7,6 +7,7 @@
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 - **تحديث 2026-11-18 (Q-420 · Q-421):** حُذفت القسائم من كل المخططات (حالتا الاستخدام UC6 وUC14، التسلسلان 3-ب و3-ح، جدولها في ERD، ومخزنها في DFD)، وأضيفت محفظة جيب وجدول `wallet_provider`. الأرقام والحروف المحذوفة لا يُعاد استعمالها. وأحكام Q-420 (الأيام الإضافية عند الترقية، التذكيران، عودة العائلة المدفوعة بعد التجربة، التجديد المبكر) تُرسم في دفعة إعادة المخططات (Q-412)؛ والمرجع فيها حتى ذلك الحين `SPEC.md` §3 و§9.8.
+- **تحديث 2026-11-18 (Q-422):** حُذف «دفع عند وكيل» من كل المخططات بأمر المالك: التسلسل 3-ز، وفرعه في تدفق المستخدم، ومزوّده R4 في مخطط النشاط، وقيمة `MANUAL`؛ وUC9 صارت «الدفع عبر محفظة يمنية». الدفع في اليمن بقائمة المحافظ وحدها. الحرف 3-ز والرمز R4 لا يُعاد استعمالهما.
 
 ## 1. حالات الاستخدام
 
@@ -33,7 +34,7 @@ flowchart LR
         UC5(شراء حزمة تعبئة SMS)
         UC7(استعادة المشتريات)
         UC8(الدفع عبر المتجر أو البطاقة)
-        UC9(الدفع عبر محفظة أو دفع يدوي)
+        UC9(الدفع عبر محفظة يمنية)
         UC10(عرض الخطة في مركز الأوامر)
         UC11(فحص حارس الحصص)
         UC12(تجاوز طوارئ SOS)
@@ -175,14 +176,14 @@ erDiagram
     }
 ```
 
-- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ و`wallet_provider.provider`: JAIB / ONECASH / MAHFATHATI (Q-421 — جدول مستقل بلا علاقة مرسومة: `payment_confirmation.provider` يحمل اسمه)؛ و`purchase_receipt.amount_cents`/`currency` مبلغ الدفعة وعملتها (Q-420)؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET / MANUAL (§5).
+- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ و`wallet_provider.provider`: JAIB / ONECASH / MAHFATHATI (Q-421 — جدول مستقل بلا علاقة مرسومة: `payment_confirmation.provider` يحمل اسمه)؛ و`purchase_receipt.amount_cents`/`currency` مبلغ الدفعة وعملتها (Q-420)؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET (§5 — حُذفت MANUAL بـ Q-422).
 - `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5) — فترة الحصة شهر تقويمي (Q-252)، مستقلة عن فترة الاشتراك المدفوعة (`current_period_start`/`current_period_end`).
 - منتج التعبئة `topup_product` مستوى الكتالوج — يُقرأ عبر `GET /api/v1/plans` لا لكل خطة؛ والمفتاح المركب `product_id + market`؛ وصفوف البذرة محكومة (G-S04-08 أُغلق 2026-11-08 — Q-339 · Q-340): الخليج 5.99 ر.س / اليمن 250 ر.ي لحزمة 50 رسالة.
 - مصفوفة الخطط (§1 · REQ-001): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS (Q-261)؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء (Q-335 · Q-336 — الوحدة = استدعاء ذكاء واحد عبر البوابة؛ والمصنف معفى من ميزانية العائلة): المجانية 300 وحدة/شهر — تحقق المهام فقط؛ الأساسية 1,000 — تحقق + مساعد محدود؛ المميزة 3,000 — كاملة.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-سبعة مخططات، كل واحد لتدفق واحد: 3-أ، 3-ج، 3-د، 3-هـ، ثم مخططا الدفع اليمني (3-و/3-ز، Q-251)، ثم 3-ط. والحرفان 3-ب و3-ح كانا لمخططَي القسيمة وحُذفا معها (Q-421) ولم يُعد ترقيم الباقي.
+ستة مخططات، كل واحد لتدفق واحد: 3-أ، 3-ج، 3-د، 3-هـ، ثم مخطط الدفع اليمني بالمحفظة (3-و، Q-251)، ثم 3-ط. والحرفان 3-ب و3-ح كانا لمخططَي القسيمة وحُذفا معها (Q-421)، والحرف 3-ز كان لمخطط الدفع عند وكيل وحُذف معه (Q-422)؛ ولم يُعد ترقيم الباقي.
 
 ### 3-أ. الترقية عبر المتجر — الخليج (REQ-005/007 — §4)
 
@@ -307,9 +308,9 @@ sequenceDiagram
     App-->>Father: بطاقة ترقية لبقة (لا حظر قاسٍ)
     Father->>App: الترقية للأساسية (حتى 10 أفراد)
     App->>Ktor: POST /api/v1/families/{id}/plan/upgrade
-    Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة / وكيل) — بلا تفعيل بعد
+    Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة) — بلا تفعيل بعد
     Father->>App: إتمام الدفع بالقناة المختارة
-    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm أو manual/confirm حسب القناة
+    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm حسب القناة
     alt تحقق خادمي صحيح
         Ktor->>Ktor: تفعيل الاشتراك
         Ktor-->>App: ترقية مفعّلة — إضافة العضو تنجح
@@ -355,29 +356,6 @@ sequenceDiagram
 
 - الرقم المرجعي نص معتم ينقله الأب كما يظهر في تطبيق المحفظة — لا يُعتمد دليل دفع حتى تحقق المزوّد عبر `WalletProviderAdapter` (بلا تفاصيل API حتى عقد حقيقي)؛ ولا يُفعَّل الاشتراك قبل `VERIFIED` (REQ-007)؛ وتفاصيل تمرير المبلغ إلى تطبيق المحفظة من العقد الحقيقي — لا تُخترع هنا (§4).
 
-### 3-ز. تأكيد دفع يدوي مسبق (REQ-006 — §4/§5 — Q-251)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Father as الأب
-    participant App as التطبيق
-    participant Ktor as الخادم
-    participant Audit as التدقيق
-    Father->>App: إدخال الرقم المرجعي للدفع اليدوي المسبق
-    App->>Ktor: POST /api/v1/families/{id}/billing/manual/confirm {plan_id, reference}
-    alt رقم مرجعي مستخدم من قبل
-        Ktor-->>App: 409 REFERENCE_DUPLICATE
-    else رقم مرجعي جديد
-        Ktor->>Ktor: إنشاء سجل دفع payment_confirmation (status=PENDING_VERIFICATION)
-        Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>App: {payment_id, status: "pending_verification"}
-        Note over Ktor: لا يُفعَّل الاشتراك قبل التحقق الخادمي (REQ-007)؛ وقناة التحقق تُسمى عند إجراء حقيقي — بلا تفاصيل مخترعة
-    end
-```
-
-- الدفع اليدوي مسبق: الأب يدفع أولاً خارج التطبيق ثم يؤكد بالرقم المرجعي؛ والسجل يبقى «بانتظار التحقق» حتى يصل التحقق الخادمي؛ ولا تفعيل قبل `VERIFIED` (§4).
-
 ### 3-ط. مفتاح إيقاف الذكاء للمسؤول (Q-338 — D-10 — §4-2)
 
 ```mermaid
@@ -409,11 +387,9 @@ flowchart TD
     Choice -->|نعم| Channel{طريقة الدفع}
     Channel -->|متجر / بطاقة — الخليج| Store[شراء Play / StoreKit أو Tap / Moyasar]
     Channel -->|محفظة يمنية| Wallet[دفع Jaib / OneCash / Mahfathati]
-    Channel -->|دفع عند وكيل| Agent[رقم مرجعي من الوكيل]
     Channel -->|تجربة| Trial[بدء تجربة 7 أيام — مرة واحدة]
     Store --> Verify[تحقق خادمي S2S من الإيصال]
     Wallet --> Verify
-    Agent --> Verify
     Trial --> Active[مميزة ACTIVE]
     Verify -->|صحيح| Active
     Verify -->|مزور / مكرر| Reject[رفض 409 + تسجيل FRAUD_SUSPECT]
@@ -441,7 +417,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D6 وD8–D9 (جداول خادم PostgreSQL). المخزن D7 محفوظ محلياً على الجهاز (للقراءة دون اتصال) وليس جدول خادم.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — REQ-005 — حافة Father→P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — REQ-017 — حافتا Father→P4 وP4→Father؛ الرد: المستخدم/الحد لكل حصة + الفترة YYYY-MM + رصيد التعبئة + الطوارئ المتبقية) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — حافة Admin→P7 — المفتاح: `billing.plan.edit` — Q-260 — مالك المنصة وحده؛ غيره 403)؛ [تصحيح 2026-11-08 (D-2): كانت النقاط الثلاث الأولى نثراً فقط في هذه الملاحظة؛ رُسمت الآن كحواف.] ونقاط الدفع اليمني الجديدة `POST /api/v1/families/{id}/billing/wallet/initiate` و`POST /api/v1/families/{id}/billing/wallet/confirm` و`POST /api/v1/families/{id}/billing/manual/confirm` تمر عبر P3 (3-و/3-ز — Q-251)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — REQ-005 — حافة Father→P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — REQ-017 — حافتا Father→P4 وP4→Father؛ الرد: المستخدم/الحد لكل حصة + الفترة YYYY-MM + رصيد التعبئة + الطوارئ المتبقية) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — حافة Admin→P7 — المفتاح: `billing.plan.edit` — Q-260 — مالك المنصة وحده؛ غيره 403)؛ [تصحيح 2026-11-08 (D-2): كانت النقاط الثلاث الأولى نثراً فقط في هذه الملاحظة؛ رُسمت الآن كحواف.] ونقطتا الدفع اليمني `POST /api/v1/families/{id}/billing/wallet/initiate` و`POST /api/v1/families/{id}/billing/wallet/confirm` تمران عبر P3 (3-و — Q-251؛ وحُذفت `manual/confirm` بـ Q-422)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
 
 ```mermaid
 flowchart LR
@@ -459,7 +435,7 @@ flowchart LR
     subgraph Billing [وحدة الفوترة — Ktor billing]
         P1(1.0 كتالوج الخطط والاستحقاقات)
         P2(2.0 دفع المتجر والبطاقات + تحقق S2S)
-        P3(3.0 دفع اليمن — محفظة / وكيل)
+        P3(3.0 دفع اليمن — المحافظ)
         P4(4.0 حارس الحصص والتعبئة)
         P5(5.0 مجدول التجربة والسماح والتراجع)
         P6(6.0 أحداث الفوترة والإشعارات)
@@ -496,10 +472,10 @@ flowchart LR
     P2 -->|تحقق S2S| Store
     P2 -->|حفظ الإيصال والتحقق| D4
     P2 -->|تفعيل الاشتراك| D3
-    Father -->|محفظة / دفع عند وكيل| P3
+    Father -->|دفع بمحفظة يمنية| P3
     Wallet -->|تأكيد الدفع| P3
     P3 -->|قراءة المحافظ الفعالة| D5
-    P3 -->|حفظ سجل الدفع / التأكيد اليدوي| D8
+    P3 -->|حفظ سجل الدفع وتأكيده| D8
     P3 -->|تفعيل الاشتراك| D3
     S102 -->|عدد الأعضاء| P4
     S107 -->|طلب SMS| P4
@@ -566,7 +542,6 @@ flowchart LR
         R1[Google Play / App Store]
         R2[Tap / Moyasar — بطاقات]
         R3[Jaib / OneCash / Mahfathati — محافظ]
-        R4["وكيل — دفع نقدي برقم مرجعي (Q-251)"]
     end
     subgraph Sched [المجدول]
         direction TB
@@ -585,11 +560,9 @@ flowchart LR
     A3 --> R1
     A3 --> R2
     F3 --> R3
-    F3 --> R4
     R1 --> A4
     R2 --> A4
     R3 --> A4
-    R4 --> A4
     A4 --> V2
     V2 --> V3
     V2 -->|"تحقق الدفع — إضافة رصيد التعبئة (Q-180)"| V4

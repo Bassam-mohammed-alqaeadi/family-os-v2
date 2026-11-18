@@ -76,7 +76,7 @@ graph TD
 |---|---|---|---|
 | WhatsApp / SMS / مكالمة فائتة | توصيل OTP | موجّه OTP (Router) | Q-021 |
 | OSM (MapLibre) | خرائط + بلاطات + دون اتصال | طبقة تجريد خرائط | Q-020 |
-| Jaib / OneCash / Mahfathati | دفع اليمن | مسار دفع `PaymentRoute` | Q-025 · Q-421 |
+| Jaib / OneCash / Mahfathati | دفع اليمن (المحافظ وحدها) | مسار دفع `PaymentRoute` | Q-025 · Q-421 · Q-422 |
 | Google Play / Tap / Moyasar | دفع الخليج | مسار دفع `PaymentRoute` | Q-025 |
 | مزودو الذكاء | نماذج لغوية | بوابة الذكاء (Gateway) | Q-011 |
 | FCM / HMS | دفع للوحة الأهل | قناة إشعارات موحدة | Q-022 |
