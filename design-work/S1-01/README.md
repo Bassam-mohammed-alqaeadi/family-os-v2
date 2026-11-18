@@ -20,6 +20,7 @@ The following files are retained for audit/history only:
 - 00-design-foundation-and-audit.md
 - 01-scr-02-parent-shell-high-fidelity.md
 - 02-scr-02-consistency-review.md
+- Earlier Phase 1 package: [design-work/phase-1/S1-01-app-shell-and-platform/README.md](../phase-1/S1-01-app-shell-and-platform/README.md) — screen blueprint, user flows, wireframes, component matrix, and open-item reconciliation; retained as historical draft, not a competing current design authority.
 
 Their product requirements and observations may be consulted for traceability, but their layouts, navigation assumptions, visual composition, sample content, and local token exceptions are **not** the template for the new experience.
 
@@ -27,7 +28,7 @@ Their product requirements and observations may be consulted for traceability, b
 
 Open 06-android-interactive-design.html in a modern browser. It is a self-contained HTML file with no external libraries or backend connection. It includes Parent and child/teen surfaces, navigation destinations, Parent Gate, SOS hand-off demonstration, offline/sync, platform health, critical update, light/dark theme, text scaling, and a dimensions inspector.
 
-**The prototype is a visual study, not an Android build.** It does not call Android APIs, access real device state, authenticate a PIN, send SOS, or synchronize data.
+**The prototype is a visual study, not an Android build.** It does not call Android APIs, access real device state, authenticate a PIN, send SOS, or synchronize data. It does not yet model the Q-286 10-second pre-send cancellation window. Several icon positions use Unicode/emoji glyph placeholders; Q-385 Material Symbols Rounded remains the approved icon family, so the preview is not icon-final. The preview is Arabic/RTL only and has not been validated in LTR, landscape, tablet/foldable layouts, or on a real Android device; the SOS anchor currently uses physical `left` CSS and must become logical `inset-inline-end` before LTR acceptance.
 
 ## Earlier exploratory studio
 
