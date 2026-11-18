@@ -115,6 +115,7 @@ Object.assign(ACT, {
 const AK = {
   sos: ['استغاثة', 'sos', 'loc', 'الموقع والاستغاثة'], tamper: ['حماية', 'gpp_maybe', 'prot', 'الحماية'], chat: ['محادثة', 'chat_error', 'chat', 'المحادثة'],
   perm: ['صلاحيات', 'lock_person', '', 'العائلة والصلاحيات'], grant: ['صلاحية تنتهي', 'schedule', '', 'العائلة والصلاحيات'],
+  help: ['طلب مساعدة', 'front_hand', 'chat', 'المحادثة'], prof: ['طلب من طفل', 'palette', '', 'ملف الطفل'],   /* Q-435: ما يرسله الابن يصل أهله */
 };
 function alertSees(a) { return a.k === 'tamper' ? can('protection.tamper.view') : a.k === 'chat' ? can('chat.minor.view') : a.k === 'perm' || a.k === 'grant' ? isOwner() : true; }
 function allAlerts() {
@@ -126,13 +127,15 @@ function allAlerts() {
   return A.filter(alertSees);
 }
 function alertGo(a) {
+  if (a.k === 'help') return 'dmStart:' + a.kid;
+  if (a.k === 'prof') return can('identity.child.profile.edit') || isOwner() ? 'go:child-new:' + a.kid : 'denied:identity.child.profile.edit';
   if (a.k === 'sos') return a.live ? 'go:sos-status' : 'go:map';
   if (a.k === 'tamper') return `go:tamper:${a.id}`;
   if (a.k === 'chat') return a.rv ? 'go:chat-review' : 'go:chat-flag:dm-khaled-layan:0';
   if (a.k === 'grant') return `keyOpen:${a.gk}`;
   return /جهة استرداد/.test(a.t) ? 'go:security' : `go:denial:${a.id}`;
 }
-const alertTone = a => (a.p === 0 ? 'da' : a.k === 'tamper' || a.k === 'grant' ? 'go' : a.k === 'chat' ? 'in' : '');
+const alertTone = a => (a.p === 0 ? 'da' : a.k === 'tamper' || a.k === 'grant' || a.k === 'help' ? 'go' : a.k === 'chat' || a.k === 'prof' ? 'in' : '');
 surface('alert', {
   t: 'تنبيه', sys: 'S1-09', p: 'adult', a: ['a1'], req: '09:3,10,15',
   note: 'تفصيل تنبيه واحد: ما حدث، ومن يخص، ووقته الأصلي، والخدمة صاحبته، ثم زر يفتحها. «تمّت قراءته» يخفيه عند كل البالغين. الاستغاثة النشطة ومشكلة الحماية القائمة لا تُغلقان بالقراءة: تُحلّان من شاشتيهما. والاستغاثة التي وصلت متأخرة تحمل وقت إرسالها لا وقت وصولها.',

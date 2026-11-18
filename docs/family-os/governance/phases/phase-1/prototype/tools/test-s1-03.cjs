@@ -129,4 +129,4 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
    if(/[a-z]+\.[a-z_]+\.[a-z_]+|PERM_|scope|valid_until|deny|قالب|القوالب|مفتاح ذري|مفاتيح|المصفوفة|step-up|409|Parent Gate|PIN/.test(txt()))eng.push(id+':'+(txt().match(/[a-z]+\.[a-z_]+\.[a-z_]+|PERM_|scope|valid_until|deny|قالب|القوالب|مفتاح ذري|مفاتيح|المصفوفة|step-up|409|Parent Gate|PIN/)||[])[0]);}catch(e){F.push('ERR '+id+' '+e.message)}}}
  R.over=over;R.eng=eng;R.n=ids.length;R.ids=ids.join(' ');R.checks=N;R.fail=F;return R;});
 R.errs=errs;}catch(e){R.crash=String(e.stack||e).slice(0,900)}finally{await b.close()}
-console.log(JSON.stringify(R,null,1));})();
+console.log(JSON.stringify(R,null,1));process.exitCode=(R.crash||[R.fail,R.errs,R.over,R.eng].some(x=>x&&x.length))?1:0;})();

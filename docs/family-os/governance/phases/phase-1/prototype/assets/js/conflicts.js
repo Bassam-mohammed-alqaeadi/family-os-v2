@@ -188,13 +188,14 @@ function cfLine(kid) {
 
 /* ---------- بوابة الحفظ ---------- */
 let CFX = null;
-function cfGate(find, go, o = {}) { cfSweep(); const L = find(); if (!L.length) return go(false); CFX = { find, go, o, L, back: S.sheet }; S.sheet = { id: 'conflict', a: [] }; }
+function cfGate(find, go, o = {}) { cfSweep(); const L = find(); if (!L.length) return go(false); CFX = { find, go, o, L, back: S.sheet, S }; S.sheet = { id: 'conflict', a: [] }; }
 const cfGoTo = s => { const [id, ...a] = s.split(':'); if (SC[id]) go(id, ...a); else if (ACT[id]) ACT[id](...a); };
 const cfLog = c => { const t = `حُفظ مع تعارض${KIDS.includes(c.kid) ? ' عند ' + M[c.kid].n : ''}: ${c.ti}`; if (/^(task|ev)/.test(c.k)) audit(t, /^task/.test(c.k) ? 'tasks.create' : 'calendar.event.create'); else xaud(t, 'protection.rule.edit', c.kid, 'rule'); };
 surface('conflict', {
   kind: 'sheet', t: 'تعارض عند الحفظ', sys: 'S1-10', p: 'adult', req: '10:6,13,33 06:14 05:11',
   note: 'Q-419. تظهر قبل أن يُحفظ شيء متعارض، بالشكل نفسه في كل الأنظمة: الطرفان باسميهما ومعهما الطفل والوقت، ثم ما سيحدث فعلاً لو بقي التعارض، ثم الحلول بضغطة. «احفظ كما هو» يحفظ ويترك وسم «متعارض»، وإن حفظ بالغ غير المالك وصل المالك تنبيه. لا تفتح وحدها: افتحها من رحلة «تعارض القواعد» في الاستوديو.',
   r() {
+    if (CFX && CFX.S !== S) CFX = null;   /* بطاقة من حالة سابقة (بعد «حالة جديدة» من الاستوديو) لا تبقى حيّة (Q-435) */
     const x = CFX; if (!x) return `<h4>لا تعارض الآن</h4><p class="d">تظهر هذه الورقة حين تحفظ شيئاً يتعارض مع شيء موجود. جرّب رحلة «تعارض القواعد» من الاستوديو.</p>${btn('حسناً', 'close', 'sec')}`;
     const L = x.L, blk = L.some(c => c.tier === 'block'), once = L.every(c => c.once), kids = [...new Set(L.map(c => c.kid))].filter(k => KIDS.includes(k));
     return `<h4>${L.length === 1 ? 'هذا يتعارض مع شيء موجود' : `${L.length === 2 ? 'تعارضان' : L.length + ' تعارضات'} مع ما هو موجود`}</h4><p class="d">${x.o.lead || 'لم يُحفظ شيء بعد.'}${kids.length ? ` يخص ${kids.map(kn).join(' و')}.` : ''} اقرأ ما سيحدث ثم اختر.</p>

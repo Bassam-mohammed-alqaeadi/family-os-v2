@@ -14,6 +14,8 @@ const arNorm = s => (s || '').toLowerCase().replace(/[\u064B-\u0652\u0640]/g, ''
 const kn = id => pname(M[id]);
 const devOn = kid => S.kid[kid].online && S.kidOff !== kid;       // جهاز الطفل متصل؟ (الاستوديو يقطعه للتجربة)
 ACT.noop = () => false;
+/* تطبيق محظور دائماً لا يصير تطبيق دراسة: الصف يقول السبب ويدلّ على مكان تغييره (Q-435) */
+ACT.sdWhy = () => { toast('محظور دائماً · غيّر قاعدته من «التطبيقات» أولاً', null, 'block'); return false; };
 
 /* ---------- سجل الحماية (REQ-026): من غيّر، ماذا، متى، لأي طفل، ومن أي نوع ---------- */
 function xaud(t, k, kid, ty, un) { S.audit.unshift({ t, w: me().n, at: 'الآن', k, kid, ty, d: 0, un }); }
@@ -163,7 +165,8 @@ surface('protection', {
     const R = (i, t, s, key, a, v) => row(i, t, s, { a: can(key, id) ? a : 'denied:' + key, v: can(key, id) ? v : ic('lock') });
     return `${iosNote()}${rv.length ? `<button class="card fx" style="border-color:var(--info)" data-a="go:rules-review">${ic('rule')}<div class="grow"><b>${rv.length === 1 ? 'قواعد تحتاج مراجعتك' : rv.length + ' مراجعات للقواعد'}</b><div class="sm muted">${rv[0].k === 'teen' ? `بلغت ${kn(rv[0].kid)} 13 سنة` : `قُرن جهاز جديد لـ${kn(rv[0].kid)}`}</div></div>${ic('chevron_right')}</button>` : ''}
     ${kidTabs(id)}
-    <button class="card fx" data-a="${can('protection.state.view', id) ? 'go:enf-state:' + id : 'denied:protection.state.view'}">${ic(nr[0])}<div class="grow"><b>الآن: ${nr[1]}</b><div class="sm muted">${nr[2]}</div><div class="sm muted">التالي: ${nextEdge(id)}</div></div>${chip(e[0], e[2], e[1])}</button>
+    ${noDev(id) ? `<div class="card nodev">${ic('mobile_off')}<div class="grow"><b>لم يُقرن جهاز ${kn(id)} بعد</b><div class="sm muted">القواعد التي تضعها الآن تسري من لحظة الإقران.</div></div>${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, 'sm', 'devices') : ''}</div>` : ''}
+    <button class="card fx" ${noDev(id) ? 'hidden' : ''} data-a="${can('protection.state.view', id) ? 'go:enf-state:' + id : 'denied:protection.state.view'}">${ic(nr[0])}<div class="grow"><b>الآن: ${nr[1]}</b><div class="sm muted">${nr[2]}</div><div class="sm muted">التالي: ${nextEdge(id)}</div></div>${chip(e[0], e[2], e[1])}</button>
     ${cfLine(id)}
     ${sec('قواعد ' + kn(id))}${list(
       R('apps', 'التطبيقات', `${ap.filter(a => a.act === 'LIMIT').length} بحدّ يومي · ${ap.filter(a => a.act === 'BLOCK').length} محظور · ${ap.filter(a => !a.act).length} بلا قاعدة`, 'protection.rule.view', `go:apps:${id}`),
@@ -266,7 +269,7 @@ surface('win-edit', {
   r(kid, wid) { if (!S.wd || S.wd.kid !== kid || (wid !== 'new' && S.wd.id !== wid)) { const w = S.sched[kid].find(x => x.id === wid) || S.sched[kid][0]; if (!w) return ''; S.wd = { kid, id: w.id, type: w.type, days: w.days.slice(), s: w.s, e: w.e }; }
     const d = S.wd, isNew = !S.sched[kid].some(x => x.id === d.id), over = t2m(d.e) <= t2m(d.s), clash = d.days.length ? winClash(kid, d) : '', t = NOW.d * 1440 + NOW.m, nowIn = d.days.length && spans(d).some(([a, b]) => hitWk(a, b, t, t + 1)), ok = d.days.length && !clash && !offline();
     return `<h4>${isNew ? 'نافذة جديدة' : 'تعديل نافذة'} · ${kn(kid)}</h4>${seg([['sleep', 'نوم'], ['school', 'مدرسة']], d.type, 'wdType')}<p class="d">${d.type === 'sleep' ? 'في نافذة النوم لا يُفتح أي تطبيق. زر الاستغاثة يعمل دائماً.' : 'في نافذة المدرسة تُفتح تطبيقات الدراسة فقط.'}</p>
-    <div class="fx sb" style="margin-bottom:6px"><b class="sm">الأيام</b><span>${btn('كل يوم', 'wdDays:0123456', 'sm txt')}${btn('الأحد–الخميس', 'wdDays:01234', 'sm txt')}</span></div><div class="days">${DAYN.map((n, i) => `<button aria-pressed="${d.days.includes(i)}" data-a="wdDay:${i}" aria-label="${n}">${n.replace(/^ال/, '').slice(0, 3)}</button>`).join('')}</div>
+    <div class="fx sb" style="margin-bottom:6px"><b class="sm">الأيام</b><span>${btn('كل يوم', 'wdDays:0123456', 'sm txt" aria-pressed="' + (d.days.slice().sort().join('') === '0123456'))}${btn('الأحد–الخميس', 'wdDays:01234', 'sm txt" aria-pressed="' + (d.days.slice().sort().join('') === '01234'))}</span></div><div class="days">${DAYN.map((n, i) => `<button aria-pressed="${d.days.includes(i)}" data-a="wdDay:${i}" aria-label="${n}">${n.replace(/^ال/, '').slice(0, 3)}</button>`).join('')}</div>
     <div class="fx" style="gap:10px"><label class="fld grow"><span>من</span><input type="time" dir="ltr" data-ch="wdT:s" value="${d.s}"></label><label class="fld grow"><span>إلى</span><input type="time" dir="ltr" data-ch="wdT:e" value="${d.e}"></label></div>
     <p class="sm muted" style="margin:-4px 0 10px">${hm(t2m(d.s))} – ${hm(t2m(d.e))}${over ? ' · تمتد إلى اليوم التالي' : ''}</p>
     ${!d.days.length ? callout('اختر يوماً واحداً على الأقل.', 'wa', 'event_busy') : clash ? cfCard(cfClash(kid, d), { mode: 'inline' }) : nowIn ? callout(`هذه النافذة تشمل هذه اللحظة: عند الحفظ ${d.type === 'sleep' ? 'تُغلق التطبيقات' : 'تُغلق غير تطبيقات الدراسة'} على جهاز ${kn(kid)} فوراً.`, 'wa', 'bolt') : ''}
@@ -291,7 +294,7 @@ surface('study-apps', {
   note: 'S10-05. تختار من تطبيقات جهاز الطفل ما يبقى مفتوحاً في وقت المدرسة. المحظور لا يُختار. العلامة لا تغيّر قاعدة التطبيق ولا حصته خارج وقت المدرسة. بحث بتطبيع عربي. حفظ صريح. إن لم تختر شيئاً قلنا الأثر صراحة: يُغلق كل شيء في وقت المدرسة.',
   r(id) { if (!S.sd || S.sd.kid !== id) S.sd = { kid: id, on: sdOf(id) }; const d = S.sd, ed = can('protection.rule.edit', id), dirty = DRAFT['study-apps'].dirty();
     return `${ed ? '' : callout('ترى القائمة ولا تعدّلها. ' + why('nd:protection.rule.edit'), 'nt', 'lock')}${offNote()}${searchBox('ابحث عن تطبيق', '.list .row[data-q]')}
-    <div class="list">${S.apps[id].map(a => { const on = d.on.includes(a.id), bl = a.act === 'BLOCK'; return `<button class="row ${bl ? 'dis' : ''}" data-q="${a.n}" data-a="${bl || !ed ? 'noop' : 'sdT:' + a.id}" role="checkbox" aria-checked="${on}"><span class="lead">${ic(a.i)}</span><span class="tx"><b>${a.n}</b><span>${bl ? 'محظور دائماً · لا يُفتح في أي وقت' : on ? 'يبقى مفتوحاً في وقت المدرسة' : 'يُغلق في وقت المدرسة'}</span></span>${ic(bl ? 'block' : on ? 'check_box' : 'check_box_outline_blank')}</button>`; }).join('')}</div>
+    <div class="list">${S.apps[id].map(a => { const on = d.on.includes(a.id), bl = a.act === 'BLOCK'; return `<button class="row ${bl ? 'dis' : ''}" data-q="${a.n}" data-a="${bl ? 'sdWhy:' + a.id : !ed ? 'noop' : 'sdT:' + a.id}" role="checkbox" aria-checked="${on}"><span class="lead">${ic(a.i)}</span><span class="tx"><b>${a.n}</b><span>${bl ? 'محظور دائماً · لا يُفتح في أي وقت' : on ? 'يبقى مفتوحاً في وقت المدرسة' : 'يُغلق في وقت المدرسة'}</span></span>${ic(bl ? 'block' : on ? 'check_box' : 'check_box_outline_blank')}</button>`; }).join('')}</div>
     <div data-none hidden>${empty('search_off', 'لا تطبيق بهذا الاسم', 'جرّب اسماً آخر.')}</div>
     ${d.on.length ? '' : callout('لم تختر تطبيقات دراسة بعد: كل التطبيقات تُغلق في وقت المدرسة.', 'wa', 'school')}
     <p class="sm muted" style="margin:8px 4px 0">العلامة تفتح التطبيق في وقت المدرسة فقط. خارج وقت المدرسة يبقى على قاعدته وعلى الحصة اليومية كما كان.</p>
@@ -452,7 +455,7 @@ const TAM = {
   bg: ['أوقف النظام عمل التطبيق في الخلفية', 'power_settings_new', 'قد يتأخر إغلاق التطبيقات'],
 };
 /* عادت الحماية: الحدث يُعلَّم «عادت»، والتنبيه يبقى عند الأب حتى يراجعه — لا يُسكَت من جهاز الطفل (REQ-022) */
-function tamBack(kid, how) { S.tam.filter(e => e.kid === kid && e.st !== 'ok').forEach(e => { e.st = 'ok'; e.back = 'الآن'; }); S.kid[kid].enf = 'active'; S.alerts.filter(a => a.k === 'tamper' && a.kid === kid && a.open).forEach(a => { a.t = `عادت الحماية على جهاز ${M[kid].n}`; a.s = 'راجع ما حدث ثم علّمه محلولاً'; }); S.audit.unshift({ t: `عادت الحماية على جهاز ${M[kid].n} ${how}`, w: 'النظام', at: 'الآن', k: 'protection.tamper.view', kid, ty: 'tamper', d: 0 }); }
+function tamBack(kid, how) { if (S.tamP) delete S.tamP[kid]; S.tam.filter(e => e.kid === kid && e.st !== 'ok').forEach(e => { e.st = 'ok'; e.back = 'الآن'; }); S.kid[kid].enf = 'active'; S.alerts.filter(a => a.k === 'tamper' && a.kid === kid && a.open).forEach(a => { a.t = `عادت الحماية على جهاز ${M[kid].n}`; a.s = 'راجع ما حدث ثم علّمه محلولاً'; }); S.audit.unshift({ t: `عادت الحماية على جهاز ${M[kid].n} ${how}`, w: 'النظام', at: 'الآن', k: 'protection.tamper.view', kid, ty: 'tamper', d: 0 }); }
 const tamKid = x => (M[x] && M[x].role !== 'adult' ? x : (S.alerts.find(a => a.id === x) || {}).kid || 'khaled');
 surface('tamper', {
   t: 'تنبيهات العبث', sys: 'S1-10', p: 'adult', a: ['khaled'], req: '10:21,22,23,25 01:6 09:3',
@@ -469,7 +472,8 @@ surface('tamper', {
     ${sec('للعلم')}${list(row('delete_forever', 'حذف التطبيق من جهاز الطفل', 'يحتاج الرقم السري للأب دائماً', { v: ic('lock') }), row('verified_user', 'حالة الحماية على الجهاز', ENF[S.kid[id].enf][0], { a: 'go:enf-state:' + id }), row('receipt_long', 'سجل التغييرات', 'كل محاولة وكل إعادة تفعيل مسجّلة', { a: can('protection.audit.view') ? 'go:prot-audit:' + id : 'denied:protection.audit.view' }))}`; },
 });
 Object.assign(ACT, {
-  tamPing(id) { toast(`أُرسل تذكير لطيف إلى ${kn(id)}`); },
+  /* التذكير يصل الابن فعلاً: سطر في رئيسيته حتى تعود الحماية، وقيد في السجل (Q-435) */
+  tamPing(id) { S.tamP = S.tamP || {}; if (S.tamP[id]) return toast(`سبق أن وصل ${kn(id)} تذكيرك`, null, 'info'); S.tamP[id] = 1; xaud(`أُرسل تذكير إلى ${M[id].n} ليعيد تفعيل الحماية`, 'protection.tamper.view', id, 'tamper'); toast(`وصل ${kn(id)} تذكير لطيف`, null, 'notifications'); },
   tamRetry(id) { if (!devOn(id)) return toast(`جهاز ${kn(id)} غير متصل · نحاول عند اتصاله`, null, 'cloud_off'); tamBack(id, 'بطلب من لوحة الأهل'); toast('عادت الحماية', null, 'verified_user'); },
   tamOk(id) { const bad = S.tam.some(e => e.kid === id && e.open && e.st !== 'ok'), fin = () => { S.tam.filter(e => e.kid === id).forEach(e => { e.open = 0; }); S.alerts.filter(a => a.k === 'tamper' && a.kid === id).forEach(a => { a.open = 0; }); xaud(`عُلّم تنبيه العبث على جهاز ${M[id].n} محلولاً${bad ? ' والحماية لم تعد بعد' : ''}`, 'protection.tamper.resolve', id, 'tamper'); toast('عُلّم التنبيه محلولاً'); };
     if (bad) { confirmDlg('الحماية لم تعد بعد', 'تعليم التنبيه محلولاً يخفيه فقط ولا يعيد الحماية. التطبيق يواصل المحاولة كل دقيقة.', 'علّمه محلولاً', fin, true); } else fin(); },
@@ -480,6 +484,7 @@ surface('enf-state', {
   t: id => 'حالة الحماية — ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:14,15,16,17,25,27 01:22,23',
   note: 'S10-12 (مصطلح المسرد: «حالة الفرض»). ما يحكم الطفل الآن، والحد التالي، والمتبقي لكل تطبيق، والوضع الحر، والعبث، وآخر مزامنة. إن غُيّرت قاعدة وجهازه منقطع ظهر «تغيير بانتظار اتصال الجهاز». الحالة تصف ما يؤكده الجهاز لا ما أُرسل إليه. اقطع «جهاز ليان» من الاستوديو لترى الانتظار.',
   r(id) { const k = S.kid[id], e = ENF[k.enf], on = devOn(id), nr = nowRule(id), L2 = S.apps[id].filter(a => a.act === 'LIMIT'), pend = S.pendR[id] || 0, T = tamOpen(id);
+    if (noDev(id)) return `${kidTabs(id)}${`<div class="card nodev">${ic('mobile_off')}<div class="grow"><b>لم يُقرن جهاز ${kn(id)} بعد</b><div class="sm muted">القواعد التي تضعها الآن تسري من لحظة الإقران.</div></div>${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, 'sm', 'devices') : ''}</div>`}${callout('حالة الحماية (ما يحكم الجهاز الآن، والمتبقي، وآخر مزامنة) تظهر هنا بعد أن يقترن الجهاز.', 'nt', 'info')}`;   /* طفل أُضيف ولم يُقرن جهازه: لا حالة تُعرض (Q-435) */
     return `${iosNote()}${kidTabs(id)}
     <div class="card fx"><span class="bigic" style="width:56px;height:56px;border-radius:18px;margin:0">${ic(e[1])}</span><div class="grow"><b>${e[0]}</b><div class="sm muted">${on && !offline() ? 'الجهاز متصل ويطبّق آخر قواعدك' : 'الجهاز يطبّق آخر قواعد وصلته، حتى دون إنترنت'}</div></div>${age(on ? k.ago : k.ago + 95)}</div>
     ${pend ? callout(`<b>${pend === 1 ? 'تغيير واحد' : pend === 2 ? 'تغييران' : pend + ' تغييرات'} بانتظار اتصال الجهاز</b><br>حُفظ عندنا ويصل إلى جهاز ${kn(id)} عند أول اتصال.`, 'wa', 'cloud_upload') : ''}
@@ -490,7 +495,7 @@ surface('enf-state', {
     <p class="sm muted" style="margin:10px 4px 0">الوقت يُحسب كل دقيقة على الجهاز نفسه، وتغيير ساعة الجهاز لا يؤخر الإغلاق. الحصص تُصفَّر عند منتصف الليل بتوقيت العائلة.</p>`; },
 });
 ACT.enfSync = id => { if (!devOn(id)) return toast(`جهاز ${kn(id)} غير متصل · تصل التغييرات عند اتصاله`, null, 'cloud_off'); S.kid[id].ago = 0; const n = S.pendR[id]; delete S.pendR[id]; toast(n ? 'وصلت التغييرات المنتظرة إلى الجهاز' : 'القواعد على الجهاز محدَّثة', null, 'cloud_done'); };
-surface('enf-all', { t: 'حالة الحماية', sys: 'S1-10', p: 'adult', req: '10:25 09:1', note: 'حالة كل جهاز طفل في سطر، وما يحكمه الآن.', r() { return list(KIDS.map(id => { const e = ENF[S.kid[id].enf], nr = nowRule(id); return row('', kn(id), `${e[0]} · الآن: ${nr[1]}`, { lead: av(M[id]), a: 'go:enf-state:' + id, v: chip('', e[2], e[1]) }); })); } });
+surface('enf-all', { t: 'حالة الحماية', sys: 'S1-10', p: 'adult', req: '10:25 09:1', note: 'حالة كل جهاز طفل في سطر، وما يحكمه الآن.', r() { return list(KIDS.map(id => { const e = ENF[S.kid[id].enf], nr = nowRule(id); return row('', kn(id), noDev(id) ? e[0] : `${e[0]} · الآن: ${nr[1]}`, { lead: av(M[id]), a: 'go:enf-state:' + id, v: chip('', e[2], e[1]) }); })); } });
 
 /* ============ S10-13 سجل تدقيق الحماية ============ */
 const PAT = [['all', 'كل الأنواع'], ['rule', 'قاعدة'], ['sched', 'جدول'], ['rank', 'ترتيب'], ['mode', 'وضع'], ['free', 'وضع حر'], ['tamper', 'عبث'], ['web', 'تصفية']];
@@ -514,9 +519,9 @@ surface('rules-review', {
   t: 'مراجعة القواعد', sys: 'S1-10', p: 'adult', req: '10:27 02:9 03:3',
   note: 'S10-14. بطاقتان: طفل بلغ 13 وقواعده ما زالت سارية، وجهاز جديد قُرن فأُعيدت إليه القواعد نفسها. في كل بطاقة: «راجع القواعد» أو «أبقِها كما هي». شغّل «بلوغ 13» من الاستوديو لترى بطاقة ليان.',
   r() { const R2 = reviews(), ok = can('protection.rule.view');
-    return R2.length ? R2.map(r => { const f = M[r.kid].f; return `<div class="card"><div class="fx top">${av(M[r.kid])}<div class="grow"><b>${r.k === 'teen' ? `${f ? 'بلغت' : 'بلغ'} ${kn(r.kid)} 13 سنة` : `قُرن جهاز جديد ل${kn(r.kid)}`}</b><div class="sm muted" style="margin-top:2px">${r.k === 'teen' ? `${f ? 'قواعدها' : 'قواعده'} ما زالت سارية كما هي. ${f ? 'راجعها إن أردت أن تناسب سنّها' : 'راجعها إن أردت أن تناسب سنّه'}. كسب الوقت بالنقاط يتوقف للمراهقين، وحدود التطبيقات تستمر.` : `أُعيدت إليه ${f ? 'قواعدها' : 'قواعده'} نفسها: التطبيقات والحصة والجدول والتصفية. لا شيء يُبنى من جديد.`}</div><div class="xs muted" style="margin-top:4px">${r.at}</div></div></div><div class="btns" style="margin-top:12px">${btn('أبقِها كما هي', 'rvKeep:' + r.id, 'sec')}${btn('راجع القواعد', ok ? 'rvGo:' + r.id : 'denied:protection.rule.view')}</div></div>`; }).join('') : empty('task_alt', 'لا مراجعات معلقة', 'حين يُقرن جهاز جديد لطفل أو يبلغ 13 سنة تظهر هنا بطاقة لتراجع قواعده.'); },
+    return R2.length ? R2.map(r => { const f = M[r.kid].f; return `<div class="card"><div class="fx top">${av(M[r.kid])}<div class="grow"><b>${r.k === 'teen' ? `${f ? 'بلغت' : 'بلغ'} ${kn(r.kid)} 13 سنة` : r.k === 'new' ? `اقترن جهاز ${kn(r.kid)}: اضبط قواعده` : `قُرن جهاز جديد ل${kn(r.kid)}`}</b><div class="sm muted" style="margin-top:2px">${r.k === 'teen' ? `${f ? 'قواعدها' : 'قواعده'} ما زالت سارية كما هي. ${f ? 'راجعها إن أردت أن تناسب سنّها' : 'راجعها إن أردت أن تناسب سنّه'}. كسب الوقت بالنقاط يتوقف للمراهقين، وحدود التطبيقات تستمر.` : r.k === 'new' ? `يعمل الآن بحصة ${S.kid[r.kid].quota} دقيقة في اليوم وبتصفية الويب الجاهزة. لا وقت نوم ولا وقت مدرسة ولا حدود تطبيقات بعد: ضعها الآن أو لاحقاً من «التحكم».` : `أُعيدت إليه ${f ? 'قواعدها' : 'قواعده'} نفسها: التطبيقات والحصة والجدول والتصفية. لا شيء يُبنى من جديد.`}</div><div class="xs muted" style="margin-top:4px">${r.at}</div></div></div><div class="btns" style="margin-top:12px">${btn('أبقِها كما هي', 'rvKeep:' + r.id, 'sec')}${btn('راجع القواعد', ok ? 'rvGo:' + r.id : 'denied:protection.rule.view')}</div></div>`; }).join('') : empty('task_alt', 'لا مراجعات معلقة', 'حين يُقرن جهاز جديد لطفل أو يبلغ 13 سنة تظهر هنا بطاقة لتراجع قواعده.'); },
 });
-const rvDone = (id, how) => { const r = reviews().find(x => x.id === id); if (!r) return null; if (id === 'teen') S.rvT = 1; else S.rv = S.rv.filter(x => x.id !== id); xaud(`مراجعة قواعد ${M[r.kid].n} (${r.k === 'teen' ? 'بلوغ 13' : 'جهاز جديد'}): ${how}`, 'protection.rule.view', r.kid, 'rule'); return r; };
+const rvDone = (id, how) => { const r = reviews().find(x => x.id === id); if (!r) return null; if (id === 'teen') S.rvT = 1; else S.rv = S.rv.filter(x => x.id !== id); xaud(`مراجعة قواعد ${M[r.kid].n} (${r.k === 'teen' ? 'بلوغ 13' : r.k === 'new' ? 'طفل جديد' : 'جهاز جديد'}): ${how}`, 'protection.rule.view', r.kid, 'rule'); return r; };
 ACT.psFor = kid => { S.psK = [kid]; S.psN = 0; S.psX = ''; go('presets', fmOf(kid) ? 'free' : pmOf(kid) || 'study'); };
 Object.assign(ACT, {
   rvKeep(id) { if (rvDone(id, 'أُبقيت كما هي')) toast('أُبقيت القواعد كما هي'); },

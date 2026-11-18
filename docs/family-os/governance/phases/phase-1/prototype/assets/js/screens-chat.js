@@ -89,7 +89,7 @@ surface('chat', {
     <label class="srch">${ic('search')}<input data-cq value="${S.chQ || ''}" placeholder="ابحث في المحادثات" autocomplete="off" aria-label="ابحث في المحادثات"></label>
     <div id="chl">${chListBody()}</div>
     ${ad ? (kids.length ? sec('إشراف') + list(row('visibility', 'محادثات الأبناء', flags ? `${flags === 1 ? 'رسالة واحدة تحتاج' : flags === 2 ? 'رسالتان تحتاجان' : flags + ' رسائل تحتاج'} مراجعتك` : 'للقراءة فقط · الأبناء يعلمون', { a: 'go:minor-chats:' + kids[0], v: flags ? chip(String(flags), 'wa', 'chat_error') : '' }), isOwner() && rv ? row('block', 'رسائل أوقفها المصنّف', 'لم تُسلَّم · تنتظر قرارك', { a: 'go:chat-review', v: chip(String(rv), 'da') }) : '') : '')
-      : callout(mode() === 'teen' ? 'محادثاتك داخل العائلة مرئية لوالدك. هذا متفق عليه عند إعداد جهازك.' : 'بابا يستطيع رؤية محادثاتك ليبقيك بأمان.', 'nt', 'visibility')}`;
+      : callout(mode() === 'teen' ? `محادثاتك داخل العائلة مرئية ${chSeers(me().id, 1)}. هذا متفق عليه عند إعداد جهازك.` : `${chSeers(me().id)} رؤية محادثاتك ${momSees(me().id) ? 'ليبقياك' : 'ليبقيك'} بأمان.`, 'nt', 'visibility')}`;
   },
 });
 document.addEventListener('input', e => {
@@ -107,7 +107,7 @@ surface('chat-new', {
   kind: 'sheet', t: 'محادثة جديدة', sys: 'S1-08', p: 'any', req: '08:1,2',
   note: 'أي فرد يبدأ محادثة مع أي فرد. المجموعة ينشئها صاحب العائلة ومن سُمح له. قناة الوالدين لا تُنشأ من هنا: تولد مع العائلة. بدء محادثة جديدة يحتاج اتصالاً؛ المحادثة القائمة تُفتح دونه.',
   r() { const u = me().id, off = offline();
-    return `<h4>محادثة جديدة</h4><p class="d">مع أي فرد من العائلة.${isAdult() ? '' : ' والدك يستطيع رؤيتها.'}</p>
+    return `<h4>محادثة جديدة</h4><p class="d">مع أي فرد من العائلة.${isAdult() ? '' : momSees(me().id) ? ' والداك يستطيعان رؤيتها.' : ' والدك يستطيع رؤيتها.'}</p>
     ${list(ALL.filter(x => x !== u).map(x => { const has = dmId(u, x); return row('', pname(M[x]), has ? 'محادثة قائمة' : off ? 'بدء محادثة جديدة يحتاج اتصالاً' : M[x].rel, { lead: av(M[x]), a: has || !off ? 'dmStart:' + x : '', c: has || !off ? '' : 'dis' }); }))}
     ${isAdult() && can('chat.channel.create.group') ? `<div class="gap"></div>${btn('مجموعة جديدة', 'grpNew', off ? 'sec" disabled="' : 'sec', 'groups')}${off ? '<p class="xs muted c" style="margin-top:6px">إنشاء مجموعة يحتاج اتصالاً.</p>' : ''}` : ''}`; },
 });
@@ -272,6 +272,9 @@ surface('chat-settings', {
     ${sec('حفظ الرسائل')}${list(row('database', 'الرسائل تبقى', `حتى يحذفها ${own ? 'صاحب العائلة' : M.ahmad.n}`, { v: 'دائماً', chev: false }), row('delete', 'ما حُذف للجميع', 'يُمحى نهائياً خلال 7 أيام', { chev: false }), row('chat_error', 'ما رصده المصنّف ثم حُذف', 'يبقى 30 يوماً للمراجعة ثم يُمحى', { chev: false }))}`; },
 });
 
+/* من يرى محادثات الابن (Q-435): الأب دائماً، والأم ما دامت عندها «قراءة محادثات الأطفال» لهذا الابن. سحب الصلاحية يغيّر ما يُقال للابن فوراً. */
+const momSees = id => { const g = S.g['chat.minor.view']; return !S.removed.sara && gLive(g) && (g.sc === 'all' || (Array.isArray(g.sc) && g.sc.includes(id))); };
+const chSeers = (id, teen) => (teen ? (momSees(id) ? 'لوالدك ووالدتك' : 'لوالدك') : (momSees(id) ? 'بابا وماما يستطيعان' : 'بابا يستطيع'));
 function chLog(t, k) { S.audit.unshift({ t, w: me().n, at: 'الآن', k }); }
 /* وصول الرسالة: للخادم ثم مقروءة. تُستدعى بمؤقت في العرض ومباشرة في الفحص. */
 function chDeliver(m, read) { if (m.q || m.fail || m.blk || m.del) return; m.st = read ? 2 : Math.max(m.st, 1); }

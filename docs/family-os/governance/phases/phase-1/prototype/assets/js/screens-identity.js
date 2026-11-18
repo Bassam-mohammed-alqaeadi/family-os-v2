@@ -197,13 +197,21 @@ Object.assign(ACT, {
   recConfirm() { confirmDlg('تأكيد أن الطالب هو أحمد؟', 'تبدأ 7 أيام يُبلَّغ فيها كل البالغين.', 'نعم، هو أحمد', () => { S.recReq = { ...S.recReq, st: 'waiting' }; audit('أكّدت سارة طلب استرداد حساب أحمد', 'identity.recovery'); toast('أكّدتِ الطلب · بدأت الأيام السبعة', null, 'check_circle'); }); },
   recRefuse() { S.recReq = { st: 'cancelled' }; audit('رفضت سارة طلب استرداد حساب أحمد', 'identity.recovery'); toast('رُفض الطلب وأُبلغ كل البالغين', null, 'cancel'); },
   recObject() { confirmDlg('إيقاف طلب الاسترداد؟', 'يُلغى الطلب فوراً ويُبلَّغ كل البالغين. إن كان الطلب من أحمد فعلاً فعليه أن يطلب من جديد.', 'أوقف الطلب', () => { S.recReq = { st: 'cancelled' }; audit(`اعترض ${me().n} على طلب استرداد حساب أحمد فأُلغي`, 'identity.recovery'); toast('أُلغي الطلب', null, 'cancel'); }, true); },
-  invShare() { toast('فُتحت قائمة المشاركة · الرسالة فيها الرابط والرمز', null, 'share'); },
+  /* المشاركة تسلّم الرسالة لتطبيق آخر، وتبقى الدعوة ظاهرة «شوركت · بانتظار انضمامه» حتى تُستخدم أو تُلغى (Q-435). */
+  invShare() { const x = S.invs[0]; if (x && !x.sent) { x.sent = 1; audit('شوركت دعوة بالغ', 'identity.family.invite'); } toast('فُتحت قائمة المشاركة · الرسالة فيها الرابط والرمز', null, 'share'); },
   invNew() { const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = n => Array.from({ length: n }, () => A[Math.floor(Math.random() * A.length)]).join(''); S.invs.unshift({ c: r(4) + '-' + r(4), d: 'الآن', left: 7 }); audit('أُنشئت دعوة بالغ جديدة', 'identity.family.invite'); toast('دعوة جديدة جاهزة · الدعوات السابقة ما زالت تعمل'); },
   invRevoke(i) { const x = S.invs[+i]; confirmDlg('إلغاء هذه الدعوة؟', `الرمز ${x.c} لن يعمل بعد الآن. الدعوات الأخرى لا تتأثر.`, 'ألغِها', () => { S.invs.splice(+i, 1); audit('أُلغيت دعوة معلقة', 'identity.family.invite'); toast('أُلغيت الدعوة', null, 'cancel'); }, true); },
   cnSet(k, v) { S.cn.n = ($('#cnN') || {}).value; S.cn[k] = k === 'y' ? +v : v; },
   cnGo() { const c = S.cn, n = ($('#cnN') || {}).value.trim(); if (!n) { toast('اكتب اسم الطفل', null, 'error'); return; }
-    if (c.id) { const m = M[c.id]; Object.assign(m, { n, i: c.i, c: c.c, by: c.y }); audit(`عُدّل ملف ${n}`, 'identity.child.profile.edit'); S.cn = null; S.stack.pop(); toast('حُفظ الملف'); return; }
-    toast(`أُضيف ${n}`); S.cn = null; S.stack.pop(); go('pair-code', 'new'); },
+    if (c.id) { const m = M[c.id], x = (S.addK || []).find(k => k.id === c.id), tn = 2026 - c.y >= 13; Object.assign(m, { n, i: c.i, c: c.c, by: c.y }); if (x) Object.assign(x, { n, en: n, i: c.i, c: c.c, by: c.y, role: tn ? 'teen' : 'child', rel: `${tn ? 'مراهق' : 'طفل'} · ${ageTxt(c.y)}` });
+      S.alerts.filter(a => a.k === 'prof' && a.kid === c.id && a.open).forEach(a => { a.open = 0; });   /* طلب الابن تغيير صورته: أُجيب */
+      audit(`عُدّل ملف ${n}`, 'identity.child.profile.edit'); S.cn = null; S.stack.pop(); toast('حُفظ الملف'); return; }
+    /* طفل جديد: ملف حقيقي في العائلة فوراً (يشغل مقعداً)، ثم إقران جهازه. الواجهة تتحدد من سنة الميلاد (REQ-012). */
+    if (blMemN() >= PLAN[S.plan].mem) { S.cn = null; S.stack.pop(); return toast('اكتملت مقاعد خطتك · رقِّ الخطة لإضافة فرد', null, 'group_off'); }
+    const teen = 2026 - c.y >= 13; S.addN = (S.addN || 0) + 1; const id = 'n' + S.addN;
+    (S.addK = S.addK || []).push({ id, n, en: n, rel: `${teen ? 'مراهق' : 'طفل'} · ${ageTxt(c.y)}`, role: teen ? 'teen' : 'child', by: c.y, c: c.c, i: c.i });
+    kidSync(); S.unp = S.unp || {}; S.unp[id] = 1; S.checklist.child = 1; audit(`أُضيف ملف ${n}`, 'identity.child.create');
+    toast(`أُضيف ${n} إلى العائلة · بقي إقران جهازه`, null, 'how_to_reg'); S.cn = null; S.stack.pop(); go('pair-code', id); },
 });
 /* ---------- إدارة الأفراد من وضع الأهل ---------- */
 surface('add-member', {
@@ -221,7 +229,7 @@ surface('invite', {
     <div class="card flat" style="margin-bottom:12px"><div class="xs muted" style="margin-bottom:4px">نص الرسالة التي تُرسل</div><div class="sm" style="line-height:1.9">أحمد يدعوك إلى ${famN()} في «عائلتي».<br>اضغط: <span class="ltr" style="color:var(--info)">https://ailati.example/i/${c.c}</span><br>أو نزّل التطبيق واكتب الرمز: <span class="ltr b">${c.c}</span></div></div>
     <div class="btns">${btn('انسخ الرمز', 'cpy', 'sec', 'content_copy')}${btn('شارك الدعوة', 'invShare', '', 'share')}</div>` : empty('group_add', 'لا دعوات معلقة', 'أنشئ دعوة لمن تريد ضمّه إلى العائلة.')}
     <div class="gap"></div>${btn('أنشئ دعوة لشخص آخر', 'invNew', 'ton', 'add')}
-    ${I.length ? sec('دعوات لم تُستخدم بعد') + list(I.map((x, i) => row('forward_to_inbox', `<span class="ltr mono">${x.c}</span>`, `أُنشئت ${x.d} · تنتهي بعد ${x.left} أيام`, { v: `<button class="btn txt sm" style="color:var(--danger)" data-a="invRevoke:${i}">ألغِها</button>` }))) : ''}
+    ${I.length ? sec('دعوات لم تُستخدم بعد') + list(I.map((x, i) => row(x.sent ? 'mark_email_read' : 'forward_to_inbox', `<span class="ltr mono">${x.c}</span>`, `${x.sent ? 'شوركت · بانتظار انضمامه' : 'أُنشئت ' + x.d + ' · لم تُشارك بعد'} · تنتهي بعد ${x.left} أيام`, { v: `<button class="btn txt sm" style="color:var(--danger)" data-a="invRevoke:${i}">ألغِها</button>` }))) : ''}
     ${callout('كل من ينضم يوثّق رقم هاتفه أو بريده أولاً، ويُسجَّل انضمامه. يبدأ بلا صلاحيات، ويصلك تنبيه لتحدد ما يراه ويتحكم فيه.', '', 'info')}`; },
 });
 const tplOf = y => { const a = 2026 - y; return a < 0 || a > 17 ? null : a < 13 ? ['طفل', 'واجهة الأطفال', 'face', 'مهام ونجوم ووقت الشاشة'] : ['مراهق', 'واجهة المراهقين', 'person', 'استقلالية أكثر وصفحة «ما يراه أهلي»']; };
@@ -241,17 +249,25 @@ surface('child-new', {
 surface('pair-code', {
   t: 'إقران الجهاز', sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:14,15 01:2,5,23',
   note: 'رمز من 6 خانات صالح 15 دقيقة ولجهاز واحد. لا يُعرض قبل أن ينشئ الأب رقمه السري، لأنه يكتبه على جهاز الطفل في خطوة الموافقة. ثلاث حالات: رمز سارٍ، رمز انتهى (رمز جديد بنقرة)، وجهاز اقترن. الإقران بمسح رمز QR غير محسوم (GAP-02) فلا يظهر.',
-  r(id) { const m = M[id] || { n: 'الطفل الجديد' }, st = S.pcSt || 'live';
+  r(id) { const m = M[id] || { n: 'الطفل' }, st = S.pcSt || 'live';
     if (!S.pin.set) return empty('pin', 'أنشئ رقمك السري أولاً', 'ستدخله على جهاز الطفل عند الإقران، وهو الذي يحمي إعدادات ذلك الجهاز بعدها.', btn('أنشئ الرقم السري', 'pinChange', '', 'pin'));
     if (st === 'done') return `<div class="bigic" style="background:var(--success-soft);color:var(--success)">${ic('devices')}</div><p class="ttl" style="font-size:22px">اقترن جهاز ${m.n}</p><p class="sub">القواعد وصلت إلى الجهاز وبدأت تعمل.</p>${btn('تم', 'pcDone')}`;
     if (st === 'exp') return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('timer')}</div><p class="ttl" style="font-size:22px">انتهى وقت الرمز</p><p class="sub">الرمز يعمل 15 دقيقة فقط. أنشئ رمزاً جديداً وأدخله على جهاز ${m.n}.</p>${btn('رمز جديد', 'pcSet:live', '', 'refresh')}`;
     return `<p class="sub" style="text-align:start">على جهاز ${m.n}: نزّل «عائلتي» ← «هذا جهاز طفل» ← اكتب هذا الرمز.</p><div class="code">LY4N82</div><div class="chips" style="justify-content:center;margin-bottom:14px">${chip('ينتهي بعد 14:32', 'wa', 'timer')}${chip('لجهاز واحد', 'ol', 'mobile')}</div>
-    <div class="card"><div class="tl"><div class="ev ok"><b>أُنشئ الرمز</b><span>الآن</span></div><div class="ev"><b>بانتظار كتابته على جهاز ${m.n}</b><span>أبقِ هذه الشاشة مفتوحة</span></div><div class="ev"><b>تتفقان معاً</b><span>تقرآن ما ستتابعه، ثم تكتب رقمك السري على جهازه</span></div></div></div>${btn('جرّب من جهة الطفل', 'jumpPair', 'ton', 'mobile')}<div class="btns" style="margin-top:8px">${btn('جرّب: انتهى الوقت', 'pcSet:exp', 'txt')}${btn('جرّب: اقترن', 'pcSet:done', 'txt')}</div>`; },
+    <div class="card"><div class="tl"><div class="ev ok"><b>أُنشئ الرمز</b><span>الآن</span></div><div class="ev"><b>بانتظار كتابته على جهاز ${m.n}</b><span>أبقِ هذه الشاشة مفتوحة</span></div><div class="ev"><b>تتفقان معاً</b><span>تقرآن ما ستتابعه، ثم تكتب رقمك السري على جهازه</span></div></div></div>${btn('جرّب من جهة الطفل', 'jumpPair', 'ton', 'mobile')}<div class="demo"><small>للعرض فقط: لا جهاز ثانٍ في النموذج</small><div class="btns">${btn('انتهى وقت الرمز', 'pcSet:exp', 'txt')}${btn('اقترن الجهاز', 'pcSet:done', 'txt')}</div></div>`; },
 });
 Object.assign(ACT, {
   jumpPair() { setPersona('guest'); S.ob = {}; S.stack = [{ id: 'ob-welcome', a: [] }, { id: 'ob-pair', a: [] }]; },
   pcSet(v) { S.pcSt = v; if (v === 'live') toast('رمز جديد · الرمز السابق لم يعد يعمل'); },
-  pcDone() { S.pcSt = 'live'; S.unp = {}; back(); },
+  /* اقترن الجهاز: يخرج الطفل من «بلا جهاز». طفل جديد يبدأ بحصة العمر الجاهزة وبلا نوافذ، وتُفتح له بطاقة «اضبط قواعده» (REQ-027). */
+  pcDone() { const id = topE().a[0], k = S.kid[id]; S.pcSt = 'live';
+    if (k && (S.unp || {})[id]) { delete S.unp[id]; k.online = true; k.ago = 0;
+      if (k.nd) { delete k.nd; Object.assign(k, { enf: 'active', bat: 80, place: AD_HOME, area: 'حدة', x: 44, y: 50 });
+        S.apps[id] = [{ id: 'mad', n: 'مدرستي', i: 'school', act: 'ALLOW', study: 1, used: 0 }, { id: 'ytk', n: 'YouTube Kids', i: 'smart_display', used: 0 }, { id: 'cam', n: 'الكاميرا', i: 'photo_camera', used: 0 }];
+        S.rv.push({ id: 'rv-' + id, k: 'new', kid: id, at: 'الآن' }); }
+      S.checklist.pair = 1; audit(`اقترن جهاز ${M[id].n}`, 'identity.device.pair'); toast(`اقترن جهاز ${M[id].n} · القواعد وصلته`, null, 'devices'); }
+    else if (!k) S.unp = {};
+    back(); },
 });
 surface('device', {
   t: id => 'جهاز ' + M[id].n, sys: 'S1-02', p: 'adult', a: ['layan'], req: '02:14,15 01:18 10:27 03:20',

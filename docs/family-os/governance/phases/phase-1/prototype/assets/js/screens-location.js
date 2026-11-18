@@ -18,6 +18,7 @@ const AD_STEP = { poi: ['قرب مستشفى الثورة · نحو 300 م', 'ا
 function locOf(id) {
   const adult = !S.kid[id], k = S.kid[id] || (S.aloc || {})[id]; if (!k) return null;
   if (adult && paused(id)) return { id, adult, none: 1, paused: 1, bat: k.bat, low: false };
+  if (!adult && noDev(id)) return { id, none: 1, nodev: 1, bat: 0, low: false };   /* طفل بلا جهاز مقترن بعد: لا موقع ولا دبوس (Q-435) */
   const o = { id, adult, place: k.place, area: k.area, x: k.x, y: k.y, ago: k.ago, acc: 12, bat: k.bat, moving: k.moving, why: '' };
   if (me().id === id) {   /* صاحب الهاتف: موقعه من هاتفه مباشرة */
     if (!isAdult() && S.gpsOff) { o.ago = 18; o.why = 'gps'; } else o.ago = 0;
@@ -41,7 +42,8 @@ const locLine = l => (l.live ? `${l.moving ? 'يتحرك' : 'ثابت'} · ${min
 const locWhy = (l, m) => ({ net: `${vb(m, 'جهازه', 'جهازها')} بلا اتصال الآن`, off: `${vb(m, 'جهازه', 'جهازها')} مغلق أو نفدت بطاريته`, ios: `${vb(m, 'هاتفه', 'هاتفها')} iPhone، والنظام يؤخر تحديث الموقع في الخلفية`, me: 'أنت دون اتصال', gps: 'تحديد الموقع متوقف في الهاتف' }[l.why] || '');
 const batChip = l => chip(l.bat + '%', l.low ? 'da' : 'ol', l.low ? 'battery_alert' : 'battery_5_bar');
 /* من يظهر لي على الخريطة: البالغ يرى من سُمح له برؤيته، والطفل يرى نفسه فقط. */
-const locIds = () => (isAdult() ? KIDS.filter(id => can('location.view', id)) : S.kid[me().id] ? [me().id] : []);
+const locIdsAll = () => (isAdult() ? KIDS.filter(id => can('location.view', id)) : S.kid[me().id] ? [me().id] : []);
+const locIds = () => locIdsAll().filter(id => !noDev(id));   /* من لم يُقرن جهازه لا دبوس له ولا شريحة؛ يظهر في القائمة بصف «بلا جهاز» (Q-435) */
 /* من يظهر لي من الكبار: كل بالغ يرى مواقع أحد يرى بقية الكبار الذين يشاركون مواقعهم. */
 const adultIds = () => (isAdult() && (isOwner() || gLive(S.g['location.view'])) ? ADULTS_LOC.filter(a => a !== me().id) : []);
 const mapIds = () => [...locIds(), ...adultIds()];
@@ -171,7 +173,7 @@ surface('map', {
       : S.os === 'ios' ? `<div class="mstrip nt">${ic('info')}<span>هواتف الأطفال iPhone: النظام يؤخر تحديث الموقع في الخلفية. ${why('ios')}</span></div>`
       : old.length ? `<div class="mstrip wa">${ic('history')}<span>${old.map(l => pname(M[l.id])).join(' و')}: يُعرض آخر موقع معروف، لا الموقع الحي.</span></div>` : '';
     const chips = ids.length > 1 && !S.privacy ? `<div class="fch mfch"><button aria-pressed="${!F.length}" data-a="mapFit">${ic('groups')}الكل</button>${ids.map(id => `<button aria-pressed="${one === id}" data-a="mapF:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>` : '';
-    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.paused ? pausedTxt(m) : l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: 'mapF:' + id, v: l.paused ? chip('متوقفة', 'stale', 'location_off') : batChip(l), chev: false }); };
+    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.paused ? pausedTxt(m) : l.nodev ? 'لم يُقرن جهازه بعد · يظهر هنا بعد الإقران' : l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: l.nodev ? 'go:pair-code:' + id : 'mapF:' + id, v: l.paused ? chip('متوقفة', 'stale', 'location_off') : l.nodev ? chip('بلا جهاز', 'ol', 'mobile_off') : batChip(l), chev: !!l.nodev }); };
     let body;
     if (one) {
       const l = locOf(one), m = M[one], d = distTxt(l), kid = !!S.kid[one];
@@ -185,8 +187,8 @@ surface('map', {
       body = `<div class="mhead"><div class="grow"><b>${same ? 'في المكان نفسه' : 'متقاربون على الخريطة'}</b><div class="sm muted">${same ? (S.privacy ? '••••' : P[0].place) : 'قرّب الخريطة لتفصل بينهم'}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div><div class="gap"></div>${list(F.map(rowOf))}`;
     } else {
       const sh = KIDS.reduce((n, k) => n + sibSeen(k).length, 0), mine = paused(me().id);
-      body = `${list(ids.map(rowOf))}
-      ${locIds().length < KIDS.length ? `<p class="xs muted" style="margin:6px 4px">من الأبناء يظهر من سُمح لكِ برؤيتهم فقط.</p>` : ''}
+      body = `${list([...ids, ...locIdsAll().filter(noDev)].map(rowOf))}
+      ${locIdsAll().length < KIDS.length ? `<p class="xs muted" style="margin:6px 4px">من الأبناء يظهر من سُمح لكِ برؤيتهم فقط.</p>` : ''}
       ${S.myLocOff ? `<p class="xs muted" style="margin:6px 4px">تحديد الموقع متوقف في هاتفك: لا يظهر مكانك على الخريطة ولا بُعد العائلة عنك.</p>` : ''}
       <p class="xs muted" style="margin:6px 4px">الموقع يتحدّث كل دقيقة أثناء الحركة، وكل 5 دقائق عند السكون. «حدّث الآن» يطلب قراءة فورية.</p>
       ${sec('المشاركة والاستغاثة')}${list(row('location_on', 'مشاركة موقعي', mine ? 'متوقفة: لا يظهر مكانك لأحد على الخريطة' : isOwner() ? 'يظهر مكانك للكبار في العائلة، ولمن تختاره من الأبناء' : `يظهر مكانك للكبار في العائلة، ولمن يختاره ${M.ahmad.n} من الأبناء`, { tg: !mine, ta: 'myShare' }), isOwner() ? row('visibility', 'ما يراه الأبناء', sh ? 'بعضهم يرى مكان غيره' : 'كل ابن يرى مكانه فقط', { a: 'go:loc-share' }) : '', row('contact_emergency', 'جهات الطوارئ', (S.ec || []).length ? `${(S.ec || []).length} غير أهل البيت` : 'لا أحد غير أهل البيت بعد', { a: 'go:emergency' }), row('sos', 'تنبيهات الاستغاثة', sos ? 'استغاثة نشطة الآن' : 'لا استغاثة الآن', { a: 'go:sos-log' }))}`;
@@ -307,6 +309,7 @@ surface('loc', {
     const l = locOf(id), sos = S.sos && S.sos.from === id && S.sos.st === 'sent';
     const talk = `<div class="btns">${btn('مراسلة ' + pname(m), 'locMsg:' + id, 'sec', 'chat')}${btn('اتصال', 'locCall:' + id, 'sec', 'call')}</div>`;
     if (l.paused) return `${empty('location_off', pausedTxt(m), `${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.`)}${talk}`;
+    if (l.nodev) return `${empty('mobile_off', 'لم يُقرن جهازه بعد', `يظهر موقع ${pname(m)} هنا بعد أن تقرن جهازه بالعائلة.`)}${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, '', 'devices') : ''}`;
     if (l.none) return `${empty('location_off', 'لا موقع معروف بعد', `لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.`)}${talk}`;
     return `${sos ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:sos-status">${ic('sos')}<div><b>${m.n} ${vb(m, 'يستغيث', 'تستغيث')} الآن</b><br>افتح التنبيه</div></button>` : ''}
     <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(19px*var(--ts))">${S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${locLine(l)}</div><div class="chips" style="margin-top:6px">${l.live ? chip('موقع حي', 'ok', 'check') : chip('ليس موقعاً حياً', 'stale', 'history')}${batChip(l)}</div></div></div>

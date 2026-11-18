@@ -7,6 +7,7 @@ function buildCover() { Object.values(SC).forEach(d => reqsOf(d).forEach(k => { 
 /* الانتقال إلى أي سطح مع ضبط الشخصية المناسبة له */
 const sosDemoCur = () => { const s = S.sos; return !s || s.from !== 'layan' || s.st === 'pending' ? '' : s.st === 'resolved' ? 'done' : s.exh ? 'exh' : s.ack ? 'ack' : s.fix === 'last' ? 'last' : s.ch === 'sms' || /SMS/.test(s.via || '') ? 'sms' : 'live'; };
 function jump(id, args) {
+  kidSync();
   const d = SC[id]; if (!d) return; const p = d.p || 'adult', cur = S.persona;
   const need = p === 'adult' ? (isAdult() ? cur : 'owner') : p === 'kid' ? (['child', 'teen'].includes(cur) ? cur : 'child') : p === 'any' ? (cur === 'guest' ? 'owner' : cur) : p;
   if (id === 'chat' || id === 'thread') { /* مشترك */ }

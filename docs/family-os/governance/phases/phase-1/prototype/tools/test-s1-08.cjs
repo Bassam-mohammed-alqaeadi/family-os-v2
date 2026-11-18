@@ -42,7 +42,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.privacy=true;tab('chat');render();ok('privacy mode hides previews',!/وصلت البيت/.test(scr()));
  // 3 الأبناء والبالغ الآخر
  S=fresh();setPersona('child');tab('chat');render();
- ok('child: parents channel does not exist for her, no settings, told the father sees',!/قناة الوالدين/.test(txt())&&!ph.querySelector('[data-a="go:chat-settings"]')&&has(/بابا يستطيع رؤية محادثاتك/)&&!q('#scr [data-a^="go:minor-chats"]'));
+ ok('child: parents channel does not exist for her, no settings, told the father sees',!/قناة الوالدين/.test(txt())&&!ph.querySelector('[data-a="go:chat-settings"]')&&has(/بابا وماما يستطيعان رؤية محادثاتك/)&&!q('#scr [data-a^="go:minor-chats"]'));
  S=fresh();setPersona('teen');tab('chat');render();ok('teen: no parents channel, told plainly',!/قناة الوالدين/.test(txt())&&has(/محادثاتك داخل العائلة مرئية لوالدك/));
  S=fresh();setPersona('delegate');setRole('partner');tab('chat');render();ok('second adult with the permission sees the parents channel',!!q('#chl [data-a="openCh:parents"]'));
  delete S.g['chat.parents.view'];render();ok('adult without it: the parents channel is not listed',!q('#chl [data-a="openCh:parents"]'));
@@ -120,7 +120,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  q('.sheet [data-a="dmStart:layan"]').click();ok('existing chat opens, no duplicate',top()==='thread'&&S.stack[S.stack.length-1].a[0]==='dm-layan');
  S=fresh();tab('chat');ACT.dmStart('khaled');render();ok('new direct chat starts empty with a prompt',!!chOf('dm-ahmad-khaled')&&has(/ابدأ المحادثة/)&&!!q('#cmp'));
  S=fresh();S.net='off';tab('chat');open('chat-new');ok('offline: existing chat opens, a new one waits for a connection',!!q('.sheet [data-a="dmStart:layan"]')&&!q('.sheet [data-a="dmStart:khaled"]')&&/بدء محادثة جديدة يحتاج اتصالاً/.test(q('.sheet').innerText)&&q('.sheet [data-a="grpNew"]').disabled);
- S=fresh();setPersona('child');tab('chat');open('chat-new');ok('child may start a chat with anyone, not a group',ph.querySelectorAll('.sheet .row').length===3&&!q('.sheet [data-a="grpNew"]')&&/والدك يستطيع رؤيتها/.test(q('.sheet').innerText));
+ S=fresh();setPersona('child');tab('chat');open('chat-new');ok('child may start a chat with anyone, not a group',ph.querySelectorAll('.sheet .row').length===3&&!q('.sheet [data-a="grpNew"]')&&/والداك يستطيعان رؤيتها/.test(q('.sheet').innerText));
  S=fresh();setPersona('delegate');setRole('guardian');tab('chat');open('chat-new');ok('adult without the group permission: no group button',!q('.sheet [data-a="grpNew"]'));
  S=fresh();tab('chat');open('chat-new');q('.sheet [data-a="grpNew"]').click();ok('group: needs a name and two members',q('.sheet [data-a="grpMake"]').disabled&&/اختر فردين على الأقل/.test(q('.sheet').innerText));
  q('.sheet [data-ta="grpT:sara"]')?q('.sheet [data-ta="grpT:sara"]').click():ACT.grpT('sara');ACT.grpT('sara');ACT.grpT('sara');ACT.grpT('khaled');render();
@@ -201,4 +201,4 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
    const m=txt().replace(/SOS/g,'').replace(/[a-z0-9-]+\.(org|com)/g,'').match(BAD);if(m)eng.push(id+(pre?'/'+pre:'')+':'+m[0]);}catch(e){F.push('ERR '+id+' '+(pre||'')+' '+e.message)}}}
  R.over=[...new Set(over)];R.eng=[...new Set(eng)];R.n=ids.length;R.ids=ids.join(' ');R.checks=N;R.fail=F;return R;});
 R.errs=errs;}catch(e){R.crash=String(e.stack||e).slice(0,900)}finally{await b.close()}
-console.log(JSON.stringify(R,null,1));})();
+console.log(JSON.stringify(R,null,1));process.exitCode=(R.crash||[R.fail,R.errs,R.over,R.eng].some(x=>x&&x.length))?1:0;})();

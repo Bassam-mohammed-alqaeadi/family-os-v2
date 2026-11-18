@@ -436,9 +436,9 @@ surface('pin-set', {
 });
 Object.assign(ACT, {
   psClose() { const cb = S.ps && S.ps.step === 'done' ? psDone : null; S.full = null; S.ps = null; psBuf = ''; psDone = null; if (cb) cb(); },
-  psBack() { psBuf = ''; S.ps.step = 'new'; S.ps.a = ''; S.ps.err = ''; },
+  psBack() { psBuf = ''; S.ps = Object.assign(S.ps || { kind: 'change' }, { step: 'new', a: '', err: '' }); },
   psK(k) {
-    const p = S.ps; p.err = '';
+    const p = S.ps || (S.ps = { kind: 'change', step: 'new', a: '', err: '' }); p.err = '';   /* فُتحت الشاشة مباشرة: تبدأ كما تُعرض */
     if (k === 'b') { psBuf = psBuf.slice(0, -1); return; }
     psBuf += k; if (psBuf.length < 6) return;
     if (p.step === 'new') {
@@ -474,7 +474,7 @@ surface('sys-first', {
   r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('cloud_off')}</div><p class="ttl">نحتاج اتصالاً لأول مرة</p><p class="sub">افتح الإنترنت مرة واحدة ليجهز التطبيق. بعدها يعمل معك حتى دون اتصال.</p>${btn('حاول مجدداً', 'maintTry', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'refresh')}</div>`; },
 });
 Object.assign(ACT, {
-  updGo() { S.sys = 'ok'; S.full = null; toast('في التطبيق الفعلي يفتح المتجر', null, 'info'); },
+  updGo() { S.sys = 'ok'; S.full = null; toast('يفتح المتجر على صفحة «عائلتي» لتحديثه', null, 'open_in_new'); },
   maintTry() { S.sys = 'ok'; S.full = null; toast('عادت الخدمة'); },
 });
 
@@ -513,12 +513,17 @@ surface('help', {
   note: 'SCR-16 في S1-01: لازمة إطلاق بلا متطلب مرقَّم، أُضيفت بحكم المالك (Q-397 ب-13). الأسئلة من محتوى التصميم نفسه. عنوان الدعم وساعات الرد سلّمهما المالك (Q-412): بريد واحد، ومن 7 صباحاً إلى 8 مساءً. الطفل لا يرى هذه الصفحة: طريقه «شيء ما أزعجني» إلى والده.',
   r() { const o = S.helpQ ?? -1; return `${sec('أسئلة شائعة')}${list(HELP_Q.map(([q, a], i) => row('quiz', q, o === i ? a : '', { a: 'helpQ:' + i, chev: false, v: ic(o === i ? 'keyboard_arrow_up' : 'keyboard_arrow_down') })))}${sec('لم تجد جوابك؟')}${list(row('mail', 'راسل الدعم', '<span class="ltr">alqaedibassam@gmail.com</span>', { a: 'helpMail' }), row('support_agent', 'معلومات تشخيصية', 'قد يطلبها منك فريق الدعم', { a: 'go:health' }))}<p class="sm muted" style="margin:10px 2px 0">نرد من 7 صباحاً إلى 8 مساءً، بالعربية أو الإنجليزية.</p>`; },
 });
+const LEGAL = [
+  ['terms', 'description', 'شروط الاستخدام', 'ما تلتزم به وما نلتزم به', ['من نحن وما الخدمة', 'حسابك ومسؤولية ولي الأمر', 'الاشتراك والدفع والاسترجاع', 'ما لا يجوز في التطبيق', 'إيقاف الحساب وحذفه', 'القانون الحاكم وكيف تراسلنا']],
+  ['privacy', 'policy', 'سياسة الخصوصية', 'ما نجمعه ولماذا ومن يراه', ['ما نجمعه', 'لماذا نجمعه', 'من يراه داخل العائلة', 'أين يُحفظ وكم يبقى', 'حقك في التصدير والحذف', 'بيانات الأطفال وموافقة ولي الأمر']],
+];
 surface('legal', {
   t: 'الشروط والخصوصية', sys: 'S1-01', p: 'any', req: '', st: 'un',
   note: 'SCR-15 في S1-01: لازمة إطلاق ومتاجر بلا متطلب مرقَّم (Q-397 ب-13): شروط الاستخدام وسياسة الخصوصية يجب أن تُفتحا من داخل التطبيق ومن صفحة المتجر. النص القانوني يُكتب بصياغة عادية مرنة ويعتمده المحامي قبل الإطلاق (Q-412)؛ الشاشة تثبّت الموضع والبنية فقط.',
-  r() { return `${callout('النص النهائي يعتمده المحامي قبل الإطلاق. هذه الصفحة تثبّت مكانه في التطبيق.', 'nt', 'info')}${list(row('description', 'شروط الاستخدام', 'ما تلتزم به وما نلتزم به', { a: 'legalDoc' }), row('policy', 'سياسة الخصوصية', 'ما نجمعه ولماذا ومن يراه', { a: 'legalDoc' }), row('child_care', 'خصوصية الأطفال', 'ما يراه ولي الأمر وما لا يراه', { a: isAdult() ? 'go:privacy' : 'go:consent-view' }))}${isAdult() ? sec('بياناتك') + list(row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' })) : ''}${callout('لا إعلانات ولا أدوات تتبع في التطبيق.', 'ok', 'verified_user')}`; },
+  r() { return `${callout('النص النهائي يعتمده المحامي قبل الإطلاق. هذه الصفحة تثبّت مكانه في التطبيق.', 'nt', 'info')}${list(...LEGAL.map(([k, i, t, d, H]) => row(i, t, S.lgQ === k ? `<span class="lgo">${H.map((h, n) => `<span>${n + 1}. ${h}</span>`).join('')}<em>هذه أبواب الوثيقة. صياغتها النهائية تُنشر هنا بعد اعتماد المحامي.</em></span>` : d, { a: 'legalDoc:' + k, chev: false, v: ic(S.lgQ === k ? 'keyboard_arrow_up' : 'keyboard_arrow_down') })), row('child_care', 'خصوصية الأطفال', 'ما يراه ولي الأمر وما لا يراه', { a: isAdult() ? 'go:privacy' : 'go:consent-view' }))}${isAdult() ? sec('بياناتك') + list(row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' })) : ''}${callout('لا إعلانات ولا أدوات تتبع في التطبيق.', 'ok', 'verified_user')}`; },
 });
-ACT.legalDoc = () => toast('النص القانوني لم يُسلَّم بعد', null, 'info');
+/* الوثيقتان القانونيتان: الضغط يفتح أبواب الوثيقة في مكانها (Q-435: لا صف ينتهي برسالة عابرة). النص نفسه بانتظار المحامي (Q-412). */
+ACT.legalDoc = k => { S.lgQ = S.lgQ === k ? '' : k; };
 surface('licenses', {
   t: 'تراخيص المصادر المفتوحة', sys: 'S1-01', p: 'any', req: '',
   note: 'من SCR-15 في S1-01 (Q-397 ب-13)، بلا متطلب مرقَّم. قائمة تولَّد آلياً عند البناء من المكتبات المستعملة فعلاً. هنا خطّ الواجهة ومجموعة الأيقونات المستعملان في النموذج.',

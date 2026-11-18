@@ -147,4 +147,4 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  }catch(e){F.push('ERR '+e.message+' '+String(e.stack).split('\n')[1])}
  R.over=[...new Set(over)];R.eng=[...new Set(eng)];R.checks=N;R.fail=F;return R;});
 R.errs=errs;}catch(e){R.crash=String(e.stack||e).slice(0,900)}finally{await b.close()}
-console.log(JSON.stringify(R,null,1));})();
+console.log(JSON.stringify(R,null,1));process.exitCode=(R.crash||[R.fail,R.errs,R.over,R.eng].some(x=>x&&x.length))?1:0;})();

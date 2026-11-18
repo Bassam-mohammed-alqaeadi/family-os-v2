@@ -25,6 +25,20 @@ const M = {
   layan: { id: 'layan', n: 'ليان', en: 'Layan', rel: 'طفلة · 9 سنوات', role: 'child', by: 2017, c: '#CF5B2C', i: 'face_4' },
 };
 const KIDS = ['khaled', 'layan'];
+/* طفل يضيفه الأب (Q-435) عضو حقيقي: يظهر في العائلة، يُقرن جهازه، وتُضبط قواعده كإخوته.
+   المرجع S.addK (فيعود مع كل استرجاع للحالة أو تراجع)، ومنه يُبنى M و KIDS وجداول الطفل قبل كل رسم وكل ضغطة. */
+const KID0 = KIDS.slice();
+const kidBlank = () => ({ quota: 120, used: 0, pts: 0, streak: 0, bat: 0, place: '', area: '', ago: 0, moving: false, online: false, enf: 'none', x: 50, y: 50, extra: 0, spent: 0, nd: 1 });
+const ageTxt = y => { const a = 2026 - y; return a < 1 ? 'أقل من سنة' : a === 1 ? 'سنة' : a === 2 ? 'سنتان' : a <= 10 ? a + ' سنوات' : a + ' سنة'; };
+function kidSync() {
+  const A = (typeof S === 'object' && S && S.addK) || [];
+  Object.keys(M).forEach(id => { if (M[id].added && !A.some(x => x.id === id)) delete M[id]; });
+  A.forEach(x => { M[x.id] = Object.assign(M[x.id] || {}, x, { added: 1 }); });
+  if (KIDS.length !== KID0.length + A.length || A.some((x, i) => KIDS[KID0.length + i] !== x.id)) { KIDS.length = 0; KIDS.push(...KID0, ...A.map(x => x.id)); }
+  A.forEach(({ id }) => { S.kid[id] = S.kid[id] || kidBlank(); ['apps', 'sched', 'wdom', 'locShare'].forEach(t => { S[t][id] = S[t][id] || []; }); ['wfc', 'wfl'].forEach(t => { S[t][id] = S[t][id] || {}; }); });
+}
+/* طفل أُضيف ملفه ولم يُقرن له جهاز قط: لا موقع ولا تطبيقات ولا حالة حماية بعد */
+const noDev = id => !!(S.kid[id] && S.kid[id].nd);
 /* عناوين توضيحية كما تعيدها الخريطة (الحي والشارع). لا أماكن تسمّيها العائلة في المرحلة 1 (Q-056). */
 const AD_HOME = 'حدة · قرب شارع الخمسين', AD_SCHOOL = 'الصافية · شارع الزبيري', AD_ROAD = 'الصافية · شارع تعز';
 const PERSONA = {
@@ -244,7 +258,7 @@ function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d
 const RECENT_OK = id => !['account', 'about', 'help'].includes(id);
 function tab(id) { S.sheet = null; S.stack = [{ id, a: [] }]; anim = ''; }
 function back() { if (S.dlg) { S.dlg = null; return; } if (S.sheet) { S.sheet = null; return; } if (S.full) { S.full = null; return; } if (window.leaveGuard && window.leaveGuard()) return; if (S.stack.length > 1) { S.stack.pop(); anim = 'inb'; } }
-function setPersona(p, keep) { S.persona = p; S.sheet = S.full = S.dlg = null; if (!keep) S.stack = [{ id: rootOf(p), a: [] }]; anim = ''; }
+function setPersona(p, keep) { kidSync(); S.persona = p; S.sheet = S.full = S.dlg = null; if (!keep) S.stack = [{ id: rootOf(p), a: [] }]; anim = ''; }
 
 /* ---------- الإشعارات والتراجع ---------- */
 let toastT, toastUndo;
@@ -315,6 +329,7 @@ function navbar() {
   return `<nav class="nav" aria-label="التنقل الرئيسي">${tabs.map(([id, i, ar, en]) => `<button data-a="tab:${id}" aria-current="${cur === id ? 'page' : 'false'}"><span class="pl">${ic(cur === id ? i + '-fill' : i)}${id === 'home' && att ? `<span class="dot">${att}</span>` : ''}</span>${L(ar, en)}</button>`).join('')}</nav>`;
 }
 function render() {
+  kidSync();
   /* صلاحية سُحبت والمستخدم داخل تبويبها: يعود لأقرب تبويب مسموح مع رسالة */
   if (S.persona === 'delegate' && TAB_KEY[S.stack[0].id] && !can(TAB_KEY[S.stack[0].id])) { S.stack = [{ id: tabsFor()[0][0], a: [] }]; S.sheet = null; toast('لم يعد هذا القسم ضمن صلاحياتك', null, 'lock'); }
   const ph = $('#phone'), t = topE(), d = SC[t.id];
@@ -383,7 +398,6 @@ const ACT = {
   flip(k) { S[k] = !S[k]; },
   freeOff(k) { const was = S.fm[k]; if (!was) return; delete S.fm[k]; S.audit.unshift({ t: `أُلغي الوضع الحر لـ${M[k].n} قبل انتهائه`, w: me().n, at: 'الآن', k: 'protection.free_mode.activate', kid: k, ty: 'free', d: 0 }); toast(`انتهى الوضع الحر لـ${M[k].n} · عادت القواعد`, () => { S.fm[k] = was; render(); }); },
   notifFix() { S.notifPerm = true; toast('فُعّلت الإشعارات', null, 'notifications_active'); },
-  soon() { toast('خارج نطاق المرحلة 1 — يُضاف عبر سجل الخدمات لاحقاً', null, 'hourglass_empty'); },
   /* القفل الظاهر يشرح السبب ويعرض طلب الصلاحية. الرفض العادي صامت وواضح (S1-03 سيناريو 2-1)؛ ورفض صلاحية حساسة يُسجَّل ويُنبَّه الأب (REQ-007). */
   denied(key) { if (SENS.includes(key)) { S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: `طلب مرفوض: ${me().n} ← «${permName(key)}»`, s: 'صلاحية حساسة ليست عندها', who: me().n, ago: 'الآن', p: 3, open: 1 }); S.audit.unshift({ t: `رُفض: ${me().n} ← «${permName(key)}»`, w: 'النظام', at: 'الآن', k: key, deny: 1, who: me().id, act: 'deny', pk: key, d: 0 }); } S.sheet = { id: 'why', a: ['nd:' + key] }; },
 };
@@ -393,6 +407,7 @@ document.addEventListener('click', e => {
   if (el.dataset.a === 'scrimClose' && e.target.closest('[data-stop]')) return;
   const [n, ...a] = el.dataset.a.split(':');
   if (!ACT[n]) return console.warn('action?', n);
+  kidSync();
   const r = ACT[n](...a, el);
   if (r !== false) render();
 });

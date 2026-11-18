@@ -173,7 +173,7 @@ surface('event-new', {
     <label class="fld"><span>العنوان</span><input id="evT" maxlength="60" placeholder="مثال: زيارة الجدة" value="${d.t}"></label>
     <div class="fld"><span>اليوم</span>${tkStep('tkEvDay', `<b>${tkLong(d.dk)}</b><small>${tkHj(d.dk, { day: 'numeric', month: 'long', year: 'numeric' })} هـ</small>`, d.dk <= TK_TODAY, d.dk >= TK_END, 'اليوم')}</div>
     <div class="fld"><span>الوقت</span>${tkStep('tkEvTm', `<b>${tkTm(d.hm)}</b>`, d.hm <= '0500', d.hm >= '2300', 'الوقت')}</div>
-    <div class="fld"><span>لمن؟</span><div class="chips tkp">${who.map(([id, n]) => `<button class="chip ${d.who === id ? 'in' : 'ol'}" data-a="tkEvSet:who:${id}">${id === 'all' ? ic('groups') : av(M[id], 'sm')}${n}</button>`).join('')}</div></div>
+    <div class="fld"><span>لمن؟</span><div class="chips tkp">${who.map(([id, n]) => `<button class="chip ${d.who === id ? 'in' : 'ol'}" aria-pressed="${d.who === id}" data-a="tkEvSet:who:${id}">${id === 'all' ? ic('groups') : av(M[id], 'sm')}${n}</button>`).join('')}</div></div>
     <div class="fld"><span>التذكير</span>${seg([[15, '15 دقيقة'], [30, '30 دقيقة'], [60, 'ساعة'], [1440, 'يوم']], +d.rem, 'tkEvSet:rem')}<p class="xs muted" style="margin:-6px 4px 0">${tkRm(d.rem)} · ${tkRemWho(d, false)}. يصل ولو كان الجهاز بلا إنترنت.</p></div>
     <label class="fld"><span>المكان (اختياري)</span><input id="evL" maxlength="40" placeholder="مثال: بيت الجدة" value="${d.loc || ''}"></label>
     <div class="fld"><span>التكرار</span>${seg(Object.entries(TK_ER), d.rr, 'tkEvSet:rr')}</div>
@@ -380,7 +380,7 @@ surface('t-task-new', {
     if (!S.teenTasks) return `<h4>لم يسمح والدك بهذا بعد</h4><p class="d">تطلبه منه من «ملفي».</p>${btn('افتح ملفي', 'tab:t-me', 'sec')}`;
     return `<h4>مهمة شخصية</h4><p class="d">لك أنت. تنجزها بلا اعتماد، ووالدك يراها.</p><label class="fld"><span>ماذا ستنجز؟</span><input id="ttT" maxlength="60" placeholder="مثال: مراجعة الكيمياء" value="${d.t}"></label>
     <div class="fld"><span>متى؟</span>${seg([[TK_TODAY, 'اليوم'], [tkAdd(TK_TODAY, 1), 'غداً'], [tkAdd(TK_TODAY, 2), tkDayT(tkAdd(TK_TODAY, 2)).split(' ')[0]]], d.dk, 'tkTt:dk')}</div>
-    <div class="fld"><span>التكرار</span>${seg([['none', 'مرة واحدة'], ['daily', 'كل يوم'], ['school', 'أيام الدراسة']], d.rr, 'tkTt:rr')}</div>
+    ${TK().rec ? `<div class="fld"><span>التكرار</span>${seg([['none', 'مرة واحدة'], ['daily', 'كل يوم'], ['school', 'أيام الدراسة']], d.rr, 'tkTt:rr')}</div>` : `<div class="fld"><span>التكرار</span><div class="card flat sm muted" style="margin:0">مرة واحدة · أوقف والدك تكرار المهام في العائلة</div></div>`}
     <div class="fld"><span>التذكير</span>${seg([[15, '15 دقيقة'], [30, '30 دقيقة'], [60, 'ساعة'], [1440, 'يوم']], +d.rem, 'tkTt:rem')}</div>${btn('أضف المهمة', 'tkTtSave')}`;
   },
 });
@@ -481,7 +481,7 @@ Object.assign(ACT, {
   tkTt(k, v) { const a = $('#ttT'); if (a) S.tt.t = a.value; S.tt[k] = k === 'rem' ? +v : v; },
   tkTtSave() {
     const a = $('#ttT'), d = S.tt, t = ((a ? a.value : d.t) || '').trim(); if (!S.teenTasks) return; if (!t) { toast('اكتب عنوان المهمة أولاً', null, 'error'); return; }
-    const x = { id: 't' + Date.now(), kid: 'khaled', by: 'khaled', t, cat: 'self', pts: 0, dk: d.dk, hm: '2000', due: tkDayT(d.dk), proof: 'self', st: 'PENDING', rr: d.rr, rep: tkRepT(d.rr, []), rem: +d.rem };
+    const x = { id: 't' + Date.now(), kid: 'khaled', by: 'khaled', t, cat: 'self', pts: 0, dk: d.dk, hm: '2000', due: tkDayT(d.dk), proof: 'self', st: 'PENDING', rr: TK().rec ? d.rr : 'none', rep: tkRepT(TK().rec ? d.rr : 'none', []), rem: +d.rem };   /* ضابط التكرار الذي أوقفه الأب يسري على مهام المراهق أيضاً (Q-435) */
     S.tasks.unshift(x); const off = queue('مهمة «' + t + '»', 'S1-06'); S.tt = null; S.sheet = null; toast(off ? 'حُفظت مهمتك · تُرسل عند الاتصال' : 'أُضيفت مهمتك', () => { S.tasks = S.tasks.filter(q => q !== x); render(); }, off ? 'cloud_upload' : 'check_circle');
   },
 

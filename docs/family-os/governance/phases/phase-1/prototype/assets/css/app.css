@@ -348,7 +348,7 @@ button.chip{min-height:28px}
 .strip{display:flex;align-items:center;gap:8px;background:#ffffff14;border-radius:14px;padding:9px 12px;margin-top:12px;font-size:calc(13px*var(--ts));position:relative;z-index:1;width:100%;line-height:1.5}
 .strip svg.ic{width:20px;height:20px;color:#8FD3A5}
 .strip.at svg.ic{color:#F6C38F}
-.strip span{flex:1}
+.strip>span{flex:1;text-align:start;min-width:0}.strip>span.chip{flex:none}   /* شريحة العمر لا تتمدد (Q-435) */
 .att{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;position:relative}
 .att::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--pc,var(--accent))}
 .att .hd{display:flex;gap:12px;padding:12px 14px 4px 14px;align-items:flex-start;width:100%}
@@ -1036,3 +1036,23 @@ button.fx,button.strip{min-height:var(--touch)}
 .phone[data-mode="child"] .bar .sos{margin-inline:0 -2px}   /* الإطار الشفاف 6: الظاهر يبعد 12 عن جاره، وموضعه من حافة الشريط كما كان */
 /* عنوان الشاشة: في قالبي الطفل والمراهق بجانبه الاستغاثة والنقاط والصورة، فيضيق مع النص الكبير؛ ينزل إلى سطر ثانٍ بدل أن يُقطع بثلاث نقاط */
 .phone .bar h2{white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.4;overflow-wrap:anywhere}
+
+/* ===== Q-435: إغلاق العمليات — «قواعدي» عند الابن، الطفل الجديد بلا جهاز، أبواب الوثيقة القانونية ===== */
+.card.krn{border-color:var(--info);background:var(--info-soft,var(--subtle))}
+.card.krn>.ic:first-child{color:var(--info)}
+.card.krnew{display:flex;align-items:flex-start;gap:12px;border-color:var(--info);background:var(--info-soft,var(--subtle))}
+.card.krnew>.ic{color:var(--info);flex:none;margin-top:2px}
+.card.krnew b{display:block;margin-bottom:2px}
+.card.krnew .sm{line-height:1.7}
+.card.krnew .btn{flex:none;align-self:center}
+.card.nodev{display:flex;align-items:center;gap:12px;border-style:dashed;border-color:var(--border-strong)}
+.card.nodev>.ic{flex:none;color:var(--muted)}
+.card.nodev .btn{flex:none}
+.demo{margin-top:14px;padding:10px 12px 4px;border:1px dashed var(--border-strong);border-radius:14px;text-align:center}
+.demo small{display:block;font-size:calc(12px*var(--ts)*var(--tk,1));color:var(--muted)}
+.demo .btns{margin-top:2px}
+.row .tx span.lgo{display:grid;gap:4px;margin-top:6px;color:var(--text2)}
+.row .tx .lgo span{display:block}
+.row .tx .lgo em{display:block;margin-top:6px;font-style:normal;font-size:calc(12px*var(--ts));color:var(--muted)}
+.row .tx span.krt{font-weight:600;color:var(--text)}
+button.card:active{background:var(--subtle)}

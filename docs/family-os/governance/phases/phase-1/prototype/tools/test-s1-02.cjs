@@ -134,4 +134,4 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
    if(lang==='ar'&&/TOTP|HMAC|JSON|IANA|mTLS|MQTT|مفتاح التوقيع|مفتاح توقيع|العتاد|E\.164|Firebase/.test(txt()))eng.push(id);}catch(e){F.push('ERR '+id+' '+lang+' '+e.message)}}}
  R.over=over;R.eng=eng;R.checks=N;R.n=Object.keys(SC).filter(k=>SC[k].sys==='S1-02').length;R.fail=F;return R;});
 R.errs=errs;}catch(e){R.crash=String(e)}finally{await b.close()}
-console.log(JSON.stringify(R,null,1));})();
+console.log(JSON.stringify(R,null,1));process.exitCode=(R.crash||[R.fail,R.errs,R.over,R.eng].some(x=>x&&x.length))?1:0;})();

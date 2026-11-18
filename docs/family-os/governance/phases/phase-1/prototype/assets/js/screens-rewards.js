@@ -15,8 +15,10 @@ const RW_BADGE = [[7, 'الفضية', '#8E99A8'], [30, 'الذهبية', '#C8A24
 const RW_CELE = { full: ['كامل', 'قصاصات ملونة وصوت قصير عند كل كسب'], light: ['خفيف', 'إشعار هادئ بلا قصاصات'], off: ['صامت', 'يتغيّر الرصيد فقط'] };
 
 /* ---------- الحالة (تُبذر عند أول استعمال) ---------- */
+/* جداول كل طفل في المكافآت تُنشأ عند أول حاجة: طفل يضيفه الأب يدخل بلا رصيد ولا حركات (Q-435) */
+const rwSeed = R => { KIDS.forEach(id => { R.led[id] = R.led[id] || []; R.frz[id] = R.frz[id] || { n: 0, on: 0 }; }); return R; };
 function RW() {
-  if (S.rw) return S.rw;
+  if (S.rw) return rwSeed(S.rw);
   S.rw = {
     n: 100, bonus: 50, cele: 'full', src: { tasks: true },
     day: { layan: 1 },                       /* هل حُسب يوم اليوم في السلسلة؟ (أول كسب موثَّق في اليوم) */
@@ -39,7 +41,7 @@ function RW() {
       khaled: [],
     },
   };
-  return S.rw;
+  return rwSeed(S.rw);
 }
 /* المحفظة للأطفال دون 13 فقط (Q-109). عند بلوغ 13 تُجمَّد: الرصيد محفوظ بلا كسب ولا صرف (Q-237). */
 const rwFz = id => (id === 'layan' && S.rev13 >= 1) || (id === 'khaled' && S.kid.khaled.pts > 0);
@@ -285,7 +287,7 @@ surface('grant-time', {
     const m = M[g.kid], k = S.kid[g.kid], ap = S.apps[g.kid].filter(a => a.act === 'LIMIT'), cl = rwCapLeft(g.kid), O = [10, 15, 30, 60].filter(n => n <= cl), fz = rwFz(g.kid) && k.pts > 0; g.app = ap.some(a => a.id === g.app) ? g.app : (ap[0] || {}).id; if (!O.includes(g.n)) g.n = O[Math.min(1, O.length - 1)];
     return `<h4>امنح وقتاً إضافياً</h4><p class="d">دقائق تضاف الآن إلى تطبيق واحد وتنتهي عند منتصف الليل. لا تدخل المحفظة، وتُحسب من حد اليوم. ${why('extra')}</p>
     <div class="chips" style="margin-bottom:10px">${K.map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gtSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>
-    ${!ap.length ? callout(`لا تطبيق له حدّ وقت عند ${m.n}. الوقت الإضافي يضاف إلى تطبيق محدود فقط.`, 'nt', 'info') : `<div class="chips" style="margin-bottom:12px">${ap.map(a => `<button class="chip ${g.app === a.id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" data-a="gtSet:app:${a.id}">${ic(a.i)}${a.n}</button>`).join('')}</div>
+    ${!ap.length ? callout(`لا تطبيق له حدّ وقت عند ${m.n}. الوقت الإضافي يضاف إلى تطبيق محدود فقط.`, 'nt', 'info') : `<div class="chips" style="margin-bottom:12px">${ap.map(a => `<button class="chip ${g.app === a.id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" aria-pressed="${g.app === a.id}" data-a="gtSet:app:${a.id}">${ic(a.i)}${a.n}</button>`).join('')}</div>
     ${O.length ? seg(O.map(n => [n, n + ' د']), g.n, 'gtSet:n') : callout(`${vb(m, 'أخذ', 'أخذت')} ${m.n} اليوم كل الوقت الإضافي (${S.redeemCap} دقيقة). لتمنح أكثر ارفع الحد اليومي.${can('rewards.settings.edit') ? `<div style="margin-top:8px">${btn('غيّر الحد', 'go:ctl-edit:cap:' + g.kid, 'sm sec')}</div>` : ''}`, 'wa', 'hourglass_top')}
     <p class="sm muted c">${vb(m, 'أخذ', 'أخذت')} اليوم ${k.spent} من ${S.redeemCap} دقيقة إضافية</p>
     ${fz && O.length ? list(row('ac_unit', 'اخصمها من الرصيد المجمّد', `في المحفظة المجمّدة ${rwPt(k.pts)}`, { tg: !!g.fz, ta: 'gtSet:fz:' + (g.fz ? 0 : 1) })) : ''}
@@ -395,7 +397,7 @@ Object.assign(ACT, {
   },
   reqDeny(id, withTask) {
     const r = S.reqs.find(x => x.id === id); if (!r || r.st !== 'PENDING') return toast('سبق القرار على هذا الطلب', null, 'info');
-    const tk = withTask && typeof withTask === 'object' ? withTask : withTask === '1' || withTask === 1 || withTask === true ? { t: RW_SWAP[0], pts: 15 } : null;
+    const tk = withTask && typeof withTask === 'object' && withTask.t ? withTask :   /* العنصر المضغوط يصل آخر وسيط: ليس مهمة (Q-435) */ withTask === '1' || withTask === 1 || withTask === true ? { t: RW_SWAP[0], pts: 15 } : null;
     r.st = 'DENIED'; r.by = me().n; r.seen = 0; S.sheet = null; S.td = null;
     if (tk) { S.tasks.unshift({ id: 't' + Date.now(), kid: r.kid, t: tk.t, cat: tk.t === RW_SWAP[0] ? 'school' : 'home', pts: tk.pts, due: 'اليوم', proof: 'self', st: 'PENDING', swap: 1 }); r.task = tk.t; toast(`رُفض الطلب وأُسندت «${tk.t}» إلى ${M[r.kid].n}`, null, 'add_task'); } else toast('رُفض الطلب · يصل الطفل بلطف');
     queue('قرار طلب وقت', 'S1-05'); audit(`رُفض طلب وقت إضافي من ${M[r.kid].n}${tk ? ` مع إسناد «${tk.t}»` : ''}`, 'rewards.time_request.decide');
