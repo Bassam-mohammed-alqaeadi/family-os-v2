@@ -248,7 +248,9 @@ const tabsFor = () => (S.persona === 'delegate' ? TABS.parent.filter(t => !TAB_K
 const rootOf = p => (p === 'guest' ? 'ob-welcome' : (p === S.persona ? tabsFor() : TABS[PERSONA[p].mode])[0][0]);
 const topE = () => S.stack[S.stack.length - 1];
 let anim = '';
-function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d = SC[id]; if (d.kind === 'sheet') { S.sheet = { id, a }; return; } if (d.kind === 'full') { S.full = { id, a }; return; } S.sheet = null; S.stack.push({ id, a }); anim = 'in'; }
+function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d = SC[id]; if (d.kind === 'sheet') { S.sheet = { id, a }; return; } if (d.kind === 'full') { S.full = { id, a }; return; } if (S.stack[S.stack.length - 1].id === 'more' && RECENT_OK(id)) S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 3); S.sheet = null; S.stack.push({ id, a }); anim = 'in'; }
+/* «آخر ما فتحته» في «المزيد» (S1-09 H09-14): آخر ثلاثة أقسام فُتحت منه بلا معاملات؛ لا عدّ للاستعمال ولا شيء يغادر الجهاز. */
+const RECENT_OK = id => !['account', 'about', 'help'].includes(id);
 function tab(id) { S.sheet = null; S.stack = [{ id, a: [] }]; anim = ''; }
 function back() { if (S.dlg) { S.dlg = null; return; } if (S.sheet) { S.sheet = null; return; } if (S.full) { S.full = null; return; } if (window.leaveGuard && window.leaveGuard()) return; if (S.stack.length > 1) { S.stack.pop(); anim = 'inb'; } }
 function setPersona(p, keep) { S.persona = p; S.sheet = S.full = S.dlg = null; if (!keep) S.stack = [{ id: rootOf(p), a: [] }]; anim = ''; }

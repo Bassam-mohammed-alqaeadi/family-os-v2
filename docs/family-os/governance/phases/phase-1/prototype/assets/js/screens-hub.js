@@ -175,10 +175,23 @@ const agentSees = g => isOwner() || (S.persona === 'delegate' && can(g.need)) ||
 const agentKid = g => (g.st === 'تُرُوجع عنه' && g.ktu ? [g.ktu, g.kresu] : g.st.includes('نُفّذ') && g.ktd ? [g.ktd, g.kresd] : [g.kt, g.kres]);
 const agentTone = g => (g.st.includes('نُفّذ') || g.st === 'تمّ' ? 'ok' : g.st === 'رُفض' || g.st === 'تُرُوجع عنه' ? '' : 'wa');
 function agentLog() {
-  const f = S.agF || 'all', L = S.agent.filter(agentSees).filter(g => f === 'all' || g.kid === f || g.kid === 'all');
-  return `${!isOwner() ? `<div style="margin:0 2px 8px">${chip('ترين ما يخص صلاحياتكِ فقط', 'in', 'filter_alt')}</div>` : ''}<div class="fch"><button aria-pressed="${f === 'all'}" data-a="set:agF:all">الكل</button>${KIDS.map(id => `<button aria-pressed="${f === id}" data-a="set:agF:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>
-  ${L.length ? list(L.map(g => row(g.st === 'بانتظارك' ? 'pending_actions' : g.st === 'محال' ? 'forward_to_inbox' : 'wand_stars', g.t, `${g.at} · ${g.gate}`, { a: `go:ai-act:${g.id}`, v: chip(g.st, agentTone(g)) }))) : `<div class="card flat c sm muted">لا أفعال للمساعد هنا</div>`}`;
+  const f = S.agF || 'all', ka = S.agK || 'all', pd = S.agP || 'all', n = (ka !== 'all') + (pd !== 'all');
+  const L = S.agent.filter(agentSees).filter(g => f === 'all' || g.kid === f || g.kid === 'all').filter(g => (ka === 'all' || g.k === ka) && agentIn(g, pd));
+  return `${!isOwner() ? `<div style="margin:0 2px 8px">${chip('ترين ما يخص صلاحياتكِ فقط', 'in', 'filter_alt')}</div>` : ''}<div class="fch"><button aria-pressed="${f === 'all'}" data-a="set:agF:all">الكل</button>${KIDS.map(id => `<button aria-pressed="${f === id}" data-a="set:agF:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}<button aria-pressed="${n > 0}" data-a="go:ai-filter">${ic('filter_list')}${n ? `تصفية · ${n}` : 'تصفية'}</button></div>
+  ${L.length ? list(L.map(g => row(g.st === 'بانتظارك' ? 'pending_actions' : g.st === 'محال' ? 'forward_to_inbox' : 'wand_stars', g.t, `${g.at} · ${g.gate}`, { a: `go:ai-act:${g.id}`, v: chip(g.st, agentTone(g)) }))) : `<div class="card flat c sm muted">لا أفعال للمساعد ${n ? 'بهذه التصفية' : 'هنا'}${n ? `<div style="margin-top:8px">${btn('أزِل التصفية', 'agClear', 'sm sec')}</div>` : ''}</div>`}`;
 }
+/* تصفية سجل المساعد بنوع الفعل والمدة (S1-09 REQ-018 · عقد `agent-actions?action&from&to`) */
+const AG_P = [['all', 'كل المدة'], ['today', 'اليوم'], ['week', 'آخر 7 أيام'], ['month', 'آخر 30 يوماً']];
+const agentAge = g => (/^اليوم/.test(g.at) ? 0 : /^أمس/.test(g.at) ? 1 : +((g.at.match(/قبل (\d+) (?:يوم|أيام)/) || [0, 99])[1]));
+const agentIn = (g, p) => p === 'all' || agentAge(g) <= { today: 0, week: 6, month: 29 }[p];
+surface('ai-filter', {
+  kind: 'sheet', t: 'تصفية سجل المساعد', sys: 'S1-09', p: 'any', req: '09:18',
+  note: 'تصفية سجل أفعال المساعد بنوع الفعل والمدة، فوق تصفية الفرد التي في السجل نفسه. الأنواع المعروضة هي ما في سجل هذا الشخص فقط، بأسمائها العربية. التصفية عرض لا يغيّر شيئاً، وتُزال بضغطة.',
+  r() { const ka = S.agK || 'all', pd = S.agP || 'all', ks = [...new Set(S.agent.filter(agentSees).map(g => g.k))];
+    return `<h4>تصفية السجل</h4><p class="d">تعرض ما تختاره فقط. لا تحذف شيئاً من السجل.</p>${sec('نوع الفعل')}${list([row('', 'كل الأنواع', '', { a: 'agSet:agK:all', v: ka === 'all' ? ic('check') : '', chev: false })].concat(ks.map(k => row('', (AIK.find(x => x[0] === k) || [0, 'يساعد'])[1], '', { a: `agSet:agK:${k}`, v: ka === k ? ic('check') : '', chev: false }))))}
+    ${sec('المدة')}${list(AG_P.map(([k, t]) => row('', t, '', { a: `agSet:agP:${k}`, v: pd === k ? ic('check') : '', chev: false })))}${btn('اعرض', 'close')}<div class="gap"></div>${btn('أزِل التصفية', 'agClear', 'txt')}`; },
+});
+Object.assign(ACT, { agSet(k, v) { S[k] = v; }, agClear() { S.agK = S.agP = 'all'; S.sheet = null; } });
 surface('ai-act', {
   kind: 'sheet', t: 'فعل للمساعد', sys: 'S1-09', p: 'any', a: ['g3'], req: '09:18',
   note: 'تفصيل فعل واحد بخمسة أسئلة: ماذا فعل، بأي إذن، إلى ماذا استند، ما النتيجة، وكيف يُتراجع عنه. الدليل ملخّص بلا محتوى رسائل ولا صور. اسم القدرة التقني مخفي ويظهر اسمها بالعربية.',

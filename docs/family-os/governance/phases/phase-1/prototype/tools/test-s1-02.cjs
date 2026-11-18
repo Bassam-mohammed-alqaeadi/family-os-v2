@@ -106,6 +106,19 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  ACT.em2Open();render();ok('login email: added only after the link',S.em2.st==='ok'&&S.audit.length===a0+2&&/مؤكَّد/.test(txt()));ACT.em2Rm();render();ok('login email: removal asks PIN',!!ph.querySelector('.pad')&&!!S.em2);pin();ok('login email: removed, phone stays',!S.em2&&S.audit.length===a0+3);
  S=fresh();go('login-add');render();document.getElementById('em2').value='x@example.com';ACT.em2Send();render();pin();ACT.em2Cancel();render();ok('login email: cancel leaves nothing',!S.em2&&!S.sheet);
  S=fresh();S.net='off';go('login-add');render();ok('login email: offline cannot send',ph.querySelector('[data-a="em2Send"]').disabled&&/غير متصل/.test(txt()));
+ // 13-د2 الاتجاه الآخر: من سجّل ببريده يضيف رقماً (REQ-029)
+ S=fresh();setPersona('delegate');go('account');render();ok('phone login: email-registered adult sees add-phone row',!!ph.querySelector('#scr [data-a="go:login-add:phone"]')&&!ph.querySelector('#scr [data-a="go:login-add"]')&&/s•••@example\.com/.test(txt()));
+ go('login-add','phone');render();ok('phone login: form',top()==='login-add'&&!!document.getElementById('ph2'));
+ document.getElementById('ph2').value='123';ACT.ph2Send();render();ok('phone login: bad number',S.ph2F.e==='bad'&&!S.ph2);document.getElementById('ph2').value='777000111';ACT.ph2Send();render();ok('phone login: another account refused',S.ph2F.e==='used'&&!S.ph2&&/لحساب آخر/.test(txt()));
+ document.getElementById('ph2').value='770000000';ACT.ph2Send();render();ok('phone login: delivery down says email still works',S.ph2F.e==='down'&&/الدخول بالبريد يعمل/.test(txt()));
+ {document.getElementById('ph2').value='٠٧٧١٢٣٤٥٦٧';ACT.ph2Send();render();ok('phone login: PIN before sending',!S.ph2&&!!ph.querySelector('.pad'));const a0=S.audit.length;pin();ok('phone login: code asked, not yet added',S.ph2&&S.ph2.st==='code'&&S.ph2.a==='771234567'&&S.audit.length===a0+1&&top()==='login-add'&&!!document.getElementById('ph2c'),top());
+ S.sheet=null;go('account');render();ok('phone login: account says waiting for the code',/بانتظار الرمز/.test(txt()));go('login-add','phone');render();
+ document.getElementById('ph2c').value='111111';ACT.ph2Ok();render();ok('phone login: wrong code counts down',S.ph2.st==='code'&&S.ph2.bad===1&&/بقيت 4 محاولات/.test(txt()));
+ document.getElementById('ph2c').value='246810';ACT.ph2Ok();render();ok('phone login: added only after the code',S.ph2.st==='ok'&&S.audit.length===a0+2&&/مؤكَّد/.test(txt()));
+ ACT.ph2Rm();render();ok('phone login: removal asks PIN',!!ph.querySelector('.pad')&&!!S.ph2);pin();ok('phone login: removed, email stays',!S.ph2&&S.audit.length===a0+3);}
+ S=fresh();setPersona('delegate');S.ph2={a:'771234567',st:'code',bad:4};go('login-add','phone');render();document.getElementById('ph2c').value='000000';ACT.ph2Ok();render();ok('phone login: five wrong codes lock',S.ph2.bad===5&&/15 دقيقة/.test(txt())&&!document.getElementById('ph2c'));ACT.ph2Cancel();render();ok('phone login: cancel leaves nothing',!S.ph2&&!S.sheet);
+ S=fresh();setPersona('delegate');S.net='off';go('login-add','phone');render();ok('phone login: offline cannot send',ph.querySelector('[data-a="ph2Send"]').disabled&&/غير متصل/.test(txt()));
+ S=fresh();go('account');render();ok('phone login: phone-registered owner keeps add-email row',!!ph.querySelector('#scr [data-a="go:login-add"]')&&!ph.querySelector('#scr [data-a="go:login-add:phone"]'));
  // 13-هـ تعديل العائلة بعد إنشائها (REQ-030)
  S=fresh();go('family-settings');render();ok('family: three editable rows for the owner',['name','reg','tz'].every(k=>!!ph.querySelector('#scr [data-a="famEdit:'+k+'"]')));
  ACT.famEdit('name');render();document.getElementById('fmN').value='ا';ACT.famSave('name');render();ok('family name: too short',S.fmF.e===1&&top()==='fam-edit');const a1=S.audit.length;document.getElementById('fmN').value='  عائلة   الصالح ';ACT.famSave('name');render();
