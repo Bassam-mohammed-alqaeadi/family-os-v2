@@ -54,7 +54,7 @@ perm = {
   "observer": keys_after("#### قالب المراقب (`observer`)", r"^### 5-3-ب"),
   "ownerOnly": keys_after("#### §5-أ. مالك حصري", r"^#### §5-ب"),
 }
-perm["all"] = keys_after("### 10-5. قائمة بذرة المفاتيح الكاملة")   # سجل الـ 95 (§10-5)
+perm["all"] = keys_after("### 10-5. قائمة بذرة المفاتيح الكاملة")   # سجل المفاتيح الكامل (§10-5)
 perm = {k: [x for x in v if x not in ("domain.action",)] for k, v in perm.items()}
 total = sum(len(s["reqs"]) for s in out); noui = sum(1 for s in out for r in s["reqs"] if r.get("noui"))
 js = "/* مولَّد آلياً من tools/build-req-data.py — لا تعدّله يدوياً */\nwindow.FOS_REQ = " + json.dumps(out, ensure_ascii=False, separators=(",", ":")) + ";\nwindow.FOS_PERM = " + json.dumps(perm, ensure_ascii=False, separators=(",", ":")) + ";\n"

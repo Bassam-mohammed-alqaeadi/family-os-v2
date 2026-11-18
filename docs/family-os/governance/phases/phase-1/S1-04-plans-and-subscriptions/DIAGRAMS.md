@@ -3,23 +3,23 @@
 - **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-08 — D-2، بعد موجة الإصلاح 0e4a3e2..f7da470)؛ والمواصفة معتمدة بالكامل في التخطيط (حكم المالك 2026-11-06)
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط، حكم المالك 2026-11-06 · §9 في مرحلة التصميم)
 - **السياق المحدد (Bounded Context):** #11 الفوترة والاشتراكات (Billing & Subscriptions) — `CONTEXT-MAP.md` §2 صف 11
-- **القرارات الحاكمة:** Q-001 · Q-025 (قنوات الدفع لعالمين) · Q-055 (الخطط أعلام وحصص بلا كود) · Q-106 (عدّاد SMS وتجاوز الطوارئ) · Q-126 (3 خطط) · Q-127 (أسعار الخليج) · Q-129 (حصص SMS) · Q-130 (تجربة 7 أيام) · Q-131 (سماح 3 أيام) · Q-012 (ميزانية الذكاء) · Q-098 (الخطة للقراءة فقط في S1-09) · Q-105 (سجل المواقع 7 أيام) · Q-163 (تجاوز طوارئ SOS — 3 رسائل بعد نفاد الحصة) · Q-056 (الموقع الأساسي في المرحلة 1 — خريطة العائلة + SOS) · Q-007 (رفض-يتغلب — المنع يغلب) · Q-260 (مفتاح `billing.plan.edit` — مالك المنصة وحده) · Q-258 (إصدار القسائم — مشغّل المنصة حصراً) · Q-261 (تصديق Basic = 50 رسالة/شهر) · Q-270 (جدول منتج التعبئة — السعر قرار المالك G-S04-08) · Q-271 (تصديق سعر Basic 9.99/89.99) · Q-128 (سعر اليمن المخفَّض) · Q-239 (مرآة SMS) · Q-251 (تأكيد الدفع اليدوي) · Q-252 (فترة الحصة شهر تقويمي) · Q-216 (تنبيه 80%) · Q-335 (المصنف معفى من ميزانية العائلة) · Q-336 (وحدة الذكاء: 300/1,000/3,000) · Q-337 (سقف المنصة $200) · Q-338 (مفتاح إيقاف الذكاء للمسؤول) · Q-339 (تعبئة الخليج 5.99 ر.س) · Q-340 (تعبئة اليمن 250 ر.ي) · Q-341 (اليمن أساسية 300/2,700) · Q-342 (اليمن مميزة 600/5,400)
+- **القرارات الحاكمة:** Q-001 · Q-025 (قنوات الدفع لعالمين) · Q-055 (الخطط أعلام وحصص بلا كود) · Q-106 (عدّاد SMS وتجاوز الطوارئ) · Q-126 (3 خطط) · Q-127 (أسعار الخليج) · Q-129 (حصص SMS) · Q-130 (تجربة 7 أيام) · Q-131 (سماح 3 أيام) · Q-012 (ميزانية الذكاء) · Q-098 (الخطة للقراءة فقط في S1-09) · Q-105 (سجل المواقع 7 أيام) · Q-163 (تجاوز طوارئ SOS — 3 رسائل بعد نفاد الحصة) · Q-056 (الموقع الأساسي في المرحلة 1 — خريطة العائلة + SOS) · Q-007 (رفض-يتغلب — المنع يغلب) · Q-260 (مفتاح `billing.plan.edit` — مالك المنصة وحده) · Q-261 (تصديق Basic = 50 رسالة/شهر) · Q-270 (جدول منتج التعبئة — السعر قرار المالك G-S04-08) · Q-271 (تصديق سعر Basic 9.99/89.99) · Q-128 (سعر اليمن المخفَّض) · Q-239 (مرآة SMS) · Q-251 (تأكيد الدفع اليدوي) · Q-252 (فترة الحصة شهر تقويمي) · Q-216 (تنبيه 80%) · Q-335 (المصنف معفى من ميزانية العائلة) · Q-336 (وحدة الذكاء: 300/1,000/3,000) · Q-337 (سقف المنصة $200) · Q-338 (مفتاح إيقاف الذكاء للمسؤول) · Q-339 (تعبئة الخليج 5.99 ر.س) · Q-340 (تعبئة اليمن 250 ر.ي) · Q-341 (اليمن أساسية 300/2,700) · Q-342 (اليمن مميزة 600/5,400) · Q-420 (التوقيت، الأيام الإضافية، نهاية التجربة، التجديد المبكر) · Q-421 (حذف القسائم؛ محفظة جيب)
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
+- **تحديث 2026-11-18 (Q-420 · Q-421):** حُذفت القسائم من كل المخططات (حالتا الاستخدام UC6 وUC14، التسلسلان 3-ب و3-ح، جدولها في ERD، ومخزنها في DFD)، وأضيفت محفظة جيب وجدول `wallet_provider`. الأرقام والحروف المحذوفة لا يُعاد استعمالها. وأحكام Q-420 (الأيام الإضافية عند الترقية، التذكيران، عودة العائلة المدفوعة بعد التجربة، التجديد المبكر) تُرسم في دفعة إعادة المخططات (Q-412)؛ والمرجع فيها حتى ذلك الحين `SPEC.md` §3 و§9.8.
 
 ## 1. حالات الاستخدام
 
-16 حالة استخدام من السيناريوهات السبعة والمتطلبات (§2/§3): إدارة الاشتراك للأب وحده (`billing.manage` و`billing.voucher.redeem`)، والعرض (`billing.view`) للأب والبالغ المفوَّض حسب القالب، وشراء حزمة التعبئة (`billing.topup.buy`) للأب وحده (المالك)، والفوترة مخفية تماماً عن الأطفال والمراهقين (محاولة وصول مباشر عبر API تردّ 403 — §7)، وحارس الحصص والتجاوز الطارئ والتراجع اللبق عمليات نظام لا أفعال مستخدم.
+14 حالة استخدام (UC1…UC16 بلا UC6 وUC14 المحذوفتين — Q-421) من السيناريوهات السبعة والمتطلبات (§2/§3): إدارة الاشتراك للأب وحده (`billing.manage`)، والعرض (`billing.view`) للأب والبالغ المفوَّض حسب القالب، وشراء حزمة التعبئة (`billing.topup.buy`) للأب وحده (المالك)، والفوترة مخفية تماماً عن الأطفال والمراهقين (محاولة وصول مباشر عبر API تردّ 403 — §7)، وحارس الحصص والتجاوز الطارئ والتراجع اللبق عمليات نظام لا أفعال مستخدم.
 
 ```mermaid
 flowchart LR
     Father([الأب — المالك])
     Adult([البالغ المفوَّض])
     Minor([الطفل / المراهق — الفوترة مخفية])
-    Operator([مشغّل المنصة — المالك/فريقه])
     Admin([مسؤول اللوحة])
     Store([متجر Google Play / App Store])
-    Wallet([محفظة يمنية OneCash / Mahfathati])
+    Wallet([محفظة يمنية Jaib / OneCash / Mahfathati])
     S109([مركز الأوامر S1-09 — قراءة فقط])
     S102([نظام الهوية S1-02 — عدد الأعضاء])
     S107([نظام الموقع S1-07 — SOS])
@@ -31,7 +31,6 @@ flowchart LR
         UC3(بدء التجربة 7 أيام)
         UC4(إلغاء التجديد التلقائي)
         UC5(شراء حزمة تعبئة SMS)
-        UC6(استبدال قسيمة وكيل)
         UC7(استعادة المشتريات)
         UC8(الدفع عبر المتجر أو البطاقة)
         UC9(الدفع عبر محفظة أو دفع يدوي)
@@ -39,7 +38,6 @@ flowchart LR
         UC11(فحص حارس الحصص)
         UC12(تجاوز طوارئ SOS)
         UC13(تعديل أعلام وحصص خطة بلا كود)
-        UC14(إصدار قسيمة)
         UC15(تنبيه 80% من الحصة ودخول السماح — Q-216)
         UC16(تراجع لبق للمجانية)
     end
@@ -49,11 +47,9 @@ flowchart LR
     Father --> UC3
     Father --> UC4
     Father --> UC5
-    Father --> UC6
     Father --> UC7
     Adult --> UC1
     Adult --> UC10
-    Operator --> UC14
     Admin --> UC13
     Store --> UC8
     Wallet --> UC9
@@ -66,29 +62,25 @@ flowchart LR
 ```
 
 - ملاحظة: الترقية فورية عند الدفع، والتخفيض يسري بنهاية الفترة المدفوعة (REQ-004)؛ والتجربة مرة واحدة لكل عائلة وغير قابلة للتحويل (§6).
-- ملاحظة شروط مسبقة (لا تُرسم كتضمين ولا كارتباط): UC6 (استبدال قسيمة) تفترض قسيمة صادرة (UC14) شرطاً مسبقاً لا تضميناً؛ وUC2 (المقارنة والترقية) تفترض فحص حارس الحصص (UC11) شرطاً مسبقاً لا ارتباطاً مباشراً.
-- ملاحظة إصدار القسائم (Q-258): UC14 يصدرها مشغّل المنصة حصراً عبر `POST /api/v1/admin/vouchers` بمفتاح `billing.plan.edit` (REQ-018)؛ والعائلات لا تصدر قسائم أبداً في المرحلة 1؛ والتوزيع على الأب عبر وكيل (Q-025) لا الإصدار.
+- ملاحظة شروط مسبقة (لا تُرسم كتضمين ولا كارتباط): UC2 (المقارنة والترقية) تفترض فحص حارس الحصص (UC11) شرطاً مسبقاً لا ارتباطاً مباشراً.
 - ملاحظة إخفاء: الفوترة مخفية تماماً عن الأطفال والمراهقين — لا ارتباط للقاصر بالمخطط؛ والقاعدة نصية: محاولة وصول مباشر عبر API تردّ 403 (§7).
 - الأسعار (Q-127 للمميزة · Q-271 للأساسية · REQ-003): الخليج — المميزة 19.99 ر.س شهرياً / 179.99 سنوياً، الأساسية 9.99 ر.س شهرياً / 89.99 سنوياً (خصم سنوي ~25%)؛ والمجانية 0 ر.س. اليمن — الأساسية 300 ر.ي شهرياً / 2,700 سنوياً، المميزة 600 ر.ي شهرياً / 5,400 سنوياً (Q-341 · Q-342 — D-11؛ وQ-132 حُكم بهما).
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
-الجداول الثمانية من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، وعدد الأعضاء من S1-02 لحصة الأفراد، و`AuditEvent` (النواة المشتركة — كل شراء/ترقية/إلغاء/استبدال يُسجَّل فيه domain=billing). ملاحظتان: الخطة المحفوظة وحالة الحصص مخزنان على العميل وليستا جدولَي خادم (§5)، و`family_subscription` اشتراك واحد لكل عائلة (`family_id` UNIQUE + RLS).
+الجداول الثمانية من §5 كما هي، مع ثلاثة مراجع خارجية: العائلة (S1-02)، وعدد الأعضاء من S1-02 لحصة الأفراد، و`AuditEvent` (النواة المشتركة — كل شراء/ترقية/إلغاء يُسجَّل فيه domain=billing). ملاحظتان: الخطة المحفوظة وحالة الحصص مخزنان على العميل وليستا جدولَي خادم (§5)، و`family_subscription` اشتراك واحد لكل عائلة (`family_id` UNIQUE + RLS).
 
 ```mermaid
 erDiagram
     family ||--|| family_subscription : "اشتراك واحد"
     plan ||--o{ family_subscription : "يُشترَك فيها"
     plan ||--o{ plan_price : "أسعارها لكل سوق"
-    plan ||--o{ voucher : "قسائمها"
     family ||--o{ purchase_receipt : "إيصالاتها"
     family ||--o{ payment_confirmation : "مدفوعاتها"
     payment_confirmation ||--o{ purchase_receipt : "عند التحقق يُكتب إيصال"
     family ||--o{ quota_usage : "عدّاداتها"
-    family ||--o{ voucher : "يستبدلها"
     family_subscription ||--o{ AuditEvent : "أحداثها تُسجَّل"
     purchase_receipt ||--o{ AuditEvent : "يُسجَّل"
-    voucher ||--o{ AuditEvent : "استبداله يُسجَّل"
 
     plan {
         uuid plan_id PK
@@ -139,6 +131,8 @@ erDiagram
         uuid user_id FK
         text provider
         text product_id
+        int amount_cents
+        text currency
         text receipt_data
         text validation_status
         timestamptz server_verified_at
@@ -157,17 +151,11 @@ erDiagram
         timestamptz confirmed_at
         timestamptz verified_at
     }
-    voucher {
-        uuid voucher_id PK
-        text code
-        uuid plan_id FK
-        int duration_months
-        text status
-        text issued_by
-        timestamptz issued_at
-        uuid redeemed_by_family_id FK
-        timestamptz redeemed_at
-        timestamptz expires_at
+    wallet_provider {
+        text provider PK
+        text title_ar
+        int sort_order
+        boolean is_active
     }
     quota_usage {
         uuid family_id PK, FK
@@ -187,14 +175,14 @@ erDiagram
     }
 ```
 
-- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / VOUCHER / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ وحالة القسيمة: ISSUED / REDEEMED / REVOKED / EXPIRED؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET / MANUAL (§5).
+- `tier_level`: FREE / BASIC / PREMIUM؛ و`billing_interval`: LIFETIME_FREE / MONTHLY / ANNUAL؛ و`status`: ACTIVE / TRIAL / IN_GRACE_PERIOD / EXPIRED / CANCELLED؛ و`billing_provider`: SYSTEM_FREE / GOOGLE_PLAY / APPLE_APP_STORE / WALLET / MANUAL؛ و`validation_status`: VALIDATED_SUCCESS / FRAUD_SUSPECT / EXPIRED؛ و`wallet_provider.provider`: JAIB / ONECASH / MAHFATHATI (Q-421 — جدول مستقل بلا علاقة مرسومة: `payment_confirmation.provider` يحمل اسمه)؛ و`purchase_receipt.amount_cents`/`currency` مبلغ الدفعة وعملتها (Q-420)؛ و`payment_confirmation.status`: INITIATED / PENDING_VERIFICATION / VERIFIED / REJECTED؛ و`payment_confirmation.channel`: WALLET / MANUAL (§5).
 - `flags` و`quotas` من نوع jsonb — تعديل الأعلام والحصص بلا كود ولا تغيير مخطط (Q-055)؛ و`receipt_data` حمولة مشفرة؛ والمفتاح المركب لعدّاد الاستهلاك `family_id + period` (YYYY-MM) (§5) — فترة الحصة شهر تقويمي (Q-252)، مستقلة عن فترة الاشتراك المدفوعة (`current_period_start`/`current_period_end`).
 - منتج التعبئة `topup_product` مستوى الكتالوج — يُقرأ عبر `GET /api/v1/plans` لا لكل خطة؛ والمفتاح المركب `product_id + market`؛ وصفوف البذرة محكومة (G-S04-08 أُغلق 2026-11-08 — Q-339 · Q-340): الخليج 5.99 ر.س / اليمن 250 ر.ي لحزمة 50 رسالة.
 - مصفوفة الخطط (§1 · REQ-001): المجانية حتى 5 أفراد + 20 SMS شهرياً؛ الأساسية حتى 10 أفراد + 50 SMS؛ المميزة غير محدودة + 100 SMS (Q-261)؛ وسجل المواقع 7 أيام في كل الخطط (Q-105)؛ وميزانية الذكاء (Q-335 · Q-336 — الوحدة = استدعاء ذكاء واحد عبر البوابة؛ والمصنف معفى من ميزانية العائلة): المجانية 300 وحدة/شهر — تحقق المهام فقط؛ الأساسية 1,000 — تحقق + مساعد محدود؛ المميزة 3,000 — كاملة.
 
 ## 3. التسلسل (Sequence) — من عقود §4
 
-خمسة مخططات، كل واحد لتدفق واحد — زائد مخططا الدفع اليمني (3-و/3-ز، Q-251) ومخطط إصدار القسائم (3-ح، Q-258): ثمانية مخططات بالمجموع.
+سبعة مخططات، كل واحد لتدفق واحد: 3-أ، 3-ج، 3-د، 3-هـ، ثم مخططا الدفع اليمني (3-و/3-ز، Q-251)، ثم 3-ط. والحرفان 3-ب و3-ح كانا لمخططَي القسيمة وحُذفا معها (Q-421) ولم يُعد ترقيم الباقي.
 
 ### 3-أ. الترقية عبر المتجر — الخليج (REQ-005/007 — §4)
 
@@ -226,31 +214,6 @@ sequenceDiagram
 ```
 
 - لا يُرسَل `father_pin` إطلاقاً في هذا المسار — التحقق من الأب محلي على الجهاز (§4)؛ والإيصالات المكررة تُرفض (409) وتُسجَّل كـ FRAUD_SUSPECT (§6/§7).
-
-### 3-ب. استبدال قسيمة وكيل — اليمن (REQ-006/008 — §4)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Father as الأب
-    participant App as التطبيق
-    participant Ktor as الخادم
-    participant Audit as التدقيق
-    Father->>App: إدخال كود القسيمة
-    App->>Ktor: POST /api/v1/families/{id}/billing/voucher/redeem {code}
-    Ktor->>Ktor: تحقق خادمي من القسيمة
-    alt قسيمة صادرة وغير مستخدمة
-        Ktor->>Ktor: تفعيل الاشتراك المميز فوراً + status=REDEEMED
-        Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>App: اشتراك ACTIVE
-    else قسيمة مستخدمة من قبل
-        Ktor-->>App: VOUCHER_USED
-    else قسيمة ملغاة أو منتهية
-        Ktor-->>App: VOUCHER_REVOKED / VOUCHER_INVALID
-    end
-```
-
-- القسيمة لمرة واحدة، قابلة للإلغاء قبل الاستخدام، ولا استرداد لها عبر التطبيق (§3/§6)؛ ومسارات الدفع اليمنية (المحافظ والقسائم) تصميمنا نحن — لا محافظ محلية ولا قسائم وكلاء في أي تطبيق مفكك (ملحق RE).
 
 ### 3-ج. نفاد SMS والتعبئة وتجاوز الطوارئ (REQ-009/010/011 — §4/§6)
 
@@ -344,9 +307,9 @@ sequenceDiagram
     App-->>Father: بطاقة ترقية لبقة (لا حظر قاسٍ)
     Father->>App: الترقية للأساسية (حتى 10 أفراد)
     App->>Ktor: POST /api/v1/families/{id}/plan/upgrade
-    Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة / قسيمة) — بلا تفعيل بعد
+    Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة / وكيل) — بلا تفعيل بعد
     Father->>App: إتمام الدفع بالقناة المختارة
-    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm أو voucher/redeem حسب القناة
+    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm أو manual/confirm حسب القناة
     alt تحقق خادمي صحيح
         Ktor->>Ktor: تفعيل الاشتراك
         Ktor-->>App: ترقية مفعّلة — إضافة العضو تنجح
@@ -415,35 +378,6 @@ sequenceDiagram
 
 - الدفع اليدوي مسبق: الأب يدفع أولاً خارج التطبيق ثم يؤكد بالرقم المرجعي؛ والسجل يبقى «بانتظار التحقق» حتى يصل التحقق الخادمي؛ ولا تفعيل قبل `VERIFIED` (§4).
 
-### 3-ح. إصدار قسيمة وإلغاؤها — مشغّل المنصة (REQ-018 — §4 — Q-258)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Operator as مشغّل المنصة
-    participant Admin as لوحة الإدارة
-    participant Ktor as الخادم
-    participant Audit as التدقيق
-    Operator->>Admin: إنشاء قسيمة — الخطة والمدة والانتهاء
-    Admin->>Ktor: POST /api/v1/admin/vouchers {plan_id, duration_months, expires_at}
-    Note over Ktor: المفتاح billing.plan.edit — مالك المنصة وحده — غيره 403
-    alt مفتاح صالح وخطة موجودة
-        Ktor->>Ktor: إنشاء قسيمة status=ISSUED
-        Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>Admin: {voucher_id, code, status: "ISSUED"}
-    else بلا مفتاح أو خطة غير موجودة
-        Ktor-->>Admin: 403 / PLAN_NOT_FOUND
-    end
-    Note over Operator: التوزيع على الأب عبر وكيل — Q-025 — لا الإصدار
-    Operator->>Admin: إلغاء قسيمة قبل استخدامها
-    Admin->>Ktor: POST /api/v1/admin/vouchers/{code}/revoke
-    Ktor->>Ktor: status=REVOKED
-    Ktor->>Audit: AuditEvent (domain=billing)
-    Ktor-->>Admin: {code, status: "REVOKED"}
-```
-
-- الإصدار والإلغاء لمشغّل المنصة حصراً؛ والعائلات لا تصدر قسائم أبداً في المرحلة 1 (Q-258)؛ والقسيمة المصدرة `status=ISSUED` قابلة للإلغاء قبل الاستخدام، وتُرفض عند الاستبدال بعد إلغائها (`VOUCHER_REVOKED` — REQ-008)؛ والتوزيع على الأب عبر وكيل لا الإصدار (Q-025).
-
 ### 3-ط. مفتاح إيقاف الذكاء للمسؤول (Q-338 — D-10 — §4-2)
 
 ```mermaid
@@ -474,12 +408,12 @@ flowchart TD
     Choice -->|لا| Stay[البقاء على المجانية — الأمان كاملاً]
     Choice -->|نعم| Channel{طريقة الدفع}
     Channel -->|متجر / بطاقة — الخليج| Store[شراء Play / StoreKit أو Tap / Moyasar]
-    Channel -->|محفظة يمنية| Wallet[دفع OneCash / Mahfathati]
-    Channel -->|قسيمة وكيل| Voucher[إدخال كود القسيمة]
+    Channel -->|محفظة يمنية| Wallet[دفع Jaib / OneCash / Mahfathati]
+    Channel -->|دفع عند وكيل| Agent[رقم مرجعي من الوكيل]
     Channel -->|تجربة| Trial[بدء تجربة 7 أيام — مرة واحدة]
     Store --> Verify[تحقق خادمي S2S من الإيصال]
     Wallet --> Verify
-    Voucher --> Verify
+    Agent --> Verify
     Trial --> Active[مميزة ACTIVE]
     Verify -->|صحيح| Active
     Verify -->|مزور / مكرر| Reject[رفض 409 + تسجيل FRAUD_SUSPECT]
@@ -507,13 +441,12 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D6 وD8–D9 (جداول خادم PostgreSQL). المخزن D7 محفوظ محلياً على الجهاز (للقراءة دون اتصال) وليس جدول خادم.
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — REQ-005 — حافة Father→P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — REQ-017 — حافتا Father→P4 وP4→Father؛ الرد: المستخدم/الحد لكل حصة + الفترة YYYY-MM + رصيد التعبئة + الطوارئ المتبقية) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — حافة Admin→P7 — المفتاح: `billing.plan.edit` — Q-260 — مالك المنصة وحده؛ غيره 403)؛ [تصحيح 2026-11-08 (D-2): كانت النقاط الثلاث الأولى نثراً فقط في هذه الملاحظة؛ رُسمت الآن كحواف.] ونقاط الدفع اليمني الجديدة `POST /api/v1/families/{id}/billing/wallet/initiate` و`POST /api/v1/families/{id}/billing/wallet/confirm` و`POST /api/v1/families/{id}/billing/manual/confirm` تمر عبر P3 (3-و/3-ز — Q-251)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، voucher/redeem، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: `POST /api/v1/families/{id}/billing/restore` (استعادة المشتريات — REQ-005 — حافة Father→P2) · `POST /api/v1/families/{id}/plan/cancel-renewal` (إلغاء التجديد التلقائي — تمر عبر P5) · `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص SMS/أفراد/ذكاء — REQ-017 — حافتا Father→P4 وP4→Father؛ الرد: المستخدم/الحد لكل حصة + الفترة YYYY-MM + رصيد التعبئة + الطوارئ المتبقية) · `PATCH /api/v1/admin/plans/{planId}` (تعديل أعلام/حصص الخطة بلا كود، إداري فقط — حافة Admin→P7 — المفتاح: `billing.plan.edit` — Q-260 — مالك المنصة وحده؛ غيره 403)؛ [تصحيح 2026-11-08 (D-2): كانت النقاط الثلاث الأولى نثراً فقط في هذه الملاحظة؛ رُسمت الآن كحواف.] ونقاط الدفع اليمني الجديدة `POST /api/v1/families/{id}/billing/wallet/initiate` و`POST /api/v1/families/{id}/billing/wallet/confirm` و`POST /api/v1/families/{id}/billing/manual/confirm` تمر عبر P3 (3-و/3-ز — Q-251)؛ وبقية النقاط مرسومة في §3 (plan ترقية، verify-receipt، topup، trial/start)؛ و`GET /api/v1/plans` و`GET /api/v1/families/{id}/plan` في §6 (V1).
 
 ```mermaid
 flowchart LR
     Father([الأب — المالك])
     Adult([البالغ المفوَّض])
-    Operator([مشغّل المنصة — المالك/فريقه])
     Admin([مسؤول اللوحة])
     S109([مركز الأوامر S1-09])
     S102([نظام الهوية S1-02])
@@ -526,7 +459,7 @@ flowchart LR
     subgraph Billing [وحدة الفوترة — Ktor billing]
         P1(1.0 كتالوج الخطط والاستحقاقات)
         P2(2.0 دفع المتجر والبطاقات + تحقق S2S)
-        P3(3.0 دفع اليمن — محفظة / يدوي / قسيمة)
+        P3(3.0 دفع اليمن — محفظة / وكيل)
         P4(4.0 حارس الحصص والتعبئة)
         P5(5.0 مجدول التجربة والسماح والتراجع)
         P6(6.0 أحداث الفوترة والإشعارات)
@@ -538,7 +471,7 @@ flowchart LR
         D2[(D2 plan_price)]
         D3[(D3 family_subscription)]
         D4[(D4 purchase_receipt)]
-        D5[(D5 voucher)]
+        D5[(D5 wallet_provider)]
         D6[(D6 quota_usage)]
         D7[(D7 الخطة المحفوظة — محلي)]
         D8[(D8 payment_confirmation)]
@@ -563,11 +496,9 @@ flowchart LR
     P2 -->|تحقق S2S| Store
     P2 -->|حفظ الإيصال والتحقق| D4
     P2 -->|تفعيل الاشتراك| D3
-    Father -->|قسيمة / محفظة / دفع يدوي| P3
+    Father -->|محفظة / دفع عند وكيل| P3
     Wallet -->|تأكيد الدفع| P3
-    Operator -->|"إصدار قسيمة — مشغّل المنصة عبر POST /api/v1/admin/vouchers بمفتاح billing.plan.edit (Q-258/Q-260)"| P3
-    P3 -->|إصدار / استبدال قسيمة| D5
-    P3 -->|التحقق من القسيمة| D5
+    P3 -->|قراءة المحافظ الفعالة| D5
     P3 -->|حفظ سجل الدفع / التأكيد اليدوي| D8
     P3 -->|تفعيل الاشتراك| D3
     S102 -->|عدد الأعضاء| P4
@@ -589,8 +520,8 @@ flowchart LR
     P1 -->|الخطة + الاستهلاك| App
     App -->|نسخة محفوظة دون اتصال — يكتبها العميل| D7
     D7 -->|عرض مع وقت صريح| Father
-    P2 -->|كل شراء / ترقية / إلغاء / استبدال| Audit
-    P3 -->|كل استبدال| Audit
+    P2 -->|كل شراء / ترقية / إلغاء| Audit
+    P3 -->|كل دفعة يمنية بعد التحقق| Audit
     P5 -->|كل تراجع| Audit
 ```
 
@@ -606,7 +537,7 @@ flowchart LR
         direction TB
         F1([عائلة جديدة])
         F2[اختيار خطة أو بدء تجربة]
-        F3[الدفع أو إدخال قسيمة]
+        F3[الدفع بالطريقة المختارة]
         F4[شراء تعبئة SMS]
         F5[إلغاء التجديد التلقائي]
         F6(["استلام إشعار 80% (Q-216) أو طارئ"])
@@ -616,14 +547,14 @@ flowchart LR
         A1[بدء تلقائي على المجانية ACTIVE]
         A2[عرض المقارنة والأسعار]
         A3[فتح ورقة شراء المتجر]
-        A4[إرسال الإيصال أو القسيمة للخادم]
+        A4[إرسال الإيصال أو الرقم المرجعي للخادم]
         A5[عرض الخطة المحفوظة دون اتصال]
         A6[عرض بطاقة ترقية لبقة]
     end
     subgraph Server [الخادم — Ktor billing]
         direction TB
         V1["GET /api/v1/plans + GET /api/v1/families/{id}/plan"]
-        V2[تحقق S2S من الإيصال / القسيمة]
+        V2[تحقق S2S من الإيصال أو الدفعة]
         V3[تفعيل الاشتراك + الاستحقاقات]
         V4[حارس الحصص — أفراد / SMS / ذكاء]
         V5[إصدار أحداث MQTT]
@@ -634,8 +565,8 @@ flowchart LR
         direction TB
         R1[Google Play / App Store]
         R2[Tap / Moyasar — بطاقات]
-        R3[OneCash / Mahfathati — محافظ]
-        R4["وكيل — توزيع قسيمة صادرة من مشغّل المنصة (Q-258)"]
+        R3[Jaib / OneCash / Mahfathati — محافظ]
+        R4["وكيل — دفع نقدي برقم مرجعي (Q-251)"]
     end
     subgraph Sched [المجدول]
         direction TB
@@ -678,4 +609,4 @@ flowchart LR
     V4 --> F6
 ```
 
-- عند انتهاء الفترة دون اتصال بالخادم، تُعرض الخطة المحفوظة مع وقت صريح، ويُتحقق من الانتهاء عند أول اتصال بطابع الخادم (§7)؛ وميزانية ذكاء لكل عائلة حسب خطتها (300/1,000/3,000 وحدة — Q-336) + مفتاح إيقاف، ونفاد الميزانية يوقف مزايا الذكاء دون أن يمس السلامة (REQ-016)؛ وسقف المنصة الشهري $200 (Q-337 — تنبيه 80% / إيقاف صلب 100% لمزايا الذكاء غير الآمنة، والمصنف مستمر)؛ ومفتاح إيقاف المسؤول `POST /api/v1/admin/ai/kill-switch` (Q-338 — مشغّل المنصة وحده، المفتاح `billing.plan.edit` — مرسوم في 3-ط)؛ وإصدار القسائم لمشغّل المنصة حصراً (Q-258) — التوزيع عبر وكيل لا الإصدار.
+- عند انتهاء الفترة دون اتصال بالخادم، تُعرض الخطة المحفوظة مع وقت صريح، ويُتحقق من الانتهاء عند أول اتصال بطابع الخادم (§7)؛ وميزانية ذكاء لكل عائلة حسب خطتها (300/1,000/3,000 وحدة — Q-336) + مفتاح إيقاف، ونفاد الميزانية يوقف مزايا الذكاء دون أن يمس السلامة (REQ-016)؛ وسقف المنصة الشهري $200 (Q-337 — تنبيه 80% / إيقاف صلب 100% لمزايا الذكاء غير الآمنة، والمصنف مستمر)؛ ومفتاح إيقاف المسؤول `POST /api/v1/admin/ai/kill-switch` (Q-338 — مشغّل المنصة وحده، المفتاح `billing.plan.edit` — مرسوم في 3-ط).

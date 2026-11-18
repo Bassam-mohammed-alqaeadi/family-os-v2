@@ -1,5 +1,5 @@
-/* S1-04 الخطط والاشتراكات: الخطة والاستهلاك، المقارنة، تأكيد التغيير، الدفع (متجر وبطاقة في الخليج، محفظة ودفع عند وكيل في اليمن)،
-   القسيمة، تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات.
+/* S1-04 الخطط والاشتراكات: الخطة والاستهلاك، المقارنة، تأكيد التغيير، الدفع (متجر وبطاقة في الخليج، محافظ يمنية ودفع عند وكيل في اليمن)،
+   تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات.
    ثوابت لا تُكسر: الأمان لا يتوقف على الخطة · لا تتغير الخطة قبل تحقق الخادم من الدفع · لا شيء من هذا يظهر لطفل أو مراهق.
    سوق العائلة (اليمن أو الخليج) يأتي من بلدها، لا من اختيار داخل الشاشة؛ في النموذج يُبدَّل من لوحة الضبط. */
 'use strict';
@@ -10,20 +10,19 @@ const BL_TOP = [5.99, 250];                                   /* حزمة 50 ر�
 const BL_RANK = { free: 0, basic: 1, premium: 2 };
 const BL_CH = {
   gplay: ['Google Play', 'android'], appstore: ['App Store', 'ios'], card: ['بطاقة بنكية', 'credit_card'],
-  onecash: ['محفظة OneCash', 'account_balance_wallet'], mahfathati: ['محفظتي', 'wallet'], manual: ['دفع عند وكيل', 'storefront'],
-  voucher: ['قسيمة', 'confirmation_number'],
+  jaib: ['محفظة جيب', 'account_balance_wallet'], onecash: ['محفظة ون كاش', 'account_balance_wallet'], mahfathati: ['محفظتي', 'account_balance_wallet'], manual: ['دفع عند وكيل', 'storefront'],
 };
 const BL_AI = { free: 'يكفي للتحقق من المهام', basic: 'تحقق من المهام ومساعدة محدودة', premium: 'كل ما يفعله المساعد' };
-const BL_VOUCH = { 'FAM-2026-DEMO': ['basic', 3], 'FAM-PREM-0006': ['premium', 6], 'FAM-USED-0001': 'used', 'FAM-VOID-0001': 'void' };
-const BL_FLOW = ['plans', 'plan-change', 'pay', 'pay-wallet', 'topup', 'trial', 'voucher', 'plan-grace', 'plan-manage'];
+const BL_WAL = ['jaib', 'onecash', 'mahfathati'];             /* محافظ اليمن: في المنتج تُقرأ من الخادم، فتُضاف محفظة بلا تحديث للتطبيق (Q-421) */
+const BL_FLOW = ['plans', 'plan-change', 'pay', 'pay-wallet', 'topup', 'trial', 'plan-grace', 'plan-manage'];
 
 /* ---------- الحالة ---------- */
 function BL() {
   if (S.bl) return S.bl;
-  const paid = S.plan !== 'free' && !S.planSt, ch = blYE() ? 'onecash' : blStore();
+  const paid = S.plan !== 'free' && !S.planSt, ch = blYE() ? BL_WAL[0] : blStore();
   S.bl = {
-    yr: 0, ch: '', end: '', noAuto: 0, tmp: 0, trialUsed: !!S.planSt, trialEnd: '', graceEnd: '', gWhy: S.planSt === 'grace' ? 'end' : '', back: null,
-    pend: null, rej: null, down: null, fell: null, ask: [], pay: null, pm: '', pw: { ref: '', err: '' }, v: { code: '', err: '', ok: null, used: {} }, busy: '',
+    yr: 0, cyr: 0, ch: '', end: '', noAuto: 0, tmp: 0, trialUsed: !!S.planSt, trialEnd: '', graceEnd: '', gWhy: S.planSt === 'grace' ? 'end' : '', back: null,
+    pend: null, rej: null, down: null, fell: null, ask: [], pay: null, pm: '', pw: { ref: '', err: '' }, busy: '', trSeen: 0,
     rc: paid ? [{ id: 'r1', t: `الخطة ${PLAN[S.plan].n} · شهر`, amt: blAmt(blPrice(S.plan, 0)), ch, st: 'ok', at: '15 نوفمبر · 9:02 ص', ref: '70451288' }] : [],
   };
   return S.bl;
@@ -40,7 +39,7 @@ const blDays = k => Math.round((tkDt(k) - tkDt(TK_TODAY)) / 864e5);
 const blLeft = k => { const n = blDays(k); return n <= 0 ? 'تنتهي اليوم' : 'بقي ' + rwDy(n); };
 const blMask = r => '••••' + String(r).slice(-4);
 const blSt = () => S.planSt || '';
-const blChan = () => BL().ch || (blYE() ? 'onecash' : blStore());
+const blChan = () => BL().ch || (blYE() ? BL_WAL[0] : blStore());
 const blAuto = () => S.plan !== 'free' && !blSt() && ['gplay', 'appstore'].includes(blChan()) && !BL().noAuto;
 const blEnd = () => { const b = BL(); return blSt() === 'trial' ? (b.trialEnd || tkAdd(TK_TODAY, 5)) : blSt() === 'grace' ? (b.graceEnd || tkAdd(TK_TODAY, 3)) : (b.end || '2026-12-15'); };
 const blCanV = () => isAdult() && (can('hub.plan.view') || can('billing.manage'));
@@ -51,9 +50,18 @@ const blNextMonth = () => tkAdd(blMonthEnd(), 1);
 const blSms = () => { const q = PLAN[S.plan].sms, top = S.smsTop || 0, used = S.smsOut ? q + top : S.sms.used; return { q, used: Math.min(used, q), left: Math.max(0, q - used), top: Math.max(0, top - Math.max(0, used - q)), em: smsEm() }; };
 const blMemN = () => Object.keys(M).length;
 const blItem = (w, yr) => (w === 'topup' ? { t: 'حزمة 50 رسالة نصية', n: BL_TOP[blYE() ? 1 : 0], per: '' } : { t: `الخطة ${PLAN[w].n}`, n: blPrice(w, yr), per: yr ? 'سنة' : 'شهر' });
-const blMethods = () => (blYE() ? ['onecash', 'mahfathati', 'manual'] : [blStore(), 'card']);
+const blMethods = () => (blYE() ? BL_WAL.concat(['manual']) : [blStore(), 'card']);
 const blPm = () => { const b = BL(), L = blMethods(); return L.includes(b.pm) ? b.pm : L[0]; };
 const blIsStore = ch => ['gplay', 'appstore', 'card'].includes(ch);
+/* ما بقي من فترة مدفوعة عند الترقية يتحول إلى أيام على الخطة الجديدة بقيمته: لا مال يُردّ ولا يوم يضيع (Q-420).
+   في متجر المنصة يحسب المتجر ذلك بنظامه، فلا نحسبه نحن. المصدر: الخطة السارية، أو الخطة المدفوعة المحفوظة أثناء التجربة. */
+const blDay = (k, yr) => blPrice(k, yr) / (yr ? 365 : 30);
+function blCredit(k, yr, ch) {
+  const b = BL(), st = blSt(), src = !st && S.plan !== 'free' ? { plan: S.plan, end: blEnd(), cyr: b.cyr } : b.back;
+  if (!src || !BL_PR[k] || BL_RANK[k] <= BL_RANK[src.plan] || ['gplay', 'appstore'].includes(ch)) return null;
+  const left = Math.max(0, blDays(src.end)); if (!left) return null;
+  return { from: src.plan, left, add: Math.floor(left * blDay(src.plan, src.cyr) / blDay(k, yr)) };
+}
 const blHome = () => { S.sheet = null; S.stack = S.stack.filter(s => !BL_FLOW.includes(s.id)); if (!S.stack.some(s => s.id === 'plan')) S.stack.push({ id: 'plan', a: [] }); };
 const blRc = (t, amt, ch, st, ref) => BL().rc.unshift({ id: 'r' + Date.now() + BL().rc.length, t, amt, ch, st, at: 'اليوم · 5:12 م', ref });
 const blNo = manage => (!isAdult() ? empty('lock', 'هذه الصفحة للأهل', '') : manage ? empty('lock_person', `يديرها ${M.ahmad.n} وحده`, 'تغيير الخطة والدفع لصاحب العائلة. تستطيعين رؤية الخطة وما استُهلك منها.', btn('الخطة والاستهلاك', 'blToPlan', 'sm sec t48')) : empty('lock_person', 'ليست ضمن صلاحياتك', `رؤية الخطة يمنحها ${M.ahmad.n}.`));
@@ -69,15 +77,16 @@ function blDone(w, yr, ch, tmp) {
     audit('شراء حزمة 50 رسالة نصية', 'billing.topup.buy'); b.pay = null; blHome(); toast('أُضيفت 50 رسالة إلى رصيد هذا الشهر'); return;
   }
   const same = S.plan === w && !blSt(), from = same ? blEnd() : TK_TODAY;   /* تجديد مبكر للخطة نفسها: الفترة الجديدة تبدأ بعد الحالية */
-  S.plan = w; S.planSt = ''; b.yr = yr ? 1 : 0; b.ch = ch; b.end = blAddM(from, yr ? 12 : 1); b.noAuto = 0; b.down = null; b.fell = null; b.rej = null; b.back = null; b.gWhy = ''; b.tmp = tmp ? 1 : 0; b.pay = null;
+  const cr = same ? null : blCredit(w, yr, ch);
+  S.plan = w; S.planSt = ''; b.yr = b.cyr = yr ? 1 : 0; b.ch = ch; b.end = tkAdd(blAddM(from, yr ? 12 : 1), cr ? cr.add : 0); b.noAuto = 0; b.down = null; b.fell = null; b.rej = null; b.back = null; b.gWhy = ''; b.tmp = tmp ? 1 : 0; b.pay = null;
   blRc(`${it.t} · ${it.per}`, blAmt(it.n), ch, tmp ? 'tmp' : 'ok', b.pend ? b.pend.ref : '');
-  audit(same ? `تجديد الخطة ${PLAN[w].n}` : `تغيير الخطة إلى ${PLAN[w].n}`, 'billing.manage'); blHome();
-  toast(tmp ? `فُعّلت الخطة ${PLAN[w].n} مؤقتاً · نعيد التحقق من الإيصال` : same ? `جُدّدت الخطة ${PLAN[w].n} حتى ${blDate(b.end)}` : `تمت الترقية · الخطة ${PLAN[w].n} فعّالة الآن`);
+  audit(same ? `تجديد الخطة ${PLAN[w].n}` : `تغيير الخطة إلى ${PLAN[w].n}${cr && cr.add ? ` · أُضيف ${rwDy(cr.add)} عمّا بقي من ${PLAN[cr.from].n}` : ''}`, 'billing.manage'); blHome();
+  toast(tmp ? `فُعّلت الخطة ${PLAN[w].n} مؤقتاً · نعيد التحقق من الإيصال` : same ? `جُدّدت الخطة ${PLAN[w].n} حتى ${blDate(b.end)}` : `تمت الترقية · الخطة ${PLAN[w].n} فعّالة الآن${cr && cr.add ? ` · أُضيف ${rwDy(cr.add)}` : ''}`);
 }
 /* العودة إلى المجانية: كتابة واحدة، بلا قفل ولا حذف */
 function blFall() {
   const b = BL(), from = S.plan, why = b.gWhy;
-  if (b.back) { S.plan = b.back.plan; b.end = b.back.end; b.ch = b.back.ch; b.yr = b.back.yr; b.back = null; S.planSt = ''; b.fell = { from, to: S.plan, why }; }
+  if (b.back) { S.plan = b.back.plan; b.end = b.back.end; b.ch = b.back.ch; b.yr = b.cyr = b.back.cyr; b.back = null; S.planSt = ''; b.fell = { from, to: S.plan, why }; }
   else { S.plan = 'free'; S.planSt = ''; b.end = ''; b.ch = ''; b.fell = { from, to: 'free', why }; }
   b.down = null; b.noAuto = 0; b.gWhy = ''; b.graceEnd = ''; b.trialEnd = '';
   S.audit.unshift({ t: `انتهت الخطة ${PLAN[from].n} · عادت العائلة إلى ${PLAN[S.plan].n}`, w: 'النظام', at: 'الآن', k: 'billing.manage' });
@@ -93,7 +102,7 @@ function blCard() {
         : b.down ? `تنتقل إلى ${PLAN[b.down.to].n} في ${e}`
           : blAuto() ? `تتجدد من نفسها في ${e} · عبر ${BL_CH[blChan()][0]}`
             : b.noAuto ? `أُلغي التجديد · ميزاتك باقية حتى ${e}` : `تنتهي ${e} · لا تتجدد من نفسها`;
-  return `<div class="blc ${paid ? 'pd' : ''}"><div class="fx sb top"><div><small>خطة العائلة</small><h5>${p.n}</h5></div>${chipS}</div><p>${line}</p>${paid && !st ? `<p class="pr">${blAmt(blPrice(S.plan, b.yr))} ${b.yr ? 'في السنة' : 'في الشهر'}</p>` : ''}</div>`;
+  return `<div class="blc ${paid ? 'pd' : ''}"><div class="fx sb top"><div><small>خطة العائلة</small><h5>${p.n}</h5></div>${chipS}</div><p>${line}</p>${paid && !st ? `<p class="pr">${blAmt(blPrice(S.plan, b.cyr))} ${b.cyr ? 'في السنة' : 'في الشهر'}</p>` : ''}</div>`;
 }
 const blMeter = (i, t, n, pct, c, sub, a) => `<${a ? 'button' : 'div'} class="blm" ${a ? `data-a="${a}"` : ''}><span class="lead ${toneOf(i)}">${ic(i)}</span><span class="tx"><span class="hd"><b>${t}</b><span>${n}</span></span>${pct === null ? '' : pbar(pct, c)}${sub ? `<small>${sub}</small>` : ''}</span>${a ? `<span class="chev">${ic('chevron_right')}</span>` : ''}</${a ? 'button' : 'div'}>`;
 function blUsage(own) {
@@ -128,6 +137,8 @@ function blAtt() {
   if (!S.bl && !S.planSt) return [];
   const b = BL(), A = [];
   if (!blCanM()) return A;
+  if (blSt() === 'trial' && blDays(blEnd()) <= 2 && b.trSeen !== blDays(blEnd()) + 1) { const d = blDays(blEnd()), to = b.back ? PLAN[b.back.plan].n : '';
+    A.push({ k: 'bl:trial', p: 2, c: 'var(--gold)', i: 'redeem', t: d <= 0 ? 'تجربة المميزة تنتهي اليوم' : d === 1 ? 'تجربة المميزة تنتهي غداً' : 'تجربة المميزة تنتهي بعد يومين', s: to ? `بعدها تعود العائلة إلى ${to} · لا نخصم شيئاً` : 'بعدها 3 أيام مهلة ثم المجانية · لا نخصم شيئاً', b: [['اشترك في المميزة', 'go:plan-change:premium', 'ton'], ['لاحقاً', 'blTrSeen', 'sec']] }); }
   if (blSt() === 'grace') A.push({ k: 'bl:grace', p: 1, c: 'var(--warning)', i: 'schedule', t: `انتهى اشتراكك · ${blLeft(blEnd())} من المهلة`, s: `بعدها تعود العائلة إلى ${b.back ? PLAN[b.back.plan].n : 'المجانية'} بلا قفل ولا حذف`, b: [['عرض', 'go:plan-grace', 'ton']] });
   if (b.rej) A.push({ k: 'bl:rej', p: 2, c: 'var(--danger)', i: 'error', t: 'لم تتأكد دفعتك', s: 'لم تتغير خطتك', b: [['التفاصيل', 'go:plan', 'ton'], ['فهمت', 'blRejOk', 'sec']] });
   if (b.fell) A.push({ k: 'bl:fell', p: 2, c: 'var(--info)', i: 'info', t: `عادت العائلة إلى ${PLAN[b.fell.to].n}`, s: 'لم يُقفل شيء ولم تُحذف بيانات', b: [['ما الذي تغيّر؟', 'go:plan-grace', 'ton'], ['فهمت', 'blFellOk', 'sec']] });
@@ -150,7 +161,7 @@ function blLimit(why, sheet) {
 
 /* ---------- S04-01 الخطة والاستهلاك ---------- */
 surface('plan', {
-  t: 'الخطة والفوترة', sys: 'S1-04', p: 'adult', req: '04:1,2,9,11,15,16,17,19 09:12,13',
+  t: 'الخطة والفوترة', sys: 'S1-04', p: 'adult', req: '04:1,2,9,11,15,16,17,19,21 09:12,13',
   note: 'S04-01. الخطة وحالتها ونهاية فترتها، ثم ما استُهلك هذا الشهر من الأفراد والرسائل النصية وعمليات المساعد، ثم الأفعال. الرسائل: حصة الخطة ثم رصيد التعبئة ثم ثلاث رسائل احتياطية للاستغاثة وحدها. تنبيه 80% للرسائل والمساعد؛ الأفراد تُذكر عند الاكتمال فقط. البالغ غير المالك يرى ولا يغيّر. دون اتصال تُعرض آخر نسخة محفوظة بعمرها. لا شيء من هذا يظهر لطفل أو مراهق. جرّب من لوحة الضبط: السوق، الخطة، حالة الاشتراك، وأحداث الدفع.',
   r() {
     if (!blCanV()) return blNo();
@@ -163,7 +174,7 @@ surface('plan', {
     ${blWarn(own)}
     ${own && !b.trialUsed && S.plan !== 'premium' && !st ? `<button class="card bltr" data-a="go:trial"><span class="lead">${ic('redeem')}</span><span class="tx"><b>جرّب المميزة 7 أيام مجاناً</b><span>بلا وسيلة دفع · مرة واحدة للعائلة</span></span>${ic('chevron_right')}</button>` : ''}
     ${own ? `${btn(st === 'grace' ? 'جدّد أو اختر خطة' : 'اعرض الخطط', st === 'grace' ? 'go:plan-grace' : 'go:plans', '', 'workspace_premium')}<div class="gap"></div>
-      ${list(row('sms', 'عبّئ الرسائل النصية', 'حزمة 50 رسالة لهذا الشهر', { v: blAmt(BL_TOP[blYE() ? 1 : 0]), a: 'go:topup' }), row('confirmation_number', 'عندي قسيمة', 'رمز من وكيل يفعّل خطة', { a: 'go:voucher' }), row('tune', 'إدارة الاشتراك', paid && !st ? (blAuto() ? 'التجديد التلقائي يعمل' : 'لا يتجدد من نفسه') : 'التجديد والاستعادة', { a: 'go:plan-manage' }), row('receipt_long', 'سجل المدفوعات', b.rc.length ? `${b.rc.length} ${b.rc.length === 1 ? 'دفعة' : b.rc.length === 2 ? 'دفعتان' : 'دفعات'}` : 'لا مدفوعات بعد', { a: 'go:receipts' }))}`
+      ${list(row('sms', 'عبّئ الرسائل النصية', 'حزمة 50 رسالة لهذا الشهر', { v: blAmt(BL_TOP[blYE() ? 1 : 0]), a: 'go:topup' }), row('tune', 'إدارة الاشتراك', paid && !st ? (blAuto() ? 'التجديد التلقائي يعمل' : 'لا يتجدد من نفسه') : 'التجديد والاستعادة', { a: 'go:plan-manage' }), row('receipt_long', 'سجل المدفوعات', b.rc.length ? `${b.rc.length} ${b.rc.length === 1 ? 'دفعة' : b.rc.length === 2 ? 'دفعتان' : 'دفعات'}` : 'لا مدفوعات بعد', { a: 'go:receipts' }))}`
       : `<p class="sm muted" style="margin:8px 4px">${ic('lock')} تغيير الخطة والدفع ل${M.ahmad.n} وحده.</p>`}
     ${blSafe()}`;
   },
@@ -203,8 +214,8 @@ surface('plans', {
 /* ---------- S04-03 تأكيد تغيير الخطة ---------- */
 const blKind = k => { const st = blSt(), cur = S.plan; return k === cur ? (st === 'trial' ? 'sub' : 'renew') : !st && BL_RANK[k] < BL_RANK[cur] ? 'down' : st && k === 'free' ? 'fall' : 'up'; };
 surface('plan-change', {
-  t: k => ({ down: 'تأكيد التخفيض', fall: 'العودة إلى المجانية', renew: 'تجديد الخطة', sub: 'الاشتراك في المميزة', up: 'تأكيد الترقية' }[blKind(PLAN[k] ? k : 'basic')]), sys: 'S1-04', p: 'owner', a: ['basic'], req: '04:3,4,5,6',
-  note: 'S04-03. من أي خطة إلى أي خطة، وماذا يحدث ومتى، بكلام صريح قبل أي دفع. الترقية تبدأ فور تحقق الخادم من الدفع؛ التخفيض يبدأ بنهاية الفترة المدفوعة ولا يُستردّ شيء. طريقة الدفع تُختار هنا من طرق سوق العائلة. زر واحد للتأكيد، وبعده الرقم السري. دون اتصال الزر معطّل بسببه.',
+  t: k => ({ down: 'تأكيد التخفيض', fall: 'العودة إلى المجانية', renew: 'تجديد الخطة', sub: 'الاشتراك في المميزة', up: 'تأكيد الترقية' }[blKind(PLAN[k] ? k : 'basic')]), sys: 'S1-04', p: 'owner', a: ['basic'], req: '04:3,4,5,6,20',
+  note: 'S04-03. من أي خطة إلى أي خطة، وماذا يحدث ومتى، بكلام صريح قبل أي دفع. الترقية تبدأ فور تحقق الخادم من الدفع؛ التخفيض يبدأ بنهاية الفترة المدفوعة ولا يُستردّ شيء (Q-420). ما بقي من فترة مدفوعة عند الترقية يتحول إلى أيام على الخطة الأعلى بقيمته، إلا في متجر المنصة فيحسبه المتجر بنظامه. طريقة الدفع تُختار هنا من طرق سوق العائلة. زر واحد للتأكيد، وبعده الرقم السري. دون اتصال الزر معطّل بسببه.',
   r(k) {
     if (!blCanM()) return blNo(1);
     k = PLAN[k] ? k : 'basic'; if (k === 'free' && S.plan === 'free') return empty('check_circle', 'أنت على المجانية', 'بلا تكلفة وبلا مدة.', btn('اعرض الخطط', 'go:plans', 'sm sec t48'));
@@ -222,16 +233,15 @@ surface('plan-change', {
         ${k !== 'free' ? li('payments', `عند بدء ${p.n} تدفع سعرها: ${blAmt(blPrice(k, 0))} في الشهر.`) : ''}
       </ul>${offline() ? blOff() : ''}${btn(kind === 'fall' ? 'عُد إلى المجانية الآن' : 'خفّض بنهاية الفترة', 'plGo:' + k, offline() ? 'dis" disabled="' : '')}<div class="gap"></div>${btn('إلغاء', 'back', 'sec')}`;
     }
-    const n = blPrice(k, yr), end = blDate(blAddM(kind === 'renew' && paidNow ? blEnd() : TK_TODAY, yr ? 12 : 1)), store = blIsStore(pm);
+    const n = blPrice(k, yr), cr = kind === 'renew' ? null : blCredit(k, yr, pm), crSrc = paidNow ? cur : b.back ? b.back.plan : '', end = blDate(tkAdd(blAddM(kind === 'renew' && paidNow ? blEnd() : TK_TODAY, yr ? 12 : 1), cr ? cr.add : 0)), store = blIsStore(pm);
     return `${ft}<div class="blseg">${seg([['', `شهر · ${blAmt(blPrice(k, 0))}`], ['1', `سنة · ${blAmt(blPrice(k, 1))}`]], yr ? '1' : '', 'blYr')}</div>
     ${sec('ماذا يحدث')}<ul class="blwh">
       ${kind === 'renew' && paidNow ? li('event', `تبدأ الفترة الجديدة بعد نهاية الحالية في ${e}، وتمتد حتى <b>${end}</b>.`) : li('bolt', `تبدأ ${PLAN[k].n} فور تحققنا من دفعك، وتمتد حتى <b>${end}</b>.`)}
-      ${kind === 'up' && paidNow ? li('money_off', `ما بقي من فترة ${PLAN[cur].n} لا يُحسب من السعر ولا يُستردّ.`) : ''}
+      ${cr ? li('more_time', cr.add ? `ما بقي من ${PLAN[cr.from].n} (${rwDy(cr.left)}) لا يضيع: يتحول إلى <b>${rwDy(cr.add)}</b> على ${PLAN[k].n}، وهي محسوبة في التاريخ أعلاه. لا يُردّ مال.` : `ما بقي من ${PLAN[cr.from].n} (${rwDy(cr.left)}) قيمته أقل من يوم على ${PLAN[k].n}، فلا يُضاف شيء.`) : crSrc && crSrc !== 'free' && BL_RANK[k] > BL_RANK[crSrc] && pm === blStore() ? li('info', `ما بقي من ${PLAN[crSrc].n} يحسبه ${BL_CH[pm][0]} بنظامه عند الترقية، ويعرضه لك قبل أن تدفع.`) : ''}
       ${blSt() === 'grace' ? li('check_circle', 'تنتهي المهلة فور التفعيل.') : ''}
       ${li(pm === blStore() ? 'sync' : 'event_busy', pm === blStore() ? `تتجدد من نفسها كل ${yr ? 'سنة' : 'شهر'} عبر ${BL_CH[pm][0]} حتى تلغيها.` : 'لا تتجدد من نفسها: تجدّدها أنت قبل نهايتها.')}
     </ul>
-    ${sec('طريقة الدفع')}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b><span>${{ gplay: 'من حسابك في المتجر', appstore: 'من حسابك في المتجر', card: 'تُكتب بياناتها في صفحة الدفع، لا في التطبيق', onecash: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', mahfathati: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', manual: 'تدفع نقداً وتكتب رقم السند' }[id]}</span></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
-    <p style="margin:0 0 12px">${btn('عندي قسيمة بدل الدفع', 'go:voucher', 'txt t48', 'confirmation_number')}</p>
+    ${sec('طريقة الدفع')}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b><span>${{ gplay: 'من حسابك في المتجر', appstore: 'من حسابك في المتجر', card: 'تُكتب بياناتها في صفحة الدفع، لا في التطبيق', jaib: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', onecash: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', mahfathati: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', manual: 'تدفع نقداً وتكتب رقم السند' }[id]}</span></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
     ${offline() ? blOff() : b.pend ? callout('عندك دفعة بانتظار التحقق. انتظر نتيجتها قبل أن تبدأ دفعاً آخر.', 'wa', 'hourglass_top') : ''}
     ${btn(`${kind === 'renew' ? 'جدّد الآن' : kind === 'sub' ? 'اشترك الآن' : 'رقِّ الآن'} · ${blAmt(n)}`, 'plGo:' + k, offline() || b.pend ? 'dis" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'back', 'sec')}
     <p class="xs muted c" style="margin-top:10px">${store ? 'تتغير الخطة بعد أن يتحقق خادمنا من الدفع، لا قبله.' : 'تتغير الخطة بعد أن تؤكد جهة الدفع وصول المبلغ، لا قبله.'}</p>`;
@@ -264,11 +274,11 @@ surface('store-buy', {
 
 /* ---------- S04-05 الدفع بالمحفظة أو عند وكيل (اليمن) ---------- */
 surface('pay-wallet', {
-  t: 'الدفع', sys: 'S1-04', p: 'owner', a: ['basic', '', 'onecash'], req: '04:6,7,10',
-  note: 'S04-05. خطوتان: تدفع خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد جهة الدفع وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة ومكان الوكلاء يُكتبان عند التعاقد، ولم يُخترع لهما شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
+  t: 'الدفع', sys: 'S1-04', p: 'owner', a: ['basic', '', 'jaib'], req: '04:6,7,10',
+  note: 'S04-05. اليمن: محفظة جيب، ون كاش، محفظتي، أو نقداً عند وكيل؛ ولا قسائم (Q-421). خطوتان: تدفع خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد جهة الدفع وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة ومكان الوكلاء يُكتبان عند التعاقد، ولم يُخترع لهما شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
   r(w, yr, ch) {
     if (!blCanM()) return blNo(1);
-    w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = ['onecash', 'mahfathati', 'manual'].includes(ch) ? ch : 'onecash'; const b = BL(), d = b.pend, man = ch === 'manual';
+    w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.concat(['manual']).includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend, man = ch === 'manual';
     if (d) { const it = blItem(d.w, d.yr);
       return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن ${d.ch === 'manual' ? 'يؤكد الوكيل' : `تؤكد ${BL_CH[d.ch][0]}`} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
       <dl class="blkv"><dt>ما دفعت له</dt><dd>${it.t}${it.per ? ' · ' + it.per : ''}</dd><dt>المبلغ</dt><dd>${blAmt(it.n)}</dd><dt>الطريقة</dt><dd>${BL_CH[d.ch][0]}</dd><dt>الرقم المرجعي</dt><dd><span class="ltr">${blMask(d.ref)}</span></dd><dt>سُجّلت</dt><dd>${d.at}</dd></dl>
@@ -283,21 +293,6 @@ surface('pay-wallet', {
   },
 });
 
-/* ---------- S04-06 القسيمة ---------- */
-surface('voucher', {
-  t: 'قسيمة', sys: 'S1-04', p: 'owner', req: '04:6,7,8',
-  note: 'S04-06. رمز لمرة واحدة يصدره مشغّل المنصة ويبيعه وكيل. الخادم يتحقق منه ثم يفعّل الخطة ومدتها فوراً. الخطأ بجانب الحقل: مستعملة، أو ملغاة وغير صالحة. إن كانت القسيمة لخطة أقل من خطتك المدفوعة السارية لا تُستهلك وتبقى صالحة (اقتراح ينتظر حكم المالك). رموز التجربة: FAM-2026-DEMO · FAM-PREM-0006 · FAM-USED-0001 · FAM-VOID-0001.',
-  r() {
-    if (!blCanM()) return blNo(1);
-    const v = BL().v, e = v.err;
-    if (v.ok) return `<div class="bigic" style="background:var(--success-soft);color:var(--success)">${ic('check_circle')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">${v.ok.ext ? 'مُدّت' : 'فُعّلت'} الخطة ${PLAN[v.ok.k].n}</p><p class="sub">${rwMo(v.ok.mo)} بالقسيمة · حتى <b>${blDate(v.ok.end)}</b></p>${callout('لا تتجدد من نفسها. قبل نهايتها تجدّدها بقسيمة أخرى أو بالدفع.', 'nt', 'info')}${btn('تمّ', 'blToPlan')}`;
-    return `<p class="sm muted" style="margin:0 4px 14px">اكتب الرمز المطبوع على القسيمة. نتحقق منه ثم تبدأ خطتك فوراً.</p>
-    <label class="fld ${e ? 'err' : ''}"><span>رمز القسيمة</span><input id="vc" class="mono blvc" dir="ltr" autocapitalize="characters" autocomplete="off" placeholder="FAM-XXXX-XXXX" value="${v.code}">${{ empty: '<small>اكتب رمز القسيمة.</small>', used: '<small>هذه القسيمة مستعملة من قبل.</small>', bad: '<small>هذه القسيمة ملغاة أو غير صالحة. تأكد من الرمز.</small>', low: `<small>هذه القسيمة للخطة ${v.low ? PLAN[v.low].n : ''}، وأنت على ${PLAN[S.plan].n} حتى ${blDate(blEnd())}. لم نستعملها: تبقى صالحة لما بعد فترتك.</small>` }[e] || '<small>جرّب: FAM-2026-DEMO</small>'}</label>
-    ${offline() ? blOff('التحقق من القسيمة يحتاج اتصالاً بالإنترنت.') : ''}${btn('فعّل القسيمة', 'vGo', offline() ? 'dis" disabled="' : '')}
-    <p class="xs muted c" style="margin-top:10px">القسيمة تُستعمل مرة واحدة، ولا تُستردّ قيمتها من التطبيق.</p>`;
-  },
-});
-const rwMo = n => (n === 1 ? 'شهر واحد' : n === 2 ? 'شهران' : `${n} ${n <= 10 ? 'أشهر' : 'شهراً'}`);
 
 /* ---------- S04-07 تعبئة الرسائل النصية ---------- */
 surface('topup', {
@@ -318,8 +313,8 @@ surface('topup', {
 
 /* ---------- S04-08 التجربة ---------- */
 surface('trial', {
-  t: 'تجربة المميزة', sys: 'S1-04', p: 'owner', req: '04:12,13,14',
-  note: 'S04-08. سبعة أيام على المميزة، مرة واحدة للعائلة، بلا وسيلة دفع وبلا خصم بعدها. خط زمني بثلاثة تواريخ: اليوم، نهاية التجربة، نهاية المهلة. قاعدة تحويل التجربة إلى اشتراك مدفوع لم تُحكم بعد: لا يُفترض هنا أي خصم. من كان على خطة مدفوعة يعود إليها بعد التجربة (اقتراح ينتظر حكم المالك).',
+  t: 'تجربة المميزة', sys: 'S1-04', p: 'owner', req: '04:12,13,14,21',
+  note: 'S04-08. سبعة أيام على المميزة، مرة واحدة للعائلة، بلا وسيلة دفع وبلا خصم بعدها. خط زمني بثلاثة تواريخ: اليوم، نهاية التجربة، نهاية المهلة. لا خصم تلقائي أبداً: الاشتراك بضغطة من الأب، وتذكيران قبل النهاية بيومين وفي اليوم الأخير (Q-420). من كان على خطة مدفوعة يعود إليها فور انتهاء التجربة بلا مهلة، وفترته المدفوعة تستمر في العدّ أثناء التجربة.',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), cur = S.plan, st = blSt(), paid = cur !== 'free' && !st, t1 = tkAdd(TK_TODAY, 7), t2 = tkAdd(TK_TODAY, 10);
@@ -327,9 +322,10 @@ surface('trial', {
     if (b.trialUsed || cur === 'premium') return `<div class="bigic" style="background:var(--sunken);color:var(--muted)">${ic('redeem')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">${cur === 'premium' && !b.trialUsed ? 'أنت على المميزة' : 'استخدمت عائلتك التجربة من قبل'}</p><p class="sub">${cur === 'premium' && !b.trialUsed ? 'التجربة لمن لم يجرّب المميزة بعد.' : 'التجربة مرة واحدة لكل عائلة. تستطيع الاشتراك في أي وقت.'}</p>${btn('ابدأ تجربتي 7 أيام', 'trGo', 'dis" disabled="')}<div class="gap"></div>${btn('اعرض الخطط', 'go:plans', 'sec')}`;
     return `<div class="bltop"><span class="bg">${ic('workspace_premium')}</span><b>7 أيام على المميزة، مجاناً</b><span>بلا وسيلة دفع · لا نخصم شيئاً بعدها · مرة واحدة للعائلة</span></div>
     ${sec('ما يُفتح لك')}<ul class="blwh">${cur === 'premium' ? '' : `<li>${ic('groups')}<span>أفراد بلا حد <small>بدل ${PLAN[cur].mem}</small></span></li><li>${ic('sms')}<span>100 رسالة نصية في الشهر <small>بدل ${PLAN[cur].sms}</small></span></li><li>${ic('wand_stars')}<span>3,000 عملية للمساعد <small>بدل ${blNum(PLAN[cur].ai)}</small></span></li>`}</ul>
-    ${sec('ما يحدث بعدها')}<div class="tl"><div class="ev ok"><b>اليوم · تبدأ التجربة</b><span>المميزة تعمل على كل أجهزة العائلة</span></div><div class="ev wa"><b>${blDate(t1)} · تنتهي التجربة</b><span>تبقى الميزات 3 أيام مهلة</span></div><div class="ev"><b>${blDate(t2)} · ${paid ? `تعود إلى ${PLAN[cur].n}` : 'تعود إلى المجانية'}</b><span>${paid ? 'خطتك المدفوعة كما كانت' : 'بلا قفل ولا حذف · أفرادك يبقون'}</span></div></div>
+    ${sec('ما يحدث بعدها')}<div class="tl"><div class="ev ok"><b>اليوم · تبدأ التجربة</b><span>المميزة تعمل على كل أجهزة العائلة</span></div>${paid ? `<div class="ev wa"><b>${blDate(t1)} · تنتهي التجربة وتعود إلى ${PLAN[cur].n}</b><span>خطتك المدفوعة كما كانت، بلا مهلة. فترتها تستمر في العدّ أثناء التجربة${blDays(blEnd()) > 7 ? ` وتنتهي ${blDate(blEnd())} كما هي` : ''}.</span></div>` : `<div class="ev wa"><b>${blDate(t1)} · تنتهي التجربة</b><span>تبقى الميزات 3 أيام مهلة</span></div><div class="ev"><b>${blDate(t2)} · تعود إلى المجانية</b><span>بلا قفل ولا حذف · أفرادك يبقون</span></div>`}</div>
+    <div class="gap"></div>${callout('نذكّرك قبل نهايتها بيومين، وفي يومها الأخير. لا نخصم شيئاً من أنفسنا: الاشتراك بضغطة منك.', 'nt', 'notifications')}
     ${offline() ? blOff('بدء التجربة يحتاج اتصالاً بالإنترنت.') : ''}${btn('ابدأ تجربتي 7 أيام', 'trGo', offline() ? 'dis" disabled="' : '')}
-    <p class="xs muted c" style="margin-top:10px">إن أعجبتك اشترك قبل ${blDate(t2)} لتبقى ميزاتها.</p>`;
+    <p class="xs muted c" style="margin-top:10px">إن أعجبتك اشترك قبل ${blDate(paid ? t1 : t2)} لتبقى ميزاتها.</p>`;
   },
 });
 
@@ -350,7 +346,7 @@ surface('plan-grace', {
         <li>${ic('emergency_home')}<span>الاستغاثة والموقع والمحادثة والمهام لا تتأثر.</span></li></ul>
       ${own ? `${offline() ? blOff() : ''}${btn(why === 'trial' ? 'اشترك في المميزة' : 'جدّد الآن', 'go:plan-change:' + S.plan, offline() ? 'dis" disabled="' : '')}<div class="gap"></div>${btn('اختر خطة أخرى', 'go:plans', 'sec')}` : `<p class="sm muted" style="margin:8px 4px">${ic('lock')} التجديد ل${M.ahmad.n} وحده.</p>`}`; }
     if (b.fell) { const P = PLAN[b.fell.to], F = PLAN[b.fell.from];
-      return `<div class="bigic" style="background:var(--info-soft);color:var(--info)">${ic('info')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">عادت العائلة إلى ${P.n}</p><p class="sub">${b.fell.why === 'trial' ? 'انتهت تجربة المميزة ومهلتها.' : b.fell.why === 'me' ? 'اخترت العودة إليها.' : `انتهت الخطة ${F.n} ومهلتها دون تجديد.`}</p>
+      return `<div class="bigic" style="background:var(--info-soft);color:var(--info)">${ic('info')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">عادت العائلة إلى ${P.n}</p><p class="sub">${b.fell.why === 'trial' ? (b.fell.to === 'free' ? 'انتهت تجربة المميزة ومهلتها.' : `انتهت تجربة المميزة. خطتك ${P.n} كما كانت، وتنتهي ${blDate(blEnd())}.`) : b.fell.why === 'me' ? 'اخترت العودة إليها.' : `انتهت الخطة ${F.n} ومهلتها دون تجديد.`}</p>
       ${sec('ما بقي كما هو')}<ul class="blwh"><li>${ic('verified_user')}<span>لم يُقفل شيء ولم تُحذف بيانات.</span></li><li>${ic('groups')}<span>أفرادك كلهم (${m}) في العائلة.</span></li><li>${ic('emergency_home')}<span>الاستغاثة والموقع والمحادثة والمهام تعمل كما كانت.</span></li></ul>
       ${sec('ما تغيّر')}<ul class="blwh">${P.mem !== Infinity && m >= P.mem ? `<li>${ic('person_add')}<span>لا يُضاف فرد جديد${m > P.mem ? ` حتى ينقص العدد عن ${P.mem}` : ''}: ${P.n} تتسع لـ${P.mem}.</span></li>` : ''}<li>${ic('sms')}<span>الرسائل النصية ${P.sms} في الشهر <small>كانت ${F.sms}</small></span></li><li>${ic('wand_stars')}<span>عمليات المساعد ${blNum(P.ai)} <small>كانت ${blNum(F.ai)}</small></span></li></ul>
       ${own ? `${btn('اعرض الخطط', 'go:plans', '', 'workspace_premium')}<div class="gap"></div>${btn('فهمت', 'blFellOk', 'sec')}` : btn('فهمت', 'blToPlan', 'sec')}`; }
@@ -368,16 +364,16 @@ surface('plan-limit', {
 /* ---------- S04-11 إدارة الاشتراك ---------- */
 surface('plan-manage', {
   t: 'إدارة الاشتراك', sys: 'S1-04', p: 'owner', req: '04:4,5,13',
-  note: 'S04-11. حالة التجديد بصدق: المتجر يجدّد من نفسه، والمحفظة والوكيل والقسيمة والبطاقة لا تتجدد من نفسها. إلغاء التجديد يُبقي الميزات حتى نهاية الفترة ثم تعود العائلة إلى المجانية. التجديد المبكر لمن لا يتجدد اشتراكه من نفسه (اقتراح ينتظر حكم المالك). استعادة المشتريات من متجر المنصة نفسه، في سوق الخليج فقط، بلا تفعيل مكرر.',
+  note: 'S04-11. حالة التجديد بصدق: المتجر يجدّد من نفسه، والمحفظة والوكيل والبطاقة لا تتجدد من نفسها. إلغاء التجديد يُبقي الميزات حتى نهاية الفترة ثم تعود العائلة إلى المجانية. التجديد المبكر لمن لا يتجدد اشتراكه من نفسه: الفترة الجديدة تبدأ بعد نهاية الحالية (Q-420). استعادة المشتريات من متجر المنصة نفسه، في سوق الخليج فقط، بلا تفعيل مكرر.',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), st = blSt(), paid = S.plan !== 'free' && !st, e = blDate(blEnd()), ch = blChan(), auto = blAuto(), sn = BL_CH[blStore()][0];
     return `${blCard()}
-    ${paid ? `${sec('التجديد')}${auto ? `<div class="card"><div class="fx top">${ic('sync')}<div class="grow"><b>يتجدد من نفسه</b><div class="sm muted">الخصم القادم ${blAmt(blPrice(S.plan, b.yr))} في ${e} عبر ${BL_CH[ch][0]}.</div></div></div><div class="gap"></div>${btn('ألغِ التجديد التلقائي', 'blCancel', 'dng sec')}<p class="xs muted" style="margin:8px 0 0">بعد الإلغاء تبقى ميزاتك حتى ${e}، ثم تعود العائلة إلى المجانية بلا قفل ولا حذف.</p></div>`
+    ${paid ? `${sec('التجديد')}${auto ? `<div class="card"><div class="fx top">${ic('sync')}<div class="grow"><b>يتجدد من نفسه</b><div class="sm muted">الخصم القادم ${blAmt(blPrice(S.plan, b.cyr))} في ${e} عبر ${BL_CH[ch][0]}.</div></div></div><div class="gap"></div>${btn('ألغِ التجديد التلقائي', 'blCancel', 'dng sec')}<p class="xs muted" style="margin:8px 0 0">بعد الإلغاء تبقى ميزاتك حتى ${e}، ثم تعود العائلة إلى المجانية بلا قفل ولا حذف.</p></div>`
       : `<div class="card"><div class="fx top">${ic('event_busy')}<div class="grow"><b>${b.noAuto ? 'أُلغي التجديد التلقائي' : 'لا يتجدد من نفسه'}</b><div class="sm muted">${b.down ? `ينتقل إلى ${PLAN[b.down.to].n} في ${e}.` : `ميزاتك باقية حتى ${e}. بعدها 3 أيام مهلة، ثم المجانية بلا قفل ولا حذف.`}</div></div></div>${b.down ? `<div class="gap"></div>${btn('تراجع عن التخفيض', 'blUndown', 'sec')}` : `<div class="gap"></div>${btn(b.noAuto ? 'اشترك من جديد' : 'جدّد الآن', 'go:plan-change:' + S.plan, offline() ? 'dis" disabled="' : '')}<p class="xs muted" style="margin:8px 0 0">${b.noAuto ? 'يبدأ اشتراكك الجديد بعد نهاية الفترة الحالية.' : `إن جدّدت الآن بدأت الفترة الجديدة بعد ${e}، ولا يضيع عليك يوم.`}</p>`}</div>`}` : ''}
     ${st === 'trial' ? callout(`تجربة تنتهي ${e}. لا نخصم شيئاً بعدها، ولا شيء يُلغى.`, 'nt', 'redeem') : st === 'grace' ? callout('اشتراكك في المهلة. جدّده من صفحة المهلة.', 'wa', 'schedule') + btn('افتح المهلة', 'go:plan-grace', 'sec') + '<div class="gap"></div>' : !paid ? callout('العائلة على المجانية: بلا تكلفة وبلا مدة. لا شيء يتجدد ولا شيء يُلغى.', 'nt', 'info') : ''}
     ${offline() ? blOff('الإلغاء والتجديد والاستعادة تحتاج اتصالاً بالإنترنت.') : ''}
-    ${sec('غير ذلك')}${list(blYE() ? '' : row('replay', 'استعد المشتريات', b.busy === 'rest' ? `نبحث في ${sn}…` : `بعد تغيير الهاتف أو إعادة التثبيت · من ${sn}`, { a: 'blRestore' }), row('receipt_long', 'سجل المدفوعات', '', { a: 'go:receipts' }), row('confirmation_number', 'عندي قسيمة', '', { a: 'go:voucher' }))}`;
+    ${sec('غير ذلك')}${list(blYE() ? '' : row('replay', 'استعد المشتريات', b.busy === 'rest' ? `نبحث في ${sn}…` : `بعد تغيير الهاتف أو إعادة التثبيت · من ${sn}`, { a: 'blRestore' }), row('receipt_long', 'سجل المدفوعات', '', { a: 'go:receipts' }))}`;
   },
 });
 
@@ -385,7 +381,7 @@ surface('plan-manage', {
 const BL_RS = { ok: ['تم التحقق', 'ok', 'verified'], tmp: ['تفعيل مؤقت · نعيد التحقق', 'wa', 'schedule'], bad: ['لم يُقبل', 'da', 'gpp_maybe'], rej: ['لم تتأكد', 'da', 'error'], pend: ['بانتظار التحقق', 'wa', 'hourglass_top'] };
 surface('receipts', {
   t: 'سجل المدفوعات', sys: 'S1-04', p: 'owner', req: '04:7',
-  note: 'S04-12. للقراءة فقط: ما اشتُري، وبأي طريقة، وحالة التحقق، ووقته، والرقم المرجعي مخفياً إلا آخر أربع خانات. لا بيانات بطاقة ولا تعديل ولا حذف. الدفعة التي تنتظر التحقق تظهر أولاً. عرض المبلغ اقتراح: سجل الإيصال في المواصفة لا يحمل المبلغ.',
+  note: 'S04-12. للقراءة فقط: ما اشتُري، وبأي طريقة، وحالة التحقق، ووقته، والرقم المرجعي مخفياً إلا آخر أربع خانات. لا بيانات بطاقة ولا تعديل ولا حذف. الدفعة التي تنتظر التحقق تظهر أولاً. المبلغ وعملته يُعرضان، وأُضيفا إلى سجل الإيصال في المواصفة (Q-420).',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), R = b.rc, d = b.pend, it = d ? blItem(d.w, d.yr) : null;
@@ -400,11 +396,12 @@ surface('receipts', {
 
 /* ---------- الأفعال ---------- */
 Object.assign(ACT, {
-  blToPlan() { const b = BL(); b.v.ok = null; blHome(); },
+  blToPlan() { blHome(); },
   blRetry() { S.blSt = ''; toast('حُدّثت', null, 'cloud_done'); },
   blYr(v) { BL().yr = v === '1' ? 1 : 0; },
   blPm(id) { if (BL_CH[id]) BL().pm = id; },
   blRejOk() { BL().rej = null; },
+  blTrSeen() { const b = BL(); b.trSeen = blDays(blEnd()) + 1; },
   blFellOk() { BL().fell = null; if (S.stack.some(s => s.id === 'plan-grace')) blHome(); },
   blAskOk(i) { BL().ask.splice(+i, 1); },
   blAsk(why) { const b = BL(); if (!b.ask.some(q => q.who === me().id && q.why === why)) b.ask.push({ who: me().id, why }); S.sheet = null; toast(`أُرسل طلبك إلى ${M.ahmad.n}`, null, 'send'); },
@@ -445,27 +442,11 @@ Object.assign(ACT, {
     b.pw = { ref: '', err: '' }; b.rej = null; b.pend = { w, yr: yr === '1', ch, ref: v, at: 'اليوم · 5:12 م' };
     audit(`دفعة سُجّلت بانتظار التحقق · ${BL_CH[ch][0]}`, w === 'topup' ? 'billing.topup.buy' : 'billing.manage');
   },
-  vGo() {
-    if (!can('billing.voucher.redeem')) return ACT.denied('billing.voucher.redeem');
-    const b = BL(), v = b.v, el = $('#vc'), code = ((el ? el.value : v.code) || '').trim().toUpperCase(); v.code = code; v.low = '';
-    if (offline()) { toast('التحقق من القسيمة يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
-    if (!code) { v.err = 'empty'; return; }
-    const d = v.used[code] ? 'used' : BL_VOUCH[code];
-    if (d === 'used') { v.err = 'used'; return; }
-    if (!d || d === 'void') { v.err = 'bad'; return; }
-    const [k, mo] = d, paid = S.plan !== 'free' && !blSt();
-    if (paid && BL_RANK[k] < BL_RANK[S.plan]) { v.err = 'low'; v.low = k; return; }
-    const ext = paid && k === S.plan, from = ext ? blEnd() : TK_TODAY;
-    S.plan = k; S.planSt = ''; b.ch = ext ? blChan() : 'voucher'; if (!ext) b.yr = 0; b.end = blAddM(from, mo); b.noAuto = ext ? b.noAuto : 0; b.down = null; b.fell = null; b.back = null; b.gWhy = ''; b.tmp = 0;
-    v.used[code] = 1; v.err = ''; v.code = ''; v.ok = { k, mo, end: b.end, ext };
-    blRc(`الخطة ${PLAN[k].n} · ${rwMo(mo)}`, 'قسيمة', 'voucher', 'ok', code); audit(`قسيمة فعّلت الخطة ${PLAN[k].n} ${rwMo(mo)}`, 'billing.voucher.redeem');
-    toast('تم تفعيل اشتراكك');
-  },
   trGo() {
     if (!blCanM()) return ACT.denied('billing.manage');
     if (offline()) { toast('بدء التجربة يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
     const b = BL(); if (b.trialUsed || S.plan === 'premium') { toast('استخدمت عائلتك التجربة من قبل', null, 'info'); return; }
-    gate('بدء التجربة', () => { if (S.plan !== 'free') b.back = { plan: S.plan, end: blEnd(), ch: blChan(), yr: b.yr }; b.trialUsed = 1; b.trialEnd = tkAdd(TK_TODAY, 7); S.plan = 'premium'; S.planSt = 'trial'; audit('بدأت تجربة المميزة 7 أيام', 'billing.manage'); blHome(); toast('بدأت تجربتك · المميزة مفعّلة 7 أيام'); });
+    gate('بدء التجربة', () => { if (S.plan !== 'free') b.back = { plan: S.plan, end: blEnd(), ch: blChan(), cyr: b.cyr }; b.trialUsed = 1; b.trialEnd = tkAdd(TK_TODAY, 7); S.plan = 'premium'; S.planSt = 'trial'; audit('بدأت تجربة المميزة 7 أيام', 'billing.manage'); blHome(); toast('بدأت تجربتك · المميزة مفعّلة 7 أيام'); });
   },
   blCancel() {
     if (offline()) { toast('الإلغاء يحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; }
@@ -477,7 +458,7 @@ Object.assign(ACT, {
     const b = BL(), sn = BL_CH[blStore()][0], paid = S.plan !== 'free' && !blSt();
     if (S.restDemo !== 'found') { toast(`لا مشتريات سابقة لهذا الحساب في ${sn}`, null, 'info'); return; }
     if (paid && blIsStore(blChan())) { toast('اشتراكك مفعّل أصلاً · لا شيء يُستعاد', null, 'info'); return; }
-    S.plan = 'premium'; S.planSt = ''; b.ch = blStore(); b.yr = 0; b.end = '2026-12-02'; b.noAuto = 0; b.down = null; b.fell = null; b.back = null;
+    S.plan = 'premium'; S.planSt = ''; b.ch = blStore(); b.yr = b.cyr = 0; b.end = '2026-12-02'; b.noAuto = 0; b.down = null; b.fell = null; b.back = null;
     audit(`استُعيد اشتراك المميزة من ${sn}`, 'billing.manage'); toast(`استُعيدت مشترياتك · المميزة حتى ${blDate(b.end)}`);
   },
 });
@@ -486,7 +467,13 @@ function blEv(v) {
   const b = BL(); S.sheet = S.full = S.dlg = null;
   if (v === 'ver' && b.pend) { const d = b.pend, it = blItem(d.w, d.yr); blDone(d.w, d.yr, d.ch); b.pend = null; $('#toast').innerHTML = ''; notif(d.w === 'topup' ? 'أُضيفت 50 رسالة' : 'تمت الترقية', d.w === 'topup' ? 'تأكد الدفع، والرصيد في حسابك الآن' : `تأكد الدفع · ${it.t} فعّالة الآن`, 'workspace_premium', 'go:plan'); }
   else if (v === 'rej' && b.pend) { const d = b.pend, it = blItem(d.w, d.yr); b.rej = { w: d.w, yr: d.yr, ch: d.ch }; blRc(it.t + (it.per ? ' · ' + it.per : ''), blAmt(it.n), d.ch, 'rej', d.ref); b.pend = null; S.audit.unshift({ t: 'دفعة لم تتأكد · لم تتغير الخطة', w: 'النظام', at: 'الآن', k: 'billing.manage', deny: 1 }); notif('لم تتأكد دفعتك', 'لم تتغير خطتك · افتح الخطة للتفاصيل', 'error', 'go:plan'); }
-  else if (v === 'trend') { if (S.planSt !== 'trial') { if (S.plan !== 'free' && !S.planSt) b.back = { plan: S.plan, end: blEnd(), ch: blChan(), yr: b.yr }; S.plan = 'premium'; b.trialUsed = 1; } S.planSt = 'grace'; b.gWhy = 'trial'; b.graceEnd = tkAdd(TK_TODAY, 3); }
+  else if (v === 'tr2' || v === 'tr0') { if (S.planSt !== 'trial') { if (S.plan !== 'free' && !S.planSt) b.back = { plan: S.plan, end: blEnd(), ch: blChan(), cyr: b.cyr }; S.plan = 'premium'; S.planSt = 'trial'; b.trialUsed = 1; } b.trialEnd = tkAdd(TK_TODAY, v === 'tr2' ? 2 : 0); b.trSeen = 0;
+    notif(v === 'tr2' ? 'تجربة المميزة تنتهي بعد يومين' : 'تجربة المميزة تنتهي اليوم', b.back ? `بعدها تعود العائلة إلى ${PLAN[b.back.plan].n} · لا نخصم شيئاً` : 'لا نخصم شيئاً · اشترك إن أردت أن تبقى ميزاتها', 'redeem', 'go:trial'); }
+  else if (v === 'trend') { if (S.planSt !== 'trial') { if (S.plan !== 'free' && !S.planSt) b.back = { plan: S.plan, end: blEnd(), ch: blChan(), cyr: b.cyr }; S.plan = 'premium'; b.trialUsed = 1; }
+    /* من كان على خطة مدفوعة يعود إليها فوراً بلا مهلة (Q-420)؛ وإن انتهت فترتها أثناء التجربة دخلت مهلتها هي */
+    if (b.back && blDays(b.back.end) > 0) { S.planSt = 'trial'; b.gWhy = 'trial'; blFall(); }
+    else if (b.back) { S.plan = b.back.plan; b.end = b.back.end; b.ch = b.back.ch; b.yr = b.cyr = b.back.cyr; b.back = null; S.planSt = 'grace'; b.gWhy = 'end'; b.graceEnd = tkAdd(TK_TODAY, 3); b.trialEnd = ''; }
+    else { S.planSt = 'grace'; b.gWhy = 'trial'; b.graceEnd = tkAdd(TK_TODAY, 3); } }
   else if (v === 'exp') { if (S.plan === 'free') S.plan = 'basic'; b.gWhy = blAuto() ? 'fail' : 'end'; S.planSt = 'grace'; b.graceEnd = tkAdd(TK_TODAY, 3); b.down = null; }
   else if (v === 'fall') { if (S.planSt !== 'grace') { if (S.plan === 'free') S.plan = 'basic'; b.gWhy = b.gWhy || 'end'; } blFall(); }
   else if (v === 'w80') { S.smsOut = false; S.sms.used = Math.ceil(PLAN[S.plan].sms * .85); notif('استهلكت 85% من رسائل الشهر', 'الاستغاثة لا تتوقف · افتح الخطة', 'sms', 'go:plan'); }

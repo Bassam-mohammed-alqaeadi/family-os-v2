@@ -169,7 +169,7 @@ const PL = {
   'shell.admin.access': ['دخول قسم الإدارة', 'يفتح الإعدادات الإدارية في التطبيق'], 'shell.config.view': ['رؤية إعدادات العائلة', 'يرى اسم العائلة وبلدها وتوقيتها'], 'roles.key.view': ['رؤية دليل الصلاحيات', 'يقرأ شرح كل صلاحية'], 'roles.audit.view': ['رؤية سجل الصلاحيات', 'يرى من مُنح ومن سُحب منه ومتى'],
   'roles.grant.create': ['منح الصلاحيات'], 'roles.grant.edit': ['تعديل الصلاحيات'], 'roles.grant.revoke': ['سحب الصلاحيات'], 'roles.template.apply': ['تغيير أدوار البالغين'], 'roles.ownership.transfer': ['نقل ملكية العائلة'],
   'shell.parent_gate.manage': ['تغيير الرقم السري'], 'shell.mode.exit_child': ['إيقاف القواعد من جهاز الطفل'], 'shell.config.edit': ['تعديل إعدادات العائلة'], 'identity.device.unpair': ['فك إقران جهاز'], 'identity.member.remove': ['إزالة فرد من العائلة'], 'identity.biometric.enable': ['تشغيل الفتح بالبصمة'], 'identity.session.revoke': ['إخراج جهاز من الحساب'],
-  'billing.manage': ['إدارة الاشتراك'], 'billing.topup.buy': ['شراء رصيد رسائل'], 'billing.voucher.redeem': ['استعمال قسيمة'], 'billing.view': ['رؤية الاشتراك والفواتير'],
+  'billing.manage': ['إدارة الاشتراك'], 'billing.topup.buy': ['شراء رصيد رسائل'], 'billing.view': ['رؤية الاشتراك والفواتير'],
   'rewards.settings.edit': ['تعديل نظام المكافآت'], 'rewards.streak.freeze': ['تجميد سلسلة الأيام'], 'rewards.grant.reverse': ['التراجع عن منحة'], 'rewards.objection.decide': ['الرد على اعتراض طفل'], 'rewards.settings.view': ['رؤية إعدادات المكافآت'],
   'tasks.revoke': ['إلغاء اعتماد مهمة'], 'tasks.category.create': ['إضافة فئة مهام'], 'protection.free_mode.activate': ['تشغيل الوضع الحر'], 'protection.quota.edit': ['تعديل الحصة اليومية'], 'protection.tamper.resolve': ['إغلاق تنبيه عبث'], 'protection.filter.edit': ['تعديل تصفية المواقع'], 'location.emergency.manage': ['إدارة جهات الطوارئ'],
 };
@@ -192,7 +192,7 @@ Object.assign(PL, {   /* ما لا يُعطى ولا يُسحب: يملكه كل
 });
 const PGIVE = PG.flatMap(g => g[3]);                       /* كل ما يُعطى لبالغ */
 const SENS = ['chat.minor.view', 'location.history.view', 'chat.channel.close', 'chat.message.delete.any', 'protection.rule.delete'];   /* الحساسة (Q-317): تُمنح بالرقم السري */
-const OWNER_ONLY = [['credit_card', 'الاشتراك والدفع والقسائم'], ['key', 'منح الصلاحيات وسحبها وتعديل الأدوار'], ['hourglass_top', 'الحصة اليومية، والوضع الحر، وتعديل تصفية المواقع'], ['link_off', 'فك إقران الأجهزة وإزالة الأفراد وحذف العائلة'], ['lock', 'الرقم السري والبصمة وإخراج الأجهزة من الحساب'], ['stars', 'إعدادات المكافآت والرد على اعتراضات الأطفال'], ['emergency', 'جهات الطوارئ'], ['gpp_maybe', 'إغلاق تنبيهات العبث وإلغاء اعتماد المهام']];
+const OWNER_ONLY = [['credit_card', 'الاشتراك والدفع وشراء الرسائل'], ['key', 'منح الصلاحيات وسحبها وتعديل الأدوار'], ['hourglass_top', 'الحصة اليومية، والوضع الحر، وتعديل تصفية المواقع'], ['link_off', 'فك إقران الأجهزة وإزالة الأفراد وحذف العائلة'], ['lock', 'الرقم السري والبصمة وإخراج الأجهزة من الحساب'], ['stars', 'إعدادات المكافآت والرد على اعتراضات الأطفال'], ['emergency', 'جهات الطوارئ'], ['gpp_maybe', 'إغلاق تنبيهات العبث وإلغاء اعتماد المهام']];
 const ROLE_IC = { partner: 'handshake', guardian: 'shield_person', observer: 'visibility', none: 'person' };
 const rn = t => (t === 'none' ? 'بلا صلاحيات' : S.roles[t].n);
 const rdsc = t => (t === 'none' ? 'عضو في العائلة لا يرى شؤون الأطفال ولا يديرها.' : S.roles[t].d);

@@ -54,7 +54,7 @@ graph TD
     FOS[Family OS<br/>المنصة]
     OTP[قنوات OTP<br/>WhatsApp / SMS / مكالمة فائتة]
     MAP[خرائط OSM<br/>MapLibre + بلاطات]
-    PAYY[محافظ اليمن<br/>OneCash / Mahfathati]
+    PAYY[محافظ اليمن<br/>Jaib / OneCash / Mahfathati]
     PAYG[دفع الخليج<br/>Google Play / Tap / Moyasar]
     AI[مزودو الذكاء<br/>عبر البوابة]
     PUSH[قنوات الدفع<br/>FCM / HMS]
@@ -76,7 +76,7 @@ graph TD
 |---|---|---|---|
 | WhatsApp / SMS / مكالمة فائتة | توصيل OTP | موجّه OTP (Router) | Q-021 |
 | OSM (MapLibre) | خرائط + بلاطات + دون اتصال | طبقة تجريد خرائط | Q-020 |
-| OneCash / Mahfathati | دفع اليمن | مسار دفع `PaymentRoute` | Q-025 |
+| Jaib / OneCash / Mahfathati | دفع اليمن | مسار دفع `PaymentRoute` | Q-025 · Q-421 |
 | Google Play / Tap / Moyasar | دفع الخليج | مسار دفع `PaymentRoute` | Q-025 |
 | مزودو الذكاء | نماذج لغوية | بوابة الذكاء (Gateway) | Q-011 |
 | FCM / HMS | دفع للوحة الأهل | قناة إشعارات موحدة | Q-022 |

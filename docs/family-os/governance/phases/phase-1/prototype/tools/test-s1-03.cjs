@@ -11,12 +11,12 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const txt=()=>ph.innerText.replace(/\s+/g,' ');const top=()=>S.dlg?'dlg':S.full?S.full.id:S.sheet?S.sheet.id:S.stack[S.stack.length-1].id;
  const pin=()=>{for(const k of '482615')ACT.pinK(k);render()};const dlgYes=()=>{ACT.dlgYes();render()};
  const P=window.FOS_PERM;const dis=sel=>{const e=ph.querySelector(sel);return !e||e.disabled===true};const noIds=()=>!/[a-z]+\.[a-z_]+\.[a-z_]+/.test(txt());
- // 1 بيانات الصلاحيات: كل الـ95 معنونة، وما يُعطى له وصف، والمجموعات تغطي الأدوار الثلاثة
- ok('95 keys all titled',P.all.length===95&&P.all.every(k=>PL[k]&&PL[k][0]),P.all.filter(k=>!PL[k]));
+ // 1 بيانات الصلاحيات: كل الـ94 معنونة، وما يُعطى له وصف، والمجموعات تغطي الأدوار الثلاثة
+ ok('94 keys all titled',P.all.length===94&&P.all.every(k=>PL[k]&&PL[k][0]),P.all.filter(k=>!PL[k]));
  ok('44 grantable with description',PGIVE.length===44&&new Set(PGIVE).size===44&&PGIVE.every(k=>PL[k][1]));
  ok('templates inside groups',[...P.partner,...P.guardian,...P.observer].every(k=>PGIVE.includes(k)));
  ok('partner 43 guardian 24 observer 10',P.partner.length===43&&P.guardian.length===24&&P.observer.length===10);
- ok('owner-only never grantable',P.ownerOnly.length===28&&P.ownerOnly.every(k=>!PGIVE.includes(k)));
+ ok('owner-only never grantable',P.ownerOnly.length===27&&P.ownerOnly.every(k=>!PGIVE.includes(k)));
  ok('5 sensitive, all grantable',SENS.length===5&&SENS.every(k=>PGIVE.includes(k)));
  ok('family-scope keys grantable',FAMK.every(k=>PGIVE.includes(k)));
  S=fresh();ok('seed: partner copy 43, all kids, no expiry',grantsOf().length===43&&S.g['tasks.approve'].sc==='all'&&S.g['tasks.approve'].un===''&&S.g['chat.parents.view'].sc==='fam');
@@ -87,8 +87,8 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.denied('chat.minor.view');render();ok('sensitive denial logged + alert',S.alerts.length===a1+1&&S.audit.length===u1+1&&S.audit[0].deny===1);
  setPersona('owner');go('denial',S.alerts[0].id);render();ok('denial detail with reason',/لماذا رُفض/.test(txt())&&/قراءة محادثات الأطفال/.test(txt()));ACT.denialAck(S.alerts[0].id);render();ok('denial acked',S.alerts[0].open===0);
  // 11 الدليل والسجل
- S=fresh();go('perm-registry');render();ok('registry: all 95, no ids',ph.querySelectorAll('#scr [data-q]').length===95&&/(95|٩٥) صلاحية/.test(txt())&&noIds(),ph.querySelectorAll('#scr [data-q]').length);
- ACT.pgF('sens');render();ok('registry sensitive = 5',ph.querySelectorAll('#scr [data-q]').length===5);ACT.pgF('own');render();ok('registry owner = 28',ph.querySelectorAll('#scr [data-q]').length===28);ACT.pgF('agent');render();ok('registry agent = 7',ph.querySelectorAll('#scr [data-q]').length===7);ACT.pgF('self');render();ok('registry self = 16',ph.querySelectorAll('#scr [data-q]').length===16);
+ S=fresh();go('perm-registry');render();ok('registry: all 94, no ids',ph.querySelectorAll('#scr [data-q]').length===94&&/(94|٩٤) صلاحية/.test(txt())&&noIds(),ph.querySelectorAll('#scr [data-q]').length);
+ ACT.pgF('sens');render();ok('registry sensitive = 5',ph.querySelectorAll('#scr [data-q]').length===5);ACT.pgF('own');render();ok('registry owner = 27',ph.querySelectorAll('#scr [data-q]').length===27);ACT.pgF('agent');render();ok('registry agent = 7',ph.querySelectorAll('#scr [data-q]').length===7);ACT.pgF('self');render();ok('registry self = 16',ph.querySelectorAll('#scr [data-q]').length===16);
  ACT.pgF('all');render();const sr=ph.querySelector('[data-srch="reg"]');sr.value='محادثه';sr.dispatchEvent(new Event('input',{bubbles:true}));const vis=[...ph.querySelectorAll('#scr [data-q]')].filter(r=>!r.hidden).length;ok('registry search',vis>0&&vis<12,vis);
  S=fresh();go('audit');render();ok('audit all',ph.querySelectorAll('#scr .list .row').length===S.audit.length);ACT.auAct('deny');render();ok('audit by action',ph.querySelectorAll('#scr .list .row').length===1);ACT.auClear();ACT.auWho('khaled');render();ok('audit by member',ph.querySelectorAll('#scr .list .row').length===1);ACT.auClear();ACT.auPer('7');render();ok('audit by period',ph.querySelectorAll('#scr .list .row').length===3,ph.querySelectorAll('#scr .list .row').length);ACT.auWho('khaled');render();ok('audit filters combine → empty',/لا أحداث بهذه التصفية/.test(txt()));ok('audit no ids',noIds());
  S=fresh();ACT.keyOpen('tasks.approve','off');ACT.keySave();go('audit');go('audit-ev','0');render();ok('event detail + undo',/من فعل/.test(txt())&&/اعتماد مهمة/.test(txt())&&!!ph.querySelector('[data-a="auUndo:0"]'));ACT.auUndo('0');render();ok('undo from audit',!!S.g['tasks.approve']&&S.audit[1].undone===1);

@@ -1,5 +1,5 @@
 // اختبار مسارات S1-04 (الخطط والاشتراكات) في النموذج: الخطة والاستهلاك، المقارنة والأسعار بسوقين، تأكيد الترقية والتخفيض، الدفع بالمتجر والبطاقة،
-// الدفع بالمحفظة وعند وكيل وانتظار التحقق، القسيمة، تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات، والإخفاء عن الأبناء.
+// الدفع بالمحفظة وعند وكيل وانتظار التحقق، تعبئة الرسائل النصية، التجربة، المهلة والعودة إلى المجانية، بطاقة بلوغ الحد، إدارة الاشتراك، سجل المدفوعات، والإخفاء عن الأبناء.
 // يحتاج puppeteer-core و@sparticuz/chromium (غير مضمَّنين في المستودع):  NODE_PATH=<node_modules> node tools/test-s1-04.cjs
 // النجاح: fail=[] و over=[] و eng=[] و errs=[].
 const puppeteer=require('puppeteer-core');let chromium=require('@sparticuz/chromium');chromium=chromium.default||chromium;
@@ -21,22 +21,22 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const T=()=>document.querySelector('#toast').textContent;const noT=()=>{document.querySelector('#toast').innerHTML=''};const sh=()=>(q('.sheet')||q('#scr')).innerText.replace(/\s+/g,' ');
  const NT=()=>document.querySelector('#notif').textContent;const del=()=>{setPersona('delegate')};const obs=r=>{setRole(r||'observer');setPersona('delegate')};const ttl=()=>q('.bar h2').textContent;
  const cl=sel=>{q(sel).click();render()};const typ=(sel,v)=>{q(sel).value=v};const gcc=()=>{S.reg='GCC';S.bl=null};const b48=()=>[...ph.querySelectorAll('#scr button,.sheet button')].filter(b=>!b.closest('.sec')&&b.getBoundingClientRect().height<48).map(b=>b.textContent.trim().slice(0,24));
- const PD=x=>Object.assign({w:'basic',yr:false,ch:'onecash',ref:'70451300',at:'اليوم · 5:12 م'},x||{});const att=k=>attention().some(a=>a.k===k);
- const BLS=['plan','plans','plan-change','pay','store-buy','pay-wallet','voucher','topup','trial','plan-grace','plan-limit','plan-manage','receipts'];
+ const PD=x=>Object.assign({w:'basic',yr:false,ch:'jaib',ref:'70451300',at:'اليوم · 5:12 م'},x||{});const att=k=>attention().some(a=>a.k===k);
+ const BLS=['plan','plans','plan-change','pay','store-buy','pay-wallet','topup','trial','plan-grace','plan-limit','plan-manage','receipts'];
  // 1 البذرة
- S=fresh();ok('seed: thirteen S1-04 surfaces',BLS.every(k=>SC[k]&&SC[k].sys==='S1-04')&&Object.keys(SC).filter(k=>SC[k].sys==='S1-04').length===13,BLS.filter(k=>!SC[k]));
+ S=fresh();ok('seed: twelve S1-04 surfaces, no voucher anywhere',BLS.every(k=>SC[k]&&SC[k].sys==='S1-04')&&Object.keys(SC).filter(k=>SC[k].sys==='S1-04').length===12&&!SC.voucher&&!BL_CH.voucher&&!ACT.vGo&&!permName('billing.voucher.redeem').includes('قسيمة'),BLS.filter(k=>!SC[k]));
  ok('seed: free plan, Yemen market, nothing paid, trial unused',S.plan==='free'&&S.reg==='YE'&&!S.planSt&&BL().rc.length===0&&!BL().trialUsed&&!BL().pend);
  ok('seed: plan matrix as ruled',PLAN.free.mem===5&&PLAN.basic.mem===10&&PLAN.premium.mem===Infinity&&PLAN.free.sms===20&&PLAN.basic.sms===50&&PLAN.premium.sms===100&&PLAN.free.ai===300&&PLAN.basic.ai===1000&&PLAN.premium.ai===3000);
  ok('seed: Yemen prices 300/2,700 and 600/5,400, pack 250',blPrice('basic',0)===300&&blPrice('basic',1)===2700&&blPrice('premium',0)===600&&blPrice('premium',1)===5400&&blItem('topup').n===250);
  gcc();ok('seed: Gulf prices 9.99/89.99 and 19.99/179.99, pack 5.99',blPrice('basic',0)===9.99&&blPrice('basic',1)===89.99&&blPrice('premium',0)===19.99&&blPrice('premium',1)===179.99&&blItem('topup').n===5.99);
- ok('seed: payment ways follow the market and the device',blMethods().join()==='gplay,card'&&(S.os='ios',blMethods().join())==='appstore,card'&&(S.reg='YE',blMethods().join())==='onecash,mahfathati,manual');
+ ok('seed: payment ways follow the market and the device',blMethods().join()==='gplay,card'&&(S.os='ios',blMethods().join())==='appstore,card'&&(S.reg='YE',blMethods().join())==='jaib,onecash,mahfathati,manual'&&BL_CH.jaib[0]==='محفظة جيب');
  // 2 الخطة والاستهلاك
  S=fresh();open('plan');
  ok('plan: name, state and period in one card',!!q('#scr .blc')&&has(/خطة العائلة/)&&/المجانية/.test(q('#scr .blc h5').textContent)&&has(/فعّالة/)&&has(/بلا تكلفة وبلا مدة/));
  ok('plan: three meters for this calendar month',ph.querySelectorAll('#scr .blu .blm').length===3&&has(/استهلاك نوفمبر/)&&has(/5 من 5/)&&has(/14 من 20/)&&has(/212 من 300/)&&has(/يبدأ العدّ من جديد في 1 ديسمبر/));
  ok('plan: a full family is said as a state, with the way out',has(/العائلة مكتملة على هذه الخطة/)&&!!q('#scr [data-a="go:plan-limit:mem"]'));
  ok('plan: the emergency reserve is a separate number',has(/للاستغاثة 3 رسائل احتياطية بعد نفاد الرصيد/));
- ok('plan: owner actions',['go:plans','go:topup','go:voucher','go:plan-manage','go:receipts','go:trial','go:ai'].every(a=>!!q('#scr [data-a="'+a+'"]')));
+ ok('plan: owner actions',['go:plans','go:topup','go:plan-manage','go:receipts','go:trial','go:ai'].every(a=>!!q('#scr [data-a="'+a+'"]')));
  ok('plan: safety promise on the screen',has(/الاستغاثة والموقع والمحادثة والمهام مجانية دائماً، في كل الخطط/));
  ok('plan: no warning at 70%',!has(/استهلكت \d+%/));
  ok('plan: every touch target 48',b48().length===0,b48());
@@ -47,7 +47,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.aiKill=true;open('plan');ok('plan: assistant stopped by the kill switch is said',has(/أوقفته بمفتاح الإيقاف/)&&!has(/212 من 300/));
  S=fresh();S.aiUse=300;open('plan');ok('plan: assistant budget out, nothing else stops',has(/نفدت عملياته لهذا الشهر/)&&has(/يعمل يدوياً حتى 1 ديسمبر/));
  S=fresh();S.plan='premium';open('plan');ok('plan: premium has no member limit and shows price and renewal honestly',has(/5 · بلا حد/)&&has(/600 ريال في الشهر/)&&has(/تنتهي 15 ديسمبر · لا تتجدد من نفسها/)&&!q('#scr [data-a="go:trial"]'));
- S=fresh();del();open('plan');ok('adult with view only: sees plan and usage, no buying',!!q('#scr .blc')&&has(/14 من 20/)&&!q('#scr [data-a="go:plans"]')&&!q('#scr [data-a="go:topup"]')&&!q('#scr [data-a="go:voucher"]')&&!q('#scr [data-a="go:trial"]')&&has(/تغيير الخطة والدفع لأحمد وحده/));
+ S=fresh();del();open('plan');ok('adult with view only: sees plan and usage, no buying',!!q('#scr .blc')&&has(/14 من 20/)&&!q('#scr [data-a="go:plans"]')&&!q('#scr [data-a="go:topup"]')&&!q('#scr [data-a="go:trial"]')&&has(/تغيير الخطة والدفع لأحمد وحده/));
  S=fresh();obs();open('plan');ok('adult without the view permission: nothing shown',!q('#scr .blc')&&has(/ليست ضمن صلاحياتك/));
  S=fresh();S.co={since:'اليوم',seen:1};del();open('plan');ok('adult with full authority manages like the owner',!!q('#scr [data-a="go:plans"]')&&!!q('#scr [data-a="go:topup"]'));
  S=fresh();S.net='off';open('plan');ok('plan offline: saved copy, said with its age',has(/نسخة محفوظة على هاتفك/)&&has(/آخر تحديث/)&&has(/14 من 20/));
@@ -73,15 +73,22 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 4 تأكيد الترقية
  S=fresh();open('plan-change','basic');
  ok('upgrade: from, to, when it starts and until when',ttl()==='تأكيد الترقية'&&/المجانية/.test(q('#scr .blft').innerText)&&/الأساسية/.test(q('#scr .blft .to').innerText)&&has(/تبدأ الأساسية فور تحققنا من دفعك، وتمتد حتى 15 ديسمبر/));
- ok('upgrade Yemen: three ways to pay, none renews by itself',ph.querySelectorAll('#scr .opt').length===3&&q('#scr .opt[aria-pressed="true"]').dataset.a==='blPm:onecash'&&has(/لا تتجدد من نفسها: تجدّدها أنت/)&&!has(/Google Play/));
- ok('upgrade: one confirm button with the amount, cancel beside it',/رقِّ الآن · 300 ريال/.test(q('#scr [data-a="plGo:basic"]').textContent)&&!!q('#scr [data-a="back"]')&&!!q('#scr [data-a="go:voucher"]'));
+ ok('upgrade Yemen: three wallets with Jaib first, then the agent; none renews by itself',ph.querySelectorAll('#scr .opt').length===4&&q('#scr .opt[aria-pressed="true"]').dataset.a==='blPm:jaib'&&has(/محفظة جيب/)&&has(/محفظة ون كاش/)&&has(/محفظتي/)&&has(/دفع عند وكيل/)&&has(/لا تتجدد من نفسها: تجدّدها أنت/)&&!has(/Google Play/));
+ ok('upgrade: one confirm button with the amount, cancel beside it',/رقِّ الآن · 300 ريال/.test(q('#scr [data-a="plGo:basic"]').textContent)&&!!q('#scr [data-a="back"]')&&!q('#scr [data-a="go:voucher"]')&&!has(/قسيمة/));
  ok('upgrade: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a="blYr:1"]');ok('upgrade yearly: amount and end date follow',/رقِّ الآن · 2,700 ريال/.test(q('#scr [data-a="plGo:basic"]').textContent)&&has(/15 نوفمبر 2027/));
- cl('#scr [data-a="blYr:"]');cl('#scr [data-a="plGo:basic"]');ok('upgrade: secret number before any payment',top()==='pin'&&S.plan==='free');pin();ok('upgrade Yemen: leads to the wallet payment with the chosen way',top()==='pay-wallet'&&S.stack[S.stack.length-1].a.join()==='basic,,onecash'&&S.plan==='free');
+ cl('#scr [data-a="blYr:"]');cl('#scr [data-a="plGo:basic"]');ok('upgrade: secret number before any payment',top()==='pin'&&S.plan==='free');pin();ok('upgrade Yemen: leads to the wallet payment with the chosen way',top()==='pay-wallet'&&S.stack[S.stack.length-1].a.join()==='basic,,jaib'&&S.plan==='free');
  S=fresh();gcc();open('plan-change','premium');ok('upgrade Gulf: store first, renewal by itself said',ph.querySelectorAll('#scr .opt').length===2&&q('#scr .opt[aria-pressed="true"]').dataset.a==='blPm:gplay'&&has(/تتجدد من نفسها كل شهر عبر Google Play حتى تلغيها/)&&/19\.99 ر\.س/.test(q('#scr [data-a="plGo:premium"]').textContent));
  cl('#scr [data-a="blPm:card"]');ok('upgrade Gulf by card: does not renew by itself, card details stay out of the app',has(/لا تتجدد من نفسها/)&&has(/تُكتب بياناتها في صفحة الدفع، لا في التطبيق/));
  S=fresh();gcc();S.os='ios';open('plan-change','premium');ok('upgrade on iOS: App Store instead of Google Play',has(/App Store/)&&!has(/Google Play/));
- S=fresh();S.plan='basic';open('plan-change','premium');ok('upgrade from a paid plan: the rest of the old period is said plainly',has(/ما بقي من فترة الأساسية لا يُحسب من السعر ولا يُستردّ/));
+ S=fresh();S.plan='basic';open('plan-change','premium');ok('upgrade from a paid plan: what is left turns into days on the new plan, in the end date',has(/ما بقي من الأساسية \(30 يوماً\) لا يضيع: يتحول إلى 15 يوماً على المميزة/)&&has(/لا يُردّ مال/)&&has(/وتمتد حتى 30 ديسمبر/)&&!has(/لا يُحسب من السعر/),sh().slice(0,400));
+ ok('upgrade credit: by value, not day for day',blCredit('premium',false,'jaib').add===15&&blCredit('premium',true,'jaib').add===Math.floor(30*10/(5400/365))&&blCredit('basic',false,'jaib')===null);
+ cl('#scr [data-a="blYr:1"]');ok('upgrade credit yearly: the days follow the chosen period',has(/يتحول إلى 20 يوماً على المميزة/)&&has(/وتمتد حتى 5 ديسمبر 2027/),sh().slice(0,400));cl('#scr [data-a="blYr:"]');
+ blDone('premium',false,'jaib');ok('upgrade credit: applied when the payment is confirmed, written in the log',S.plan==='premium'&&BL().end==='2026-12-30'&&/أُضيف 15 يوماً عمّا بقي من الأساسية/.test(S.audit[0].t)&&/أُضيف 15 يوماً/.test(T()),BL().end+' '+S.audit[0].t);noT();
+ S=fresh();S.plan='free';blDone('basic',false,'jaib');ok('upgrade from free: nothing to credit',BL().end==='2026-12-15'&&!/أُضيف/.test(S.audit[0].t));noT();
+ S=fresh();gcc();S.plan='basic';open('plan-change','premium');ok('upgrade credit in the store: the store counts it its own way, said',has(/ما بقي من الأساسية يحسبه Google Play بنظامه عند الترقية/)&&!has(/يتحول إلى/)&&blCredit('premium',false,'gplay')===null);
+ cl('#scr [data-a="blPm:card"]');ok('upgrade credit by card: counted by us',has(/يتحول إلى 14 يوماً على المميزة/));
+ S=fresh();S.plan='basic';open('trial');cl('#scr [data-a="trGo"]');pin();open('plan-change','premium');ok('subscribing during a trial from a paid plan: the paid days are credited too',has(/ما بقي من الأساسية \(30 يوماً\) لا يضيع/)&&has(/وتمتد حتى 30 ديسمبر/));blDone('premium',false,'jaib');ok('subscribing during a trial: premium paid, old plan forgotten',S.plan==='premium'&&!S.planSt&&BL().end==='2026-12-30'&&!BL().back);noT();
  S=fresh();S.net='off';open('plan-change','basic');ok('upgrade offline: button off with the reason',q('#scr [data-a="plGo:basic"]').disabled&&has(/لا يبدأ دفع ولا تتغير خطة دون الخادم/));ACT.plGo('basic');render();ok('upgrade offline: nothing starts',top()==='plan-change');noT();
  S=fresh();del();ACT.plGo('basic');render();ok('upgrade: refused for an adult without the key',S.plan==='free'&&top()!=='pin'&&top()!=='pay-wallet');S.sheet=null;
  // 5 التخفيض
@@ -115,19 +122,19 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();gcc();S.net='off';open('pay','premium','','gplay');ok('store pay offline: button off with the reason',q('#scr [data-a^="payOpen"]').disabled&&has(/الدفع يحتاج اتصالاً/));
  // 7 الدفع بالمحفظة وعند وكيل
  S=fresh();open('plan');open('plans');open('plan-change','basic');cl('#scr [data-a="plGo:basic"]');pin();
- ok('wallet pay: two numbered steps and the amount',top()==='pay-wallet'&&ph.querySelectorAll('#scr .blstep').length===2&&has(/ادفع المبلغ من محفظة OneCash/)&&has(/اكتب الرقم المرجعي/)&&/300/.test(q('#scr .blsum .am').textContent));
+ ok('wallet pay: two numbered steps and the amount',top()==='pay-wallet'&&ph.querySelectorAll('#scr .blstep').length===2&&has(/ادفع المبلغ من محفظة جيب/)&&has(/اكتب الرقم المرجعي/)&&/300/.test(q('#scr .blsum .am').textContent));
  ok('wallet pay: nothing invented about the transfer',has(/تُكتب هنا عند التعاقد مع المحفظة/)&&has(/بعد أن تؤكد المحفظة وصول المبلغ، لا قبله/));
  ok('wallet pay: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a^="pwGo"]');ok('wallet pay: empty reference refused beside the field',BL().pw.err==='empty'&&has(/اكتب الرقم المرجعي أولاً/)&&!BL().pend&&!!q('#scr .fld.err'));
  typ('#pwr','70451288');cl('#scr [data-a^="pwGo"]');ok('wallet pay: a used reference refused in plain words',BL().pw.err==='dup'&&has(/هذا الرقم المرجعي مستخدم من قبل/)&&!BL().pend&&q('#pwr').value==='70451288'&&!/REFERENCE|409/.test(txt()));
  typ('#pwr','70451300');cl('#scr [data-a^="pwGo"]');ok('wallet pay: recorded as waiting for verification, plan unchanged',!!BL().pend&&BL().pend.ref==='70451300'&&S.plan==='free'&&has(/دفعتك بانتظار التحقق/)&&has(/خطتك الآن كما هي/)&&has(/لا تدفع مرة ثانية/));
- ok('wallet pay: the reference is masked',has(/••••1300/)&&!has(/70451300/)&&has(/300 ريال/)&&has(/محفظة OneCash/));
- cl('#scr [data-a="blToPlan"]');ok('wallet pay: the waiting payment sits on top of the plan',top()==='plan'&&S.stack.length===2&&!!q('#scr .blp')&&has(/دفعة بانتظار التحقق/)&&has(/الخطة الأساسية · 300 ريال · محفظة OneCash/));
- open('plans');ok('waiting payment: marked on its plan card with a way to it',has(/دفعة بانتظار التحقق/)&&!!q('#scr [data-a="go:pay-wallet:basic::onecash"]'));
+ ok('wallet pay: the reference is masked',has(/••••1300/)&&!has(/70451300/)&&has(/300 ريال/)&&has(/محفظة جيب/));
+ cl('#scr [data-a="blToPlan"]');ok('wallet pay: the waiting payment sits on top of the plan',top()==='plan'&&S.stack.length===2&&!!q('#scr .blp')&&has(/دفعة بانتظار التحقق/)&&has(/الخطة الأساسية · 300 ريال · محفظة جيب/));
+ open('plans');ok('waiting payment: marked on its plan card with a way to it',has(/دفعة بانتظار التحقق/)&&!!q('#scr [data-a="go:pay-wallet:basic::jaib"]'));
  open('plan-change','premium');ok('waiting payment: a second payment cannot start',q('#scr [data-a="plGo:premium"]').disabled&&has(/عندك دفعة بانتظار التحقق/));ACT.plGo('premium');render();ok('waiting payment: refused by the action too',top()==='plan-change'&&/انتظر نتيجتها/.test(T()));noT();
  open('topup');ok('waiting payment: top-up waits as well',q('#scr [data-a="topGo"]').disabled);
  open('receipts');ok('waiting payment: first in the payments log',has(/قيد التحقق/)&&has(/بانتظار التحقق/)&&has(/••••1300/));
- blEv('ver');ok('wallet verified: plan active, notice sent, payment logged with its reference',S.plan==='basic'&&!BL().pend&&BL().rc[0].st==='ok'&&BL().rc[0].ref==='70451300'&&/تمت الترقية/.test(NT())&&BL().ch==='onecash'&&BL().end==='2026-12-15');
+ blEv('ver');ok('wallet verified: plan active, notice sent, payment logged with its reference',S.plan==='basic'&&!BL().pend&&BL().rc[0].st==='ok'&&BL().rc[0].ref==='70451300'&&/تمت الترقية/.test(NT())&&BL().ch==='jaib'&&BL().end==='2026-12-15');
  S.stack=[{id:'home',a:[]}];open('plan');ok('wallet verified: does not renew by itself, said',!blAuto()&&has(/تنتهي 15 ديسمبر · لا تتجدد من نفسها/)&&!q('#scr .blp'));
  S=fresh();BL().pend=PD();blEv('rej');open('plan');ok('wallet rejected: plan unchanged, said with what to do',S.plan==='free'&&!BL().pend&&!!BL().rej&&has(/لم تتأكد دفعتك/)&&has(/فلم تتغير خطتك/)&&has(/فراجع المحفظة أو الوكيل/)&&!!q('#scr [data-a="go:plan-change:basic"]')&&/لم تتأكد دفعتك/.test(NT()));
  ok('wallet rejected: on the home attention list and in the log',att('bl:rej')&&BL().rc[0].st==='rej'&&S.audit[0].deny===1);
@@ -135,39 +142,23 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();open('pay-wallet','premium','1','manual');ok('agent pay: cash, the slip number, yearly amount',has(/ادفع المبلغ عند وكيل/)&&has(/ادفع 5,400 ريال نقداً وخذ سند الدفع/)&&has(/كما هو مكتوب على السند/)&&has(/عناوين الوكلاء تُكتب هنا عند اعتمادهم/));
  typ('#pwr','A-5512');cl('#scr [data-a^="pwGo"]');ok('agent pay: waits for the agent, premium not active yet',BL().pend.ch==='manual'&&BL().pend.yr===true&&S.plan==='free'&&has(/يؤكد الوكيل/));
  blEv('ver');ok('agent pay verified: premium for a year',S.plan==='premium'&&BL().yr===1&&BL().end==='2027-11-15');
- S=fresh();S.net='off';open('pay-wallet','basic','','onecash');ok('wallet pay offline: confirm off with the reason',q('#scr [data-a^="pwGo"]').disabled&&has(/تأكيد الدفع يحتاج اتصالاً/));
- // 8 القسيمة
- S=fresh();open('voucher');
- ok('voucher: one field, left to right, one button',!!q('#vc')&&q('#vc').dir==='ltr'&&!!q('#scr [data-a="vGo"]')&&has(/تُستعمل مرة واحدة، ولا تُستردّ قيمتها من التطبيق/));
- cl('#scr [data-a="vGo"]');ok('voucher: empty field asks for the code',BL().v.err==='empty'&&has(/اكتب رمز القسيمة\./));
- typ('#vc','FAM-0000-0000');cl('#scr [data-a="vGo"]');ok('voucher: unknown code refused beside the field',has(/ملغاة أو غير صالحة/)&&S.plan==='free'&&q('#vc').value==='FAM-0000-0000');
- typ('#vc','FAM-VOID-0001');cl('#scr [data-a="vGo"]');ok('voucher: revoked code refused, plan unchanged',has(/ملغاة أو غير صالحة/)&&S.plan==='free'&&!/VOUCHER|REVOKED/.test(txt().replace(/FAM-VOID-0001/,'')));
- typ('#vc','FAM-USED-0001');cl('#scr [data-a="vGo"]');ok('voucher: used code said as used',has(/هذه القسيمة مستعملة من قبل/)&&S.plan==='free');
- typ('#vc',' fam-2026-demo ');cl('#scr [data-a="vGo"]');ok('voucher: valid code activates at once with plan, length and end date',S.plan==='basic'&&BL().end==='2027-02-15'&&BL().ch==='voucher'&&has(/فُعّلت الخطة الأساسية/)&&has(/3 أشهر بالقسيمة/)&&has(/15 فبراير 2027/)&&/تم تفعيل اشتراكك/.test(T()));noT();
- ok('voucher: logged, does not renew by itself',BL().rc[0].ch==='voucher'&&BL().rc[0].st==='ok'&&!blAuto()&&has(/لا تتجدد من نفسها/)&&S.audit[0].k==='billing.voucher.redeem');
- cl('#scr [data-a="blToPlan"]');open('voucher');typ('#vc','FAM-2026-DEMO');cl('#scr [data-a="vGo"]');ok('voucher: the same code a second time is refused',has(/مستعملة من قبل/)&&BL().end==='2027-02-15');
- S=fresh();S.plan='basic';open('voucher');typ('#vc','FAM-2026-DEMO');cl('#scr [data-a="vGo"]');ok('voucher for the same paid plan: adds its months after the current period',S.plan==='basic'&&BL().end==='2027-03-15'&&has(/مُدّت الخطة الأساسية/));noT();
- S=fresh();S.plan='premium';open('voucher');typ('#vc','FAM-2026-DEMO');cl('#scr [data-a="vGo"]');ok('voucher for a lower plan than the paid one: not consumed, said',S.plan==='premium'&&BL().v.err==='low'&&!BL().v.used['FAM-2026-DEMO']&&has(/لم نستعملها: تبقى صالحة لما بعد فترتك/)&&BL().rc.length===1);
- S=fresh();S.plan='basic';open('voucher');typ('#vc','FAM-PREM-0006');cl('#scr [data-a="vGo"]');ok('voucher for a higher plan: starts now for its months',S.plan==='premium'&&BL().end==='2027-05-15'&&has(/6 أشهر بالقسيمة/));noT();
- S=fresh();S.plan='premium';S.planSt='trial';open('voucher');typ('#vc','FAM-2026-DEMO');cl('#scr [data-a="vGo"]');ok('voucher during a trial: the paid plan replaces the trial',S.plan==='basic'&&!S.planSt);noT();
- S=fresh();S.net='off';open('voucher');ok('voucher offline: button off with the reason',q('#scr [data-a="vGo"]').disabled&&has(/التحقق من القسيمة يحتاج اتصالاً/));
- S=fresh();del();ACT.vGo();render();ok('voucher: refused for an adult without the key',S.plan==='free'&&BL().rc.length===0);S.sheet=null;
+ S=fresh();S.net='off';open('pay-wallet','basic','','jaib');ok('wallet pay offline: confirm off with the reason',q('#scr [data-a^="pwGo"]').disabled&&has(/تأكيد الدفع يحتاج اتصالاً/));
  // 9 تعبئة الرسائل النصية
  S=fresh();open('topup');
  ok('top-up: three separate numbers',[...ph.querySelectorAll('#scr .blbal .g3 b')].map(b=>b.textContent).join()==='6,0,3'&&has(/حصة الخطة/)&&has(/رصيد التعبئة/)&&has(/احتياطي الاستغاثة/));
  ok('top-up: one pack with the market price, never a bare 50',has(/حزمة 50 رسالة نصية/)&&/250/.test(q('#scr .blsum .am').textContent)&&/اشترِ حزمة 50 رسالة/.test(q('#scr [data-a="topGo"]').textContent)&&!has(/5\.99/));
  ok('top-up: says how much of the month is left and that the balance does not carry over',has(/بقي من الشهر 16 يوماً/)&&has(/ينتهي في 30 نوفمبر ولا ينتقل للشهر التالي/));
- ok('top-up Yemen: honest about when the balance arrives',has(/يُضاف الرصيد بعد أن تؤكد جهة الدفع وصول المبلغ/)&&ph.querySelectorAll('#scr .opt').length===3);
+ ok('top-up Yemen: honest about when the balance arrives',has(/يُضاف الرصيد بعد أن تؤكد جهة الدفع وصول المبلغ/)&&ph.querySelectorAll('#scr .opt').length===4);
  ok('top-up: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a="topGo"]');ok('top-up: secret number first',top()==='pin');pin();ok('top-up Yemen: goes to the wallet payment for the pack',top()==='pay-wallet'&&has(/حزمة 50 رسالة نصية/)&&has(/شراء مرة واحدة/));
- typ('#pwr','88001');cl('#scr [data-a^="pwGo"]');ok('top-up Yemen: waits, balance not added yet',BL().pend.w==='topup'&&!S.smsTop&&has(/نضيف الرصيد فور أن تؤكد محفظة OneCash/));
+ typ('#pwr','88001');cl('#scr [data-a^="pwGo"]');ok('top-up Yemen: waits, balance not added yet',BL().pend.w==='topup'&&!S.smsTop&&has(/نضيف الرصيد فور أن تؤكد محفظة جيب/));
  blEv('ver');ok('top-up verified: 50 added to this month, plan untouched',S.smsTop===50&&S.plan==='free'&&smsLeft()===56&&/أُضيفت 50 رسالة/.test(NT())&&BL().rc[0].t==='حزمة 50 رسالة نصية'&&S.audit.some(a=>a.k==='billing.topup.buy'));
  open('emergency');ok('top-up: the emergency page counts the added balance',has(/56 باقية من 70/));
  S.sms.used=25;ok('top-up: the plan quota is used first, then the top-up',blSms().used===20&&blSms().left===0&&blSms().top===45&&smsLeft()===45);
  S=fresh();gcc();open('topup');ok('top-up Gulf: price in SAR, added once verified',/5\.99/.test(q('#scr .blsum .am').textContent)&&has(/يُضاف الرصيد فور تحقق خادمنا من الدفع/)&&ph.querySelectorAll('#scr .opt').length===2);
  cl('#scr [data-a="topGo"]');pin();cl('#scr [data-a^="payOpen"]');ok('top-up Gulf: a single purchase, not a subscription',top()==='store-buy'&&/شراء مرة واحدة/.test(sh())&&/اشترِ/.test(q('.sheet [data-a^="payBuy"]').textContent));
  cl('.sheet [data-a^="payBuy"]');ACT.payEnd('topup','','gplay');render();ok('top-up Gulf: added at once',S.smsTop===50&&/أُضيفت 50 رسالة إلى رصيد هذا الشهر/.test(T())&&top()==='plan'&&has(/رصيد التعبئة 50/));noT();
- S=fresh();S.smsOut=true;blDone('topup',false,'onecash');ok('top-up after the balance ran out: 50 to send again',smsLeft()===50&&!S.smsOut);noT();
+ S=fresh();S.smsOut=true;blDone('topup',false,'jaib');ok('top-up after the balance ran out: 50 to send again',smsLeft()===50&&!S.smsOut);noT();
  S=fresh();S.net='off';open('topup');ok('top-up offline: buying off, saved numbers said',q('#scr [data-a="topGo"]').disabled&&has(/الأرقام أعلاه من آخر نسخة محفوظة/));
  S=fresh();S.smsOut=true;open('topup');ok('top-up with zero balance: said, with the reserve',has(/نفد الرصيد\. تُرسل الآن رسائل الاستغاثة وحدها/)&&[...ph.querySelectorAll('#scr .blbal .g3 b')].map(b=>b.textContent).join()==='0,0,3');
  // 10 التجربة
@@ -175,18 +166,27 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('trial: seven days, once, no payment method, nothing charged',has(/7 أيام على المميزة، مجاناً/)&&has(/بلا وسيلة دفع/)&&has(/لا نخصم شيئاً بعدها/)&&has(/مرة واحدة للعائلة/));
  ok('trial: what opens, against the current plan',has(/أفراد بلا حد/)&&has(/بدل 5/)&&has(/100 رسالة نصية في الشهر/)&&has(/بدل 20/)&&has(/3,000 عملية للمساعد/));
  ok('trial: three dates, then back to free with nothing lost',ph.querySelectorAll('#scr .tl .ev').length===3&&has(/22 نوفمبر · تنتهي التجربة/)&&has(/تبقى الميزات 3 أيام مهلة/)&&has(/25 نوفمبر · تعود إلى المجانية/)&&has(/بلا قفل ولا حذف/));
+ ok('trial: two reminders promised, no charge by itself',has(/نذكّرك قبل نهايتها بيومين، وفي يومها الأخير/)&&has(/الاشتراك بضغطة منك/)&&has(/اشترك قبل 25 نوفمبر/));
  ok('trial: every touch target 48',b48().length===0,b48());
  cl('#scr [data-a="trGo"]');ok('trial: secret number first',top()==='pin'&&S.plan==='free');pin();
  ok('trial: premium for seven days, said on the plan',S.plan==='premium'&&S.planSt==='trial'&&BL().trialUsed===1&&BL().trialEnd==='2026-11-22'&&top()==='plan'&&has(/تجربة · بقي 7 أيام/)&&has(/تجربة مجانية تنتهي 22 نوفمبر · لا نخصم شيئاً بعدها/)&&/بدأت تجربتك/.test(T()));noT();
  ok('trial: no receipt, no trial offer any more',BL().rc.length===0&&!q('#scr [data-a="go:trial"]')&&has(/5 · بلا حد/));
  open('trial');ok('trial running: the page says so and offers subscribing',has(/تجربتك سارية/)&&!!q('#scr [data-a="go:plan-change:premium"]'));
  open('plan-change','premium');ok('trial running: subscribing is a normal payment',ttl()==='الاشتراك في المميزة'&&/اشترك الآن · 600 ريال/.test(q('#scr [data-a="plGo:premium"]').textContent));
+ ok('trial reminders: nothing on the home list while more than two days remain',!att('bl:trial'));
+ blEv('tr2');ok('trial reminder two days before: a notice and a card on the home list',BL().trialEnd==='2026-11-17'&&/تجربة المميزة تنتهي بعد يومين/.test(NT())&&att('bl:trial')&&/بعد يومين/.test(attention().find(a=>a.k==='bl:trial').t)&&/3 أيام مهلة ثم المجانية · لا نخصم شيئاً/.test(attention().find(a=>a.k==='bl:trial').s));
+ ACT.blTrSeen();render();ok('trial reminder: «later» hides it for that day only',!att('bl:trial'));
+ blEv('tr0');ok('trial reminder on the last day: comes back once more',/تنتهي اليوم/.test(NT())&&att('bl:trial')&&/تنتهي اليوم/.test(attention().find(a=>a.k==='bl:trial').t)&&S.plan==='premium'&&S.planSt==='trial'&&BL().rc.length===0);
+ S.alerts.forEach(a=>{a.open=0});S.rv=[];S.stack=[{id:'home',a:[]}];render();ok('trial reminder: on the home screen with a way to subscribe',has(/تجربة المميزة تنتهي اليوم/)&&!!q('#scr [data-a="go:plan-change:premium"]'));open('trial');
  blEv('trend');ok('trial over: three days of grace begin',S.plan==='premium'&&S.planSt==='grace'&&BL().gWhy==='trial'&&BL().graceEnd==='2026-11-18');
  blEv('fall');ok('trial and grace over: back to free in one step, logged by the system',S.plan==='free'&&!S.planSt&&BL().fell.why==='trial'&&S.audit[0].w==='النظام'&&/انتهت الخطة المميزة/.test(S.audit[0].t));
  open('trial');ok('trial: once per family, said honestly, button off',has(/استخدمت عائلتك التجربة من قبل/)&&q('#scr [data-a="trGo"]').disabled&&!!q('#scr [data-a="go:plans"]'));ACT.trGo();render();ok('trial: a second start is refused',S.plan==='free'&&top()!=='pin');noT();
  open('plan');ok('trial used: no offer on the plan or on the plans page',!q('#scr [data-a="go:trial"]')&&(open('plans'),!q('#scr [data-a="go:trial"]')));
- S=fresh();S.plan='basic';open('trial');ok('trial from a paid plan: returns to that plan afterwards',has(/25 نوفمبر · تعود إلى الأساسية/)&&has(/خطتك المدفوعة كما كانت/)&&has(/بدل 10/));
- cl('#scr [data-a="trGo"]');pin();blEv('trend');blEv('fall');ok('trial from a paid plan: the paid plan and its end date come back',S.plan==='basic'&&!S.planSt&&BL().end==='2026-12-15'&&BL().fell.to==='basic');noT();
+ S=fresh();S.plan='basic';open('trial');ok('trial from a paid plan: returns to that plan the day the trial ends, no grace',ph.querySelectorAll('#scr .tl .ev').length===2&&has(/22 نوفمبر · تنتهي التجربة وتعود إلى الأساسية/)&&has(/خطتك المدفوعة كما كانت، بلا مهلة/)&&has(/فترتها تستمر في العدّ أثناء التجربة وتنتهي 15 ديسمبر كما هي/)&&has(/بدل 10/)&&!has(/3 أيام مهلة/)&&has(/اشترك قبل 22 نوفمبر/));
+ cl('#scr [data-a="trGo"]');pin();blEv('tr2');ok('trial reminder from a paid plan: names the plan it returns to',/بعدها تعود العائلة إلى الأساسية · لا نخصم شيئاً/.test(attention().find(a=>a.k==='bl:trial').s));
+ blEv('trend');ok('trial from a paid plan: the paid plan and its end date come back at once, no grace',S.plan==='basic'&&!S.planSt&&BL().end==='2026-12-15'&&BL().fell.to==='basic'&&BL().fell.why==='trial'&&!BL().back&&!att('bl:grace'));
+ open('plan-grace');ok('trial from a paid plan: the return is explained with the plan end date',has(/عادت العائلة إلى الأساسية/)&&has(/انتهت تجربة المميزة\. خطتك الأساسية كما كانت، وتنتهي 15 ديسمبر/));noT();
+ S=fresh();S.plan='basic';BL().end='2026-11-20';open('trial');cl('#scr [data-a="trGo"]');pin();BL().back.end='2026-11-14';blEv('trend');ok('trial from a paid plan that ran out meanwhile: that plan enters its own grace',S.plan==='basic'&&S.planSt==='grace'&&BL().gWhy==='end'&&BL().graceEnd==='2026-11-18'&&!BL().back);noT();
  S=fresh();S.net='off';open('trial');ok('trial offline: start off with the reason',q('#scr [data-a="trGo"]').disabled&&has(/بدء التجربة يحتاج اتصالاً/));
  // 11 المهلة والعودة إلى المجانية
  S=fresh();S.plan='basic';blEv('exp');open('plan');
@@ -197,7 +197,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('grace: renew the same plan, or pick another',/جدّد الآن/.test(q('#scr [data-a="go:plan-change:basic"]').textContent)&&!!q('#scr [data-a="go:plans"]')&&b48().length===0);
  cl('#scr [data-a="go:plan-change:basic"]');ok('grace renew: a payment step, and grace ends on activation',ttl()==='تجديد الخطة'&&has(/تنتهي المهلة فور التفعيل/)&&has(/تبدأ الأساسية فور تحققنا من دفعك، وتمتد حتى 15 ديسمبر/));
  cl('#scr [data-a="plGo:basic"]');pin();typ('#pwr','90017');cl('#scr [data-a^="pwGo"]');ok('grace renew: still in grace until verified',S.planSt==='grace');blEv('ver');ok('grace renew verified: active again at once',S.plan==='basic'&&!S.planSt&&BL().end==='2026-12-15'&&!att('bl:grace'));
- S=fresh();S.plan='basic';blEv('exp');open('plan-change','premium');ok('grace: upgrading is allowed and ends the grace',ttl()==='تأكيد الترقية'&&has(/تنتهي المهلة فور التفعيل/));blDone('premium',false,'onecash');ok('grace upgrade: premium active, grace over',S.plan==='premium'&&!S.planSt);noT();
+ S=fresh();S.plan='basic';blEv('exp');open('plan-change','premium');ok('grace: upgrading is allowed and ends the grace',ttl()==='تأكيد الترقية'&&has(/تنتهي المهلة فور التفعيل/));blDone('premium',false,'jaib');ok('grace upgrade: premium active, grace over',S.plan==='premium'&&!S.planSt);noT();
  S=fresh();gcc();S.plan='premium';blEv('exp');open('plan-grace');ok('grace after a failed renewal: the reason names the store',BL().gWhy==='fail'&&has(/لم ينجح خصم التجديد عبر Google Play/));
  S=fresh();S.plan='basic';blEv('exp');del();ok('grace: an adult without the key is not alerted',!att('bl:grace'));open('plan-grace');ok('grace for an adult with view only: reads, cannot renew',has(/أيام باقية من المهلة/)&&!q('#scr [data-a^="go:plan-change"]')&&has(/التجديد لأحمد وحده/));
  S=fresh();S.plan='basic';blEv('exp');blEv('fall');
@@ -223,7 +223,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  cl('#scr [data-a="blAskOk:0"]');ok('ask the owner: closed by the owner',BL().ask.length===0&&!att('bl:ask:0'));
  S=fresh();open('add-member');ok('add member on a full free family: the same card for the owner',has(/بلغت حدّ الخطة المجانية/)&&!!q('#scr [data-a="go:plans"]'));S.plan='basic';render();ok('add member on basic: open again',!!q('#scr [data-a="go:invite"]'));
  // 13 إدارة الاشتراك
- S=fresh();open('plan-manage');ok('manage on free: nothing to renew or cancel, no restore in Yemen',has(/لا شيء يتجدد ولا شيء يُلغى/)&&!q('#scr [data-a="blCancel"]')&&!q('#scr [data-a="blRestore"]')&&!!q('#scr [data-a="go:receipts"]')&&!!q('#scr [data-a="go:voucher"]'));
+ S=fresh();open('plan-manage');ok('manage on free: nothing to renew or cancel, no restore in Yemen',has(/لا شيء يتجدد ولا شيء يُلغى/)&&!q('#scr [data-a="blCancel"]')&&!q('#scr [data-a="blRestore"]')&&!!q('#scr [data-a="go:receipts"]')&&!q('#scr [data-a="go:voucher"]'));
  S=fresh();gcc();S.plan='premium';open('plan-manage');
  ok('manage with a store subscription: renews by itself, next charge said',has(/يتجدد من نفسه/)&&has(/الخصم القادم 19\.99 ر\.س في 15 ديسمبر عبر Google Play/)&&!!q('#scr [data-a="blCancel"]')&&!!q('#scr [data-a="blRestore"]')&&b48().length===0);
  cl('#scr [data-a="blCancel"]');ok('cancel renewal: asks first with the effect',top()==='dlg'&&/تبقى ميزاتك حتى 15 ديسمبر/.test(S.dlg.b)&&/بلا قفل ولا حذف/.test(S.dlg.b)&&/لا يُستردّ شيء/.test(S.dlg.b));
@@ -242,7 +242,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();del();open('plan-manage');ok('manage: owner only',has(/يديرها أحمد وحده/)&&!q('#scr [data-a="blRestore"]'));
  // 14 سجل المدفوعات
  S=fresh();open('receipts');ok('payments log empty: said plainly',has(/لا مدفوعات بعد/)&&!q('#scr .blr'));
- S=fresh();S.plan='basic';open('receipts');ok('payments log: what, how much, how, when, verified',ph.querySelectorAll('#scr .blr').length===1&&has(/الخطة الأساسية · شهر/)&&has(/300 ريال/)&&has(/محفظة OneCash/)&&has(/15 نوفمبر · 9:02 ص/)&&has(/تم التحقق/));
+ S=fresh();S.plan='basic';open('receipts');ok('payments log: what, how much, how, when, verified',ph.querySelectorAll('#scr .blr').length===1&&has(/الخطة الأساسية · شهر/)&&has(/300 ريال/)&&has(/محفظة جيب/)&&has(/15 نوفمبر · 9:02 ص/)&&has(/تم التحقق/));
  ok('payments log: the reference is masked and nothing can be changed',has(/••••1288/)&&!has(/70451288/)&&ph.querySelectorAll('#scr button').length===0&&has(/للقراءة فقط/));
  S.net='off';render();ok('payments log offline: saved copy said',has(/نسخة محفوظة على هاتفك/)&&has(/تم التحقق/));
  S=fresh();del();open('receipts');ok('payments log: owner only',!q('#scr .blr')&&has(/يديرها أحمد وحده/));

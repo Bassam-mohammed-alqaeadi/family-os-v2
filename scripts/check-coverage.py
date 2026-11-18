@@ -44,7 +44,9 @@ Plus the R2-CI-03 extensions (2026-11-08):
 
 Run from the repo root:  python3 scripts/check-coverage.py
 Expected grand total: 217 REQ
-(200 with a screen, 17 with no interface and a stated reason) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave) + REQ-019 in S1-04 (AUD-014 follow-up, Q-334) + REQ-028/029/030/031 in S1-10 (D-13 web-filter rules, Q-343) + REQ-032/033 in S1-10 (father-defined modes and the single decision ladder, Q-405) + REQ-019…023 in S1-07 (adults on the map, refresh-now, children-visibility, SOS retention, address ladder, Q-409) + REQ-018 in S1-06 (assistant prepares tasks under owner delegation, Q-415).
+(201 with a screen, 16 with no interface and a stated reason; it was
+200 / 17 until Q-420 / Q-421 removed two voucher REQs from S1-04 and added
+REQ-020 and REQ-021) — 202 after the R1–R5 close-out + REQ-017 in S1-04 (R2-S104-18, Q-252 wave) + REQ-018 in S1-04 (NEW-S104-05, Q-258 wave) + REQ-019 in S1-04 (AUD-014 follow-up, Q-334) + REQ-028/029/030/031 in S1-10 (D-13 web-filter rules, Q-343) + REQ-032/033 in S1-10 (father-defined modes and the single decision ladder, Q-405) + REQ-019…023 in S1-07 (adults on the map, refresh-now, children-visibility, SOS retention, address ladder, Q-409) + REQ-018 in S1-06 (assistant prepares tasks under owner delegation, Q-415).
 """
 import glob
 import re

@@ -621,16 +621,6 @@
  },
  {
   "system": "S1-04",
-  "id": "S04-06",
-  "name": "استبدال قسيمة وكيل",
-  "need": "generic-icons",
-  "asset_available": true,
-  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
-  "basket": "B",
-  "gap": false
- },
- {
-  "system": "S1-04",
   "id": "S04-07",
   "name": "تعبئة SMS",
   "need": "generic-icons",
