@@ -32,6 +32,7 @@
   --danger:#B42318;--danger-soft:#FFF2EF;--info:#2457A6;--info-soft:#F0F6FF;
   --accent:#CF5B2C;--accent-text:#7F300E;--accent-soft:#FDEDE5;--gold:#C8A24A;--gold-soft:#F8F0DA;
   --hero:#1F3A6B;--hero2:#142749;--on-hero:#FFFFFF;--on-hero-2:#D5DDEC;
+  --badge:#7F300E;--on-badge:#FFFFFF;   /* شارة العدد: orange.700 مع أبيض (color-tokens §4: الأبيض على orange.500 لا يصلح للنص العادي) — Q-430 */
   --shadow:0 1px 2px rgba(10,21,42,.06),0 6px 18px rgba(10,21,42,.06);
   --lift:0 1px 2px rgba(10,21,42,.04),0 2px 8px rgba(10,21,42,.035);   /* رفع خفيف للبطاقة عن الخلفية الكريمية */
   --ts:1;                       /* مضاعف حجم النص (إمكانية الوصول) */
@@ -48,6 +49,7 @@
   --danger:#EE7A6A;--danger-soft:#550502;--info:#719CE0;--info-soft:#0A2651;
   --accent:#E9865C;--accent-text:#F3B79C;--accent-soft:#3A1A0C;--gold:#C8A24A;--gold-soft:#2C2410;
   --hero:#0F1E39;--hero2:#0A152A;--on-hero:#F7F6F0;--on-hero-2:#B3BED0;
+  --badge:#E9865C;--on-badge:#081122;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);
   --lift:none;
 }
@@ -172,7 +174,7 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .bar .ib:first-child + h2{padding-inline-start:2px}
 .ib{width:var(--touch);height:var(--touch);border-radius:50%;display:grid;place-items:center;flex:none;position:relative;color:var(--text)}
 .ib:active{background:var(--sunken)}
-.ib .dot{position:absolute;top:10px;inset-inline-end:10px;min-width:16px;height:16px;border-radius:9px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg)}
+.ib .dot{position:absolute;top:8px;inset-inline-end:8px;min-width:20px;height:20px;border-radius:10px;background:var(--badge);color:var(--on-badge);font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg)}
 .sos{height:36px;padding:0 12px 0 10px;border-radius:99px;background:var(--danger);color:#fff;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:5px;flex:none;position:relative;overflow:hidden;margin-inline:4px;letter-spacing:.5px;user-select:none;touch-action:none}
 .phone[data-theme="dark"] .sos{color:#081122}
 .sos svg.ic{width:18px;height:18px}
@@ -204,7 +206,7 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .nav button[aria-current="page"]{color:var(--primary);font-weight:700}
 .nav button[aria-current="page"] .pl{background:var(--primary-soft)}
 .phone[data-theme="dark"] .nav button[aria-current="page"]{color:var(--primary-strong)}
-.nav .dot{position:absolute;top:-2px;inset-inline-end:6px;min-width:16px;height:16px;border-radius:9px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.nav .dot{position:absolute;top:-3px;inset-inline-end:4px;min-width:18px;height:18px;border-radius:9px;background:var(--badge);color:var(--on-badge);font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 4px}
 .phone[data-mode="child"] .nav button .pl{height:36px;width:64px}
 .phone[data-mode="child"] .nav svg.ic{width:28px;height:28px}
 
@@ -255,7 +257,7 @@ button.row:active,a.row:active{background:var(--subtle)}
 .chip.ol{background:none;box-shadow:inset 0 0 0 1px var(--border);color:var(--muted)}
 .chip.stale{background:none;box-shadow:inset 0 0 0 1px var(--border-strong);color:var(--muted);border-radius:6px}
 button.chip{min-height:28px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
 .fch{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 10px;padding:2px 16px}
 .fch::-webkit-scrollbar{display:none}
 .fch button{flex:none;min-height:36px;padding:0 14px;border-radius:99px;font-size:calc(14px*var(--ts));font-weight:500;box-shadow:inset 0 0 0 1px var(--border);background:var(--surface);color:var(--text2);display:inline-flex;align-items:center;gap:6px}
@@ -268,7 +270,7 @@ button.chip{min-height:28px}
 .btn.txt{background:none;color:var(--primary);min-height:40px;width:auto;padding:0 10px}
 .phone[data-theme="dark"] .btn.txt{color:var(--primary-strong)}
 .btn.dng{background:var(--danger);color:#fff}
-.phone[data-theme="dark"] .btn.dng{color:#081122}
+.phone[data-theme="dark"] .btn.dng:not(.sec){color:#081122}   /* Q-430: الزر الثانوي الخطِر يبقى نصّه بلون الخطر في الداكن (كان يختفي) */
 .btn.dng.sec{background:none;color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--danger)}
 .btn.ok{background:var(--success);color:#fff}
 .phone[data-theme="dark"] .btn.ok{color:#081122}
@@ -342,7 +344,7 @@ button.chip{min-height:28px}
 .orb .bd{position:absolute;bottom:-2px;inset-inline-end:-2px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:2.5px solid var(--hero);color:#fff}
 .orb .bd svg{width:13px;height:13px}
 .orb b{font-size:calc(13px*var(--ts));font-weight:600}
-.orb small{font-size:calc(11px*var(--ts));color:var(--on-hero-2);margin-top:-5px;white-space:nowrap}
+.orb small{font-size:calc(12px*var(--ts));color:var(--on-hero-2);margin-top:-5px;white-space:nowrap}
 .strip{display:flex;align-items:center;gap:8px;background:#ffffff14;border-radius:14px;padding:9px 12px;margin-top:12px;font-size:calc(13px*var(--ts));position:relative;z-index:1;width:100%;line-height:1.5}
 .strip svg.ic{width:20px;height:20px;color:#8FD3A5}
 .strip.at svg.ic{color:#F6C38F}
@@ -355,7 +357,7 @@ button.chip{min-height:28px}
 .att .hd span{font-size:calc(13px*var(--ts));color:var(--muted);display:block}
 .att .ft{display:flex;gap:8px;padding:8px 14px 12px}
 .att .ft .btn{flex:1}
-.att .hd .pr{font-size:calc(11.5px*var(--ts));font-weight:700;color:var(--warning);background:var(--warning-soft);padding:2px 8px;border-radius:99px;flex:none;margin-top:2px;display:inline-block}
+.att .hd .pr{font-size:calc(12px*var(--ts));font-weight:700;color:var(--warning);background:var(--warning-soft);padding:2px 8px;border-radius:99px;flex:none;margin-top:2px;display:inline-block}
 .att .hd .pr.p0{color:var(--danger);background:var(--danger-soft)}
 .att .hd .atx{flex:none;width:48px;height:48px;margin:-12px -14px -14px -4px;display:grid;place-items:center;color:var(--muted);border-radius:50%}
 .att .hd .atx svg.ic{width:18px;height:18px}
@@ -399,7 +401,7 @@ button.chip{min-height:28px}
 .map .pin .av{width:36px;height:36px;border:3px solid #fff;box-shadow:0 3px 8px #0005}
 .map .pin::after{content:"";width:8px;height:8px;background:#fff;transform:rotate(45deg);margin-top:-5px;box-shadow:2px 2px 3px #0003}
 .map .pin.old .av{filter:grayscale(.8);opacity:.75;border-style:dashed}
-.map .pin label{background:var(--surface);color:var(--text);font-size:11px;font-weight:600;padding:1px 7px;border-radius:9px;margin-bottom:3px;box-shadow:0 1px 4px #0003;white-space:nowrap}
+.map .pin label{background:var(--surface);color:var(--text);font-size:12px;font-weight:600;padding:1px 7px;border-radius:9px;margin-bottom:3px;box-shadow:0 1px 4px #0003;white-space:nowrap}
 .map .pin.sosp .av{border-color:var(--danger);box-shadow:0 0 0 6px #B4231840,0 3px 8px #0005}
 .map .unc{position:absolute;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;background:#1F6B3B24;border:1.5px dashed #1F6B3Baa;pointer-events:none}
 .map .hp{position:absolute;transform:translate(-50%,-50%);min-width:26px;padding:0 6px;height:26px;border-radius:99px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px #0004}
@@ -446,24 +448,25 @@ button.chip{min-height:28px}
 .map .pin.on .av{border-color:var(--accent)}
 .map .pin.sk{width:36px;height:36px;min-width:0;min-height:0;border-radius:50%;border:3px solid #fff;background:var(--sunken);animation:sk 1.3s linear infinite;opacity:.8}
 .map .medot{position:absolute;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--info);border:3px solid #fff;box-shadow:0 0 0 7px #2457A62e,0 1px 4px #0005;z-index:1}
-.map .medot label{position:absolute;top:19px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;background:var(--surface);color:var(--text);padding:0 7px;border-radius:8px;white-space:nowrap;direction:rtl;box-shadow:0 1px 4px #0003}
-.map .mctl{position:absolute;left:8px;bottom:48px;display:flex;flex-direction:column;gap:6px;z-index:4}
+.map .medot label{position:absolute;top:19px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;background:var(--surface);color:var(--text);padding:0 7px;border-radius:8px;white-space:nowrap;direction:rtl;box-shadow:0 1px 4px #0003}
+.map .mctl{position:absolute;left:8px;bottom:48px;display:flex;flex-direction:column;gap:8px;z-index:4}
 .map .mctl button{width:var(--touch);height:var(--touch);border-radius:14px;background:var(--surface);color:var(--text);box-shadow:0 2px 6px #0003;display:grid;place-items:center}
 .map .mctl button[disabled]{opacity:.4}
-.map .attr{position:absolute;bottom:4px;left:6px;font-size:9.5px;color:#494536;background:#ffffffc9;padding:1px 6px;border-radius:5px}
+.map .attr{position:absolute;bottom:4px;left:6px;font-size:12px;color:#494536;background:#ffffffc9;padding:1px 6px;border-radius:5px}
 
 /* ---------- المحادثة ---------- */
-.thread{display:flex;flex-direction:column;gap:6px;padding:10px 12px 14px}
+.thread{display:flex;flex-direction:column;gap:8px;padding:10px 12px 14px}
 .msg{max-width:80%;padding:8px 12px;border-radius:18px;background:var(--surface);border:1px solid var(--border);align-self:flex-start;font-size:calc(15px*var(--ts)*var(--tk));line-height:1.6;position:relative}
 .msg.me{align-self:flex-end;background:var(--primary);color:var(--on-primary);border-color:transparent}
-.msg .wh{display:block;font-size:calc(12px*var(--ts));font-weight:700;color:var(--c,var(--primary));margin-bottom:1px}
-.msg .mt{display:flex;align-items:center;gap:3px;justify-content:flex-end;font-size:10.5px;opacity:.75;margin-top:2px;direction:ltr}
+.msg .wh{display:flex;align-items:center;gap:5px;font-size:calc(12px*var(--ts));font-weight:700;color:var(--text2);margin-bottom:1px}
+.msg .wh::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--c,var(--primary))}   /* Q-430: لون الفرد نقطة بجانب اسمه؛ والاسم بلون النص ليُقرأ في الفاتح والداكن */
+.msg .mt{display:flex;align-items:center;gap:3px;justify-content:flex-end;font-size:12px;opacity:.75;margin-top:2px;direction:ltr}
 .msg .mt svg{width:14px;height:14px}
 .msg.del{font-style:italic;opacity:.6}
 .msg .ph{width:190px;height:120px;border-radius:12px;background:var(--sunken);display:grid;place-items:center;color:var(--muted);margin-bottom:4px;font-size:12px;text-align:center;gap:4px}
 .msg .vo{display:flex;align-items:center;gap:8px;min-width:170px;direction:ltr}
 .msg .vo i{flex:1;height:22px;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 5px);opacity:.5;border-radius:3px;mask-image:linear-gradient(90deg,#000,#0008)}
-.day{align-self:center;font-size:11.5px;color:var(--muted);background:var(--sunken);padding:2px 12px;border-radius:99px;margin:6px 0}
+.day{align-self:center;font-size:12px;color:var(--muted);background:var(--sunken);padding:2px 12px;border-radius:99px;margin:6px 0}
 .typing{align-self:flex-start;font-size:12.5px;color:var(--muted);padding:0 6px}
 .composer{display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--border);background:var(--surface);flex:none}
 .composer input{flex:1;min-height:44px;border-radius:99px;border:1px solid var(--border);background:var(--subtle);padding:0 16px;outline:0;min-width:0;font-size:calc(15px*var(--ts))}
@@ -473,7 +476,7 @@ button.chip{min-height:28px}
 .composer.obs{justify-content:center;gap:10px;padding:10px 14px}.composer.obs p{margin:0}.composer.obs p svg.ic{width:16px;height:16px;vertical-align:-3px}
 .composer.rec{color:var(--danger);font-weight:600}.recdot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--danger);margin-inline-end:6px;animation:rcd 1.2s ease-in-out infinite}
 @keyframes rcd{50%{opacity:.3}}
-.emo{display:flex;gap:2px;padding:6px 10px 0;background:var(--surface);border-top:1px solid var(--border);flex:none;overflow-x:auto}.emo button{min-width:44px;height:48px;font-size:22px;border-radius:12px;flex:none}
+.emo{display:flex;gap:2px;padding:6px 10px 0;background:var(--surface);border-top:1px solid var(--border);flex:none;overflow-x:auto}.emo button{min-width:44px;height:var(--touch);font-size:22px;border-radius:12px;flex:none}
 .emo + .composer{border-top:0}
 .cmperr{margin:0;padding:8px 14px;background:var(--danger-soft);color:var(--danger);font-size:calc(13px*var(--ts));font-weight:600;flex:none}.cmperr svg.ic{width:16px;height:16px;vertical-align:-3px;display:inline-block}
 .msg.fail{background:var(--danger-soft);color:var(--text);border:1px solid var(--danger)}
@@ -484,10 +487,10 @@ button.chip{min-height:28px}
 .srch{display:flex;align-items:center;gap:8px;min-height:48px;border-radius:99px;border:1px solid var(--border);background:var(--surface);padding:0 16px;margin-bottom:10px;color:var(--muted)}
 .srch svg.ic{width:20px;height:20px;flex:none}.srch input{flex:1;min-width:0;min-height:46px;border:0;background:none;outline:0;font-size:calc(15px*var(--ts));color:var(--text)}
 .srch:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
-.chv{display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:var(--muted)}.chv small{font-size:11.5px;direction:ltr}.chv svg.ic{width:16px;height:16px}
+.chv{display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:var(--muted)}.chv small{font-size:12px;direction:ltr}.chv svg.ic{width:16px;height:16px}
 .unr{min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center}
 .steps3{display:flex;justify-content:space-between;gap:6px;margin:4px 0 16px}.steps3 span{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;color:var(--muted)}
-.steps3 span::before{content:none}.steps3 span small{font-size:calc(11.5px*var(--ts));font-weight:500}.steps3 span.on{color:var(--primary)}.steps3 span.dn{color:var(--success)}.steps3 span svg.ic{width:20px;height:20px}
+.steps3 span::before{content:none}.steps3 span small{font-size:calc(12px*var(--ts));font-weight:500}.steps3 span.on{color:var(--primary)}.steps3 span.dn{color:var(--success)}.steps3 span svg.ic{width:20px;height:20px}
 .composer .snd{background:var(--primary);color:var(--on-primary)}
 
 /* ---------- الطفل ---------- */
@@ -513,7 +516,7 @@ button.chip{min-height:28px}
 .wallet .big{font-size:calc(44px*var(--ts));font-weight:700;line-height:1.1;display:flex;align-items:center;gap:10px}
 .wallet small{opacity:.85;font-size:calc(13px*var(--ts)*var(--tk))}
 .week{display:flex;justify-content:space-between;gap:4px;margin-top:8px}
-.week div{flex:1;text-align:center;font-size:calc(11.5px*var(--ts));color:var(--muted)}
+.week div{flex:1;text-align:center;font-size:calc(12px*var(--ts));color:var(--muted)}
 .week i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;margin:0 auto 3px;background:var(--sunken);color:var(--muted);font-style:normal}
 .week i svg{width:18px;height:18px}
 .week .on i{background:var(--accent);color:#fff}
@@ -537,7 +540,7 @@ button.chip{min-height:28px}
 .dlg p{margin:0 0 16px;color:var(--text2);font-size:calc(14.5px*var(--ts));line-height:1.75}
 .toast{position:absolute;inset-inline:12px;bottom:92px;background:var(--navy-900);color:#F7F6F0;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:calc(14px*var(--ts));z-index:70;box-shadow:0 8px 24px #0006;animation:up var(--mid) var(--ease);line-height:1.5;border:1px solid #263852}
 .toast span{flex:1}
-.toast button{color:#E9CB7F;font-weight:700;min-height:32px;padding:0 6px;flex:none}
+.toast button{color:#E9CB7F;font-weight:700;min-height:48px;min-width:48px;margin-block:-8px;padding:0 6px;flex:none}   /* Q-430: «تراجع» 48 كاملة؛ الهامش السالب يبقي ارتفاع الشريط كما كان */
 .toast svg.ic{width:20px;height:20px;color:#8FD3A5}
 .full{position:absolute;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;animation:fd var(--mid)}
 .full{padding-top:30px}
@@ -583,18 +586,18 @@ button.chip{min-height:28px}
 .mx thead th{font-size:calc(12px*var(--ts));color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--surface)}
 .mx svg.ic{width:18px;height:18px;margin:auto}
 .mx .y{color:var(--success)}.mx .n{color:var(--border-strong)}.mx .o{color:var(--warning)}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:10px}
 .days button{min-height:48px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:calc(12px*var(--ts));font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.3}
 .days button b{font-size:calc(14px*var(--ts))}
 .days button[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);border-color:transparent}
 .sched{position:relative;height:38px;border-radius:10px;background:var(--sunken);overflow:hidden;direction:ltr;margin:4px 0}
-.sched i{position:absolute;top:0;bottom:0;display:grid;place-items:center;font-style:normal;font-size:10.5px;font-weight:700;color:#fff}
+.sched i{position:absolute;top:0;bottom:0;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#fff}
 .sched i.sl{background:#142749}.sched i.sc{background:#2457A6}.sched i.fr{background:#1F6B3B}
-.axis{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);direction:ltr;font-family:var(--mono)}
+.axis{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);direction:ltr;font-family:var(--mono)}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
-.cal .dn{font-size:calc(11px*var(--ts));color:var(--muted);padding:4px 0;font-weight:600}
+.cal .dn{font-size:calc(12px*var(--ts));color:var(--muted);padding:4px 0;font-weight:600}
 .cal button{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;position:relative;font-weight:600;font-size:calc(14px*var(--ts))}
-.cal button small{font-size:9.5px;font-weight:400;color:var(--muted)}
+.cal button small{font-size:12px;font-weight:400;color:var(--muted)}
 .cal button.td{background:var(--primary);color:var(--on-primary)}.cal button.td small{color:inherit;opacity:.8}
 .cal button.ev::after{content:"";position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
 .cal button.o{opacity:.35}
@@ -615,7 +618,7 @@ button.chip{min-height:28px}
 .lockn .ap{width:34px;height:34px;border-radius:10px;background:#1F3A6B;display:grid;place-items:center;flex:none}
 .lockn .ap svg{width:20px;height:20px}
 .lockn b{display:block}
-.lockn small{opacity:.7}
+.lockn small{opacity:.7;font-size:12px}
 .boot{position:absolute;inset:0;z-index:90;background:linear-gradient(170deg,#1F3A6B,#081122);display:grid;place-items:center;color:#fff;text-align:center;animation:fd var(--mid)}
 .boot .wm{font-size:44px;font-weight:700;line-height:1.2}
 .boot small{display:block;font-size:13px;opacity:.75;margin-top:6px}
@@ -661,7 +664,7 @@ button.chip{min-height:28px}
 .dq:last-child{border-bottom:0}
 .dq > b{flex:1;font-weight:500;font-size:calc(15px*var(--ts))}
 .dq .n{min-width:60px;text-align:center;font-weight:700;font-size:calc(17px*var(--ts));line-height:1.2}
-.dq .n small{display:block;font-weight:400;font-size:calc(11px*var(--ts));color:var(--muted)}
+.dq .n small{display:block;font-weight:400;font-size:calc(12px*var(--ts));color:var(--muted)}
 .dq button{width:44px;height:44px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;flex:none}
 .dq > svg.ic{color:var(--muted);width:18px;height:18px}
 .opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:start;padding:12px 14px;border-radius:var(--r-md);border:1.5px solid var(--border);background:var(--surface);margin-bottom:8px}
@@ -671,7 +674,7 @@ button.chip{min-height:28px}
 .opt > svg.ic{flex:none;margin-top:2px;color:var(--primary)}
 .opt > svg.ic:last-child{color:var(--muted)}
 .eq{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;background:var(--subtle);border-radius:var(--r-md);padding:10px 8px;text-align:center}
-.eq span{display:flex;flex-direction:column;font-size:calc(11.5px*var(--ts));color:var(--muted);flex:1}
+.eq span{display:flex;flex-direction:column;font-size:calc(12px*var(--ts));color:var(--muted);flex:1}
 .eq span b{font-size:calc(18px*var(--ts));color:var(--text);font-weight:700}
 .eq i{font-style:normal;font-weight:700;color:var(--muted);padding-bottom:14px}
 .wk{display:grid;grid-template-columns:auto 1fr;gap:7px 10px;align-items:center}
@@ -742,7 +745,7 @@ button.chip{min-height:28px}
 .tkmh{display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .tkmh>div{flex:1;display:flex;flex-direction:column;line-height:1.4}
 .tkmh b{font-size:calc(16px*var(--ts))}
-.tkcal .cal button{aspect-ratio:auto;min-height:48px;padding-bottom:7px}
+.tkcal .cal button{aspect-ratio:auto;min-height:var(--touch);padding-bottom:7px}
 .tkcal .cal button.sl:not(.td){box-shadow:inset 0 0 0 2px var(--primary)}
 .tkcal .cal button.td.sl{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
 .tkcal .cal button i{position:absolute;bottom:3px;display:flex;gap:3px;height:5px}
@@ -782,7 +785,7 @@ button.chip{min-height:28px}
 .tnst div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:0 6px;text-align:center}
 .tnst div + div{border-inline-start:1px solid #ffffff26}
 .tnst b{font-size:calc(20px*var(--ts));font-weight:700;line-height:1.3}
-.tnst span{font-size:calc(11.5px*var(--ts));color:var(--on-hero-2);line-height:1.4}
+.tnst span{font-size:calc(12px*var(--ts));color:var(--on-hero-2);line-height:1.4}
 .tnw{display:flex;align-items:center;gap:10px;background:var(--warning-soft);border-radius:var(--r-lg);padding:12px;margin-bottom:12px}
 .tnw > svg.ic{color:var(--warning);flex:none}
 .tnw div{flex:1;min-width:0}.tnw b{display:block;font-size:calc(14.5px*var(--ts));font-weight:600;line-height:1.45}
@@ -795,7 +798,7 @@ button.chip{min-height:28px}
 .agt{flex:none;width:50px;display:flex;flex-direction:column;align-items:center;line-height:1.25}
 .agt b{font-size:calc(16px*var(--ts));font-weight:700;font-variant-numeric:tabular-nums}
 .agt b.s{font-size:calc(12.5px*var(--ts));font-weight:600;white-space:nowrap}
-.agt small{font-size:calc(11.5px*var(--ts));color:var(--muted)}
+.agt small{font-size:calc(12px*var(--ts));color:var(--muted)}
 .ag > i{flex:none;width:4px;align-self:stretch;margin:6px 0;border-radius:4px;background:var(--c)}
 .agm{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;text-align:start;min-height:52px}
 .agm b{font-size:calc(15.5px*var(--ts));font-weight:600;line-height:1.45}
@@ -990,14 +993,14 @@ button.chip{min-height:28px}
 h3.sec button,.btn.sm,.btn.txt,.why,button.chip,.fch button,.chs button,.seg button,.dq button,.stepper button,.hero .top > button,.bar > button{position:relative}
 h3.sec button::before,.btn.sm::before,.btn.txt::before,.why::before,button.chip::before,.fch button::before,.chs button::before,.seg button::before,
 .dq button::before,.stepper button::before,.hero .top > button::before,.bar > button::before,.ib::before,.tg::before,button.av::before,.map .hp::before,.mgrab::before{
-  content:"";position:absolute;top:50%;left:50%;width:max(100%,48px);height:max(100%,48px);transform:translate(-50%,-50%)}
+  content:"";position:absolute;top:50%;left:50%;width:max(100%,var(--touch));height:max(100%,var(--touch));transform:translate(-50%,-50%)}   /* --touch: 48 للبالغ والمراهق، 56 للطفل (Q-430) */
 .sos::before{content:none}
 /* شريط التصفية يُمرَّر أفقياً: يُعطى حشواً يسع مساحة اللمس كي لا يهتز عمودياً، والهامش ينقص بالقدر نفسه */
 .fch{padding-block:6px;margin-block:-4px 6px}
 .fch.w{row-gap:12px;margin-bottom:12px}
 .scr > .fch.w:first-child{margin-top:2px}
 /* النص الزر (بلا خلفية): 48 حقيقية، فالذي يتغير مسافة حوله لا شكله */
-.btn.txt{min-height:48px}
+.btn.txt{min-height:var(--touch)}
 /* مسافات صغيرة حتى لا تتداخل مساحتا لمس متجاورتان */
 .hero .top{gap:6px}
 .chips{row-gap:8px}
@@ -1009,11 +1012,27 @@ h3.sec button::before,.btn.sm::before,.btn.txt::before,.why::before,button.chip:
 .mpanel.nomap{max-height:none}
 /* الاستغاثة: 48 حقيقية بإطار شفاف؛ اللون داخل الإطار فلا يتغير حجم الزر الظاهر */
 .sos{height:48px;border:6px solid transparent;background-clip:padding-box;margin:-6px -2px}
-.phone[data-mode="child"] .sos{height:48px;border-width:2px;margin:-2px 2px}
+.phone[data-mode="child"] .sos{height:56px;border-width:6px;margin:-6px 2px}   /* Q-430: 56 للطفل؛ الظاهر 44 كما كان */
 #sosL:not(.float) .sos{margin:0}   /* النسخة العليا تقع فوق الزر الأصلي تماماً */
-button.fx,button.strip{min-height:48px}
+button.fx,button.strip{min-height:var(--touch)}
 
 /* «العرض كـ» (DS-NV-10): شريط معاينة ثابت بألوان وضع الأهل أياً كان قالب المعاينة، والمحتوى تحته لا يُضغط */
 .vabar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:8px 12px;margin:0 0 12px;border-radius:14px;background:#1F3A6B;color:#fff;font-size:calc(13px*var(--ts));line-height:1.6;font-family:var(--font, inherit);box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .vabar svg{width:20px;height:20px;flex:none}.vabar .btn{flex:none;width:auto;min-height:48px;background:#fff;color:#1F3A6B;border-color:#fff}
 .vaw{pointer-events:none;user-select:none}
+
+/* ============================================================ المرحلة 4 من المراجعة الختامية — Q-430
+   ما وجده الفحص البصري (tools/visual-audit.cjs) وأُصلح في موضعه أعلاه: لا نص دون 12، شارة العدد وزر الخطر الثانوي واسم المرسل
+   بتباين كافٍ في الفاتح والداكن، ومساحة اللمس تتبع ‎--touch (48 للبالغ والمراهق، 56 للطفل).
+   وهنا ما يلزم قالب الطفل وحده كي لا تتداخل مساحتا لمس بعد أن كبرتا: */
+.phone[data-mode="child"] h3.sec{margin-bottom:12px}
+.phone[data-mode="child"] .composer .ib{width:56px;height:56px}
+.phone[data-mode="child"] .why{margin-block:6px}
+.phone[data-mode="child"] .chips,.phone[data-mode="child"] .chs{row-gap:16px}   /* إذا نزلت الرقاقات إلى سطرين (النص الكبير) */
+/* الفاصل بين هدفين ظاهرين: 8 للبالغ والمراهق، 12 للطفل (spacing-and-grid §3) — يقيسه tools/audit.cjs (gap) */
+.phone[data-mode="child"] .chips,.phone[data-mode="child"] .chs,.phone[data-mode="child"] .qa,.phone[data-mode="child"] .pad,.phone[data-mode="child"] .btns{column-gap:12px}
+.phone[data-mode="child"] .qa,.phone[data-mode="child"] .pad,.phone[data-mode="child"] .thread{gap:12px}
+.full .c > .sos{margin-block:2px}
+.phone[data-mode="child"] .bar .sos{margin-inline:0 -2px}   /* الإطار الشفاف 6: الظاهر يبعد 12 عن جاره، وموضعه من حافة الشريط كما كان */
+/* عنوان الشاشة: في قالبي الطفل والمراهق بجانبه الاستغاثة والنقاط والصورة، فيضيق مع النص الكبير؛ ينزل إلى سطر ثانٍ بدل أن يُقطع بثلاث نقاط */
+.phone .bar h2{white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.4;overflow-wrap:anywhere}
