@@ -147,8 +147,8 @@ const tkRemWho = (e, kidV) => (e.who === 'all' ? 'يصل كل أفراد الع�
 
 surface('fam-cal', {
   t: 'تقويم العائلة', sys: 'S1-06', p: 'kid', req: '06:10,12,13',
-  note: 'S06-06 للطفل والمراهق: عرض فقط. شهر مزدوج بالتاريخين وأحداث العائلة ومهامه هو. لا زر إنشاء. الأصغر لا يرى شبكة الشهر، ويرى أحداث يومه صوراً في «مهامي».',
-  r() { return S.persona === 'mini' ? SC['m-task'].r() : tkCal(false); },
+  note: 'S06-06 للطفل والمراهق: عرض فقط. شهر مزدوج بالتاريخين وأحداث العائلة ومهامه هو. لا زر إنشاء.',
+  r() { return tkCal(false); },
 });
 
 surface('event', {
@@ -190,7 +190,7 @@ surface('tk-remind', {
     return `<h4>كيف يصل التذكير</h4><p class="d">${tkRm(e.rem)} من «${e.t}».</p>
     ${kidV ? card('على جهازك', `${when}: ${e.t}`) : (own && e.who !== 'ahmad' ? card(`على جهاز ${own.n}`, `${when}: ${e.t}`) : '') + card(e.who === 'all' ? 'على أجهزة العائلة كلها' : 'على جهاز أحمد', own && e.who !== 'ahmad' ? `${when}: ${e.t} · ${own.n}` : `${when}: ${e.t}`)}
     ${list(row('groups', 'من يصله', tkRemWho(e, kidV)), row('cloud_off', 'يصل بلا إنترنت', 'الجهاز يحفظ الموعد وينبّه في وقته'), row('notifications', 'مرة واحدة', 'لا يتكرر ولا يلحّ'))}
-    ${e.who === PERSONA.mini.m && !kidV ? `<p class="sm muted" style="margin:0 4px 10px">الأصغر سنّاً يصله التذكير صوتاً وصورة.</p>` : ''}${btn('حسناً', 'close', 'sec')}`;
+    ${btn('حسناً', 'close', 'sec')}`;
   },
 });
 
@@ -372,16 +372,6 @@ surface('c-task', {
     ${body}`;
   },
 });
-surface('m-task', {
-  t: 'مهامي', sys: 'S1-06', p: 'mini', req: '06:6,12',
-  note: 'S06-01 وS06-03 للأصغر: مهمة واحدة في كل مرة، صورة كبيرة وزر واحد، بلا أرقام ولا تواريخ. الإثبات صورة فقط: يضغط «خلّصت» ثم يصوّر. أحداث يومه تظهر صوراً تحت المهمة بدل شبكة الشهر.',
-  r() {
-    const t = S.tasks.find(x => x.kid === 'yusuf' && x.st === 'PENDING'), P = S.tkP && t && S.tkP.id === t.id ? S.tkP : null, E = S.events.filter(e => tkEvOn(e, TK_TODAY) && (e.who === 'all' || e.who === 'yusuf'));
-    const day = E.length ? `<div class="tkmd">${E.map(e => `<div>${ic('event')}<span>${e.t}</span></div>`).join('')}</div>` : '';
-    if (P) return `<div class="c" style="padding-top:10px"><div class="tkcam big">${ic('photo_camera')}</div><p class="ttl">صوّر ما سوّيت</p></div><button class="tile w" style="--kc:#1F6B3B;width:100%" data-a="tkShot">${ic('photo_camera')}<span>صوّر</span></button>`;
-    return t ? `<div class="c" style="padding-top:20px"><span class="av" style="--c:${tkCat(t.cat)[2]};width:130px;height:130px;margin:0 auto 18px">${ic(tkCat(t.cat)[1])}</span><p class="ttl">${t.t}</p></div><button class="tile w" style="--kc:#1F6B3B;width:100%" data-a="mDone:${t.id}">${ic('thumb_up')}<span>خلّصت!</span></button>${day}` : `<div class="c" style="padding-top:40px"><span class="av" style="--c:#C8A24A;width:130px;height:130px;margin:0 auto 18px">${ic('celebration')}</span><p class="ttl">خلّصت كل شيء!</p><p class="sub">بطل يا يوسف</p></div>${day}`;
-  },
-});
 surface('t-task-new', {
   kind: 'sheet', t: 'مهمة شخصية للمراهق', sys: 'S1-06', p: 'teen', req: '06:1,3,10,14',
   note: 'S06-02 بنطاق المراهق نفسه: عنوان وموعد وتكرار وتذكير. لا حقل نقاط ولا إسناد لغيره ولا اعتماد. تظهر فقط إن سمح بها والده، ووالده يراها في قائمة المهام.',
@@ -480,11 +470,10 @@ Object.assign(ACT, {
   /* الطفل والمراهق */
   tkTick(id, i) { const t = tkT(id); t.dn = t.dn || []; t.dn[+i] = !t.dn[+i]; },
   tkCap(id) { const t = tkT(id); S.tkP = { id, step: t.proof === 'audio' ? 'rec' : 'cap' }; },
-  tkShot() { const P = S.tkP; if (!P) return; if (S.persona !== 'mini') { P.step = 'ready'; return; } tkSubmit(P.id); },
+  tkShot() { const P = S.tkP; if (!P) return; P.step = 'ready'; },
   tkPx() { S.tkP = null; },
   tkSend(id) { tkSubmit(id); },
   cSubmit(id) { tkSubmit(id); },
-  mDone(id) { const t = tkT(id); if (t.proof === 'photo') { S.tkP = { id, step: 'cap' }; return; } tkSubmit(id); },
   teenDone(id) { const t = tkT(id); if (t.by !== t.kid) return void (S.sheet = { id: 'c-task', a: [id] }); t.st = 'APPROVED'; S.sheet = null; toast('أُنجزت', () => { t.st = 'PENDING'; render(); }); },
   tkOwnUndo(id) { const t = tkT(id); if (t.by === t.kid) t.st = 'PENDING'; },
   tkOwnDel(id) { const t = tkT(id), i = S.tasks.indexOf(t); if (t.by !== t.kid) return; S.tasks.splice(i, 1); S.sheet = null; toast('حُذفت مهمتك', () => { S.tasks.splice(i, 0, t); render(); }); },

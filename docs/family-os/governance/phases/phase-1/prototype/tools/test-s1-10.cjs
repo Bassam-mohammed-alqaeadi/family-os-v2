@@ -134,7 +134,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S.full=null;S.pm.layan={k:'study',left:60,until:'6:12 م'};ACT.openApp('mc');render();ok('block: school reason + study apps button',has(/وقت مدرسة — تطبيقات الدراسة فقط/)&&!!q('[data-a="blkLearn"]'));ACT.blkLearn();render();ok('to study apps',top()==='learn');
  S=fresh();setPersona('child');S.kid.layan.used=120;render();ACT.openApp('cam');render();ok('block: quota reason',has(/نفدت حصتك اليومية/)&&!!q('[data-a="go:ask-time:cam"]'));
  S=fresh();setPersona('child');render();ACT.openApp('mc');render();ok('warn5 shown once per app per day',top()==='warn5'&&has(/بقي 5 دقائق/)&&!!q('.sheet .sos')&&appOf('layan','mc').used===25);S.sheet=null;appOf('layan','mc').used=12;ACT.openApp('mc');render();ok('warn5 not repeated',top()!=='warn5');
- S=fresh();setPersona('mini');S.apps.yusuf[0].used=30;render();ACT.openAppM();render();ok('mini block: big tile, one button',top()==='block'&&has(/انتهى وقت اللعبة/)&&!!q('[data-a="askGoM:ytk"]')&&!has(/المتبقي/));ACT.askGoM('ytk');render();ok('mini request sent',S.reqs.length===1&&has(/طلبك عند بابا/));
+ S=fresh();ok('no separate under-7 block screen (Q-426)',!ACT.openAppM&&!ACT.askGoM&&!ACT.say);
  S=fresh();setPersona('teen');jump('block');render();ok('teen block renders (no crash)',top()==='block'&&has(/PUBG|WhatsApp/));
  S=fresh();setPersona('child');S.fm.layan=30;render();ACT.openApp('tt');ok('free mode opens blocked app on child device',!S.full);
  // الربط بباقي النموذج: كل شاشة من مكانها الطبيعي

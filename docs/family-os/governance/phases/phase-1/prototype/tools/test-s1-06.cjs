@@ -20,7 +20,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const LOCS=['map','loc','history','emergency','ec-add','sos-count','sos-sent','sos-status','sos-resolve','sos-log','loc-share'];
  const T=()=>document.querySelector('#toast').textContent;const noT=()=>{document.querySelector('#toast').innerHTML=''};const sh=()=>(q('.sheet')||q('#scr')).innerText.replace(/\s+/g,' ');
  const L=id=>RW().led[id];const kid=p=>{setPersona(p||'child')};const del=()=>{setPersona('delegate')};const obs=r=>{setRole(r||'observer');setPersona('delegate')};const tk=id=>S.tasks.find(x=>x.id===id);const ai=()=>S.tasks.filter(t=>t.by==='ai');
- const TKS=['tasks','task','task-new','task-review','tk-cats','tk-cat-new','tk-settings','tk-edit','tk-ai','tk-sug','event','event-new','tk-remind','fam-cal','c-task','m-task','t-task-new'];
+ const TKS=['tasks','task','task-new','task-review','tk-cats','tk-cat-new','tk-settings','tk-edit','tk-ai','tk-sug','event','event-new','tk-remind','fam-cal','c-task','t-task-new'];
  // 1 البذرة
  S=fresh();ok('seed: seventeen S1-06 surfaces',TKS.every(k=>SC[k]&&SC[k].sys==='S1-06'),TKS.filter(k=>!SC[k]));
  ok('seed: nine tasks, one expired, five dated events',S.tasks.length===9&&tk('t9').st==='EXPIRED'&&S.events.length===5&&S.events.every(e=>/^\d{4}-\d\d-\d\d$/.test(e.dk)));
@@ -219,11 +219,11 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ACT.tkEvDel('e4');render();ok('event delete: confirms, mentions recurrences',!!S.dlg&&/وكل تكراراته/.test(txt()));dlgYes();ok('event deleted',S.events.length===4&&!S.events.some(e=>e.id==='e4'));tU().click();render();ok('event delete undo',S.events.length===5);noT();
  S=fresh();S.net='off';ACT.tkEvNew('2026-11-20');render();q('#evT').value='زيارة';ACT.evSave();ok('event offline: saved and queued',S.events.length===6&&S.outbox.length===1&&/يُرسل عند الاتصال/.test(T()));noT();
  S=fresh();open('tk-remind','e1');ok('reminder: one card per recipient, child and father only',/على جهاز يوسف/.test(sh())&&/على جهاز أحمد/.test(sh())&&/بعد ساعة: موعد طبيب يوسف/.test(sh())&&/يصل يوسف وأحمد فقط/.test(sh()));
- ok('reminder: offline, once, voice and picture for the little one',/يصل بلا إنترنت/.test(sh())&&/مرة واحدة/.test(sh())&&/الأصغر سنّاً يصله التذكير صوتاً وصورة/.test(sh()));
+ ok('reminder: offline, once, no special wording for a small child',/يصل بلا إنترنت/.test(sh())&&/مرة واحدة/.test(sh())&&!/الأصغر سنّاً/.test(sh()));
  open('tk-remind','e4');ok('reminder of a family event: everyone',/على أجهزة العائلة كلها/.test(sh())&&/يصل كل أفراد العائلة/.test(sh()));
  S=fresh();kid();open('event','e3');ok('child event view: read only, reminder to her and dad',/اختبار الرياضيات/.test(sh())&&/يصلك أنت وبابا/.test(sh())&&!q('.sheet [data-a^="tkEvDel"]')&&!q('.sheet [data-a^="tkEvEdit"]')&&!/أضافه/.test(sh()));
  S=fresh();kid();open('fam-cal');ok('child calendar: month, family events, her tasks only, no add',has(/نوفمبر 2026/)&&has(/عشاء عند الجدة/)&&has(/ترتيب الغرفة/)&&!has(/جمع الألعاب في الصندوق/)&&!q('#scr [data-a^="tkEvNew"]')&&!q('#scr .tkf'));
- S=fresh();kid('mini');open('fam-cal');ok('little one: no month grid',!q('#scr .cal'));
+ S=fresh();ok('no separate under-7 calendar view (Q-426)',!SC['m-task']&&!PERSONA.mini);
  // 11 الفئات
  S=fresh();open('tk-cats');
  ok('categories: four fixed, none added yet',rows()===4&&has(/لم تُضف فئة بعد/)&&!!q('#scr [data-a="tkCatNew"]')&&ph.querySelectorAll('#scr .chip').length===4);
@@ -293,12 +293,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  NOW.m=20*60;render();ok('teen day after 8 pm: the dinner is behind the now line and dimmed, next is the 9:00 task',(()=>{const K=[...q('#scr .agl').children];return K[0].classList.contains('ps')&&K[1].classList.contains('agn')&&/التالي بعد 1 س/.test(K[1].innerText)&&!K[2].classList.contains('ps')})());
  NOW.m=22*60;render();ok('teen day late: now line last, says nothing is left',(()=>{const K=[...q('#scr .agl').children];return K[K.length-1].classList.contains('agn')&&/لا شيء بقي اليوم/.test(K[K.length-1].innerText)})());NOW.m=17*60+12;S=fresh();
  // 14 الأصغر
- S=fresh();kid('mini');open('m-task');
- ok('little one: one task, one button, today\'s event as a picture',has(/جمع الألعاب في الصندوق/)&&!!q('#scr [data-a="mDone:t5"]')&&has(/عشاء عند الجدة/)&&!/\d/.test(q('#scr').innerText));
- ok('little one: big touch targets',[...ph.querySelectorAll('#scr .tile')].every(b=>b.getBoundingClientRect().height>=72));
- q('#scr [data-a="mDone:t5"]').click();render();ok('little one: photo is the only proof',has(/صوّر ما سوّيت/)&&!!q('#scr [data-a="tkShot"]')&&tk('t5').st==='PENDING');
- q('#scr [data-a="tkShot"]').click();render();ok('little one: verified and credited',tk('t5').st==='APPROVED'&&S.kid.yusuf.pts===35&&L('yusuf')[0].vf==='ai');noT();
- ok('little one: all done screen',has(/خلّصت كل شيء/));
+ S=fresh();ok('under seven: tasks go through the child template; no one-button task screen (Q-426)',!SC['m-task']&&!ACT.mDone&&S.tasks.some(t=>t.kid==='yusuf'));
  // 15 الروابط
  ok('every task link leads to a surface',TKS.every(id=>{try{S=fresh();jump(id);render();return [...ph.querySelectorAll('[data-a^="go:"]')].every(e=>!!SC[e.dataset.a.split(':')[1]])}catch(e){return false}}));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}

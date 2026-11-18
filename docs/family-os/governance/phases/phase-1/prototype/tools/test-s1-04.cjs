@@ -254,7 +254,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();del();open('receipts');ok('payments log: owner only',!q('#scr .blr')&&has(/يديرها أحمد وحده/));
  // 15 الأبناء لا يرون شيئاً
  const HID=/الخطة والفوترة|الفوترة|اشتراك|ترقية|قسيمة|رصيد التعبئة|ريال|ر\.س/;
- ok('children and teens: no billing word on any of their tabs',['child','teen','mini'].every(p=>{S=fresh();setPersona(p);return TABS[mode()].every(([id])=>{ACT.tab(id);render();return !HID.test(q('#scr').innerText)&&!HID.test(q('.tabs')?q('.tabs').innerText:'')})}));
+ ok('children and teens: no billing word on any of their tabs',['child','teen'].every(p=>{S=fresh();setPersona(p);return TABS[mode()].every(([id])=>{ACT.tab(id);render();return !HID.test(q('#scr').innerText)&&!HID.test(q('.tabs')?q('.tabs').innerText:'')})}));
  S=fresh();setPersona('teen');go('plan');render();ok('a teen who reaches the page gets nothing',!q('#scr .blc')&&has(/هذه الصفحة للأهل/));
  S=fresh();setPersona('child');go('topup');render();ok('a child who reaches the top-up gets nothing',!q('#scr [data-a="topGo"]')&&!has(/250/));
  S=fresh();setPersona('child');open('plan-limit','mem');ok('the limit card never shows on a child device',!/الخطة|ترقية/.test(sh()));S.sheet=null;

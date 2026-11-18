@@ -84,8 +84,8 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const st0=JSON.stringify(S.stack);const inner=q('#scr .vaw [data-a]');inner.click();ok('view as: a press inside changes nothing',JSON.stringify(S.stack)===st0&&!S.sheet&&!S.full);
  ok('view as: no message text',!S.msgs||!Object.values(S.chat||{}).flat().some(m=>m&&m.t&&m.t.length>12&&q('#scr .vaw').innerText.includes(m.t)));
  q('#scr .vabar [data-a="back"]').click();ok('view as: end returns to the member page',S.stack[S.stack.length-1].id==='member'&&ph.dataset.mode==='parent');
- S=fresh();open('view-as','khaled');ok('view as: teen template',ph.dataset.mode==='teen'&&has(/خالد/));S=fresh();open('view-as','yusuf');ok('view as: under-7 template',ph.dataset.mode==='mini'&&has(/أهلاً يوسف/));
- S=fresh();open('templates');ok('templates: rows open the preview, not a switch of person',['yusuf','layan','khaled'].every(k=>!!q('#scr [data-a="go:view-as:'+k+'"]'))&&typeof ACT.jumpP==='undefined');
+ S=fresh();open('view-as','khaled');ok('view as: teen template',ph.dataset.mode==='teen'&&has(/خالد/));S=fresh();open('view-as','yusuf');ok('view as: a child under 7 gets the child template with his own data',ph.dataset.mode==='child'&&has(/أهلاً يوسف/)&&!has(/أهلاً ليان/));
+ S=fresh();open('templates');ok('templates: rows open the preview, not a switch of person',['layan','khaled'].every(k=>!!q('#scr [data-a="go:view-as:'+k+'"]'))&&typeof ACT.jumpP==='undefined');
  S=fresh();setPersona('delegate');setRole('observer');open('view-as','layan');ok('view as: honest refusal without the home key',can('hub.dashboard.view')||(!q('#scr .vaw')&&has(/غير مسموحة/)));
  // 6 الخدمات وصفحة الخدمة (للمالك) وأثر إزالة خدمة من التطبيق
  S=fresh();open('registry');ok('services: six human rows, no counts or codes',rows()===6&&!/S1-|مفتاحاً|ودج/.test(txt())&&!!q('[data-a="go:svc:loc"]'));
@@ -127,7 +127,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.agent.find(x=>x.id==='g3').st='رُفض';setPersona('teen');open('ai-mine');ok('teen: a refused suggestion is not shown',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===0);
  S=fresh();Object.assign(S.agent.find(x=>x.id==='g3'),{st:'نُفّذ بموافقتك',undo:1});setPersona('teen');open('ai-mine');ok('teen: sees it once executed, in his words',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===1&&has(/قُدّم وقت نومك 30 دقيقة/));
  open('ai-act','g3');ok('teen detail: no action, decided by the father',!q('[data-a^="aiUndo"]')&&has(/والدك/)&&!has(/بأي إذن/)&&has(/تغيّر وقت نومك/));open('ai-act','g2');ok('teen cannot open a sibling\'s entry',has(/لا يوجد فعل بهذا الوصف/));
- S=fresh();setPersona('mini');ok('under 7: no such screen in his template',!document.querySelector('#phone [data-a="go:ai-mine"]'));
+ S=fresh();open('templates');ok('templates: child and teen only, no under-7 template (Q-426)',!has(/المبسّط/)&&!!document.querySelector('#scr [data-a="go:view-as:layan"]')&&!!document.querySelector('#scr [data-a="go:view-as:khaled"]')&&!document.querySelector('#scr [data-a="go:view-as:yusuf"]'));
  S=fresh();setPersona('child');open('ai-mine');ok('child: only her own entry',ph.querySelectorAll('#scr [data-a^="go:ai-act:"]').length===1&&has(/ترتيب الغرفة/));
  S=fresh();setPersona('teen');open('t-me');ok('teen profile links to it',!!q('[data-a="go:ai-mine"]'));S=fresh();setPersona('child');open('c-me');ok('child profile links to it',!!q('[data-a="go:ai-mine"]'));
  S=fresh();open('more');q('[data-a="go:plan"]')&&0;ok('plan row for owner opens the plan',!!q('#scr [data-a="go:plan"]'));setPersona('delegate');setRole('observer');tab('more');render();ok('plan for delegate: read-only mark or locked',has(/عرض فقط/));

@@ -33,7 +33,7 @@ R=await page.evaluate((TS,LANG)=>{const R={};const ph=document.getElementById('p
    return {t:t/SCALE,b:bt/SCALE,l:l/SCALE,r:rt/SCALE}};
  const name=e=>(e.className&&String(e.className).split(' ')[0]||(String(e.parentElement.className).split(' ')[0]||e.parentElement.tagName.toLowerCase())+'>'+e.tagName.toLowerCase())+(e.closest('h3.sec')?'@sec':e.closest('.nav')?'@nav':e.closest('.hero')?'@hero':e.closest('.bar')?'@bar':e.closest('.sheet')?'@sheet':'');
  const touch={},over={},jig={},dead={},EX={};const add=(o,k,v)=>(o[k]=o[k]||new Set()).add(v);
- for(const id of Object.keys(SC))for(const p of ['guest','owner','delegate','teen','child','mini']){const at=id+'/'+p;try{S=fresh();setPersona(p);if(TS)S.ts=TS;if(LANG)S.lang=LANG;jump(id);render();
+ for(const id of Object.keys(SC))for(const p of ['guest','owner','delegate','teen','child']){const at=id+'/'+p;try{S=fresh();setPersona(p);if(TS)S.ts=TS;if(LANG)S.lang=LANG;jump(id);render();
    for(const e of ph.querySelectorAll('[data-a]')){const n=e.dataset.a.split(':')[0];if(typeof ACT[n]!=='function'){add(dead,n,at);EX[n]=EX[n]||e.outerHTML.replace(/\s+/g,' ').slice(0,140)}}   /* زر بلا فعل: اسم الفعل غير معرَّف */
    const lay=[...ph.querySelectorAll('#ov > .scrim, #ov > .full')].pop();   /* ورقة أو شاشة كاملة فوق الشاشة: يُفحص ما في الطبقة العليا وحدها، فما تحتها لا يُلمس الآن */
    const els=[...ph.querySelectorAll(SEL)].filter(e=>vis(e)&&!e.disabled&&!e.closest('[inert]')&&(!lay||lay.contains(e)||e.closest('#sosL'))&&!e.matches('.scrim'));const H=new Map();

@@ -2,10 +2,10 @@
 'use strict';
 /* ============ الطفل (القالب القياسي 7–12) ============ */
 const kidId = () => PERSONA[S.persona].m;
-const timeMood = k => { const l = left(k), w = fmOf(k) ? '' : winNow(k); return fmOf(k) ? ['wb_sunny', 'وقت حر الآن', 'استمتعي!'] : w === 'mode' ? [modeAct(k).i, modeAct(k).n, 'حتى ' + S.pm[k].until] : w === 'sleep' ? ['bedtime', 'حان وقت النوم', 'تصبحين على خير'] : w === 'school' ? ['school', 'وقت الدراسة', 'تطبيقات الدراسة مفتوحة'] : l > 45 ? ['wb_sunny', 'بقي وقت كثير', `${l} دقيقة`] : l > 0 ? ['hourglass_top', 'بقي وقت قليل', `${l} دقيقة`] : ['bedtime', 'انتهى وقت اليوم', 'نكمل غداً']; };
+const timeMood = k => { const l = left(k), w = fmOf(k) ? '' : winNow(k); return fmOf(k) ? ['wb_sunny', 'وقت حر الآن', M[k].f ? 'استمتعي!' : 'استمتع!'] : w === 'mode' ? [modeAct(k).i, modeAct(k).n, 'حتى ' + S.pm[k].until] : w === 'sleep' ? ['bedtime', 'حان وقت النوم', M[k].f ? 'تصبحين على خير' : 'تصبح على خير'] : w === 'school' ? ['school', 'وقت الدراسة', 'تطبيقات الدراسة مفتوحة'] : l > 45 ? ['wb_sunny', 'بقي وقت كثير', `${l} دقيقة`] : l > 0 ? ['hourglass_top', 'بقي وقت قليل', `${l} دقيقة`] : ['bedtime', 'انتهى وقت اليوم', 'نكمل غداً']; };
 surface('c-home', {
-  t: 'الرئيسية', sys: 'S1-01', p: 'child', bar: false, req: '01:2,4,7,15,18 10:25 05:2,7 06:6', st: 'un',
-  note: 'القالب القياسي (7–12). ما فيه من المهام والمكافآت والمساعدة معتمد مع أنظمته (Q-414 · Q-415 · Q-424)؛ والقالب كاملاً لم يصدر فيه حكم صريح كما صدر لقالب المراهق (Q-417)، فيبقى Q-090 مفتوحاً له. الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
+  t: 'الرئيسية', sys: 'S1-01', p: 'child', bar: false, req: '01:2,4,7,15,18 10:25 05:2,7 06:6',
+  note: 'قالب الطفل: لكل ابن دون 13، ومنهم من هو دون 7 (Q-426). اعتمده المالك في 2026-11-18 (Q-426، يغلق Q-090). الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
   r() { const id = kidId(), m = M[id], k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), md = timeMood(id), pc = left(id) / (k.quota + k.extra);
     const cele = T.find(t => t.cele); if (cele) { cele.cele = 0; setTimeout(() => { rwCele(); if (RW().cele !== 'off') notif('أحسنتِ يا ' + m.n + '!', `اعتُمدت «${cele.t}» · +${cele.pts} نقاط`, 'celebration'); }, 250); }
     const req = S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen);
@@ -30,7 +30,7 @@ surface('c-me', {
 const helpCard = () => `<button class="card tnsh khelp" data-a="go:kid-help">${ic('front_hand')}<span><b>أحتاج مساعدة</b><small>أكلّم أهلي، أو أخبرهم بما أزعجني</small></span>${ic('chevron_left')}</button>`;
 surface('kid-help', {
   kind: 'sheet', t: 'أحتاج مساعدة', sys: 'S1-01', p: 'kid', req: '01:2,7,15 07:7 08:1',
-  note: 'للطفل والمراهق، لا لمن دون 7 (رئيسيته فيها «كلّم أهلي» و«شيء أزعجني» بلاطتين). ثلاثة أبواب بسيطة: أكلّم أحد والديّ (تفتح محادثته)، أو «شيء أزعجني» (رسالة قصيرة تصل الأب الآن بلا شرح)، أو «أنا في خطر» وهي الاستغاثة نفسها: تأكيد ثم عدّ 10 ثوانٍ يمكن الإلغاء خلاله (S1-07 REQ-007). لا لوم ولا تخويف في النص. تعمل دون اتصال إلا بدء محادثة جديدة.',
+  note: 'للطفل والمراهق. ثلاثة أبواب بسيطة: أكلّم أحد والديّ (تفتح محادثته)، أو «شيء أزعجني» (رسالة قصيرة تصل الأب الآن بلا شرح)، أو «أنا في خطر» وهي الاستغاثة نفسها: تأكيد ثم عدّ 10 ثوانٍ يمكن الإلغاء خلاله (S1-07 REQ-007). لا لوم ولا تخويف في النص. تعمل دون اتصال إلا بدء محادثة جديدة.',
   r() { const tn = mode() === 'teen', dad = tn ? 'والدي' : 'بابا', mom = tn ? 'والدتي' : 'ماما';
     return `<h4>أحتاج مساعدة</h4><p class="d">اختر ما يناسبك الآن. أهلك معك.</p>
     ${list(row('forum', `أكلّم ${dad}`, 'تفتح محادثتك معه', { a: 'helpTalk:ahmad' }), row('forum', `أكلّم ${mom}`, 'تفتح محادثتك معها', { a: 'helpTalk:sara' }), row('front_hand', 'شيء أزعجني', `رسالة قصيرة تصل ${tn ? 'والدك' : 'بابا'} الآن · الشرح متى أردت`, { a: 'helpTell', ic: 'var(--accent)' }))}
@@ -69,22 +69,6 @@ Object.assign(ACT, {
   kidUnpair() { if (offline()) return toast('يحتاج اتصالاً · الخادم يتحقق من هذه العملية', null, 'cloud_off'); gate('فكّ الإقران فعل حساس', () => confirmDlg('فكّ إقران هذا الجهاز؟', 'تتوقف القواعد عن العمل هنا، ويبقى ملف الطفل وقواعده محفوظة لتتبعه إلى جهازه القادم.', 'فكّ الإقران', () => { setPersona('guest'); render(); }, true), 'stepup'); },
 });
 
-/* ============ القالب المبسّط (دون 7) ============ */
-surface('m-home', {
-  t: 'بيت', sys: 'S1-01', p: 'mini', bar: false, req: '01:2,4,7 05:2 06:6', st: 'un',
-  note: 'القالب المبسّط (دون 7). لم يصدر فيه حكم صريح كما صدر لقالب المراهق (Q-417)، فيبقى Q-090 مفتوحاً له. بلاطات كبيرة (هدف لمس 72–88)، نص ×1.35، أيقونة مع كل كلمة، زر «بيت» واحد، والوقت بصورة شمس/قمر بلا أرقام. اسم كل بلاطة يُنطق بمقطع مسجّل ثابت عند لمسها (Q-411)، بلا نطق آلي؛ النموذج لا يشغّل صوتاً.',
-  r() { const id = 'yusuf', k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st === 'PENDING'), md = left(id) > 20 ? ['wb_sunny', '#C8A24A'] : left(id) > 0 ? ['wb_twilight', '#CF5B2C'] : ['bedtime', '#142749'];
-    return `<header class="bar"><span style="margin-inline-start:8px">${av(M[id])}</span><h2>أهلاً يوسف</h2>${sosBtn()}</header>
-    <div class="tiles"><div class="tile w" style="--kc:${md[1]}">${ic(md[0])}<span>${!fmOf(id) && winNow(id) === 'sleep' ? 'وقت النوم' : left(id) > 20 ? 'وقت اللعب' : left(id) > 0 ? 'قرب ينتهي' : 'نكمل بكرة'}</span></div>
-    <button class="tile" style="--kc:#1F6B3B" data-a="go:m-task">${ic('task_alt')}<span>مهامي${T.length ? ` (${T.length})` : ''}</span></button>
-    <button class="tile" style="--kc:#C8A24A" data-a="go:m-stars">${ic('star-fill')}<span>نجومي</span></button>
-    <button class="tile" style="--kc:#2457A6" data-a="go:m-chat">${ic('forum')}<span>كلّم أهلي</span></button>
-    <button class="tile" style="--kc:#7A3E65" data-a="openAppM">${ic('smart_display')}<span>أفلامي</span></button>
-    <button class="tile w" style="--kc:#CF5B2C" data-a="reportGo">${ic('front_hand')}<span>شيء أزعجني</span></button></div>`; },
-});
-Object.assign(ACT, {
-  openAppM() { if (!decide('yusuf', 'ytk').ok) return void (S.full = { id: 'block', a: ['ytk'] }); toast('يفتح YouTube Kids'); },
-});
 
 /* ============ المراهق (13–17) ============ */
 /* ---------- المراهق: الرئيسية و«أنا» ----------

@@ -151,7 +151,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('teen');render();ok('help: the teen home carries it under what the family sees',!!q('#scr .khelp[data-a="go:kid-help"]')&&!!q('#scr .tnsh[data-a="tab:t-me"]'));
  open('kid-help');ok('help: the teen reads it in his own register',rowsT()==='أكلّم والدي|أكلّم والدتي|شيء أزعجني|أنا في خطر'&&/رسالة قصيرة تصل والدك الآن/.test(txt()),rowsT());S.sheet=null;
  open('t-me');ok('help: the teen profile has it too',!!q('#scr [data-a="go:kid-help"]'));
- S=fresh();setPersona('mini');render();ok('help: under seven keeps its two big tiles, no sheet',!q('#scr [data-a="go:kid-help"]')&&!!q('#scr [data-a="go:m-chat"]')&&!!q('#scr [data-a="reportGo"]'));
+ S=fresh();open('view-as','yusuf');ok('help: a child under seven gets the same help card as any child (Q-426)',!!document.querySelector('#phone [data-a="go:kid-help"]')&&!SC['m-home']);
  S=fresh();setPersona('owner');render();ok('help: nothing of it in parent mode',!q('#scr [data-a="go:kid-help"]'));S=fresh();}
  S=fresh();setPersona('child');open('map');ok('child: simple words, no numbers',has(/بابا/)&&has(/ليطمئن عليك/)&&!has(/متراً/));
  S.gpsOff=true;render();ok('location off on the child device: says so, SOS still works',has(/تحديد الموقع متوقف/)&&has(/زر الاستغاثة يعمل/));

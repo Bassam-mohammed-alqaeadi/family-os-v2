@@ -236,16 +236,6 @@ surface('objection', {
     ${offline() ? callout('لا اتصال الآن. يُحفظ اعتراضك ويُرسل عند عودة الاتصال.', 'nt', 'cloud_off') : ''}${btn(teen ? 'أرسل' : gx(id, 'أرسل اعتراضي', 'أرسلي اعتراضي'), 'rwObjGo:' + sid, '', 'send')}`; },
 });
 
-/* ============ الطفل الصغير (دون 7): نجومي ============ */
-surface('m-stars', {
-  t: 'نجومي', sys: 'S1-05', p: 'mini', req: '05:1,2,7,8',
-  note: 'القالب المبسّط: الرصيد نجوم تُعدّ بالعين، كل نجمة عشر نقاط وتساوي عشر دقائق لعب. بلا سجل ولا أرقام تفصيلية ولا كتابة. حين ينفد وقت لعبة تظهر بلاطة واحدة تحوّل نجمة إلى وقت. السلسلة شعلات مصوّرة.',
-  r() { const id = 'yusuf', k = S.kid[id], st = Math.floor(k.pts / 10), half = k.pts % 10 >= 5, out = rwCands(id)[0], can1 = out && st >= 1 && rwCapLeft(id) >= 10;
-    return `<div class="c" style="padding-top:10px"><p class="ttl">${st ? (st === 1 ? 'عندك نجمة' : st === 2 ? 'عندك نجمتان' : `عندك ${st} نجوم`) : 'ما عندك نجوم بعد'}</p><div class="rwms">${Array.from({ length: Math.min(st, 12) }, () => coin()).join('')}${half ? `<span class="coin hf">${ic('star-fill')}</span>` : ''}</div><p class="sub">${half ? 'نجمة تكتمل بمهمة ثانية' : 'كل مهمة تقرّبك من نجمة'}</p>
-    ${k.streak ? `<div class="rwmf">${Array.from({ length: Math.min(k.streak, 7) }, () => ic('local_fire_department')).join('')}</div>` : ''}</div>
-    ${can1 ? `<button class="tile w" style="--kc:#1F6B3B;width:100%" data-a="rwMini:${out.id}">${ic('more_time')}<span>نجمة = وقت لعب</span></button>` : ''}
-    <button class="tile w" style="--kc:#C8A24A;width:100%;margin-top:12px" data-a="go:m-task">${ic('task_alt')}<span>مهامي</span></button>`; },
-});
 
 /* ============ الأهل: المكافآت ============ */
 /* اختياران متجاوران يشرح كلٌّ منهما نفسه: النقاط تُدَّخر، والوقت يُستعمل اليوم (توجيه المالك: الفرق يجب أن يُلاحَظ بلا شرح خارجي) */
@@ -398,8 +388,6 @@ Object.assign(ACT, {
     if (!rwHas(id) || n < 10 || n % 10 || n > k.pts || n > rwCapLeft(id)) return toast('تعذّر التحويل. راجعي الرصيد وحد اليوم.', null, 'error');
     rwPut(id, { k: 'spend', n: -n, t: `وقت إضافي لـ${a.n}`, app: aid, min: n }); rwTime(id, aid, n, 'REDEEM'); S.sheet = null; S.full = null; S.rdN = 10; S.rdA = '';
     const off = queue(`صرف ${n} نقطة لـ${a.n}`, 'S1-05'); rwCele(); toast(off ? `+${rwMn(n)} لـ${a.n} · يُسجَّل عند الاتصال` : `+${rwMn(n)} لـ${a.n} · حتى منتصف الليل`, null, off ? 'cloud_upload' : 'celebration'); },
-  rwMini(aid) { const id = 'yusuf', k = S.kid[id], a = appOf(id, aid); if (k.pts < 10 || rwCapLeft(id) < 10) return;
-    rwPut(id, { k: 'spend', n: -10, t: `وقت إضافي لـ${a.n}`, app: aid, min: 10 }); rwTime(id, aid, 10, 'REDEEM'); queue('صرف 10 نقاط', 'S1-05'); rwCele(); toast('وقت لعب زيادة!', null, 'celebration'); },
   askGo(aid) { const id = kidId(), n = rwAskN(id); if (!n) return; if (S.reqs.some(r => r.kid === id && r.app === aid && r.st === 'PENDING')) { S.sheet = null; return; }
     S.reqs.push({ id: 'r' + Date.now(), kid: id, app: aid, min: n, msg: (($('#akM') || {}).value || '').trim(), st: 'PENDING' }); S.sheet = null; const off = queue('طلب وقت إضافي', 'S1-05');
     toast(off ? 'حُفظ طلبك · يُرسل عند الاتصال' : `وصل طلبك إلى ${rwDad()}`, null, off ? 'cloud_upload' : 'send'); },

@@ -84,20 +84,20 @@ Object.assign(ACT, {
     gate('تغيير توقيت العائلة إلى ' + v, () => { S.tz = v; S.fmF = null; audit(`غُيّر توقيت العائلة من ${was} إلى ${v}`, 'shell.config.edit'); toast(`توقيت العائلة الآن ${v} · يسري عند كل الأبناء`, null, 'schedule'); }); },
 });
 surface('templates', {
-  t: 'القوالب', sys: 'S1-01', p: 'adult', req: '01:4 03:13 02:13', st: 'un',
-  note: 'قوالب العرض الثلاثة وقوالب الصلاحيات الثلاثة. كل صف قالب عرض يفتح معاينة «ما يراه» لابن من ذلك القالب (العرض كـ — Q-425)، ولا يحوّل الأب إلى ابنه. قالب المراهق معتمد (Q-417)؛ والقياسي والمبسّط لم يصدر فيهما حكم صريح بعد (Q-090).',
-  r() { return callout('سنة الميلاد تحدد القالب تلقائياً، ولا يُبدَّل يدوياً في المرحلة 1.', '', 'info') + sec('قوالب العرض') + list(row('child_care', 'المبسّط', 'دون 7 سنوات · بلاطات كبيرة وزر «بيت»', { v: 'يوسف', a: 'go:view-as:yusuf' }), row('face', 'القياسي', '7–12 سنة · أربعة تبويبات', { v: 'ليان', a: 'go:view-as:layan' }), row('person', 'المراهق', '13–17 سنة · استقلالية وشفافية', { v: 'خالد', a: 'go:view-as:khaled' })) + '' + sec('قوالب الصلاحيات') + list(row('handshake', 'شريك', '43 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:partner' : '' }), row('shield_person', 'وصي محدود', '24 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:guardian' : '' }), row('visibility', 'مراقب', '10 مفاتيح', { a: isOwner() ? 'go:tpl-diff:observer' : '' })); },
+  t: 'القوالب', sys: 'S1-01', p: 'adult', req: '01:4 03:13 02:13',
+  note: 'قالبا العرض (الطفل والمراهق) وقوالب الصلاحيات الثلاثة. كل صف قالب عرض يفتح معاينة «ما يراه» لابن من ذلك القالب (العرض كـ — Q-425)، ولا يحوّل الأب إلى ابنه. القالبان معتمدان (Q-417 · Q-426). لا قالب خاصاً بمن هم دون 7 في هذه المرحلة: يستعملون قالب الطفل (Q-426).',
+  r() { return callout('سنة الميلاد تحدد القالب تلقائياً، ولا يُبدَّل يدوياً في المرحلة 1.', '', 'info') + sec('قوالب العرض') + list(row('face', 'الطفل', 'حتى 12 سنة · أربعة تبويبات', { v: 'ليان', a: 'go:view-as:layan' }), row('person', 'المراهق', '13–17 سنة · استقلالية وشفافية', { v: 'خالد', a: 'go:view-as:khaled' })) + sec('قوالب الصلاحيات') + list(row('handshake', 'شريك', '43 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:partner' : '' }), row('shield_person', 'وصي محدود', '24 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:guardian' : '' }), row('visibility', 'مراقب', '10 مفاتيح', { a: isOwner() ? 'go:tpl-diff:observer' : '' })); },
 });
 /* ============ «العرض كـ» (DS-CC-09 · DS-NV-10 — كان محمولاً بـ Q-407 إلى مراجعة الربط الأخيرة) ============
    الأب يرى رئيسية ابنه كما تظهر على جهاز الابن: شريط معاينة ثابت، وبلا أي فعل، وبلا محتوى رسائل. */
-const vaP = id => (M[id].mini ? 'mini' : M[id].role === 'teen' ? 'teen' : 'child');
+const vaP = id => (M[id].role === 'teen' ? 'teen' : 'child');
 const vaKid = id => (KIDS.includes(id) ? id : 'layan');
 surface('view-as', {
   t: id => `ما يراه ${pname(M[vaKid(id)])}`, sys: 'S1-09', p: 'adult', a: ['layan'], req: '09:1,4 01:4 02:13', vmode: id => PERSONA[vaP(vaKid(id))].mode,
   note: '«العرض كـ»: الأب يرى رئيسية ابنه كما تظهر على جهاز الابن، بقالب عمره. شريط المعاينة ثابت في الأعلى، ولا شيء في المعاينة يُضغط، ولا يظهر فيها نص رسالة. يُفتح من ملف الفرد ومن «القوالب». لمن عنده «الرئيسية» من البالغين. الأب لا يتحول إلى ابنه ولا يفعل شيئاً باسمه.',
   r(id) { const k = vaKid(id), m = M[k], p = vaP(k), was = S.persona;
     if (!can('hub.dashboard.view')) return empty('lock_person', 'المعاينة غير مسموحة لكِ', 'يعطيها أحمد مع «الرئيسية».', why('nd:hub.dashboard.view'));
-    let h = ''; S.persona = p; try { h = SC[TABS[PERSONA[p].mode][0][0]].r(); } finally { S.persona = was; }
+    let h = ''; const wm = PERSONA[p].m; S.persona = p; PERSONA[p].m = k; try { h = SC[TABS[PERSONA[p].mode][0][0]].r(); } finally { S.persona = was; PERSONA[p].m = wm; }   /* المعاينة ببيانات هذا الابن نفسه */
     return `<div class="vabar" role="status">${ic('visibility')}<span class="grow">تعاين الآن ما يراه <b>${pname(m)}</b> على جهازه. للمشاهدة فقط.</span><button class="btn sm sec" data-a="back">أنهِ</button></div><div class="vaw" inert aria-label="معاينة رئيسية ${pname(m)}">${h}</div>`; },
 });
 surface('registry', {

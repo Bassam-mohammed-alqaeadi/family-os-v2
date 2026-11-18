@@ -21,7 +21,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const T=()=>document.querySelector('#toast').textContent;const noT=()=>{document.querySelector('#toast').innerHTML=''};const scr=()=>q('#scr').innerText.replace(/\s+/g,' ');
  const type=v=>{const e=q('#cmp');e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))};const sendBtn=()=>q('.composer [data-a^="send:"]');
  const say=(id,v)=>{open('thread',id);type(v);sendBtn().click();render();const ms=msgsOf(id);return ms[ms.length-1]};const last=id=>{const ms=msgsOf(id);return ms[ms.length-1]};
- const lastMe=()=>[...ph.querySelectorAll('#scr .msg.me')].pop();const K='dm-khaled-layan';const CHATS=['m-chat','chat','chat-new','chat-group','thread','chat-info','msg-actions','chat-close','minor-chats','chat-flag','chat-review','chat-restore','chat-settings'];
+ const lastMe=()=>[...ph.querySelectorAll('#scr .msg.me')].pop();const K='dm-khaled-layan';const CHATS=['chat','chat-new','chat-group','thread','chat-info','msg-actions','chat-close','minor-chats','chat-flag','chat-review','chat-restore','chat-settings'];
  // 1 البذرة
  S=fresh();ok('seed: thirteen S1-08 surfaces',CHATS.every(k=>SC[k]&&SC[k].sys==='S1-08'),CHATS.filter(k=>!SC[k]));
  ok('seed: media limits are the spec values',IMG_MAX===10&&VOICE_MAX===5);
@@ -162,16 +162,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.net='off';say('majlis','أ');m=say('majlis','ب');S.outbox.unshift({t:'عملية أخرى',sys:'S1-06',at:'الآن'});ACT.msgDrop('majlis',String(msgsOf('majlis').length-1));ok('cancelling a waiting message removes only its own outbox entry',S.outbox.length===2&&S.outbox[0].t==='عملية أخرى'&&!S.outbox.some(o=>o.m===m));noT();
  S=fresh();ACT.openCh('parents');pin();m=say('parents','خاص جداً');m.fail=1;S.full=null;open('outbox');ok('a failed parents-channel message shows no text outside the channel',!/خاص جداً/.test(scr())&&!!q('#scr [data-a^="msgRetry:parents"]'));
  S=fresh();setPersona('child');m=say('majlis','من ليان');m.fail=1;open('outbox');ok('child sees her failed message and can retry',!!q('#scr [data-a^="msgRetry:majlis"]'));
- // 18 القالب المبسّط (دون 7)
- S=fresh();setPersona('mini');tab('m-home');render();ok('small child: one big tile to the family',!!q('#scr [data-a="go:m-chat"]'));
- q('#scr [data-a="go:m-chat"]').click();ok('small child: a big face per member and one for everyone, no parents channel',ph.querySelectorAll('#scr .tile').length===5&&has(/بابا/)&&has(/ماما/)&&has(/كلنا/)&&!/قناة الوالدين/.test(txt())&&[...ph.querySelectorAll('#scr .tile')].every(e=>e.getBoundingClientRect().height>=72));
- ok('small child: a dot marks news in the family lounge',!!q('#scr [data-a="mOpen:majlis"] .mdot')&&!q('#scr [data-a="mOpen:ahmad"] .mdot'));
- q('#scr [data-a="mOpen:majlis"]').click();ok('small child thread: short title, no text field, big voice and symbol buttons',top()==='thread'&&ph.querySelector('.bar h2').textContent.trim()==='كلنا'&&!q('#cmp')&&!!q('.composer.mini [data-a="recGo:majlis"]')&&ph.querySelectorAll('.composer.mini [data-a^="mEmo:"]').length===3&&[...ph.querySelectorAll('.composer.mini .mbig')].every(e=>e.getBoundingClientRect().height>=72));
- n0=msgsOf('majlis').length;q('.composer.mini [data-a^="mEmo:"]').click();ok('small child: one touch sends a symbol',msgsOf('majlis').length===n0+1&&last('majlis').f==='yusuf');
- q('.composer.mini [data-a="recGo:majlis"]').click();ok('small child: recording shows cancel and send, both big',!!q('.composer.mini.rec [data-a="recX"]')&&!!q('.composer.mini.rec [data-a="recSend:majlis"]'));q('[data-a="recSend:majlis"]').click();ok('small child: voice sent',last('majlis').k==='voice');
- q('#scr .msg').click();ok('small child: touching a message opens no menu',!S.sheet);
- back();render();q('#scr [data-a="mOpen:ahmad"]').click();ok('small child: a face opens a chat with that person',top()==='thread'&&chOf(S.stack[S.stack.length-1].a[0]).mem.includes('ahmad')&&chOf(S.stack[S.stack.length-1].a[0]).mem.includes('yusuf'));
- setPersona('owner',1);open('minor-chats','yusuf');ok('his chat is visible to the father like any child\'s',rows()===1);
+ // 18 لا قالب لمن هم دون 7 (Q-426): قالب الطفل لكل من هم دون 13
+ S=fresh();ok('no under-7 chat screen or symbol-only composer',!SC['m-chat']&&!ACT.mOpen&&!ACT.mEmo&&!PERSONA.mini);
+ S=fresh();ok('a child under seven is in the family lounge like any member',chOf('majlis').mem.includes('yusuf'));
  // 13 ما أوقفه المصنّف قبل التسليم
  S=fresh();setPersona('teen');S.blockNext=true;m=say(K,'نص تجريبي');
  ok('blocked before delivery: sender is told, nothing is silent',m.blk===1&&has(/لم تُسلَّم هذه الرسالة/)&&has(/أحالها إلى والدك/)&&S.review.length===1&&S.review[0].cat==='harm');

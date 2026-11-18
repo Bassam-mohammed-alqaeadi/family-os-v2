@@ -57,7 +57,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 6 ما يبقى بالرقم السري
  S=fresh();fp();setPersona('child');gate('إعدادات الجهاز للأهل',()=>{S.x418=1});render();ok('child device: the secret number only, even when the father chose the fingerprint',top()==='pin'&&!q('[data-a="pinBio"]')&&!q('.pinwhy'));
  ACT.pinBio();render();ok('child device: the fingerprint cannot be forced',top()==='pin'&&!S.x418);
- ok('child, teen and under-7 devices never get the fingerprint screen',['child','teen','mini'].every(p=>{S=fresh();fp();setPersona(p);gate('فكّ الإقران فعل حساس',()=>{},'stepup');render();return top()==='pin'&&!q('[data-a="pinBio"]')}));
+ ok('child and teen devices never get the fingerprint screen',['child','teen'].every(p=>{S=fresh();fp();setPersona(p);gate('فكّ الإقران فعل حساس',()=>{},'stepup');render();return top()==='pin'&&!q('[data-a="pinBio"]')}));
  S=fresh();fp();open('security');ACT.pinChange();render();ok('changing the secret number asks for the number itself',top()==='pin'&&A()[1]==='pin'&&!q('[data-a="pinBio"]'));
  S=fresh();fp();open('security');ACT.bioT();render();ok('turning on app unlock asks for the number itself',top()==='pin'&&!q('[data-a="pinBio"]'));
  S=fresh();fp();open('recovery');ACT.recPick&&0;gate('اختيار من يساعدك',()=>{},'pin');render();ok('a number-only confirmation never offers the fingerprint',top()==='pin'&&!q('[data-a="pinBio"]'));

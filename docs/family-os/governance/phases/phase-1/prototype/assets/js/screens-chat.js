@@ -47,8 +47,6 @@ const chFlagsAll = () => [...new Set(minorsSeen().flatMap(kidChs))].reduce((n, i
 const chUnreadAll = () => myChs().reduce((n, id) => n + chUnread(id), 0);
 const chAv = id => { const c = chOf(id), u = me().id; return c.k === 'dm' && c.mem.includes(u) ? av(M[c.mem.find(x => x !== u)]) : `<span class="av" style="--c:${id === 'parents' ? '#142749' : c.k === 'group' ? '#CF5B2C' : '#1F6B3B'}">${ic(c.i || (c.k === 'group' ? 'groups' : 'forum'))}</span>`; };
 
-const MEMO = ['👍', '❤️', '😂'];
-const mNm = x => ({ ahmad: 'بابا', sara: 'ماما' }[x] || M[x].n);
 const cntMsg = (n, un) => (n === 1 ? 'رسالة واحدة' + (un ? ' غير مقروءة' : ' جديدة') : n === 2 ? 'رسالتان' + (un ? ' غير مقروءتين' : ' جديدتان') : `${n} ${n > 10 ? 'رسالة' : 'رسائل'}` + (un ? ' غير مقروءة' : ' جديدة'));
 /* CH-10 ودجة الرئيسية: حتى خمس محادثات فيها جديد، صف لكل محادثة، عدد فقط بلا نص ولا صور. قناة الوالدين للكبار وحدهم. */
 function chWidget(quiet) {
@@ -128,7 +126,7 @@ const tick = m => (m.fail ? 'error' : m.st === 0 ? 'schedule' : m.st === 1 ? 'ch
 const tickTxt = m => (m.fail ? 'لم تُرسل' : m.st === 0 ? 'تنتظر الإرسال' : m.st === 1 ? 'أُرسلت' : 'قُرئت');
 const EMO = ['👍', '❤️', '😂', '🤲', '🌹', '👏', '😢', '🙏'];
 surface('thread', {
-  t: id => { const c = chOf(id); if (mode() === 'mini') return id === 'majlis' ? 'كلنا' : c.k === 'dm' ? mNm(c.mem.find(x => x !== me().id)) : c.n; return c.mem.includes(me().id) ? chName(id, me().id) : c.n || c.mem.map(x => M[x].n).join(' و'); }, sys: 'S1-08', p: 'any', a: ['majlis'], flush: true, req: '08:4,5,6,7,8,9,11,12,13,14,15 01:9',
+  t: id => { const c = chOf(id); return c.mem.includes(me().id) ? chName(id, me().id) : c.n || c.mem.map(x => M[x].n).join(' و'); }, sys: 'S1-08', p: 'any', a: ['majlis'], flush: true, req: '08:4,5,6,7,8,9,11,12,13,14,15 01:9',
   note: 'الرسالة تظهر فوراً بعلامة الساعة، ثم صح عند وصولها للخادم، ثم صحّان عند قراءتها. دون اتصال تبقى بالساعة وتُرسل بترتيبها عند عودته، وما فشل يحمل «أعد المحاولة». لمس أي رسالة يفتح إجراءاتها. المحادثة المغلقة تعرض من أغلقها وسببه، ولا يعيد فتحها إلا صاحب العائلة. وليّ الأمر يقرأ محادثات الأبناء ولا يكتب فيها. رسالة أوقفها المصنّف يراها مرسلها بنص صريح ولا تصل. قناة الوالدين: شارة التشفير، وبلا مصنّف. في توفير البيانات لا تُحمَّل الصورة إلا بالطلب. جرّب من الاستوديو: «يكتب الآن»، «فشل الإرسال»، «صورة أكبر من الحد»، «المصنّف يوقف الرسالة التالية».',
   act: id => `${id === 'parents' ? `<span class="chip ok" style="margin-inline-end:4px">${ic('encrypted')}مشفّرة</span>` : ''}<button class="ib" data-a="go:chat-info:${id}" aria-label="معلومات المحادثة">${ic('info')}</button>`,
   r(id) {
@@ -148,8 +146,6 @@ surface('thread', {
     const u = me().id, c = chOf(id), obs = !c.mem.includes(u), kid = !isAdult();
     if (obs) return chClosable(id) && !c.closed && can('chat.channel.close') ? `<div class="composer obs">${btn('أغلق هذه المحادثة', 'go:chat-close:' + id, 'sm sec', 'lock')}</div>` : c.closed && isOwner() ? `<div class="composer obs">${btn('أعد فتح المحادثة', 'chReopen:' + id, 'sm sec', 'lock_open')}</div>` : '';
     if (c.closed) return `<div class="composer obs"><p class="sm muted grow">لا يمكن الإرسال: المحادثة مغلقة.${isOwner() ? '' : ` ${M.ahmad.n} وحده يعيد فتحها.`}</p>${isOwner() ? btn('أعد فتحها', 'chReopen:' + id, 'sm sec', 'lock_open') : ''}</div>`;
-    if (mode() === 'mini') return S.rec === id ? `<div class="composer mini rec" role="status"><button class="mbig" data-a="recX" aria-label="ألغِ التسجيل">${ic('delete')}</button><span class="grow"><i class="recdot"></i> أسمعك…</span><button class="mbig go" data-a="recSend:${id}" aria-label="أرسل صوتك">${ic('send')}</button></div>`
-      : `<div class="composer mini"><button class="mbig mic" data-a="recGo:${id}" aria-label="سجّل صوتك">${ic('mic')}</button>${MEMO.map(e => `<button class="mbig" data-a="mEmo:${id}:${e}" aria-label="أرسل ${e}">${e}</button>`).join('')}</div>`;
     if (S.rec === id) return `<div class="composer rec" role="status"><button class="ib" data-a="recX" aria-label="ألغِ التسجيل">${ic('delete')}</button><span class="grow"><i class="recdot"></i> يسجّل… <span class="ltr">0:04</span></span><button class="ib snd" data-a="recSend:${id}" aria-label="أرسل التسجيل">${ic('send')}</button></div>`;
     return `${S.cmpErr ? `<p class="cmperr" role="alert">${ic('error')} ${S.cmpErr}</p>` : ''}${S.emo ? `<div class="emo" role="group" aria-label="رموز تعبيرية">${EMO.map(e => `<button data-a="emoAdd:${e}">${e}</button>`).join('')}</div>` : ''}
     <div class="composer"><button class="ib" data-a="emoT" aria-label="رموز تعبيرية" aria-pressed="${!!S.emo}">${ic('add')}</button><input id="cmp" placeholder="${mode() === 'child' ? 'اكتب رسالة لطيفة…' : 'اكتب رسالة…'}" autocomplete="off" aria-label="نص الرسالة"><button class="ib" data-a="sendK:${id}:img" aria-label="أرسل صورة">${ic('image')}</button><button class="ib mic" data-a="recGo:${id}" aria-label="سجّل رسالة صوتية">${ic('mic')}</button><button class="ib snd" data-a="send:${id}" aria-label="أرسل">${ic('send')}</button></div>`;
@@ -165,14 +161,6 @@ surface('chat-info', {
     ${c.closed ? callout(`<b>مغلقة</b> · أغلق${M[c.closed.by].f ? 'تها' : 'ها'} ${M[c.closed.by].n}: «${c.closed.why}».${isOwner() ? '' : ` ${M.ahmad.n} وحده يعيد فتحها.`}`, 'wa', 'lock') + (isOwner() ? btn('أعد فتح المحادثة', 'chReopen:' + id, 'sec', 'lock_open') : '') : chClosable(id) && isAdult() && can('chat.channel.close') ? btn('أغلق هذه المحادثة', 'go:chat-close:' + id, 'sec', 'lock') : ''}`; },
 });
 
-/* ---------- القالب المبسّط (دون 7): وجوه كبيرة، صوت ورموز، بلا كتابة ولا ضغط مطوّل (§9-4) ---------- */
-surface('m-chat', {
-  t: 'أهلي', sys: 'S1-08', p: 'mini', req: '08:1,2,5,14',
-  note: 'الطفل الصغير لا يقرأ ولا يكتب بعد: يختار وجهاً كبيراً ثم يسجّل صوته أو يرسل رمزاً بلمسة. لا كتابة، لا قوائم، لا ضغط مطوّل. قناة الوالدين لا وجود لها هنا. محادثاته مرئية لوالده ويفحصها المصنّف دائماً (دون 13).',
-  r() { const u = me().id; CHS(); const nm = mNm;
-    const tile = (x, name, c, i, n) => `<button class="tile" style="--kc:${c}" data-a="mOpen:${x}" aria-label="${name}${n ? ' · فيها جديد' : ''}">${ic(i)}<span>${name}</span>${n ? '<i class="mdot" aria-hidden="true"></i>' : ''}</button>`;
-    return `<div class="tiles">${ALL.filter(x => x !== u).map(x => { const id = dmId(u, x); return tile(x, nm(x), M[x].c, M[x].i, id ? chUnread(id) : 0); }).join('')}${tile('majlis', 'كلنا', '#C8A24A', 'diversity_3', chUnread('majlis')).replace('class="tile"', 'class="tile w"')}</div>`; },
-});
 
 /* ---------- CH-07 إجراءات الرسالة: نسخ، حذف لنفسي، حذف للجميع، إعادة المحاولة ---------- */
 surface('msg-actions', {
@@ -312,9 +300,7 @@ Object.assign(ACT, {
   emoT() { S.emo = !S.emo; },
   emoAdd(e) { const i = $('#cmp'); if (i) { i.value += e; i.dispatchEvent(new Event('input', { bubbles: true })); i.focus(); } return false; },
   imgLd(id, i) { msgsOf(id)[+i].ld = 1; },
-  mOpen(x) { if (x === 'majlis') return go('thread', x); ACT.dmStart(x); },
-  mEmo(id, e) { return ACT.send(id, '', '', e); },
-  msgAct(id, i) { const m = msgsOf(id)[+i]; if (!m || m.del || mode() === 'mini') return false; S.sheet = { id: 'msg-actions', a: [id, i] }; },
+  msgAct(id, i) { const m = msgsOf(id)[+i]; if (!m || m.del) return false; S.sheet = { id: 'msg-actions', a: [id, i] }; },
   msgCopy() { S.sheet = null; toast('نُسخ النص', null, 'content_copy'); },
   msgRetry(id, i) { const m = msgsOf(id)[+i]; S.sheet = null; if (offline()) { m.fail = 0; m.q = 1; m.st = 0; queue('رسالة إلى ' + chName(id, me().id), 'S1-08'); S.outbox[S.outbox.length - 1].m = m; toast('لا اتصال الآن: تُرسل عند عودته', null, 'cloud_off'); return; } if (S.sendFail) { toast('تعذّر الإرسال مرة أخرى. سنحاول تلقائياً.', null, 'error'); return; } m.fail = 0; m.st = 1; toast('أُرسلت', null, 'check'); },
   msgDrop(id, i) { const ms = msgsOf(id), m = ms[+i]; S.sheet = null; ms.splice(+i, 1); S.outbox = S.outbox.filter(o => o.m !== m); toast('أُلغيت الرسالة قبل إرسالها', null, 'delete'); },

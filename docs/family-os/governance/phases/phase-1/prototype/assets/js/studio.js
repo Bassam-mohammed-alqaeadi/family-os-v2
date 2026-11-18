@@ -8,7 +8,7 @@ function buildCover() { Object.values(SC).forEach(d => reqsOf(d).forEach(k => { 
 const sosDemoCur = () => { const s = S.sos; return !s || s.from !== 'layan' || s.st === 'pending' ? '' : s.st === 'resolved' ? 'done' : s.exh ? 'exh' : s.ack ? 'ack' : s.fix === 'last' ? 'last' : s.ch === 'sms' || /SMS/.test(s.via || '') ? 'sms' : 'live'; };
 function jump(id, args) {
   const d = SC[id]; if (!d) return; const p = d.p || 'adult', cur = S.persona;
-  const need = p === 'adult' ? (isAdult() ? cur : 'owner') : p === 'kid' ? (['child', 'teen', 'mini'].includes(cur) ? cur : 'child') : p === 'any' ? (cur === 'guest' ? 'owner' : cur) : p;
+  const need = p === 'adult' ? (isAdult() ? cur : 'owner') : p === 'kid' ? (['child', 'teen'].includes(cur) ? cur : 'child') : p === 'any' ? (cur === 'guest' ? 'owner' : cur) : p;
   if (id === 'chat' || id === 'thread') { /* مشترك */ }
   if (need !== cur) setPersona(need); else { S.sheet = S.full = S.dlg = null; }
   const root = rootOf(S.persona), a = args || d.a || [];
@@ -18,7 +18,7 @@ function jump(id, args) {
   if ((id === 'sos-status' || id === 'sos-resolve') && !(S.sos && S.sos.st === 'sent')) S.sos = { from: 'layan', st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
   if (id === 'sos-sent' && !S.sos) S.sos = { from: PERSONA[need].m, st: 'sent', ch: 'server', via: 'عبر الإنترنت', place: AD_HOME };
   if (id === 'grant-points') S.gp = null; if (id === 'grant-time') S.gt = null; if (id === 'time-decide') S.td = null; if (id === 'obj-decide') S.od = null; if (id === 'objection') { S.obQ = ''; S.obT = ''; } if (id === 'rw-edit') S.rwD = null; if (id === 'redeem') { S.rdA = ''; S.rdN = 10; }
-  if (id === 'task-new') S.nt = null; if (id === 'event-new') S.ev = null; if (id === 'tk-edit') S.tkE = null; if (id === 'tk-ai') S.tkA = null; if (id === 'tk-cat-new') S.tkC = null; if (id === 't-task-new') { S.tt = null; S.teenTasks = true; } if (id === 'c-task' || id === 'm-task') S.tkP = null; if (id === 'tk-sug') { TK().sug.forEach(x => { if (x.st === 'no') x.st = 'new'; }); }
+  if (id === 'task-new') S.nt = null; if (id === 'event-new') S.ev = null; if (id === 'tk-edit') S.tkE = null; if (id === 'tk-ai') S.tkA = null; if (id === 'tk-cat-new') S.tkC = null; if (id === 't-task-new') { S.tt = null; S.teenTasks = true; } if (id === 'c-task') S.tkP = null; if (id === 'tk-sug') { TK().sug.forEach(x => { if (x.st === 'no') x.st = 'new'; }); }
   if (id === 'ec-add') S.ecF = {};
   if (id === 'sos-count') S.sosN = 10;
   if (id === 'recover-review' && !(S.recReq && S.recReq.st !== 'cancelled')) S.recReq = { st: 'pending', kind: 'num' };
@@ -91,7 +91,6 @@ const JOURNEYS = [
     ['الآن جهاز الطفل: أدخل LY4N82.', () => { S.ob = {}; jump('ob-pair'); }],
     ['يتفقان معاً: يفعّل الطفل والأب المفتاحين، ثم يكتب بابا رقمه السري فيُحفظ على هذا الجهاز. «ليس الآن» يوقف الإقران بلا لوم.', () => { S.ob = { cons: {} }; jump('ob-consent'); }],
     ['الصيغة نفسها للمراهق: ما يعرفه والده وما لا يعرفه، ومعها حقّاه.', () => { S.ob = { cons: {}, kid: 'khaled' }; jump('ob-consent'); }],
-    ['ولمن دون 7: الأب يشرح بكلماته ثلاث صور، والصغير يضغط وجهاً. «ليس الآن» بالحجم نفسه.', () => { S.ob = { cons: {}, kid: 'yusuf' }; jump('ob-consent'); }],
     ['انتهى الإقران: الجهاز في وضع الطفل، والوضع ثابت.', () => jump('c-home')],
   ] },
   { t: 'نفد الوقت ← طلب ← قرار الأب', d: 'حلقة القرار بين جهازين', s: [
@@ -230,7 +229,7 @@ const Studio = {
     jump(id) { JR = null; jump(id); document.body.removeAttribute('data-open'); },
     req(k) { const ids = COVER[k]; if (ids) { JR = null; jump(ids[0]); document.body.removeAttribute('data-open'); } },
     reset() { const keep = { persona: S.persona, theme: S.theme, lang: S.lang, ts: S.ts }; S = fresh(); Object.assign(S, keep); S.stack = [{ id: rootOf(S.persona), a: [] }]; JR = null; render(); toast('أُعيدت بيانات العرض إلى بدايتها', null, 'refresh'); },
-    warn5() { if (!['child', 'teen', 'mini'].includes(S.persona)) setPersona('child'); const id = PERSONA[S.persona].m, a = S.apps[id].find(x => x.act === 'LIMIT') || S.apps[id][0]; S.full = null; S.sheet = { id: 'warn5', a: [a.id] }; render(); },
+    warn5() { if (!['child', 'teen'].includes(S.persona)) setPersona('child'); const id = PERSONA[S.persona].m, a = S.apps[id].find(x => x.act === 'LIMIT') || S.apps[id][0]; S.full = null; S.sheet = { id: 'warn5', a: [a.id] }; render(); },
     boot() { boot(); },
     brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116e'; o.hidden = false; document.body.removeAttribute('data-open'); },
     brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
@@ -285,7 +284,7 @@ const Studio = {
     return `<div class="note" style="margin-top:0">القيم من <span class="mono">design-system/*.md</span> المجمَّدة (Q-383). الهاتف يستخدمها مباشرة بلا قيم بديلة.</div>
     <div class="st-h">الألوان الأساسية · 60–30–10</div>${sw([['#1F3A6B', 'navy 500'], ['#142749', '700'], ['#0A152A', '900'], ['#081122', '950'], ['#FCFAED', 'cream', '#0A152A']])}<div style="height:6px"></div>${sw([['#1F6B3B', 'green'], ['#CF5B2C', 'orange'], ['#C8A24A', 'gold', '#0A152A'], ['#7F300E', 'orange txt'], ['#F7F6F0', 'n-50', '#0A152A']])}
     <div class="st-h">الدلالية (اللون ليس الإشارة الوحيدة)</div>${sw([['#1F6B3B', 'success'], ['#9A5B00', 'warning'], ['#B42318', 'danger'], ['#2457A6', 'info'], ['#625C4D', 'muted']])}<div style="height:6px"></div>${sw([['#73AB82', 'dark ok', '#081122'], ['#D09A65', 'dark warn', '#081122'], ['#EE7A6A', 'dark dng', '#081122'], ['#719CE0', 'dark info', '#081122'], ['#7089B5', 'dark pri', '#081122']])}
-    <div class="st-h">الطباعة · IBM Plex Sans Arabic</div>${T.map(([s, w, n]) => `<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed #1E315480"><span style="font-size:${Math.min(s, 30)}px;font-weight:${w};line-height:1.4">عائلتي</span><span class="mono" style="font-size:10.5px;color:var(--st-mute)">${s}/${w} · ${n}</span></div>`).join('')}<div class="note">بلا تباعد حروف في العربية · الطفل ×1.15 · المبسّط ×1.35.</div>
+    <div class="st-h">الطباعة · IBM Plex Sans Arabic</div>${T.map(([s, w, n]) => `<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed #1E315480"><span style="font-size:${Math.min(s, 30)}px;font-weight:${w};line-height:1.4">عائلتي</span><span class="mono" style="font-size:10.5px;color:var(--st-mute)">${s}/${w} · ${n}</span></div>`).join('')}<div class="note">بلا تباعد حروف في العربية · الطفل ×1.15.</div>
     <div class="st-h">الشبكة والزوايا واللمس</div><div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:8px">${[4, 8, 12, 16, 24].map(r => `<div style="width:44px;height:44px;border:1.5px solid var(--st-gold);border-radius:${r}px;display:grid;place-items:center;font-size:10px" class="mono">${r}</div>`).join('')}</div><div style="display:flex;gap:8px;align-items:flex-end">${[[48, 'بالغ/مراهق'], [56, 'طفل'], [80, 'مبسّط']].map(([s, n]) => `<div style="text-align:center;font-size:10.5px;color:var(--st-mute)"><div style="width:${s}px;height:${s}px;border-radius:14px;background:#1F3A6B;border:1px solid #3C5F9E;display:grid;place-items:center;color:#fff;margin:0 auto 4px" class="mono">${s}</div>${n}</div>`).join('')}</div>
     <div class="st-h">الحركة</div><div class="kv"><dt>سريع</dt><dd class="mono">120–150ms</dd><dt>متوسط</dt><dd class="mono">220–250ms</dd><dt>بطيء</dt><dd class="mono">350–400ms</dd><dt>احتفال (أطفال فقط)</dt><dd class="mono">800–1500ms</dd></div>
     <div class="st-h">الأيقونات · Material Symbols Rounded</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${[['home', 'nav.home'], ['sos', 'safety.sos'], ['lock', 'status.locked'], ['help', 'info.why'], ['supervisor_account', 'role.parent'], ['cloud_off', 'status.offline']].map(([i, n]) => `<div style="display:flex;align-items:center;gap:8px;font-size:11px" class="mono">${ic(i)}${n}</div>`).join('')}</div><div class="note">خط = غير محدد · ممتلئ = نشط · الاتجاهية تنعكس في RTL · الأيقونة تسند النص ولا تستبدله.</div>

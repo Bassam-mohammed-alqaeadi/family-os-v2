@@ -52,7 +52,6 @@
   --lift:none;
 }
 .phone[data-mode="child"]{--tk:1.15;--touch:56px}
-.phone[data-mode="mini"]{--tk:1.35;--touch:76px}
 .phone[data-motion="off"] *,.phone[data-motion="off"] *::before,.phone[data-motion="off"] *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
 @media (prefers-reduced-motion:reduce){.phone *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 
@@ -180,7 +179,7 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .sos i{position:absolute;inset:0;background:#0006;transform-origin:left;transform:scaleX(0)}
 .sos.holding i{transition:transform 3s linear;transform:scaleX(1)}
 .sos > *:not(i){position:relative}
-.phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:44px;font-size:15px;padding:0 16px 0 12px}
+.phone[data-mode="child"] .sos{height:44px;font-size:15px;padding:0 16px 0 12px}
 /* الاستغاثة فوق الأوراق ونوافذ التأكيد (REQ-007 · DS-SP-07)، ومؤشر الضغط لا يُلغى بتقليل الحركة (DS-MT-06) */
 #sosL{position:absolute;z-index:60;display:flex}#sosL:empty{display:none}
 #sosL.float{align-items:center;gap:8px;padding:8px 12px 8px 16px;background:var(--bg);border-bottom:1px solid var(--border);animation:fd var(--fast,.15s)}
@@ -476,11 +475,6 @@ button.chip{min-height:28px}
 @keyframes rcd{50%{opacity:.3}}
 .emo{display:flex;gap:2px;padding:6px 10px 0;background:var(--surface);border-top:1px solid var(--border);flex:none;overflow-x:auto}.emo button{min-width:44px;height:48px;font-size:22px;border-radius:12px;flex:none}
 .emo + .composer{border-top:0}
-.composer.mini{gap:10px;padding:12px 14px;justify-content:space-between}
-.mbig{flex:1;min-height:76px;border-radius:24px;background:var(--surface-2,var(--bg));border:1.5px solid var(--border);font-size:34px;display:grid;place-items:center;color:var(--text)}
-.mbig svg{width:38px;height:38px}.mbig.mic,.mbig.go{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}.mbig.mic{flex:1.4}
-.composer.mini.rec .mbig{flex:none;width:76px}.composer.mini.rec .grow{font-size:calc(18px*var(--ts));text-align:center}
-.tile{position:relative}.mdot{position:absolute;top:14px;inset-inline-end:14px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px var(--danger) inset}
 .cmperr{margin:0;padding:8px 14px;background:var(--danger-soft);color:var(--danger);font-size:calc(13px*var(--ts));font-weight:600;flex:none}.cmperr svg.ic{width:16px;height:16px;vertical-align:-3px;display:inline-block}
 .msg.fail{background:var(--danger-soft);color:var(--text);border:1px solid var(--danger)}
 .msg .rt{display:flex;align-items:center;gap:4px;min-height:36px;margin-top:4px;font-size:calc(12.5px*var(--ts));font-weight:700;color:var(--danger);text-decoration:underline;text-underline-offset:3px}.msg .rt svg{width:16px;height:16px}
@@ -513,11 +507,6 @@ button.chip{min-height:28px}
 .stop .tx b{display:block;font-weight:600;font-size:calc(16px*var(--ts)*var(--tk));line-height:1.4}
 .stop .tx span{font-size:calc(13px*var(--ts)*var(--tk));color:var(--muted);display:flex;align-items:center;gap:4px}
 .stop .tx span svg{width:15px;height:15px}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tile{border-radius:28px;padding:18px 10px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-weight:700;font-size:calc(17px*var(--ts)*var(--tk));background:var(--kc);box-shadow:0 7px 0 color-mix(in srgb,var(--kc) 62%,#000);text-align:center;line-height:1.3;transition:transform var(--fast),box-shadow var(--fast)}
-.tile:active{transform:translateY(5px);box-shadow:0 2px 0 color-mix(in srgb,var(--kc) 62%,#000)}
-.tile svg{width:52px;height:52px}
-.tile.w{grid-column:1/-1;min-height:120px;flex-direction:row;gap:16px}
 .coin{display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3DC9B,#C8A24A 60%,#9c7a2c);color:#5a4310;vertical-align:middle;flex:none}
 .coin svg{width:.95em;height:.95em}
 .wallet{border-radius:24px;padding:18px;background:linear-gradient(150deg,#142749,#1F3A6B 55%,#1F6B3B);color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
@@ -718,17 +707,13 @@ button.chip{min-height:28px}
 .rwbdg .got i{background:var(--bc);color:#fff}
 .rwbdg b{font-size:calc(14px*var(--ts));font-weight:600}
 .rwbdg span{font-size:calc(12px*var(--ts));color:var(--muted)}
-.rwms{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:34px;margin:16px 0}
-.rwms .hf{opacity:.4;font-size:24px;align-self:center}
-.rwmf{display:flex;gap:6px;justify-content:center;color:var(--accent);margin-top:6px}
-.rwmf svg{width:30px;height:30px}
 .rwch{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:10px}
 .rwch button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;padding:12px;min-height:118px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);box-shadow:var(--lift)}
 .rwch button:active{background:var(--subtle)}
 .rwch b{font-size:calc(15.5px*var(--ts));font-weight:600;margin-top:4px}
 .rwch small{font-size:calc(12.5px*var(--ts));color:var(--muted);line-height:1.5}
 /* أزرار النص في أسطح الطفل: هدف لمس كامل */
-.phone[data-mode="child"] .btn.txt,.phone[data-mode="mini"] .btn.txt{min-height:var(--touch)}
+.phone[data-mode="child"] .btn.txt{min-height:var(--touch)}
 /* ===== S1-06 المهام والتقويم ===== */
 .tkf{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 10px;padding:2px 16px}
 .tkf::-webkit-scrollbar{display:none}
@@ -777,14 +762,10 @@ button.chip{min-height:28px}
 .tkcam{height:170px;border-radius:var(--r-lg);background:#14213a;color:#fff;display:grid;place-items:center;align-content:center;gap:8px;margin-bottom:12px;font-size:calc(13.5px*var(--ts)*var(--tk));text-align:center;padding:0 16px;box-shadow:inset 0 0 0 2px #ffffff26,inset 0 0 0 14px #14213a,inset 0 0 0 15px #ffffff40}
 .tkcam svg.ic{width:34px;height:34px;opacity:.9}
 .tkcam.rec{background:#5a1f1f;box-shadow:none}
-.tkcam.big{height:190px;margin-bottom:14px}.tkcam.big svg.ic{width:64px;height:64px}
 .tkpk{display:flex;flex-wrap:wrap;gap:8px}
 .tkpk button{width:var(--touch);height:var(--touch);border-radius:var(--r-md);display:grid;place-items:center;border:1.5px solid var(--border);background:var(--surface);color:var(--text2)}
 .tkpk button[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);background:var(--primary-soft,var(--subtle))}
 .tkpk button i{width:24px;height:24px;border-radius:50%;background:var(--c)}
-.tkmd{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.tkmd div{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);font-size:calc(17px*var(--ts)*var(--tk));font-weight:600}
-.tkmd svg.ic{width:30px;height:30px;color:var(--accent)}
 
 /* ---------- المراهق: الرئيسية و«أنا» (Q-090) ---------- */
 .hero.tn{padding-bottom:16px}
@@ -1028,7 +1009,7 @@ h3.sec button::before,.btn.sm::before,.btn.txt::before,.why::before,button.chip:
 .mpanel.nomap{max-height:none}
 /* الاستغاثة: 48 حقيقية بإطار شفاف؛ اللون داخل الإطار فلا يتغير حجم الزر الظاهر */
 .sos{height:48px;border:6px solid transparent;background-clip:padding-box;margin:-6px -2px}
-.phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:48px;border-width:2px;margin:-2px 2px}
+.phone[data-mode="child"] .sos{height:48px;border-width:2px;margin:-2px 2px}
 #sosL:not(.float) .sos{margin:0}   /* النسخة العليا تقع فوق الزر الأصلي تماماً */
 button.fx,button.strip{min-height:48px}
 

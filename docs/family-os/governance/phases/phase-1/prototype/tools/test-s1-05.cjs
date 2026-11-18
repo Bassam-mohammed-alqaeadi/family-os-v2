@@ -19,7 +19,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const kidSos=p=>{setPersona(p||'child');ACT.sosStart();ACT.sosSend();render()};const tU=()=>document.querySelector('#toast [data-a="undo"]');
  const LOCS=['map','loc','history','emergency','ec-add','sos-count','sos-sent','sos-status','sos-resolve','sos-log','loc-share'];
  const T=()=>document.querySelector('#toast').textContent;const noT=()=>{document.querySelector('#toast').innerHTML=''};const sh=()=>(q('.sheet')||q('#scr')).innerText.replace(/\s+/g,' ');
- const L=id=>RW().led[id];const kid=p=>{setPersona(p||'child')};const RWS=['c-rewards','rw-ledger','rw-move','redeem','ask-time','streak','objection','m-stars','rewards-admin','wallet-admin','grant-points','grant-time','time-decide','obj-decide','rw-settings','rw-edit','rw-ai'];
+ const L=id=>RW().led[id];const kid=p=>{setPersona(p||'child')};const RWS=['c-rewards','rw-ledger','rw-move','redeem','ask-time','streak','objection','rewards-admin','wallet-admin','grant-points','grant-time','time-decide','obj-decide','rw-settings','rw-edit','rw-ai'];
  const REQ=x=>{const r=Object.assign({id:'r0',kid:'layan',app:'ytk',min:15,msg:'بقيت حلقة واحدة',st:'PENDING'},x||{});S.reqs.push(r);return r};
  const OBJ=x=>{const o=Object.assign({id:'o1',kid:'layan',sub:'d1',txt:'أنجزتها كما طُلب',st:'PENDING',at:'الآن'},x||{});RW().obj.push(o);return o};
  // 1 البذرة
@@ -216,8 +216,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('wallet-admin','layan');ok('parent sees the frozen balance and what he can do',has(/رصيد مجمّد/)&&has(/الرصيد لا يُصادَر/)&&!q('#scr [data-a^="go:grant-points"]')&&!!q('#scr [data-a="go:grant-time:layan"]'));
  open('grant-time','layan');ok('frozen balance can pay for granted time',!!q('.sheet [data-a="gtSet:fz:1"]'));ACT.gtSet('fz','1');ACT.gtSet('n','10');ACT.gtGo();ok('paid from the frozen balance',S.kid.layan.pts===75&&S.kid.layan.spent===10);noT();
  // 18 الطفل الصغير
- S=fresh();kid('mini');open('m-stars');ok('little one: stars, no numbers of points',has(/عندك 3 نجوم/)&&ph.querySelectorAll('#scr .rwms .coin').length===3&&!has(/نقطة|نقاط/)&&!!q('#scr [data-a="go:m-task"]'));
- ok('little one: big touch targets',[...ph.querySelectorAll('#scr .tile')].every(b=>b.getBoundingClientRect().height>=72));
+ S=fresh();ok('under seven: the same wallet as any child, no separate stars screen (Q-426)',!SC['m-stars']&&!ACT.rwMini&&rwHas('yusuf'));
  // 19 دون اتصال
  S=fresh();S.net='off';kid();tab('c-rewards');render();ok('offline wallet: balance still readable, said plainly',has(/دون اتصال/)&&has(/رصيدك المحفوظ على جهازك/)&&q('#scr .wallet .big').textContent.trim().startsWith('85'));
  S=fresh();S.net='off';open('grant-points','layan');ACT.gpGo();ok('offline gift: queued and marked',S.outbox.length===1&&/عند الاتصال/.test(T()));noT();

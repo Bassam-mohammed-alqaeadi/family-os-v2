@@ -23,7 +23,7 @@ const M = {
   sara: { id: 'sara', n: 'سارة', en: 'Sara', rel: 'الأم · بالغ مفوَّض', role: 'adult', c: '#7A3E65', i: 'face_3' },
   khaled: { id: 'khaled', n: 'خالد', en: 'Khaled', rel: 'مراهق · 15 سنة', role: 'teen', by: 2011, c: '#1C6E73', i: 'face_5' },
   layan: { id: 'layan', n: 'ليان', en: 'Layan', rel: 'طفلة · 9 سنوات', role: 'child', by: 2017, c: '#CF5B2C', i: 'face_4' },
-  yusuf: { id: 'yusuf', n: 'يوسف', en: 'Yusuf', rel: 'طفل · 5 سنوات', role: 'child', by: 2021, mini: 1, c: '#1F6B3B', i: 'face_2' },
+  yusuf: { id: 'yusuf', n: 'يوسف', en: 'Yusuf', rel: 'طفل · 5 سنوات', role: 'child', by: 2021, c: '#1F6B3B', i: 'face_2' },
 };
 const KIDS = ['khaled', 'layan', 'yusuf'];
 /* عناوين توضيحية كما تعيدها الخريطة (الحي والشارع). لا أماكن تسمّيها العائلة في المرحلة 1 (Q-056). */
@@ -34,7 +34,6 @@ const PERSONA = {
   delegate: { m: 'sara', n: 'سارة — بالغ مفوَّض', d: 'ترى ما مُنح لها فقط', mode: 'parent' },
   teen: { m: 'khaled', n: 'خالد — مراهق', d: '13–17 · استقلالية وشفافية', mode: 'teen' },
   child: { m: 'layan', n: 'ليان — طفلة', d: '7–12 · القالب القياسي', mode: 'child' },
-  mini: { m: 'yusuf', n: 'يوسف — طفل صغير', d: 'دون 7 · القالب المبسّط', mode: 'mini' },
 };
 /* الرقم التجريبي لبوابة الوالدين. ليس 123456 لأنه نمط شائع ممنوع (S1-01 REQ-005). */
 const DEMO_PIN = '482615';
@@ -241,7 +240,6 @@ const TABS = {
   parent: [['home', 'home', 'الرئيسية', 'Home'], ['family', 'groups', 'العائلة', 'Family'], ['chat', 'forum', 'المحادثات', 'Chats'], ['control', 'tune', 'التحكم', 'Control'], ['more', 'apps', 'المزيد', 'More']],
   teen: [['t-home', 'home', 'الرئيسية', 'Home'], ['chat', 'forum', 'المحادثات', 'Chats'], ['learn', 'school', 'تعلّم', 'Learn'], ['t-me', 'person', 'أنا', 'Me']],
   child: [['c-home', 'home', 'الرئيسية', 'Home'], ['chat', 'forum', 'المحادثات', 'Chats'], ['learn', 'sports_esports', 'العب وتعلّم', 'Play'], ['c-rewards', 'stars', 'مكافآتي', 'Rewards']],
-  mini: [['m-home', 'home', 'بيت', 'Home']],
 };
 /* تبويبات البالغ المفوَّض تُشتق من منحه (S1-01 REQ-004): «الرئيسية» بمفتاح hub.dashboard.view، و«التحكم» بمفتاح hub.settings.view.
    «العائلة» و«المحادثات» و«المزيد» لكل بالغ عضو، وما بداخلها يُقفل مفتاحاً مفتاحاً. */
