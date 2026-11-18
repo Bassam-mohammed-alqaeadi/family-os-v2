@@ -1,0 +1,146 @@
+{
+  "app": "qustodio-kids",
+  "total_files": 562,
+  "total_size_kb": 3244,
+  "res_total_files": 926,
+  "assets_total_files": 8,
+  "raw_breakdown": {
+    ".key": 2,
+    ".xml": 2,
+    ".cer": 1
+  },
+  "assets_media_breakdown": {
+    ".json": 6
+  },
+  "res_missing": false,
+  "assets_missing": false,
+  "categories": {
+    "icons_images": {
+      "count": 490,
+      "size_kb": 2553,
+      "examples": [
+        "apktool-out/res/drawable-anydpi/ic_call_answer.xml",
+        "apktool-out/res/drawable-anydpi/ic_call_answer_video.xml",
+        "apktool-out/res/drawable-anydpi/ic_call_decline.xml",
+        "apktool-out/res/drawable-hdpi/abc_ab_share_pack_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_000.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_015.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_radio_to_on_mtrl_000.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_radio_to_on_mtrl_015.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "apktool-out/res/drawable-hdpi/abc_cab_background_top_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_ic_commit_search_api_mtrl_alpha.png",
+        "apktool-out/res/drawable-hdpi/abc_list_divider_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_list_focused_holo.9.png",
+        "apktool-out/res/drawable-hdpi/abc_list_longpressed_holo.9.png"
+      ]
+    },
+    "animations": {
+      "count": 55,
+      "size_kb": 46,
+      "examples": [
+        "apktool-out/res/anim/abc_grow_fade_in_from_bottom.xml",
+        "apktool-out/res/anim/abc_popup_enter.xml",
+        "apktool-out/res/anim/abc_popup_exit.xml",
+        "apktool-out/res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_icon_null_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_icon_null_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_off_mtrl_dot_group_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_on_mtrl_dot_group_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml"
+      ]
+    },
+    "sounds_media": {
+      "count": 11,
+      "size_kb": 33,
+      "examples": [
+        "apktool-out/assets/qinit/common.json",
+        "apktool-out/assets/qinit/marketing.json",
+        "apktool-out/assets/qinit/mobile.json",
+        "apktool-out/assets/qinit/parents_app.json",
+        "apktool-out/assets/qinit/sharedCommon.json",
+        "apktool-out/assets/qinit/sso.json",
+        "apktool-out/res/raw/firebase_common_keep.xml",
+        "apktool-out/res/raw/firebase_crashlytics_keep.xml",
+        "apktool-out/res/raw/mitm_ca_cert.cer",
+        "apktool-out/res/raw/mitm_ca_key.key",
+        "apktool-out/res/raw/mitm_client_key.key"
+      ]
+    },
+    "fonts": {
+      "count": 4,
+      "size_kb": 609,
+      "examples": [
+        "apktool-out/res/font/poppins_bold.ttf",
+        "apktool-out/res/font/poppins_medium.ttf",
+        "apktool-out/res/font/poppins_regular.ttf",
+        "apktool-out/res/font/poppins_semibold.ttf"
+      ]
+    },
+    "other_assets": {
+      "count": 2,
+      "size_kb": 3,
+      "examples": [
+        "apktool-out/assets/dexopt/baseline.prof",
+        "apktool-out/assets/dexopt/baseline.profm"
+      ]
+    }
+  },
+  "distinct_identity": [
+    "apktool-out/res/drawable/avatar_1.xml",
+    "apktool-out/res/drawable/avatar_2.xml",
+    "apktool-out/res/drawable/avatar_3.xml",
+    "apktool-out/res/drawable/avatar_4.xml",
+    "apktool-out/res/drawable/avatar_5.xml",
+    "apktool-out/res/drawable/avatar_6.xml",
+    "apktool-out/res/drawable/avatar_default.xml",
+    "apktool-out/res/drawable/compat_splash_screen_no_icon_background.xml",
+    "apktool-out/res/drawable/ic_splash_screen_logo.xml",
+    "apktool-out/res/drawable/ic_welcome_logo.xml",
+    "apktool-out/res/layout/choose_avatar_fragment.xml",
+    "apktool-out/res/layout/splash_screen_view.xml",
+    "apktool-out/res/navigation/onboarding_navigation.xml"
+  ],
+  "generic_functional_examples": [
+    "apktool-out/res/drawable-anydpi/ic_call_answer.xml",
+    "apktool-out/res/drawable-anydpi/ic_call_answer_video.xml",
+    "apktool-out/res/drawable-anydpi/ic_call_decline.xml",
+    "apktool-out/res/drawable-hdpi/abc_ab_share_pack_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_000.png",
+    "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_015.png",
+    "apktool-out/res/drawable-hdpi/abc_ic_commit_search_api_mtrl_alpha.png",
+    "apktool-out/res/drawable-hdpi/abc_list_divider_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_focused_holo.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_longpressed_holo.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_pressed_holo_dark.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_pressed_holo_light.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_selector_disabled_holo_dark.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_selector_disabled_holo_light.9.png",
+    "apktool-out/res/drawable-hdpi/abc_menu_hardkey_panel_mtrl_mult.9.png",
+    "apktool-out/res/drawable-hdpi/abc_textfield_search_activated_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_textfield_search_default_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/common_full_open_on_phone.png",
+    "apktool-out/res/drawable-hdpi/ic_call_answer.png",
+    "apktool-out/res/drawable-hdpi/ic_call_answer_video.png"
+  ],
+  "notes": [
+    "UNUSUAL: res/raw contains sensitive material, NOT media: mitm_ca_cert.cer, mitm_ca_key.key, mitm_client_key.key (MITM TLS keys) + 2 firebase keep xml. Never copy these; listed here only for completeness.",
+    "sounds_media (11 files) is entirely config/security files, not sounds: raw keys/certs/xml + 6 qinit JSON configs in assets. No audio files found.",
+    "res/font present (4 font files, 609 KB). No lottie directory; no video files found.",
+    "Largest drawable is circle_grad_on.png (431 KB, xxxhdpi) — a big gradient image, likely a background.",
+    "largest files (bytes, path): 431144 apktool-out/res/drawable-xxxhdpi/circle_grad_on.png; 378055 apktool-out/res/values/public.xml; 282743 apktool-out/res/values/styles.xml; 270583 apktool-out/res/drawable-xxxhdpi/circle_grad_off.png; 251461 apktool-out/res/drawable-xxhdpi/circle_grad_on.png"
+  ],
+  "verified_by": [
+    "ls ~/workspace/rework/<app>/apktool-out/res + assets (dir listing)",
+    "python3 /tmp/inventory.py <app> (os.walk count + os.path.getsize, exact, no estimates)",
+    "find <res/assets> -type f | wc -l (cross-check)",
+    "du -sk <res/assets> (cross-check)"
+  ]
+}

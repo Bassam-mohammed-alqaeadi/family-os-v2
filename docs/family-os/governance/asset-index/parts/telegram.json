@@ -1,0 +1,190 @@
+{
+  "app": "telegram",
+  "total_files": 1567,
+  "total_size_kb": 29450,
+  "res_total_files": 1516,
+  "assets_total_files": 193,
+  "raw_breakdown": {
+    ".json": 336,
+    ".svg": 50,
+    ".glsl": 19,
+    ".mp3": 10,
+    ".js": 5,
+    ".agsl": 4,
+    ".wav": 2,
+    ".xml": 1,
+    ".png": 1
+  },
+  "assets_media_breakdown": {
+    ".webp": 57,
+    ".png": 15,
+    ".json": 1,
+    ".jpg": 1
+  },
+  "res_missing": false,
+  "assets_missing": false,
+  "categories": {
+    "icons_images": {
+      "count": 899,
+      "size_kb": 2024,
+      "examples": [
+        "apktool-out/res/drawable-anydpi-v24/$cocoon_text__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$map_pin3__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$mini_gram_72_white__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$profile_balance_gram_color__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$settings_wallet__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$settings_wallet_dark__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$settings_wallet_dark__1.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_premium__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_reaction__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_reaction__1.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_reaction__2.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_reaction__3.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_small_inner__0.xml",
+        "apktool-out/res/drawable-anydpi-v24/$star_small_inner__1.xml",
+        "apktool-out/res/drawable-anydpi-v24/$wallet_card_diamond__0.xml"
+      ]
+    },
+    "animations": {
+      "count": 47,
+      "size_kb": 67,
+      "examples": [
+        "apktool-out/res/anim/abc_grow_fade_in_from_bottom.xml",
+        "apktool-out/res/anim/abc_popup_enter.xml",
+        "apktool-out/res/anim/abc_popup_exit.xml",
+        "apktool-out/res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "apktool-out/res/anim/abc_tooltip_enter.xml",
+        "apktool-out/res/anim/abc_tooltip_exit.xml",
+        "apktool-out/res/anim/alpha_in.xml",
+        "apktool-out/res/anim/alpha_out.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_icon_null_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_unchecked_icon_null_animation.xml",
+        "apktool-out/res/anim/btn_radio_to_off_mtrl_dot_group_animation.xml"
+      ]
+    },
+    "sounds_media": {
+      "count": 502,
+      "size_kb": 18714,
+      "examples": [
+        "apktool-out/assets/currencies.json",
+        "apktool-out/assets/emoji/compound/0_-1_0.png",
+        "apktool-out/assets/emoji/compound/0_-1_1.png",
+        "apktool-out/assets/emoji/compound/0_0_0.png",
+        "apktool-out/assets/emoji/compound/0_0_1.png",
+        "apktool-out/assets/emoji/compound/0_1_0.png",
+        "apktool-out/assets/emoji/compound/0_1_1.png",
+        "apktool-out/assets/emoji/compound/0_2_0.png",
+        "apktool-out/assets/emoji/compound/0_2_1.png",
+        "apktool-out/assets/emoji/compound/0_3_0.png",
+        "apktool-out/assets/emoji/compound/0_3_1.png",
+        "apktool-out/assets/emoji/compound/0_4_0.png",
+        "apktool-out/assets/emoji/compound/0_4_1.png",
+        "apktool-out/assets/flecks.png",
+        "apktool-out/assets/models/coin_border.png"
+      ]
+    },
+    "fonts": {
+      "count": 33,
+      "size_kb": 1916,
+      "examples": [
+        "apktool-out/assets/fonts/gram.ttf",
+        "apktool-out/assets/fonts/mw_bold.ttf",
+        "apktool-out/assets/fonts/mw_bolditalic.ttf",
+        "apktool-out/assets/fonts/num.otf",
+        "apktool-out/assets/fonts/rcondensedbold.ttf",
+        "apktool-out/assets/fonts/rextrabold.ttf",
+        "apktool-out/assets/fonts/ritalic.ttf",
+        "apktool-out/assets/fonts/rmedium.ttf",
+        "apktool-out/assets/fonts/rmediumitalic.ttf",
+        "apktool-out/assets/fonts/rmono.ttf",
+        "apktool-out/assets/fonts/rmono_var.ttf",
+        "apktool-out/assets/org/scilab/forge/jlatexmath/fonts/base/jlm_cmex10.ttf",
+        "apktool-out/assets/org/scilab/forge/jlatexmath/fonts/base/jlm_cmmi10.ttf",
+        "apktool-out/assets/org/scilab/forge/jlatexmath/fonts/base/jlm_cmmib10.ttf",
+        "apktool-out/assets/org/scilab/forge/jlatexmath/fonts/euler/jlm_eufb10.ttf"
+      ]
+    },
+    "other_assets": {
+      "count": 86,
+      "size_kb": 6729,
+      "examples": [
+        "apktool-out/assets/PhoneFormats.dat",
+        "apktool-out/assets/arctic.attheme",
+        "apktool-out/assets/bluebubbles.attheme",
+        "apktool-out/assets/countries.txt",
+        "apktool-out/assets/darkblue.attheme",
+        "apktool-out/assets/day.attheme",
+        "apktool-out/assets/dexopt/baseline.prof",
+        "apktool-out/assets/dexopt/baseline.profm",
+        "apktool-out/assets/emoji.pack",
+        "apktool-out/assets/fonts/currency_symbols.txt",
+        "apktool-out/assets/grammars.dat",
+        "apktool-out/assets/localization_ar.bin",
+        "apktool-out/assets/localization_de.bin",
+        "apktool-out/assets/localization_en.bin",
+        "apktool-out/assets/localization_es.bin"
+      ]
+    }
+  },
+  "distinct_identity": [
+    "apktool-out/assets/models/coin_logo.binobj",
+    "apktool-out/assets/models/deal_logo.binobj",
+    "apktool-out/res/drawable-anydpi-v24/filled_suggest_chat_avatar.xml",
+    "apktool-out/res/drawable-anydpi-v24/telegram_logo.xml",
+    "apktool-out/res/drawable-anydpi-v24/telegram_logo_2.xml",
+    "apktool-out/res/drawable/$tg_splash_320__0.xml",
+    "apktool-out/res/drawable/$tg_splash_320__1.xml",
+    "apktool-out/res/drawable/$tg_splash_320__2.xml",
+    "apktool-out/res/drawable/$tg_splash_320__3.xml",
+    "apktool-out/res/drawable/cocoon_logo.webp",
+    "apktool-out/res/drawable/tg_splash_320.xml",
+    "apktool-out/res/drawable/widget_avatar_1.webp",
+    "apktool-out/res/drawable/widget_avatar_2.webp",
+    "apktool-out/res/drawable/widget_avatar_3.webp",
+    "apktool-out/res/drawable/widget_avatar_4.webp",
+    "apktool-out/res/drawable/widget_avatar_5.webp",
+    "apktool-out/res/drawable/widget_avatar_7.webp",
+    "apktool-out/res/raw/chats_archiveavatar.json",
+    "apktool-out/res/raw/plane_logo_plain.json",
+    "apktool-out/res/raw/qr_code_logo.json",
+    "apktool-out/res/raw/qr_logo.svg"
+  ],
+  "generic_functional_examples": [
+    "apktool-out/res/drawable-anydpi-v24/$map_pin3__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$profile_balance_gram_color__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$settings_wallet__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$settings_wallet_dark__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$settings_wallet_dark__1.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_premium__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_reaction__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_reaction__1.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_reaction__2.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_reaction__3.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_small_inner__0.xml",
+    "apktool-out/res/drawable-anydpi-v24/$star_small_inner__1.xml",
+    "apktool-out/res/drawable-anydpi-v24/_menu_stream_comments_off_24.xml",
+    "apktool-out/res/drawable-anydpi-v24/action_share.xml",
+    "apktool-out/res/drawable-anydpi-v24/call.xml",
+    "apktool-out/res/drawable-anydpi-v24/camera.xml",
+    "apktool-out/res/drawable-anydpi-v24/cards_chat.xml",
+    "apktool-out/res/drawable-anydpi-v24/dialog_media_incoming_video_call_20.xml",
+    "apktool-out/res/drawable-anydpi-v24/dialog_media_outgoing_video_call_20.xml",
+    "apktool-out/res/drawable-anydpi-v24/filled_add_album.xml"
+  ],
+  "notes": [
+    "UNUSUAL: res/raw is dominated by 336 Lottie animation JSON files (e.g. channel_create.json, qr_matrix.json) + 50 SVG + 19 GLSL shaders + only 10 mp3 + 2 wav. In substance this is an animation library, filed under raw.",
+    "UNUSUAL: apktool-out/assets/emoji (12 files) + emoji.pack (3.5 MB, largest file) — bundled emoji/sticker pack; assets/fonts holds 32 ttf; 5 .attheme theme files.",
+    "No lottie directory as such; Lottie data lives in res/raw as .json. No video files found.",
+    "largest files (bytes, path): 3492338 apktool-out/assets/emoji.pack; 774549 apktool-out/res/raw/qr_matrix.json; 632432 apktool-out/assets/grammars.dat; 571143 apktool-out/res/raw/channel_create.json; 507258 apktool-out/res/raw/default_pattern.svg"
+  ],
+  "verified_by": [
+    "ls ~/workspace/rework/<app>/apktool-out/res + assets (dir listing)",
+    "python3 /tmp/inventory.py <app> (os.walk count + os.path.getsize, exact, no estimates)",
+    "find <res/assets> -type f | wc -l (cross-check)",
+    "du -sk <res/assets> (cross-check)"
+  ]
+}

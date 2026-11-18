@@ -6,7 +6,7 @@
 | الملف | المحتوى |
 |---|---|
 | [GOAL.md](GOAL.md) | تعريف الهدف، النطاق، الخطة الحالية، الحدود |
-| [decisions.md](decisions.md) | سجل القرارات (بتواريخها) |
+| [decisions.md](decisions.md) | سجل قرارات تاريخي مجمَّد (2026-11-06) — المرجع الحي: [DECISIONS-LOG.md](governance/decisions/DECISIONS-LOG.md) |
 | [roadmap.md](roadmap.md) | خارطة الطريق والمراحل وحالتها |
 | [apps.md](apps.md) | جرد التطبيقات الثمانية وحالة تفكيكها |
 | [reports/](reports/) | تقارير الهندسة العكسية لكل تطبيق (المرحلة 2) |

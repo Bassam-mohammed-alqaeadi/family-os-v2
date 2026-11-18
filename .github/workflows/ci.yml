@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: ["feat/governance-v2", "main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  docs:
+    name: Docs checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install check dependencies
+        working-directory: scripts
+        run: npm install --no-audit --no-fund
+      - name: Validate Mermaid diagrams
+        run: node scripts/check-mermaid.mjs
+      - name: Verify key counts
+        run: python3 scripts/check-counts.py
+      - name: Verify internal links
+        run: python3 scripts/check-links.py
+      - name: Verify REQ coverage
+        run: python3 scripts/check-coverage.py
+      - name: Verify textual references
+        run: python3 scripts/check-refs.py
+
+  server:
+    name: Server build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11"
+      - name: Build and test server skeleton
+        working-directory: server
+        run: gradle build --no-daemon

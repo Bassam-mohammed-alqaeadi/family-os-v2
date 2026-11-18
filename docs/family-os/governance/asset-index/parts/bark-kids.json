@@ -1,0 +1,121 @@
+{
+  "app": "bark-kids",
+  "res_missing": false,
+  "total_files": 554,
+  "total_size_kb": 35729,
+  "categories": {
+    "icons_images": {
+      "count": 476,
+      "size_kb": 372,
+      "examples": [
+        "assets/test_img.png",
+        "res/drawable-anydpi/design_ic_visibility.xml",
+        "res/drawable-anydpi/design_ic_visibility_off.xml",
+        "res/drawable-anydpi/ic_call_answer.xml",
+        "res/drawable-anydpi/ic_call_answer_low.xml",
+        "res/drawable-anydpi/ic_call_answer_video.xml",
+        "res/drawable-anydpi/ic_call_answer_video_low.xml",
+        "res/drawable-anydpi/ic_call_decline.xml",
+        "res/drawable-anydpi/ic_call_decline_low.xml",
+        "res/drawable-hdpi/abc_ab_share_pack_mtrl_alpha.9.png",
+        "res/drawable-hdpi/abc_btn_check_to_on_mtrl_000.png",
+        "res/drawable-hdpi/abc_btn_check_to_on_mtrl_015.png",
+        "res/drawable-hdpi/abc_btn_radio_to_on_mtrl_000.png",
+        "res/drawable-hdpi/abc_btn_radio_to_on_mtrl_015.png",
+        "res/drawable-hdpi/abc_btn_switch_to_on_mtrl_00001.9.png"
+      ]
+    },
+    "animations": {
+      "count": 56,
+      "size_kb": 45,
+      "examples": [
+        "res/anim/abc_fade_in.xml",
+        "res/anim/abc_fade_out.xml",
+        "res/anim/abc_grow_fade_in_from_bottom.xml",
+        "res/anim/abc_popup_enter.xml",
+        "res/anim/abc_popup_exit.xml",
+        "res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "res/anim/abc_slide_in_bottom.xml",
+        "res/anim/abc_slide_in_top.xml",
+        "res/anim/abc_slide_out_bottom.xml",
+        "res/anim/abc_slide_out_top.xml",
+        "res/anim/abc_tooltip_enter.xml",
+        "res/anim/abc_tooltip_exit.xml",
+        "res/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "res/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "res/anim/btn_checkbox_to_checked_icon_null_animation.xml"
+      ]
+    },
+    "sounds_media": {
+      "count": 9,
+      "size_kb": 34677,
+      "examples": [
+        "res/raw/adultmediamobile_31_1724800699_fp32.ort",
+        "res/raw/consumer_onesignal_keep.xml",
+        "res/raw/firebase_common_keep.xml",
+        "res/raw/mfaondevice_1_1234567890.onnx",
+        "res/raw/mobilemodel_1_1753905899.ort",
+        "res/raw/special_tokens_map.json",
+        "res/raw/tfidf_config.json",
+        "res/raw/tokenizer.json",
+        "res/raw/tokenizer_config.json"
+      ]
+    },
+    "fonts": {
+      "count": 10,
+      "size_kb": 424,
+      "examples": [
+        "assets/fonts/icomoon.ttf",
+        "assets/fonts/open_sans_italic.ttf",
+        "assets/fonts/open_sans_regular.ttf",
+        "res/font/alata.xml",
+        "res/font/montserrat_alternates.xml",
+        "res/font/montserrat_alternates_thin.xml",
+        "res/font/nunito_sans.xml",
+        "res/font/nunito_sans_semibold.xml",
+        "res/font/poppins.xml",
+        "res/font/roboto.xml"
+      ]
+    },
+    "other_assets": {
+      "count": 3,
+      "size_kb": 211,
+      "examples": [
+        "assets/cacert.pem",
+        "assets/dexopt/baseline.prof",
+        "assets/dexopt/baseline.profm"
+      ]
+    }
+  },
+  "distinct_identity": [
+    "res/drawable/compat_splash_screen.xml",
+    "res/drawable/compat_splash_screen_no_icon_background.xml",
+    "res/drawable/ic_bark_logo.xml",
+    "res/drawable/ic_bark_logo_horizontal.png",
+    "res/drawable/sentry_logo_dark.xml",
+    "res/drawable/sentry_user_feedback_button_logo_24.xml"
+  ],
+  "generic_functional_examples": [
+    "res/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml",
+    "res/drawable/ic_keyboard_arrow_left_black_24dp.xml",
+    "res/animator/fragment_close_enter.xml",
+    "res/drawable/ic_menu_arrow_down_black_24dp.xml",
+    "res/drawable/ic_calendar_black_24dp.xml",
+    "res/drawable/ic_edit_black_24dp.xml",
+    "res/drawable/ic_clear_black_24dp.xml",
+    "res/drawable/ic_checkin_button.xml",
+    "res/drawable-hdpi/ic_os_notification_fallback_white_24dp.png"
+  ],
+  "unusual_folders_note": "assets/ subdirectories: dexopt, fonts | unusual res/ directories: anim, animator, font, interpolator | largest media files: res/raw/mobilemodel_1_1753905899.ort (17227 KB); res/raw/adultmediamobile_31_1724800699_fp32.ort (16487 KB); res/raw/tokenizer.json (724 KB); assets/fonts/open_sans_regular.ttf (212 KB); assets/cacert.pem (210 KB) | media files over 500 KB: 3 | excluded res code/config resources (layout/xml/values/color/menu/navigation/interpolator, not media assets): 365 files, 1362 KB | sizes are sums of exact file sizes (os.path.getsize), not du block totals; counts come from find -type f lists, not estimates",
+  "excluded_code_resources": {
+    "count": 365,
+    "size_kb": 1362
+  },
+  "verified_by": [
+    "find /home/hatch/workspace/rework/bark-kids/apktool-out/res -type f > /tmp/assetidx/bark-kids-res.txt",
+    "find /home/hatch/workspace/rework/bark-kids/apktool-out/assets -type f > /tmp/assetidx/bark-kids-assets.txt",
+    "wc -l /tmp/assetidx/bark-kids-res.txt /tmp/assetidx/bark-kids-assets.txt",
+    "du -sk /home/hatch/workspace/rework/bark-kids/apktool-out/res /home/hatch/workspace/rework/bark-kids/apktool-out/assets",
+    "python3 /tmp/assetidx/inventory.py (os.path.getsize per file; classification by directory/extension; Lottie detection by '\"layers\"' content marker)"
+  ]
+}

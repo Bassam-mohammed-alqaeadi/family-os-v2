@@ -1,0 +1,191 @@
+{
+  "app": "qustodio",
+  "total_files": 923,
+  "total_size_kb": 96151,
+  "res_total_files": 665,
+  "assets_total_files": 515,
+  "raw_breakdown": {
+    ".xml": 2,
+    ".binarypb": 1,
+    "(no ext)": 1
+  },
+  "assets_media_breakdown": {
+    ".png": 304,
+    ".svg": 94,
+    ".json": 3
+  },
+  "res_missing": false,
+  "assets_missing": false,
+  "categories": {
+    "icons_images": {
+      "count": 368,
+      "size_kb": 261,
+      "examples": [
+        "apktool-out/res/drawable-anydpi/btn_clear.xml",
+        "apktool-out/res/drawable-anydpi/fingerprint_dialog_error.xml",
+        "apktool-out/res/drawable-anydpi/fingerprint_dialog_fp_icon.xml",
+        "apktool-out/res/drawable-anydpi/image_placeholder.xml",
+        "apktool-out/res/drawable-hdpi/abc_ab_share_pack_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_000.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_015.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_radio_to_on_mtrl_000.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_radio_to_on_mtrl_015.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "apktool-out/res/drawable-hdpi/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "apktool-out/res/drawable-hdpi/abc_cab_background_top_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_ic_commit_search_api_mtrl_alpha.png",
+        "apktool-out/res/drawable-hdpi/abc_list_divider_mtrl_alpha.9.png",
+        "apktool-out/res/drawable-hdpi/abc_list_focused_holo.9.png"
+      ]
+    },
+    "animations": {
+      "count": 31,
+      "size_kb": 29,
+      "examples": [
+        "apktool-out/res/anim/abc_fade_in.xml",
+        "apktool-out/res/anim/abc_fade_out.xml",
+        "apktool-out/res/anim/abc_grow_fade_in_from_bottom.xml",
+        "apktool-out/res/anim/abc_popup_enter.xml",
+        "apktool-out/res/anim/abc_popup_exit.xml",
+        "apktool-out/res/anim/abc_shrink_fade_out_from_bottom.xml",
+        "apktool-out/res/anim/abc_slide_in_bottom.xml",
+        "apktool-out/res/anim/abc_slide_in_top.xml",
+        "apktool-out/res/anim/abc_slide_out_bottom.xml",
+        "apktool-out/res/anim/abc_slide_out_top.xml",
+        "apktool-out/res/anim/abc_tooltip_enter.xml",
+        "apktool-out/res/anim/abc_tooltip_exit.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "apktool-out/res/anim/btn_checkbox_to_checked_icon_null_animation.xml"
+      ]
+    },
+    "sounds_media": {
+      "count": 405,
+      "size_kb": 43382,
+      "examples": [
+        "apktool-out/assets/www/assets/android-chrome-144x144.png",
+        "apktool-out/assets/www/assets/android-chrome-192x192.png",
+        "apktool-out/assets/www/assets/android-chrome-256x256.png",
+        "apktool-out/assets/www/assets/android-chrome-36x36.png",
+        "apktool-out/assets/www/assets/android-chrome-384x384.png",
+        "apktool-out/assets/www/assets/android-chrome-48x48.png",
+        "apktool-out/assets/www/assets/android-chrome-512x512.png",
+        "apktool-out/assets/www/assets/android-chrome-72x72.png",
+        "apktool-out/assets/www/assets/android-chrome-96x96.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-1024x1024.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-114x114.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-120x120.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-144x144.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-152x152.png",
+        "apktool-out/assets/www/assets/apple-touch-icon-167x167.png"
+      ]
+    },
+    "fonts": {
+      "count": 17,
+      "size_kb": 4224,
+      "examples": [
+        "apktool-out/assets/fontawesome-webfont.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-Bold.1576987e.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-BoldItalic.16b88afe.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-ExtraBold.72a7607b.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-ExtraBoldItalic.e5fc9158.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-Italic.0125272d.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-Light.16cd4dce.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-LightItalic.9dd6522f.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-Regular.e6d8dc9e.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-Semibold.029b9bc9.ttf",
+        "apktool-out/assets/www/static/media/OpenSans-SemiboldItalic.6f44ece2.ttf",
+        "apktool-out/assets/www/static/media/fa-brands-400.dbcb0917.ttf",
+        "apktool-out/assets/www/static/media/fa-brands-400.e0685453.woff2",
+        "apktool-out/assets/www/static/media/fa-regular-400.08deef48.ttf",
+        "apktool-out/assets/www/static/media/fa-regular-400.5a18b197.woff2"
+      ]
+    },
+    "other_assets": {
+      "count": 97,
+      "size_kb": 47526,
+      "examples": [
+        "apktool-out/assets/braze-html-in-app-message-bridge.js",
+        "apktool-out/assets/dexopt/baseline.prof",
+        "apktool-out/assets/dexopt/baseline.profm",
+        "apktool-out/assets/www/assets/browserconfig.xml",
+        "apktool-out/assets/www/assets/favicon.ico",
+        "apktool-out/assets/www/assets/manifest.webmanifest",
+        "apktool-out/assets/www/cordova.js",
+        "apktool-out/assets/www/cordova_plugins.js",
+        "apktool-out/assets/www/index.html",
+        "apktool-out/assets/www/plugins/@havesource/cordova-plugin-push/www/push.js",
+        "apktool-out/assets/www/plugins/com.adjust.sdk/www/adjust.js",
+        "apktool-out/assets/www/plugins/com.adjust.sdk/www/adjust_ad_revenue.js",
+        "apktool-out/assets/www/plugins/com.adjust.sdk/www/adjust_app_store_purchase.js",
+        "apktool-out/assets/www/plugins/com.adjust.sdk/www/adjust_app_store_subscription.js",
+        "apktool-out/assets/www/plugins/com.adjust.sdk/www/adjust_config.js"
+      ]
+    },
+    "ts_sources_assets": {
+      "count": 5,
+      "size_kb": 729,
+      "examples": [
+        "ts-sources/src/assets/base/images/lazy/ lazy-once ^\\.\\/.*$ namespace object",
+        "ts-sources/src/assets/base/js/vendor/jquery-3.1.0.js",
+        "ts-sources/src/assets/base/js/vendor/jquery.p2r.min.js",
+        "ts-sources/src/assets/base/js/vendor/materialize.js",
+        "ts-sources/src/assets/base/js/vendor/roundslider.min.js"
+      ]
+    }
+  },
+  "distinct_identity": [
+    "apktool-out/assets/www/static/media/BingLogo.9295e04b.svg",
+    "apktool-out/assets/www/static/media/GoogleLogo.dcb3a552.svg",
+    "apktool-out/assets/www/static/media/Logo-compact.40a7bae5.svg",
+    "apktool-out/assets/www/static/media/Logo.53c723c5.svg",
+    "apktool-out/assets/www/static/media/fa-brands-400.dbcb0917.ttf",
+    "apktool-out/assets/www/static/media/fa-brands-400.e0685453.woff2",
+    "apktool-out/assets/www/static/media/icon-youtube-with-brandname.8c27a21e.svg",
+    "apktool-out/assets/www/static/media/logo-green.6a1e8236.svg",
+    "apktool-out/assets/www/static/media/logo-kids-app.811583ca.svg",
+    "apktool-out/assets/www/static/media/logo.10d7259f.svg",
+    "apktool-out/assets/www/static/media/logo_full.b732c151.svg",
+    "apktool-out/assets/www/static/media/main-logotype-by-qoria.1f815eaf.svg",
+    "apktool-out/res/drawable/compat_splash_screen.xml",
+    "apktool-out/res/drawable/compat_splash_screen_no_icon_background.xml",
+    "apktool-out/res/drawable/ic_cdv_splashscreen.xml",
+    "apktool-out/res/layout/splash_screen_view.xml"
+  ],
+  "generic_functional_examples": [
+    "apktool-out/res/drawable-anydpi/fingerprint_dialog_error.xml",
+    "apktool-out/res/drawable-anydpi/fingerprint_dialog_fp_icon.xml",
+    "apktool-out/res/drawable-hdpi/abc_ab_share_pack_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_000.png",
+    "apktool-out/res/drawable-hdpi/abc_btn_check_to_on_mtrl_015.png",
+    "apktool-out/res/drawable-hdpi/abc_ic_commit_search_api_mtrl_alpha.png",
+    "apktool-out/res/drawable-hdpi/abc_list_divider_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_focused_holo.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_longpressed_holo.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_pressed_holo_dark.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_pressed_holo_light.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_selector_disabled_holo_dark.9.png",
+    "apktool-out/res/drawable-hdpi/abc_list_selector_disabled_holo_light.9.png",
+    "apktool-out/res/drawable-hdpi/abc_menu_hardkey_panel_mtrl_mult.9.png",
+    "apktool-out/res/drawable-hdpi/abc_textfield_search_activated_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/abc_textfield_search_default_mtrl_alpha.9.png",
+    "apktool-out/res/drawable-hdpi/com_braze_push_ic_left_arrow.png",
+    "apktool-out/res/drawable-hdpi/com_braze_push_ic_right_arrow.png",
+    "apktool-out/res/drawable-hdpi/common_full_open_on_phone.png",
+    "apktool-out/res/drawable-hdpi/fingerprint_dialog_error.png"
+  ],
+  "notes": [
+    "UNUSUAL: apktool-out/assets/www is a full React web dashboard (94 MB): 304 PNG + 94 SVG images, 80 JS files; largest files are .js.map source maps (up to 19 MB). Its images are web-UI assets, not Android resources.",
+    "sounds_media is mostly www images (304 png + 94 svg); res/raw holds only 4 non-media files (billing info + firebase keep xml). No audio files found in res/raw.",
+    "ts-sources/src/assets: 5 files, 729 KB (separate category, see ts_sources_assets).",
+    "No lottie directory found; no video files found.",
+    "largest files (bytes, path): 18943113 apktool-out/assets/www/static/js/739.8a78d876.js.map; 9320477 apktool-out/assets/www/static/js/main.df358784.js.map; 6037609 apktool-out/assets/www/static/js/main.df358784.js; 4724150 apktool-out/assets/www/static/js/739.8a78d876.js; 3670883 apktool-out/assets/www/static/js/471.0f06b72d.js.map",
+    "ts-sources/src/assets present: 5 files, 729 KB"
+  ],
+  "verified_by": [
+    "ls ~/workspace/rework/<app>/apktool-out/res + assets (dir listing)",
+    "python3 /tmp/inventory.py <app> (os.walk count + os.path.getsize, exact, no estimates)",
+    "find <res/assets> -type f | wc -l (cross-check)",
+    "du -sk <res/assets> (cross-check)"
+  ]
+}

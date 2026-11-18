@@ -1,0 +1,1342 @@
+[
+ {
+  "system": "S1-01",
+  "id": "SCR-01",
+  "name": "الإقلاع وتحديد الوضع",
+  "need": "illustration",
+  "asset_available": false,
+  "evidence": "رسوم توضيحية/شاشات ترحيب بهوية التطبيق المصدر = السلة ج — تُعاد صياغتها بهوية Family OS، لا يوجد أصل عام مقابل",
+  "basket": "C",
+  "gap": true
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-02",
+  "name": "غلاف الأهل (لوحة الأهل)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-03",
+  "name": "شاشة الطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-04",
+  "name": "بوابة الوالدين (PIN)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-05",
+  "name": "إعداد بوابة الوالدين وتغيير PIN",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-06",
+  "name": "الإشعار الدائم",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-07",
+  "name": "زر SOS الدائم وشاشة حالة SOS",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-08",
+  "name": "الإعدادات الإدارية والسجلات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-09",
+  "name": "المزامنة وطابور Outbox",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-10",
+  "name": "وضع النطاق المنخفض",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-11",
+  "name": "صحة المنصة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-01",
+  "id": "SCR-12",
+  "name": "التحديث",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-01",
+  "name": "الترحيب واختيار طريقة الدخول",
+  "need": "illustration",
+  "asset_available": false,
+  "evidence": "رسوم توضيحية/شاشات ترحيب بهوية التطبيق المصدر = السلة ج — تُعاد صياغتها بهوية Family OS، لا يوجد أصل عام مقابل",
+  "basket": "C",
+  "gap": true
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-02",
+  "name": "تسجيل الدخول برقم الهاتف",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-03",
+  "name": "إدخال رمز OTP",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-04",
+  "name": "تسجيل الدخول بالبريد الإلكتروني",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-05",
+  "name": "رابط البريد (بانتظار فتح الرابط)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-06",
+  "name": "تفعيل TOTP داخل التطبيق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-07",
+  "name": "إدخال رمز TOTP",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-08",
+  "name": "إنشاء العائلة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-09",
+  "name": "إدارة الدعوات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-10",
+  "name": "الانضمام برمز دعوة / رابط عميق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-11",
+  "name": "إنشاء ملف طفل",
+  "need": "avatar",
+  "asset_available": false,
+  "evidence": "أفاتارات qustodio-kids ‏(avatar_1..6)‏ هوية خاصة بالتطبيق (السلة ج) — تُصمَّم أفاتارات Family OS جديدة؛ لا أفاتار عام قابل لإعادة الاستخدام المباشرة",
+  "basket": "C",
+  "gap": true
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-12",
+  "name": "ملفات الأطفال (قائمة وتعديل)",
+  "need": "avatar",
+  "asset_available": false,
+  "evidence": "أفاتارات qustodio-kids ‏(avatar_1..6)‏ هوية خاصة بالتطبيق (السلة ج) — تُصمَّم أفاتارات Family OS جديدة؛ لا أفاتار عام قابل لإعادة الاستخدام المباشرة",
+  "basket": "C",
+  "gap": true
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-13",
+  "name": "عرض رمز الإقران (جهاز الأب)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-14",
+  "name": "إدخال رمز الإقران (جهاز الطفل)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-15",
+  "name": "الموافقة المشتركة (أب + طفل)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-16",
+  "name": "الفتح السريع بالبصمة / الوجه",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-17",
+  "name": "إعادة تسجيل مفتاح التوقيع بعد تغيير البصمة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-18",
+  "name": "الجلسات وتسجيل الخروج",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-19",
+  "name": "تحديد جهة الاسترداد الموثوقة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-20",
+  "name": "طلب استرداد الحساب",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-21",
+  "name": "تأكيد جهة الاسترداد الموثوقة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-22",
+  "name": "انتظار الاسترداد والاعتراض (7 أيام)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-23",
+  "name": "حذف الحساب لنفسه",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-24",
+  "name": "مغادرة العائلة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-25",
+  "name": "تصدير بياناتي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-26",
+  "name": "تصدير بيانات قاصر (الأب)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-02",
+  "id": "S102-27",
+  "name": "فك إقران جهاز",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-01",
+  "name": "إدارة الأعضاء",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-02",
+  "name": "صلاحيات عضو",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-03",
+  "name": "منح صلاحية / تعديل منح",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-04",
+  "name": "إلغاء منح",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-05",
+  "name": "سجل المفاتيح المركزي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-06",
+  "name": "القوالب الثلاثة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-07",
+  "name": "تطبيق قالب على عضو",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-08",
+  "name": "تعديل نسخة القالب المطبقة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-09",
+  "name": "مراجعة المنح عند بلوغ 13",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-10",
+  "name": "نقل الملكية — بدء",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-11",
+  "name": "قبول نقل الملكية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-12",
+  "name": "إلغاء نقل ملكية معلق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-13",
+  "name": "سجل تدقيق الصلاحيات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-14",
+  "name": "حذف العائلة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-15",
+  "name": "إزالة عضو",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-16",
+  "name": "إلغاء حذف معلق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-17",
+  "name": "صلاحياتي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-03",
+  "id": "R03-18",
+  "name": "تنبيه رفض / محاولة تصعيد",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-01",
+  "name": "حالة الخطة والاستهلاك",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-02",
+  "name": "عرض الخطط والمقارنة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-03",
+  "name": "تأكيد تغيير الخطة (ترقية/تخفيض)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-04",
+  "name": "الدفع عبر المتجر أو البطاقة (الخليج)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-05",
+  "name": "الدفع اليمني: محفظة أو دفع يدوي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-06",
+  "name": "استبدال قسيمة وكيل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-07",
+  "name": "تعبئة SMS",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-08",
+  "name": "التجربة المجانية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-09",
+  "name": "فترة السماح والتراجع اللبق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-10",
+  "name": "بطاقة الترقية اللبقة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-11",
+  "name": "إدارة الاشتراك: إلغاء التجديد واستعادة المشتريات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-04",
+  "id": "S04-12",
+  "name": "سجل الإيصالات (قراءة فقط)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-01",
+  "name": "محفظة الطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-02",
+  "name": "صرف وقت إضافي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-03",
+  "name": "طلب وقت إضافي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-04",
+  "name": "منح يدوي من الأب",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-05",
+  "name": "السلاسل اليومية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-06",
+  "name": "اعتراض الطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-07",
+  "name": "ضوابط المكافآت",
+  "need": "animation",
+  "asset_available": true,
+  "evidence": "حركات مجمّعة: 1011 — حركات AppCompat العامة (B) متوفرة؛ أما 336 Lottie في تيليجرام فأغلبها رسوم خاصة بتيليجرام وتحتاج مراجعة (قد تكون C)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-08",
+  "name": "القرار على طلب وقت — بطاقة «يتطلب انتباهك» (عبر S1-09)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-05",
+  "id": "S05-09",
+  "name": "مراجعة منح وإلغاؤه",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-01",
+  "name": "قائمة المهام",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-02",
+  "name": "إنشاء مهمة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-03",
+  "name": "تفصيل مهمة وتسليمها",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-04",
+  "name": "مراجعة الاعتماد/الرفض",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-05",
+  "name": "فئات المهام",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-06",
+  "name": "التقويم",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-07",
+  "name": "حدث تقويم",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-08",
+  "name": "التذكير",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-06",
+  "id": "S06-09",
+  "name": "ضوابط المهام والتقويم",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-01",
+  "name": "الخريطة العائلية الحية",
+  "need": "map",
+  "asset_available": true,
+  "evidence": "أمثلة map_pin في: bark-kids, familywall, famisafe-jr, famisafe, life360, muslim-pro, telegram",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-02",
+  "name": "آخر موقع معروف (تفاصيل عضو)",
+  "need": "map",
+  "asset_available": true,
+  "evidence": "أمثلة map_pin في: bark-kids, familywall, famisafe-jr, famisafe, life360, muslim-pro, telegram",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-03",
+  "name": "زر SOS وشاشة حالة SOS",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-04",
+  "name": "جهات الطوارئ العائلية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-05",
+  "name": "سجل المواقع 7 أيام",
+  "need": "map",
+  "asset_available": true,
+  "evidence": "أمثلة map_pin في: bark-kids, familywall, famisafe-jr, famisafe, life360, muslim-pro, telegram",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-06",
+  "name": "تنبيهات SOS",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-07",
+  "id": "LO-07",
+  "name": "ودجة الخريطة المصغرة",
+  "need": "map",
+  "asset_available": true,
+  "evidence": "أمثلة map_pin في: bark-kids, familywall, famisafe-jr, famisafe, life360, muslim-pro, telegram",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-01",
+  "name": "قائمة القنوات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-02",
+  "name": "شاشة محادثة",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-03",
+  "name": "قناة الوالدين (بوابة PIN + المحادثة)",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-04",
+  "name": "إنشاء قناة",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-05",
+  "name": "عرض محادثات القاصرين",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-06",
+  "name": "تنبيه المصنف",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-07",
+  "name": "حذف رسالة / إغلاق محادثة",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-08",
+  "name": "استرداد سجل قناة الوالدين",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-09",
+  "name": "دون اتصال — الصندوق الصادر",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-08",
+  "id": "CH-10",
+  "name": "ودجة «أحدث الرسائل»",
+  "need": "emoji",
+  "asset_available": true,
+  "evidence": "تيليجرام: emoji.pack (3.5MB) + 57 webp؛ raw فيه 336 Lottie JSON",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-01",
+  "name": "اللوحة الموحدة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-02",
+  "name": "بطاقة «يتطلب انتباهك»",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-03",
+  "name": "ورقة قرار عنصر انتباه",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-04",
+  "name": "قائمة التنبيهات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-05",
+  "name": "تفصيل تنبيه + تأكيد القراءة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-06",
+  "name": "العرض السريع — بطاقات الأوضاع",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-07",
+  "name": "العرض المتقدم — شجرة الصلاحيات",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-08",
+  "name": "صفحة نظام — سطح تحكم نظام واحد",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-09",
+  "name": "تعديل تحكم",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-10",
+  "name": "قسم الخطة — قراءة فقط + ترقية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-11",
+  "name": "سجل الأنظمة المسجلة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-12",
+  "name": "سطح شفافية الذكاء — سجل أفعال الوكيل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-13",
+  "name": "تفصيل فعل وكيل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-09",
+  "id": "H09-14",
+  "name": "مركز الإعدادات — الأقسام التسعة والبحث",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-01",
+  "name": "قواعد التطبيقات لطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-02",
+  "name": "تحرير قاعدة تطبيق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-03",
+  "name": "الحصة الإجمالية اليومية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-04",
+  "name": "الجدول الأسبوعي",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-05",
+  "name": "قائمة تطبيقات الدراسة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-06",
+  "name": "ترتيب أنواع القواعد مع المعاينة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-07",
+  "name": "شاشة الحظر (للطفل)",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-08",
+  "name": "التحذير قبل 5 دقائق",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-09",
+  "name": "الوضع الحر",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-10",
+  "name": "الأوضاع المسبقة",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-11",
+  "name": "تنبيهات العبث وإعادة التفعيل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-12",
+  "name": "حالة الفرض",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-13",
+  "name": "سجل تدقيق الحماية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-14",
+  "name": "مراجعة القواعد: بلوغ 13 سنة واستبدال الجهاز",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-15",
+  "name": "قواعد تصفية الويب لطفل",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ },
+ {
+  "system": "S1-10",
+  "id": "S10-16",
+  "name": "تجاوزات نطاقات التصفية",
+  "need": "generic-icons",
+  "asset_available": true,
+  "evidence": "أيقونات عامة متوفرة في كل التطبيقات (مثال: 899 في تيليجرام)",
+  "basket": "B",
+  "gap": false
+ }
+]
