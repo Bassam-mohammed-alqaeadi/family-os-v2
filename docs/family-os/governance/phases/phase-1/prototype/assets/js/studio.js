@@ -231,8 +231,8 @@ const Studio = {
     reset() { const keep = { persona: S.persona, theme: S.theme, lang: S.lang, ts: S.ts }; S = fresh(); Object.assign(S, keep); S.stack = [{ id: rootOf(S.persona), a: [] }]; JR = null; render(); toast('أُعيدت بيانات العرض إلى بدايتها', null, 'refresh'); },
     warn5() { if (!['child', 'teen'].includes(S.persona)) setPersona('child'); const id = PERSONA[S.persona].m, a = S.apps[id].find(x => x.act === 'LIMIT') || S.apps[id][0]; S.full = null; S.sheet = { id: 'warn5', a: [a.id] }; render(); },
     boot() { boot(); },
-    brand() { const o = $('#brandOv'), f = $('#brandFr'); if (!f.getAttribute('src')) f.src = 'brand.html?v=20261116e'; o.hidden = false; document.body.removeAttribute('data-open'); },
-    brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
+    brand(pg) { const o = $('#brandOv'), f = $('#brandFr'); if (pg === 'opts') f.src = 'brand-options.html?v=20261127a'; else if (!f.getAttribute('src')) f.src = 'brand.html?v=20261127a'; o.hidden = false; document.body.removeAttribute('data-open'); },
+    brandClose() { $('#brandOv').hidden = true; try { localStorage.setItem('fos-brand-seen', '1'); localStorage.setItem('fos-brand-opts-seen', '1'); } catch (e) { /* التخزين محجوب: لا يضر */ } },
     pane(x) { document.body.dataset.open === x ? document.body.removeAttribute('data-open') : (document.body.dataset.open = x); },
     closePane() { document.body.removeAttribute('data-open'); },
   },
@@ -297,7 +297,8 @@ window.Studio = Studio;
 function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="142"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
 addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot();
   /* عرض الشعار مرة واحدة عند أول فتح حتى يحكم عليه المالك؛ ?quiet يمنعه (للاختبارات) */
-  let seen = false; try { seen = localStorage.getItem('fos-brand-seen') === '1'; } catch (e) { /* لا شيء */ }
-  if (!seen && !/[?&]quiet/.test(location.search)) Studio.act.brand();
+  /* الشعار ينتظر حكم المالك (Q-398): يُفتح مرة واحدة على آخر ما عُرض عليه — البدائل بحالاتها (Q-429) */
+  let seen = false, seenOpts = false; try { seen = localStorage.getItem('fos-brand-seen') === '1'; seenOpts = localStorage.getItem('fos-brand-opts-seen') === '1'; } catch (e) { /* لا شيء */ }
+  if (!/[?&]quiet/.test(location.search)) { if (!seenOpts) Studio.act.brand('opts'); else if (!seen) Studio.act.brand(); }
 });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#brandOv').hidden) Studio.act.brandClose(); });

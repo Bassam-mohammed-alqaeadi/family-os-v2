@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>عائلتي — شعارات مقترحة بحالاتها</title>
+<link rel="icon" href="assets/brand/logo-symbol.svg">
+<style>
+@font-face{font-family:Plex;src:url(assets/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Plex;src:url(assets/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format('woff2');font-weight:600}
+@font-face{font-family:Plex;src:url(assets/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Plex;src:url(assets/fonts/ibm-plex-sans-arabic-latin-400-normal.woff2) format('woff2');font-weight:400;unicode-range:U+0000-00FF}
+@font-face{font-family:Plex;src:url(assets/fonts/ibm-plex-sans-arabic-latin-700-normal.woff2) format('woff2');font-weight:700;unicode-range:U+0000-00FF}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#EEECE2;color:#302D24;font:16px/1.7 Plex,system-ui,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+h1{font-size:26px;line-height:1.35;margin:0 0 6px;color:#1F3A6B}
+h2{font-size:22px;margin:0;color:#1F3A6B}
+h3{font-size:16px;margin:22px 0 10px;color:#1F3A6B}
+p{margin:0 0 10px;max-width:72ch}
+a{color:#1F3A6B}
+button{font:inherit;color:inherit}
+
+/* ---------- ألوان الشعار بحسب الخلفية (من color-tokens) ---------- */
+.t-cream{--bgc:#FCFAED;--lf:#1F3A6B;--l1:#CF5B2C;--l2:#1F6B3B;--l3:#C8A24A;--lmute:#A7A18F;--ok:#1F6B3B;--bad:#B42318;--off:#625C4D;--syn:#1F3A6B;--wt:#C8A24A;--gl:#fff;background:#FCFAED;color:#0A152A}
+.t-navy{--bgc:#1F3A6B;--lf:#FCFAED;--l1:#E47951;--l2:#73AB82;--l3:#C8A24A;--lmute:#8E97AB;--ok:#73AB82;--bad:#EE7A6A;--off:#C7C2B2;--syn:#FCFAED;--wt:#C8A24A;--gl:#0A152A;background:#1F3A6B;color:#FCFAED}
+.t-night{--bgc:#081122;--lf:#FCFAED;--l1:#E47951;--l2:#73AB82;--l3:#C8A24A;--lmute:#8E97AB;--ok:#73AB82;--bad:#EE7A6A;--off:#C7C2B2;--syn:#FCFAED;--wt:#C8A24A;--gl:#0A152A;background:#081122;color:#F7F6F0}
+.mono{--l1:var(--lf);--l2:var(--lf);--l3:var(--lf)}
+
+/* ---------- الشعار: تشريح واحد لكل المقترحات ----------
+   .f  الخط الحامل (سقف، حلقة، حرف، قوس، ساق)   .ff جزء حامل مملوء
+   .m1 .m2 .m3  الأفراد الثلاثة                  .bd شارة الحالة */
+.lg{display:block;overflow:visible;flex:none}
+.lg .f,.lg .trk{fill:none;stroke:var(--lf);stroke-linecap:round;stroke-linejoin:round}
+.lg .trk{opacity:.18}
+.lg .ff{fill:var(--lf)}
+.lg .m{fill:var(--c);transform-box:fill-box;transform-origin:center}
+.lg .m1{--c:var(--l1)}.lg .m2{--c:var(--l2)}.lg .m3{--c:var(--l3)}
+.lg .leaf{transform-origin:50% 100%}
+.lg .mark,.lg .shk{transform-box:view-box;transform-origin:50% 50%}
+.lg .bd{transform-box:fill-box;transform-origin:center}
+.lg .bdbg{fill:var(--bgc)}
+.lg .gl{fill:none;stroke:var(--gl);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.lg .gd{fill:var(--gl)}
+.lg .rot{transform-box:fill-box;transform-origin:center}
+.bd-ok .bdc{fill:var(--ok)}.bd-bad .bdc{fill:var(--bad)}.bd-off .bdc{fill:var(--off)}.bd-syn .bdc{fill:var(--syn)}
+.bd-wait .bdc{fill:var(--wt)}.bd-wait .gl{stroke:#0A152A}
+.bd-att .bdc{fill:var(--l1)}.bd-att .pls{fill:var(--l1);opacity:0;transform-box:fill-box;transform-origin:center}
+
+/* ---------- التحميل: لكل مقترح حركته ---------- */
+[data-s=loading] .m2{animation-delay:.15s!important}[data-s=loading] .m3{animation-delay:.3s!important}
+[data-c=A][data-s=loading] .m{animation:lg-bounce 1.15s cubic-bezier(.4,0,.2,1) infinite}
+[data-c=B][data-s=loading] .mark{animation:lg-turn 1.9s cubic-bezier(.55,.1,.35,.9) infinite}
+[data-c=C][data-s=loading] .m{animation:lg-wave 1.2s ease-in-out infinite}
+[data-c=D][data-s=loading] .m{animation:lg-light 1.5s ease-in-out infinite}
+[data-c=E][data-s=loading] .m{animation:lg-sprout 1.8s cubic-bezier(.3,.7,.3,1) infinite}
+@keyframes lg-bounce{0%,55%,100%{transform:translateY(0)}28%{transform:translateY(-38%)}}
+@keyframes lg-turn{to{transform:rotate(360deg)}}
+@keyframes lg-wave{0%,60%,100%{transform:scale(1);opacity:1}30%{transform:scale(.55);opacity:.4}}
+@keyframes lg-light{0%,70%,100%{opacity:.22}35%{opacity:1}}
+@keyframes lg-sprout{0%{transform:scale(0)}30%,82%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+
+/* ---------- الانتظار: هادئ، بلا انتقال من المكان ---------- */
+[data-s=waiting] .m{animation:lg-breathe 2.8s ease-in-out infinite}
+[data-s=waiting] .m2{animation-delay:.45s}[data-s=waiting] .m3{animation-delay:.9s}
+@keyframes lg-breathe{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---------- المزامنة: الشعار ثابت والشارة تدور ---------- */
+[data-s=sync] .rot{animation:lg-turn 1.3s linear infinite}
+
+/* ---------- التقدّم: الخط الحامل يُرسم ثم يظهر الأفراد ---------- */
+[data-s=progress] .f{stroke-dasharray:100 200;stroke-dashoffset:100;animation:lg-draw 4.4s ease-in-out infinite}
+[data-s=progress] .ff{animation:lg-in1 4.4s infinite}
+[data-s=progress] .m1{animation:lg-in1 4.4s infinite}[data-s=progress] .m2{animation:lg-in2 4.4s infinite}[data-s=progress] .m3{animation:lg-in3 4.4s infinite}
+@keyframes lg-draw{0%{stroke-dashoffset:100}60%,92%{stroke-dashoffset:0}100%{stroke-dashoffset:100}}
+@keyframes lg-in1{0%,38%{opacity:0}46%,92%{opacity:1}100%{opacity:0}}
+@keyframes lg-in2{0%,50%{opacity:0}58%,92%{opacity:1}100%{opacity:0}}
+@keyframes lg-in3{0%,62%{opacity:0}70%,92%{opacity:1}100%{opacity:0}}
+
+/* ---------- النجاح والتعذّر والانتباه: مرة واحدة (تتكرر هنا للعرض) ---------- */
+[data-s=success] .m{animation:lg-pop 3.6s ease-out infinite}
+[data-s=success] .m2{animation-delay:.07s}[data-s=success] .m3{animation-delay:.14s}
+[data-s=success] .bd{animation:lg-badge 3.6s cubic-bezier(.3,1.4,.5,1) infinite}
+@keyframes lg-pop{0%,16%,100%{transform:scale(1)}7%{transform:scale(1.28)}}
+@keyframes lg-badge{0%,8%{transform:scale(0)}17%{transform:scale(1.15)}22%,94%{transform:scale(1)}100%{transform:scale(0)}}
+[data-s=error] .m{--c:var(--lmute)}
+[data-s=error] .shk{animation:lg-shake 3.6s ease-in-out infinite}
+[data-s=error] .bd{animation:lg-badge 3.6s cubic-bezier(.3,1.4,.5,1) infinite}
+@keyframes lg-shake{0%,13%,100%{transform:translateX(0)}2.5%{transform:translateX(-3%)}5%{transform:translateX(3%)}7.5%{transform:translateX(-2%)}10%{transform:translateX(2%)}}
+[data-s=attention] .pls{animation:lg-pulse 3.6s ease-out infinite}
+@keyframes lg-pulse{0%{transform:scale(1);opacity:.5}18%{transform:scale(2.1);opacity:0}19%{transform:scale(1);opacity:.5}37%,100%{transform:scale(2.1);opacity:0}}
+
+/* ---------- بلا اتصال: ثابت دائماً ---------- */
+[data-s=offline] .mark{filter:grayscale(1);opacity:.5}
+
+/* ---------- تقليل الحركة: لا حركة متكررة، والمعنى يبقى بالشكل والنص ---------- */
+.rm .lg *{animation:none!important}
+.rm [data-s=loading] .m1{opacity:1}.rm [data-s=loading] .m2{opacity:.6}.rm [data-s=loading] .m3{opacity:.3}
+.rm [data-s=waiting] .m{opacity:.45}
+.rm [data-s=progress] .f{stroke-dashoffset:38}.rm [data-s=progress] .m,.rm [data-s=progress] .ff{opacity:.2}
+
+/* ---------- الصفحة ---------- */
+.lead{background:#FCFAED;border-radius:18px;padding:20px 22px;margin:0 0 14px}
+.note{font-size:14px;color:#494536}
+.bar{position:sticky;top:0;z-index:5;background:#EEECE2F2;backdrop-filter:blur(6px);padding:10px 0;margin:0 0 6px;display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #DEDACB}
+.seg{display:inline-flex;background:#fff;border:1px solid #DEDACB;border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:none;min-height:48px;padding:0 14px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600;color:#494536}
+.seg button[aria-pressed=true]{background:#1F3A6B;color:#fff}
+.seg button:focus-visible,.nav a:focus-visible,.pick:focus-visible{outline:3px solid #C8A24A;outline-offset:2px}
+.bar label{font-size:13px;color:#625C4D;font-weight:600}
+@media(max-width:520px){.bar label{display:none}.seg button{padding:0 11px}}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.nav a{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:4px 14px 4px 10px;background:#FCFAED;border-radius:14px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid #DEDACB}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;background:#FCFAED;border-radius:14px;overflow:hidden}
+.tbl th,.tbl td{text-align:start;padding:9px 12px;border-bottom:1px solid #EEECE2;vertical-align:top}
+.tbl th{color:#1F3A6B;font-weight:700;white-space:nowrap}
+.tbl tr:last-child td,.tbl tr:last-child th{border-bottom:0}
+
+.cx{background:#F7F6F0;border-radius:22px;padding:22px;margin:26px 0 0;scroll-margin-top:76px;border:1px solid #DEDACB}
+.cx>header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 4px}
+.tag{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#1F3A6B;color:#fff;font-weight:700;font-size:18px;flex:none}
+.cur{font-size:12px;font-weight:700;background:#F3D89D;color:#3A2A00;border-radius:99px;padding:2px 10px}
+.one{font-size:15px;color:#494536;margin:6px 0 14px}
+.top{display:grid;gap:12px;grid-template-columns:1.25fr 1.25fr 1fr}
+@media(max-width:860px){.top{grid-template-columns:1fr 1fr}.top .icons{grid-column:1/-1}}
+@media(max-width:520px){.top{grid-template-columns:1fr}}
+.hero{border-radius:18px;min-height:190px;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;flex-wrap:wrap}
+.wm{font-weight:700;font-size:50px;line-height:1.2;letter-spacing:0}
+.t-cream .wm{color:#1F3A6B}
+.icons{background:#fff;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.irow{display:flex;gap:14px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+.irow figure{margin:0;text-align:center;font-size:12px;color:#625C4D}
+.ico{width:64px;height:64px;display:grid;place-items:center;margin:0 auto 4px;border-radius:22%}
+.ico.ci{border-radius:50%}
+.ico.t-cream{box-shadow:inset 0 0 0 1px #DEDACB}
+.sz{display:grid;place-items:center;margin:0 auto 4px;height:64px}
+.mean{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:12px 0 0}
+.mean div{background:#FCFAED;border-radius:14px;padding:12px 16px;font-size:14px}
+.mean b{display:block;color:#1F3A6B;font-size:15px}
+.mean .weak b{color:#7A3A00}
+.states{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.st{border-radius:16px;padding:16px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-height:186px}
+.st b{font-size:15px;line-height:1.3}
+.st small{font-size:12.5px;line-height:1.5;opacity:.82}
+.ctx{display:grid;gap:12px;grid-template-columns:auto 1fr 1fr;align-items:stretch}
+@media(max-width:760px){.ctx{grid-template-columns:1fr}}
+.cbox{background:#fff;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center}
+.cbox small{font-size:12.5px;color:#625C4D}
+.ph{width:150px;height:270px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:4px solid #0A152A}
+.ph .wm{font-size:22px}
+.ph i{font-style:normal;font-size:11px;opacity:.75;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 22px;border-radius:14px;font-weight:700;font-size:16px}
+.row{display:flex;align-items:center;gap:12px;border-radius:14px;padding:12px 14px;text-align:start;width:100%;max-width:330px;border:1px solid #DEDACB}
+.row span{display:block;font-size:13px;color:#625C4D}
+.row b{font-size:15px}
+.offc{display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:14px;padding:14px;width:100%;max-width:330px;font-size:13px}
+.offc b{font-size:15px}
+.cmp{display:grid;gap:10px;grid-template-columns:repeat(5,1fr)}
+@media(max-width:760px){.cmp{grid-template-columns:repeat(2,1fr)}}
+.pick{border:1px solid #DEDACB;border-radius:16px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;text-align:center;font-size:14px;font-weight:700}
+.pick .r{display:flex;gap:10px;align-items:center;justify-content:center;min-height:30px}
+.rec{background:#FCFAED;border-radius:18px;padding:18px 22px;margin:14px 0 0;border-inline-start:6px solid #C8A24A}
+.rec ol{margin:6px 0 0;padding-inline-start:22px}
+.rec li{margin:0 0 6px}
+</style>
+</head>
+<body><main id="main">
+<div class="lead">
+<h1>شعارات مقترحة لـ«عائلتي»، كل شعار بحالاته</h1>
+<p>أربعة شعارات جديدة، ومعها الشعار الحالي للمقارنة. كل واحد مرسوم حياً هنا (ليس صورة)، ويتحرك في الحالات التي يحتاجها التطبيق: تحميل، انتظار، تقدّم، مزامنة، نجاح، تعذّر، بلا اتصال، وانتباه.</p>
+<p class="note">الألوان الخمسة والخط كما هي في نظام التصميم. لا عين ولا قفل ولا درع ولا كاميرا في أي مقترح. الاسم هنا مكتوب بالخط مباشرة؛ بعد اختيارك تُبنى الملفات النهائية (الأيقونات، شاشة البدء، النسخ الداكنة والأحادية) من تعريف واحد كما بُني الشعار الحالي. <a href="brand.html">الشعار الحالي كاملاً ←</a></p>
+</div>
+
+<div class="bar" role="group" aria-label="إعدادات العرض">
+  <label id="l-bg">الخلفية</label>
+  <div class="seg" role="group" aria-labelledby="l-bg">
+    <button data-bg="cream" aria-pressed="true">كريمي</button><button data-bg="navy" aria-pressed="false">كحلي</button><button data-bg="night" aria-pressed="false">ليلي</button>
+  </div>
+  <label id="l-mo">الحركة</label>
+  <div class="seg" role="group" aria-labelledby="l-mo">
+    <button data-rm="0" aria-pressed="true">كاملة</button><button data-rm="1" aria-pressed="false">مخفّضة</button>
+  </div>
+</div>
+
+<nav class="nav" id="nav" aria-label="المقترحات"></nav>
+
+<div id="list"></div>
+
+<section class="cx" id="cmp">
+  <header><h2>الخمسة جنباً إلى جنب</h2></header>
+  <p class="one">في السكون، وفي التحميل، وعند أصغر حجم (٢٤). اضغط أي واحد لتذهب إليه.</p>
+  <div class="cmp" id="cmpGrid"></div>
+  <div class="rec">
+    <b style="color:#1F3A6B;font-size:17px">رأيي، والحكم لك</b>
+    <ol>
+      <li><b>«القمرية» (د)</b> إن أردت شعاراً له جذر في بيوتنا ويحمل الحالات حملاً طبيعياً: الضوء يمرّ في زجاجها عند التحميل، ويُرسم قوسها ثم تضيء بتلةً بتلة عند التقدّم.</li>
+      <li><b>«الحلقة» (ب)</b> إن كان الأهم عندك وضوح الحركة في أصغر حجم: هي أفضل الخمسة في التحميل داخل الأزرار، وأضعفها دلالةً على «البيت».</li>
+      <li><b>«العين» (ج)</b> أقواها هويةً عربية، وأحوجها إلى قرار عن النسخة الإنجليزية.</li>
+    </ol>
+    <p class="note" style="margin:8px 0 0">ما لم أفعله: لم أبحث عن شعارات مسجّلة تشبه أياً منها؛ هذا يدخل مع تسجيل العلامة عند المحامي قبل الإطلاق. ويمكن الجمع: اختر شكلاً من مقترح وحركةً من آخر، أو اطلب تعديلاً على أي واحد.</p>
+  </div>
+</section>
+<section class="cx" id="rules">
+  <header><h2>الحالات التسع ومتى تظهر</h2></header>
+  <p class="one">واحدة في كل المقترحات؛ الذي يختلف هو شكل الحركة.</p>
+<table class="tbl">
+<tr><th>السكون</th><td>الشعار كما هو: في الرؤوس، الأيقونة، وشاشة البدء.</td></tr>
+<tr><th>التحميل</th><td>لا نعرف كم سيطول: بدء التطبيق، فتح شاشة كاملة، السحب للتحديث. بعد ثانيتين يصحبه نص يقول ما يحدث.</td></tr>
+<tr><th>الانتظار</th><td>الأمر عند شخص آخر لا عند الشبكة: «بانتظار قرار بابا»، «بانتظار اتصال جهاز ليان». هادئ وثابت في مكانه، ومعه شارة ساعة.</td></tr>
+<tr><th>التقدّم</th><td>نعرف النسبة: إقران جهاز، رفع صورة، التحقق من الدفع. الشعار يُرسم بقدر ما اكتمل.</td></tr>
+<tr><th>المزامنة</th><td>حفظ في الخلفية لا يحجب العمل: الشعار ثابت وشارة صغيرة تدور.</td></tr>
+<tr><th>تمّ</th><td>مرة واحدة ثم يعود إلى السكون: اكتمل الإقران، نجح الدفع.</td></tr>
+<tr><th>تعذّر</th><td>مرة واحدة: هزّة خفيفة، الأفراد بلون محايد، وشارة حمراء، ومعه نص يقول ما حدث وما العمل.</td></tr>
+<tr><th>بلا اتصال</th><td>ثابت بلا حركة: الشعار رمادي وشارة انقطاع. القراءة تعمل والكتابة تنتظر.</td></tr>
+<tr><th>انتباه</th><td>جديد يخصك: نقطة برتقالية تنبض مرتين ثم تثبت. ليست لون الخطر.</td></tr>
+</table>
+<p class="note" style="margin-top:10px">قواعد تسري على الجميع (من ملف الحركة في نظام التصميم): لا وميض؛ «تقليل الحركة» يوقف كل حركة متكررة ويبقى المعنى بالشكل والشارة والنص (جرّبه من الزر أعلاه)؛ شاشة البدء أقل من ثانية؛ وهذه الحالات لا تحلّ محل الهيكل النابض داخل الشاشات، بل تُستعمل حيث يملأ الانتظار الشاشة أو الزر.</p>
+</section>
+</main>
+
+<script>
+/* كل الشعارات في مربع 512؛ الشارة في الزاوية العليا من جهة النهاية (اليسار في العربية) كنقطة الإشعار في التطبيق */
+const rad = a => a * Math.PI / 180, pt = (r, a, cx = 256, cy = 396) => [(cx + r * Math.cos(a)).toFixed(1), (cy + r * Math.sin(a)).toFixed(1)];
+/* بتلة قمرية: رأس مستدير نصف قطره r على بُعد d من مركز المروحة */
+const petal = (d, r = 36) => `M0-28C12-44 ${r}-${d - 32} ${r}-${d}A${r} ${r} 0 0 0-${r}-${d}C-${r}-${d - 32}-12-44 0-28Z`;
+const LEAF = 'M0 0C58-38 60-108 0-150C-60-108-58-38 0 0Z';
+const C = {
+  A: { n: 'السقف', tag: 'أ', cur: 1,
+    one: 'الشعار الحالي (Q-398): سقف بيت بخط واحد، وتحته ثلاثة. وضعته هنا لترى كيف يتصرف في الحالات نفسها.',
+    frame: '<path class="f" pathLength="100" stroke-width="52" d="M100 301V251L256 113 412 251v50"/>',
+    mem: '<circle class="m m1" cx="256" cy="273" r="37"/><circle class="m m2" cx="182" cy="387" r="37"/><circle class="m m3" cx="330" cy="387" r="37"/>',
+    mean: 'عائلة تحت سقف واحد. مفتوح من الأسفل: حماية لا حبس.',
+    load: 'النقاط الثلاث تقفز واحدة بعد أخرى؛ السقف ثابت.',
+    good: 'يُقرأ «بيت» من أول نظرة، وواضح كأيقونة تطبيق.',
+    weak: 'السقف ثابت بطبعه، فكل حركته في النقاط الثلاث؛ عند ٢٤ تصغر النقاط كثيراً.' },
+  B: { n: 'الحلقة', tag: 'ب',
+    one: 'حلقة مفتوحة تحتضن ثلاث حبّات تُكمل الدائرة: العائلة عِقد لا ينفرط.',
+    frame: '<path class="f" pathLength="100" stroke-width="54" d="M115 307.3A150 150 0 1 1 397 307.3"/>',
+    mem: '<circle class="m m1" cx="348.3" cy="374.2" r="31"/><circle class="m m2" cx="256" cy="406" r="31"/><circle class="m m3" cx="163.7" cy="374.2" r="31"/>',
+    mean: 'الكبير يحيط ولا يُغلق، والصغار يُتمّون الحلقة. إن غاب واحد نقصت الدائرة.',
+    load: 'الحلقة كلها تدور دورة هادئة: أوضح حركة تحميل بين الخمسة.',
+    good: 'مولود ليتحرك: يدور، يمتلئ، ويُقرأ حتى داخل زر صغير. متماثل فلا يُعكس.',
+    weak: 'لا يقول «بيت» مباشرة، وحلقات التحميل الملوّنة شائعة فيحتاج الاسم بجانبه ليُعرف.' },
+  C: { n: 'العين', tag: 'ج',
+    one: 'حرف العين، أول «عائلتي»، يحتضن في جوفه ثلاثة.',
+    frame: '<path class="f" pathLength="100" stroke-width="50" d="M338 138C300 84 186 92 186 160C186 208 236 228 296 226C196 226 126 282 126 352C126 428 214 456 352 438"/>',
+    mem: '<circle class="m m1" cx="300" cy="318" r="30"/><circle class="m m2" cx="226" cy="340" r="30"/><circle class="m m3" cx="296" cy="388" r="30"/>',
+    mean: 'الاسم نفسه صار الشعار: عربي من أول حرف، والحرف يضمّ أهله.',
+    load: 'الثلاثة في جوف الحرف ينبضون بالتتابع؛ وفي التقدّم يُكتب الحرف كما تكتبه اليد.',
+    good: 'لا يشبه غيره، وهويته عربية صريحة، وكتابة الحرف حركة تقدّم جميلة.',
+    weak: 'غير متماثل؛ ولمن لا يقرأ العربية شكل مجرّد. يحتاج قراراً: هل يبقى مع «Family OS» في النسخة الإنجليزية؟' },
+  D: { n: 'القمرية', tag: 'د',
+    one: 'قمرية البيت الصنعاني: قوس النافذة، وفيه ثلاث بتلات من الزجاج الملوّن يمرّ منها الضوء.',
+    frame: '<path class="f" pathLength="100" stroke-width="46" d="M96 372V296A160 160 0 0 1 416 296V372"/><circle class="ff" cx="256" cy="346" r="17"/>',
+    mem: `<g transform="translate(256 346) rotate(52)"><path class="m m1" d="${petal(98)}"/></g><g transform="translate(256 346)"><path class="m m2" d="${petal(114)}"/></g><g transform="translate(256 346) rotate(-52)"><path class="m m3" d="${petal(98)}"/></g>`,
+    mean: 'نور البيت. القوس يحمي، والبتلات الثلاث أهله، كلٌّ بلونه والضوء واحد.',
+    load: 'الضوء يمرّ في البتلات من اليمين إلى اليسار، كما تُقرأ العربية.',
+    good: 'له جذر في بيوتنا ولا يشبه شعارات التطبيقات العائلية الأخرى. دافئ بلا طفولية.',
+    weak: 'مرتبط بعمارة اليمن؛ خارجها قد يُقرأ شروق شمس (وهو معنى حسن). بتلاته تصغر كثيراً عند ٢٤.' },
+  E: { n: 'الغصن', tag: 'هـ',
+    one: 'غصن صغير بثلاث ورقات: عائلة تكبر.',
+    frame: '<path class="f" pathLength="100" stroke-width="44" d="M256 440C256 380 250 330 256 268"/>',
+    mem: `<g transform="translate(256 228)"><path class="m leaf m1" d="${LEAF}"/></g><g transform="translate(226 360) rotate(-46) scale(.86)"><path class="m leaf m2" d="${LEAF}"/></g><g transform="translate(286 322) rotate(46) scale(.86)"><path class="m leaf m3" d="${LEAF}"/></g>`,
+    mean: 'النموّ والتربية: المنصة تُعين العائلة على أن تكبر معاً، لا على المراقبة.',
+    load: 'الورقات تنبت واحدة بعد أخرى؛ وفي التقدّم تعلو الساق أولاً.',
+    good: 'أودّها عند الأطفال، ومعناه إيجابي خالص، وحركة النبت مفهومة بلا شرح.',
+    weak: 'الأغصان والأوراق كثيرة في شعارات الصحة والبيئة والتعليم؛ ولا يقول «حماية» ولا «بيت».' }
+};
+const G = {
+  ok: '<path class="gl" d="M29 52 44 67 72 36"/>',
+  bad: '<path class="gl" d="M50 25V56"/><circle class="gd" cx="50" cy="74" r="6"/>',
+  wait: '<path class="gl" d="M50 27V52L66 61"/>',
+  off: '<path class="gl" d="M23 45A39 39 0 0 1 77 45M36 59A21 21 0 0 1 64 59"/><circle class="gd" cx="50" cy="73" r="6"/><path class="gl" d="M25 21 77 81"/>',
+  syn: '<g class="rot"><path class="gl" d="M30 43A21 21 0 0 1 70 43M70 57A21 21 0 0 1 30 57"/><path class="gl" d="M72 28 70 43 56 41M28 72 30 57 44 59"/></g>'
+};
+const bd = (k, g) => `<g class="bd bd-${k}">${k === 'att' ? '<circle class="pls" cx="88" cy="88" r="50"/>' : ''}<circle class="bdbg" cx="88" cy="88" r="${k === 'att' ? 62 : 76}"/><circle class="bdc" cx="88" cy="88" r="${k === 'att' ? 48 : 62}"/>${g ? `<g transform="translate(38 38)">${g}</g>` : ''}</g>`;
+const BADGE = { waiting: bd('wait', G.wait), sync: bd('syn', G.syn), success: bd('ok', G.ok), error: bd('bad', G.bad), offline: bd('off', G.off), attention: bd('att', '') };
+function sym(k, s = 'rest', px = 96, cls = '') {
+  const c = C[k];
+  return `<svg class="lg ${cls}" data-c="${k}" data-s="${s}" viewBox="0 0 512 512" width="${px}" height="${px}" aria-hidden="true"><g class="shk"><g class="mark">${s === 'progress' ? c.frame.replace(/class="f"/g, 'class="trk"').replace(/<(path|circle) class="ff"[^>]*>/g, '') : ''}${c.frame}${c.mem}</g></g>${BADGE[s] || ''}</svg>`;
+}
+const ST = [
+  ['rest', 'السكون', 'كما هو'],
+  ['loading', 'التحميل', 'جارٍ التحميل…'],
+  ['waiting', 'الانتظار', 'بانتظار قرار بابا'],
+  ['progress', 'التقدّم', 'يُرسم بقدر ما اكتمل'],
+  ['sync', 'المزامنة', 'يُحفظ في الخلفية'],
+  ['success', 'تمّ', 'مرة واحدة ثم يسكن'],
+  ['error', 'تعذّر', 'هزّة واحدة وشارة'],
+  ['offline', 'بلا اتصال', 'ثابت بلا حركة'],
+  ['attention', 'انتباه', 'نبضتان ثم تثبت']
+];
+const keys = Object.keys(C);
+document.getElementById('nav').innerHTML = keys.map(k => `<a href="#c-${k}"><span class="t-cream" style="background:none">${sym(k, 'rest', 34)}</span>${C[k].tag} · ${C[k].n}${C[k].cur ? ' (الحالي)' : ''}</a>`).join('') + '<a href="#cmp">المقارنة ورأيي</a><a href="#rules">متى تظهر كل حالة</a>';
+document.getElementById('list').innerHTML = keys.map(k => { const c = C[k]; return `
+<section class="cx" id="c-${k}" aria-labelledby="h-${k}">
+  <header><span class="tag">${c.tag}</span><h2 id="h-${k}">${c.n}</h2>${c.cur ? '<span class="cur">الحالي — للمقارنة</span>' : ''}</header>
+  <p class="one">${c.one}</p>
+  <div class="top">
+    <div class="hero t-cream">${sym(k, 'rest', 132)}<span class="wm">عائلتي</span></div>
+    <div class="hero t-navy">${sym(k, 'rest', 132)}<span class="wm">عائلتي</span></div>
+    <div class="icons">
+      <div class="irow">
+        <figure><div class="ico t-navy">${sym(k, 'rest', 46)}</div>كحلية</figure>
+        <figure><div class="ico t-cream">${sym(k, 'rest', 46)}</div>كريمية</figure>
+        <figure><div class="ico ci t-navy mono">${sym(k, 'rest', 42)}</div>لون واحد</figure>
+      </div>
+      <div class="irow t-cream" style="background:none">
+        <figure><div class="sz">${sym(k, 'rest', 48)}</div>٤٨</figure>
+        <figure><div class="sz">${sym(k, 'rest', 24)}</div>الأدنى ٢٤</figure>
+        <figure><div class="sz">${sym(k, 'loading', 24)}</div>تحميل عند ٢٤</figure>
+      </div>
+    </div>
+  </div>
+  <div class="mean">
+    <div><b>المعنى</b>${c.mean}</div>
+    <div><b>كيف يتحرك</b>${c.load}</div>
+    <div><b>أين يقوى</b>${c.good}</div>
+    <div class="weak"><b>أين يضعف</b>${c.weak}</div>
+  </div>
+  <h3>حالاته</h3>
+  <div class="states">${ST.map(([s, t, d]) => `<div class="st stage t-cream">${sym(k, s, 96)}<b>${t}</b><small>${d}</small></div>`).join('')}</div>
+  <h3>في مكانه</h3>
+  <div class="ctx">
+    <div class="cbox"><div class="ph t-navy">${sym(k, 'loading', 70)}<span class="wm">عائلتي</span><i>نجهّز بيتك…</i></div><small>شاشة البدء: أقل من ثانية ثم الواجهة</small></div>
+    <div class="cbox">
+      <span class="btn t-navy mono">${sym(k, 'loading', 24)}جارٍ الحفظ…</span><small>داخل زر، بلون واحد، عند ٢٤</small>
+      <div class="row t-cream">${sym(k, 'waiting', 40)}<div><b>٣٠ دقيقة إضافية</b><span>بانتظار قرار بابا · منذ دقيقتين</span></div></div><small>انتظار قرار شخص: هادئ وثابت</small>
+    </div>
+    <div class="cbox">
+      <div class="offc t-cream" style="box-shadow:inset 0 0 0 1px #DEDACB">${sym(k, 'offline', 72)}<b>لا اتصال الآن</b><span>ما تراه محفوظ من قبل ٥ دقائق. ما تكتبه يُرسل حين يعود الاتصال.</span></div><small>شاشة بلا اتصال</small>
+      <div class="row t-cream">${sym(k, 'success', 40)}<div><b>اقترن جهاز ليان</b><span>القواعد وصلت إليه</span></div></div><small>نجاح: مرة واحدة</small>
+    </div>
+  </div>
+</section>`; }).join('');
+document.getElementById('cmpGrid').innerHTML = keys.map(k => `<a class="pick t-cream" href="#c-${k}"><div class="r">${sym(k, 'rest', 84)}</div><div class="r">${sym(k, 'loading', 44)}${sym(k, 'rest', 24)}</div>${C[k].tag} · ${C[k].n}</a>`).join('');
+
+/* إعدادات العرض */
+const main = document.getElementById('main');
+function setBg(v) { document.querySelectorAll('.stage').forEach(e => { e.classList.remove('t-cream', 't-navy', 't-night'); e.classList.add('t-' + v); }); document.querySelectorAll('[data-bg]').forEach(b => b.setAttribute('aria-pressed', b.dataset.bg === v)); }
+function setRm(v) { main.classList.toggle('rm', v); document.querySelectorAll('[data-rm]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.rm === '1') === v)); }
+document.querySelector('.bar').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.bg) setBg(b.dataset.bg); if (b.dataset.rm) setRm(b.dataset.rm === '1'); });
+if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) setRm(true);
+</script>
+</body></html>
