@@ -103,7 +103,7 @@ const ckLeft = () => { const R = ckRest(); return !R.length ? 'مكتملة' : R
 ACT.ckHide = () => { const key = me().id + '|checklist'; attX()[key] = 1; toast('أُخفي من الرئيسية · تجده في «المزيد»', () => { delete attX()[key]; render(); }, 'checklist'); };
 surface('checklist', {
   t: 'قائمة الإعداد الأولي', sys: 'S1-01', p: 'owner', req: '09:1 07:10', st: 'pr',
-  note: 'قائمة الإعداد الأولي مصطلح معتمد في المسرد؛ بنودها هنا مقترحة ومشتقة من متطلبات الأنظمة.',
+  note: 'قائمة الإعداد الأولي (DS-CC-10): مدخلها الدائم صف في «المزيد» للمالك، وبطاقتها في الرئيسية تذكير يُخفى (Q-424). بلا هدف زمني (Q-157). بنودها الخمسة مشتقة من متطلبات الأنظمة ولم يصدر فيها حكم بنداً بنداً.',
   r() { const I = CK_I;
     return callout('كل بند يفتح شاشته مباشرة، ويمكنك التوقف والعودة لاحقاً.') + list(I.map(([k, t, s, a]) => row(S.checklist[k] ? 'check_circle-fill' : 'radio_button_unchecked', t, s, { a: S.checklist[k] ? '' : a, ic: S.checklist[k] ? 'var(--success)' : 'var(--muted)', v: S.checklist[k] ? 'تمّ' : '' }))); },
 });
@@ -124,7 +124,7 @@ surface('family', {
       ...(own ? S.preq.map((q, i) => (q.st === 'pending' ? callout(`<b>${preqTxt(q)}</b><div style="margin-top:8px">${btn('اقرأ وقرّر', `go:perm-request:${i}`, 'sm')}</div>`, '', 'key') : '')) : []),
       own && S.rev13 === 1 ? callout(`<b>ليان صارت مراهقة</b><br>تغيّرت واجهتها وحدها. راجع ما تسمح لها به.<div style="margin-top:8px">${btn('راجع الآن', 'go:turn13:now', 'sm')}</div>`, '', 'cake') : '',
     ].join('');
-    return `${todo}<div class="card flat fx sb"><div><b>عائلة المنصور</b><div class="sm muted">اليمن · توقيت صنعاء</div></div>${chip(`${Object.keys(M).length} من ${cap} أفراد`, 'ol', 'groups')}</div>
+    return `${todo}<div class="card flat fx sb"><div><b>${famN()}</b><div class="sm muted">اليمن · توقيت صنعاء</div></div>${chip(`${Object.keys(M).length} من ${cap} أفراد`, 'ol', 'groups')}</div>
     ${srch('ابحث باسم الفرد', 'fam')}<div data-srch-box="fam"><div data-qg>${sec('البالغون')}<div class="list">${mrow(M.ahmad)}${mrow(M.sara)}</div></div><div data-qg>${sec('المراهقون والأطفال')}<div class="list">${KIDS.map(k => mrow(M[k])).join('')}</div></div></div><div data-srch-empty="fam" hidden>${empty('search_off', 'لا فرد بهذا الاسم', 'جرّب اسماً آخر.')}</div>
     ${list(can('identity.family.invite') ? row('person_add', 'أضف فرداً', 'ادعُ بالغاً أو أنشئ ملف طفل', { a: 'go:add-member' }) : '', own ? row('handshake', 'الأدوار', 'ثلاثة أدوار جاهزة تعدّل محتواها', { a: 'go:roles' }) : '', own || can('roles.key.view') ? row('menu_book', 'دليل الصلاحيات', 'شرح كل صلاحية في النظام', { a: 'go:perm-registry' }) : '', isAdult() && !isRoot() ? row('key', 'صلاحياتي', 'ما أستطيعه في هذه العائلة', { a: 'go:my-perms' }) : '', own || can('roles.audit.view') ? row('receipt_long', 'سجل الصلاحيات', 'من مُنح ومن سُحب منه ومتى', { a: 'go:audit' }) : '')}`;
   },
@@ -151,6 +151,7 @@ surface('member', {
       R('stars', m.role === 'teen' ? 'الوقت الإضافي' : 'المحفظة', m.role === 'teen' ? 'لا محفظة للمراهقين · يطلب وقتاً والقرار لك' : `سلسلة ${k.streak ? rwDy(k.streak) : 'لم تبدأ'}`, 'rewards.wallet.view', `go:wallet-admin:${id}`, m.role === 'teen' ? `${k.spent} د اليوم` : `${k.pts} نقطة`),
       R('forum', 'محادثاته', 'مرئية للأب دائماً', 'chat.minor.view', 'go:minor-chats:' + id))}
     ${sec('الملف والجهاز')}${list(
+      can('hub.dashboard.view') ? row('visibility', `ما يراه ${pname(m)}`, 'رئيسيته كما تظهر على جهازه · للمشاهدة فقط', { a: 'go:view-as:' + id }) : '',
       row('badge', 'بيانات الملف', `اسم مستعار · سنة الميلاد ${m.by} · لا تاريخ ميلاد كامل`, { a: can('identity.child.profile.edit') ? `go:child-profile:${id}` : 'denied:identity.child.profile.edit' }),
       id === 'layan' && isOwner() ? row('cake', 'تبلغ ليان 13 سنة في 2030', 'تنتقل وحدها إلى واجهة المراهقين، وتراجع أنت ما تسمح به', { a: 'go:turn13' }) : '',
       row('mobile', 'الجهاز المقترن', 'Android 13 · مقترن بهذه العائلة فقط', { a: 'go:device:' + id }))}
@@ -419,10 +420,10 @@ surface('family-delete', {
   note: 'أخطر فعل في التطبيق: ما يُحذف وما يبقى خلال المهلة ← كتابة اسم العائلة ← الرقم السري ← حالة «تُحذف بعد 30 يوماً» مع «ألغِ الحذف» (Q-344). يحتاج اتصالاً، ولا يُصَفّ للإرسال لاحقاً.',
   r() { const off = offline();
     if (S.famDel) return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('auto_delete')}</div><p class="ttl" style="font-size:22px">العائلة تُحذف بعد ${S.famDel} يوماً</p><p class="sub">${S.famDelBy && S.famDelBy !== me().n ? `طلبت ${S.famDelBy} الحذف. ` : ''}أُبلغ كل البالغين. كل شيء يعمل كما هو حتى ذلك اليوم. بعده يُمحى كل شيء نهائياً.</p>${btn('ألغِ الحذف', 'famDelCancel')}`;
-    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('delete_forever')}</div><p class="ttl" style="font-size:22px">حذف عائلة المنصور</p>
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('delete_forever')}</div><p class="ttl" style="font-size:22px">حذف ${famN()}</p>
     ${sec('بعد 30 يوماً يُمحى نهائياً')}${list(row('groups', 'كل الأفراد وملفات الأطفال', ''), row('forum', 'المحادثات والمهام والنقاط', ''), row('mobile_off', 'إقران أجهزة الأطفال', 'تتوقف الحماية عليها'), row('credit_card', 'الاشتراك', 'يتوقف بلا استرداد لما مضى'))}
     ${sec('خلال الثلاثين يوماً')}${callout('كل شيء يعمل كما هو، وتستطيع إلغاء الحذف في أي لحظة.', 'ok', 'undo')}
-    <label class="fld ${S.fdErr ? 'err' : ''}"><span>اكتب اسم العائلة للتأكيد</span><input id="fdN" placeholder="عائلة المنصور" autocomplete="off"><small>${S.fdErr ? 'الاسم غير مطابق. اكتب: عائلة المنصور' : 'اكتب: عائلة المنصور'}</small></label>
+    <label class="fld ${S.fdErr ? 'err' : ''}"><span>اكتب اسم العائلة للتأكيد</span><input id="fdN" placeholder="${famN()}" autocomplete="off"><small>${S.fdErr ? 'الاسم غير مطابق. اكتب: ' + famN() : 'اكتب: ' + famN()}</small></label>
     ${off ? callout('أنت غير متصل. حذف العائلة يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('احذف العائلة بالرقم السري', 'famDelGo', 'dng' + (off ? '" disabled="' : ''), 'lock')}`; },
 });
 surface('member-remove', {
@@ -494,7 +495,7 @@ Object.assign(ACT, {
   coSeen() { if (S.co) S.co.seen = 1; },
   ownerNowOk() { S.full = null; },
   pnSeen() { S.audit.forEach(a => { if (a.sn && a.who === me().id) a.rd = 1; }); },
-  famDelGo() { const v = ($('#fdN') || {}).value || ''; if (v.trim() !== 'عائلة المنصور') { S.fdErr = 1; return; } S.fdErr = 0; gate('حذف عائلة المنصور', () => { S.famDel = 30; S.famDelBy = me().n; audit('طُلب حذف العائلة · مهلة 30 يوماً', 'identity.member.remove'); }, 'stepup'); },
+  famDelGo() { const v = ($('#fdN') || {}).value || ''; if (v.trim() !== famN()) { S.fdErr = 1; return; } S.fdErr = 0; gate('حذف ' + famN(), () => { S.famDel = 30; S.famDelBy = me().n; audit('طُلب حذف العائلة · مهلة 30 يوماً', 'identity.member.remove'); }, 'stepup'); },
   famDelCancel() { S.famDel = 0; audit('أُلغي حذف العائلة', 'identity.member.remove'); toast('أُلغي الحذف · العائلة كما كانت'); },
   memRemove(id) { const m = M[id]; gate(`إزالة ${m.n} من العائلة`, () => { S.removed[id] = 30; if (id === 'sara') S.co = null; if (S.rec === id) S.rec = ''; paud(`${vb(m, 'أُزيل', 'أُزيلت')} ${m.n} من العائلة · مهلة 30 يوماً`, 'other', { k: 'identity.member.remove', who: id }); }, 'stepup'); },
   memRestore(id) { const m = M[id]; delete S.removed[id]; paud(`${vb(m, 'أُعيد', 'أُعيدت')} ${m.n} إلى العائلة`, 'other', { k: 'identity.member.remove', who: id }); toast(`${vb(m, 'عاد', 'عادت')} ${m.n} كما ${vb(m, 'كان', 'كانت')}`); },

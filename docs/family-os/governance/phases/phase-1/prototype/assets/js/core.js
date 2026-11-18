@@ -154,6 +154,7 @@ let S = fresh();
 const me = () => M[PERSONA[S.persona].m] || M.ahmad; /* الضيف بلا عضوية: لا يصل لشاشات العائلة أصلاً، والبديل يمنع الانهيار فقط */
 const isAdult = () => S.persona === 'owner' || S.persona === 'delegate';
 const isOwner = () => S.persona === 'owner' || (S.persona === 'delegate' && !!S.co);   /* المالك، أو بالغ أعطاه المالك الصلاحية الكاملة (Q-401) */
+const famN = () => S.famName || 'عائلة المنصور';   /* اسم العائلة كما سمّاها المالك؛ يُعدَّل من «العائلة» (S1-02 REQ-030) */
 const isRoot = () => S.persona === 'owner';   /* المالك نفسه: وحده يعطي الصلاحية الكاملة ويسحبها، ولا يُزال */
 const mode = () => PERSONA[S.persona].mode;
 /* تقييم الصلاحية (S1-03): المالك وصاحب الصلاحية الكاملة يملكان الكل. المفوَّض يملك ما في منحه فقط: غير ممنوع، لم تنتهِ مدته، ويشمل الطفل المقصود إن ذُكر. */
@@ -326,7 +327,7 @@ function render() {
   /* صلاحية سُحبت والمستخدم داخل تبويبها: يعود لأقرب تبويب مسموح مع رسالة */
   if (S.persona === 'delegate' && TAB_KEY[S.stack[0].id] && !can(TAB_KEY[S.stack[0].id])) { S.stack = [{ id: tabsFor()[0][0], a: [] }]; S.sheet = null; toast('لم يعد هذا القسم ضمن صلاحياتك', null, 'lock'); }
   const ph = $('#phone'), t = topE(), d = SC[t.id];
-  ph.dataset.theme = S.theme; ph.dataset.mode = mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
+  ph.dataset.theme = S.theme; ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
   const old = $('#scr'), keep = old && old.dataset.id === t.id + t.a.join() ? old.scrollTop : 0;
   const hero = d.hero && !offline() && !(S.lbw) && !(fmAny().length && isAdult());
@@ -397,6 +398,7 @@ const ACT = {
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el || !el.closest('#phone')) return;
+  if (el.closest('[inert]')) return;   /* معاينة «العرض كـ»: للمشاهدة فقط، ولو وصلتها ضغطة */
   if (el.dataset.a === 'scrimClose' && e.target.closest('[data-stop]')) return;
   const [n, ...a] = el.dataset.a.split(':');
   if (!ACT[n]) return console.warn('action?', n);

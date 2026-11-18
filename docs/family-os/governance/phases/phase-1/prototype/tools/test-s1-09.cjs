@@ -18,7 +18,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  const HUB=['home','alerts','alert','control','svc','ctl-edit','more','registry','ai','ai-act','ai-mine','why'];
  // 1 التسجيل والبذرة
  S=fresh();ok('seed: all S1-09 surfaces registered',HUB.every(k=>SC[k]&&SC[k].sys==='S1-09'),HUB.filter(k=>!SC[k]));
- ok('seed: six services, twenty-two controls',SVC.length===6&&CTL.length===22);
+ ok('seed: six services, twenty-three controls, the three types present',SVC.length===6&&CTL.length===23&&['pick','sw','act'].every(t=>CTL.some(c=>c.type===t)));
  ok('seed: every S1-09 REQ 1..18 cited by a surface',Array.from({length:18},(_,i)=>i+1).every(n=>Object.values(SC).some(d=>new RegExp('(^| )09:[0-9,]*\\b'+n+'\\b').test(d.req||''))),Array.from({length:18},(_,i)=>i+1).filter(n=>!Object.values(SC).some(d=>new RegExp('(^| )09:[0-9,]*\\b'+n+'\\b').test(d.req||''))));
  // 2 اللوحة: الوضع العادي والحالات الثلاث
  S=fresh();tab('home');render();ok('home: attention cards + modes + map + screen time',ph.querySelectorAll('#scr .att').length===3&&!!q('[data-a="go:presets:study"]')&&!!q('[data-a="go:map"]')&&has(/وقت الشاشة اليوم/));
@@ -59,7 +59,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('alert','zz');ok('missing alert: calm empty state',has(/لم يعد موجوداً/));
  // 4 التحكم: سريع ومتقدم
  S=fresh();tab('control');render();ok('control quick: modes + six services + role link',!!q('#scr [data-a="go:presets:sleep"]')&&ph.querySelectorAll('#scr .card.fx').length===6&&!!q('[data-a="go:roles"]')&&!!q('[data-a="go:registry"]'));
- S.ctl='adv';render();ok('control advanced: twenty-two settings from the registry',rows()===22+2&&!!q('[data-a="psFor:layan"]')&&!!q('[data-a="go:ctl-edit:cap:layan"]')&&!!q('[data-a="go:audit"]'),rows());
+ S.ctl='adv';render();ok('control advanced: twenty-three settings from the registry',rows()===23+2&&!!q('[data-a="psFor:layan"]')&&!!q('[data-a="go:ctl-edit:cap:layan"]')&&!!q('[data-a="go:audit"]'),rows());
  S=fresh();S.os='ios';S.ctl='adv';tab('control');render();ok('iOS: unavailable settings say so',has(/غير متاح على هذا الجهاز/)&&!q('[data-a="go:quota:layan"]'));
  // 5 تعديل إعداد
  S=fresh();open('ctl-edit','cap','layan');ok('edit sheet: name, current value, source, save disabled until changed',has(/حدّ الوقت الإضافي اليومي/)&&has(/القيمة الآن/)&&has(/60 د/)&&dis('.btn[data-a="ctlSave"]'));
@@ -68,6 +68,25 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  q('.toast [data-a], .toast button')&&q('.toast button').click();ok('undo restores',S.redeemCap===60,S.redeemCap);
  S=fresh();S.net='off';open('ctl-edit','cap','layan');ACT.ctlPick('45');render();ok('edit offline: told it waits',has(/يُرسل عند عودة الاتصال/));ACT.ctlSave();ok('…and it is queued',S.redeemCap===45&&S.outbox.length===1);
  S=fresh();setPersona('delegate');setRole('observer');S.ctlDraft={id:'cap',v:30};ACT.ctlSave();ok('no permission → nothing changes',S.redeemCap===60);
+ // نوعا «مفتاح» و«فعل» في الورقة نفسها (REQ-008)
+ S=fresh();open('ctl-edit','tkrec','layan');ok('switch type: two values, current shown, save disabled',has(/تكرار المهام/)&&ph.querySelectorAll('.sheet .seg button').length===2&&has(/القيمة الآن/)&&dis('.btn[data-a="ctlSave"]'));
+ ACT.ctlPick('0');render();ok('switch type: effect in a sentence',has(/يختفي خيار التكرار من المهام الجديدة/)&&!dis('.btn[data-a="ctlSave"]'));const au2=S.audit.length;ACT.ctlSave();render();
+ ok('switch type: written at the tasks service, logged, undo offered',TK().rec===false&&S.audit.length===au2+1&&/مفعّل ← متوقف/.test(S.audit[0].t)&&!S.sheet&&!!q('.toast button'));q('.toast button').click();ok('switch type: undo restores',TK().rec===true);
+ S=fresh();setPersona('delegate');S.ctlDraft={id:'tkrec',v:0};ACT.ctlSave();ok('switch type: owner-only setting refused to a delegate',TK().rec===true);
+ S=fresh();open('ctl-edit','locnow','khaled');ok('action type: says it runs once, names the child, no value editor',has(/فعل يُنفَّذ مرة واحدة/)&&has(/خالد/)&&!q('.sheet .seg')&&!!q('.sheet [data-a="ctlRun:locnow:khaled"]'));
+ ACT.ctlRun('locnow','khaled');render();ok('action type: carried out by the location service',!S.sheet&&(S.locRef||{}).khaled==='wait',S.locRef);
+ S=fresh();S.net='off';open('ctl-edit','locnow','layan');ok('action type: offline cannot run',dis('.sheet [data-a="ctlRun:locnow:layan"]')&&has(/يحتاج اتصالاً/));
+ S=fresh();setPersona('delegate');setRole('observer');ACT.ctlRun('locnow','layan');ok('action type: no permission → nothing sent',!(S.locRef||{}).layan);
+ // «العرض كـ» (DS-CC-09 · DS-NV-10)
+ S=fresh();open('member','layan');ok('view as: entry on the member page',!!q('#scr [data-a="go:view-as:layan"]'));open('view-as','layan');
+ ok('view as: fixed preview bar, child template, parent stays parent',!!q('#scr .vabar')&&getComputedStyle(q('#scr .vabar')).position==='sticky'&&ph.dataset.mode==='child'&&S.persona==='owner'&&has(/تعاين الآن ما يراه/)&&has(/أهلاً ليان/));
+ ok('view as: nothing inside can be pressed',q('#scr .vaw').hasAttribute('inert')&&getComputedStyle(q('#scr .vaw')).pointerEvents==='none'&&q('#scr .vaw').querySelectorAll('[data-a]').length>0);
+ const st0=JSON.stringify(S.stack);const inner=q('#scr .vaw [data-a]');inner.click();ok('view as: a press inside changes nothing',JSON.stringify(S.stack)===st0&&!S.sheet&&!S.full);
+ ok('view as: no message text',!S.msgs||!Object.values(S.chat||{}).flat().some(m=>m&&m.t&&m.t.length>12&&q('#scr .vaw').innerText.includes(m.t)));
+ q('#scr .vabar [data-a="back"]').click();ok('view as: end returns to the member page',S.stack[S.stack.length-1].id==='member'&&ph.dataset.mode==='parent');
+ S=fresh();open('view-as','khaled');ok('view as: teen template',ph.dataset.mode==='teen'&&has(/خالد/));S=fresh();open('view-as','yusuf');ok('view as: under-7 template',ph.dataset.mode==='mini'&&has(/أهلاً يوسف/));
+ S=fresh();open('templates');ok('templates: rows open the preview, not a switch of person',['yusuf','layan','khaled'].every(k=>!!q('#scr [data-a="go:view-as:'+k+'"]'))&&typeof ACT.jumpP==='undefined');
+ S=fresh();setPersona('delegate');setRole('observer');open('view-as','layan');ok('view as: honest refusal without the home key',can('hub.dashboard.view')||(!q('#scr .vaw')&&has(/غير مسموحة/)));
  // 6 الخدمات وصفحة الخدمة (للمالك) وأثر إزالة خدمة من التطبيق
  S=fresh();open('registry');ok('services: six human rows, no counts or codes',rows()===6&&!/S1-|مفتاحاً|ودج/.test(txt())&&!!q('[data-a="go:svc:loc"]'));
  open('svc','loc');ok('service page: state, home content, settings per child',has(/تعمل/)&&has(/ما تعرضه في الرئيسية/)&&has(/مشاركة الموقع/)&&!!q('.btn[data-a="go:map"]'));

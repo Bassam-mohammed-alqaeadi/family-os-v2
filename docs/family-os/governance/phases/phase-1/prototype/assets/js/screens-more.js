@@ -11,7 +11,7 @@ surface('more', {
   r() { const m = me(), own = isOwner(), lock = (k, a) => (own || can(k) ? a : 'denied:' + k);
     const full = S.plan !== 'premium' && Object.keys(M).length >= PLAN[S.plan].mem;
     return `<label class="fld gs" style="margin-bottom:10px"><input type="search" data-gs placeholder="ابحث في الإعدادات" autocomplete="off" aria-label="ابحث في الإعدادات"></label><div id="gsOut" hidden></div><div id="gsBody"><button class="card fx" data-a="go:account">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${m.n}</b><div class="sm muted">${m.rel}</div><div class="sm muted ltr">+967 77• ••• •42</div></div>${ic('chevron_right')}</button>
-    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', 'عائلة المنصور · اليمن', { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), own ? row('checklist', 'قائمة الإعداد الأولي', ckLeft(), { a: 'go:checklist', v: ckRest().length ? chip(`${CK_I.length - ckRest().length} من ${CK_I.length}`, 'in') : chip('مكتملة', 'ok', 'check') }) : '', own ? row('widgets', 'الخدمات', 'خدمات التطبيق وحالتها', { a: 'go:registry' }) : '', row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
+    ${sec('العائلة والأفراد')}${list(row('family_home', 'العائلة', famN() + ' · ' + OB_REG[S.reg || 'YE'][0], { a: 'go:family-settings' }), row('groups', 'الأعضاء', '5 أفراد', { a: 'tab:family' }), own ? row('checklist', 'قائمة الإعداد الأولي', ckLeft(), { a: 'go:checklist', v: ckRest().length ? chip(`${CK_I.length - ckRest().length} من ${CK_I.length}`, 'in') : chip('مكتملة', 'ok', 'check') }) : '', own ? row('widgets', 'الخدمات', 'خدمات التطبيق وحالتها', { a: 'go:registry' }) : '', row('view_agenda', 'القوالب', 'قوالب العرض والصلاحيات', { a: 'go:templates' }))}
     ${sec('الضبط والمراجعة')}${list(row('pending_actions', 'الموافقات والاستثناءات', attention().length ? `${attention().length} بانتظار قرار` : 'لا شيء ينتظر قرارك', { a: 'go:alerts', v: attention().length ? chip(String(attention().length), 'in') : '' }), row('rule', 'القواعد', 'الحماية ووقت الشاشة', { a: 'go:protection' }), row('receipt_long', 'التدقيق', 'من غيّر ماذا ومتى', { a: lock('roles.audit.view', 'go:audit'), v: own || can('roles.audit.view') ? '' : ic('lock') }), row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' }), row('workspace_premium', 'الخطة والفوترة', PLAN[S.plan].n, { a: can('hub.plan.view') ? 'go:plan' : 'denied:hub.plan.view', v: !own ? chip('عرض فقط', 'ol') : full ? chip('بلغت حدّ الأفراد', 'wa') : '' }))}
     ${sec('حسابي وهذا الجهاز')}${list(row('security', 'الأمان', 'البصمة · أجهزتي · إن فقدت الهاتف', { a: 'go:security' }), row('wand_stars', 'المساعد الذكي', S.aiKill ? 'متوقف' : 'يقترح فقط', { a: 'go:ai' }), row('translate', 'اللغة والعرض', L('العربية', 'English'), { a: 'go:display' }), row('sync', 'البيانات والمزامنة', S.outbox.length ? `${S.outbox.length} بانتظار الإرسال` : S.lbw ? 'توفير البيانات مفعّل' : 'كل شيء مُرسل', { a: 'go:outbox' }), row('contact_support', 'المساعدة والدعم', 'أسئلة شائعة · راسلنا', { a: 'go:help' }), row('info', 'عن التطبيق', 'الإصدار 1.0.0 (نموذج أولي)', { a: 'go:about' }))}<button class="c" data-a="go:about" style="display:block;width:100%;padding:22px 0 6px" aria-label="عن التطبيق"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="64" style="margin:0 auto"><div class="sm muted">الإصدار 1.0.0</div></button></div>`; },
 });
@@ -19,32 +19,87 @@ surface('account', {
   t: 'حسابي', sys: 'S1-02', p: 'adult', req: '02:1,6,8,22,25,26',
   r() { const d = isRoot() ? S.ownDel : S.delP; return `<div class="c" style="padding:8px 0 12px">${av(me(), 'xl')}<div class="b" style="font-size:20px;margin-top:8px">${me().n}</div></div>
     ${d ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:delete-account">${ic('delete_forever')}<div><b>حسابك يُحذف بعد ${d} يوماً</b><br>اضغط هنا لإلغاء الحذف.</div></button>` : ''}
-    ${list(row('call', 'رقم الهاتف', 'تدخل به إلى «عائلتي»', { v: '<span class="ltr">+967 77• ••• •42</span>' }), row('mail', 'البريد الإلكتروني', 'طريق دخول ثانٍ إن تعذّر الرقم', { v: 'أضف', a: 'soonC' }), row('family_home', 'عائلتي', 'عائلة واحدة لكل حساب', { v: 'المنصور' }))}
+    ${list(row('call', 'رقم الهاتف', 'تدخل به إلى «عائلتي»', { v: '<span class="ltr">+967 77• ••• •42</span>' }), row('mail', 'البريد الإلكتروني', em2St() === 'ok' ? 'تدخل به أيضاً' : em2St() === 'sent' ? 'لم يُضف بعد · اضغط الرابط الذي وصلك' : 'طريق دخول ثانٍ إن تعذّر الرقم', { v: em2St() === 'ok' ? `<span class="ltr">${em2Mask()}</span>` : em2St() === 'sent' ? chip('بانتظار التأكيد', 'wa') : 'أضف', a: 'go:login-add' }), row('family_home', 'عائلتي', 'عائلة واحدة لكل حساب', { v: famN().replace(/^عائلة\s+/, '') }))}
     ${list(row('logout', 'اخرج من هذا الجهاز', '', { a: 'signOut' }), isRoot() ? '' : row('person_remove', 'غادر العائلة', '', { a: 'go:leave-family', ic: 'var(--danger)' }))}`; },
 });
 surface('leave-family', {
   t: 'مغادرة العائلة', sys: 'S1-02', p: 'adult', req: '02:26 03:20',
-  note: 'حق أصيل لكل بالغ لا يملك الأب سحبه (Q-291)، ولذلك لا حالة «معطَّل من المالك». المغادرة فورية. المالك لا يغادر عائلته (S1-03 · Q-401، Q-402: لا نقل ملكية؛ يحذف العائلة، أو يحذف حسابه والصلاحية الكاملة عند بالغ آخر). إن كان المغادر هو جهة الاسترداد يُنبَّه هو والأب (مقترح — GAP-10).',
+  note: 'حق أصيل لكل بالغ لا يملك الأب سحبه (Q-291)، ولذلك لا حالة «معطَّل من المالك». المغادرة فورية. المالك لا يغادر عائلته (S1-03 · Q-401، Q-402: لا نقل ملكية؛ يحذف العائلة، أو يحذف حسابه والصلاحية الكاملة عند بالغ آخر). إن كان المغادر هو جهة الاسترداد يُنبَّه هو قبل المغادرة ويسقط تعيينه، ويصل الأب تنبيه ليختار غيره (Q-400 — GAP-10 أُغلقت).',
   r() { if (isRoot()) return `${empty('family_home', 'أنت مالك العائلة', 'المالك لا يغادر عائلته. تستطيع أن تعطي بالغاً آخر الصلاحية الكاملة ليدير معك.', btn('الصلاحية الكاملة', 'go:transfer', 'sec', 'admin_panel_settings'))}`;
     if (S.ownDel && S.co) return empty('admin_panel_settings', 'أنتِ من يدير العائلة الآن', `أحمد يحذف حسابه. لا تغادرين حتى يتراجع أو تكتمل مهلته (${S.ownDel} يوماً) فتصيري المالكة.`, btn('رجوع', 'back', 'sec'));
-    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('person_remove')}</div><p class="ttl" style="font-size:22px">ماذا يحدث إن غادرتِ؟</p><div class="card"><div class="tl"><div class="ev da"><b>الآن: تخرجين من عائلة المنصور</b><span>لا ترين الأفراد ولا المحادثات ولا المواقع</span></div><div class="ev"><b>كل ما سمح لك به أحمد يُلغى</b><span>فوراً وعلى كل أجهزتك</span></div><div class="ev ok"><b>حسابك يبقى</b><span>تستطيعين الانضمام مجدداً بدعوة جديدة</span></div></div></div>
+    return `<div class="bigic" style="background:var(--danger-soft);color:var(--danger)">${ic('person_remove')}</div><p class="ttl" style="font-size:22px">ماذا يحدث إن غادرتِ؟</p><div class="card"><div class="tl"><div class="ev da"><b>الآن: تخرجين من ${famN()}</b><span>لا ترين الأفراد ولا المحادثات ولا المواقع</span></div><div class="ev"><b>كل ما سمح لك به أحمد يُلغى</b><span>فوراً وعلى كل أجهزتك</span></div><div class="ev ok"><b>حسابك يبقى</b><span>تستطيعين الانضمام مجدداً بدعوة جديدة</span></div></div></div>
     ${S.rec === me().id ? callout('أنتِ من اختارها أحمد لتساعده إن فقد هاتفه ورقمه. بعد مغادرتك يصله تنبيه ليختار غيرك.', 'wa', 'support') : ''}${btn('غادر العائلة', 'leaveFam', 'dng')}<div class="gap"></div>${btn('ابقَ', 'back', 'sec')}`; },
 });
 Object.assign(ACT, {
   signOut() { confirmDlg('الخروج من هذا الجهاز؟', 'ستحتاج إلى رقمك ورمز التحقق للدخول مجدداً. ما لم يُرسل بعد يبقى محفوظاً على هذا الجهاز.', 'اخرج', () => { setPersona('guest'); S.ob = {}; }); },
-  leaveFam() { confirmDlg('مغادرة عائلة المنصور؟', 'المغادرة فورية. للعودة تحتاجين دعوة جديدة.', 'غادر', () => { const was = S.rec === me().id; audit(`غادرت ${me().n} العائلة`, 'identity.family.leave'); if (was) { S.rec = null; S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: 'لم تعد لك جهة استرداد', s: 'غادرت سارة العائلة · اختر بالغاً آخر', ago: 'الآن', p: 3, open: 1 }); } setPersona('guest'); S.ob = {}; toast('غادرتِ عائلة المنصور', null, 'person_remove'); }, true); },
+  leaveFam() { confirmDlg('مغادرة ' + famN() + '؟', 'المغادرة فورية. للعودة تحتاجين دعوة جديدة.', 'غادر', () => { const was = S.rec === me().id; audit(`غادرت ${me().n} العائلة`, 'identity.family.leave'); if (was) { S.rec = null; S.alerts.unshift({ id: 'a' + Date.now(), k: 'perm', kid: null, t: 'لم تعد لك جهة استرداد', s: 'غادرت سارة العائلة · اختر بالغاً آخر', ago: 'الآن', p: 3, open: 1 }); } setPersona('guest'); S.ob = {}; toast('غادرتِ ' + famN(), null, 'person_remove'); }, true); },
 });
 surface('family-settings', {
   t: 'العائلة', sys: 'S1-02', p: 'adult', req: '02:7,8,25,28 03:20 01:12',
   note: 'الاسم والبلد والتوقيت. البلد يحدد الأسعار وطرق الدفع وقنوات التحقق. حذف العائلة للمالك (أو صاحب الصلاحية الكاملة) بمهلة تراجع.',
-  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: 'عائلة المنصور', a: own ? 'soonC' : 'denied:shell.config.edit' }), row('public', 'البلد', 'يحدد الأسعار وطرق الدفع', { v: 'اليمن' }), row('schedule', 'التوقيت', 'تُحسب به أوقات النوم والمدرسة ونهاية اليوم', { v: 'صنعاء' }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(isRoot() ? row('admin_panel_settings', 'الصلاحية الكاملة', S.co ? 'عند سارة · اعرضها أو اسحبها' : 'أعطِها لبالغ آخر، وتسحبها متى شئت', { a: 'go:transfer' }) : '', row('delete_forever', S.famDel ? `العائلة تُحذف بعد ${S.famDel} يوماً` : 'احذف العائلة', S.famDel ? 'اعرض أو ألغِ الحذف' : 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'go:family-delete', ic: 'var(--danger)' })) : callout('الصلاحية الكاملة وحذف العائلة للمالك.', 'nt', 'lock')); },
+  r() { const own = isOwner(); return list(row('edit', 'اسم العائلة', '', { v: famN(), a: own ? 'famEdit:name' : 'denied:shell.config.edit' }), row('public', 'البلد', 'يحدد الأسعار وطرق الدفع', own ? { v: OB_REG[S.reg || 'YE'][0], a: 'famEdit:reg' } : { v: OB_REG[S.reg || 'YE'][0] }), row('schedule', 'التوقيت', 'تُحسب به أوقات النوم والمدرسة ونهاية اليوم', own ? { v: S.tz || OB_DEV_TZ, a: 'famEdit:tz' } : { v: S.tz || OB_DEV_TZ }), row('today', 'التقويم', '', { v: 'هجري + ميلادي' })) + (own ? sec('منطقة الخطر') + list(isRoot() ? row('admin_panel_settings', 'الصلاحية الكاملة', S.co ? 'عند سارة · اعرضها أو اسحبها' : 'أعطِها لبالغ آخر، وتسحبها متى شئت', { a: 'go:transfer' }) : '', row('delete_forever', S.famDel ? `العائلة تُحذف بعد ${S.famDel} يوماً` : 'احذف العائلة', S.famDel ? 'اعرض أو ألغِ الحذف' : 'مهلة تراجع 30 يوماً ثم حذف نهائي', { a: 'go:family-delete', ic: 'var(--danger)' })) : callout('الصلاحية الكاملة وحذف العائلة للمالك.', 'nt', 'lock')); },
+});
+/* ---------- طريق دخول ثانٍ، وتعديل العائلة بعد إنشائها (S1-02 REQ-029 · REQ-030 — كانا GAP-18 وGAP-19) ---------- */
+const em2St = () => (S.em2 && S.em2.st) || '';
+const em2Mask = () => S.em2.a.replace(/^(.)[^@]*(@.*)$/, '$1•••$2');
+surface('login-add', {
+  kind: 'sheet', t: 'بريد للدخول', sys: 'S1-02', p: 'adult', req: '02:22,23,24,29',
+  note: 'لمن سجّل برقمه: يضيف بريداً طريقَ دخول ثانياً. لا يُضاف قبل أن يضغط الرابط الذي يصله، وإرسال الرابط بالرقم السري لأن من يملك طريق الدخول يملك الحساب. بريد لحساب آخر يُرفض. إزالته بالرقم السري، والرقم يبقى. للتجربة: بريد ينتهي بـ@down.test يُظهر تعذّر الخدمة، و sara@example.com بريد لحساب آخر.',
+  r() { const f = S.em2F || {}, st = em2St();
+    if (st === 'ok') return `<h4>بريدك للدخول</h4><p class="d">تدخل إلى «عائلتي» برقمك أو بهذا البريد، أيهما تيسّر.</p>${list(row('mail', `<span class="ltr">${S.em2.a}</span>`, 'مؤكَّد', { chev: false, v: ic('check_circle') }))}${btn('أزِل هذا البريد', 'em2Rm', 'sec', 'lock')}<div class="gap"></div>${btn('إغلاق', 'close', 'txt')}`;
+    if (st === 'sent') return `<h4>افتح بريدك</h4><p class="d">أرسلنا رابطاً إلى <span class="ltr b">${S.em2.a}</span>. اضغطه من هذا الهاتف فيُضاف البريد إلى حسابك. لا يُضاف شيء قبل ذلك.</p>${btn('جرّب: كأني ضغطت الرابط', 'em2Open', 'ton')}<div class="gap"></div>${btn('أرسل الرابط مرة أخرى', 'em2Again', offline() ? 'sec" disabled="' : 'sec')}<div class="gap"></div>${btn('ألغِ الإضافة', 'em2Cancel', 'txt')}<p class="xs muted c" style="margin-top:10px">لم يصل؟ انظر في مجلد الرسائل غير المرغوبة.</p>`;
+    const E = { bad: 'اكتب بريداً صحيحاً مثل name@example.com', used: 'هذا البريد لحساب آخر. اكتب بريداً غيره.', down: 'لم نستطع الوصول إلى خدمة البريد. حاول بعد قليل؛ دخولك برقمك يعمل.' };
+    return `<h4>أضف بريداً للدخول</h4><p class="d">طريق دخول ثانٍ إن تعذّر رقمك. نرسل إليه رابطاً، ولا يُضاف البريد قبل أن تضغطه.</p>
+    <label class="fld ${f.e ? 'err' : ''}"><span>البريد الإلكتروني</span><input id="em2" dir="ltr" inputmode="email" placeholder="name@example.com" value="${f.a || ''}"><small>${f.e ? E[f.e] : 'نطلب رقمك السري قبل الإرسال.'}</small></label>
+    ${offline() ? callout('أنت غير متصل. إرسال الرابط يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}${btn('أرسل رابط التأكيد', 'em2Send', offline() ? '" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'close', 'txt')}`; },
+});
+surface('fam-edit', {
+  kind: 'sheet', t: 'تعديل العائلة', sys: 'S1-02', p: 'owner', req: '02:7,30 01:12',
+  note: 'للمالك (أو من أعطاه الصلاحية الكاملة) وحده، بعد إنشاء العائلة. الاسم يُحفظ مباشرة مع تراجع. البلد والتوقيت بالرقم السري: البلد يغيّر الأسعار وطرق الدفع لما يُشترى بعده ولا يمس اشتراكاً قائماً، والتوقيت يحرّك أوقات النوم والمدرسة ونهاية اليوم عند كل الأبناء. تغيير البلد لا يغيّر التوقيت (Q-264). كل تغيير يُسجَّل باسم صاحبه. يحتاج اتصالاً.',
+  r(k) { const f = S.fmF || {}, off = offline(), offC = off ? callout('أنت غير متصل. هذا التغيير يحتاج اتصالاً.', 'wa', 'cloud_off') : '';
+    if (k === 'reg') { const cur = S.reg || 'YE', v = f.reg || cur;
+      return `<h4>بلد العائلة</h4><p class="d">البلد يحدد الأسعار وطرق الدفع وطريقة وصول رمز التحقق. التوقيت لا يتغير معه.</p>${list(Object.keys(OB_REG).map(x => row('', OB_REG[x][3] + ' ' + OB_REG[x][0], x === cur ? 'البلد الحالي' : '', { a: 'famPick:reg:' + x, chev: false, v: x === v ? ic('check') : '' })))}
+      ${v !== cur ? callout(`<b>ما يتغير:</b> أسعار ${OB_REG[v][0]} وطرق الدفع فيها تسري على أي شراء أو تجديد بعد الآن.<br><b>ما لا يتغير:</b> اشتراكك الحالي يبقى كما هو حتى نهايته، والتوقيت، وكل القواعد.`, 'nt', 'info') : ''}${offC}${btn('احفظ بالرقم السري', 'famSave:reg', v === cur || off ? '" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'close', 'txt')}`; }
+    if (k === 'tz') { const cur = S.tz || OB_DEV_TZ, v = f.tz || cur;
+      return `<h4>توقيت العائلة</h4><p class="d">تُحسب به أوقات النوم والمدرسة ونهاية اليوم لكل الأبناء.</p>${list(OB_TZ.map(([c, u]) => row('', c, c === cur ? 'التوقيت الحالي' : '', { a: 'famPick:tz:' + c, chev: false, v: `<span class="ltr">${u}</span>` + (c === v ? ic('check') : '') })))}
+      ${v !== cur ? callout(`<b>يسري فوراً</b> عند كل الأبناء: أوقات النوم والمدرسة ونهاية اليوم تُحسب بتوقيت ${v}. القواعد نفسها لا تتغير.`, 'nt', 'info') : ''}${offC}${btn('احفظ بالرقم السري', 'famSave:tz', v === cur || off ? '" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'close', 'txt')}`; }
+    return `<h4>اسم العائلة</h4><p class="d">يراه كل أفراد العائلة، ويظهر في الدعوات.</p><label class="fld ${f.e ? 'err' : ''}"><span>الاسم</span><input id="fmN" maxlength="30" value="${f.n != null ? f.n : famN()}"><small>${f.e ? 'اكتب اسماً من حرفين إلى 30 حرفاً.' : 'من حرفين إلى 30 حرفاً.'}</small></label>${offC}${btn('احفظ', 'famSave:name', off ? '" disabled="' : '')}<div class="gap"></div>${btn('إلغاء', 'close', 'txt')}`; },
+});
+Object.assign(ACT, {
+  em2Send() { const a = (($('#em2') || {}).value || '').trim().toLowerCase(), f = S.em2F = { a };
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(a)) { f.e = 'bad'; return; } if (a === 'sara@example.com') { f.e = 'used'; return; } if (/@down\.test$/.test(a)) { f.e = 'down'; return; }
+    gate('إضافة بريد للدخول إلى حسابك', () => { S.em2 = { a, st: 'sent' }; S.em2F = null; audit('طُلبت إضافة بريد للدخول إلى الحساب', 'identity.email.login'); }); },
+  em2Open() { if (!S.em2) return; S.em2.st = 'ok'; audit('أُضيف بريد للدخول إلى الحساب', 'identity.email.login'); toast('أُضيف البريد · تدخل به أو برقمك', null, 'mark_email_read'); },
+  em2Again() { toast('أرسلنا الرابط مرة أخرى', null, 'mail'); },
+  em2Cancel() { S.em2 = null; S.em2F = null; S.sheet = null; toast('أُلغيت الإضافة · لم يتغير شيء في حسابك'); },
+  em2Rm() { S.sheet = null; gate('إزالة البريد من حسابك', () => { S.em2 = null; audit('أُزيل بريد الدخول من الحساب', 'identity.email.login'); toast('أُزيل البريد · دخولك برقمك كما هو'); }); },
+  famEdit(k) { S.fmF = {}; go('fam-edit', k); },
+  famPick(k, v) { S.fmF = S.fmF || {}; S.fmF[k] = v; },
+  famSave(k) { const f = S.fmF = S.fmF || {};
+    if (k === 'name') { const v = (($('#fmN') || {}).value || '').trim().replace(/\s+/g, ' '); f.n = v; if (v.length < 2 || v.length > 30) { f.e = 1; return; } const was = famN(); S.sheet = null; S.fmF = null; if (v === was) return;
+      S.famName = v; audit(`غُيّر اسم العائلة من «${was}» إلى «${v}»`, 'shell.config.edit'); toast('حُفظ اسم العائلة', () => { S.famName = was; render(); }); return; }
+    if (k === 'reg') { const v = f.reg, was = S.reg || 'YE'; if (!v || v === was) return; S.sheet = null;
+      gate('تغيير بلد العائلة إلى ' + OB_REG[v][0], () => { S.reg = v; S.fmF = null; audit(`غُيّر بلد العائلة من ${OB_REG[was][0]} إلى ${OB_REG[v][0]}`, 'shell.config.edit'); toast(`بلد العائلة الآن ${OB_REG[v][0]} · اشتراكك الحالي كما هو`, null, 'public'); }); return; }
+    const v = f.tz, was = S.tz || OB_DEV_TZ; if (!v || v === was) return; S.sheet = null;
+    gate('تغيير توقيت العائلة إلى ' + v, () => { S.tz = v; S.fmF = null; audit(`غُيّر توقيت العائلة من ${was} إلى ${v}`, 'shell.config.edit'); toast(`توقيت العائلة الآن ${v} · يسري عند كل الأبناء`, null, 'schedule'); }); },
 });
 surface('templates', {
   t: 'القوالب', sys: 'S1-01', p: 'adult', req: '01:4 03:13 02:13', st: 'un',
-  note: 'UNKNOWN (Q-090): محتوى قوالب العرض الثلاثة (ما يظهر في كل قالب بالتفصيل) سؤال مفتوح يُجاب في مرحلة التصميم. ما في هذا النموذج اقتراح للمراجعة لا قرار.',
-  r() { return callout('سنة الميلاد تحدد القالب تلقائياً، ولا يُبدَّل يدوياً في المرحلة 1.', '', 'info') + sec('قوالب العرض') + list(row('child_care', 'المبسّط', 'دون 7 سنوات · بلاطات كبيرة وزر «بيت»', { v: 'يوسف', a: 'jumpP:mini' }), row('face', 'القياسي', '7–12 سنة · أربعة تبويبات', { v: 'ليان', a: 'jumpP:child' }), row('person', 'المراهق', '13–17 سنة · استقلالية وشفافية', { v: 'خالد', a: 'jumpP:teen' })) + callout('<b>غير محسوم (Q-090):</b> المحتوى التفصيلي لكل قالب لم يُعتمد بعد. الشاشات المعروضة مقترحة.', 'wa', 'help') + sec('قوالب الصلاحيات') + list(row('handshake', 'شريك', '43 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:partner' : '' }), row('shield_person', 'وصي محدود', '24 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:guardian' : '' }), row('visibility', 'مراقب', '10 مفاتيح', { a: isOwner() ? 'go:tpl-diff:observer' : '' })); },
+  note: 'قوالب العرض الثلاثة وقوالب الصلاحيات الثلاثة. كل صف قالب عرض يفتح معاينة «ما يراه» لابن من ذلك القالب (العرض كـ — Q-425)، ولا يحوّل الأب إلى ابنه. قالب المراهق معتمد (Q-417)؛ والقياسي والمبسّط لم يصدر فيهما حكم صريح بعد (Q-090).',
+  r() { return callout('سنة الميلاد تحدد القالب تلقائياً، ولا يُبدَّل يدوياً في المرحلة 1.', '', 'info') + sec('قوالب العرض') + list(row('child_care', 'المبسّط', 'دون 7 سنوات · بلاطات كبيرة وزر «بيت»', { v: 'يوسف', a: 'go:view-as:yusuf' }), row('face', 'القياسي', '7–12 سنة · أربعة تبويبات', { v: 'ليان', a: 'go:view-as:layan' }), row('person', 'المراهق', '13–17 سنة · استقلالية وشفافية', { v: 'خالد', a: 'go:view-as:khaled' })) + '' + sec('قوالب الصلاحيات') + list(row('handshake', 'شريك', '43 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:partner' : '' }), row('shield_person', 'وصي محدود', '24 مفتاحاً', { a: isOwner() ? 'go:tpl-diff:guardian' : '' }), row('visibility', 'مراقب', '10 مفاتيح', { a: isOwner() ? 'go:tpl-diff:observer' : '' })); },
 });
-ACT.jumpP = p => { setPersona(p); };
+/* ============ «العرض كـ» (DS-CC-09 · DS-NV-10 — كان محمولاً بـ Q-407 إلى مراجعة الربط الأخيرة) ============
+   الأب يرى رئيسية ابنه كما تظهر على جهاز الابن: شريط معاينة ثابت، وبلا أي فعل، وبلا محتوى رسائل. */
+const vaP = id => (M[id].mini ? 'mini' : M[id].role === 'teen' ? 'teen' : 'child');
+const vaKid = id => (KIDS.includes(id) ? id : 'layan');
+surface('view-as', {
+  t: id => `ما يراه ${pname(M[vaKid(id)])}`, sys: 'S1-09', p: 'adult', a: ['layan'], req: '09:1,4 01:4 02:13', vmode: id => PERSONA[vaP(vaKid(id))].mode,
+  note: '«العرض كـ»: الأب يرى رئيسية ابنه كما تظهر على جهاز الابن، بقالب عمره. شريط المعاينة ثابت في الأعلى، ولا شيء في المعاينة يُضغط، ولا يظهر فيها نص رسالة. يُفتح من ملف الفرد ومن «القوالب». لمن عنده «الرئيسية» من البالغين. الأب لا يتحول إلى ابنه ولا يفعل شيئاً باسمه.',
+  r(id) { const k = vaKid(id), m = M[k], p = vaP(k), was = S.persona;
+    if (!can('hub.dashboard.view')) return empty('lock_person', 'المعاينة غير مسموحة لكِ', 'يعطيها أحمد مع «الرئيسية».', why('nd:hub.dashboard.view'));
+    let h = ''; S.persona = p; try { h = SC[TABS[PERSONA[p].mode][0][0]].r(); } finally { S.persona = was; }
+    return `<div class="vabar" role="status">${ic('visibility')}<span class="grow">تعاين الآن ما يراه <b>${pname(m)}</b> على جهازه. للمشاهدة فقط.</span><button class="btn sm sec" data-a="back">أنهِ</button></div><div class="vaw" inert aria-label="معاينة رئيسية ${pname(m)}">${h}</div>`; },
+});
 surface('registry', {
   t: 'الخدمات', sys: 'S1-09', p: 'owner', req: '09:5,14,15',
   note: 'للمالك وحده: قائمة خدمات التطبيق كما يراها الأب: اسم ووصف وحالة صادقة. الأعداد التقنية (مفاتيح، ودجات، رموز الأنظمة) مخفية. كل صف يفتح صفحة الخدمة. لا واجهة لتسجيل خدمة أو إزالتها: ذلك عند نشر التطبيق؛ والخدمة المُزالة تبقى مذكورة هنا وتنبيهاتها السابقة باقية.',
@@ -125,8 +180,8 @@ Object.assign(ACT, {
   sessAll() { gate('إخراج كل الأجهزة الأخرى', () => { S.sess = S.sess.filter(x => x.cur); audit('أُخرجت كل الأجهزة الأخرى من الحساب', 'identity.session.revoke'); toast('أُخرجت كل الأجهزة الأخرى', null, 'logout'); }, 'stepup'); },
 });
 surface('login-code', {
-  t: 'رمز الدخول لجهاز جديد', sys: 'S1-02', p: 'adult', req: '02:5', st: 'pr',
-  note: 'مقترح بديل لشاشة «تفعيل TOTP» (ينتظر حكم المالك): التطبيق نفسه يولّد الرمز على الهاتف الموثوق، فلا تطبيق خارجي ولا QR ولا مفتاح يُنسخ. التفعيل ما زال إلزامياً بلا تخطٍّ (Q-246) لكنه يحدث تلقائياً عند أول تحقق.',
+  t: 'رمز الدخول لجهاز جديد', sys: 'S1-02', p: 'adult', req: '02:5',
+  note: 'بديل شاشة «تفعيل TOTP»، اعتمده المالك (Q-400): التطبيق نفسه يولّد الرمز على الهاتف الموثوق، فلا تطبيق خارجي ولا QR ولا مفتاح يُنسخ. التفعيل ما زال إلزامياً بلا تخطٍّ (Q-246) لكنه يحدث تلقائياً عند أول تحقق.',
   r() { return `<p class="sub" style="text-align:start">إن دخلت من هاتف آخر وطلبنا منك رمزاً، فاكتب هذا الرمز هناك.</p><div class="code">314 159</div><div class="chips" style="justify-content:center;margin-bottom:14px">${chip('يتغير بعد 18 ثانية', 'in', 'timer')}</div>${callout('لا ترسل هذا الرمز لأحد ولا تقله في الهاتف. «عائلتي» لا تتصل بك لتطلبه.', 'wa', 'warning')}${callout('يعمل بلا إنترنت. الرمز يخرج من هذا الهاتف نفسه.', 'nt', 'cloud_off')}`; },
 });
 surface('bio-unlock', {
@@ -167,8 +222,8 @@ surface('unpair', {
 });
 ACT.unpairGo = id => gate('فكّ إقران جهاز ' + M[id].n, () => { S.unp = S.unp || {}; S.unp[id] = 1; audit(`فُكّ إقران جهاز ${M[id].n}`, 'identity.device.unpair'); toast('فُكّ الإقران', null, 'link_off'); }, 'stepup');
 surface('pin-forgot', {
-  t: 'نسيت الرقم السري', sys: 'S1-02', p: 'adult', req: '02:20 01:5', st: 'pr',
-  note: 'مقترح ينتظر حكم المالك: S1-01 تمنع إعادة تعيين الرقم السري على الهاتف نفسه وتحيل إلى جهة الاسترداد وانتظار 7 أيام، لكن S1-02 لا شاشة فيها لهذا الطريق. المعروض يستعمل الطريق نفسه المكتوب لفقدان الرقم.',
+  t: 'نسيت الرقم السري', sys: 'S1-02', p: 'adult', req: '02:20 01:5',
+  note: 'اعتمده المالك (Q-400): S1-01 تمنع إعادة تعيين الرقم السري على الهاتف نفسه وتحيل إلى جهة الاسترداد وانتظار 7 أيام. هذه الشاشة هي ذلك الطريق، وهو نفسه المكتوب لفقدان الرقم (S1-02 REQ-020).',
   r() { const q = S.recReq; if (q && q.kind === 'pin' && q.st !== 'cancelled') return `<div class="bigic">${ic('hourglass_top')}</div><p class="ttl" style="font-size:22px">${q.st === 'pending' ? 'بانتظار تأكيد ' + M[S.rec || 'sara'].n : 'بقي 7 أيام'}</p><p class="sub">${q.st === 'pending' ? 'اتصل بها وأخبرها أن تفتح «عائلتي».' : 'بعدها تنشئ رقماً سرياً جديداً. أي بالغ في العائلة يستطيع إيقاف الطلب.'}</p>${callout('إلى ذلك الحين: المتابعة والمحادثة والمهام تعمل. الأفعال التي تحتاج الرقم السري متوقفة.', 'nt', 'info')}${btn('ألغِ الطلب — تذكرت الرقم', 'pfDrop', 'sec')}`;
     if (!S.rec) return `${empty('support', 'لم تختر من يساعدك', 'لا نستطيع إنشاء رقم سري جديد على هذا الهاتف وحده، حتى لا يفعلها من يأخذ هاتفك. ولأنك لم تختر فرداً يؤكد أنك أنت، لا طريق الآن.', '')}${callout('ما تحميه بوابة الوالدين يبقى مقفلاً. بقية التطبيق يعمل.', 'wa', 'warning')}`;
     return `<p class="sub" style="text-align:start">لا ننشئ رقماً سرياً جديداً على هذا الهاتف وحده، حتى لا يفعلها من يأخذ هاتفك أو طفلك.</p><div class="card"><div class="tl"><div class="ev"><b>${M[S.rec].n} تؤكد أنك أنت</b><span>من هاتفها</span></div><div class="ev wa"><b>انتظار 7 أيام</b><span>يُبلَّغ كل البالغين · أي اعتراض يلغي الطلب</span></div><div class="ev ok"><b>تنشئ رقماً سرياً جديداً</b><span>على هذا الهاتف</span></div></div></div>${btn('اطلب التأكيد من ' + M[S.rec].n, 'pfAsk', '', 'support')}<div class="gap"></div>${btn('تذكرت الرقم', 'back', 'sec')}`; },
@@ -201,8 +256,8 @@ surface('display', {
 ACT.motionT = () => { S.motion = S.motion === 'off' ? 'on' : 'off'; };
 ACT.numSet = v => { S.num = v; };
 surface('health', {
-  t: 'معلومات تشخيصية', sys: 'S1-01', p: 'adult', req: '01:3,10,11,12,13,14,17,19,22,23', st: 'un',
-  note: 'شاشة للدعم الفني لا للاستخدام اليومي: قراءات هذا الجهاز، وحدة الفرض، التوفر على المنصة، السجلات الأربعة، أعلام الميزات وملف المنطقة. نُقلت من «المزيد» إلى «عن التطبيق» لأنها لا تخدم الأب مباشرة. UNKNOWN: عتبات تنبيه الذاكرة والبطارية غير محسومة (GAP-S1-01-07).',
+  t: 'معلومات تشخيصية', sys: 'S1-01', p: 'adult', req: '01:3,10,11,12,13,14,17,19,22,23',
+  note: 'شاشة للدعم الفني لا للاستخدام اليومي: قراءات هذا الجهاز، وحدة الفرض، التوفر على المنصة، السجلات الأربعة، أعلام الميزات وملف المنطقة. نُقلت من «المزيد» إلى «عن التطبيق» لأنها لا تخدم الأب مباشرة. تنبيه البطارية عند 15%، ولا تنبيه للذاكرة غير قاعدة 2GB (Q-397 — GAP-S1-01-07 أُغلقت).',
   r() {
     const ios = S.os === 'ios';
     return `${callout('هذه الصفحة للدعم الفني. إن طلب منك فريق الدعم معلومة عن جهازك فستجدها هنا.', 'nt', 'support_agent')}
@@ -249,7 +304,7 @@ surface('persist', {
 surface('consent-view', {
   t: 'ما اتفقنا عليه', sys: 'S1-02', p: 'any', req: '02:17 01:15',
   note: 'الموافقة المشتركة تُجرى مرة واحدة عند أول اقتران وتُسجَّل في التدقيق؛ وتبقى متاحة للطرفين للاطلاع.',
-  r() { return `${callout('اتفق أحمد وليان على هذا في 2 نوفمبر 2026 عند إقران الجهاز.', 'ok', 'handshake')}${list(row('hourglass_top', 'وقت الشاشة', 'كم دقيقة، لا ماذا شاهدتِ بالتفصيل'), row('location_on', 'مشاركة الموقع', 'أين الجهاز الآن وسجل 7 أيام'), row('forum', 'المحادثات داخل العائلة', 'الأب يستطيع رؤيتها'), row('travel_explore', 'فئات المواقع', 'نوع الموقع، لا كل صفحة'))}`; },
+  r(id) { const k = !isAdult() && KIDS.includes(me().id) ? me() : M[id] || M.layan; return `${callout(`اتفق أحمد و${k.n} على هذا في 2 نوفمبر 2026 عند إقران الجهاز.`, 'ok', 'handshake')}${list(row('hourglass_top', 'وقت الشاشة', 'كم دقيقة، لا ما يُشاهَد بالتفصيل'), row('location_on', 'مشاركة الموقع', 'أين الجهاز الآن وسجل 7 أيام'), row('forum', 'المحادثات داخل العائلة', 'الأب يستطيع رؤيتها'), row('travel_explore', 'فئات المواقع', 'نوع الموقع، لا كل صفحة'))}`; },
 });
 
 /* ============ ورقة «لماذا؟» — تفسير موحّد لكل قفل أو قيد أو اقتراح ============ */
@@ -431,18 +486,18 @@ const HELP_Q = [
   ['كيف أجعل المساعد يُعدّ المهام لأبنائي؟', 'من: المهام والتقويم ← ضوابط المهام ← المساعد يُعدّ المهام. تختار أن يقترح عليك فتوافق، أو أن يسند بنفسه ضمن حدود تضعها: أقصى نقاط للمهمة، وعدد المهام في اليوم، ولمن يسند. وتلغي أي مهمة أسندها متى شئت.'],
 ];
 surface('help', {
-  t: 'المساعدة والدعم', sys: 'S1-01', p: 'adult', req: '', st: 'un',
-  note: 'لازمة إطلاق غائبة عن المواصفات العشر (بند ب-13). الأسئلة من محتوى التصميم نفسه. عنوان الدعم وساعات الرد سلّمهما المالك (Q-412): بريد واحد، ومن 7 صباحاً إلى 8 مساءً. الطفل لا يرى هذه الصفحة: طريقه «شيء ما أزعجني» إلى والده.',
+  t: 'المساعدة والدعم', sys: 'S1-01', p: 'adult', req: '',
+  note: 'SCR-16 في S1-01: لازمة إطلاق بلا متطلب مرقَّم، أُضيفت بحكم المالك (Q-397 ب-13). الأسئلة من محتوى التصميم نفسه. عنوان الدعم وساعات الرد سلّمهما المالك (Q-412): بريد واحد، ومن 7 صباحاً إلى 8 مساءً. الطفل لا يرى هذه الصفحة: طريقه «شيء ما أزعجني» إلى والده.',
   r() { const o = S.helpQ ?? -1; return `${sec('أسئلة شائعة')}${list(HELP_Q.map(([q, a], i) => row('quiz', q, o === i ? a : '', { a: 'helpQ:' + i, chev: false, v: ic(o === i ? 'keyboard_arrow_up' : 'keyboard_arrow_down') })))}${sec('لم تجد جوابك؟')}${list(row('mail', 'راسل الدعم', '<span class="ltr">alqaedibassam@gmail.com</span>', { a: 'helpMail' }), row('support_agent', 'معلومات تشخيصية', 'قد يطلبها منك فريق الدعم', { a: 'go:health' }))}<p class="sm muted" style="margin:10px 2px 0">نرد من 7 صباحاً إلى 8 مساءً، بالعربية أو الإنجليزية.</p>`; },
 });
 surface('legal', {
   t: 'الشروط والخصوصية', sys: 'S1-01', p: 'any', req: '', st: 'un',
-  note: 'لازمة إطلاق ومتاجر (بند ب-13): شروط الاستخدام وسياسة الخصوصية يجب أن تُفتحا من داخل التطبيق ومن صفحة المتجر. النص القانوني يُكتب بصياغة عادية مرنة ويعتمده المحامي قبل الإطلاق (Q-412)؛ الشاشة تثبّت الموضع والبنية فقط.',
+  note: 'SCR-15 في S1-01: لازمة إطلاق ومتاجر بلا متطلب مرقَّم (Q-397 ب-13): شروط الاستخدام وسياسة الخصوصية يجب أن تُفتحا من داخل التطبيق ومن صفحة المتجر. النص القانوني يُكتب بصياغة عادية مرنة ويعتمده المحامي قبل الإطلاق (Q-412)؛ الشاشة تثبّت الموضع والبنية فقط.',
   r() { return `${callout('النص النهائي يعتمده المحامي قبل الإطلاق. هذه الصفحة تثبّت مكانه في التطبيق.', 'nt', 'info')}${list(row('description', 'شروط الاستخدام', 'ما تلتزم به وما نلتزم به', { a: 'legalDoc' }), row('policy', 'سياسة الخصوصية', 'ما نجمعه ولماذا ومن يراه', { a: 'legalDoc' }), row('child_care', 'خصوصية الأطفال', 'ما يراه ولي الأمر وما لا يراه', { a: isAdult() ? 'go:privacy' : 'go:consent-view' }))}${isAdult() ? sec('بياناتك') + list(row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' })) : ''}${callout('لا إعلانات ولا أدوات تتبع في التطبيق.', 'ok', 'verified_user')}`; },
 });
 ACT.legalDoc = () => toast('النص القانوني لم يُسلَّم بعد', null, 'info');
 surface('licenses', {
   t: 'تراخيص المصادر المفتوحة', sys: 'S1-01', p: 'any', req: '',
-  note: 'قائمة تولَّد آلياً عند البناء من المكتبات المستعملة فعلاً. هنا خطّ الواجهة ومجموعة الأيقونات المستعملان في النموذج.',
+  note: 'من SCR-15 في S1-01 (Q-397 ب-13)، بلا متطلب مرقَّم. قائمة تولَّد آلياً عند البناء من المكتبات المستعملة فعلاً. هنا خطّ الواجهة ومجموعة الأيقونات المستعملان في النموذج.',
   r() { return list(row('gavel', 'IBM Plex Sans Arabic', 'SIL Open Font License 1.1', { chev: false }), row('gavel', 'Material Symbols', 'Apache License 2.0', { chev: false })) + `<p class="sm muted" style="margin:10px 4px">تُضاف بقية المكتبات آلياً عند بناء التطبيق.</p>`; },
 });

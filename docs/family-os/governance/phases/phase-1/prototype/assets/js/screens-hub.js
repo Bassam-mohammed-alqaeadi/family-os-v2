@@ -36,8 +36,10 @@ const CTL = [
   { id: 'safe', s: 'prot', g: 'الويب', t: 'البحث الآمن', d: 'يحجب النتائج غير اللائقة في محركات البحث', syn: 'انترنت نت جوجل بحث متصفح', v: id => (wfFlagOf(id, 'safe') ? 'مفعّل' : 'مطفأ'), src: () => 'افتراضي', a: id => `go:webfilter:${id}`, k: 'protection.filter.view' },
   { id: 'cats', s: 'prot', g: 'الويب', t: 'فئات المواقع', d: 'ما يُحجب من المواقع بحسب نوعه', syn: 'انترنت نت مواقع حجب متصفح اباحي قمار', v: () => '30 فئة', src: () => 'افتراضي', a: id => `go:webfilter:${id}`, k: 'protection.filter.view' },
   { id: 'share', s: 'loc', g: 'الموقع', t: 'مشاركة الموقع', d: 'مكان الطفل يظهر لوالده دائماً ولا يُطفأ', syn: 'مكان تتبع خريطه اين gps', v: () => 'دائماً', src: () => 'ثابت', a: id => 'go:loc:' + id, k: 'location.view' },
+  { id: 'locnow', s: 'loc', g: 'الموقع', t: 'حدّث الموقع الآن', d: 'يطلب من جهاز الابن مكانه في الحال', syn: 'مكان تحديث الان اين موقع حالا', v: () => 'عند الطلب', src: () => 'فعل', type: 'act', go: 'حدّث الآن', gi: 'refresh', k: 'location.view', run: id => ACT.locRefresh(id),
+    fx: id => `يصل الطلب إلى جهاز ${pname(M[id])} فيرد بمكانه خلال لحظات. إن كان بلا اتصال أو مغلقاً يبقى آخر موقع معروف ويُكتب السبب.` },
   { id: 'hist', s: 'loc', g: 'الموقع', t: 'سجل المواقع', d: 'يُحفظ سبعة أيام ثم يُحذف تلقائياً', syn: 'مكان اماكن سابقه تاريخ', v: () => '7 أيام', src: () => 'ثابت', a: id => 'go:history:' + id, k: 'location.history.view' },
-  { id: 'cap', s: 'rew', g: 'المكافآت', t: 'حدّ الوقت الإضافي اليومي', d: 'أقصى وقت إضافي لكل ابن في اليوم، صرفاً بالنقاط أو منحاً منك', syn: 'نقاط شراء وقت صرف مكافاه اضافي منح حد', v: () => S.redeemCap + ' د', src: () => 'الأب', type: 'pick', opts: [30, 45, 60, 90, 120], k: 'rewards.settings.edit', all: 1,
+  { id: 'cap', s: 'rew', g: 'المكافآت', t: 'حدّ الوقت الإضافي اليومي', d: 'أقصى وقت إضافي لكل ابن في اليوم، صرفاً بالنقاط أو منحاً منك', syn: 'نقاط شراء وقت صرف مكافاه اضافي منح حد', v: () => S.redeemCap + ' د', src: () => 'الأب', type: 'pick', opts: [30, 45, 60, 90, 120], get: () => S.redeemCap, k: 'rewards.settings.edit', all: 1,
     fx: v => `يأخذ كل ابن ${v} دقيقة إضافية في اليوم على الأكثر، صرفاً بنقاطه أو منحاً منك. ما أُخذ اليوم يبقى محسوباً.`, set: v => { S.redeemCap = +v; } },
   { id: 'rate', s: 'rew', g: 'المكافآت', t: 'سعر الصرف', d: 'كل عشر نقاط تساوي عشر دقائق، ولا يتغيّر', syn: 'نقاط شراء وقت مكافاه سعر', v: () => '10 نقاط = 10 د', src: () => 'ثابت', a: () => 'go:rw-settings', k: 'rewards.settings.view' },
   { id: 'bonus', s: 'rew', g: 'المكافآت', t: 'مكافأة السلسلة', d: 'نقاط تودَع كل سبعة أيام إنجاز متتالية', syn: 'سلسله ايام متتاليه مكافاه شعله', v: () => (RW().bonus ? RW().bonus + ' نقطة' : 'بلا'), src: () => (RW().bonus === 50 ? 'افتراضي' : 'الأب'), a: () => 'go:rw-edit:bonus', k: 'rewards.settings.edit' },
@@ -46,13 +48,14 @@ const CTL = [
   { id: 'tkpts', s: 'tasks', g: 'المهام والتقويم', t: 'النقاط الافتراضية للمهمة', d: 'ما تبدأ به كل مهمة جديدة، ويتغيّر لكل مهمة', syn: 'مهمه مهام نقاط افتراضي واجب', v: () => rwPt(TK().pts), src: () => (TK().pts === 10 ? 'افتراضي' : 'الأب'), a: () => 'go:tk-edit:pts', k: 'shell.config.edit' },
   { id: 'tkproof', s: 'tasks', g: 'المهام والتقويم', t: 'طريقة الإثبات الافتراضية', d: 'صورة أو تسجيل صوتي. الإقرار وحده ليس افتراضياً أبداً', syn: 'مهمه اثبات دليل صوره تسجيل اقرار', v: () => TK_PF[TK().proof][0], src: () => (TK().proof === 'photo' ? 'افتراضي' : 'الأب'), a: () => 'go:tk-edit:proof', k: 'shell.config.edit' },
   { id: 'tkrem', s: 'tasks', g: 'المهام والتقويم', t: 'التذكير الافتراضي', d: 'متى يصل التذكير قبل المهمة أو الحدث', syn: 'تذكير منبه تنبيه موعد تقويم', v: () => tkRm(TK().rem), src: () => (TK().rem === 60 ? 'افتراضي' : 'الأب'), a: () => 'go:tk-edit:rem', k: 'shell.config.edit' },
-  { id: 'tkrec', s: 'tasks', g: 'المهام والتقويم', t: 'تكرار المهام', d: 'خيار التكرار عند إنشاء المهمة', syn: 'مهمه تكرار يومي اسبوعي متكرره', v: () => (TK().rec ? 'مفعّل' : 'متوقف'), src: () => (TK().rec ? 'افتراضي' : 'الأب'), a: () => 'go:tk-settings', k: 'shell.config.edit' },
+  { id: 'tkrec', s: 'tasks', g: 'المهام والتقويم', t: 'تكرار المهام', d: 'خيار التكرار عند إنشاء المهمة', syn: 'مهمه تكرار يومي اسبوعي متكرره', v: () => (TK().rec ? 'مفعّل' : 'متوقف'), src: () => (TK().rec ? 'افتراضي' : 'الأب'), type: 'sw', own: 1, sys: 'S1-06', all: 1, get: () => (TK().rec ? 1 : 0), set: v => { TK().rec = !!v; }, fmt: v => (v ? 'مفعّل' : 'متوقف'), k: 'shell.config.edit',
+    fx: v => (v ? 'خيار التكرار يظهر عند إنشاء كل مهمة.' : 'يختفي خيار التكرار من المهام الجديدة. المهام المتكررة القائمة تبقى كما هي.') },
   { id: 'tkcats', s: 'tasks', g: 'المهام والتقويم', t: 'فئات المهام', d: 'أربع أساسية، وتضيف فئات عائلتك', syn: 'مهمه فئه فئات تصنيف نوع', v: () => `${4 + Object.keys(TK().cats).length} فئات`, src: () => (Object.keys(TK().cats).length ? 'الأب' : 'افتراضي'), a: () => 'go:tk-cats', k: 'tasks.category.create' },
   { id: 'tkai', s: 'tasks', g: 'المهام والتقويم', t: 'المساعد يُعدّ المهام', d: 'يقترح عليك، أو يسند ضمن حدودك، أو لا يُعدّ', syn: 'مساعد ذكاء مهمه اقتراح تفويض اسناد', v: () => TK_LV[TK().ai.lv][3], src: () => (TK().ai.lv === 'suggest' ? 'افتراضي' : 'الأب'), a: () => 'go:tk-ai', k: 'shell.config.edit' },
   { id: 'cls', s: 'chat', g: 'المحادثة', t: 'المصنّف الآلي للرسائل', d: 'ينبّهك عند رسالة خطرة دون أن يعرض المحادثة', syn: 'رسائل تنمر خطر مراقبه شات دردشه', v: id => (M[id].role === 'teen' ? ((S.clsTeen ?? true) ? 'مفعّل' : 'متوقف') : 'دائم'), src: id => (M[id].role === 'teen' ? 'الأب' : 'ثابت'), a: () => 'go:chat-settings', k: 'chat.minor.view' },
 ];
 const ctlOf = id => CTL.find(c => c.id === id);
-const ctlAct = (c, kid) => (c.type === 'pick' ? `go:ctl-edit:${c.id}:${kid}` : c.a(kid));
+const ctlAct = (c, kid) => (c.type ? `go:ctl-edit:${c.id}:${kid}` : c.a(kid));
 const ctlRow = (c, kid) => srow(c.t, c.v(kid), c.src(kid), ctlAct(c, kid), c.k, { ios: c.ios, hl: S.hl === c.id });
 const ctlGroups = (kid, sid) => { const G = []; CTL.filter(c => (!sid || c.s === sid) && svcOn(c.s)).forEach(c => { let g = G.find(x => x[0] === c.g); if (!g) G.push(g = [c.g, []]); g[1].push(c); }); return G.map(([g, L]) => `${sec(g)}<div class="list">${L.map(c => ctlRow(c, kid)).join('')}</div>`).join(''); };
 /* شجرة العرض المتقدّم: تتولّد من السجل، لا من قائمة ثابتة (settings-patterns.md DS-SE-01) */
@@ -73,15 +76,20 @@ surface('svc', {
   },
 });
 
-/* ---------- H09-09 تعديل إعداد واحد (نوع «اختيار») ---------- */
+/* ---------- H09-09 تعديل إعداد واحد: الأنواع الثلاثة في السجل (REQ-008) — pick اختيار من قيم · sw مفتاح · act فعل يُنفَّذ مرة ---------- */
 surface('ctl-edit', {
   kind: 'sheet', t: 'تعديل إعداد', sys: 'S1-09', p: 'adult', a: ['cap', 'layan'], req: '09:2,8',
   note: 'ورقة واحدة لكل إعداد بسيط: اسمه بلغة الناس، قيمته الآن ومصدرها، معاينة أثر القيمة الجديدة بجملة، ثم حفظ صريح مع تراجع وسطر في السجل. الإعداد يُكتب عند الخدمة صاحبته لا في المركز. الإعدادات المركّبة (جدول، قواعد تطبيقات) تفتح شاشتها مباشرة.',
-  r(id) {
-    const c = ctlOf(id) || ctlOf('cap'), cur = S.redeemCap, d = S.ctlDraft = (S.ctlDraft && S.ctlDraft.id === c.id ? S.ctlDraft : { id: c.id, v: cur }), ch = d.v !== cur, off = offline();
+  r(id, kid) {
+    const c = ctlOf(id) || ctlOf('cap'), off = offline(), k = M[kid] && KIDS.includes(kid) ? kid : S.ctlKid || 'layan';
+    if (c.type === 'act') return `<h4>${c.t}</h4><p class="d">${c.d}. فعل يُنفَّذ مرة واحدة، ولا يغيّر إعداداً.</p>
+    <div class="card flat fx sb sm"><span>على من</span><span class="fx" style="gap:6px">${av(M[k], 'sm')}<b>${pname(M[k])}</b></span></div>
+    ${callout(c.fx(k), 'nt', 'visibility')}${off ? callout('أنت غير متصل. هذا الفعل يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}
+    <div class="btns">${btn('إلغاء', 'ctlCancel', 'sec')}${btn(c.go, `ctlRun:${c.id}:${k}`, off ? '" disabled="' : '', c.gi)}</div>`;
+    const cur = c.get(), d = S.ctlDraft = (S.ctlDraft && S.ctlDraft.id === c.id ? S.ctlDraft : { id: c.id, v: cur }), ch = d.v !== cur;
     return `<h4>${c.t}</h4><p class="d">${c.d}. ${c.all ? 'يسري على كل الأطفال.' : ''}</p>
     <div class="card flat fx sb sm"><span>القيمة الآن</span><span><b>${c.v()}</b> ${chip(c.src(), 'ol', 'person')}</span></div>
-    <div class="fld"><span>القيمة الجديدة</span>${seg(c.opts.map(o => [o, o + ' د']), d.v, 'ctlPick')}</div>
+    <div class="fld"><span>القيمة الجديدة</span>${seg(c.type === 'sw' ? [[1, 'مفعّل'], [0, 'متوقف']] : c.opts.map(o => [o, o + ' د']), d.v, 'ctlPick')}</div>
     ${callout(c.fx(d.v), ch ? '' : 'nt', 'visibility')}
     ${off && ch ? callout('أنت غير متصل. يُحفظ التغيير هنا ويُرسل عند عودة الاتصال.', 'wa', 'cloud_off') : ''}
     <div class="btns">${btn('إلغاء', 'ctlCancel', 'sec')}${btn(off ? 'احفظ · يُرسل لاحقاً' : 'احفظ', 'ctlSave', ch ? '' : '" disabled="')}</div>`;
@@ -91,11 +99,13 @@ Object.assign(ACT, {
   ctlPick(v) { if (S.ctlDraft) S.ctlDraft.v = +v; },
   ctlCancel() { S.ctlDraft = null; S.sheet = null; },
   ctlSave() {
-    const d = S.ctlDraft, c = d && ctlOf(d.id); if (!c) return; if (!can('hub.settings.edit') || !can(c.k)) return ACT.denied(c.k);
-    const was = S.redeemCap; if (d.v === was) return; c.set(d.v); S.ctlDraft = null; S.sheet = null;
-    const off = queue(`${c.t}: ${d.v} د`, 'S1-05'); audit(`عُدّل ${c.t}: ${was} ← ${d.v} د`, c.k);
-    toast(off ? 'محفوظ · يُرسل عند عودة الاتصال' : `${c.t}: ${d.v} دقيقة`, () => { c.set(was); render(); }, off ? 'cloud_upload' : 'check_circle');
+    const d = S.ctlDraft, c = d && ctlOf(d.id); if (!c) return; if (!can('hub.settings.edit') || !can(c.k) || (c.own && !isOwner())) return ACT.denied(c.k);
+    const was = c.get(); if (d.v === was) return; c.set(d.v); S.ctlDraft = null; S.sheet = null;
+    const sw = c.type === 'sw', off = queue(sw ? `${c.t}: ${c.fmt(d.v)}` : `${c.t}: ${d.v} د`, c.sys || 'S1-05'); audit(sw ? `عُدّل ${c.t}: ${c.fmt(was)} ← ${c.fmt(d.v)}` : `عُدّل ${c.t}: ${was} ← ${d.v} د`, c.k);
+    toast(off ? 'محفوظ · يُرسل عند عودة الاتصال' : sw ? `${c.t}: ${c.fmt(d.v)}` : `${c.t}: ${d.v} دقيقة`, () => { c.set(was); render(); }, off ? 'cloud_upload' : 'check_circle');
   },
+  /* نوع «فعل»: يُنفَّذ مرة عند الخدمة صاحبته، بالشرطين نفسيهما (مفتاح التعديل في المركز ومفتاح الفعل) */
+  ctlRun(id, kid) { const c = ctlOf(id); if (!c || c.type !== 'act') return; if (!can('hub.settings.edit') || !can(c.k, kid)) return ACT.denied(c.k); S.ctlDraft = null; S.sheet = null; c.run(kid); },
   /* من البحث الشامل: يفتح العرض المتقدّم عند الإعداد ويبرزه */
   ctlFind(id) { const c = ctlOf(id); if (!c) return; S.ctl = 'adv'; S.hl = id; tab('control'); setTimeout(() => { const e = document.querySelector('#scr .row.hl'); if (e && e.scrollIntoView) e.scrollIntoView({ block: 'center' }); }, 80); setTimeout(() => { S.hl = null; const e = document.querySelector('#scr .row.hl'); if (e) e.classList.remove('hl'); }, 3200); },
 });

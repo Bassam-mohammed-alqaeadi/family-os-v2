@@ -1031,3 +1031,8 @@ h3.sec button::before,.btn.sm::before,.btn.txt::before,.why::before,button.chip:
 .phone[data-mode="child"] .sos,.phone[data-mode="mini"] .sos{height:48px;border-width:2px;margin:-2px 2px}
 #sosL:not(.float) .sos{margin:0}   /* النسخة العليا تقع فوق الزر الأصلي تماماً */
 button.fx,button.strip{min-height:48px}
+
+/* «العرض كـ» (DS-NV-10): شريط معاينة ثابت بألوان وضع الأهل أياً كان قالب المعاينة، والمحتوى تحته لا يُضغط */
+.vabar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:8px 12px;margin:0 0 12px;border-radius:14px;background:#1F3A6B;color:#fff;font-size:calc(13px*var(--ts));line-height:1.6;font-family:var(--font, inherit);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.vabar svg{width:20px;height:20px;flex:none}.vabar .btn{flex:none;width:auto;min-height:48px;background:#fff;color:#1F3A6B;border-color:#fff}
+.vaw{pointer-events:none;user-select:none}

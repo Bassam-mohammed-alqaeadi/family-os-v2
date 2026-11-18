@@ -5,7 +5,7 @@ const kidId = () => PERSONA[S.persona].m;
 const timeMood = k => { const l = left(k), w = fmOf(k) ? '' : winNow(k); return fmOf(k) ? ['wb_sunny', 'وقت حر الآن', 'استمتعي!'] : w === 'mode' ? [modeAct(k).i, modeAct(k).n, 'حتى ' + S.pm[k].until] : w === 'sleep' ? ['bedtime', 'حان وقت النوم', 'تصبحين على خير'] : w === 'school' ? ['school', 'وقت الدراسة', 'تطبيقات الدراسة مفتوحة'] : l > 45 ? ['wb_sunny', 'بقي وقت كثير', `${l} دقيقة`] : l > 0 ? ['hourglass_top', 'بقي وقت قليل', `${l} دقيقة`] : ['bedtime', 'انتهى وقت اليوم', 'نكمل غداً']; };
 surface('c-home', {
   t: 'الرئيسية', sys: 'S1-01', p: 'child', bar: false, req: '01:2,4,7,15,18 10:25 05:2,7 06:6', st: 'un',
-  note: 'UNKNOWN (Q-090): محتوى القالب القياسي غير محسوم — هذا اقتراح. الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
+  note: 'القالب القياسي (7–12). ما فيه من المهام والمكافآت والمساعدة معتمد مع أنظمته (Q-414 · Q-415 · Q-424)؛ والقالب كاملاً لم يصدر فيه حكم صريح كما صدر لقالب المراهق (Q-417)، فيبقى Q-090 مفتوحاً له. الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
   r() { const id = kidId(), m = M[id], k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), md = timeMood(id), pc = left(id) / (k.quota + k.extra);
     const cele = T.find(t => t.cele); if (cele) { cele.cele = 0; setTimeout(() => { rwCele(); if (RW().cele !== 'off') notif('أحسنتِ يا ' + m.n + '!', `اعتُمدت «${cele.t}» · +${cele.pts} نقاط`, 'celebration'); }, 250); }
     const req = S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen);
@@ -72,7 +72,7 @@ Object.assign(ACT, {
 /* ============ القالب المبسّط (دون 7) ============ */
 surface('m-home', {
   t: 'بيت', sys: 'S1-01', p: 'mini', bar: false, req: '01:2,4,7 05:2 06:6', st: 'un',
-  note: 'UNKNOWN (Q-090): محتوى القالب المبسّط غير محسوم — اقتراح. بلاطات كبيرة (هدف لمس 72–88)، نص ×1.35، أيقونة مع كل كلمة، زر «بيت» واحد، والوقت بصورة شمس/قمر بلا أرقام. اسم كل بلاطة يُنطق بمقطع مسجّل ثابت عند لمسها (Q-411)، بلا نطق آلي؛ النموذج لا يشغّل صوتاً.',
+  note: 'القالب المبسّط (دون 7). لم يصدر فيه حكم صريح كما صدر لقالب المراهق (Q-417)، فيبقى Q-090 مفتوحاً له. بلاطات كبيرة (هدف لمس 72–88)، نص ×1.35، أيقونة مع كل كلمة، زر «بيت» واحد، والوقت بصورة شمس/قمر بلا أرقام. اسم كل بلاطة يُنطق بمقطع مسجّل ثابت عند لمسها (Q-411)، بلا نطق آلي؛ النموذج لا يشغّل صوتاً.',
   r() { const id = 'yusuf', k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st === 'PENDING'), md = left(id) > 20 ? ['wb_sunny', '#C8A24A'] : left(id) > 0 ? ['wb_twilight', '#CF5B2C'] : ['bedtime', '#142749'];
     return `<header class="bar"><span style="margin-inline-start:8px">${av(M[id])}</span><h2>أهلاً يوسف</h2>${sosBtn()}</header>
     <div class="tiles"><div class="tile w" style="--kc:${md[1]}">${ic(md[0])}<span>${!fmOf(id) && winNow(id) === 'sleep' ? 'وقت النوم' : left(id) > 20 ? 'وقت اللعب' : left(id) > 0 ? 'قرب ينتهي' : 'نكمل بكرة'}</span></div>
@@ -155,8 +155,8 @@ Object.assign(ACT, {
   teenFix() { tamBack('khaled', 'من جهاز خالد'); toast('عادت الخدمة · شكراً'); },
 });
 surface('learn', {
-  t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9', st: 'pr',
-  note: 'مقترح: التبويب في التنقل المعتمد ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002).',
+  t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9',
+  note: 'معتمد (Q-397 · Q-417): التبويب في التنقل، ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002).',
   r() { const id = kidId(), A = S.apps[id].filter(a => a.act !== 'BLOCK'), st = A.filter(a => a.study), pl = A.filter(a => !a.study), teen = mode() === 'teen';
     if (teen) {
       const on = winNow(id) === 'school', sc = S.sched[id].find(x => x.type === 'school'), used = st.reduce((n, a) => n + (a.used || 0), 0);

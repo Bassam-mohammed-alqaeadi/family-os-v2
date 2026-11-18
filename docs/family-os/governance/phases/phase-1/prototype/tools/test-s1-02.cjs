@@ -7,7 +7,7 @@ const root=require('path').join(__dirname,'..');
 const b=await puppeteer.launch({args,executablePath:await chromium.executablePath(),headless:'shell'});let R={};
 try{const page=await b.newPage();await page.setViewport({width:1500,height:1000});const errs=[];page.on('pageerror',e=>errs.push(String(e)));page.on('console',m=>{if(m.type()==='warning'||m.type()==='error')errs.push('console:'+m.text())});
 await page.goto('file://'+root+'/index.html?quiet=1');await page.evaluate(()=>document.fonts.ready);await new Promise(r=>setTimeout(r,1700));
-R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('phone');const ok=(n,c,x)=>{if(!c)F.push(n+(x!==undefined?' → '+JSON.stringify(x):''))};
+R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('phone');let N=0;const ok=(n,c,x)=>{N++;if(!c)F.push(n+(x!==undefined?' → '+JSON.stringify(x):''))};
  const txt=()=>ph.innerText.replace(/\s+/g,' ');const top=()=>S.full?S.full.id:S.sheet?S.sheet.id:S.stack[S.stack.length-1].id;
  const pin=()=>{for(const k of '482615')ACT.pinK(k);render()};const otp=c=>{for(const k of c)ACT.otpK(k);render()};
  const guest=()=>{S=fresh();setPersona('guest');S.ob={};render()};
@@ -84,9 +84,40 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  S=fresh();const by=M.layan.by;go('child-new','layan');render();ACT.cnSet('y','2012');render();ok('age change warned',/بعد الحفظ تتغير شاشة/.test(txt()));ACT.cnGo();render();ok('child saved',M.layan.by===2012);M.layan.by=by;
  S=fresh();go('child-profile','khaled');render();ok('turning 18 row',!!ph.querySelector('[data-a="go:age-up:khaled"]'));
  S=fresh();S.pcSt='exp';go('pair-code','layan');render();ok('code expired state',/انتهى وقت الرمز/.test(txt()));S.pin.set=false;S.pcSt='live';render();ok('code hidden w/o pin',!/LY4N82/.test(txt()));
+ // 13-ب مفتاح الدولة (REQ-001)
+ guest();ACT.obStart('');render();ok('country key: opens a list',!!ph.querySelector('[data-a="ccT"]'));ACT.ccT();render();ok('country key: sheet with Yemen and the Gulf first',top()==='cc-pick'&&ph.querySelectorAll('.sheet [data-a^="ccSet:"]').length===13&&ph.querySelector('.sheet [data-a^="ccSet:"]').dataset.a==='ccSet:YE');
+ ACT.ccSet('SA');render();ok('country key: chosen key shown',!S.sheet&&S.ob.cc==='SA'&&/\+966/.test(txt()));document.getElementById('obP').value='771234567';ACT.obPhone();render();ok('country key: number checked per country',S.ob.err===1&&top()==='ob-phone');
+ document.getElementById('obP').value='501234567';ACT.obPhone();render();ok('country key: valid Saudi number goes on',top()==='ob-otp');
+ // 13-ج صيغ الموافقة الثلاث (REQ-017)
+ guest();go('ob-pair');render();document.getElementById('obC').value='kh4l37';ACT.obPair();render();ok('consent teen: what the father knows and does not, plus rights',top()==='ob-consent'&&S.ob.kid==='khaled'&&/نتفق معاً يا خالد/.test(txt())&&/لا يعرف ما تفعله داخله/.test(txt())&&/ولك دائماً/.test(txt())&&ph.querySelector('[data-a="consGo"]').disabled);
+ ACT.consT('k');ACT.consT('p');render();ok('consent teen: both confirm',!ph.querySelector('[data-a="consGo"]').disabled&&!!ph.querySelector('[data-a="consT:no"]'));
+ guest();go('ob-pair');render();document.getElementById('obC').value='YS4F51';ACT.obPair();render();const mt=[...ph.querySelectorAll('button.tile')];
+ ok('consent under 7: pictures, two equal big buttons, father explains',S.ob.kid==='yusuf'&&/بابا يشرح ليوسف/.test(txt())&&mt.length===2&&mt[0].dataset.a==='consT:k'&&mt[1].dataset.a==='consT:no'&&Math.abs(mt[0].offsetHeight-mt[1].offsetHeight)<2&&mt[0].offsetHeight>=72&&ph.querySelectorAll('div.tile').length===3,mt.map(x=>x.offsetHeight));
+ ok('consent under 7: not complete by one side',ph.querySelector('[data-a="consGo"]').disabled);ACT.consT('k');render();ok('…child alone is not enough',ph.querySelector('[data-a="consGo"]').disabled);ACT.consT('p');render();ok('…both → father PIN',!ph.querySelector('[data-a="consGo"]').disabled);
+ ACT.consT('no');render();ok('consent under 7: not now, no blame',/لم يكتمل الإقران/.test(txt())&&/الجهاز لم يُقرن/.test(txt()));
+ guest();go('ob-pair');render();document.getElementById('obC').value='LY4N82';ACT.obPair();render();ok('consent child: Layan wording kept',S.ob.kid==='layan'&&/نتفق معاً يا ليان/.test(txt())&&/أنا ليان، فهمت/.test(txt()));
+ // 13-د بريد للدخول يُضاف لاحقاً (REQ-029)
+ S=fresh();go('account');render();ok('account: add-email row',!!ph.querySelector('#scr [data-a="go:login-add"]'));go('login-add');render();ok('login email: form',top()==='login-add'&&!!document.getElementById('em2'));
+ document.getElementById('em2').value='nope';ACT.em2Send();render();ok('login email: bad address',S.em2F.e==='bad'&&!S.em2);document.getElementById('em2').value='sara@example.com';ACT.em2Send();render();ok('login email: another account refused',S.em2F.e==='used'&&!S.em2&&/لحساب آخر/.test(txt()));
+ document.getElementById('em2').value='a@down.test';ACT.em2Send();render();ok('login email: service down says the phone still works',S.em2F.e==='down'&&/دخولك برقمك يعمل/.test(txt()));
+ document.getElementById('em2').value='Ahmad.New@Example.com';ACT.em2Send();render();ok('login email: PIN before sending',!S.em2&&!!ph.querySelector('.pad'));const a0=S.audit.length;pin();ok('login email: sent, not yet added',S.em2&&S.em2.st==='sent'&&S.em2.a==='ahmad.new@example.com'&&S.audit.length===a0+1,S.em2);
+ S.sheet=null;go('account');render();ok('account: says waiting for the link',/بانتظار|ينتظر/.test(txt()),txt().slice(0,300));go('login-add');render();ok('login email: sent state',/افتح بريدك/.test(txt())&&!!ph.querySelector('[data-a="em2Open"]')&&!!ph.querySelector('[data-a="em2Cancel"]'));
+ ACT.em2Open();render();ok('login email: added only after the link',S.em2.st==='ok'&&S.audit.length===a0+2&&/مؤكَّد/.test(txt()));ACT.em2Rm();render();ok('login email: removal asks PIN',!!ph.querySelector('.pad')&&!!S.em2);pin();ok('login email: removed, phone stays',!S.em2&&S.audit.length===a0+3);
+ S=fresh();go('login-add');render();document.getElementById('em2').value='x@example.com';ACT.em2Send();render();pin();ACT.em2Cancel();render();ok('login email: cancel leaves nothing',!S.em2&&!S.sheet);
+ S=fresh();S.net='off';go('login-add');render();ok('login email: offline cannot send',ph.querySelector('[data-a="em2Send"]').disabled&&/غير متصل/.test(txt()));
+ // 13-هـ تعديل العائلة بعد إنشائها (REQ-030)
+ S=fresh();go('family-settings');render();ok('family: three editable rows for the owner',['name','reg','tz'].every(k=>!!ph.querySelector('#scr [data-a="famEdit:'+k+'"]')));
+ ACT.famEdit('name');render();document.getElementById('fmN').value='ا';ACT.famSave('name');render();ok('family name: too short',S.fmF.e===1&&top()==='fam-edit');const a1=S.audit.length;document.getElementById('fmN').value='  عائلة   الصالح ';ACT.famSave('name');render();
+ ok('family name: saved at once, logged',S.famName==='عائلة الصالح'&&!S.sheet&&S.audit.length===a1+1&&/عائلة الصالح/.test(txt()));ph.querySelector('.toast button').click();render();ok('family name: undo',famN()==='عائلة المنصور');
+ S=fresh();S.famName='عائلة الصالح';go('family-delete');render();ok('family name: delete screen asks for the new name',/عائلة الصالح/.test(txt())&&!/عائلة المنصور/.test(txt()));
+ S=fresh();go('family-settings');ACT.famEdit('reg');render();ok('family country: save disabled until changed',ph.querySelector('[data-a="famSave:reg"]').disabled);ACT.famPick('reg','SA');render();ok('family country: says what changes and what does not',/اشتراكك الحالي يبقى/.test(txt())&&!ph.querySelector('[data-a="famSave:reg"]').disabled);
+ const tz0=S.tz;ACT.famSave('reg');render();ok('family country: PIN',S.reg==='YE'&&!!ph.querySelector('.pad'));pin();ok('family country: changed, time zone untouched',S.reg==='SA'&&S.tz===tz0&&/غُيّر بلد العائلة/.test(S.audit[0].t));
+ S=fresh();go('family-settings');ACT.famEdit('tz');ACT.famPick('tz','دبي');render();ok('family time zone: applies to all children',/عند كل الأبناء/.test(txt()));ACT.famSave('tz');render();pin();ok('family time zone: changed by PIN, country untouched',S.tz==='دبي'&&S.reg==='YE');
+ S=fresh();S.net='off';go('family-settings');ACT.famEdit('reg');ACT.famPick('reg','SA');render();ok('family edit: needs connection',ph.querySelector('[data-a="famSave:reg"]').disabled);
+ S=fresh();setPersona('delegate');go('family-settings');render();ok('family: delegate cannot edit',!ph.querySelector('#scr [data-a^="famEdit:"]'));
  // 14 كل أسطح S1-02: إنجليزي + لا تجاوز أفقي + لا كلام مهندسين
  const over=[],eng=[];for(const id of Object.keys(SC).filter(k=>SC[k].sys==='S1-02')){for(const lang of ['ar','en']){try{S=fresh();jump(id);S.lang=lang;render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id+':'+lang);
    if(lang==='ar'&&/TOTP|HMAC|JSON|IANA|mTLS|MQTT|مفتاح التوقيع|مفتاح توقيع|العتاد|E\.164|Firebase/.test(txt()))eng.push(id);}catch(e){F.push('ERR '+id+' '+lang+' '+e.message)}}}
- R.over=over;R.eng=eng;R.n=Object.keys(SC).filter(k=>SC[k].sys==='S1-02').length;R.fail=F;return R;});
+ R.over=over;R.eng=eng;R.checks=N;R.n=Object.keys(SC).filter(k=>SC[k].sys==='S1-02').length;R.fail=F;return R;});
 R.errs=errs;}catch(e){R.crash=String(e)}finally{await b.close()}
 console.log(JSON.stringify(R,null,1));})();
