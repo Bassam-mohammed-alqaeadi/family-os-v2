@@ -21,9 +21,9 @@
 | S1-01 planning spec | Present; approved for planning | `docs/family-os/governance/phases/phase-1/S1-01-app-shell-and-platform/SPEC.md` |
 | S1-01 diagrams | Present; approved | `.../S1-01-app-shell-and-platform/DIAGRAMS.md` |
 | Design system | Present; approved for implementation | `docs/family-os/governance/design-system/` |
-| Existing S1-01 design deliverables | No prior S1-01 artifact was found at the checked paths | This new workspace artifact starts the design record |
+| Existing S1-01 design deliverables | The initial scan recorded no prior artifact at the paths it checked; repository history shows an earlier draft package already existed at `design-work/phase-1/S1-01-app-shell-and-platform/` (2026-11-11 18:40 UTC) | Retain that package as historical draft; the current review direction is `design-work/S1-01/README.md`; neither package is owner-approved |
 
-**Revision limitation:** the GitHub branch search confirms the branch exists, and branch-scoped file reads succeeded. The available branch-search response did not expose the branch HEAD SHA, so this audit does not assert an exact current HEAD commit.
+**Revision limitation (initial audit):** the branch-search response available at the time did not expose HEAD. **Follow-up 2026-11-18:** the branch API confirmed `feat/governance-v2` at `3b095ae0ae3659cd23846211a62226754ce222e8`; this records the reviewed revision and does not imply design approval.
 
 ## 2. Authority and source hierarchy
 
@@ -43,19 +43,21 @@
    - `design-system/microcopy-and-tone.md`
    - `design-system/ui-glossary.md`
 
-No source above is edited by this deliverable.
+At the time of the initial design audit, no source above was edited by that deliverable. The governance audit on 2026-11-18 corrected the original S1-01 `SPEC.md §9` directly where Q-382/Q-383/Q-384 provide explicit authority; see GOV-034. The design-work files remain non-binding.
 
 ## 3. Audit findings that affect design
 
-### F-001 — Stale constraints inside S1-01 SPEC §9
+### F-001 — Resolved: stale constraints inside S1-01 SPEC §9
 
-The current S1-01 `SPEC.md §9` still contains a constraint saying the final Arabic font and 50–950 color ramps are not approved (references Q-042/Q-044). That statement is stale against the current approved decisions and design-system sources:
+This finding was accurate when the initial design audit was written: §9 still described the font and color ramps as unresolved and also listed Q-158 as an open glossary gap. The governance audit on 2026-11-18 corrected the original source `SPEC.md §9` using the already-recorded decisions:
 
-- **Q-383:** final brand ramps 50–950 and semantic status colors are fixed; Amber Warning is `#9A5B00`, Danger `#B42318`, Info `#2457A6`; Orange `#CF5B2C` is brand accent, not Warning.
-- **Q-384:** IBM Plex Sans Arabic + IBM Plex Sans are approved for the Phase 1 interface.
-- `design-system/color-tokens.md` and `typography.md` are marked approved for implementation and contain the adopted values.
+- **Q-382:** approved UI glossary (`ui-glossary.md`, 141 entries).
+- **Q-383:** approved color ramps 50–950 and semantic status colors.
+- **Q-384:** approved IBM Plex Sans Arabic + IBM Plex Sans for Phase 1.
 
-**Handling:** use the current approved design-system files and Q-383/Q-384 as the design authority. Do not modify SPEC §9 from this workspace. Record this as a documentation inconsistency for an explicit governance/specification correction if the owner wants it corrected.
+The source now retains Q-042/Q-044/Q-158 as historical rows marked closed, and adds the still-open Q-045 scope gate. See GOV-034 in the contradiction register.
+
+**Handling at initial pass:** no source modification was made from this workspace. **Resolution:** the later governance audit updated the original SPEC directly because the controlling decisions are explicit; this does not create a new design approval.
 
 ### F-002 — Brand assets remain open
 
