@@ -2,6 +2,7 @@
 
 - **الحالة:** معتمدة — المخططات الستة معتمدة (حكم المالك 2026-11-08 — D-2، بعد موجة الإصلاح 0e4a3e2..f7da470)؛ والمواصفة معتمدة بالكامل في التخطيط
 - **المواصفة:** `SPEC.md` (§§1–8 + §10 معتمدة بالكامل في التخطيط)
+- **إعادة الرسم 2026-11-18 (Q-428) على التصميم المعتمد (Q-415 · Q-417 · Q-419):** الرسم والنص متطابقان. ما تغيّر: (1) حالات الاستخدام صارت 18: المساعد يُعدّ المهام بتفويض المالك، ضبط التفويض، قبول الاقتراح أو صرفه، وتحذير التعارض عند الحفظ؛ (2) مخطط البيانات: الحقل `task.created_by_type` وجدولا `task_suggestion` و`task_agent_delegation` (REQ-018)؛ (3) تسلسلان جديدان: 3-ط إعداد المساعد للمهام بدرجاته الثلاث، و3-ي تحذير التعارض عند حفظ مهمة أو حدث؛ (4) تدفق المستخدم: المهمة المعادة تُسلَّم إلى البالغ لا إلى المساعد، وإلغاء التحقق في يومه وللمالك وحده، وفرع المساعد وفرع التعارض.
 - **السياق المحدد (Bounded Context):** #9 إدارة العائلة (Family Management) — `CONTEXT-MAP.md` §2 صف 9
 - **القرارات الحاكمة:** Q-001 · Q-109 · Q-110 · Q-118 · Q-120 · Q-121 · Q-122 · Q-123 · Q-124 · Q-125 · Q-064 · Q-054 · Q-058 · Q-022 · Q-167 · Q-007 (رفض-يتغلب — المنع يغلب) · Q-280 · Q-281 · Q-183 · Q-209 · Q-253 · Q-254 · Q-282
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
@@ -9,7 +10,7 @@
 
 ## 1. حالات الاستخدام
 
-14 حالة استخدام من السيناريوهات السبعة والمتطلبات (§2/§3): الأب والبالغ المفوَّض ينشئان المهام ويلغيانها، الطفل والمراهق يسلّمان، الذكاء يتحقق والأب احتياطي، والمحفظة (S1-05) ومركز الأوامر (S1-09) ممثلان كجهات خارجية. وإسناد مهمة بدلاً من منح الوقت (6-6) هو نفس حالة إنشاء المهمة، لا حالة مستقلة.
+18 حالة استخدام من السيناريوهات السبعة والمتطلبات (§2/§3) والتصميم المعتمد (§9-8): الأب والبالغ المفوَّض ينشئان المهام ويلغيانها، الطفل والمراهق يسلّمان، الذكاء يتحقق والأب احتياطي، والمحفظة (S1-05) ومركز الأوامر (S1-09) ممثلان كجهات خارجية. وإسناد مهمة بدلاً من منح الوقت (6-6) هو نفس حالة إنشاء المهمة، لا حالة مستقلة.
 
 ```mermaid
 flowchart LR
@@ -39,6 +40,10 @@ flowchart LR
         UC12(إنشاء مهمة شخصية — مراهق)
         UC13(تسليم مهمة دون اتصال)
         UC14["إصدار حدث الكسب family/{family_id}/tasks.completed"]
+        UC15(ضبط تفويض المساعد: لا يُعدّ / يقترح / يسند ضمن حدود)
+        UC16(المساعد يقترح مهمة أو يسندها ضمن الحدود — REQ-018)
+        UC17(قبول اقتراح المساعد أو صرفه)
+        UC18(تحذير التعارض عند حفظ مهمة أو حدث — Q-419)
     end
 
     Father --> UC1
@@ -64,6 +69,16 @@ flowchart LR
     Teen -->|self only — Q-253| UC3
     Father --> UC10
     Father --> UC11
+    Father -->|المالك وحده| UC15
+    Father --> UC17
+    Adult --> UC17
+    AI --> UC16
+    UC15 -.->|يحدّ| UC16
+    UC16 -->|اقتراح| UC17
+    UC17 -->|قبول| UC1
+    UC16 -->|إسناد ضمن الحدود| UC1
+    UC1 -.->|يتضمن| UC18
+    UC9 -.->|يتضمن| UC18
     Adult --> UC10
     UC4 -.->|يتضمن| UC5
     UC4 --> AI
@@ -96,6 +111,10 @@ erDiagram
     task }o--|| membership : "أنشأها عضو"
     calendar_event }o--|| membership : "حضور عضو أو كل العائلة"
     task ||--|| MinIO_proof : "إثباتها صورة في"
+    family ||--o{ task_suggestion : "اقتراحات المساعد — REQ-018"
+    family ||--|| task_agent_delegation : "تفويض المساعد — صف واحد"
+    task_suggestion }o--|| membership : "مقترحة لعضو"
+    task_suggestion |o--o| task : "القبول ينشئ مهمة"
 
     task {
         uuid task_id PK
@@ -110,6 +129,7 @@ erDiagram
         text rrule
         text proof_method
         text status
+        text created_by_type
         text proof_ref
         timestamptz submitted_at
         text verified_by
@@ -162,6 +182,30 @@ erDiagram
     }
     points_ledger {
         uuid id PK
+    }
+    task_suggestion {
+        uuid suggestion_id PK
+        uuid family_id FK
+        uuid assigned_member_id FK
+        text title_ar
+        uuid category_id FK
+        int reward_points
+        text proof_method
+        date due_date
+        text reason_ar
+        text basis_ar
+        text status
+        uuid decided_by FK
+        timestamptz decided_at
+    }
+    task_agent_delegation {
+        uuid family_id PK
+        text level
+        int max_points
+        int per_child_per_day
+        jsonb member_ids
+        uuid updated_by FK
+        timestamptz updated_at
     }
     AuditEvent {
         uuid id PK
@@ -418,6 +462,74 @@ sequenceDiagram
     Ktor-->>App: {task_id, status: "CANCELLED"}
 ```
 
+### 3-ط. المساعد يُعدّ المهام بتفويض المالك (REQ-018 — §4 — Q-415)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Owner as المالك
+    actor Adult as بالغ عنده tasks.create
+    participant App as التطبيق
+    participant Ktor as الخادم
+    participant AI as المساعد
+    actor Child as الابن
+    Owner->>App: يضبط التفويض — الدرجة والحدود الثلاثة
+    App->>Ktor: PUT /api/v1/families/{id}/task-delegation {level, max_points, per_child_per_day, member_ids}
+    Ktor->>Ktor: حفظ task_agent_delegation + AuditEvent — المالك وحده
+    alt level = OFF — لا يُعدّ
+        Note over AI: لا اقتراح ولا إسناد
+    else level = SUGGEST — يقترح والقرار للبالغ
+        AI->>Ktor: اقتراح مهمة بسببها وما استندت إليه — agent.plan.create
+        Ktor->>Ktor: task_suggestion {status=NEW} + AgentActionLog
+        Adult->>App: يفتح الاقتراح
+        App->>Ktor: POST /api/v1/families/{id}/task-suggestions/{suggestionId}/decision {ACCEPT أو DISMISS}
+        alt قبول
+            Ktor->>Ktor: إنشاء task {created_by_type=agent} — باسم المساعد وبموافقة البالغ
+            Ktor-->>Child: المهمة تظهر موسومة «من المساعد»
+        else صرف
+            Ktor->>Ktor: status=DISMISSED — لا شيء يصل الابن
+        end
+    else level = ASSIGN — يسند ضمن حدود
+        AI->>Ktor: مهمة مقترحة
+        Ktor->>Ktor: داخل الحدود؟ النقاط ≤ الحد · عدد اليوم لم يُبلغ · الابن في التفويض · الإثبات ليس إقراراً
+        alt داخل الحدود
+            Ktor->>Ktor: إنشاء task {created_by_type=agent} + AgentActionLog
+            Ktor-->>Child: المهمة تظهر موسومة «من المساعد»
+            Ktor-->>Adult: إبلاغ — ويلغيها البالغ متى شاء
+        else تجاوزت حداً
+            Ktor->>Ktor: تبقى task_suggestion {status=NEW} — اقتراحاً لا إسناداً
+        end
+    end
+```
+
+- المساعد لا يلغي مهمة ولا يعدّلها، ولا يمنح نقاطاً بلا مهمة، ولا يسند مهمة إثباتها الإقرار، ولا يقرأ رسالة ولا يفتح صورة ليقترح. مفتاح الإيقاف يوقفه، والمهام التي أُسندت من قبل تبقى حتى يلغيها بالغ (§6/§7).
+- بلا مفتاح صلاحية جديد: يعمل على `agent.plan.create` من عقد التحقق؛ والتفويض للمالك وحده ولا يُفوَّض.
+
+### 3-ي. تحذير التعارض عند حفظ مهمة أو حدث (REQ-001/012 — Q-419)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Adult as الأب أو البالغ المفوَّض
+    participant App as التطبيق
+    participant Ktor as الخادم
+    Adult->>App: يحفظ مهمة أو حدثاً بموعد
+    App->>App: فحصان: الموعد داخل وقت نوم أو مدرسة في جدول الابن؟ حدثان للشخص نفسه بينهما أقل من ساعة؟
+    alt لا تعارض
+        App->>Ktor: حفظ
+    else تعارض
+        App-->>Adult: بطاقة التعارض الموحدة — ما الذي يتعارض ومع ماذا
+        alt «احفظ كما هو»
+            App->>Ktor: حفظ — مع وسم «متعارض»
+            Note over App: الوسم يبقى في القائمة والتقويم وبطاقة في التفاصيل وسطراً في صفحة التعارضات
+        else «عدّل هذا»
+            Adult->>App: يعدّل ثم يحفظ
+        end
+    end
+```
+
+- تحذير بلا منع: القرار للبالغ. تُستثنى مهام فئة «مدرسة» وأحداث وقت المدرسة من فحص وقت المدرسة. التفصيل في S1-10 §9.4 (و).
+
 ## 4. تدفق المستخدم (User Flow) — من السيناريوهات السبعة (§2)
 
 ```mermaid
@@ -440,7 +552,8 @@ flowchart TD
     Pending --> FatherRev{الأب يراجع}
     FatherRev -->|يعتمد| TeenCheck
     FatherRev -->|يرفض مع ملاحظات| Back[تعود PENDING — يعيدها الطفل]
-    Back --> Do
+    Back --> Redo[يعيدها ويسلّمها ثانية]
+    Redo -->|المعادة تذهب إلى البالغ لا إلى المساعد — Q-415| FatherRev
     Notify --> FatherRev
     TeenCheck -->|نعم| NoEvent[تُسجَّل منجزة بلا نقاط — لا حدث كسب يصدر]
     TeenCheck -->|لا| Deposit["إيداع النقاط — family/{family_id}/tasks.completed إلى S1-05"]
@@ -450,6 +563,11 @@ flowchart TD
     Spend --> End
     Show -.-> Recur["6-4 التكرار (REQ-010): نسخة جديدة كل يوم — نسخة الأمس تنتهي ولا تتراكم"]
     Recur --> Do
+    Deposit -.-> Revoke["إلغاء التحقق: في يومه فقط، للمالك وحده، وباتصال — قيد تعويضي في S1-05"]
+    Create --> Clash{الموعد يتعارض مع نوم أو مدرسة أو حدث قريب؟}
+    Clash -->|نعم| ClashCard[بطاقة التعارض: احفظ كما هو بوسم «متعارض» أو «عدّل هذا» — Q-419]
+    Start -.-> Agent["المساعد بتفويض المالك (REQ-018): يقترح فيقبل البالغ، أو يسند ضمن الحدود"]
+    Agent --> Show
     Start -.-> CalEv["6-5 حدث تقويم (REQ-012): الأب ينشئ حدثاً — تذكير لصاحب الحدث والأب قبل ساعة (Q-281)"]
 ```
 
