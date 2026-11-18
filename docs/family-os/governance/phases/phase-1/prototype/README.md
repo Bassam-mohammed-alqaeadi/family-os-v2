@@ -14,7 +14,7 @@
 
 ```bash
 cd docs/family-os/governance/phases/phase-1/prototype
-python3 -m http.server 8000 --bind 0.0.0.0     # ثم افتح http://localhost:8000
+python3 tools/serve.py 8000                     # ثم افتح http://localhost:8000 — بلا تخزين مؤقت، فكل تحديث للصفحة يجلب آخر نسخة
 ```
 
 يعمل أيضاً بفتح `index.html` مباشرة من القرص (كل الأصول محلية ولا يوجد `fetch`).
@@ -67,6 +67,7 @@ assets/js/req-data.js         ⟵ مولَّد. لا يُحرَّر يدوياً
 assets/js/icons.js            ⟵ مولَّد. لا يُحرَّر يدوياً
 tools/build-req-data.py       يقرأ §3 من الـ SPEC العشرة وقوالب S1-03 ويولّد req-data.js
 tools/build-icons.mjs         يمسح المصدر ويضمّن الأيقونات المستعملة فقط
+tools/serve.py                يشغّل النموذج محلياً ويمنع المتصفح من الاحتفاظ بنسخة قديمة
 tools/test-s1-01.cjs          يمشي في بوابة الوالدين والتأكيد بالبصمة (S1-01، Q-418) بالطريقة نفسها
 tools/test-s1-02.cjs          يمشي في مسارات S1-02 في متصفح آلي (يحتاج puppeteer-core و@sparticuz/chromium)
 tools/test-s1-03.cjs          يمشي في مسارات S1-03 (الأدوار والصلاحيات) بالطريقة نفسها
@@ -133,7 +134,7 @@ node tools/test-s1-07.cjs      # الموقع والاستغاثة — 177 فح�
 node tools/test-s1-08.cjs      # المحادثة العائلية — 156 فحصاً
 node tools/test-s1-05.cjs      # المكافآت — 167 فحصاً
 node tools/test-s1-06.cjs      # المهام والتقويم — 280 فحصاً
-node tools/test-s1-04.cjs      # الخطط والاشتراكات — 222 فحصاً
+node tools/test-s1-04.cjs      # الخطط والاشتراكات — 226 فحصاً
 ```
 
 النجاح: القوائم `fail` و`over` و`eng` و`errs` فارغة.

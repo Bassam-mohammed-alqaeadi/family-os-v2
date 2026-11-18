@@ -206,6 +206,7 @@ surface('plans', {
     return `${offline() ? `<p class="xs muted blage">${age(0)}<span>قائمة محفوظة على هاتفك · الاختيار يحتاج اتصالاً</span></p>` : ''}
     <div class="blseg">${seg([['', 'شهري'], ['1', 'سنوي · أوفر']], yr ? '1' : '', 'blYr')}</div>
     <div class="card flat blall"><b>في كل الخطط، مجاناً ودائماً</b><div class="chips">${[['emergency_home', 'الاستغاثة'], ['location_on', 'الموقع'], ['forum', 'المحادثة'], ['task_alt', 'المهام']].map(([i, t]) => chip(t, 'ok', i)).join('')}</div><div class="xs muted">وسجل المواقع 7 أيام، والتحقق من المهام بالمساعد.</div></div>
+    <div class="card flat blhow"><b>${ic('account_balance_wallet')} طرق الدفع</b><div class="chips">${blMethods().map(id => chip(BL_CH[id][0], 'in', BL_CH[id][1])).join('')}</div></div>
     ${['free', 'basic', 'premium'].map(k => `<div class="plan ${cur === k ? 'cur' : k === 'premium' ? 'best' : ''}"><div class="fx sb"><h5>${PLAN[k].n}</h5>${C(k)}</div>${P(k)}${F(k)}<div class="pa">${A(k)}</div></div>`).join('')}
     <p class="xs muted c">الأسعار ${blYE() ? 'بالريال اليمني' : 'بالريال السعودي'}. اشتراك واحد يغطي كل أجهزة العائلة.</p>`;
   },
@@ -255,6 +256,7 @@ surface('pay', {
   note: 'S04-04. الخليج: متجر المنصة (Google Play على Android وApp Store على iOS) أو بطاقة في صفحة دفع خارج التطبيق. بعد الدفع يتحقق الخادم من الإيصال؛ ولا يُعتد بأي تأكيد من الهاتف. ما يُجرَّب من لوحة الضبط: بطاقة مرفوضة، إيصال لم يُقبل، متجر لا يردّ (تفعيل مؤقت 24 ساعة). ورقة المتجر نفسها من النظام لا من تصميمنا.',
   r(w, yr, ch) {
     if (!blCanM()) return blNo(1);
+    if (blYE()) return SC['pay-wallet'].r(w, yr, ch);     /* سوق اليمن لا متجر فيه: الشاشة نفسها تعرض الدفع بالمحفظة */
     w = w === 'topup' || BL_PR[w] ? w : 'premium'; ch = blIsStore(ch) ? ch : blStore(); const b = BL(), it = blItem(w, yr), st = (b.pay || {}).st || '', nm = BL_CH[ch][0];
     const sum = `<div class="card blsum"><div><small>${it.per ? 'اشتراك ' + it.per : 'شراء مرة واحدة'}</small><b>${it.t}</b></div><div class="am">${blNum(it.n)}<small>${blYE() ? 'ريال' : 'ر.س'}</small></div></div><div class="blvia">${ic(BL_CH[ch][1])}<span>عبر ${nm}</span>${st === 'verify' ? '' : btn('غيّر', 'back', 'txt t48')}</div>`;
     if (st === 'verify') return `${sum}<div class="blw" role="status"><i></i><b>نتحقق من الإيصال…</b><span>${b.pay.long ? 'ما زلنا نتحقق مع المتجر. قد يأخذ لحظات. لا تدفع مرة ثانية ولا تغلق الشاشة.' : 'لحظات ويظهر لك الناتج.'}</span></div>`;
@@ -278,6 +280,7 @@ surface('pay-wallet', {
   note: 'S04-05. اليمن: محفظة جيب، ون كاش، محفظتي، أو نقداً عند وكيل؛ ولا قسائم (Q-421). خطوتان: تدفع خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد جهة الدفع وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة ومكان الوكلاء يُكتبان عند التعاقد، ولم يُخترع لهما شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
   r(w, yr, ch) {
     if (!blCanM()) return blNo(1);
+    if (!blYE()) return SC.pay.r(w, yr, ch);              /* سوق الخليج لا محافظ يمنية فيه */
     w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.concat(['manual']).includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend, man = ch === 'manual';
     if (d) { const it = blItem(d.w, d.yr);
       return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن ${d.ch === 'manual' ? 'يؤكد الوكيل' : `تؤكد ${BL_CH[d.ch][0]}`} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
