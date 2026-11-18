@@ -52,6 +52,8 @@ const blMemN = () => Object.keys(M).length;
 const blItem = (w, yr) => (w === 'topup' ? { t: 'حزمة 50 رسالة نصية', n: BL_TOP[blYE() ? 1 : 0], per: '' } : { t: `الخطة ${PLAN[w].n}`, n: blPrice(w, yr), per: yr ? 'سنة' : 'شهر' });
 const blMethods = () => (blYE() ? BL_WAL.slice() : [blStore(), 'card']);
 const blHow = () => (blYE() ? 'اختر المحفظة' : 'طريقة الدفع');   /* في اليمن القائمة كلها محافظ */
+/* بطاقة تسمّي طرق الدفع في سوق العائلة قبل أي اختيار: في أول شاشة الفوترة وفي شاشة الخطط. في اليمن قائمة المحافظ، وجيب أولها. */
+const blWays = () => `<div class="card flat blhow"><b>${ic('account_balance_wallet')} ${blYE() ? 'محافظ الدفع' : 'طرق الدفع'}</b><div class="chips">${blMethods().map(id => chip(BL_CH[id][0], 'in', BL_CH[id][1])).join('')}</div></div>`;
 const blPm = () => { const b = BL(), L = blMethods(); return L.includes(b.pm) ? b.pm : L[0]; };
 const blIsStore = ch => ['gplay', 'appstore', 'card'].includes(ch);
 /* ما بقي من فترة مدفوعة عند الترقية يتحول إلى أيام على الخطة الجديدة بقيمته: لا مال يُردّ ولا يوم يضيع (Q-420).
@@ -174,7 +176,7 @@ surface('plan', {
     ${sec(`استهلاك ${TK_GM[tkDt(TK_TODAY).getMonth()]}`)}${blUsage(own)}<p class="xs muted" style="margin:-4px 4px 12px">يبدأ العدّ من جديد في ${blDate(blNextMonth())}. رصيد التعبئة لا ينتقل للشهر التالي.</p>
     ${blWarn(own)}
     ${own && !b.trialUsed && S.plan !== 'premium' && !st ? `<button class="card bltr" data-a="go:trial"><span class="lead">${ic('redeem')}</span><span class="tx"><b>جرّب المميزة 7 أيام مجاناً</b><span>بلا وسيلة دفع · مرة واحدة للعائلة</span></span>${ic('chevron_right')}</button>` : ''}
-    ${own ? `${btn(st === 'grace' ? 'جدّد أو اختر خطة' : 'اعرض الخطط', st === 'grace' ? 'go:plan-grace' : 'go:plans', '', 'workspace_premium')}<div class="gap"></div>
+    ${own ? `${blWays()}${btn(st === 'grace' ? 'جدّد أو اختر خطة' : 'اعرض الخطط', st === 'grace' ? 'go:plan-grace' : 'go:plans', '', 'workspace_premium')}<div class="gap"></div>
       ${list(row('sms', 'عبّئ الرسائل النصية', 'حزمة 50 رسالة لهذا الشهر', { v: blAmt(BL_TOP[blYE() ? 1 : 0]), a: 'go:topup' }), row('tune', 'إدارة الاشتراك', paid && !st ? (blAuto() ? 'التجديد التلقائي يعمل' : 'لا يتجدد من نفسه') : 'التجديد والاستعادة', { a: 'go:plan-manage' }), row('receipt_long', 'سجل المدفوعات', b.rc.length ? `${b.rc.length} ${b.rc.length === 1 ? 'دفعة' : b.rc.length === 2 ? 'دفعتان' : 'دفعات'}` : 'لا مدفوعات بعد', { a: 'go:receipts' }))}`
       : `<p class="sm muted" style="margin:8px 4px">${ic('lock')} تغيير الخطة والدفع ل${M.ahmad.n} وحده.</p>`}
     ${blSafe()}`;
@@ -207,7 +209,7 @@ surface('plans', {
     return `${offline() ? `<p class="xs muted blage">${age(0)}<span>قائمة محفوظة على هاتفك · الاختيار يحتاج اتصالاً</span></p>` : ''}
     <div class="blseg">${seg([['', 'شهري'], ['1', 'سنوي · أوفر']], yr ? '1' : '', 'blYr')}</div>
     <div class="card flat blall"><b>في كل الخطط، مجاناً ودائماً</b><div class="chips">${[['emergency_home', 'الاستغاثة'], ['location_on', 'الموقع'], ['forum', 'المحادثة'], ['task_alt', 'المهام']].map(([i, t]) => chip(t, 'ok', i)).join('')}</div><div class="xs muted">وسجل المواقع 7 أيام، والتحقق من المهام بالمساعد.</div></div>
-    <div class="card flat blhow"><b>${ic('account_balance_wallet')} ${blYE() ? 'محافظ الدفع' : 'طرق الدفع'}</b><div class="chips">${blMethods().map(id => chip(BL_CH[id][0], 'in', BL_CH[id][1])).join('')}</div></div>
+    ${blWays()}
     ${['free', 'basic', 'premium'].map(k => `<div class="plan ${cur === k ? 'cur' : k === 'premium' ? 'best' : ''}"><div class="fx sb"><h5>${PLAN[k].n}</h5>${C(k)}</div>${P(k)}${F(k)}<div class="pa">${A(k)}</div></div>`).join('')}
     <p class="xs muted c">الأسعار ${blYE() ? 'بالريال اليمني' : 'بالريال السعودي'}. اشتراك واحد يغطي كل أجهزة العائلة.</p>`;
   },

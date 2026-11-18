@@ -134,7 +134,7 @@ node tools/test-s1-07.cjs      # الموقع والاستغاثة — 177 فح�
 node tools/test-s1-08.cjs      # المحادثة العائلية — 156 فحصاً
 node tools/test-s1-05.cjs      # المكافآت — 167 فحصاً
 node tools/test-s1-06.cjs      # المهام والتقويم — 280 فحصاً
-node tools/test-s1-04.cjs      # الخطط والاشتراكات — 226 فحصاً
+node tools/test-s1-04.cjs      # الخطط والاشتراكات — 229 فحصاً
 ```
 
 النجاح: القوائم `fail` و`over` و`eng` و`errs` فارغة.
