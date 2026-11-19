@@ -200,7 +200,7 @@ surface('task', {
   t: 'مهمة', sys: 'S1-06', p: 'adult', a: ['t2'], req: '06:1,3,4,5,9,10,11',
   note: 'S06-03 للبالغ. كل ما في المهمة في صفحة واحدة: حالها بجملة، من أسندها، دليلها، تكرارها، تذكيرها. الأزرار بحسب الحال والصلاحية: تعديل وإلغاء ما دامت قيد التنفيذ، ومراجعة إن سُلّمت، وإلغاء التحقق في يومه للمالك وحده (Q-254). النقاط تثبت عند الإنشاء.',
   r(id) {
-    const t = tkT(id); if (!t) return empty('task_alt', 'لم تعد هذه المهمة موجودة', 'ربما حُذفت.', btn('عُد إلى المهام', 'back', 'sec'));
+    const t = tkT(id); if (!t) return empty('task_alt', 'لم تعد هذه المهمة موجودة', 'ربما حُذفت.', btn('عُد إلى المهام', 'back', 'sec'), 'off');
     if (!can('tasks.view', t.kid)) return empty('lock_person', 'هذه المهمة خارج صلاحياتك', 'يمنحك المالك صلاحية مهام هذا الابن من «العائلة».');
     const k = M[t.kid], c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '', dn = t.dn || [], own = t.by === t.kid;
     return `<div class="card"><div class="fx top">${av(k)}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${t.t}</b><div class="sm muted">${pname(k)} · ${t.due}</div><div class="chips" style="margin-top:8px">${chip(c[0], '', c[1])}${chip(TST[t.st][0], TST[t.st][1], TST[t.st][2])}${t.pts ? chip(rwPt(t.pts), 'go', 'star') : chip('بلا نقاط', '')}</div></div></div><p class="sm" style="margin:12px 0 0">${tkSay(t)}</p></div>

@@ -397,7 +397,7 @@ surface('audit-ev', {
 surface('denial', {
   t: 'محاولة مرفوضة', sys: 'S1-03', p: 'owner', a: ['a3'], req: '03:7,18',
   note: 'تفصيل تنبيه رفض: من حاول، وماذا، ومتى، ولماذا رُفض. يصل المالك عند رفض صلاحية حساسة أو محاولة تجاوز يرفضها الخادم، لا عند كل نقرة على قفل ظاهر. «تمّ» يخفيه من كل الأجهزة.',
-  r(id) { const a = S.alerts.find(x => x.id === id); if (!a) return empty('task_alt', 'هذا التنبيه أُغلق', 'تجده في سجل الصلاحيات.', btn('افتح السجل', 'go:audit', 'sm sec'));
+  r(id) { const a = S.alerts.find(x => x.id === id); if (!a) return empty('task_alt', 'هذا التنبيه أُغلق', 'تجده في سجل الصلاحيات.', btn('افتح السجل', 'go:audit', 'sm sec'), 'off');
     return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('lock_person')}</div><p class="ttl md">${a.t}</p><p class="sub">${a.s}</p>
     ${list(row('person', 'من', '', { v: a.who || 'سارة' }), row('schedule', 'متى', '', { v: a.ago }), row('help', 'لماذا رُفض', '', { v: a.why || 'ليست عندها هذه الصلاحية' }), row('block', 'النتيجة', '', { v: chip('رُفض', 'da') }))}
     ${callout('لم يتغير شيء. الرفض يحمي الإعداد، والتنبيه لتعرف فقط.', 'nt', 'verified')}${list(row('key', 'صلاحيات سارة', '', { a: 'go:member:sara' }), row('receipt_long', 'سجل الصلاحيات', '', { a: 'go:audit' }))}${a.open ? btn('تمّ', 'denialAck:' + id) : ''}`; },

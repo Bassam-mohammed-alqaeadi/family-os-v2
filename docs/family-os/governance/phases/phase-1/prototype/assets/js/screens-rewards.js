@@ -105,7 +105,7 @@ const rwWeek = id => { const k = S.kid[id], R = RW(), pos = k.streak % 7, done =
 function rwNoWallet(id) {
   const k = S.kid[id], f = M[id].f;
   if (M[id].role === 'child' || k.pts > 0) return `<div class="wallet fz"><small>رصيد محفوظ</small><div class="big">${k.pts} ${coin()}</div><small>محفظة مجمّدة</small></div>${callout(`بعد سن 13 لا تُكسب نقاط ولا تُصرف. رصيدك ${rwPt(k.pts)} محفوظ كما هو، و${rwDad()} يقرر ما يفعل به.`, 'nt', 'ac_unit')}`;
-  return empty('stars', 'لا محفظة للمراهقين', `النقاط للأطفال دون 13 سنة. حين ينتهي وقت تطبيق ${f ? 'تطلبين' : 'تطلب'} وقتاً إضافياً من ${rwDad()} وهو يقرر.`);
+  return empty('stars', 'لا محفظة للمراهقين', `النقاط للأطفال دون 13 سنة. حين ينتهي وقت تطبيق ${f ? 'تطلبين' : 'تطلب'} وقتاً إضافياً من ${rwDad()} وهو يقرر.`, '', 'off');
 }
 
 /* بطاقة نتيجة طلب الوقت على رئيسية الطفل والمراهق: تُغلق بنقرة */

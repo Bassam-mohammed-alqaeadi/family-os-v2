@@ -164,7 +164,7 @@ surface('map', {
   r() {
     if (!isAdult()) return `<div class="mpad">${locSelf()}</div>`;
     const ids = mapIds();
-    if (!ids.length) return `<div class="mpad">${empty('location_off', 'لا مواقع مرئية لكِ', 'لم يُسمح لكِ برؤية موقع أحد من العائلة.', why('nd:location.view'))}</div>`;
+    if (!ids.length) return `<div class="mpad">${empty('location_off', 'لا مواقع مرئية لكِ', 'لم يُسمح لكِ برؤية موقع أحد من العائلة.', why('nd:location.view'), 'off')}</div>`;
     if (S.locLoad) return `<div class="mapscr" aria-busy="true"><div class="fch mfch">${ids.map(() => '<span class="skel" style="width:78px;height:36px;border-radius:var(--r-full);margin:0;flex:none"></span>').join('')}</div>${fMap(0, { fill: 1, ids, sk: 1, z: MAP_Z[0], c: mapView().c })}<section class="mpanel ${mapOff() ? 'nomap' : ''}"><p class="sm muted fx" style="margin:16px 4px 12px;gap:6px" role="status">${ic('sync')}<span>جارٍ جلب المواقع…</span></p>${ids.map(() => '<div class="skel" style="height:54px"></div>').join('')}</section></div>`;
     const V = mapView(), F = V.F, one = F.length === 1 ? F[0] : '', Ls = ids.map(locOf);
     const old = Ls.filter(l => !l.none && !l.live), sos = S.sos && S.sos.st === 'sent' && S.sos.from !== me().id;
@@ -301,11 +301,11 @@ surface('loc', {
   t: id => (isAdult() ? 'موقع ' + pname(M[id] || M.khaled) : 'موقعي'), sys: 'S1-07', p: 'any', a: ['khaled'], req: '07:2,3,6,11,12,19,20,23',
   note: 'آخر موقع لفرد واحد بوسمه الصادق: حي أم آخر موقع معروف، وسبب القِدم بكلمة مفهومة (جهازه بلا اتصال، مغلق، iPhone، أنت دون اتصال). الدقة الضعيفة تُرسم دائرة لا نقطة. من هنا: مراسلة، اتصال، سجل التنقل. الطفل يرى موقعه هو فقط.',
   r(id) {
-    if (!isAdult()) return id === me().id ? locSelf() : empty('location_off', 'هذه التفاصيل للأهل', 'تجد مكانك ومن تراه من إخوتك في «موقعي».', btn('موقعي', 'go:map', 'sm sec'));
+    if (!isAdult()) return id === me().id ? locSelf() : empty('location_off', 'هذه التفاصيل للأهل', 'تجد مكانك ومن تراه من إخوتك في «موقعي».', btn('موقعي', 'go:map', 'sm sec'), 'off');
     const m = M[id];
     const grown = !!m && !S.kid[id] && ADULTS_LOC.includes(id);
     if (!m || (!S.kid[id] && !grown) || id === me().id) return empty('location_off', 'لا يوجد فرد بهذا الوصف', '');
-    if (grown ? !adultIds().includes(id) : !can('location.view', id)) return empty('location_off', `موقع ${pname(m)} غير مسموح لكِ`, 'لم يُسمح لكِ برؤية موقعه.', why('nd:location.view'));
+    if (grown ? !adultIds().includes(id) : !can('location.view', id)) return empty('location_off', `موقع ${pname(m)} غير مسموح لكِ`, 'لم يُسمح لكِ برؤية موقعه.', why('nd:location.view'), 'off');
     const l = locOf(id), sos = S.sos && S.sos.from === id && S.sos.st === 'sent';
     const talk = `<div class="btns">${btn('مراسلة ' + pname(m), 'locMsg:' + id, 'sec', 'chat')}${btn('اتصال', 'locCall:' + id, 'sec', 'call')}</div>`;
     if (l.paused) return `${empty('location_off', pausedTxt(m), `${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.`)}${talk}`;
@@ -346,7 +346,7 @@ surface('history', {
   r(id) {
     if (!isAdult()) return kidNo();
     if (!M[id] || !S.kid[id]) id = 'layan';
-    if (!can('location.history.view', id)) return empty('history', `سجل تنقل ${pname(M[id])} غير مسموح لكِ`, 'رؤية السجل صلاحية يعطيها أحمد.', why('nd:location.history.view'));
+    if (!can('location.history.view', id)) return empty('history', `سجل تنقل ${pname(M[id])} غير مسموح لكِ`, 'رؤية السجل صلاحية يعطيها أحمد.', why('nd:location.history.view'), 'off');
     const d = S.hDay ?? 6, P = histOf(id, d), stops = P.filter(p => !p.gap), on = S.hPt ?? -1, kids = KIDS.filter(k => can('location.history.view', k));
     return `${kids.length > 1 ? `<div class="fch">${kids.map(k => `<button aria-pressed="${k === id}" data-a="histKid:${k}">${av(M[k], 'sm')}${pname(M[k])}</button>`).join('')}</div>` : ''}
     <div class="fch">${HDAYS.map((n, i) => `<button aria-pressed="${i === d}" data-a="histDay:${i}">${n}</button>`).reverse().join('')}</div>
@@ -494,7 +494,7 @@ surface('sos-status', {
     const s = S.sos && S.sos.st !== 'pending' ? S.sos : null;
     if (!s) return `${empty('check_circle', 'لا استغاثة الآن', 'كل شيء على ما يرام. عند ضغط أحد الأبناء زر الاستغاثة يظهر التنبيه هنا مع مكانه.')}${list(row('history', 'الاستغاثات السابقة', '', { a: 'go:sos-log' }), row('contact_emergency', 'جهات الطوارئ', '', { a: 'go:emergency' }))}`;
     const m = M[s.from], k = S.kid[s.from], R = s.R || sosRcp(s.from), got = s.got ?? R.length, st = sosStTxt(s), off = offline(), sms = s.ch === 'sms' || /SMS/.test(s.via || '');
-    if (s.from === me().id) return `${empty('sos', 'هذه استغاثتك أنت', 'يغلقها بالغ آخر في العائلة.')}${btn('حالة استغاثتي', 'sosStart', 'sec')}`;
+    if (s.from === me().id) return `${empty('sos', 'هذه استغاثتك أنت', 'يغلقها بالغ آخر في العائلة.', '', 'off')}${btn('حالة استغاثتي', 'sosStart', 'sec')}`;
     const ackOk = can('location.sos.acknowledge'), resOk = can('location.sos.resolve');
     return `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)"><div class="fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n} ${vb(m, 'يستغيث', 'تستغيث')}</b><div class="sm">${s.st === 'resolved' ? 'انتهت' : 'قبل لحظات'} · ${sms ? 'برسالة نصية' : 'عبر الإنترنت'}</div><div style="margin-top:8px">${chip(st[0], st[1], st[2])}</div></div></div></div>
     ${s.st !== 'resolved' && s.exh ? callout('<b>لم يؤكد أحد استلام هذه الاستغاثة</b><br>أُعيد التنبيه خمس مرات خلال ساعة ونصف، ثم توقف. أُرسلت رسالة نصية إلى أحمد. التنبيه باقٍ هنا حتى يُغلق.', 'da', 'priority_high') : ''}
