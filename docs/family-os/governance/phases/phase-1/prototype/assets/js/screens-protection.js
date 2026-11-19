@@ -363,7 +363,7 @@ function modeLine(m, id) { const A = S.apps[id];
   return X.join(' '); }
 const WTN = { sleep: 'النوم', school: 'المدرسة' };
 function psLine(k, id, n) { const c = crossOf(id, n), ask = k !== 'free' && crossAsk(k, c), stop = ask && S.psX === 'stop', u = untilTxt(stop ? c[0] : n), wn = schedNow(id), cur = S.pm[id], X = [];
-  X.push(k === 'free' ? `حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. استخدامه يُحسب في التقارير ولا يُحدّ.` : `حتى ${u}: ${modeLine(modeOf(k), id)}`);
+  X.push(k === 'free' ? `حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. وقته الآن يظهر في التقارير ولا يُخصم من حصته.` : `حتى ${u}: ${modeLine(modeOf(k), id)}`);
   if (k !== 'free' && fmOf(id)) X.push('ينتهي الوضع الحر الجاري.');
   if (cur && cur.k !== k) X.push(`ينتهي ${modeQ(cur.k)} الجاري: وضع واحد لكل طفل.`);
   if (cur && cur.k === k) X.push('سارٍ الآن: تبدأ مدته من جديد.');
@@ -415,7 +415,7 @@ surface('mode-edit', {
   note: 'S10-17. الأب ينشئ وضعاً باسمه: اسم وأيقونة، ثم ماذا يُفتح فيه (لا شيء، تطبيقات يختارها، أو كل التطبيقات بحدودها مع تجاوز النوم والمدرسة). لا مدة في الوضع: تُختار عند كل تطبيق. قبل الحفظ يرى أثره على كل طفل باسمه. ما يمنع التعارض: الاسم لا يتكرر، المحظور يبقى مغلقاً في كل وضع، وفتح كل شيء بلا حدود للوضع الحر وحده. إن كان الوضع سارياً قيل إن التعديل يسري فوراً، والحذف ينهيه أولاً. حفظ صريح وتحذير عند الخروج.',
   r(id0) { const isNew = !S.modes.some(m => m.id === id0), mid = isNew ? 'new' : id0; if (!S.md || S.md.id !== mid) S.md = mdOf(mid); const d = S.md, ok = can(isNew ? 'protection.rule.create' : 'protection.rule.edit'), err = mdErr(d), dirty = DRAFT['mode-edit'].dirty(), on = isNew ? [] : KIDS.filter(k => pmOf(k) === mid), ne = err && err[0] === 'n' && d.n.trim() ? err[1] : '';
     const O = [['none', 'block', 'لا شيء', 'كل التطبيقات مغلقة. مثل وقت الطعام أو الصلاة.'], ['list', 'checklist', 'تطبيقات أختارها فقط', 'ما تختاره يُفتح، والباقي مغلق.'], ['all', 'wb_sunny', 'كل التطبيقات كالعادة', 'يتجاوز وقت النوم والمدرسة فقط. الحدود والحصة باقية. مثل سهرة العيد.']];
-    const Lm = [[1, 'الحدود باقية', 'يُفتح التطبيق ما دام له وقت اليوم، ووقته يُحسب من حدّه ومن الحصة.'], [0, 'بلا حد داخل الوضع', 'يُفتح طول مدة الوضع ولو نفد وقته. الاستخدام يُحسب في التقارير ولا يُحدّ.']];
+    const Lm = [[1, 'الحدود باقية', 'يُفتح التطبيق ما دام له وقت اليوم، ووقته يُحسب من حدّه ومن الحصة.'], [0, 'بلا حد داخل الوضع', 'يُفتح طول مدة الوضع ولو نفد وقته. وقته داخل الوضع يظهر في التقارير ولا يُخصم من حدّه ولا من الحصة.']];
     return `${ok ? '' : callout('ترى الوضع ولا تعدّله. ' + why('nd:' + (isNew ? 'protection.rule.create' : 'protection.rule.edit')), 'nt', 'lock')}${offNote()}
     ${on.length ? callout(`سارٍ الآن على ${on.map(kn).join(' و')}: التعديل يسري فور الحفظ.`, 'nt', 'bolt') : ''}
     <label class="fld ${ne ? 'err' : ''}"><span>اسم الوضع</span><input id="mdN" data-ch="mdN" maxlength="30" autocomplete="off" placeholder="مثال: وقت الضيوف" value="${d.n}" ${ok ? '' : 'disabled'}><small>${ne || 'يظهر بهذا الاسم لك ولطفلك.'}</small></label>
