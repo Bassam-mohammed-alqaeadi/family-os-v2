@@ -417,7 +417,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor System as النظام
-    participant K as "وحدة Kotlin"
+    participant K as وحدة Kotlin
     participant Ktor as الخادم
     participant Snapshot as اللقطة
     System->>Ktor: فحص صلاحية
@@ -460,6 +460,7 @@ sequenceDiagram
 - الرسالة 16: `allowed / denied / unknown_key (المفتاح غير المعروف في السجل المخزن — REQ-005)`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين. لا تغيير في المحتوى.
+- رُسم 2026-11-19 (Q-440): أُزيلت علامتا الاقتباس عن اسم المشارك «وحدة Kotlin». لا تغيير في المحتوى.
 
 - قاعدة المالك أولاً (§6-3 — Q-232): `adult` + `is_owner=true` → `allowed` بلا منح صريح؛ والتجاوز تقييم فقط — لا يشمل التدقيق أبداً ولا فحوص `PERM_HARD_INVARIANT` ولا يمتد لغير المالك. والمسار المحلي يطبق قاعدة المالك نفسها حين يكون العضو المفحوص مالكاً (§6-3).
 - أي رفض صريح نشط يفوز على أي منح سامح (§6-3 — deny-override)؛ وإلا يفوز أحدث منح نشط ويُؤخذ نطاقه.
@@ -1127,7 +1128,7 @@ flowchart TD
 
 - العضو: بالغ أو مراهق أو طفل. اللقطة: لقطة المنح على الجهاز. السهم من P5 إلى وسيط الرسائل: اللقطة الجديدة والإبطال الفوري.
 
-### 5-و. التدقيق والتنبيهات وإشعار العضو (P6)
+### 5-و. التدقيق والتنبيهات وإشعار العضو (P6 — REQ-018)
 
 ```mermaid
 flowchart TD
@@ -1154,6 +1155,7 @@ flowchart TD
 - أُصلح 2026-11-19 (فحص GitHub بعد الدمج): اللوحة عمودية (TD) بعدما شطب السهم الأفقي تسمياتها في معاينة GitHub؛ العقد والأسهم والتسميات نفسها بلا تغيير.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
+- رُسم 2026-11-19 (Q-440): أُضيف REQ-018 إلى عنوان اللوحة وإلى صف العملية 6 في جدول §5.
 
 ### 5-ز. حذف العائلة والعضو (P7)
 
@@ -1228,7 +1230,7 @@ flowchart TD
 | 3 الأدوار (3.0) | `GET …/templates` · `POST …/grants/apply-template` · `PATCH …/templates/{templateId}` | 3-ب · 3-ل |
 | 4 محرك التقييم (4.0) | `POST /api/v1/permissions/check` · `GET …/members/{memberId}/permissions` | 3-ج |
 | 5 مزامنة المنح (5.0) | `family/{family_id}/permissions/sync` · `family/{family_id}/permissions/revoked` | 3-د |
-| 6 التدقيق والتنبيهات والإشعار (6.0) | `GET …/audit/permissions` · `family/{family_id}/alerts/new` (نوع `escalation` — S1-09) · `family/{family_id}/permissions/grant-expiring` (Q-227) · قناة الدفع (S1-01 §4.4) | 3-أ · 3-ج |
+| 6 التدقيق والتنبيهات والإشعار (6.0) — REQ-018 | `GET …/audit/permissions` · `family/{family_id}/alerts/new` (نوع `escalation` — S1-09) · `family/{family_id}/permissions/grant-expiring` (Q-227) · قناة الدفع (S1-01 §4.4) | 3-أ · 3-ج |
 | 7 حذف العائلة والعضو (7.0) | `DELETE /api/v1/families/{id}` · `DELETE /api/v1/families/{id}/members/{memberId}` · `POST /api/v1/families/{id}/deletion/cancel` · `POST /api/v1/families/{id}/members/{memberId}/deletion/cancel` | 3-ز |
 | 8 الصلاحية الكاملة (8.0) | `POST /api/v1/families/{id}/full-authority` · `GET …/full-authority` · `DELETE …/full-authority/{memberId}` · `POST …/full-authority/{memberId}/seen` | 3-هـ · 3-ح · 3-ك |
 | 9 طلبات الصلاحية (9.0) | `POST …/permission-requests` · `GET …/permission-requests` · `POST …/permission-requests/{requestId}/decide` | 3-ط · 3-س |
