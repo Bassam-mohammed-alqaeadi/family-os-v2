@@ -162,7 +162,7 @@ surface('protection', {
   t: 'الحماية ووقت الشاشة', sys: 'S1-10', p: 'adult', req: '10:1,2,6,10,18,24,25,27,28 09:8,9 01:19',
   note: 'مدخل واحد لكل ما يخص الحماية. تختار الطفل فترى ما يحكمه الآن ثم قواعده. ما يخص العائلة كلها في الأسفل. بطاقة «مراجعة القواعد» تظهر فقط حين يُقرن جهاز جديد أو يبلغ طفل 13.',
   r() { const id = S.ctlKid || 'layan', nr = nowRule(id), e = ENF[S.kid[id].enf], rv = reviews(), ap = S.apps[id];
-    const R = (i, t, s, key, a, v, x) => row(i, t, s, { x3: x, a: can(key, id) ? a : 'denied:' + key, v: can(key, id) ? v : ic('lock') });
+    const R = (i, t, s, key, a, v) => row(i, t, s, { a: can(key, id) ? a : 'denied:' + key, v: can(key, id) ? v : ic('lock') });
     return `${iosNote()}${rv.length ? `<button class="card fx" style="border-color:var(--info)" data-a="go:rules-review">${ic('rule')}<div class="grow"><b>${rv.length === 1 ? 'قواعد تحتاج مراجعتك' : rv.length + ' مراجعات للقواعد'}</b><div class="sm muted">${rv[0].k === 'teen' ? `بلغت ${kn(rv[0].kid)} 13 سنة` : `قُرن جهاز جديد لـ${kn(rv[0].kid)}`}</div></div>${ic('chevron_right')}</button>` : ''}
     ${kidTabs(id)}
     ${noDev(id) ? `<div class="card nodev">${ic('mobile_off')}<div class="grow"><b>لم يُقرن جهاز ${kn(id)} بعد</b><div class="sm muted">القواعد التي تضعها الآن تسري من لحظة الإقران.</div></div>${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, 'sm', 'devices') : ''}</div>` : ''}
@@ -170,15 +170,15 @@ surface('protection', {
     ${cfLine(id)}
     ${sec('قواعد ' + kn(id))}${list(
       R('apps', 'التطبيقات', `${ap.filter(a => a.act === 'LIMIT').length} بحدّ يومي · ${ap.filter(a => a.act === 'BLOCK').length} محظور · ${ap.filter(a => !a.act).length} بلا قاعدة`, 'protection.rule.view', `go:apps:${id}`),
-      R('hourglass_top', 'الحصة اليومية', 'مجموع وقت الشاشة في اليوم', 'protection.rule.view', `go:quota:${id}`, S.kid[id].quota + ' د', 1),
+      R('hourglass_top', 'الحصة اليومية', 'مجموع وقت الشاشة في اليوم', 'protection.rule.view', `go:quota:${id}`, S.kid[id].quota + ' د'),
       R('calendar_month', 'الجدول الأسبوعي', schedSum(id), 'protection.rule.view', `go:schedule:${id}`),
       R('travel_explore', 'تصفية الويب', `${wfCount(id)} فئات محظورة`, 'protection.filter.view', `go:webfilter:${id}`),
       R('gpp_maybe', 'تنبيهات العبث', tamOpen(id).length ? 'محاولة تعطيل تنتظر مراجعتك' : 'لا محاولات تعطيل', 'protection.tamper.view', `go:tamper:${id}`, tamOpen(id).length ? chip(String(tamOpen(id).length), 'wa') : ''))}
     ${sec('للعائلة كلها')}${list(
       row('bolt', 'الأوضاع', `دراسة · نوم · حر${S.modes.length ? ' · ' + S.modes.map(m => m.n).join(' · ') : ''}`, { a: 'go:presets:study' }),
-      row('verified_user', 'حالة الحماية لكل الأطفال', 'كل جهاز في سطر: حالته وما يحكمه الآن', { x3: 1, a: can('protection.state.view') ? 'go:enf-all' : 'denied:protection.state.view', v: can('protection.state.view') ? '' : ic('lock') }),
+      row('verified_user', 'حالة الحماية لكل الأطفال', 'كل جهاز في سطر: حالته وما يحكمه الآن', { a: can('protection.state.view') ? 'go:enf-all' : 'denied:protection.state.view', v: can('protection.state.view') ? '' : ic('lock') }),
       row('swap_vert', 'ترتيب أنواع القواعد', rankOf(id).map(k => RANK[k][0]).join(' ← '), { a: can('protection.priority.edit') ? 'go:priority' : 'denied:protection.priority.edit', v: can('protection.priority.edit') ? '' : ic('lock') }),
-      row('receipt_long', 'سجل تغييرات الحماية', 'من غيّر، وماذا، ومتى', { x3: 1, a: can('protection.audit.view') ? 'go:prot-audit' : 'denied:protection.audit.view', v: can('protection.audit.view') ? '' : ic('lock') }))}`; },
+      row('receipt_long', 'سجل تغييرات الحماية', 'من غيّر، وماذا، ومتى', { a: can('protection.audit.view') ? 'go:prot-audit' : 'denied:protection.audit.view', v: can('protection.audit.view') ? '' : ic('lock') }))}`; },
 });
 
 /* ============ S10-01 قواعد التطبيقات ============ */
