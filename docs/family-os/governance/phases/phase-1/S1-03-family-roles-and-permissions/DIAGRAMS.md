@@ -11,9 +11,9 @@
 
 ## 1. حالات الاستخدام
 
-23 حالة استخدام من السيناريوهات الاثني عشر والمتطلبات (§2/§3) ومن التصميم المعتمد (SPEC §9-8 — Q-401 · Q-402)، في أربع مجموعات مرسومة على لوحتين (1-أ و1-ب): **(أ) إدارة صلاحيات الأعضاء** للمالك، ولبالغ يحمل الصلاحية الكاملة بقاعدة المالك؛ **(ب) الصلاحية الكاملة** يعطيها المالك نفسه ويسحبها؛ **(ج) العضو مع صلاحياته** يراها ويطلب ويصله إشعار بكل تغيير؛ **(د) الفحص** — كل فحص صلاحية في المنصة يمر بمحرك التقييم (deny-override — Q-007). البالغ المفوَّض يمارس ما فُوِّض له فقط ولا يفوِّض غيره؛ والمراهق يدير مهامه الخاصة فقط (REQ-015).
+23 حالة استخدام من السيناريوهات الاثني عشر والمتطلبات (§2/§3) ومن التصميم المعتمد (SPEC §9-8 — Q-401 · Q-402)، في أربع مجموعات مرسومة على ثلاث لوحات (1-أ و1-ب و1-ج): **(أ) إدارة صلاحيات الأعضاء** للمالك، ولبالغ يحمل الصلاحية الكاملة بقاعدة المالك؛ **(ب) الصلاحية الكاملة** يعطيها المالك نفسه ويسحبها؛ **(ج) العضو مع صلاحياته** يراها ويطلب ويصله إشعار بكل تغيير؛ **(د) الفحص** — كل فحص صلاحية في المنصة يمر بمحرك التقييم (deny-override — Q-007). البالغ المفوَّض يمارس ما فُوِّض له فقط ولا يفوِّض غيره؛ والمراهق يدير مهامه الخاصة فقط (REQ-015).
 
-**1-أ. من يدير: صلاحيات الأعضاء والصلاحية الكاملة (المجموعتان أ وب)**
+**1-أ. إدارة صلاحيات الأعضاء (المجموعة أ)**
 
 ```mermaid
 flowchart LR
@@ -21,11 +21,11 @@ flowchart LR
     Holder([بالغ يحمل الصلاحية الكاملة])
     Adult([البالغ المفوَّض])
     Mgr([مدير العائلة — المالك أو الحامل])
-    S102([نظام الهوية S1-02 — العضوية])
-    S101([نظام الغلاف S1-01 — بوابة الوالدين])
+    S102([نظام الهوية — العضوية])
+    S101([نظام الغلاف — بوابة الوالدين])
     Eval([محرك التقييم deny-override])
 
-    subgraph S103A [S1-03: إدارة صلاحيات الأعضاء والصلاحية الكاملة]
+    subgraph S103A [S1-03: إدارة صلاحيات الأعضاء]
         direction TB
         UC1(UC1 منح صلاحية — نطاق ومدة)
         UC2(UC2 تعديل منح — النطاق والمدة)
@@ -33,16 +33,13 @@ flowchart LR
         UC4(UC4 منع صريح ورفعه)
         UC5(UC5 تطبيق دور على عضو)
         UC6(UC6 تعديل محتوى دور)
-        UC7(UC7 عرض الصلاحيات الفعلية لعضو)
+        UC7(UC7 عرض صلاحيات عضو)
         UC8(UC8 عرض سجل المفاتيح)
         UC9(UC9 عرض سجل التدقيق)
         UC10(UC10 قرار في طلب صلاحية)
         UC11(UC11 مراجعة منح الطفل عند 13)
         UC12(UC12 حذف العائلة — وإلغاء الحذف)
         UC13(UC13 إزالة عضو — وإلغاء الحذف)
-        UC14(UC14 إعطاء الصلاحية الكاملة لبالغ)
-        UC15(UC15 سحب الصلاحية الكاملة)
-        UC23(UC23 تسلّم العائلة بعد حذف الحساب)
     end
 
     Father --> Mgr
@@ -60,28 +57,51 @@ flowchart LR
     Mgr --> UC11
     Mgr --> UC12
     Mgr --> UC13
-    Father -->|المالك نفسه وحده| UC14
-    Father -->|المالك نفسه وحده| UC15
-    Holder --> UC23
     Adult -->|إن فُوِّض| UC8
     Adult -->|إن فُوِّض| UC9
     S102 --> UC7
     S102 --> UC11
-    S102 -->|اكتمال مهلة حذف الحساب| UC23
     UC1 -.->|يتضمن عند صلاحية حساسة| S101
     UC5 -.->|يتضمن عند مفتاح حساس| S101
     UC12 -.->|يتضمن| S101
-    UC14 -.->|يتضمن| S101
     UC1 --> Eval
     UC3 --> Eval
     UC4 --> Eval
+```
+
+- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت تسميات UC1 وUC2 وUC11 وUC12 وUC13 و«مدير العائلة»، وتسمية الحافة «يتضمن عند مفتاح حساس»؛ ونُقلت التفاصيل إلى السطور تحت اللوحة.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): اللوحة الواحدة (23 عقدة) قُسّمت إلى لوحتين حسب الفاعل — هذه اللوحة لإدارة الصلاحيات (UC1–UC13)، واللوحة 1-ب للصلاحية الكاملة (UC14 وUC15 وUC23)؛ ولوحة العضو والفحص صارت 1-ج. لا تغيير في العقد أو العلاقات.
+- S101 = نظام الغلاف — بوابة الوالدين (S1-01)؛ وS102 = نظام الهوية — العضوية (S1-02)؛ وUC7: عرض الصلاحيات الفعلية لعضو.
+
+**1-ب. الصلاحية الكاملة (المجموعة ب)**
+
+```mermaid
+flowchart LR
+    Father([الأب — المالك])
+    Holder([بالغ يحمل الصلاحية الكاملة])
+    S102([نظام الهوية — العضوية])
+    S101([نظام الغلاف — بوابة الوالدين])
+    Eval([محرك التقييم deny-override])
+
+    subgraph S103B [S1-03: الصلاحية الكاملة]
+        direction TB
+        UC14(UC14 إعطاء الصلاحية الكاملة لبالغ)
+        UC15(UC15 سحب الصلاحية الكاملة)
+        UC23(UC23 تسلّم العائلة بعد حذف الحساب)
+    end
+
+    Father -->|المالك نفسه وحده| UC14
+    Father -->|المالك نفسه وحده| UC15
+    Holder --> UC23
+    S102 -->|اكتمال مهلة حذف الحساب| UC23
+    UC14 -.->|يتضمن| S101
     UC14 --> Eval
     UC15 --> Eval
 ```
 
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت تسميات UC1 وUC2 وUC11 وUC12 وUC13 و«مدير العائلة»، وتسمية الحافة «يتضمن عند مفتاح حساس»؛ ونُقلت التفاصيل إلى السطور تحت اللوحة.
+- S101 = نظام الغلاف — بوابة الوالدين (S1-01)؛ وS102 = نظام الهوية — العضوية (S1-02).
 
-**1-ب. العضو مع صلاحياته والفحص (المجموعتان ج ود)**
+**1-ج. العضو مع صلاحياته والفحص (المجموعتان ج ود)**
 
 ```mermaid
 flowchart LR
@@ -93,7 +113,7 @@ flowchart LR
     Father([الأب — المالك])
     Eval([محرك التقييم deny-override])
 
-    subgraph S103B [S1-03: العضو مع صلاحياته والفحص]
+    subgraph S103C [S1-03: العضو مع صلاحياته والفحص]
         direction TB
         UC16(UC16 عرض صلاحياتي وآخر ما تغيّر)
         UC17(UC17 طلب صلاحية)
@@ -304,6 +324,7 @@ erDiagram
 ### 3-أ. إنشاء منح (REQ-010/011/012 — §4-1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -312,25 +333,28 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Grants as المنح
     participant Audit as التدقيق
-    Father->>App: اختيار عضو + صلاحية + نطاقها + مدتها — لكل صلاحية حدودها (Q-401)
-    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants
+    Father->>App: اختيار العضو والصلاحية وحدودها
+    App->>Ktor: إنشاء المنح
     alt الطالب ليس المالك ولا يحمل الصلاحية الكاملة
         Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
     else المفتاح من الثوابت الصلبة
-        Ktor-->>App: رفض PERM_HARD_INVARIANT + تنبيه الأب (§7-7)
+        Ktor-->>App: رفض ثابت صلب + تنبيه الأب — PERM_HARD_INVARIANT — §7-7
     else المفتاح غير موجود في السجل
         Ktor->>Audit: تسجيل الرفض خادمياً (لا يُنشأ مفتاح ضمنياً — §7-1)
         Ktor-->>App: رفض PERM_DENIED
     else المفتاح حساس — التحدي أخيراً
         Ktor-->>App: تحقق أولاً — التحدي والتوقيع في 3-م
     else منح غير حساس
-        Ktor->>Grants: حفظ المنح (scope + valid_until إلزاميان)
+        Ktor->>Grants: حفظ المنح — النطاق والمدة إلزاميان — scope + valid_until
         Ktor->>Audit: تسجيل المنح (من منح / لمن / متى / ينتهي)
         Ktor-->>App: 201 {grant_id}
         App-->>Father: المنح منفَّذ ومسجَّل
         Ktor-->>Member: إشعار — يسري فوراً بلا قبول (Q-401)
     end
 ```
+
+- الرسالة 1: `اختيار عضو + صلاحية + نطاقها + مدتها — لكل صلاحية حدودها (Q-401)`.
+- الرسالة 2: `POST /api/v1/families/{id}/members/{memberId}/grants`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): فُرع التحدي والتوقيع للمفتاح الحساس إلى 3-م؛ ووُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 
@@ -344,6 +368,7 @@ sequenceDiagram
 ### 3-ب. تطبيق قالب على عضو (REQ-013/014 — §4-1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -353,15 +378,15 @@ sequenceDiagram
     participant Grants as المنح
     participant Audit as التدقيق
     Father->>App: اختيار عضو + دور (partner | guardian | observer)
-    App->>Ktor: GET /api/v1/families/{id}/templates — الأدوار ومفاتيحها عند هذه العائلة
-    Ktor->>Roles: تعديل العائلة للدور إن وُجد (family_role_key) وإلا البذرة (template_key)
-    Ktor-->>App: [{template_id, title_ar, keys}]
-    App-->>Father: معاينة الفرق قبل التطبيق — وما عليه منع صريح «يبقى ممنوعاً» (R03-07)
-    Father->>App: اختيار النطاق والمدة ثم «طبّق»
-    Note over App,Ktor: إن كان في الدور مفتاح حساس فالتحقق أولاً — التحدي والتوقيع كما في 3-م — وverification تُرسل مع طلب التطبيق
-    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants/apply-template {template_id, scope?, valid_until, verification?}
+    App->>Ktor: جلب الأدوار ومفاتيحها
     Ktor->>Roles: قراءة مفاتيح الدور
-    Ktor->>Grants: نسخ المفاتيح إلى منح العضو — عدا ما عليه منع صريح قائم (Q-402)
+    Ktor-->>App: [{template_id, title_ar, keys}]
+    App-->>Father: معاينة الفرق قبل التطبيق
+    Father->>App: اختيار النطاق والمدة ثم «طبّق»
+    Note over App,Ktor: مفتاح حساس؟ التحقق أولاً — التحدي والتوقيع (3-م)
+    App->>Ktor: تطبيق الدور على العضو
+    Ktor->>Roles: قراءة مفاتيح الدور
+    Ktor->>Grants: نسخ مفاتيح الدور إلى المنح
     Ktor->>Roles: كتابة آخر دور للعضو (member_role)
     Ktor->>Audit: تسجيل تطبيق الدور
     Ktor-->>App: المنح المنسوخة من الدور
@@ -369,21 +394,29 @@ sequenceDiagram
     Note over Father,App: تعديل منح العضو بعدها لا يغيّر الدور ولا منح الأعضاء الآخرين (REQ-014)
 ```
 
+- الرسالة 2: `GET /api/v1/families/{id}/templates — الأدوار ومفاتيحها عند هذه العائلة`.
+- الرسالة 3: `تعديل العائلة للدور إن وُجد (family_role_key) وإلا البذرة (template_key)`.
+- الرسالة 5: `معاينة الفرق قبل التطبيق — وما عليه منع صريح «يبقى ممنوعاً» (R03-07)`.
+- الرسالة 7: `POST /api/v1/families/{id}/members/{memberId}/grants/apply-template {template_id, scope?, valid_until, verification?}`.
+- الرسالة 9: `نسخ المفاتيح إلى منح العضو — عدا ما عليه منع صريح قائم (Q-402)`.
+- ملاحظة: إن كان في الدور مفتاح حساس فالتحقق أولاً — التحدي والتوقيع كما في 3-م — وverification تُرسل مع طلب التطبيق.
+
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): فُرع التحدي والتوقيع إلى 3-م؛ وإشعار العضو في السطر تحت المخطط؛ ووُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 - ويصل العضو إشعار — يسري فوراً بلا قبول (Q-401).
 
 ### 3-ج. فحص صلاحية — خادمي ومحلي O(1) (REQ-004/005/006 — §4-1/§4-3)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor System as النظام
-    participant K as Kotlin
+    participant K as "وحدة Kotlin"
     participant Ktor as الخادم
     participant Snapshot as اللقطة
-    System->>Ktor: POST /api/v1/permissions/check {member_id, permission_key, scope?}
-    Ktor->>Ktor: قاعدة المالك أولاً (§6-3 — Q-232): adult + is_owner=true ← allowed — وكذلك بالغ له صف active في full_authority (Q-401)
-    Ktor->>Ktor: المنح النشط = revoked_at IS NULL و valid_until > now (§6-3)
+    System->>Ktor: فحص صلاحية
+    Ktor->>Ktor: قاعدة المالك أولاً
+    Ktor->>Ktor: المنح النشط — غير ملغى وسارٍ
     alt المالك (is_owner=true) أو حامل الصلاحية الكاملة
         Ktor-->>System: {allowed: true, reason: granted} — قاعدة المالك (Q-232)
     else الثابت الصلب
@@ -391,7 +424,7 @@ sequenceDiagram
     else رفض صريح نشط (is_granted=false)
         Ktor-->>System: {allowed: false, reason: denied}
     else مفتاح غير معروف أو نطاق غامض
-        Ktor-->>System: {allowed: false, reason: unknown_key} — الغموض لصالح الحماية (REQ-005)
+        Ktor-->>System: رفض — مفتاح غير معروف
     else أحدث منح نشط يسمح
         Ktor-->>System: {allowed: true, reason: granted}
     else لا منح
@@ -399,18 +432,26 @@ sequenceDiagram
     end
     Note over System,K: المسار المحلي على جهاز الطفل — دون شبكة (REQ-006)
     alt المفتاح من الثوابت الصلبة
-        K-->>System: {allowed: false, reason: hard_invariant} — قبل lookup المنح (§6-3)
+        K-->>System: رفض — ثابت صلب
     end
     System->>K: checkPermission({key, scope}) عبر MethodChannel
     K->>Snapshot: قراءة لقطة المنح المحلية (O(1))
     alt اللقطة قديمة أو تالفة
-        Snapshot-->>K: إعادة مزامنة كاملة عبر family/{family_id}/permissions/sync
+        Snapshot-->>K: إعادة مزامنة كاملة
         K-->>System: الفحص يتوقف على الرفض حتى تكتمل المزامنة (§7-13)
     else اللقطة سارية
         Snapshot-->>K: نفس نتيجة الخادم (ACC-004)
-        K-->>System: allowed / denied / unknown_key (المفتاح غير المعروف في السجل المخزن — REQ-005)
+        K-->>System: نتيجة الفحص المحلي
     end
 ```
+
+- الرسالة 1: `POST /api/v1/permissions/check {member_id, permission_key, scope?}`.
+- الرسالة 2: `قاعدة المالك أولاً (§6-3 — Q-232): adult + is_owner=true ← allowed — وكذلك بالغ له صف active في full_authority (Q-401)`.
+- الرسالة 3: `المنح النشط = revoked_at IS NULL و valid_until > now (§6-3)`.
+- الرسالة 7: `{allowed: false, reason: unknown_key} — الغموض لصالح الحماية (REQ-005)`.
+- الرسالة 10: `{allowed: false, reason: hard_invariant} — قبل lookup المنح (§6-3)`.
+- الرسالة 13: `إعادة مزامنة كاملة عبر family/{family_id}/permissions/sync`.
+- الرسالة 16: `allowed / denied / unknown_key (المفتاح غير المعروف في السجل المخزن — REQ-005)`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 
@@ -422,6 +463,7 @@ sequenceDiagram
 ### 3-د. إلغاء منح — فوري بلا إبطال جلسات (REQ-017 — §4-1/§4-2 · Q-257)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -431,14 +473,17 @@ sequenceDiagram
     participant Grants as المنح
     participant Audit as التدقيق
     Father->>App: سحب المنح من ملف العضو
-    App->>Ktor: DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}
+    App->>Ktor: سحب المنح
     Ktor->>Grants: revoked_at = now (المفتاح يتوقف لحظياً)
-    Ktor->>Member: دفع إبطال فوري عبر MQTT — تحديث اللقطة المحلية — المفتاح متوقف
+    Ktor->>Member: دفع إبطال فوري — MQTT
     Ktor->>Audit: تسجيل الإلغاء (من ألغى / لمن / متى)
     Ktor-->>App: 204
     Ktor-->>Member: إشعار بالسحب (Q-401)
     App-->>Father: أُلغي المنح — لا فترة سماح
 ```
+
+- الرسالة 2: `DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}`.
+- الرسالة 4: `دفع إبطال فوري عبر MQTT — تحديث اللقطة المحلية — المفتاح متوقف`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): دُمج الجهاز في العضو وطُوي دفع MQTT في رسالة الخادم إلى العضو. لا تغيير في المحتوى.
 
@@ -449,6 +494,7 @@ sequenceDiagram
 ### 3-هـ. إعطاء الصلاحية الكاملة لبالغ (REQ-016 — §4-1 · Q-093 · Q-401)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -459,13 +505,13 @@ sequenceDiagram
     participant Audit as التدقيق
 
     Father->>App: اختيار بالغ في R03-10
-    App->>Ktor: POST /api/v1/families/{id}/full-authority {member_id}
+    App->>Ktor: إعطاء الصلاحية الكاملة
     alt العضو ليس بالغاً
         Ktor-->>App: رفض — للبالغين فقط (§7-11 · ACC-013)
     else العضو يحملها
         Ktor-->>App: رفض 409 بلا تغيير (§7-14)
     else بالغ لا يحملها
-        App->>S101: طلب تحقق PIN أو بصمة
+        App->>S101: طلب التحقق — الرقم السري أو البصمة — PIN
         S101-->>App: توقيع التحدي
         App->>Ktor: إعادة الطلب مع verification
         Ktor->>FA: إنشاء صف (status: active, auth_method)
@@ -474,6 +520,8 @@ sequenceDiagram
         App-->>Father: لها الصلاحية الكاملة الآن — أنت المالك كما كنت
     end
 ```
+
+- الرسالة 2: `POST /api/v1/families/{id}/full-authority {member_id}`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): إشعار البالغ في السطر تحت المخطط؛ ووُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 - ويصل البالغ إشعار — تسري فوراً بلا قبول (R03-11).
@@ -484,18 +532,21 @@ sequenceDiagram
 ### 3-و. تحول الدور عند بلوغ 13 (REQ-003 — §6-3)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant Ktor as الخادم
     participant Grants as المنح
-    participant S102 as العضوية
-    S102->>Ktor: بلوغ الطفل 13 سنة — حدث member.turned-teen الداخلي
-    Ktor->>Ktor: تحويل الدور child → teen تلقائياً
+    participant S102 as الهوية
+    S102->>Ktor: بلوغ الطفل 13 سنة — member.turned-teen
+    Ktor->>Ktor: تحويل الدور تلقائياً — child → teen
     Ktor->>Grants: مراجعة منح العضو غير الإشرافية عند التحول
     Ktor->>Father: إشعار الأب بالتحول ومراجعة المنح
-    Ktor-->>S102: الدور الجديد teen — المنح الإشرافية ممنوعة أصلاً (D-038)
+    Ktor-->>S102: الدور الجديد مراهق — المنح الإشرافية ممنوعة — teen
 ```
+
+- الرسالة 5: `الدور الجديد teen — المنح الإشرافية ممنوعة أصلاً (D-038)`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين؛ وقُصّرت تسمية الرسالة الأولى بعد فحص العين (كانت تُقصّ من الطرفين).
 
@@ -504,6 +555,7 @@ sequenceDiagram
 ### 3-ز. حذف العائلة / إزالة عضو / إلغاء الحذف (REQ-020 — §4-1 · Q-166)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -513,32 +565,41 @@ sequenceDiagram
     participant Audit as التدقيق
     participant Device as الجهاز
     Father->>App: حذف العائلة / إزالة عضو من إدارة الأعضاء
-    App->>Ktor: DELETE /api/v1/families/{id} — أو DELETE /api/v1/families/{id}/members/{memberId}
+    App->>Ktor: حذف العائلة أو إزالة عضو
     alt الطالب ليس المالك ولا يحمل الصلاحية الكاملة
         Ktor-->>App: رفض PERM_NOT_OWNER (§7-6)
     else حذف العائلة
-        Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
-        App->>Ktor: verification {method: pin | biometric, challenge_id, signature, at}
+        Ktor->>App: طلب التحدي من الخادم
+        App->>Ktor: إرسال التحقق
         Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام (Q-164)
     else إزالة عضو
-        Ktor->>Ktor: فحص المفتاح identity.member.remove + PIN الأب
+        Ktor->>Ktor: فحص المفتاح والرقم السري — PIN
     end
-    Ktor->>S102: حذف ناعم — deleted_at + scheduled_purge_at (+30 يوماً) + سجل deletion_request
+    Ktor->>S102: حذف ناعم — 30 يوماً
     Ktor->>S102: إبطال كل الجلسات فوراً (العائلة كاملة / العضو)
-    Ktor->>Ktor: إزالة عضو يحمل الصلاحية الكاملة تسحبها أولاً (§7-15) — وفي حذف العائلة يبقى الحمل حتى الحذف الصلب
+    Ktor->>Ktor: سحب الصلاحية قبل الإزالة
     Ktor-->>Father: إشعار — حذف العائلة (ولكل البالغين)
     Ktor->>Device: فك اقتران أجهزة العضو / كل أجهزة العائلة
     Ktor->>Audit: تسجيل الحذف (من / متى / ماذا — بلا محتوى)
     Ktor-->>App: {status: "pending_deletion", purge_at}
     alt إلغاء خلال السماح
         Father->>App: إلغاء حذف معلَّق
-        App->>Ktor: POST /api/v1/families/{id}/deletion/cancel (عائلة) أو POST /api/v1/families/{id}/members/{memberId}/deletion/cancel (عضو)
+        App->>Ktor: إلغاء الحذف المعلق
         Ktor->>S102: إعادة التفعيل — حذف سجل الحذف المعلق
         Ktor-->>App: {status: "active"}
     else بلا إلغاء بعد 30 يوماً
-        Ktor->>Ktor: حذف صلب — رسائل العضو تُجهَّل («عضو محذوف»)؛ وتطهير النسخ خلال 30 يوماً
+        Ktor->>Ktor: حذف صلب وتطهير النسخ
     end
 ```
+
+- الرسالة 2: `DELETE /api/v1/families/{id} — أو DELETE /api/v1/families/{id}/members/{memberId}`.
+- الرسالة 4: `تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)`.
+- الرسالة 5: `verification {method: pin | biometric, challenge_id, signature, at}`.
+- الرسالة 7: `فحص المفتاح identity.member.remove + PIN الأب`.
+- الرسالة 8: `حذف ناعم — deleted_at + scheduled_purge_at (+30 يوماً) + سجل deletion_request`.
+- الرسالة 10: `إزالة عضو يحمل الصلاحية الكاملة تسحبها أولاً (§7-15) — وفي حذف العائلة يبقى الحمل حتى الحذف الصلب`.
+- الرسالة 16: `POST /api/v1/families/{id}/deletion/cancel (عائلة) أو POST /api/v1/families/{id}/members/{memberId}/deletion/cancel (عضو)`.
+- الرسالة 19: `حذف صلب — رسائل العضو تُجهَّل («عضو محذوف»)؛ وتطهير النسخ خلال 30 يوماً`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): طُوي إشعار الوسيط في رسالة الخادم إلى الأب. لا تغيير في المحتوى.
 
@@ -547,6 +608,7 @@ sequenceDiagram
 ### 3-ح. سحب الصلاحية الكاملة (REQ-016 — §4-1 · Q-401)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -556,8 +618,8 @@ sequenceDiagram
     participant FA as الصلاحية الكاملة
     participant Audit as التدقيق
 
-    Father->>App: «اسحب الصلاحية الكاملة» في R03-12 + تأكيد
-    App->>Ktor: DELETE /api/v1/families/{id}/full-authority/{memberId}
+    Father->>App: سحب الصلاحية الكاملة بتأكيد — R03-12
+    App->>Ktor: سحب الصلاحية الكاملة
     alt الطالب ليس المالك نفسه
         Ktor-->>App: رفض 403 PERM_DENIED (§7-16)
     else المالك نفسه
@@ -565,9 +627,11 @@ sequenceDiagram
         Ktor->>Audit: تسجيل السحب
         Ktor-->>App: {member_id, status: revoked}
         App-->>Father: سُحبت — عاد البالغ إلى دوره السابق
-        Ktor-->>Adult: حدث permissions/revoked + إشعار
+        Ktor-->>Adult: إشعار بالسحب — permissions/revoked
     end
 ```
+
+- الرسالة 2: `DELETE /api/v1/families/{id}/full-authority/{memberId}`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 
@@ -577,6 +641,7 @@ sequenceDiagram
 ### 3-ط. طلب تعديل صلاحية (REQ-002/015 — §4-1 · R03-17)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Teen as العضو الطالب
@@ -585,12 +650,14 @@ sequenceDiagram
     participant Requests as الطلبات
     participant Audit as التدقيق
     Teen->>App: «اطلب» على صلاحية مقفلة — نقرة واحدة (بالغ أو مراهق — Q-402)
-    App->>Ktor: POST /api/v1/families/{id}/permission-requests {member_id, permission_key, scope?, reason?}
-    Ktor->>Requests: حفظ الطلب (status: pending) — طلب معلق واحد لكل (عضو، مفتاح)
+    App->>Ktor: إرسال طلب الصلاحية
+    Ktor->>Requests: حفظ الطلب معلقاً — واحد لكل مفتاح — status: pending
     Ktor->>Audit: تسجيل الطلب
     Ktor-->>App: {request_id, status: "pending"}
     App-->>Teen: الطلب أُرسل إلى الأب — يظهر في بطاقة «يتطلب انتباهك» (S1-09)
 ```
+
+- الرسالة 2: `POST /api/v1/families/{id}/permission-requests {member_id, permission_key, scope?, reason?}`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُسّم طلب الصلاحية: الإرسال هنا، والقرار في 3-س. لا تغيير في المحتوى.
 
@@ -599,6 +666,7 @@ sequenceDiagram
 ### 3-ي. المنع الصريح: إنشاؤه وبقاؤه عند تغيير الدور ورفعه (REQ-004/014 — §4-1 · Q-401 · Q-402)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -608,31 +676,38 @@ sequenceDiagram
     participant Audit as التدقيق
     actor Member as العضو
     Father->>App: «امنع» على صلاحية في ملف العضو (R03-03)
-    App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants {permission_key, scope, is_granted: false}
+    App->>Ktor: إنشاء المنع الصريح
     Ktor->>Grants: حفظ المنع الصريح — يفوز على أي منح سامح (deny-override)
-    Ktor->>Member: دفع إبطال فوري عبر MQTT — يتوقف المفتاح فوراً
+    Ktor->>Member: دفع إبطال فوري — MQTT
     Ktor->>Audit: تسجيل المنع (block)
     Ktor-->>App: 201 {grant_id}
     App-->>Father: «ممنوع» ظاهرة في ملف العضو
     Ktor-->>Member: إشعار — «ممنوع» ظاهرة في صلاحياته (R03-17)
     opt الأب يطبّق لاحقاً دوراً يحوي المفتاح الممنوع
         Father->>App: تطبيق الدور (3-ب)
-        App->>Ktor: POST /api/v1/families/{id}/members/{memberId}/grants/apply-template
-        Ktor->>Grants: نسخ مفاتيح الدور — والمفتاح الممنوع يبقى ممنوعاً بلا تغيير (Q-402)
+        App->>Ktor: تطبيق الدور
+        Ktor->>Grants: نسخ مفاتيح الدور
     end
     alt رفع المنع وحده
         Father->>App: «ارفع المنع»
-        App->>Ktor: DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}
+        App->>Ktor: رفع المنع
         Ktor->>Grants: revoked_at = now — يعود المفتاح «غير مسموح»
         Ktor->>Audit: تسجيل رفع المنع (unblock)
     else اسحب كل صلاحياتها
         Father->>App: «اسحب كل صلاحياتها» + تأكيد
-        App->>Ktor: DELETE /api/v1/families/{id}/members/{memberId}/grants
+        App->>Ktor: سحب كل الصلاحيات
         Ktor->>Grants: سحب كل المنح ورفع كل منع — العضو بلا منح ولا منع
         Ktor->>Audit: تسجيل السحب (revoke)
     end
     Ktor-->>Member: إشعار بالتغيير
 ```
+
+- الرسالة 2: `POST /api/v1/families/{id}/members/{memberId}/grants {permission_key, scope, is_granted: false}`.
+- الرسالة 4: `دفع إبطال فوري عبر MQTT — يتوقف المفتاح فوراً`.
+- الرسالة 10: `POST /api/v1/families/{id}/members/{memberId}/grants/apply-template`.
+- الرسالة 11: `نسخ مفاتيح الدور — والمفتاح الممنوع يبقى ممنوعاً بلا تغيير (Q-402)`.
+- الرسالة 13: `DELETE /api/v1/families/{id}/members/{memberId}/grants/{grantId}`.
+- الرسالة 17: `DELETE /api/v1/families/{id}/members/{memberId}/grants`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): طُوي دفع الوسيط في رسالة الخادم إلى العضو. لا تغيير في المحتوى.
 
@@ -644,6 +719,7 @@ sequenceDiagram
 ### 3-ك. المالك يحذف حسابه — تسليم العائلة لحامل الصلاحية الكاملة (REQ-016 · S1-02 REQ-025 — §7-18 · Q-402)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -654,12 +730,12 @@ sequenceDiagram
     participant Audit as التدقيق
     Father->>App: «احذف حسابي» (S102-23)
     App->>S102: DELETE /api/v1/identity/me
-    S102->>FA: هل لبالغ آخر صف active؟
+    S102->>FA: هل لبالغ آخر صف نشط؟
     alt لا أحد يحملها
         S102-->>App: رفض 403 — نص owner_blocked
-        App-->>Father: طريقان — أعطِ الصلاحية الكاملة أولاً (3-هـ) أو احذف العائلة كلها (3-ز)
+        App-->>Father: طريقان لحذف الحساب
     else بالغ يحملها
-        App-->>Father: نص owner_handover — «بعد حذف حسابك تدير {name} العائلة وحدها»
+        App-->>Father: نص تسليم العائلة
         Father->>App: تأكيد + إعادة مصادقة (بصمة / PIN)
         S102->>S102: حذف ناعم لحساب المالك + مهلة 30 يوماً (Q-344)
         S102->>Audit: تسجيل طلب الحذف
@@ -667,18 +743,23 @@ sequenceDiagram
         Note over S102,Adult: خلال المهلة يُرفض طلب الحامل مغادرة العائلة أو حذف حسابه
         alt المالك يتراجع خلال المهلة
             Father->>App: «تراجع عن الحذف»
-            App->>S102: POST /api/v1/identity/me/deletion/cancel
+            App->>S102: إلغاء حذف الحساب
             S102-->>App: {status: "active"} — مالك كما كان
             S102-->>Adult: إشعار — عاد المالك
         else اكتملت 30 يوماً
             S102->>S102: is_owner ينتقل إلى الحامل
-            S102->>FA: إغلاق صف الحامل (status: revoked) — صار مالكاً
+            S102->>FA: إغلاق صف الحامل — صار مالكاً — status: revoked
             S102->>Audit: تسجيل انتقال الملكية (owner_change)
             S102->>S102: حذف صلب لحساب المالك السابق
             S102-->>Adult: «أنت مالك العائلة الآن» (R03-11)
         end
     end
 ```
+
+- الرسالة 3: `هل لبالغ آخر صف active؟`.
+- الرسالة 5: `طريقان — أعطِ الصلاحية الكاملة أولاً (3-هـ) أو احذف العائلة كلها (3-ز)`.
+- الرسالة 6: `نص owner_handover — «بعد حذف حسابك تدير {name} العائلة وحدها»`.
+- الرسالة 12: `POST /api/v1/identity/me/deletion/cancel`.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين. لا تغيير في المحتوى.
 - هذا **الطريق الوحيد** لانتقال `is_owner` (Q-402)؛ إعطاء الصلاحية الكاملة لا ينقله (Q-006).
@@ -688,6 +769,7 @@ sequenceDiagram
 ### 3-ل. تعديل محتوى دور (REQ-013/014 — §4-1 · Q-089 · Q-205 · Q-401)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -695,14 +777,14 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Roles as الأدوار
     participant Audit as التدقيق
-    Father->>App: فتح دور في R03-08 وتبديل صلاحياته
+    Father->>App: فتح دور وتبديل صلاحياته — R03-08
     App-->>Father: شريط «تغييرات غير محفوظة» — لا شيء يُرسل قبل «احفظ»
     Father->>App: «احفظ»
-    App->>Ktor: PATCH /api/v1/families/{id}/templates/{templateId} {keys}
+    App->>Ktor: حفظ الدور المعدَّل
     alt في المجموعة مفتاح غير معروف
-        Ktor-->>App: رفض 400 PERM_DENIED بلا تطبيق جزئي (§7-17)
+        Ktor-->>App: رفض 400 بلا تطبيق جزئي — PERM_DENIED — §7-17
     else المجموعة سليمة
-        Ktor->>Roles: كتابة الدور لهذه العائلة (family_role + family_role_key) — البذرة لا تُمس
+        Ktor->>Roles: كتابة الدور لهذه العائلة
         Ktor->>Audit: تسجيل تعديل الدور (role_edit)
         Ktor-->>App: الدور المعدَّل
         App-->>Father: حُفظ — يسري على من يُطبَّق عليه بعد الآن
@@ -710,11 +792,15 @@ sequenceDiagram
     Note over Father,Roles: من طُبّق عليه الدور من قبل لا تتغير منحه (REQ-014)
 ```
 
+- الرسالة 4: `PATCH /api/v1/families/{id}/templates/{templateId} {keys}`.
+- الرسالة 6: `كتابة الدور لهذه العائلة (family_role + family_role_key) — البذرة لا تُمس`.
+
 - `keys` تستبدل مجموعة الدور كاملة؛ والأدوار ثلاثة لا رابع لها (Q-089).
 
 ### 3-م. إنشاء منح حساس — التحدي والتوقيع (REQ-012 — §4-1 · Q-164)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -724,20 +810,24 @@ sequenceDiagram
     participant Grants as المنح
     participant Audit as التدقيق
     Note over Father,Ktor: بعد فحوص 3-أ: الطالب مالك أو حامل، لا ثابت صلب، المفتاح موجود في السجل
-    Ktor->>App: تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)
-    App->>S101: طلب تحقق — PIN الأب أو بصمته (Q-088)
-    S101-->>App: توقيع nonce بمفتاح الجهاز بعد التحقق المحلي
+    Ktor->>App: طلب التحدي من الخادم
+    App->>S101: طلب التحقق — الرقم السري أو البصمة — PIN
+    S101-->>App: توقيع التحدي بعد التحقق المحلي — nonce
     App->>Ktor: verification {method, challenge_id, signature, at}
     Ktor->>Ktor: التحقق من التوقيع بمفتاح الجهاز العام قبل التنفيذ (Q-164)
     alt بلا verification أو توقيع غير صالح
-        Ktor-->>App: رفض PERM_VERIFICATION_REQUIRED
+        Ktor-->>App: رفض — تحقق مطلوب
     else التوقيع صالح
-        Ktor->>Grants: حفظ المنح (scope + valid_until إلزاميان)
+        Ktor->>Grants: حفظ المنح — النطاق والمدة إلزاميان — scope + valid_until
         Ktor->>Audit: تسجيل المنح (من منح / لمن / متى / ينتهي)
         Ktor-->>App: 201 {grant_id}
         App-->>Father: المنح منفَّذ ومسجَّل
     end
 ```
+
+- الرسالة 1: `تحدٍّ {challenge_id, nonce} — POST /api/v1/shell/verification/challenge (S1-01) — صلاحية 5 دقائق (Q-164)`.
+- الرسالة 2: `طلب تحقق — PIN الأب أو بصمته (Q-088)`.
+- الرسالة 6: `رفض PERM_VERIFICATION_REQUIRED`.
 
 - مخطط جديد 2026-11-19 (Q-434): فرع التحدي والتوقيع من 3-أ، بلا تغيير في المحتوى.
 - التحقق نفسه محلي (بوابة الوالدين Q-065 / بصمة Q-072)؛ ولو فشل التحقق 3 مرات يعود النظام لطلب PIN (سيناريو 2-4 · Q-072).
@@ -746,6 +836,7 @@ sequenceDiagram
 ### 3-س. قرار الأب في طلب صلاحية (REQ-004 — §4-1 · R03-17)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -755,19 +846,24 @@ sequenceDiagram
     participant Grants as المنح
     participant Audit as التدقيق
     Father->>App: عرض الطلبات المعلقة
-    App->>Ktor: GET /api/v1/families/{id}/permission-requests?status=pending
+    App->>Ktor: جلب الطلبات المعلقة
     Ktor-->>App: قائمة الطلبات المعلقة
     alt الأب يوافق
-        App->>Ktor: POST /api/v1/families/{id}/permission-requests/{requestId}/decide {decision: "approve", scope, valid_until, verification?}
-        Ktor->>Grants: إنشاء المنح (scope + valid_until إلزاميان — REQ-011)
+        App->>Ktor: الموافقة على الطلب
+        Ktor->>Grants: إنشاء المنح — النطاق والمدة إلزاميان — scope + valid_until
         Ktor->>Audit: تسجيل القرار والمنح
         Ktor-->>App: {request_id, status: "approved", grant_id}
     else الأب يرفض
-        App->>Ktor: POST /api/v1/families/{id}/permission-requests/{requestId}/decide {decision: "deny"}
+        App->>Ktor: رفض الطلب
         Ktor->>Audit: تسجيل الرفض
         Ktor-->>App: {request_id, status: "denied"}
     end
 ```
+
+- الرسالة 2: `GET /api/v1/families/{id}/permission-requests?status=pending`.
+- الرسالة 4: `POST /api/v1/families/{id}/permission-requests/{requestId}/decide {decision: "approve", scope, valid_until, verification?}`.
+- الرسالة 5: `إنشاء المنح (scope + valid_until إلزاميان — REQ-011)`.
+- الرسالة 8: `POST /api/v1/families/{id}/permission-requests/{requestId}/decide {decision: "deny"}`.
 
 - مخطط جديد 2026-11-19 (Q-434): قرار الأب من 3-ط، بلا تغيير في المحتوى.
 - الموافقة تنشئ المنح بقواعد المنح نفسها (REQ-011/012 — والمفتاح الحساس يتطلب `verification`)؛ والأب يختار النطاق والمدة أو يرفض؛ ويصل الطالب إشعار بالقرار.
@@ -919,100 +1015,100 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات تسع والمخازن ستة. رُسمت على أربع لوحات ليُقرأ كل سهم؛ والنصوص داخل اللوحات بالعربية وحدها، وأسماء النقاط والجداول في الجدولين تحت اللوحات. مخزن 5 هو سجل التدقيق (النواة المشتركة)؛ واللقطة المحلية على الجهاز مخزن عميل لا جدول خادم.
+العمليات تسع والمخازن ستة. رُسمت على تسع لوحات (لوحة لكل عملية) ليُقرأ كل سهم؛ والنصوص داخل اللوحات بالعربية وحدها، وأسماء النقاط والجداول في الجدولين تحت اللوحات. مخزن 5 هو سجل التدقيق (النواة المشتركة)؛ واللقطة المحلية على الجهاز مخزن عميل لا جدول خادم.
 
-### 5-أ. المنح والأدوار وطلبات الصلاحية
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): اللوحات الأربع قُسّمت إلى تسع لوحات — لوحة لكل عملية — لأن ثلاث لوحات تجاوزت حد العرض 1280؛ ولا تغيير في العقد أو العلاقات.
+
+### 5-أ. سجل المفاتيح (P1)
+
+```mermaid
+flowchart LR
+    P1(العملية 1: سجل المفاتيح)
+    D1[(مخزن 1: سجل المفاتيح)]
+    P2x["العملية 2: إدارة المنح (5-ب)"]
+
+    P1 -->|المفاتيح بعناوينها وأوصافها| D1
+    D1 -->|هل المفتاح موجود وحساس| P2x
+```
+
+- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
+
+### 5-ب. إدارة المنح (P2)
 
 ```mermaid
 flowchart LR
     Owner([المالك أو حامل الصلاحية الكاملة])
-    Member([بالغ أو مراهق])
     Gate([بوابة الوالدين في نظام الغلاف])
-    P1(العملية 1: سجل المفاتيح)
     P2(العملية 2: إدارة المنح)
-    P3(العملية 3: الأدوار)
-    P9(العملية 9: طلبات الصلاحية)
     D1[(مخزن 1: سجل المفاتيح)]
-    D2[(مخزن 2: الأدوار ومحتواها)]
     D3[(مخزن 3: المنح)]
-    D6[(مخزن 6: الطلبات)]
+    P9x["العملية 9: طلبات الصلاحية (5-ط)"]
 
     Owner -->|منح وتعديل وسحب ومنع| P2
-    Owner -->|تطبيق دور أو تعديله| P3
-    Member -->|طلب صلاحية| P9
-    P9 -->|طلب معلق لكل صلاحية| D6
-    P9 -->|الطلبات المعلقة| Owner
-    Owner -->|قرار الطلب| P9
-    P9 -->|الموافقة تنشئ منحاً| P2
-    P1 -->|المفاتيح بعناوينها وأوصافها| D1
     D1 -->|هل المفتاح موجود وحساس| P2
+    P9x -->|الموافقة تنشئ منحاً| P2
     P2 -->|تحقق الرقم أو البصمة| Gate
     P2 -->|حفظ المنح أو المنع| D3
+```
+
+### 5-ج. الأدوار (P3)
+
+```mermaid
+flowchart LR
+    Owner([المالك أو حامل الصلاحية الكاملة])
+    P3(العملية 3: الأدوار)
+    D2[(مخزن 2: الأدوار ومحتواها)]
+    D3[(مخزن 3: المنح)]
+
+    Owner -->|تطبيق دور أو تعديله| P3
     D2 -->|محتوى الدور| P3
     P3 -->|تعديل الدور وآخر دور| D2
     P3 -->|نسخ صلاحيات الدور| D3
 ```
 
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
-
-### 5-ب. الفحص والمزامنة
+### 5-د. محرك التقييم (P4)
 
 ```mermaid
 flowchart LR
     Systems([أنظمة المنصة الأخرى])
     Owner([المالك])
-    Member([بالغ أو مراهق أو طفل])
+    Member([العضو])
     P4(العملية 4: محرك التقييم)
+    D3[(مخزن 3: المنح)]
+    D4[(مخزن 4: الصلاحية الكاملة)]
+
+    Systems -->|هل يملك العضو الصلاحية؟| P4
+    Owner -->|يسأل عن صلاحيات عضو| P4
+    D3 -->|المنح والمنع والمدة| P4
+    D4 -->|من يحمل الصلاحية الكاملة| P4
+    P4 -->|مسموح أو مرفوض| Systems
+    P4 -->|صلاحيات العضو الفعلية| Owner
+    P4 -->|صلاحياتي أنا فقط| Member
+```
+
+- العضو: بالغ أو مراهق أو طفل.
+
+### 5-هـ. مزامنة المنح (P5)
+
+```mermaid
+flowchart LR
+    Member([العضو])
     P5(العملية 5: مزامنة المنح)
     D3[(مخزن 3: المنح)]
     D4[(مخزن 4: الصلاحية الكاملة)]
     Broker([وسيط الرسائل])
-    Snap[(لقطة المنح على الجهاز)]
+    Snap[(لقطة المنح)]
 
-    Systems -->|هل يملك العضو الصلاحية؟| P4
-    P4 -->|مسموح أو مرفوض| Systems
-    D3 -->|المنح والمنع والمدة| P4
-    D4 -->|من يحمل الصلاحية الكاملة| P4
-    Owner -->|يسأل عن صلاحيات عضو| P4
-    P4 -->|صلاحيات العضو الفعلية| Owner
-    P4 -->|صلاحياتي أنا فقط| Member
     D3 -->|كل تغيير في المنح| P5
     D4 -->|سحب الصلاحية الكاملة| P5
-    P5 -->|اللقطة الجديدة والإبطال الفوري| Broker
+    P5 -->|اللقطة والإبطال الفوري| Broker
     Broker -->|لقطة المنح| Snap
     Snap -->|فحص محلي فوري| Member
 ```
 
-### 5-ج. الصلاحية الكاملة وحذف العائلة والعضو
+- العضو: بالغ أو مراهق أو طفل. اللقطة: لقطة المنح على الجهاز. السهم من P5 إلى وسيط الرسائل: اللقطة الجديدة والإبطال الفوري.
 
-```mermaid
-flowchart LR
-    Owner([المالك])
-    Holder([بالغ يحمل الصلاحية الكاملة])
-    Adults([كل بالغ في العائلة])
-    Gate([بوابة الوالدين في نظام الغلاف])
-    Identity([نظام الهوية])
-    P7(العملية 7: حذف العائلة والعضو)
-    P8(العملية 8: الصلاحية الكاملة)
-    D4[(مخزن 4: الصلاحية الكاملة)]
-
-    Owner -->|إعطاء أو سحب| P8
-    P8 -->|تحقق مثبت بتحدي الخادم| Gate
-    P8 -->|صف نشط أو مغلق| D4
-    P8 -->|من يحملها ومنذ متى| Adults
-    Holder -->|رأيت الإشعار| P8
-    Identity -->|حذف حساب المالك| P8
-    P8 -->|صفة المالك تنتقل| Identity
-    Owner -->|حذف العائلة أو عضو| P7
-    Holder -->|حذف وإزالة عدا المالك| P7
-    P7 -->|تحقق مثبت بتحدي الخادم| Gate
-    P7 -->|تسجيل الحذف والمهلة| Identity
-    P7 -->|إزالة حاملها تسحبها أولاً| P8
-```
-
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
-
-### 5-د. التدقيق والتنبيهات وإشعار العضو
+### 5-و. التدقيق والتنبيهات وإشعار العضو (P6)
 
 ```mermaid
 flowchart LR
@@ -1038,6 +1134,67 @@ flowchart LR
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
+
+### 5-ز. حذف العائلة والعضو (P7)
+
+```mermaid
+flowchart LR
+    Owner([المالك])
+    Holder([بالغ يحمل الصلاحية الكاملة])
+    Gate([بوابة الوالدين في نظام الغلاف])
+    Identity([نظام الهوية])
+    P7(العملية 7: حذف العائلة والعضو)
+    P8x["العملية 8: الصلاحية الكاملة (5-ح)"]
+
+    Owner -->|حذف العائلة أو عضو| P7
+    Holder -->|حذف وإزالة عدا المالك| P7
+    P7 -->|تحقق مثبت بتحدي الخادم| Gate
+    P7 -->|تسجيل الحذف والمهلة| Identity
+    P7 -->|إزالة حاملها تسحبها أولاً| P8x
+```
+
+- أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُصّرت التسميات؛ ونُقلت التفاصيل إلى السطور تحت اللوحة. لا تغيير في المحتوى.
+
+### 5-ح. الصلاحية الكاملة (P8)
+
+```mermaid
+flowchart LR
+    Owner([المالك])
+    Holder([بالغ يحمل الصلاحية الكاملة])
+    Adults([كل بالغ في العائلة])
+    Gate([بوابة الوالدين في نظام الغلاف])
+    Identity([نظام الهوية])
+    P8(العملية 8: الصلاحية الكاملة)
+    D4[(مخزن 4: الصلاحية الكاملة)]
+    P7x["العملية 7: حذف العائلة والعضو (5-ز)"]
+
+    Owner -->|إعطاء أو سحب| P8
+    Holder -->|رأيت الإشعار| P8
+    Identity -->|حذف حساب المالك| P8
+    P7x -->|إزالة حاملها تسحبها أولاً| P8
+    P8 -->|تحقق مثبت بتحدي الخادم| Gate
+    P8 -->|صف نشط أو مغلق| D4
+    P8 -->|من يحملها ومنذ متى| Adults
+    P8 -->|صفة المالك تنتقل| Identity
+```
+
+### 5-ط. طلبات الصلاحية (P9)
+
+```mermaid
+flowchart LR
+    Member([بالغ أو مراهق])
+    Owner([المالك أو حامل الصلاحية الكاملة])
+    P9(العملية 9: طلبات الصلاحية)
+    D6[(مخزن 6: الطلبات)]
+    P2x["العملية 2: إدارة المنح (5-ب)"]
+
+    Member -->|طلب صلاحية| P9
+    Owner -->|قرار الطلب| P9
+    P9 -->|طلب معلق لكل صلاحية| D6
+    P9 -->|الطلبات المعلقة| Owner
+    P9 -->|الموافقة تنشئ منحاً| P2x
+```
+
 
 **العمليات — نقاطها وتسلسلاتها:**
 
