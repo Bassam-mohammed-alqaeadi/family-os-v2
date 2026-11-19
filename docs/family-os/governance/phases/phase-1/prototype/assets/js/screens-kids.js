@@ -30,7 +30,7 @@ const krTxt = (a, id) => a.t.replace(new RegExp('\\s*(لـ|ل)' + M[id].n + '(?!
 const krLog = id => S.audit.filter(a => (a.kid || a.who) === id && /^protection\.(rule|schedule|filter|quota|priority|mode_preset|free_mode)/.test(a.k || '') && !a.deny && a.w !== 'النظام');
 const krWait = id => !devOn(id) && (S.pendR[id] || 0) > 0;   /* جهاز الابن منقطع وتغيير ينتظره (S1-10 REQ-017): لا يُقال له «تغيّرت» قبل أن يستلمها */
 const krNew = id => (krWait(id) ? [] : krLog(id).filter(a => a.at === 'الآن' && !a.ks));
-const krCard = id => { const N = krNew(id); return N.length ? `<button class="card tnsh krn" data-a="go:my-rules">${ic('rule')}<span><b>${N.length === 1 ? 'قاعدة تغيّرت' : N.length + ' قواعد تغيّرت'}</b><small>${krWho(N[0].w)} · ${krTxt(N[0], id)}</small></span>${ic('chevron_left')}</button>` : ''; };
+const krCard = id => { const N = krNew(id); return N.length ? `<button class="card tnsh krn" data-a="go:my-rules">${ic('rule')}<span><b>${N.length === 1 ? 'قاعدة تغيّرت' : N.length + ' قواعد تغيّرت'}</b><small>${krWho(N[0].w)} · ${krTxt(N[0], id)}</small></span>${ic('chevron_right')}</button>` : ''; };
 surface('my-rules', {
   t: 'قواعدي', sys: 'S1-10', p: 'kid', req: '10:17,25 01:15',
   note: 'للطفل والمراهق، قراءة فقط (Q-435): ما وضعه الأهل لجهازه بلغته هو: وقت اليوم، أوقات النوم والمدرسة، تطبيقاته وحدودها، والإنترنت. كل تغيير يحفظه الأب يظهر هنا فوراً، وله بطاقة «قاعدة تغيّرت» في الرئيسية حتى يضغط «فهمت». لا تعديل من هنا ولا شاشة إدارية (DS-SE-10): «الطفل يرى حالته في الغلاف بلا مفتاح». ومن أراد نقاش قاعدة يفتح محادثة والده.',
@@ -51,10 +51,19 @@ surface('my-rules', {
 surface('c-me', {
   t: 'ملفي', sys: 'S1-01', p: 'kid', req: '01:2,5,6,15,18 02:17',
   note: 'لا شاشات إدارية في وضع الطفل. قسم «للأهل» خلف بوابة الوالدين. صف «وضع الجهاز» يشرح ثبات الوضع بلا طلب رقم سري (ACC-019).',
-  r() { const m = me(); return `<div class="c" style="padding:6px 0 12px">${av(m, 'xl')}<div class="b" style="font-size:calc(24px*var(--ts));margin-top:8px">${m.n}</div></div>${list(row('rule', `قواعدي${krNew(kidId()).length ? ' ' + chip('جديد', 'in') : ''}`, 'وقتي، نومي، تطبيقاتي، والإنترنت', { a: 'go:my-rules' }), row('location_on', 'موقعي', 'أين أنا، ومن يرى مكاني', { a: 'go:map' }), row('handshake', 'ما اتفقنا عليه أنا وبابا', 'ماذا يرى بابا وماذا لا يرى', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض وقتك المتبقي', { a: 'go:persist' }), row('wand_stars', 'المساعد وأنا', 'ماذا فعل المساعد بخصوصي', { a: 'go:ai-mine' }), row('palette', 'لوني وصورتي', kidAsk(kidId(), 'prof') ? 'وصل طلبك · يغيّرهما بابا من هاتفه' : 'اطلب من بابا أن يغيّرهما', { a: 'askDad', v: kidAsk(kidId(), 'prof') ? chip('عند بابا', 'wa', 'pending') : '' }), row('front_hand', 'أحتاج مساعدة', 'أكلّم أهلي، أو أخبرهم بما أزعجني', { a: 'go:kid-help', ic: 'var(--accent)' }))}${sec('للأهل')}${list(row('lock', 'إعدادات هذا الجهاز', 'تحتاج الرقم السري لبابا', { a: 'kidGate' }), row('mobile', `وضع الجهاز: ${mode() === 'teen' ? 'مراهق' : 'طفل'}`, 'ثابت · لا يتحول إلى وضع الأهل', { a: 'modeWhy' }))}${list(row('description', 'الشروط والخصوصية', '', { a: 'go:legal' }))}`; },
+  r() { const m = me(), id = kidId(), ask = kidAsk(id, 'prof');
+    /* ستة أبواب الطفل: [أيقونة، عنوان، شرح، فعل، شارة]. النص واحد في الشكلين. */
+    const I = [['rule', 'قواعدي', 'وقتي، نومي، تطبيقاتي، والإنترنت', 'go:my-rules', krNew(id).length ? chip('جديد', 'in') : ''], ['location_on', 'موقعي', 'أين أنا، ومن يرى مكاني', 'go:map', ''], ['handshake', 'ما اتفقنا عليه أنا وبابا', 'ماذا يرى بابا وماذا لا يرى', 'go:consent-view', ''], ['notifications', 'الإشعار الدائم', 'يعرض وقتك المتبقي', 'go:persist', ''], ['wand_stars', 'المساعد وأنا', 'ماذا فعل المساعد بخصوصي', 'go:ai-mine', ''], ['palette', 'لوني وصورتي', ask ? 'وصل طلبك · يغيّرهما بابا من هاتفه' : 'اطلب من بابا أن يغيّرهما', 'askDad', ask ? chip('عند بابا', 'wa', 'pending') : '']];
+    /* قالب الطفل (Q-449): بلاطات كبيرة بلون الطفل نفسه؛ «للأهل» يبقى قائمة هادئة. المراهق يبقى على القائمة. */
+    const top = mode() === 'teen'
+      ? `<div class="c" style="padding:6px 0 12px">${av(m, 'xl')}<div class="b" style="font-size:calc(24px*var(--ts));margin-top:8px">${m.n}</div></div>${list(...I.map(([i, t, s, a, c], k) => row(i, t + (k === 0 && c ? ' ' + c : ''), s, { a, v: k === 5 ? c : '' })), row('front_hand', 'أحتاج مساعدة', 'أكلّم أهلي، أو أخبرهم بما أزعجني', { a: 'go:kid-help', ic: 'var(--accent)' }))}`
+      : `<div class="kme" style="--kc:${m.c}">${av(m, 'xl')}<b>${m.n}</b></div><div class="ktg" style="--kc:${m.c}">${I.map(([i, t, s, a, c]) => ktile(i, t, s, a, c)).join('')}</div>${helpCard()}`;
+    return `${top}${sec('للأهل')}${list(row('lock', 'إعدادات هذا الجهاز', 'تحتاج الرقم السري لبابا', { a: 'kidGate' }), row('mobile', `وضع الجهاز: ${mode() === 'teen' ? 'مراهق' : 'طفل'}`, 'ثابت · لا يتحول إلى وضع الأهل', { a: 'modeWhy' }))}${list(row('description', 'الشروط والخصوصية', '', { a: 'go:legal' }))}`; },
 });
+/* بلاطة قالب الطفل (Q-449): زر مجسّم كمحطات «مسار اليوم»، ثم العنوان والشرح، وشارة في الزاوية. kc لون الزر، bar شريط اختياري. */
+const ktile = (i, t, s, a, c = '', kc = '', bar = '') => `<button class="ktile" ${kc ? `style="--kc:${kc}"` : ''} data-a="${a}"><span class="nd">${ic(i)}</span><span class="tx"><b>${t}</b>${s ? `<span>${s}</span>` : ''}${bar}</span>${c ? `<i class="kc">${c}</i>` : ''}</button>`;
 /* «أحتاج مساعدة» (child-mode-ui §10 · S1-07 §9): مدخل هادئ في آخر رئيسية الطفل والمراهق وفي ملفهما. غير زر الاستغاثة الطارئ. */
-const helpCard = () => `<button class="card tnsh khelp" data-a="go:kid-help">${ic('front_hand')}<span><b>أحتاج مساعدة</b><small>أكلّم أهلي، أو أخبرهم بما أزعجني</small></span>${ic('chevron_left')}</button>`;
+const helpCard = () => `<button class="card tnsh khelp" data-a="go:kid-help">${ic('front_hand')}<span><b>أحتاج مساعدة</b><small>أكلّم أهلي، أو أخبرهم بما أزعجني</small></span>${ic('chevron_right')}</button>`;
 surface('kid-help', {
   kind: 'sheet', t: 'أحتاج مساعدة', sys: 'S1-01', p: 'kid', req: '01:2,7,15 07:7 08:1',
   note: 'للطفل والمراهق. ثلاثة أبواب بسيطة: أكلّم أحد والديّ (تفتح محادثته)، أو «شيء أزعجني» (رسالة قصيرة تصل الأب الآن بلا شرح)، أو «أنا في خطر» وهي الاستغاثة نفسها: تأكيد ثم عدّ 10 ثوانٍ يمكن الإلغاء خلاله (S1-07 REQ-007). لا لوم ولا تخويف في النص. تعمل دون اتصال إلا بدء محادثة جديدة.',
@@ -151,7 +160,7 @@ surface('t-home', {
     ${NX.length ? sec('القادم') + `<div class="agl">${NX.map(x => tnRow(x, x.k)).join('')}</div>` : ''}
     ${chWidget(1)}
     ${sec('تطبيقاتي')}<div class="tna">${S.apps[id].map(a => { const dc = decide(id, a.id), ok = dc.ok, lim = a.act === 'LIMIT', rest = Math.max(0, a.lim - a.used); return `<button data-a="openApp:${a.id}" class="${ok ? '' : 'off'}"><span class="qi">${ic(ok ? a.i : dc.why === 'blocked' || dc.why === 'mode' ? 'lock' : dc.why === 'sleep' ? 'bedtime' : dc.why === 'school' ? 'school' : 'hourglass_empty')}</span><b>${/[A-Za-z]/.test(a.n) ? `<span class="ltr">${a.n}</span>` : a.n}</b><small>${lim ? (rest ? `بقي ${rest} د` : 'انتهى وقته') : a.study ? 'متاح دائماً' : 'مسموح'}</small>${lim ? `<span class="pbar ${rest ? '' : 'wa'}"><i style="width:${Math.min(100, a.used / Math.max(1, a.lim) * 100)}%"></i></span>` : ''}</button>`; }).join('')}</div>
-    <button class="card tnsh" data-a="tab:t-me">${ic('visibility')}<span><b>ما يراه أهلك الآن</b><small>موقعك${offline() ? ' (آخر موقع معروف)' : ''} · وقت الشاشة · محادثات العائلة</small></span>${ic('chevron_left')}</button>
+    <button class="card tnsh" data-a="tab:t-me">${ic('visibility')}<span><b>ما يراه أهلك الآن</b><small>موقعك${offline() ? ' (آخر موقع معروف)' : ''} · وقت الشاشة · محادثات العائلة</small></span>${ic('chevron_right')}</button>
     ${helpCard()}</div>`; },
 });
 surface('t-me', {
@@ -179,6 +188,8 @@ surface('learn', {
       ${sec('وقتي الدراسي')}${list(sc ? row('schedule', 'وقت المدرسة', daysTxt(sc.days), { v: winRange(sc) }) : row('schedule', 'وقت المدرسة', 'لم يحدده والدك بعد', {}), row('timer', 'في تطبيقات الدراسة اليوم', '', { v: `${used} د` }))}
       <p class="xs muted c" style="margin:12px 12px 0">والدك هو من يحدد تطبيقات الدراسة. إن احتجت تطبيقاً آخر فاطلبه منه.</p>`;
     }
-    return `${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + list(st.map(a => row(a.i, a.n, 'مفتوح حتى في وقت المدرسة', { a: 'openApp:' + a.id, v: chip('متاح', 'ok', 'check') }))) : ''}${pl.length && !teen ? sec('ألعب') + list(pl.map(a => row(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', { a: 'openApp:' + a.id, v: a.act === 'LIMIT' && a.used >= a.lim ? chip('انتهى وقته', '') : '' }))) : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
+    /* قالب الطفل (Q-449): كل تطبيق بلاطة. اللون للحالة: أخضر مفتوح للدراسة، كحلي للّعب، رمادي لما انتهى وقته؛ والشريط هو الوقت الباقي. */
+    const end = a => a.act === 'LIMIT' && a.used >= a.lim;
+    return `${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + `<div class="ktg app">${st.map(a => ktile(a.i, a.n, 'مفتوح حتى في وقت المدرسة', 'openApp:' + a.id, chip('متاح', 'ok', 'check'), '#1F6B3B')).join('')}</div>` : ''}${pl.length && !teen ? sec('ألعب') + `<div class="ktg app">${pl.map(a => ktile(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', 'openApp:' + a.id, end(a) ? chip('انتهى وقته', '') : '', end(a) ? '#827B69' : '#1F3A6B', a.act === 'LIMIT' ? pbar((a.lim - a.used) / a.lim * 100) : '')).join('')}</div>` : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
 });
 

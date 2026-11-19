@@ -136,7 +136,7 @@ function tkCal(add) {
   const h1 = tkHj(K(1), { month: 'long' }), h2 = tkHj(K(n), { month: 'long' }), hy = tkHj(K(n), { year: 'numeric' });
   const cell = d => { const k = K(d), out = k > TK_END, E = !out && evs(k).length, T = !out && tks(k).length; return `<button class="${k === TK_TODAY ? 'td' : ''} ${k === sel ? 'sl' : ''} ${out ? 'o' : ''}" ${out ? 'disabled' : `data-a="tkDay:${k}"`} aria-label="${tkLong(k)}">${d}<small>${tkHj(k, { day: 'numeric' })}</small><i>${E ? '<u class="e"></u>' : ''}${T ? '<u class="t"></u>' : ''}</i></button>`; };
   const E = evs(sel), T = tks(sel);
-  return `<div class="card tkcal"><div class="tkmh"><button class="ib" data-a="tkMon:-1" aria-label="الشهر السابق" ${mi === 0 ? 'disabled' : ''}>${ic('chevron_right')}</button><div class="c"><b>${TK_GM[m]} ${y}</b><span class="sm muted">${h1 === h2 ? h1 : h1 + ' – ' + h2} ${hy}</span></div><button class="ib" data-a="tkMon:1" aria-label="الشهر التالي" ${mi === 3 ? 'disabled' : ''}>${ic('chevron_left')}</button></div>
+  return `<div class="card tkcal"><div class="tkmh"><button class="ib" data-a="tkMon:-1" aria-label="الشهر السابق" ${mi === 0 ? 'disabled' : ''}>${ic('chevron_left')}</button><div class="c"><b>${TK_GM[m]} ${y}</b><span class="sm muted">${h1 === h2 ? h1 : h1 + ' – ' + h2} ${hy}</span></div><button class="ib" data-a="tkMon:1" aria-label="الشهر التالي" ${mi === 3 ? 'disabled' : ''}>${ic('chevron_right')}</button></div>
   <div class="cal">${['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'].map(d => `<span class="dn">${d}</span>`).join('')}${'<span></span>'.repeat(off)}${Array.from({ length: n }, (_, i) => cell(i + 1)).join('')}</div>
   <div class="tklg"><span><u class="e"></u>حدث</span><span><u class="t"></u>مهمة</span>${mi === 3 ? '<span>يُعرض حتى 15 فبراير: ثلاثة أشهر قادمة</span>' : ''}</div></div>
   ${sec(`${tkDayT(sel)} · ${tkHj(sel)}`, add ? 'حدث جديد' : '', add ? 'tkEvNew:' + sel : '')}
@@ -180,7 +180,7 @@ surface('event-new', {
     ${btn(offline() ? 'احفظ · يُرسل عند الاتصال' : d.id ? 'احفظ التعديل' : 'أضف الحدث', 'evSave', '', offline() ? 'cloud_upload' : '')}`;
   },
 });
-const tkStep = (a, mid, lo, hi, lbl) => `<div class="tkst"><button class="ib" data-a="${a}:-1" aria-label="${lbl} السابق" ${lo ? 'disabled' : ''}>${ic('chevron_right')}</button><div>${mid}</div><button class="ib" data-a="${a}:1" aria-label="${lbl} التالي" ${hi ? 'disabled' : ''}>${ic('chevron_left')}</button></div>`;
+const tkStep = (a, mid, lo, hi, lbl) => `<div class="tkst"><button class="ib" data-a="${a}:-1" aria-label="${lbl} السابق" ${lo ? 'disabled' : ''}>${ic('chevron_left')}</button><div>${mid}</div><button class="ib" data-a="${a}:1" aria-label="${lbl} التالي" ${hi ? 'disabled' : ''}>${ic('chevron_right')}</button></div>`;
 surface('tk-remind', {
   kind: 'sheet', t: 'كيف يصل التذكير', sys: 'S1-06', p: 'any', a: ['e1'], req: '06:14',
   note: 'S06-08 استلاماً. التذكير يصل صاحب الحدث والأب فقط (Q-281)، مرة واحدة في وقته، ويعمل دون اتصال لأن الجهاز يحفظ موعده. الخادم مالك الجدولة (Q-280). سلوك iOS الدقيق مسجّل في قائمة المرحلة.',

@@ -546,6 +546,25 @@ button.chip{min-height:28px}
 .khero::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;background:#ffffff12;inset-inline-end:-50px;bottom:-70px}
 .khero h4{margin:0;font-size:calc(24px*var(--ts)*var(--tk));font-weight:700;line-height:1.3}
 .khero p{margin:2px 0 0;font-size:calc(14px*var(--ts)*var(--tk));opacity:.9}
+/* بلاطات قالب الطفل (Q-449): «ملفي» بلون الطفل، و«العب وتعلّم» بلون الحالة. */
+.kme{display:flex;align-items:center;gap:16px;padding:16px;border-radius:var(--r-xl);background:color-mix(in srgb,var(--kc) 14%,var(--surface));margin-bottom:12px;position:relative;overflow:hidden}
+.kme::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:color-mix(in srgb,var(--kc) 12%,transparent);inset-inline-end:-40px;bottom:-70px}
+.kme .av{box-shadow:0 0 0 4px var(--surface)}
+.kme b{font-size:calc(24px*var(--ts));font-weight:700;line-height:1.3;position:relative;z-index:1}
+.ktg{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.ktile{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 10px 14px;min-height:156px;border-radius:var(--r-xl);background:var(--surface);border:1px solid var(--border);box-shadow:var(--lift);text-align:center}
+.ktile .nd{width:68px;height:62px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;background:var(--kc,#1F3A6B);box-shadow:0 6px 0 color-mix(in srgb,var(--kc,#1F3A6B) 62%,#000);transition:transform var(--fast),box-shadow var(--fast)}
+.ktile:active .nd{transform:translateY(4px);box-shadow:0 2px 0 color-mix(in srgb,var(--kc,#1F3A6B) 62%,#000)}
+.ktile .nd svg{width:30px;height:30px}
+.ktg.app .nd{border-radius:20px;width:64px;height:60px}
+.ktile .tx{display:flex;flex-direction:column;gap:2px;width:100%;flex:1;min-width:0}
+.ktile .tx b{font-size:calc(16px*var(--ts)*var(--tk));font-weight:600;line-height:1.4}
+.ktile .tx > span{font-size:calc(13px*var(--ts)*var(--tk));color:var(--muted);line-height:1.5}
+.ktile .pbar{margin-top:auto}
+.ktile .tx > span + .pbar{margin-top:8px}
+.ktile .kc{font-style:normal;line-height:1;margin-top:-4px}
+.ktg > .ktile:only-child{grid-column:1/-1;flex-direction:row;align-items:center;text-align:start;min-height:0;gap:16px;padding:16px}
+.ktg > .ktile:only-child .kc{flex:none;margin-top:0}
 .path{position:relative;padding:6px 0 4px}
 .stop{display:flex;align-items:center;gap:14px;width:100%;padding:8px 0;position:relative}
 .stop:nth-child(4n+2){padding-inline-start:44px}.stop:nth-child(4n+3){padding-inline-start:76px}.stop:nth-child(4n){padding-inline-start:44px}
