@@ -227,7 +227,7 @@ function ring(pct, size, sw, color, inner, track = 'var(--sunken)') {
   const r = (size - sw) / 2, c = 2 * Math.PI * r;
   return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="${track}" stroke-width="${sw}"/><circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="${color}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(1, Math.max(0, pct)))}"/></svg><div class="in">${inner}</div></div>`;
 }
-const empty = (i, t, s, cta = '') => `<div class="empty"><div class="em">${ic(i)}</div><b>${t}</b><div class="sm">${s}</div>${cta ? `<div style="margin-top:14px">${cta}</div>` : ''}</div>`;
+const empty = (i, t, s, cta = '') => `<div class="empty"><div class="em">${ic(i)}</div><b>${t}</b><div class="sm">${s}</div>${cta ? `<div style="margin-top:16px">${cta}</div>` : ''}</div>`;
 /* شارات التوفر السبع الصادقة (settings-patterns.md) */
 const AVAIL = {
   unavailable_on_device: ['غير متاح على هذا الجهاز', 'mobile_off', ''], pending_approval: ['بانتظار الموافقة', 'pending', 'wa'], not_delegated: ['غير مفوَّض لك', 'lock_person', ''],

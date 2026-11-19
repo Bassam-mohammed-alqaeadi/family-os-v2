@@ -208,7 +208,7 @@ surface('conflicts', {
   t: id => 'تعارضات قواعد ' + M[id].n, sys: 'S1-10', p: 'adult', a: ['layan'], req: '10:13,25,26,33',
   note: 'Q-419. كل التعارضات القائمة عند طفل واحد في مكان واحد، بالبطاقة نفسها التي تظهر عند الحفظ: الطرفان، ما يحدث فعلاً، وحلول بضغطة. تحت كل بطاقة: من أبقاها كما هي ومتى، أو أنها تنتظر قراراً. تُفتح من سطر «تعارضات» في صفحة قواعد الطفل ومن بطاقة «رتّب قواعد …» في الرئيسية. ما حُلّ يختفي وحده.',
   r(id0) { const id = KIDS.includes(id0) ? id0 : 'layan', L = cfScan(id);
-    return `${kidTabs(id)}${L.length ? `<p class="sm muted" style="margin:0 4px 10px">${L.length === 1 ? 'شيء واحد لن يعمل' : L.length === 2 ? 'شيئان لن يعملا' : `${L.length} أشياء لن تعمل`} كما كُتب عند ${kn(id)}. كل بطاقة تقول ما يحدث فعلاً وكيف تُرتَّب.</p>${L.map(c => cfCard(c, { mode: 'page' })).join('')}` : empty('check_circle', `لا تعارض في قواعد ${kn(id)}`, 'كل ما حُفظ يعمل كما كُتب. إن حفظت شيئاً يتعارض مع غيره نبّهناك قبل الحفظ.')}`; },
+    return `${kidTabs(id)}${L.length ? `<p class="sm muted" style="margin:0 4px 12px">${L.length === 1 ? 'شيء واحد لن يعمل' : L.length === 2 ? 'شيئان لن يعملا' : `${L.length} أشياء لن تعمل`} كما كُتب عند ${kn(id)}. كل بطاقة تقول ما يحدث فعلاً وكيف تُرتَّب.</p>${L.map(c => cfCard(c, { mode: 'page' })).join('')}` : empty('check_circle', `لا تعارض في قواعد ${kn(id)}`, 'كل ما حُفظ يعمل كما كُتب. إن حفظت شيئاً يتعارض مع غيره نبّهناك قبل الحفظ.')}`; },
 });
 const cfFind = (kid, key) => (KIDS.includes(kid) ? cfScan(kid) : cfAll()).find(c => c.k === key);
 Object.assign(ACT, {

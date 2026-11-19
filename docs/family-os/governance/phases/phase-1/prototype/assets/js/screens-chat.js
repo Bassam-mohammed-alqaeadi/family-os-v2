@@ -82,7 +82,7 @@ surface('chat', {
   act: () => `${isAdult() ? `<button class="ib" data-a="go:chat-settings" aria-label="إعدادات المحادثة">${ic('tune')}</button>` : ''}<button class="ib" data-a="go:chat-new" aria-label="محادثة جديدة">${ic('edit')}</button>`,
   r() {
     chSync(); const ad = isAdult(), pend = chPending(), kids = minorsSeen();
-    if (S.chLoad) return `<div aria-busy="true"><div class="skel" style="height:46px;border-radius:99px"></div>${[0, 1, 2, 3].map(() => '<div class="skel" style="height:64px"></div>').join('')}<p class="sm muted c" role="status">جارٍ جلب المحادثات…</p></div>`;
+    if (S.chLoad) return `<div aria-busy="true"><div class="skel" style="height:46px;border-radius:var(--r-full)"></div>${[0, 1, 2, 3].map(() => '<div class="skel" style="height:64px"></div>').join('')}<p class="sm muted c" role="status">جارٍ جلب المحادثات…</p></div>`;
     if (S.chErr) return `<div class="card c">${ic('cloud_off', '" style="width:34px;height:34px;color:var(--warning)')}<p><b>تعذّر جلب المحادثات</b></p><p class="sm muted">رسائلك المحفوظة في هاتفك لم تُمس.</p>${btn('أعد المحاولة', 'set:chErr:false', 'sm sec', 'refresh')}</div>`;
     const flags = chFlagsAll(), rv = (S.review || []).length;
     return `${pend ? `<button class="callout wa" style="width:100%;text-align:start" data-a="go:outbox">${ic('schedule')}<div><b>${pend === 1 ? 'رسالة واحدة تنتظر الإرسال' : pend === 2 ? 'رسالتان تنتظران الإرسال' : pend + ' رسائل تنتظر الإرسال'}</b><br>افتح «البيانات والمزامنة»</div></button>` : ''}
@@ -109,14 +109,14 @@ surface('chat-new', {
   r() { const u = me().id, off = offline();
     return `<h4>محادثة جديدة</h4><p class="d">مع أي فرد من العائلة.${isAdult() ? '' : momSees(me().id) ? ' والداك يستطيعان رؤيتها.' : ' والدك يستطيع رؤيتها.'}</p>
     ${list(ALL.filter(x => x !== u).map(x => { const has = dmId(u, x); return row('', pname(M[x]), has ? 'محادثة قائمة' : off ? 'بدء محادثة جديدة يحتاج اتصالاً' : M[x].rel, { lead: av(M[x]), a: has || !off ? 'dmStart:' + x : '', c: has || !off ? '' : 'dis' }); }))}
-    ${isAdult() && can('chat.channel.create.group') ? `<div class="gap"></div>${btn('مجموعة جديدة', 'grpNew', off ? 'sec" disabled="' : 'sec', 'groups')}${off ? '<p class="xs muted c" style="margin-top:6px">إنشاء مجموعة يحتاج اتصالاً.</p>' : ''}` : ''}`; },
+    ${isAdult() && can('chat.channel.create.group') ? `<div class="gap"></div>${btn('مجموعة جديدة', 'grpNew', off ? 'sec" disabled="' : 'sec', 'groups')}${off ? '<p class="xs muted c" style="margin-top:8px">إنشاء مجموعة يحتاج اتصالاً.</p>' : ''}` : ''}`; },
 });
 surface('chat-group', {
   kind: 'sheet', t: 'مجموعة جديدة', sys: 'S1-08', p: 'adult', req: '08:1',
   note: 'اسم المجموعة واختيار أفرادها (اثنان على الأقل غيرك). إن ضمّت ابناً فهي مرئية لوالده مثل كل محادثاته.',
   r() { const g = S.grp || (S.grp = { n: '', mem: [] }), u = me().id, kid = g.mem.some(isMinor);
     return `<h4>مجموعة جديدة</h4><label class="fld"><span>اسم المجموعة</span><input id="grpN" value="${g.n || ''}" maxlength="30" placeholder="مثال: رحلة الجمعة" autocomplete="off"></label>
-    <p class="sm b" style="margin:12px 2px 6px">من فيها؟</p>${list(ALL.filter(x => x !== u).map(x => row('', pname(M[x]), M[x].rel, { lead: av(M[x]), tg: g.mem.includes(x), ta: 'grpT:' + x })))}
+    <p class="sm b" style="margin:12px 2px 8px">من فيها؟</p>${list(ALL.filter(x => x !== u).map(x => row('', pname(M[x]), M[x].rel, { lead: av(M[x]), tg: g.mem.includes(x), ta: 'grpT:' + x })))}
     <p class="xs muted" style="margin:8px 2px">${g.mem.length < 2 ? 'اختر فردين على الأقل. لمحادثة مع فرد واحد ابدأ محادثة ثنائية.' : kid ? 'فيها أبناء: يراها صاحب العائلة مثل كل محادثاتهم.' : 'أنت وهؤلاء فقط.'}</p>
     ${btn('أنشئ المجموعة', 'grpMake', grpOk() ? '' : '" disabled="', 'check')}`; },
 });
@@ -184,7 +184,7 @@ surface('chat-close', {
   note: 'السبب إلزامي ويراه أفراد المحادثة. الإغلاق يوقف الإرسال ولا يحذف شيئاً، وبلا مدة: لا يعيد فتحها إلا صاحب العائلة. يحتاج اتصالاً، ويُسجَّل.',
   r(id) { const c = chOf(id), off = offline(), w = (S.clsWhy || '').trim();
     return `<h4>إغلاق محادثة ${c.n || c.mem.map(x => M[x].n).join(' و')}</h4><p class="d">لن يستطيع أحد الإرسال فيها. الرسائل السابقة تبقى. ${isOwner() ? 'تعيد فتحها أنت متى شئت.' : `لا يعيد فتحها إلا ${M.ahmad.n}.`}</p>
-    <p class="sm b" style="margin:4px 2px 6px">السبب (يراه ${c.mem.map(x => M[x].n).join(' و')})</p><div class="chips" style="margin-bottom:8px">${CLS_WHY.map(x => `<button class="chip ${w === x ? 'ac' : 'ol'}" style="min-height:40px" aria-pressed="${w === x}" data-a="clsWhy:${x}">${x}</button>`).join('')}</div>
+    <p class="sm b" style="margin:4px 2px 8px">السبب (يراه ${c.mem.map(x => M[x].n).join(' و')})</p><div class="chips" style="margin-bottom:8px">${CLS_WHY.map(x => `<button class="chip ${w === x ? 'ac' : 'ol'}" style="min-height:40px" aria-pressed="${w === x}" data-a="clsWhy:${x}">${x}</button>`).join('')}</div>
     <label class="fld"><span>أو اكتب السبب</span><input id="clsWhy" value="${CLS_WHY.includes(w) ? '' : w}" maxlength="80" placeholder="سبب قصير" autocomplete="off"></label>
     ${off ? callout('الإغلاق يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}<div class="gap"></div>${btn('أغلق المحادثة', 'chCloseDo:' + id, 'dng' + (w && !off ? '' : '" disabled="'), 'lock')}`; },
 });
@@ -216,13 +216,13 @@ surface('chat-flag', {
     if (!m || m.del) return empty('block', 'الرسالة غير متاحة', 'حُذفت الرسالة التي رصدها المصنّف، فلا شيء يُعرض.');
     if (!m.flag) return empty('check_circle', 'أُغلق هذا التنبيه', 'لا شيء ينتظر قرارك هنا.', btn('افتح المحادثة', 'go:thread:' + id, 'sm sec', 'forum'));
     const show = S.flagShow === id + i, off = offline(), ck = flagCat(m), fc = FLAG_CAT[ck], dis = ck === 'distress';
-    return `<div class="card"><div class="chips">${chip(fc[0], fc[2], 'chat_error')}${chip('الخطورة: ' + fc[1], 'ol')}</div><p style="margin:10px 0 2px"><b>رسالة من ${M[m.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">اليوم ${m.at} · رصدها المصنّف الآلي، وقد يكون تقديره خاطئاً.</p>${dis ? callout('الرسالة وصلت كما هي ولم يُحجب شيء. نبّهناك لتكون قريباً.', 'in', 'info') : ''}
-    ${show ? `<div class="card flat" style="margin-top:10px">«${m.x}»</div>` : `<div class="gap"></div>${btn('اعرض الرسالة', 'flagShow:' + id + ':' + i, off ? 'sec" disabled="' : 'sec', 'visibility')}${off ? '<p class="xs muted c" style="margin-top:6px">عرض الرسالة يحتاج اتصالاً. التنبيه نفسه محفوظ في هاتفك.</p>' : ''}`}</div>
+    return `<div class="card"><div class="chips">${chip(fc[0], fc[2], 'chat_error')}${chip('الخطورة: ' + fc[1], 'ol')}</div><p style="margin:12px 0 2px"><b>رسالة من ${M[m.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">اليوم ${m.at} · رصدها المصنّف الآلي، وقد يكون تقديره خاطئاً.</p>${dis ? callout('الرسالة وصلت كما هي ولم يُحجب شيء. نبّهناك لتكون قريباً.', 'in', 'info') : ''}
+    ${show ? `<div class="card flat" style="margin-top:12px">«${m.x}»</div>` : `<div class="gap"></div>${btn('اعرض الرسالة', 'flagShow:' + id + ':' + i, off ? 'sec" disabled="' : 'sec', 'visibility')}${off ? '<p class="xs muted c" style="margin-top:8px">عرض الرسالة يحتاج اتصالاً. التنبيه نفسه محفوظ في هاتفك.</p>' : ''}`}</div>
     ${sec('ماذا تفعل؟')}${list(row('forum', `تحدّث مع ${M[m.f].n}`, 'محادثة بينك وبينه', { a: 'dmStart:' + m.f }), row('visibility', 'افتح المحادثة كاملة', 'للقراءة فقط', { a: 'go:thread:' + id }), row('thumb_up', dis ? 'اطمأننت: أغلق التنبيه' : 'لا مشكلة: تجاهل التنبيه', 'يُسجَّل ذلك بلا نص الرسالة', { a: `flagOk:${id}:${i}`, chev: false }),
       !dis && can('chat.message.delete.any') ? row('delete', 'احذف الرسالة للجميع', off ? 'يحتاج اتصالاً' : 'يظهر مكانها «حُذفت هذه الرسالة»', { a: off ? '' : `msgDel:${id}:${i}`, c: off ? 'dis' : '', ic: 'var(--danger)', chev: false }) : '',
       !dis && can('chat.channel.close') && !c.closed ? row('lock', 'أغلق المحادثة', 'يوقف الإرسال فيها حتى يُعاد فتحها', { a: 'go:chat-close:' + id }) : '')}
     ${sec('قبل الحديث')}<div class="card flat" id="ftips"><ul style="margin:0;padding-inline-start:18px;line-height:1.9">${FLAG_TIPS[dis ? 'distress' : 'other'].map(t => `<li>${t}</li>`).join('')}</ul></div>
-    <p class="xs muted" style="margin:10px 4px">المصنّف يفحص النص والصور في محادثات الأبناء، ولا يفحص الرسائل الصوتية. ${why('classifier', 'كيف يعمل؟')}</p>`;
+    <p class="xs muted" style="margin:12px 4px">المصنّف يفحص النص والصور في محادثات الأبناء، ولا يفحص الرسائل الصوتية. ${why('classifier', 'كيف يعمل؟')}</p>`;
   },
 });
 const RV_CAT = { harm: 'تشجيع على إيذاء النفس', groom: 'نمط استدراج', sexual: 'محتوى جنسي يخص قاصراً' };
@@ -233,9 +233,9 @@ surface('chat-review', {
     if (!isOwner()) return empty('lock', 'هذه القائمة لصاحب العائلة', `${M.ahmad.n} هو من يراجع ما أوقفه المصنّف.`);
     const R = S.review || []; if (!R.length) return empty('check_circle', 'لا رسائل موقوفة', 'لم يوقف المصنّف أي رسالة. ما يوقفه يظهر هنا ولا يصل إلى أحد.');
     return `${callout('هذه الرسائل <b>لم تصل</b> إلى أحد. مرسلها يعلم أنها أُوقفت وأنك ستراها.', 'wa', 'block')}${R.map((r, n) => { const c = chOf(r.ch), show = S.rvShow === r.id;
-      return `<div class="card"><div class="chips">${chip(RV_CAT[r.cat], 'da', 'block')}${chip('الخطورة: عالية', 'ol')}</div><p style="margin:10px 0 2px"><b>من ${M[r.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">${r.at} · لم تُسلَّم</p>
-      ${show ? `<div class="card flat" style="margin:10px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div></div>`; }).join('')}
-    <p class="xs muted" style="margin:10px 4px">تبقى هنا 30 يوماً ثم تُحذف نهائياً. التجاهل يُسجَّل بلا نص الرسالة.</p>`;
+      return `<div class="card"><div class="chips">${chip(RV_CAT[r.cat], 'da', 'block')}${chip('الخطورة: عالية', 'ol')}</div><p style="margin:12px 0 2px"><b>من ${M[r.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">${r.at} · لم تُسلَّم</p>
+      ${show ? `<div class="card flat" style="margin:12px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div></div>`; }).join('')}
+    <p class="xs muted" style="margin:12px 4px">تبقى هنا 30 يوماً ثم تُحذف نهائياً. التجاهل يُسجَّل بلا نص الرسالة.</p>`;
   },
 });
 
@@ -246,11 +246,11 @@ surface('chat-restore', {
   r() {
     CHS(); const r = S.cr; if (!isOwner()) return empty('lock', 'الاسترداد لصاحب العائلة', `${M.ahmad.n} وحده يسترد سجل قناة الوالدين.`);
     const steps = `<div class="steps3">${['الرقم السري', 'رمز التحقق', 'فك السجل'].map((t, i) => `<span class="${r.step > i ? 'dn' : r.step === i ? 'on' : ''}">${r.step > i ? ic('check') : i + 1}<small>${t}</small></span>`).join('')}</div>`;
-    if (r.step === 9) return `<div class="empty"><div class="em" style="background:var(--warning-soft);color:var(--warning)">${ic('lock')}</div><b>السجل القديم لا يمكن استرداده</b><div class="sm">تغيّر رقمك السري دون القديم، ومفتاح السجل كان مشتقاً منه. لا نملك نسخة نقرؤها ولا طريقاً آخر.<br><br>قناة الوالدين تعمل من الآن، وما يُكتب بعد اليوم محفوظ.</div><div style="margin-top:14px">${btn('افتح قناة الوالدين', 'openCh:parents', 'sm', 'forum')}</div></div>`;
-    if (r.step === 3) return `${steps}<div class="empty"><div class="em" style="background:var(--success-soft);color:var(--success)">${ic('check_circle')}</div><b>عاد سجل قناة الوالدين</b><div class="sm">فُكّ على هذا الهاتف. لم يقرأه الخادم.</div><div style="margin-top:14px">${btn('افتح قناة الوالدين', 'openCh:parents', 'sm', 'forum')}</div></div>`;
+    if (r.step === 9) return `<div class="empty"><div class="em" style="background:var(--warning-soft);color:var(--warning)">${ic('lock')}</div><b>السجل القديم لا يمكن استرداده</b><div class="sm">تغيّر رقمك السري دون القديم، ومفتاح السجل كان مشتقاً منه. لا نملك نسخة نقرؤها ولا طريقاً آخر.<br><br>قناة الوالدين تعمل من الآن، وما يُكتب بعد اليوم محفوظ.</div><div style="margin-top:16px">${btn('افتح قناة الوالدين', 'openCh:parents', 'sm', 'forum')}</div></div>`;
+    if (r.step === 3) return `${steps}<div class="empty"><div class="em" style="background:var(--success-soft);color:var(--success)">${ic('check_circle')}</div><b>عاد سجل قناة الوالدين</b><div class="sm">فُكّ على هذا الهاتف. لم يقرأه الخادم.</div><div style="margin-top:16px">${btn('افتح قناة الوالدين', 'openCh:parents', 'sm', 'forum')}</div></div>`;
     if (r.step === 2) return `${steps}<div class="card c" aria-busy="true"><div class="spin" style="display:inline-block">${ic('sync')}</div><p><b>نفك السجل على هذا الهاتف…</b></p><p class="sm muted">لا يغادر النص المفكوك هاتفك.</p></div>`;
     if (r.step === 1) return `${steps}<p class="ttl" style="text-align:start">أدخل رمز التحقق</p><p class="sub" style="text-align:start">أرسلناه إلى رقمك المسجَّل.</p>
-      ${r.lock ? callout('خمس محاولات خاطئة. انتظر 15 دقيقة ثم اطلب رمزاً جديداً.', 'da', 'lock_clock') : `<div class="otp">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i === r.otp.length ? 'cur' : ''}">${r.otp[i] || ''}</i>`).join('')}</div>${r.bad ? `<p class="c sm" style="color:var(--danger);margin:-4px 0 10px" role="alert">الرمز غير صحيح. بقيت ${5 - r.bad} محاولات.</p>` : ''}
+      ${r.lock ? callout('خمس محاولات خاطئة. انتظر 15 دقيقة ثم اطلب رمزاً جديداً.', 'da', 'lock_clock') : `<div class="otp">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i === r.otp.length ? 'cur' : ''}">${r.otp[i] || ''}</i>`).join('')}</div>${r.bad ? `<p class="c sm" style="color:var(--danger);margin:-4px 0 12px" role="alert">الرمز غير صحيح. بقيت ${5 - r.bad} محاولات.</p>` : ''}
       <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="crK:${n}">${n}</button>`).join('')}<span></span><button data-a="crK:0">0</button><button class="gh" data-a="crK:b" aria-label="حذف">${ic('backspace')}</button></div>`}`;
     return `${steps}${callout('رسائل قناة الوالدين مشفّرة من طرف إلى طرف. على هاتف جديد تحتاج استردادها مرة واحدة.', '', 'encrypted')}
     ${list(row('lock', 'رقمك السري', 'يُشتق منه مفتاح السجل على هاتفك', { chev: false }), row('sms', 'رمز تحقق', 'يصلك على رقمك المسجَّل', { chev: false }), row('backup', 'فك السجل هنا', 'الخادم يسلّم نسخة مشفّرة لا يقرؤها', { chev: false }))}
@@ -267,7 +267,7 @@ surface('chat-settings', {
       own ? row('chat_error', 'المصنّف الآلي: خالد', on ? 'ينبّهك عند رسالة مقلقة' : 'متوقف: لا تنبيهات عن رسائله', { tg: on, ta: 'clsT' }) : row('chat_error', 'المصنّف الآلي: خالد', `يتحكم به ${M.ahmad.n}`, { v: chip(on ? 'يعمل' : 'متوقف', on ? 'ok' : 'stale'), chev: false }),
       kids.length ? row('visibility', 'محادثات الأبناء', 'للقراءة فقط', { a: 'go:minor-chats:' + kids[0] }) : row('visibility_off', 'محادثات الأبناء', `${M.ahmad.n} هو من يسمح برؤيتها`, { v: avail('not_delegated'), chev: false }),
       own ? row('block', 'رسائل أوقفها المصنّف', rv ? 'لم تُسلَّم · تنتظر قرارك' : 'لا شيء الآن', { a: 'go:chat-review', v: rv ? chip(String(rv), 'da') : '' }) : '')}
-    <p class="xs muted" style="margin:6px 4px">يفحص النص والصور في محادثات الأبناء بالاتجاهين، ولا يفحص الرسائل الصوتية ولا قناة الوالدين. ${why('classifier', 'كيف يعمل؟')}</p>
+    <p class="xs muted" style="margin:8px 4px">يفحص النص والصور في محادثات الأبناء بالاتجاهين، ولا يفحص الرسائل الصوتية ولا قناة الوالدين. ${why('classifier', 'كيف يعمل؟')}</p>
     ${can('chat.parents.view') ? sec('قناة الوالدين') + list(row('encrypted', 'مشفّرة من طرف إلى طرف', 'الخادم يحفظ نصاً مشفّراً لا يقرؤه', { v: chip('مشفّرة', 'ok'), chev: false }), row('lock', 'تُفتح بالرقم السري في كل مرة', 'ولا يظهر نصها في الإشعارات', { chev: false }), own ? row('backup', 'استرداد السجل على جهاز جديد', 'بالرقم السري ثم رمز تحقق', { a: 'go:chat-restore' }) : '') : ''}
     ${sec('حفظ الرسائل')}${list(row('database', 'الرسائل تبقى', `حتى يحذفها ${own ? 'صاحب العائلة' : M.ahmad.n}`, { v: 'دائماً', chev: false }), row('delete', 'ما حُذف للجميع', 'يُمحى نهائياً خلال 7 أيام', { chev: false }), row('chat_error', 'ما رصده المصنّف ثم حُذف', 'يبقى 30 يوماً للمراجعة ثم يُمحى', { chev: false }))}`; },
 });

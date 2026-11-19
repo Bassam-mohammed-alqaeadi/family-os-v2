@@ -159,7 +159,7 @@ function blLimit(why, sheet) {
   const acts = own
     ? (why === 'sms' ? btn('عبّئ 50 رسالة', 'go:topup', '', 'sms') + (top ? '' : `<div class="gap"></div>${btn('اعرض الخطط', 'go:plans', 'sec')}`) : top ? '' : btn('اعرض الخطط', 'go:plans', '', 'arrow_circle_up'))
     : asked ? callout(`طلبتِ ذلك من ${M.ahmad.n} اليوم. القرار له.`, 'nt', 'schedule') : btn(`اطلب من ${M.ahmad.n}`, 'blAsk:' + why, '', 'send');
-  return `<div class="bigic" style="background:var(--gold-soft);color:var(--text)">${ic(L[0])}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">${L[1]()}</p><p class="sub">${L[2]()}</p>${top && why !== 'sms' ? '' : `<div class="c" style="margin:-4px 0 12px">${avail('requires_upgrade')}</div>`}${own ? '' : `<p class="sm muted c" style="margin:0 0 10px">تغيير الخطة والدفع ل${M.ahmad.n} وحده.</p>`}${acts}${sheet ? `<div class="c" style="margin-top:8px">${btn('لاحقاً', 'close', 'txt t48')}</div>` : ''}`;
+  return `<div class="bigic" style="background:var(--gold-soft);color:var(--text)">${ic(L[0])}</div><p class="ttl" style="font-size:calc(24px*var(--ts))">${L[1]()}</p><p class="sub">${L[2]()}</p>${top && why !== 'sms' ? '' : `<div class="c" style="margin:-4px 0 12px">${avail('requires_upgrade')}</div>`}${own ? '' : `<p class="sm muted c" style="margin:0 0 12px">تغيير الخطة والدفع ل${M.ahmad.n} وحده.</p>`}${acts}${sheet ? `<div class="c" style="margin-top:8px">${btn('لاحقاً', 'close', 'txt t48')}</div>` : ''}`;
 }
 
 /* ---------- S04-01 الخطة والاستهلاك ---------- */
@@ -248,7 +248,7 @@ surface('plan-change', {
     ${sec(blHow())}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b><span>${{ gplay: 'من حسابك في المتجر', appstore: 'من حسابك في المتجر', card: 'تُكتب بياناتها في صفحة الدفع، لا في التطبيق', jaib: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', onecash: 'تدفع من المحفظة ثم تكتب الرقم المرجعي', mahfathati: 'تدفع من المحفظة ثم تكتب الرقم المرجعي' }[id]}</span></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
     ${offline() ? blOff() : b.pend ? callout('عندك دفعة بانتظار التحقق. انتظر نتيجتها قبل أن تبدأ دفعاً آخر.', 'wa', 'hourglass_top') : ''}
     ${btn(`${kind === 'renew' ? 'جدّد الآن' : kind === 'sub' ? 'اشترك الآن' : 'رقِّ الآن'} · ${blAmt(n)}`, 'plGo:' + k, offline() || b.pend ? 'dis" disabled="' : '', 'lock')}<div class="gap"></div>${btn('إلغاء', 'back', 'sec')}
-    <p class="xs muted c" style="margin-top:10px">${store ? 'تتغير الخطة بعد أن يتحقق خادمنا من الدفع، لا قبله.' : 'تتغير الخطة بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.'}</p>`;
+    <p class="xs muted c" style="margin-top:12px">${store ? 'تتغير الخطة بعد أن يتحقق خادمنا من الدفع، لا قبله.' : 'تتغير الخطة بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.'}</p>`;
   },
 });
 
@@ -267,7 +267,7 @@ surface('pay', {
     if (st === 'bad') return `${sum}${callout(`<b>لم نستطع قبول إيصال هذا الشراء</b><br>لم ${w === 'topup' ? 'يُضف رصيد' : 'تتغير خطتك'}. سجّلنا المحاولة في سجل المدفوعات. إن خُصم منك مبلغ فراجع ${nm}.`, 'da', 'gpp_maybe')}${btn('سجل المدفوعات', 'go:receipts', 'sec', 'receipt_long')}<div class="gap"></div>${btn('حاول مجدداً', `payOpen:${w}:${yr || ''}:${ch}`, 'txt t48')}`;
     return `${sum}${offline() ? blOff('الدفع يحتاج اتصالاً بالإنترنت.') : ''}
     ${btn(ch === 'card' ? 'أكمل في صفحة الدفع' : `ادفع عبر ${nm}`, `payOpen:${w}:${yr || ''}:${ch}`, offline() ? 'dis" disabled="' : '', ch === 'card' ? 'open_in_new' : 'lock')}
-    <p class="xs muted c" style="margin-top:10px">${ch === 'card' ? 'تُفتح صفحة الدفع خارج التطبيق، وتكتب بيانات البطاقة فيها. ' : ''}${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن يتحقق خادمنا من الدفع، لا قبله.</p>`;
+    <p class="xs muted c" style="margin-top:12px">${ch === 'card' ? 'تُفتح صفحة الدفع خارج التطبيق، وتكتب بيانات البطاقة فيها. ' : ''}${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن يتحقق خادمنا من الدفع، لا قبله.</p>`;
   },
 });
 surface('store-buy', {
@@ -286,16 +286,16 @@ surface('pay-wallet', {
     if (!blYE()) return SC.pay.r(w, yr, ch);              /* سوق الخليج لا محافظ يمنية فيه */
     w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend;
     if (d) { const it = blItem(d.w, d.yr);
-      return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن تؤكد ${BL_CH[d.ch][0]} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
+      return `<div class="bigic" style="background:var(--warning-soft);color:var(--warning)">${ic('hourglass_top')}</div><p class="ttl" style="font-size:calc(24px*var(--ts))">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن تؤكد ${BL_CH[d.ch][0]} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
       <dl class="blkv"><dt>ما دفعت له</dt><dd>${it.t}${it.per ? ' · ' + it.per : ''}</dd><dt>المبلغ</dt><dd>${blAmt(it.n)}</dd><dt>الطريقة</dt><dd>${BL_CH[d.ch][0]}</dd><dt>الرقم المرجعي</dt><dd><span class="ltr">${blMask(d.ref)}</span></dd><dt>سُجّلت</dt><dd>${d.at}</dd></dl>
       ${callout('لا تدفع مرة ثانية. إن لم يثبت الدفع أخبرناك، ولا تتغير خطتك.', 'nt', 'info')}${btn('تمّ', 'blToPlan')}`; }
     const it = blItem(w, yr), e = b.pw.err;
     return `<div class="card blsum"><div><small>${it.per ? 'عن ' + it.per : 'شراء مرة واحدة'}</small><b>${it.t}</b></div><div class="am">${blNum(it.n)}<small>ريال</small></div></div>
     <div class="blstep"><i>1</i><div><b>ادفع المبلغ من ${BL_CH[ch][0]}</b><span>حوّل ${blAmt(it.n)} إلى حساب «عائلتي» من تطبيق المحفظة.</span><div class="callout nt" style="margin:8px 0 0">${ic('edit_note')}<div>طريقة التحويل (رقم الحساب أو الرمز) تُكتب هنا عند التعاقد مع المحفظة.</div></div></div></div>
     <div class="blstep"><i>2</i><div><b>اكتب الرقم المرجعي</b><span>كما وصلك في إشعار المحفظة بعد الدفع، دون تغيير.</span>
-      <label class="fld ${e ? 'err' : ''}" style="margin:10px 0 0"><span class="sr">الرقم المرجعي</span><input id="pwr" class="mono" dir="ltr" inputmode="text" autocomplete="off" placeholder="مثال: 70451300" value="${b.pw.ref}">${e === 'empty' ? '<small>اكتب الرقم المرجعي أولاً.</small>' : e === 'dup' ? '<small>هذا الرقم المرجعي مستخدم من قبل. تأكد من رقم الدفعة الجديدة.</small>' : '<small>جرّب: أي رقم · والرقم 70451288 مستخدم من قبل</small>'}</label></div></div>
+      <label class="fld ${e ? 'err' : ''}" style="margin:12px 0 0"><span class="sr">الرقم المرجعي</span><input id="pwr" class="mono" dir="ltr" inputmode="text" autocomplete="off" placeholder="مثال: 70451300" value="${b.pw.ref}">${e === 'empty' ? '<small>اكتب الرقم المرجعي أولاً.</small>' : e === 'dup' ? '<small>هذا الرقم المرجعي مستخدم من قبل. تأكد من رقم الدفعة الجديدة.</small>' : '<small>جرّب: أي رقم · والرقم 70451288 مستخدم من قبل</small>'}</label></div></div>
     ${offline() ? blOff('تأكيد الدفع يحتاج اتصالاً بالإنترنت.') : ''}${btn('أكّد الدفع', `pwGo:${w}:${yr || ''}:${ch}`, offline() ? 'dis" disabled="' : '')}
-    <p class="xs muted c" style="margin-top:10px">${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.</p>`;
+    <p class="xs muted c" style="margin-top:12px">${w === 'topup' ? 'يُضاف الرصيد' : 'تتغير الخطة'} بعد أن تؤكد المحفظة وصول المبلغ، لا قبله.</p>`;
   },
 });
 
@@ -307,13 +307,13 @@ surface('topup', {
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), s = blSms(), left = blDays(blMonthEnd()) + 1, pm = blPm(), n = BL_TOP[blYE() ? 1 : 0];
-    return `<div class="card blbal"><div class="g3"><div><b>${s.left}</b><span>باقٍ من ${s.q}<br>حصة الخطة</span></div><div><b>${s.top}</b><span>رصيد<br>التعبئة</span></div><div><b>${s.em}</b><span>احتياطي<br>الاستغاثة</span></div></div>${s.left + s.top === 0 ? `<p class="sm" style="margin:10px 0 0">${ic('sms')} نفد الرصيد. تُرسل الآن رسائل الاستغاثة وحدها، من الاحتياطي.</p>` : ''}</div>
+    return `<div class="card blbal"><div class="g3"><div><b>${s.left}</b><span>باقٍ من ${s.q}<br>حصة الخطة</span></div><div><b>${s.top}</b><span>رصيد<br>التعبئة</span></div><div><b>${s.em}</b><span>احتياطي<br>الاستغاثة</span></div></div>${s.left + s.top === 0 ? `<p class="sm" style="margin:12px 0 0">${ic('sms')} نفد الرصيد. تُرسل الآن رسائل الاستغاثة وحدها، من الاحتياطي.</p>` : ''}</div>
     <div class="card blsum"><div><small>تُضاف إلى رصيد هذا الشهر</small><b>حزمة 50 رسالة نصية</b></div><div class="am">${blNum(n)}<small>${blYE() ? 'ريال' : 'ر.س'}</small></div></div>
     ${callout(`${left <= 5 ? `<b>بقي من الشهر ${rwDy(left)} فقط.</b> ` : `بقي من الشهر ${rwDy(left)}. `}رصيد التعبئة ينتهي في ${blDate(blMonthEnd())} ولا ينتقل للشهر التالي.`, left <= 5 ? 'wa' : 'nt', 'event')}
     ${sec(blHow())}${blMethods().map(id => `<button class="opt" aria-pressed="${pm === id}" data-a="blPm:${id}">${ic(BL_CH[id][1])}<span><b>${BL_CH[id][0]}</b></span>${ic(pm === id ? 'check_circle-fill' : 'radio_button_unchecked')}</button>`).join('')}
     ${offline() ? blOff('الشراء يحتاج اتصالاً بالإنترنت. الأرقام أعلاه من آخر نسخة محفوظة.') : b.pend ? callout('عندك دفعة بانتظار التحقق. انتظر نتيجتها قبل أن تبدأ دفعاً آخر.', 'wa', 'hourglass_top') : ''}
     ${btn('اشترِ حزمة 50 رسالة', 'topGo', offline() || b.pend ? 'dis" disabled="' : '', 'lock')}
-    <p class="xs muted c" style="margin-top:10px">${blYE() ? 'يُضاف الرصيد بعد أن تؤكد المحفظة وصول المبلغ.' : 'يُضاف الرصيد فور تحقق خادمنا من الدفع.'} الاستغاثة لها 3 رسائل احتياطية كل شهر ولو نفد كل شيء.</p>`;
+    <p class="xs muted c" style="margin-top:12px">${blYE() ? 'يُضاف الرصيد بعد أن تؤكد المحفظة وصول المبلغ.' : 'يُضاف الرصيد فور تحقق خادمنا من الدفع.'} الاستغاثة لها 3 رسائل احتياطية كل شهر ولو نفد كل شيء.</p>`;
   },
 });
 
@@ -324,14 +324,14 @@ surface('trial', {
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), cur = S.plan, st = blSt(), paid = cur !== 'free' && !st, t1 = tkAdd(TK_TODAY, 7), t2 = tkAdd(TK_TODAY, 10);
-    if (st === 'trial') return `<div class="bigic" style="background:var(--gold-soft);color:var(--text)">${ic('redeem')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">تجربتك سارية</p><p class="sub">${blLeft(blEnd())} · تنتهي ${blDate(blEnd())}. لا نخصم شيئاً بعدها.</p>${btn('اشترك في المميزة', 'go:plan-change:premium')}<div class="gap"></div>${btn('الخطة والاستهلاك', 'blToPlan', 'sec')}`;
-    if (b.trialUsed || cur === 'premium') return `<div class="bigic" style="background:var(--sunken);color:var(--muted)">${ic('redeem')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">${cur === 'premium' && !b.trialUsed ? 'أنت على المميزة' : 'استخدمت عائلتك التجربة من قبل'}</p><p class="sub">${cur === 'premium' && !b.trialUsed ? 'التجربة لمن لم يجرّب المميزة بعد.' : 'التجربة مرة واحدة لكل عائلة. تستطيع الاشتراك في أي وقت.'}</p>${btn('ابدأ تجربتي 7 أيام', 'trGo', 'dis" disabled="')}<div class="gap"></div>${btn('اعرض الخطط', 'go:plans', 'sec')}`;
+    if (st === 'trial') return `<div class="bigic" style="background:var(--gold-soft);color:var(--text)">${ic('redeem')}</div><p class="ttl" style="font-size:calc(24px*var(--ts))">تجربتك سارية</p><p class="sub">${blLeft(blEnd())} · تنتهي ${blDate(blEnd())}. لا نخصم شيئاً بعدها.</p>${btn('اشترك في المميزة', 'go:plan-change:premium')}<div class="gap"></div>${btn('الخطة والاستهلاك', 'blToPlan', 'sec')}`;
+    if (b.trialUsed || cur === 'premium') return `<div class="bigic" style="background:var(--sunken);color:var(--muted)">${ic('redeem')}</div><p class="ttl" style="font-size:calc(24px*var(--ts))">${cur === 'premium' && !b.trialUsed ? 'أنت على المميزة' : 'استخدمت عائلتك التجربة من قبل'}</p><p class="sub">${cur === 'premium' && !b.trialUsed ? 'التجربة لمن لم يجرّب المميزة بعد.' : 'التجربة مرة واحدة لكل عائلة. تستطيع الاشتراك في أي وقت.'}</p>${btn('ابدأ تجربتي 7 أيام', 'trGo', 'dis" disabled="')}<div class="gap"></div>${btn('اعرض الخطط', 'go:plans', 'sec')}`;
     return `<div class="bltop"><span class="bg">${ic('workspace_premium')}</span><b>7 أيام على المميزة، مجاناً</b><span>بلا وسيلة دفع · لا نخصم شيئاً بعدها · مرة واحدة للعائلة</span></div>
     ${sec('ما يُفتح لك')}<ul class="blwh">${cur === 'premium' ? '' : `<li>${ic('groups')}<span>أفراد بلا حد <small>بدل ${PLAN[cur].mem}</small></span></li><li>${ic('sms')}<span>100 رسالة نصية في الشهر <small>بدل ${PLAN[cur].sms}</small></span></li><li>${ic('wand_stars')}<span>3,000 عملية للمساعد <small>بدل ${blNum(PLAN[cur].ai)}</small></span></li>`}</ul>
     ${sec('ما يحدث بعدها')}<div class="tl"><div class="ev ok"><b>اليوم · تبدأ التجربة</b><span>المميزة تعمل على كل أجهزة العائلة</span></div>${paid ? `<div class="ev wa"><b>${blDate(t1)} · تنتهي التجربة وتعود إلى ${PLAN[cur].n}</b><span>خطتك المدفوعة كما كانت، بلا مهلة. فترتها تستمر في العدّ أثناء التجربة${blDays(blEnd()) > 7 ? ` وتنتهي ${blDate(blEnd())} كما هي` : ''}.</span></div>` : `<div class="ev wa"><b>${blDate(t1)} · تنتهي التجربة</b><span>تبقى الميزات 3 أيام مهلة</span></div><div class="ev"><b>${blDate(t2)} · تعود إلى المجانية</b><span>بلا قفل ولا حذف · أفرادك يبقون</span></div>`}</div>
     <div class="gap"></div>${callout('نذكّرك قبل نهايتها بيومين، وفي يومها الأخير. لا نخصم شيئاً من أنفسنا: الاشتراك بضغطة منك.', 'nt', 'notifications')}
     ${offline() ? blOff('بدء التجربة يحتاج اتصالاً بالإنترنت.') : ''}${btn('ابدأ تجربتي 7 أيام', 'trGo', offline() ? 'dis" disabled="' : '')}
-    <p class="xs muted c" style="margin-top:10px">إن أعجبتك اشترك قبل ${blDate(paid ? t1 : t2)} لتبقى ميزاتها.</p>`;
+    <p class="xs muted c" style="margin-top:12px">إن أعجبتك اشترك قبل ${blDate(paid ? t1 : t2)} لتبقى ميزاتها.</p>`;
   },
 });
 
@@ -344,7 +344,7 @@ surface('plan-grace', {
     const b = BL(), own = blCanM(), st = blSt(), m = blMemN();
     if (st === 'grace') { const d = Math.max(0, blDays(blEnd())), to = b.back ? b.back.plan : 'free', P = PLAN[to], cur = PLAN[S.plan], why = b.gWhy;
       return `<div class="blcd"><b>${d}</b><span>${d === 1 ? 'يوم باقٍ' : d === 2 ? 'يومان باقيان' : 'أيام باقية'} من المهلة</span></div>
-      <p class="sub" style="margin-bottom:14px">${why === 'trial' ? 'انتهت تجربة المميزة.' : why === 'fail' ? `لم ينجح خصم التجديد عبر ${BL_CH[blChan()][0]}.` : `انتهت فترة الخطة ${cur.n} ولم تُجدَّد.`} ميزات ${cur.n} باقية كلها حتى <b>${blDate(blEnd())}</b>.</p>
+      <p class="sub" style="margin-bottom:16px">${why === 'trial' ? 'انتهت تجربة المميزة.' : why === 'fail' ? `لم ينجح خصم التجديد عبر ${BL_CH[blChan()][0]}.` : `انتهت فترة الخطة ${cur.n} ولم تُجدَّد.`} ميزات ${cur.n} باقية كلها حتى <b>${blDate(blEnd())}</b>.</p>
       ${sec(`في ${blDate(blEnd())}، إن لم ${why === 'trial' ? 'تشترك' : 'تجدّد'}`)}<ul class="blwh">
         <li>${ic('verified_user')}<span>تعود العائلة إلى ${P.n}. لا يُقفل شيء ولا تُحذف بيانات.</span></li>
         <li>${ic('groups')}<span>${P.mem !== Infinity && m > P.mem ? `يبقى أفرادك كلهم (${m}). يُمنع فقط إضافة فرد جديد حتى ينقص العدد عن ${P.mem}.` : `يبقى أفرادك كلهم (${m}).`}</span></li>
@@ -352,7 +352,7 @@ surface('plan-grace', {
         <li>${ic('emergency_home')}<span>الاستغاثة والموقع والمحادثة والمهام لا تتأثر.</span></li></ul>
       ${own ? `${offline() ? blOff() : ''}${btn(why === 'trial' ? 'اشترك في المميزة' : 'جدّد الآن', 'go:plan-change:' + S.plan, offline() ? 'dis" disabled="' : '')}<div class="gap"></div>${btn('اختر خطة أخرى', 'go:plans', 'sec')}` : `<p class="sm muted" style="margin:8px 4px">${ic('lock')} التجديد ل${M.ahmad.n} وحده.</p>`}`; }
     if (b.fell) { const P = PLAN[b.fell.to], F = PLAN[b.fell.from];
-      return `<div class="bigic" style="background:var(--info-soft);color:var(--info)">${ic('info')}</div><p class="ttl" style="font-size:calc(22px*var(--ts))">عادت العائلة إلى ${P.n}</p><p class="sub">${b.fell.why === 'trial' ? (b.fell.to === 'free' ? 'انتهت تجربة المميزة ومهلتها.' : `انتهت تجربة المميزة. خطتك ${P.n} كما كانت، وتنتهي ${blDate(blEnd())}.`) : b.fell.why === 'me' ? 'اخترت العودة إليها.' : `انتهت الخطة ${F.n} ومهلتها دون تجديد.`}</p>
+      return `<div class="bigic" style="background:var(--info-soft);color:var(--info)">${ic('info')}</div><p class="ttl" style="font-size:calc(24px*var(--ts))">عادت العائلة إلى ${P.n}</p><p class="sub">${b.fell.why === 'trial' ? (b.fell.to === 'free' ? 'انتهت تجربة المميزة ومهلتها.' : `انتهت تجربة المميزة. خطتك ${P.n} كما كانت، وتنتهي ${blDate(blEnd())}.`) : b.fell.why === 'me' ? 'اخترت العودة إليها.' : `انتهت الخطة ${F.n} ومهلتها دون تجديد.`}</p>
       ${sec('ما بقي كما هو')}<ul class="blwh"><li>${ic('verified_user')}<span>لم يُقفل شيء ولم تُحذف بيانات.</span></li><li>${ic('groups')}<span>أفرادك كلهم (${m}) في العائلة.</span></li><li>${ic('emergency_home')}<span>الاستغاثة والموقع والمحادثة والمهام تعمل كما كانت.</span></li></ul>
       ${sec('ما تغيّر')}<ul class="blwh">${P.mem !== Infinity && m >= P.mem ? `<li>${ic('person_add')}<span>لا يُضاف فرد جديد${m > P.mem ? ` حتى ينقص العدد عن ${P.mem}` : ''}: ${P.n} تتسع لـ${P.mem}.</span></li>` : ''}<li>${ic('sms')}<span>الرسائل النصية ${P.sms} في الشهر <small>كانت ${F.sms}</small></span></li><li>${ic('wand_stars')}<span>عمليات المساعد ${blNum(P.ai)} <small>كانت ${blNum(F.ai)}</small></span></li></ul>
       ${own ? `${btn('اعرض الخطط', 'go:plans', '', 'workspace_premium')}<div class="gap"></div>${btn('فهمت', 'blFellOk', 'sec')}` : btn('فهمت', 'blToPlan', 'sec')}`; }
@@ -396,7 +396,7 @@ surface('receipts', {
     return `${offline() ? `<p class="xs muted blage">${age(0)}<span>نسخة محفوظة على هاتفك</span></p>` : ''}
     ${d ? sec('قيد التحقق') + `<div class="card tight">${rr(it.t + (it.per ? ' · ' + it.per : ''), blAmt(it.n), d.ch, 'pend', d.at, d.ref)}</div>` : ''}
     ${R.length ? sec('ما سبق') + `<div class="card tight">${R.map(r => rr(r.t, r.amt, r.ch, r.st, r.at, r.ref)).join('')}</div>` : ''}
-    <p class="xs muted c" style="margin-top:6px">للقراءة فقط. لا نعرض هنا بيانات بطاقة ولا رقماً مرجعياً كاملاً.</p>`;
+    <p class="xs muted c" style="margin-top:8px">للقراءة فقط. لا نعرض هنا بيانات بطاقة ولا رقماً مرجعياً كاملاً.</p>`;
   },
 });
 

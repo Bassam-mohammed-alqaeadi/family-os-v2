@@ -121,7 +121,7 @@ surface('tasks', {
     const grp = (h, L, more, a) => (L.length ? sec(h + ' · ' + L.length, more, a) + list(L.map(tkRowT)) : '');
     return seg([['tasks', 'المهام'], ['cal', 'التقويم']], v, 'set:tv') + tkFilter(V) + (v === 'cal' ? tkCal(can('calendar.event.create')) : `${tkSugCard()}
     ${T.length ? grp('تنتظر قرارك', G('SUBMITTED')) + grp('قيد التنفيذ', G('PENDING')) + grp('أُنجزت', G('APPROVED')) + grp('فاتت أو أُلغيت', G('EXPIRED', 'CANCELLED')) : empty('add_task', 'لا مهام بعد', mk ? 'أنشئ أول مهمة وحدّد نقاطها.' : 'حين تُسند مهمة تظهر هنا.', mk ? btn('أنشئ مهمة', 'go:task-new') : '')}
-    ${G('EXPIRED').length ? `<p class="sm muted" style="margin:0 4px 10px">ما فات يومه ينتهي عند منتصف الليل ولا يتراكم. ${why('tkexp')}</p>` : ''}
+    ${G('EXPIRED').length ? `<p class="sm muted" style="margin:0 4px 12px">ما فات يومه ينتهي عند منتصف الليل ولا يتراكم. ${why('tkexp')}</p>` : ''}
     ${isOwner() ? list(row('tune', 'ضوابط المهام والتقويم', 'الافتراضات والفئات وتفويض المساعد', { a: 'go:tk-settings' })) : ''}`);
   },
 });
@@ -157,9 +157,9 @@ surface('event', {
   r(id) {
     const e = S.events.find(x => x.id === id); if (!e) return `<h4>لم يعد هذا الحدث في التقويم</h4><p class="d">ربما حُذف.</p>${btn('حسناً', 'close')}`;
     const kidV = !isAdult(), ed = can('calendar.event.create');
-    return `<div class="fx" style="margin-bottom:10px"><span class="qi lg ac">${ic('event')}</span><div><h4 style="margin:0">${e.t}</h4><span class="sm muted">${tkWho(e)}</span></div></div>
+    return `<div class="fx" style="margin-bottom:12px"><span class="qi lg ac">${ic('event')}</span><div><h4 style="margin:0">${e.t}</h4><span class="sm muted">${tkWho(e)}</span></div></div>
     ${list(row('today', tkLong(e.dk), tkHj(e.dk, { day: 'numeric', month: 'long', year: 'numeric' }) + ' هـ'), row('schedule', tkTm(e.hm), e.rr && e.rr !== 'none' ? 'يتكرر ' + TK_ER[e.rr] : ''), e.loc ? row('location_on', e.loc, 'المكان') : '', row('alarm', 'التذكير ' + tkRm(e.rem), tkRemWho(e, kidV), { a: 'go:tk-remind:' + id }))}
-    ${kidV ? '' : `<p class="sm muted" style="margin:0 4px 10px">أضافه ${M[e.by || 'ahmad'].n}.</p>${cfEvHere(e)}`}
+    ${kidV ? '' : `<p class="sm muted" style="margin:0 4px 12px">أضافه ${M[e.by || 'ahmad'].n}.</p>${cfEvHere(e)}`}
     ${ed ? `<div class="btns">${btn('احذف', 'tkEvDel:' + id, 'dng sec')}${btn('عدّل', 'tkEvEdit:' + id, 'sec')}</div>` : ''}`;
   },
 });
@@ -203,12 +203,12 @@ surface('task', {
     const t = tkT(id); if (!t) return empty('task_alt', 'لم تعد هذه المهمة موجودة', 'ربما حُذفت.', btn('عُد إلى المهام', 'back', 'sec'));
     if (!can('tasks.view', t.kid)) return empty('lock_person', 'هذه المهمة خارج صلاحياتك', 'يمنحك المالك صلاحية مهام هذا الابن من «العائلة».');
     const k = M[t.kid], c = tkCat(t.cat), rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '', dn = t.dn || [], own = t.by === t.kid;
-    return `<div class="card"><div class="fx top">${av(k)}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${t.t}</b><div class="sm muted">${pname(k)} · ${t.due}</div><div class="chips" style="margin-top:6px">${chip(c[0], '', c[1])}${chip(TST[t.st][0], TST[t.st][1], TST[t.st][2])}${t.pts ? chip(rwPt(t.pts), 'go', 'star') : chip('بلا نقاط', 'ol')}</div></div></div><p class="sm" style="margin:10px 0 0">${tkSay(t)}</p></div>
+    return `<div class="card"><div class="fx top">${av(k)}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${t.t}</b><div class="sm muted">${pname(k)} · ${t.due}</div><div class="chips" style="margin-top:8px">${chip(c[0], '', c[1])}${chip(TST[t.st][0], TST[t.st][1], TST[t.st][2])}${t.pts ? chip(rwPt(t.pts), 'go', 'star') : chip('بلا نقاط', 'ol')}</div></div></div><p class="sm" style="margin:12px 0 0">${tkSay(t)}</p></div>
     ${t.hm && t.st === 'PENDING' ? cfHere(t.kid, 'task.' + t.id, 1) : ''}${t.st === 'SUBMITTED' && can('tasks.approve', t.kid) ? btn('راجع التسليم', 'go:task-review:' + id, 'ok', 'task_alt') + '<div class="gap"></div>' : ''}
     ${list(row(t.by === 'ai' ? 'wand_stars' : 'person', 'من أسندها', tkBy(t, false), t.by === 'ai' ? { a: 'go:tk-ai' } : {}), row(TK_PF[t.proof][1], 'طريقة الإثبات', own ? 'مهمة شخصية: ينجزها بلا اعتماد' : t.proof === 'self' ? 'يعتمدها بالغ دائماً' : 'يتحقق المساعد، وما لم يجزم به يأتيك', { v: TK_PF[t.proof][0] }), row('repeat', 'التكرار', rep ? 'ما فات يومه ينتهي عند منتصف الليل ولا يتراكم' : '', { v: rep || 'مرة واحدة' }), row('alarm', 'التذكير', `يصل ${k.n}`, { v: tkRm(t.rem || TK().rem) }))}
     ${t.sub && t.sub.length ? sec(`قائمة الفحص · ${dn.filter(Boolean).length} من ${t.sub.length}`) + list(t.sub.map((s, i) => row(dn[i] ? 'check_box' : 'check_box_outline_blank', s, '', dn[i] ? { ic: 'var(--success)' } : {}))) : ''}
     ${(t.st === 'PENDING' || t.st === 'SUBMITTED') && !own ? `<div class="btns">${can('tasks.cancel', t.kid) ? btn('ألغِ المهمة', 'taskCancel:' + id, 'dng sec') : ''}${t.st === 'PENDING' && can('tasks.create', t.kid) ? btn('عدّل', 'go:task-new:' + id, 'sec', 'edit') : ''}</div>` : ''}
-    ${t.st === 'APPROVED' && !own && can('tasks.revoke') ? btn('ألغِ التحقق', 'tkRevoke:' + id, 'dng sec', 'undo') + `<p class="xs muted c" style="margin:6px 0 0">في يومه فقط. تعود المهمة إلى ${k.n}${t.pts && rwHas(t.kid) ? ' وتُخصم نقاطها' : ''}.</p>` : ''}`;
+    ${t.st === 'APPROVED' && !own && can('tasks.revoke') ? btn('ألغِ التحقق', 'tkRevoke:' + id, 'dng sec', 'undo') + `<p class="xs muted c" style="margin:8px 0 0">في يومه فقط. تعود المهمة إلى ${k.n}${t.pts && rwHas(t.kid) ? ' وتُخصم نقاطها' : ''}.</p>` : ''}`;
   },
 });
 
@@ -227,7 +227,7 @@ surface('task-new', {
     const K = KIDS.filter(id => can('tasks.create', id)); if (!K.length) return empty('lock_person', 'إنشاء المهام ليس ضمن صلاحياتك', 'يمنحك المالك هذه الصلاحية من «العائلة».');
     const n = tkDraft(arg), k = M[n.kid], teen = tkTeen(n.kid), rec = TK().rec, own = isOwner();
     return `<label class="fld"><span>ماذا يجب أن يُنجَز؟</span><input id="ntT" maxlength="60" placeholder="مثال: سقي النباتات" value="${n.t || ''}"></label>
-    ${n.id ? '' : `<div class="chips tkp" style="margin:-6px 0 14px">${TK_IDEA.map((x, i) => `<button class="chip ol" data-a="tkIdea:${i}">${ic(tkCat(x[1])[1])}${x[0]}</button>`).join('')}</div>`}
+    ${n.id ? '' : `<div class="chips tkp" style="margin:-6px 0 16px">${TK_IDEA.map((x, i) => `<button class="chip ol" data-a="tkIdea:${i}">${ic(tkCat(x[1])[1])}${x[0]}</button>`).join('')}</div>`}
     <div class="fld"><span>لمن؟ المهمة لفرد واحد</span><div class="chips tkp">${K.map(id => `<button class="chip ${n.kid === id ? 'in' : 'ol'}" ${n.id ? 'disabled' : ''} data-a="tkSet:kid:${id}">${av(M[id], 'sm')}${M[id].n}</button>`).join('')}</div></div>
     <div class="fld"><span>الفئة</span><div class="chips tkp">${tkCats().map(([id, c]) => `<button class="chip ${n.cat === id ? 'in' : 'ol'}" data-a="tkSet:cat:${id}">${ic(c[1])}${c[0]}</button>`).join('')}${own ? `<button class="chip ol" data-a="tkCatNew">${ic('add')}فئة</button>` : ''}</div></div>
     <div class="fld"><span>النقاط</span>${teen ? callout(`مهام ${k.n} بلا نقاط. ${why('rwteen')}`, 'nt', 'lock') : n.id ? callout(`${rwPt(n.pts)}. النقاط تثبت عند الإنشاء ولا تتغيّر بالتعديل.`, 'nt', 'lock') : seg([[5, '5'], [10, '10'], [15, '15'], [25, '25']], +n.pts, 'tkSet:pts')}</div>
@@ -322,7 +322,7 @@ surface('tk-ai', {
     const A = TK().ai, own = isOwner(), d = tkAiD(), ch = tkAiCh(), P = tkSugs(), mine = S.tasks.filter(t => t.by === 'ai' && can('tasks.view', t.kid)), fixed = chip('لا يفعله', 'ol', 'lock');
     const lim = `${sec('حدود ما يسنده')}<div class="fld"><span>أقصى نقاط للمهمة الواحدة</span>${seg([[5, '5'], [10, '10'], [15, '15']], d.mx, 'tkAi:mx')}</div><div class="fld"><span>مهام في اليوم لكل ابن</span>${seg([[1, 'واحدة'], [2, 'اثنتان'], [3, 'ثلاث']], d.pd, 'tkAi:pd')}</div><div class="fld"><span>لمن يسند</span><div class="chips tkp">${KIDS.map(id => `<button class="chip ${d.kids.includes(id) ? 'in' : 'ol'}" data-a="tkAiKid:${id}">${av(M[id], 'sm')}${M[id].n}</button>`).join('')}</div></div>${callout(d.kids.length ? `أقصى ما يكسبه كل ابن في اليوم من مهام المساعد: ${rwPt(d.mx * d.pd)}. ${d.kids.includes('khaled') ? 'مهام خالد بلا نقاط.' : ''}` : 'لم تختر أحداً، فلن يسند المساعد شيئاً.', d.kids.length ? '' : 'wa', 'visibility')}`;
     return `${S.aiKill ? callout('المساعد متوقف من مفتاح الإيقاف: لا يقترح مهاماً ولا يسندها ولا يتحقق. <button class="why" data-a="go:ai">افتح المساعد</button>', 'wa', 'power_settings_new') : ''}
-    ${own ? `${sec('كم تفوّضه في إعداد المهام؟')}<div class="tkch">${Object.entries(TK_LV).map(([k, x]) => `<button aria-pressed="${d.lv === k}" data-a="tkAi:lv:${k}"><span class="qi ${d.lv === k ? 'in' : ''}">${ic(x[2])}</span><span><b>${x[0]}${k === 'suggest' ? ' ' + chip('الافتراضي', 'ol') : ''}</b><small>${x[1]}</small></span></button>`).join('')}</div><p class="c" style="margin:-2px 0 10px">${why('tkai', 'ما الفرق بين الاقتراح والإسناد؟')}</p>
+    ${own ? `${sec('كم تفوّضه في إعداد المهام؟')}<div class="tkch">${Object.entries(TK_LV).map(([k, x]) => `<button aria-pressed="${d.lv === k}" data-a="tkAi:lv:${k}"><span class="qi ${d.lv === k ? 'in' : ''}">${ic(x[2])}</span><span><b>${x[0]}${k === 'suggest' ? ' ' + chip('الافتراضي', 'ol') : ''}</b><small>${x[1]}</small></span></button>`).join('')}</div><p class="c" style="margin:-2px 0 12px">${why('tkai', 'ما الفرق بين الاقتراح والإسناد؟')}</p>
     ${d.lv === 'assign' ? lim : ''}
     ${ch ? `${offline() ? callout('أنت غير متصل. يُحفظ التغيير هنا ويُرسل عند عودة الاتصال.', 'wa', 'cloud_off') : ''}<div class="btns">${btn('إلغاء', 'tkAiCancel', 'sec')}${btn('احفظ التفويض', 'tkAiSave')}</div><div class="gap"></div>` : ''}`
       : callout(`${M.ahmad.n} جعل المساعد في المهام: <b>${TK_LV[A.lv][0].replace(' وأنت تقرّر', '').replace(' ضمن حدودك', ' ضمن حدود')}</b>. ${TK_LV[A.lv][4]}`, 'nt', 'wand_stars')}
@@ -338,8 +338,8 @@ surface('tk-sug', {
   r(id) {
     const s = TK().sug.find(x => x.id === id); if (!s || s.st !== 'new' || !can('tasks.create', s.kid)) return `<h4>لم يعد هذا الاقتراح قائماً</h4><p class="d">ربما أُسند أو صُرف قبل قليل.</p>${btn('حسناً', 'close')}`;
     const k = M[s.kid], c = tkCat(s.cat);
-    return `<div class="fx" style="margin-bottom:10px"><span class="qi lg in">${ic('wand_stars')}</span><div><h4 style="margin:0">${s.t}</h4><span class="sm muted">اقتراح ل${pname(k)}</span></div></div>
-    <div class="chips" style="margin-bottom:10px">${chip(c[0], '', c[1])}${chip(s.pts ? rwPt(s.pts) : 'بلا نقاط', s.pts ? 'go' : 'ol', s.pts ? 'star' : '')}${chip(TK_PF[s.proof][0], 'ol', TK_PF[s.proof][1])}${chip(tkDayT(s.dk) + ' ' + tkTm(s.hm), 'ol', 'schedule')}${s.rr !== 'none' ? chip(TK_RR[s.rr], 'ol', 'repeat') : ''}</div>
+    return `<div class="fx" style="margin-bottom:12px"><span class="qi lg in">${ic('wand_stars')}</span><div><h4 style="margin:0">${s.t}</h4><span class="sm muted">اقتراح ل${pname(k)}</span></div></div>
+    <div class="chips" style="margin-bottom:12px">${chip(c[0], '', c[1])}${chip(s.pts ? rwPt(s.pts) : 'بلا نقاط', s.pts ? 'go' : 'ol', s.pts ? 'star' : '')}${chip(TK_PF[s.proof][0], 'ol', TK_PF[s.proof][1])}${chip(tkDayT(s.dk) + ' ' + tkTm(s.hm), 'ol', 'schedule')}${s.rr !== 'none' ? chip(TK_RR[s.rr], 'ol', 'repeat') : ''}</div>
     <div class="ai"><div class="lb">${ic('wand_stars')}لماذا يقترحها</div><p style="margin:0">${s.why}</p></div>
     ${list(row('visibility', 'إلى ماذا استند', s.src + '. لم يقرأ رسالة ولم يفتح صورة.'), row('person', 'إن وافقت', `تُسند باسمك، و${vb(k, 'يراها', 'تراها')} ${k.n} في مهام${k.f ? 'ها' : 'ه'} فوراً.`))}
     <div class="btns">${btn('ليس الآن', 'tkSugNo:' + id, 'sec')}${btn('أسندها', 'tkSugOk:' + id, 'ok')}</div><div style="height:8px"></div>${btn('عدّل ثم أسند', 'tkSugEdit:' + id, 'sec', 'edit')}`;
@@ -354,11 +354,11 @@ surface('c-task', {
     const t = tkT(id); if (!t) return `<h4>لم تعد هذه المهمة موجودة</h4>${btn('حسناً', 'close')}`;
     const k = M[t.kid], c = tkCat(t.cat), P = S.tkP && S.tkP.id === id ? S.tkP : null, own = t.by === t.kid, pts = t.pts && rwHas(t.kid), dn = t.dn || [], g = (a, b) => vb(k, a, b), dad = rwDad();
     const teen = k.role === 'teen', rep = tkRepT(tkRR(t), tkWd(t)) || t.rep || '';
-    const head = teen ? `<div class="fx" style="margin-bottom:10px"><span class="qi lg" style="background:${c[2]}1f;color:${c[2]}">${ic(c[1])}</span><div><h4 style="margin:0">${t.t}</h4><span class="sm muted">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</span></div></div><div class="chips" style="margin-bottom:12px">${chip(t.due, 'ol', 'schedule')}${chip(c[0], '', c[1])}${rep ? chip(rep, 'ol', 'repeat') : ''}${t.rem ? chip(tkRm(t.rem), 'ol', 'notifications') : ''}</div>`
-      : `<div class="c"><span class="av xl" style="--c:${c[2]};margin:0 auto 10px">${ic(c[1])}</span><h4>${t.t}</h4><p class="d">${t.due}${pts ? ` · ${coin()} ${rwPt(t.pts)} بعد التحقق` : ''}</p></div>`;
+    const head = teen ? `<div class="fx" style="margin-bottom:12px"><span class="qi lg" style="background:${c[2]}1f;color:${c[2]}">${ic(c[1])}</span><div><h4 style="margin:0">${t.t}</h4><span class="sm muted">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</span></div></div><div class="chips" style="margin-bottom:12px">${chip(t.due, 'ol', 'schedule')}${chip(c[0], '', c[1])}${rep ? chip(rep, 'ol', 'repeat') : ''}${t.rem ? chip(tkRm(t.rem), 'ol', 'notifications') : ''}</div>`
+      : `<div class="c"><span class="av xl" style="--c:${c[2]};margin:0 auto 12px">${ic(c[1])}</span><h4>${t.t}</h4><p class="d">${t.due}${pts ? ` · ${coin()} ${rwPt(t.pts)} بعد التحقق` : ''}</p></div>`;
     if (P && P.step === 'cap') return `${head}<div class="tkcam">${ic('photo_camera')}<span>${g('وجّه', 'وجّهي')} الكاميرا إلى ما ${g('أنجزت', 'أنجزتِ')}</span></div><div class="btns">${btn('رجوع', 'tkPx', 'sec')}${btn(g('التقط', 'التقطي'), 'tkShot', 'ok', 'photo_camera')}</div>`;
     if (P && P.step === 'rec') return `${head}<div class="tkcam rec">${ic('mic')}<span>يسجّل الآن · 0:12</span></div><div class="btns">${btn('رجوع', 'tkPx', 'sec')}${btn(g('أنهِ التسجيل', 'أنهي التسجيل'), 'tkShot', 'ok', 'stop')}</div>`;
-    if (P && P.step === 'ready') return `${head}${t.proof === 'photo' ? `<div class="ph tkev">${ic('image')}صورتك</div>` : `<div class="tkau">${ic('play_arrow')}<i></i><span>0:12</span></div>`}<p class="sm muted c" style="margin:0 0 10px">${offline() ? 'لا اتصال الآن. تُحفظ هنا وتُرسل حين يعود.' : (t.re || t.note) ? `${dad} طلب إعادتها، فتذهب إليه.` : 'المساعد يتحقق منها، وإن لم يتأكد أرسلها إلى ' + dad + '.'}</p><div class="btns">${btn(g('أعد', 'أعيدي'), 'tkCap:' + id, 'sec', 'replay')}${btn(g('أرسل', 'أرسلي'), 'tkSend:' + id, 'ok', 'send')}</div>`;
+    if (P && P.step === 'ready') return `${head}${t.proof === 'photo' ? `<div class="ph tkev">${ic('image')}صورتك</div>` : `<div class="tkau">${ic('play_arrow')}<i></i><span>0:12</span></div>`}<p class="sm muted c" style="margin:0 0 12px">${offline() ? 'لا اتصال الآن. تُحفظ هنا وتُرسل حين يعود.' : (t.re || t.note) ? `${dad} طلب إعادتها، فتذهب إليه.` : 'المساعد يتحقق منها، وإن لم يتأكد أرسلها إلى ' + dad + '.'}</p><div class="btns">${btn(g('أعد', 'أعيدي'), 'tkCap:' + id, 'sec', 'replay')}${btn(g('أرسل', 'أرسلي'), 'tkSend:' + id, 'ok', 'send')}</div>`;
     const body = t.st === 'APPROVED' ? callout(own ? `${g('أنجزتها', 'أنجزتِها')}. مهمتك الشخصية لا تحتاج اعتماداً.` : `${g('أحسنت', 'أحسنتِ')}! ${t.vf === 'ai' ? 'تحقق منها المساعد' : 'اعتمدها ' + rwWho(t.vf || 'ahmad', true)}${pts ? ' ونقاطها في محفظتك.' : '.'}`, 'ok', 'celebration') + (own ? btn('لم أنجزها بعد', 'tkOwnUndo:' + id, 'sec') : '')
       : t.st === 'SUBMITTED' ? callout(t.off ? 'محفوظة في جهازك. تُرسل حين يعود الاتصال.' : t.ai === 'unsure' ? `نظر المساعد في ${t.proof === 'audio' ? 'تسجيلك' : 'صورتك'} ولم يتأكد، فأرسلها إلى ${dad}.` : `${g('أرسلتها', 'أرسلتِها')}. ${dad} يراجعها${pts ? '، ثم تأتي النقاط' : ''}.`, '', t.off ? 'cloud_upload' : 'hourglass_top')
       : t.st === 'EXPIRED' ? callout(`انتهى يوم هذه المهمة. لا بأس، مهمة اليوم ${g('بانتظارك', 'بانتظاركِ')}.`, 'nt', 'timer_off')
@@ -366,7 +366,7 @@ surface('c-task', {
       : own ? `<div class="btns">${btn('احذفها', 'tkOwnDel:' + id, 'dng sec')}${btn(g('أنجزتها', 'أنجزتُها'), 'teenDone:' + id, 'ok', 'check')}</div>`
       : t.proof === 'photo' ? btn(g('صوّر ما أنجزت', 'صوّري ما أنجزتِ'), 'tkCap:' + id, 'ok', 'photo_camera') : t.proof === 'audio' ? btn(g('سجّل بصوتك', 'سجّلي بصوتك'), 'tkCap:' + id, 'ok', 'mic')
       : btn('أنجزتها', 'tkSend:' + id, 'ok', 'thumb_up') + `<p class="sm muted c" style="margin:8px 0 0">${dad} يعتمدها${pts ? '، ثم تأتي النقاط' : ''}.</p>`;
-    return `${head}${teen ? '' : `<p class="sm muted c" style="margin:-4px 0 10px">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</p>`}
+    return `${head}${teen ? '' : `<p class="sm muted c" style="margin:-4px 0 12px">${own ? 'مهمة شخصية · أنشأتها أنت' : 'من ' + tkBy(t, true)}</p>`}
     ${t.note && t.st === 'PENDING' ? callout(`ملاحظة ${rwWho(t.nby || 'ahmad', true)}: ${t.note}`, 'wa', 'reply') : ''}
     ${t.sub && t.sub.length ? list(t.sub.map((s, i) => row(dn[i] ? 'check_box' : 'check_box_outline_blank', s, '', Object.assign({ chev: false }, t.st === 'PENDING' ? { a: `tkTick:${id}:${i}` } : {}, dn[i] ? { ic: 'var(--success)' } : {})))) : ''}
     ${body}`;

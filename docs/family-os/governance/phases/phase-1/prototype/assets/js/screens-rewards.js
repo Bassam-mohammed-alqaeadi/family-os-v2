@@ -99,7 +99,7 @@ function rwRow(kid, e, kidV) {
   return row(RW_IC[e.k], rwTitle(e, kidV), sub, { a: `go:rw-move:${kid}:${e.id}`, v, chev: false });
 }
 const rwMeter = (id, kidV) => { const k = S.kid[id], cl = rwCapLeft(id), f = M[id].f;
-  return `<div class="card"><div class="fx sb"><b>${kidV ? 'وقتي الإضافي اليوم' : 'الوقت الإضافي اليوم'}</b><span class="sm muted">${k.spent} من ${S.redeemCap} دقيقة</span></div><div style="margin:8px 0 6px">${pbar(k.spent / S.redeemCap * 100, cl ? 'ok' : 'wa')}</div><span class="sm muted">${cl ? (kidV ? `بقي لك ${rwMn(cl)} اليوم.` : `بقي ${rwMn(cl)} من الحد.`) + ' ينتهي الوقت الإضافي عند منتصف الليل.' : kidV ? `${f ? 'أخذتِ' : 'أخذتَ'} كل وقتك الإضافي اليوم. يعود غداً.` : 'بلغ الحد اليومي. لا صرف ولا منح حتى الغد.'}</span></div>`; };
+  return `<div class="card"><div class="fx sb"><b>${kidV ? 'وقتي الإضافي اليوم' : 'الوقت الإضافي اليوم'}</b><span class="sm muted">${k.spent} من ${S.redeemCap} دقيقة</span></div><div style="margin:8px 0 8px">${pbar(k.spent / S.redeemCap * 100, cl ? 'ok' : 'wa')}</div><span class="sm muted">${cl ? (kidV ? `بقي لك ${rwMn(cl)} اليوم.` : `بقي ${rwMn(cl)} من الحد.`) + ' ينتهي الوقت الإضافي عند منتصف الليل.' : kidV ? `${f ? 'أخذتِ' : 'أخذتَ'} كل وقتك الإضافي اليوم. يعود غداً.` : 'بلغ الحد اليومي. لا صرف ولا منح حتى الغد.'}</span></div>`; };
 const rwWeek = id => { const k = S.kid[id], R = RW(), pos = k.streak % 7, done = pos === 0 && k.streak && R.day[id] ? 7 : pos;
   return `<div class="week">${[0, 1, 2, 3, 4, 5, 6].map(i => `<div class="${i < done ? 'on' : ''} ${i === done && !R.day[id] ? 'td' : ''}"><i>${i === 6 ? ic('redeem') : i < done ? ic('local_fire_department') : i + 1}</i>${i === 6 && R.bonus ? '+' + R.bonus : ''}</div>`).join('')}</div>`; };
 function rwNoWallet(id) {
@@ -143,7 +143,7 @@ surface('rw-ledger', {
     if (kidV && M[id].role !== 'child') return rwNoWallet(id);
     if (!kidV && !can('rewards.ledger.view', id)) return empty('lock_person', 'لا تملك عرض هذا السجل', 'ترى الرصيد فقط. اطلب من أحمد صلاحية «رؤية سجل النقاط».');
     const F = L.filter(e => (fl === 'in' ? e.n > 0 : fl === 'out' ? e.n < 0 : true)), G = [['اليوم', F.filter(e => e.d === 0)], ['أمس', F.filter(e => e.d === 1)], ['أقدم', F.filter(e => e.d > 1)]].filter(g => g[1].length);
-    return `${seg([['', 'الكل'], ['in', kidV ? 'كسبت' : 'دخل'], ['out', kidV ? 'صرفت' : 'خرج']], fl, 'set:rwF')}${G.length ? G.map(g => sec(g[0]) + list(g[1].map(e => rwRow(id, e, kidV)))).join('') : empty('history', 'لا حركات هنا', fl ? 'جرّب تبويب «الكل».' : 'تظهر الحركات عند أول كسب.')}<p class="sm muted c" style="margin-top:10px">النقاط لا تنتهي. الوقت الإضافي وحده ينتهي عند منتصف الليل.</p>`; },
+    return `${seg([['', 'الكل'], ['in', kidV ? 'كسبت' : 'دخل'], ['out', kidV ? 'صرفت' : 'خرج']], fl, 'set:rwF')}${G.length ? G.map(g => sec(g[0]) + list(g[1].map(e => rwRow(id, e, kidV)))).join('') : empty('history', 'لا حركات هنا', fl ? 'جرّب تبويب «الكل».' : 'تظهر الحركات عند أول كسب.')}<p class="sm muted c" style="margin-top:12px">النقاط لا تنتهي. الوقت الإضافي وحده ينتهي عند منتصف الليل.</p>`; },
 });
 surface('rw-move', {
   kind: 'sheet', t: 'تفصيل حركة', sys: 'S1-05', p: 'any', a: ['layan', 'l5'], req: '05:2,5,17,18',
@@ -154,8 +154,8 @@ surface('rw-move', {
     const canRev = !kidV && can('rewards.grant.reverse') && e.n > 0 && !e.rev && (e.k === 'task' || e.k === 'gift');
     return `<div class="c"><span class="av xl" style="--c:${e.n < 0 ? 'var(--muted)' : '#C8A24A'};margin:0 auto 8px">${ic(RW_IC[e.k])}</span><h4>${rwTitle(e, kidV)}</h4>${e.n ? `<p class="rwbig ${e.n > 0 ? 'pos' : 'neg'}">${e.n > 0 ? '+' : '−'}${Math.abs(e.n)} ${coin()}</p>` : ''}${e.rev ? chip('أُلغي هذا الإيداع', 'wa', 'undo') : ''}</div>
     <div class="card flat rwkv">${kv.map(([x, y]) => `<div><span>${x}</span><b>${y}</b></div>`).join('')}</div>
-    ${e.k === 'task' && e.vf === 'ai' && !kidV ? `<p class="sm muted" style="margin:0 4px 10px">أودعها المساعد بتفويضك بعد التحقق من الدليل. ${why('rwverify')}</p>` : ''}
-    ${canRev ? (e.d > 0 ? `<p class="sm muted" style="margin:0 4px 10px">انتهت مهلة الإلغاء: الإيداع يُلغى في يومه فقط.</p>` : offline() ? callout('إلغاء الإيداع يحتاج اتصالاً، لأن الخادم يتحقق من الرصيد قبل الخصم.', 'wa', 'cloud_off') : btn('ألغِ هذا الإيداع', `rwRevAsk:${id}:${e.id}`, 'dng', 'undo')) : ''}
+    ${e.k === 'task' && e.vf === 'ai' && !kidV ? `<p class="sm muted" style="margin:0 4px 12px">أودعها المساعد بتفويضك بعد التحقق من الدليل. ${why('rwverify')}</p>` : ''}
+    ${canRev ? (e.d > 0 ? `<p class="sm muted" style="margin:0 4px 12px">انتهت مهلة الإلغاء: الإيداع يُلغى في يومه فقط.</p>` : offline() ? callout('إلغاء الإيداع يحتاج اتصالاً، لأن الخادم يتحقق من الرصيد قبل الخصم.', 'wa', 'cloud_off') : btn('ألغِ هذا الإيداع', `rwRevAsk:${id}:${e.id}`, 'dng', 'undo')) : ''}
     ${kidV && e.k === 'rev' ? (ob ? btn('عرض اعتراضي', 'go:objection:L' + e.id, 'sec', 'balance') : btn(gx(id, 'اعترض على هذا', 'اعترضي على هذا'), 'go:objection:L' + e.id, 'sec', 'balance')) : ''}`; },
 });
 
@@ -237,7 +237,7 @@ surface('objection', {
 /* اختياران متجاوران يشرح كلٌّ منهما نفسه: النقاط تُدَّخر، والوقت يُستعمل اليوم (توجيه المالك: الفرق يجب أن يُلاحَظ بلا شرح خارجي) */
 function rwGive(kid) {
   const a = kid ? ':' + kid : '', pts = kid ? rwHas(kid) : true;
-  return `<div class="rwch">${pts ? `<button data-a="go:grant-points${a}"><span class="qi go">${ic('stars')}</span><b>امنح نقاطاً</b><small>تبقى في المحفظة، وتُصرف وقتاً متى شاء</small></button>` : ''}<button data-a="go:grant-time${a}"><span class="qi ac">${ic('more_time')}</span><b>امنح وقتاً</b><small>دقائق الآن لتطبيق واحد، تنتهي عند منتصف الليل</small></button></div><p class="c" style="margin:-2px 0 10px">${why('rwgive', 'ما الفرق بينهما؟')}</p>`;
+  return `<div class="rwch">${pts ? `<button data-a="go:grant-points${a}"><span class="qi go">${ic('stars')}</span><b>امنح نقاطاً</b><small>تبقى في المحفظة، وتُصرف وقتاً متى شاء</small></button>` : ''}<button data-a="go:grant-time${a}"><span class="qi ac">${ic('more_time')}</span><b>امنح وقتاً</b><small>دقائق الآن لتطبيق واحد، تنتهي عند منتصف الليل</small></button></div><p class="c" style="margin:-2px 0 12px">${why('rwgive', 'ما الفرق بينهما؟')}</p>`;
 }
 surface('rewards-admin', {
   t: 'المكافآت', sys: 'S1-05', p: 'adult', req: '05:1,2,6,7,10,11,14,16,18 10:12',
@@ -272,7 +272,7 @@ surface('grant-points', {
   r(kid) { const W = RWK().filter(id => rwHas(id) && can('rewards.grant.create', id));
     if (!W.length) return `<h4>لا محفظة تُمنح الآن</h4><p class="d">منح النقاط للأطفال دون 13 سنة ممن تملك صلاحية المنح لهم.</p>${btn('حسناً', 'close', 'sec')}`;
     const g = S.gp = S.gp || { kid: W.includes(kid) ? kid : W[0], n: 10, why: '' }; if (!W.includes(g.kid)) g.kid = W[0]; const m = M[g.kid];
-    return `<h4>امنح نقاطاً</h4><p class="d">تدخل محفظة ${m.n} وتبقى فيها، و${vb(m, 'يحوّلها', 'تحوّلها')} وقتاً متى ${vb(m, 'شاء', 'شاءت')}. ${vb(m, 'يراها', 'تراها')} مع السبب. أقصى ما يُمنح في المرة 60 نقطة.</p>${can('rewards.grant.create', g.kid) ? `<p style="margin:-6px 0 10px">${btn(`${vb(m, 'يحتاج', 'تحتاج')} وقتاً الآن؟ امنح وقتاً بدل النقاط`, 'rwSwap:time', 'txt', 'more_time')}</p>` : ''}
+    return `<h4>امنح نقاطاً</h4><p class="d">تدخل محفظة ${m.n} وتبقى فيها، و${vb(m, 'يحوّلها', 'تحوّلها')} وقتاً متى ${vb(m, 'شاء', 'شاءت')}. ${vb(m, 'يراها', 'تراها')} مع السبب. أقصى ما يُمنح في المرة 60 نقطة.</p>${can('rewards.grant.create', g.kid) ? `<p style="margin:-6px 0 12px">${btn(`${vb(m, 'يحتاج', 'تحتاج')} وقتاً الآن؟ امنح وقتاً بدل النقاط`, 'rwSwap:time', 'txt', 'more_time')}</p>` : ''}
     ${W.length > 1 ? `<div class="chips" style="margin-bottom:12px">${W.map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gpSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>` : ''}
     <div class="card flat"><div class="stepper"><button data-a="gpSet:n:${g.n - 5}" aria-label="أقل" ${g.n <= 5 ? 'disabled' : ''}>${ic('remove')}</button><b>${g.n}<small>نقطة = ${rwMn(g.n)} وقتاً</small></b><button data-a="gpSet:n:${g.n + 5}" aria-label="أكثر" ${g.n >= 60 ? 'disabled' : ''}>${ic('add')}</button></div></div>
     <div class="fld"><span>السبب (${vb(m, 'يراه', 'تراه')} ${m.n})</span><div class="chips" style="margin-bottom:8px">${RW_GQ.map((x, i) => `<button class="chip ${g.why === x ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" data-a="gpSet:why:${i}">${x}</button>`).join('')}</div><input id="gpW" maxlength="60" placeholder="أو اكتب سبباً آخر" value="${RW_GQ.includes(g.why) ? '' : g.why}"></div>
@@ -286,7 +286,7 @@ surface('grant-time', {
     const g = S.gt = S.gt || { kid: K.includes(kid) ? kid : K[0], n: 15 }; if (!K.includes(g.kid)) g.kid = K[0];
     const m = M[g.kid], k = S.kid[g.kid], ap = S.apps[g.kid].filter(a => a.act === 'LIMIT'), cl = rwCapLeft(g.kid), O = [10, 15, 30, 60].filter(n => n <= cl), fz = rwFz(g.kid) && k.pts > 0; g.app = ap.some(a => a.id === g.app) ? g.app : (ap[0] || {}).id; if (!O.includes(g.n)) g.n = O[Math.min(1, O.length - 1)];
     return `<h4>امنح وقتاً إضافياً</h4><p class="d">دقائق تضاف الآن إلى تطبيق واحد وتنتهي عند منتصف الليل. لا تدخل المحفظة، وتُحسب من حد اليوم. ${why('extra')}</p>
-    <div class="chips" style="margin-bottom:10px">${K.map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gtSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>
+    <div class="chips" style="margin-bottom:12px">${K.map(id => `<button class="chip ${g.kid === id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px 0 4px" data-a="gtSet:kid:${id}">${av(M[id], 'sm')}&nbsp;${M[id].n}</button>`).join('')}</div>
     ${!ap.length ? callout(`لا تطبيق له حدّ وقت عند ${m.n}. الوقت الإضافي يضاف إلى تطبيق محدود فقط.`, 'nt', 'info') : `<div class="chips" style="margin-bottom:12px">${ap.map(a => `<button class="chip ${g.app === a.id ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" aria-pressed="${g.app === a.id}" data-a="gtSet:app:${a.id}">${ic(a.i)}${a.n}</button>`).join('')}</div>
     ${O.length ? seg(O.map(n => [n, n + ' د']), g.n, 'gtSet:n') : callout(`${vb(m, 'أخذ', 'أخذت')} ${m.n} اليوم كل الوقت الإضافي (${S.redeemCap} دقيقة). لتمنح أكثر ارفع الحد اليومي.${can('rewards.settings.edit') ? `<div style="margin-top:8px">${btn('غيّر الحد', 'go:ctl-edit:cap:' + g.kid, 'sm sec')}</div>` : ''}`, 'wa', 'hourglass_top')}
     <p class="sm muted c">${vb(m, 'أخذ', 'أخذت')} اليوم ${k.spent} من ${S.redeemCap} دقيقة إضافية</p>
@@ -309,7 +309,7 @@ surface('time-decide', {
       <div class="fld"><span>قيمتها · ${rwPt(td.pts)} = ${rwMn(td.pts)} وقتاً</span>${seg([[5, '5'], [10, '10'], [15, '15'], [25, '25']], td.pts, 'rwTdSet:pts')}</div>
       <div class="btns">${btn('رجوع', 'rwTdBack', 'sec')}${btn('أسند المهمة', 'rwTdGo', '', 'add_task')}</div>`;
     const O = [...new Set([10, 15, 30, 60, r.min])].filter(n => n <= cl).sort((x, y) => x - y), pick = O.includes(r.min) ? r.min : O[O.length - 1];
-    return `<div class="fx" style="margin-bottom:10px">${av(k)}<div><h4>${k.n} ${vb(k, 'يطلب', 'تطلب')} ${rwMn(r.min)}</h4><span class="sm muted">${a.n} · استُخدم ${a.used} من ${a.lim || S.kid[kid].quota} د اليوم</span></div></div>
+    return `<div class="fx" style="margin-bottom:12px">${av(k)}<div><h4>${k.n} ${vb(k, 'يطلب', 'تطلب')} ${rwMn(r.min)}</h4><span class="sm muted">${a.n} · استُخدم ${a.used} من ${a.lim || S.kid[kid].quota} د اليوم</span></div></div>
     ${r.msg ? `<div class="card flat sm">«${r.msg}»</div>` : ''}
     <div class="card flat rwkv"><div><span>إضافي اليوم</span><b>${S.kid[kid].spent} من ${S.redeemCap} د</b></div>${wal ? `<div><span>في ${vb(k, 'محفظته', 'محفظتها')}</span><b>${rwPt(S.kid[kid].pts)}</b></div>` : `<div><span>النقاط</span><b>بلا محفظة</b></div>`}</div>
     ${O.length ? `<p class="d">الوقت الممنوح يضاف إلى هذا التطبيق فقط، وينتهي عند منتصف الليل، ولا يفتحه أثناء النوم أو المدرسة. ${why('extra')}</p><div class="btns" style="margin-bottom:8px">${O.map(n => btn(`${n} د`, `reqGrant:${id}:${n}`, n === pick ? '' : 'ton')).join('')}</div>` : callout(`${vb(k, 'أخذ', 'أخذت')} ${k.n} اليوم كل الوقت الإضافي (${S.redeemCap} دقيقة). لتمنح أكثر ارفع الحد اليومي.${can('rewards.settings.edit') ? `<div style="margin-top:8px">${btn('غيّر الحد', 'go:ctl-edit:cap:' + kid, 'sm sec')}</div>` : ''}`, 'wa', 'hourglass_top')}
@@ -326,7 +326,7 @@ surface('obj-decide', {
     if (!o) return `<h4>لا اعتراض ينتظرك</h4><p class="d">حين يعترض أحد الأبناء على مهمة لم تُعتمد أو نقاط أُلغيت يصلك هنا.</p>${btn('حسناً', 'close', 'sec')}`;
     const s = rwSub(o.kid, o.sub), k = M[o.kid], wal = rwHas(o.kid), d = S.od && S.od.id === o.id ? S.od : null;
     const eff = s.ty === 'rev' ? `تعود ${rwPt(s.pts)} إلى ${vb(k, 'محفظته', 'محفظتها')}.` : wal && s.pts ? `تُعتمد المهمة وتودَع ${rwPt(s.pts)} في ${vb(k, 'محفظته', 'محفظتها')}.` : 'تُسجَّل المهمة منجزة. لا نقاط لأن المراهق بلا محفظة.';
-    const head = `<div class="fx" style="margin-bottom:10px">${av(k)}<div><h4>${k.n} ${vb(k, 'يعترض', 'تعترض')} على قرار</h4><span class="sm muted">${o.at}</span></div></div><div class="card flat rwkv"><div><span>القرار</span><b>${s.t}</b></div><div><span>من قرره</span><b>${rwWho(s.by)}</b></div><div><span>السبب المسجَّل</span><b>${s.why}</b></div>${s.ev ? `<div><span>الدليل</span><b>${s.ev}</b></div>` : ''}</div><div class="card flat sm">«${o.txt}»</div>`;
+    const head = `<div class="fx" style="margin-bottom:12px">${av(k)}<div><h4>${k.n} ${vb(k, 'يعترض', 'تعترض')} على قرار</h4><span class="sm muted">${o.at}</span></div></div><div class="card flat rwkv"><div><span>القرار</span><b>${s.t}</b></div><div><span>من قرره</span><b>${rwWho(s.by)}</b></div><div><span>السبب المسجَّل</span><b>${s.why}</b></div>${s.ev ? `<div><span>الدليل</span><b>${s.ev}</b></div>` : ''}</div><div class="card flat sm">«${o.txt}»</div>`;
     if (o.st !== 'PENDING') return `${head}${callout(o.st === 'ACCEPTED' ? `قُبل الاعتراض. ${o.eff}` : `رُفض الاعتراض. السبب: ${o.why}`, o.st === 'ACCEPTED' ? 'ok' : 'nt', o.st === 'ACCEPTED' ? 'check_circle' : 'reply')}${btn('حسناً', 'close', 'sec')}`;
     if (!can('rewards.objection.decide')) return `${head}<p class="sm muted c">القرار على الاعتراض لأحمد وحده.</p>`;
     if (d) return `<h4>سبب الرفض</h4><p class="d">${vb(k, 'يقرؤه', 'تقرؤه')} ${k.n} كما تكتبه. جملة هادئة تكفي.</p><div class="chips" style="margin-bottom:8px">${RW_NOQ.map((x, i) => `<button class="chip ${d.why === x ? 'in' : 'ol'}" style="min-height:40px;padding:0 12px" data-a="rwOdSet:${i}">${x}</button>`).join('')}</div><label class="fld"><span>أو اكتب سبباً آخر</span><input id="odW" maxlength="80" value="${RW_NOQ.includes(d.why) ? '' : d.why}"></label><div class="btns">${btn('رجوع', 'rwOdBack', 'sec')}${btn('ارفض الاعتراض', 'rwObjNo:' + o.id)}</div>`;

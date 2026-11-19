@@ -4,9 +4,9 @@
 //   contrast  نص تباينه مع خلفيته أقل من 4.5 (أو 3 للنص الكبير) — color-tokens.md §4؛ ما فوق تدرّج لوني أو صورة لا يُقاس
 //   kid       هدف لمس في قالب الطفل أقل من 56 (spacing-and-grid.md §3)
 //   cut       عنوان أو زر مقطوع بثلاث نقاط، في النص العادي والكبير 1.3 (للعلم: يُراجع بالعين؛ القائمة الطويلة تُقطع عمداً)
-//   offscale  أحجام خط خارج السلّم (للعلم: لا يُفشل الفحص)
+//   offscale  أحجام خط خارج السلّم (typography.md §3) — يُفشل الفحص منذ Q-436
 // التشغيل من مجلد prototype:  NODE_PATH=<node_modules> node tools/visual-audit.cjs [list]
-// النجاح: tiny=[] و spacing=[] و contrast=[] و kid=[] و errs=[].
+// النجاح: tiny=[] و spacing=[] و contrast=[] و kid=[] و offscale=[] و errs=[].
 const puppeteer=require('puppeteer-core');let chromium=require('@sparticuz/chromium');chromium=chromium.default||chromium;
 const root=require('path').join(__dirname,'..');
 (async()=>{const args=[...chromium.args.filter(a=>!/in-process-gpu|use-gl|use-angle|swiftshader|ignore-gpu/.test(a)),'--disable-gpu','--allow-file-access-from-files'];
@@ -15,7 +15,7 @@ try{const page=await b.newPage();await page.setViewport({width:1500,height:1000}
 await page.goto('file://'+root+'/index.html?quiet=1');await page.evaluate(()=>document.fonts.ready);await new Promise(r=>setTimeout(r,1500));
 await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important}'});
 R=await page.evaluate(()=>{const R={};const ph=document.getElementById('phone');const SCALE=ph.getBoundingClientRect().width/ph.offsetWidth;
- const SCALE_OK=[12,13,14,15,16,17,18,20,24,28,32,40].flatMap(v=>[v,v*1.15]);   /* السلّم (ومعه 13 و15 و17 المستعملة بين درجتين)، وكلٌّ بمضاعف الطفل */
+ const SCALE_OK=[12,13,14,15,16,17,18,20,24,28,32,40,56,64].flatMap(v=>[v,v*1.15]);   /* Q-436: 56 و64 لأرقام العدّ وحدها (display.num) */   /* السلّم (ومعه 13 و15 و17 المستعملة بين درجتين)، وكلٌّ بمضاعف الطفل */
  const rgb=s=>{const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return null;const p=m[1].split(/[, /]+/).map(Number);return{r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}};
  const lum=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(c.r)+.7152*f(c.g)+.0722*f(c.b)};
  const over=(t,u)=>({r:t.r*t.a+u.r*(1-t.a),g:t.g*t.a+u.g*(1-t.a),b:t.b*t.a+u.b*(1-t.a),a:1});
@@ -51,4 +51,4 @@ R=await page.evaluate(()=>{const R={};const ph=document.getElementById('phone');
 R.errs=errs;}catch(e){R.crash=String(e.stack||e).slice(0,900)}finally{await b.close()}
 if(process.argv[2]==='list')console.log(JSON.stringify(R,null,1));
 else console.log(JSON.stringify({tiny:R.tiny&&R.tiny.length,spacing:R.spacing&&R.spacing.length,contrast:R.contrast&&R.contrast.length,kid:R.kid&&R.kid.length,offscale:R.offscale&&R.offscale.length,cut:R.cut&&R.cut.length,errs:R.errs,crash:R.crash}));
-process.exitCode=(R.crash||R.errs.length||R.tiny.length||R.spacing.length||R.contrast.length||R.kid.length)?1:0;})();
+process.exitCode=(R.crash||R.errs.length||R.tiny.length||R.spacing.length||R.contrast.length||R.kid.length||R.offscale.length)?1:0;   /* Q-436: حجم خارج السلّم صار يُفشل الفحص */})();

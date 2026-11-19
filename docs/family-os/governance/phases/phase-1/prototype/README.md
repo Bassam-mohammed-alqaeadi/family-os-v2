@@ -146,7 +146,7 @@ node tools/test-s1-08.cjs      # المحادثة العائلية — 148 فح�
 node tools/test-s1-05.cjs      # المكافآت — 166 فحصاً
 node tools/test-s1-06.cjs      # المهام والتقويم — 277 فحصاً
 node tools/test-s1-04.cjs      # الخطط والاشتراكات — 229 فحصاً
-node tools/visual-audit.cjs    # الفحص البصري — يجب أن يخرج tiny وspacing وcontrast وkid صفراً (أضف list للتفصيل)
+node tools/visual-audit.cjs    # الفحص البصري — يجب أن يخرج tiny وspacing وcontrast وkid وoffscale صفراً (أضف list للتفصيل)
 node tools/audit.cjs           # أهداف اللمس في المنصة كلها — يجب أن يخرج touch وoverlap وgap وjiggle وdead فارغة (أضف 1.3 للخط الكبير أو «1 en» للإنجليزية)
 node tools/reach.cjs           # مداخل الأسطح وتسميتها — يجب أن تخرج unreached وstaleState وunnamed وuncovered فارغة (لا يحتاج متصفحاً)
 ```

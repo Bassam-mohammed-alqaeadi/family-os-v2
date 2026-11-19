@@ -165,7 +165,7 @@ surface('map', {
     if (!isAdult()) return `<div class="mpad">${locSelf()}</div>`;
     const ids = mapIds();
     if (!ids.length) return `<div class="mpad">${empty('location_off', 'لا مواقع مرئية لكِ', 'لم يُسمح لكِ برؤية موقع أحد من العائلة.', why('nd:location.view'))}</div>`;
-    if (S.locLoad) return `<div class="mapscr" aria-busy="true"><div class="fch mfch">${ids.map(() => '<span class="skel" style="width:78px;height:36px;border-radius:99px;margin:0;flex:none"></span>').join('')}</div>${fMap(0, { fill: 1, ids, sk: 1, z: MAP_Z[0], c: mapView().c })}<section class="mpanel ${mapOff() ? 'nomap' : ''}"><p class="sm muted fx" style="margin:16px 4px 12px;gap:6px" role="status">${ic('sync')}<span>جارٍ جلب المواقع…</span></p>${ids.map(() => '<div class="skel" style="height:54px"></div>').join('')}</section></div>`;
+    if (S.locLoad) return `<div class="mapscr" aria-busy="true"><div class="fch mfch">${ids.map(() => '<span class="skel" style="width:78px;height:36px;border-radius:var(--r-full);margin:0;flex:none"></span>').join('')}</div>${fMap(0, { fill: 1, ids, sk: 1, z: MAP_Z[0], c: mapView().c })}<section class="mpanel ${mapOff() ? 'nomap' : ''}"><p class="sm muted fx" style="margin:16px 4px 12px;gap:6px" role="status">${ic('sync')}<span>جارٍ جلب المواقع…</span></p>${ids.map(() => '<div class="skel" style="height:54px"></div>').join('')}</section></div>`;
     const V = mapView(), F = V.F, one = F.length === 1 ? F[0] : '', Ls = ids.map(locOf);
     const old = Ls.filter(l => !l.none && !l.live), sos = S.sos && S.sos.st === 'sent' && S.sos.from !== me().id;
     const strip = sos ? `<button class="mstrip da" data-a="go:sos-status">${ic('sos')}<span><b>${M[S.sos.from].n} ${vb(M[S.sos.from], 'يستغيث', 'تستغيث')} الآن</b> · افتح التنبيه</span></button>`
@@ -178,8 +178,8 @@ surface('map', {
     if (one) {
       const l = locOf(one), m = M[one], d = distTxt(l), kid = !!S.kid[one];
       body = `<div class="mhead">${av(m)}<div class="grow"><b>${pname(m)}</b><div class="sm muted">${l.paused ? pausedTxt(m) : l.none ? 'لا موقع معروف بعد' : S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</div></div><button class="ib" data-a="mapFit" aria-label="أغلق وأظهر الجميع">${ic('close')}</button></div>
-      ${l.paused ? `<p class="sm muted" style="margin:10px 2px">${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.</p>` : l.none ? `<p class="sm muted" style="margin:10px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:10px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
-      ${l.live ? '' : `<p class="sm" style="margin:0 2px 10px">${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.</p>`}`}
+      ${l.paused ? `<p class="sm muted" style="margin:12px 2px">${vb(m, 'يعود موقعه', 'يعود موقعها')} إلى الخريطة حين ${vb(m, 'يشغّل', 'تشغّل')} المشاركة.</p>` : l.none ? `<p class="sm muted" style="margin:12px 2px">لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.</p>` : `<div class="chips" style="margin:12px 0">${l.live ? chip(`${l.moving ? 'يتحرك' : 'موقع حي'} · ${minTxt(l.ago)}`, 'ok', l.moving ? 'directions_walk' : 'check') : chip(`آخر موقع معروف ${minTxt(l.ago)}`, 'stale', 'history')}${batChip(l)}${d ? chip(d, 'ol', 'route') : ''}${l.poor ? chip(`تقريبي · ضمن ${l.acc} متراً`, 'wa', 'location_on') : ''}</div>
+      ${l.live ? '' : `<p class="sm" style="margin:0 2px 12px">${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.</p>`}`}
       <div class="btns3">${l.paused ? '' : refBtn(one, 'sm ton')}${l.none ? '' : btn('الاتجاهات', 'locDir:' + one, 'sm sec', 'route')}${btn('اتصال', 'locCall:' + one, 'sm sec', 'call')}${btn('مراسلة', 'locMsg:' + one, 'sm sec', 'chat')}</div>${refNote(one)}
       ${l.none ? '' : `<div class="gap"></div>${list(row('location_on', kid ? 'التفاصيل وسجل التنقل' : 'التفاصيل', '', { a: 'go:loc:' + one }))}`}`;
     } else if (F.length) {
@@ -188,9 +188,9 @@ surface('map', {
     } else {
       const sh = KIDS.reduce((n, k) => n + sibSeen(k).length, 0), mine = paused(me().id);
       body = `${list([...ids, ...locIdsAll().filter(noDev)].map(rowOf))}
-      ${locIdsAll().length < KIDS.length ? `<p class="xs muted" style="margin:6px 4px">من الأبناء يظهر من سُمح لكِ برؤيتهم فقط.</p>` : ''}
-      ${S.myLocOff ? `<p class="xs muted" style="margin:6px 4px">تحديد الموقع متوقف في هاتفك: لا يظهر مكانك على الخريطة ولا بُعد العائلة عنك.</p>` : ''}
-      <p class="xs muted" style="margin:6px 4px">الموقع يتحدّث كل دقيقة أثناء الحركة، وكل 5 دقائق عند السكون. «حدّث الآن» يطلب قراءة فورية.</p>
+      ${locIdsAll().length < KIDS.length ? `<p class="xs muted" style="margin:8px 4px">من الأبناء يظهر من سُمح لكِ برؤيتهم فقط.</p>` : ''}
+      ${S.myLocOff ? `<p class="xs muted" style="margin:8px 4px">تحديد الموقع متوقف في هاتفك: لا يظهر مكانك على الخريطة ولا بُعد العائلة عنك.</p>` : ''}
+      <p class="xs muted" style="margin:8px 4px">الموقع يتحدّث كل دقيقة أثناء الحركة، وكل 5 دقائق عند السكون. «حدّث الآن» يطلب قراءة فورية.</p>
       ${sec('المشاركة والاستغاثة')}${list(row('location_on', 'مشاركة موقعي', mine ? 'متوقفة: لا يظهر مكانك لأحد على الخريطة' : isOwner() ? 'يظهر مكانك للكبار في العائلة، ولمن تختاره من الأبناء' : `يظهر مكانك للكبار في العائلة، ولمن يختاره ${M.ahmad.n} من الأبناء`, { tg: !mine, ta: 'myShare' }), isOwner() ? row('visibility', 'ما يراه الأبناء', sh ? 'بعضهم يرى مكان غيره' : 'كل ابن يرى مكانه فقط', { a: 'go:loc-share' }) : '', row('contact_emergency', 'جهات الطوارئ', (S.ec || []).length ? `${(S.ec || []).length} غير أهل البيت` : 'لا أحد غير أهل البيت بعد', { a: 'go:emergency' }), row('sos', 'تنبيهات الاستغاثة', sos ? 'استغاثة نشطة الآن' : 'لا استغاثة الآن', { a: 'go:sos-log' }))}`;
     }
     return `<div class="mapscr">${chips}${strip}${mapMain()}
@@ -266,9 +266,9 @@ function locSelf() {
   <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${l.why === 'gps' ? 'آخر مكان عرفه هاتفك' : 'أنت هنا'}</b><div class="sm muted">${S.privacy ? '••••' : l.place}${l.why === 'gps' ? ' · ' + minTxt(l.ago) : ''}</div></div>${batChip(l)}</div>
   ${l.why === 'gps' ? callout(`<b>تحديد الموقع متوقف في هاتفك</b><br>${teen ? 'شغّله ليعرف أهلك مكانك.' : 'اطلب من بابا أن يشغّله.'} زر الاستغاثة يعمل في كل حال، ويرسل آخر مكان معروف.`, 'wa', 'location_off') : ''}
   ${l.low ? callout('بطارية هاتفك منخفضة. اشحنه حين تستطيع.', 'wa', 'battery_alert') : ''}
-  ${see.length ? sec(teen ? 'من أراه على الخريطة' : 'أرى مكان') + list(see.map(sibRow)) + `<p class="xs muted" style="margin:6px 4px">${teen ? 'والدك هو من سمح لك برؤيتهم.' : 'بابا سمح لك أن ترى مكانهم.'}</p>` : ''}
+  ${see.length ? sec(teen ? 'من أراه على الخريطة' : 'أرى مكان') + list(see.map(sibRow)) + `<p class="xs muted" style="margin:8px 4px">${teen ? 'والدك هو من سمح لك برؤيتهم.' : 'بابا سمح لك أن ترى مكانهم.'}</p>` : ''}
   ${sec('من يرى مكاني')}${list(row('', P[0], teen ? 'يرى مكانك الدقيق دائماً، وسجل تنقلك 7 أيام' : 'يرى مكانك دائماً ليطمئن عليك', { lead: av(M.ahmad) }), saraSees(id) ? row('', P[1], teen ? 'ترى مكانك لأن والدك سمح لها' : 'ترى مكانك أيضاً', { lead: av(M.sara) }) : '', seen.map(k => row('', pname(M[k]), teen ? `${vb(M[k], 'يرى', 'ترى')} مكانك الآن فقط، بلا سجل، لأن والدك سمح` : `${vb(M[k], 'يرى', 'ترى')} مكانك لأن بابا سمح`, { lead: av(M[k]) })))}
-  <p class="xs muted" style="margin:6px 4px">${foot ? foot + '. ' : ''}${teen ? 'مشاركة الموقع مع الوالد لا تُطفأ.' : ''}</p>
+  <p class="xs muted" style="margin:8px 4px">${foot ? foot + '. ' : ''}${teen ? 'مشاركة الموقع مع الوالد لا تُطفأ.' : ''}</p>
   ${callout(`في الخطر اضغط زر الاستغاثة ${S.sos2 ? 'ثم أكّد' : '3 ثوانٍ'}: يصل مكانك ${teen ? 'لأهلك' : 'لبابا وماما'} فوراً.`, '', 'sos')}`;
 }
 
@@ -283,7 +283,7 @@ surface('loc-share', {
     return `${callout('كل ابن يرى مكانه هو فقط. هنا تختار من يظهر له من إخوته ومن والديه.<br>من تُظهر مكانه يعرف من يراه، والابن يرى المكان الحالي فقط بلا سجل تنقل.', '', 'visibility')}
     ${offline() ? callout('أنت دون اتصال: التغيير هنا يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}
     ${KIDS.map(k => sec(`على خريطة ${pname(M[k])}`) + list([...KIDS.filter(s => s !== k), ...ADULTS_LOC].map(s => row('', nm(s), sub(k, s), { lead: av(M[s]), tg: sibSeen(k).includes(s), ta: `shareT:${k}:${s}` })))).join('')}
-    <p class="xs muted" style="margin:10px 4px">مكان الأبناء الدقيق يبقى ظاهراً لك دائماً مهما اخترت هنا.</p>`;
+    <p class="xs muted" style="margin:12px 4px">مكان الأبناء الدقيق يبقى ظاهراً لك دائماً مهما اخترت هنا.</p>`;
   },
 });
 Object.assign(ACT, {
@@ -312,14 +312,14 @@ surface('loc', {
     if (l.nodev) return `${empty('mobile_off', 'لم يُقرن جهازه بعد', `يظهر موقع ${pname(m)} هنا بعد أن تقرن جهازه بالعائلة.`)}${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, '', 'devices') : ''}`;
     if (l.none) return `${empty('location_off', 'لا موقع معروف بعد', `لم يرسل جهاز ${pname(m)} موقعاً حتى الآن. يظهر هنا عند أول اتصال له.`)}${talk}`;
     return `${sos ? `<button class="callout da" style="width:100%;text-align:start" data-a="go:sos-status">${ic('sos')}<div><b>${m.n} ${vb(m, 'يستغيث', 'تستغيث')} الآن</b><br>افتح التنبيه</div></button>` : ''}
-    <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(19px*var(--ts))">${S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${locLine(l)}</div><div class="chips" style="margin-top:6px">${l.live ? chip('موقع حي', 'ok', 'check') : chip('ليس موقعاً حياً', 'stale', 'history')}${batChip(l)}</div></div></div>
+    <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${S.privacy ? 'المكان مخفي (وضع الخصوصية)' : l.place}</b><div class="sm muted">${locLine(l)}</div><div class="chips" style="margin-top:8px">${l.live ? chip('موقع حي', 'ok', 'check') : chip('ليس موقعاً حياً', 'stale', 'history')}${batChip(l)}</div></div></div>
     ${l.live ? '' : callout(`<b>آخر موقع معروف ${minTxt(l.ago)}</b><br>${locWhy(l, m)}. قد ${vb(m, 'يكون', 'تكون')} في مكان آخر الآن.${l.why === 'ios' ? ' ' + why('ios') : ''}`, 'wa', 'history')}
     ${fMap(210, { ids: [id], big: 1 })}<div class="gap"></div>
     ${refBtn(id, 'ton')}${refNote(id)}<div class="gap"></div>
     ${list(row('schedule', 'آخر تحديث', '', { v: minTxt(l.ago) }), row('location_on', 'الدقة', l.poor ? `تقريبي: ${vb(m, 'هو', 'هي')} في مكان ما داخل الدائرة` : '', { v: l.poor ? `ضمن ${l.acc} متراً` : `بحدود ${l.acc} متراً` }), row(l.low ? 'battery_alert' : 'battery_5_bar', 'البطارية', l.low ? 'منخفضة: يقلّ تحديث الموقع ليبقى ما يكفي للاستغاثة' : '', { v: l.bat + '%' }), distTxt(l) ? row('route', 'البعد عنك', l.live ? 'تقريبي' : 'من آخر موقع معروف', { v: distTxt(l).replace('يبعد ', '') }) : '')}
     ${l.low && l.why !== 'off' ? `<div class="gap"></div>${btn(`اطلب من ${pname(m)} شحن الهاتف`, 'locMsg:' + id, 'ton', 'chat')}` : ''}<div class="gap"></div>${talk}<div class="gap"></div>
     ${list(row('route', 'الاتجاهات', l.live ? 'يفتح تطبيق الخرائط في هاتفك' : 'إلى آخر موقع معروف', { a: 'locDir:' + id }), grown ? '' : can('location.history.view', id) ? row('history', 'سجل التنقل', 'آخر 7 أيام', { a: 'go:history:' + id }) : row('history', 'سجل التنقل', avail('not_delegated'), { a: 'denied:location.history.view', c: 'dis' }))}
-    ${grown ? '<p class="xs muted" style="margin:6px 4px">لا سجل تنقل للكبار: يظهر المكان الحالي فقط.</p>' : ''}`;
+    ${grown ? '<p class="xs muted" style="margin:8px 4px">لا سجل تنقل للكبار: يظهر المكان الحالي فقط.</p>' : ''}`;
   },
 });
 Object.assign(ACT, {
@@ -376,12 +376,12 @@ surface('emergency', {
     if (!isAdult()) return kidNo();
     const own = isOwner(), C = S.ec || [], q = SMS_Q[S.plan] + (S.smsTop || 0), left = smsLeft(), em = smsEm(), per = sosRcp('layan').length;
     return `${sec('يصلهم التنبيه دائماً')}${list(row('', M.ahmad.n, 'صاحب العائلة', { lead: av(M.ahmad) }), row('', M.sara.n, 'بالغة في العائلة', { lead: av(M.sara) }))}
-    <p class="xs muted" style="margin:6px 4px">كل بالغ في العائلة يصله تنبيه الاستغاثة ومكان المستغيث، بلا إضافة.</p>
+    <p class="xs muted" style="margin:8px 4px">كل بالغ في العائلة يصله تنبيه الاستغاثة ومكان المستغيث، بلا إضافة.</p>
     ${sec('من خارج البيت')}${C.length ? list(C.map(c => row('contact_emergency', c.n, `<span class="ltr">${c.p}</span> · أضافه ${c.by} ${c.at}`, { v: own ? `<button class="ib" data-a="ecDel:${c.id}" aria-label="حذف ${c.n}">${ic('delete')}</button>` : '' })))
       : empty('contact_emergency', 'لا أحد من خارج البيت بعد', 'أضف قريباً أو جاراً تثق به: يصله اسم المستغيث ومكانه عند كل استغاثة، ولا يرى الخريطة.')}
     ${own ? (offline() ? callout('الإضافة والحذف يحتاجان الإنترنت. القائمة المعروضة هي المحفوظة على هاتفك.', 'wa', 'cloud_off') : btn('أضف جهة طوارئ', 'ecNew', '', 'add')) : `<p class="sm muted" style="margin:8px 4px">${ic('lock')} يضيفهم ويحذفهم أحمد وحده.</p>`}
     ${sec('إن انقطع الإنترنت')}<div class="card"><div class="sm">عند الاستغاثة بلا إنترنت يرسل الهاتف رسالة نصية بالمكان إلى كل واحد: <b>${per} ${per > 2 && per < 11 ? 'رسائل' : per === 2 ? 'رسالتان' : 'رسالة'}</b> لكل استغاثة.</div>
-    <div class="fx sb sm" style="margin-top:10px"><b>رصيد الرسائل هذا الشهر</b><span>${left} باقية من ${q}</span></div><div style="margin:8px 0">${pbar((q - left) / q * 100, left / q < .2 ? 'wa' : '')}</div>
+    <div class="fx sb sm" style="margin-top:12px"><b>رصيد الرسائل هذا الشهر</b><span>${left} باقية من ${q}</span></div><div style="margin:8px 0">${pbar((q - left) / q * 100, left / q < .2 ? 'wa' : '')}</div>
     <div class="xs muted">بعد نفاد الرصيد تبقى 3 رسائل للاستغاثة فقط كل شهر${em < 3 ? ` · الباقي منها ${em}` : ''}.</div></div>
     ${left + em < per ? callout(`<b>الرصيد لا يكفي لإبلاغ الجميع بلا إنترنت</b><br>${left + em ? `تصل الرسالة إلى ${left + em} من ${per} بهذا الترتيب: أنت، ثم البالغون، ثم من خارج البيت.` : 'لن تُرسل أي رسالة نصية. تبقى الاستغاثة محفوظة في الهاتف وتُرسل فور عودة الإنترنت.'}${own ? `<div style="margin-top:8px">${btn('تعبئة الرصيد', 'go:topup', 'sm')}</div>` : ''}`, 'wa', 'sms') : ''}`;
   },
@@ -433,18 +433,18 @@ surface('sos-sent', {
   r() {
     const s = S.sos, R = s.R || sosRcp(s.from), tot = R.length, got = s.got ?? tot, kid = !isAdult(), dad = kid ? (me().role === 'teen' ? 'والدك' : 'بابا') : 'سارة';
     const W = 'sec" style="background:#fff;color:#B42318;box-shadow:none', T = 'txt" style="color:#fff;width:100%';
-    const box = h => `<div style="background:#ffffff1a;border-radius:18px;padding:6px 14px">${h}</div>`, ln = (a, b, last) => `<div class="fx sb" style="padding:9px 0;${last ? '' : 'border-bottom:1px solid #ffffff22'}"><span>${a}</span><b style="text-align:end">${b}</b></div>`;
+    const box = h => `<div style="background:#ffffff1a;border-radius:var(--r-lg);padding:6px 14px">${h}</div>`, ln = (a, b, last) => `<div class="fx sb" style="padding:9px 0;${last ? '' : 'border-bottom:1px solid #ffffff22'}"><span>${a}</span><b style="text-align:end">${b}</b></div>`;
     const where = s.fix === 'last' ? ln('المكان المرسل', `${s.place} · آخر مكان معروف ${minTxt(s.lk || 18)}`, 1) : ln('مكانك المرسل', s.place, 1);
     const call = btn(`اتصل ب${dad} الآن`, 'sosCallOut', W, 'call');
     if (s.st === 'resolved') return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic('check_circle')}</div><p class="ttl">انتهت الاستغاثة</p><p class="sub">أغلقها ${s.by || 'أحمد'}.</p></div>${btn('أغلق', 'close', W)}</div>`;
-    if (s.pend === 'quota') return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic('schedule')}</div><p class="ttl">الاستغاثة معلّقة</p><p class="sub">لم تُرسل بعد: لا إنترنت الآن، ورصيد الرسائل النصية انتهى. تُرسل من نفسها فور عودة الإنترنت.</p>${box(ln('الرسائل الطارئة الباقية', `${smsEm()} من 3`) + where)}<p class="c" style="font-size:14px;margin:14px 0 0"><b>لا تنتظر: اتصل الآن.</b></p></div>${call}<div class="gap"></div>${btn('أخفِ هذه الشاشة', 'close', T)}</div>`;
+    if (s.pend === 'quota') return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic('schedule')}</div><p class="ttl">الاستغاثة معلّقة</p><p class="sub">لم تُرسل بعد: لا إنترنت الآن، ورصيد الرسائل النصية انتهى. تُرسل من نفسها فور عودة الإنترنت.</p>${box(ln('الرسائل الطارئة الباقية', `${smsEm()} من 3`) + where)}<p class="c" style="font-size:14px;margin:16px 0 0"><b>لا تنتظر: اتصل الآن.</b></p></div>${call}<div class="gap"></div>${btn('أخفِ هذه الشاشة', 'close', T)}</div>`;
     if (s.pend === 'composer') return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic('sms')}</div><p class="ttl">لم تُرسل الاستغاثة بعد</p><p class="sub">لا إنترنت الآن. جهّزنا رسالة نصية فيها مكانك إلى ${R.map(r => r.n).join(' و')}. افتحها واضغط «إرسال».</p>${box(where)}</div>${btn('افتح الرسالة وأرسلها', 'sosCompose', W, 'sms')}<div class="gap"></div>${call.replace(W, T)}</div>`;
     const sms = s.ch === 'sms';
     return `<div class="body"><div style="flex:1;display:flex;flex-direction:column;justify-content:center"><div class="bigic">${ic(s.ack ? 'done_all' : 'sos')}</div><p class="ttl">${s.ack ? `${s.ack} في الطريق إليك` : 'أُرسلت استغاثتك'}</p><p class="sub">وصلت إلى ${got} من ${tot} · ${sms ? 'برسالة نصية' : 'عبر الإنترنت'}</p>
     ${box(R.map((r, i) => ln(r.n, `<span class="fx" style="gap:5px;font-size:13px;justify-content:flex-end">${ic(s.ack === r.n ? 'directions_walk' : i < got ? 'done_all' : 'schedule')}${s.ack === r.n ? 'في الطريق' : i < got ? 'وصلت' : 'لم تُرسل بعد'}</span>`)).join('') + where)}
     ${sms ? `<p class="c" style="font-size:13px;opacity:.9;margin:12px 0 0">لا يوجد إنترنت، فأرسلنا رسالة نصية بمكانك.${got < tot ? ' الرصيد لم يكفِ للجميع: الباقون يصلهم التنبيه فور عودة الإنترنت.' : ''}${s.em || !smsLeft() ? ` الباقي ${smsEm()} من 3 رسائل طارئة.` : ''}</p>` : ''}
-    ${s.fix === 'last' ? `<p class="c" style="font-size:13px;opacity:.9;margin:10px 0 0">لم يلتقط الهاتف مكاناً جديداً، فأرسلنا آخر مكان معروف. نحاول تحديد مكانك الآن.</p>` : ''}
-    <p class="c" style="font-size:13px;opacity:.9;margin:10px 0 0">ضغطت بالخطأ؟ أخبر ${dad}: هو من يغلق الاستغاثة.</p></div>
+    ${s.fix === 'last' ? `<p class="c" style="font-size:13px;opacity:.9;margin:12px 0 0">لم يلتقط الهاتف مكاناً جديداً، فأرسلنا آخر مكان معروف. نحاول تحديد مكانك الآن.</p>` : ''}
+    <p class="c" style="font-size:13px;opacity:.9;margin:12px 0 0">ضغطت بالخطأ؟ أخبر ${dad}: هو من يغلق الاستغاثة.</p></div>
     ${call}<div class="gap"></div>${btn('أخفِ هذه الشاشة · تعود بزر الاستغاثة', 'close', T)}</div>`;
   },
 });
@@ -496,7 +496,7 @@ surface('sos-status', {
     const m = M[s.from], k = S.kid[s.from], R = s.R || sosRcp(s.from), got = s.got ?? R.length, st = sosStTxt(s), off = offline(), sms = s.ch === 'sms' || /SMS/.test(s.via || '');
     if (s.from === me().id) return `${empty('sos', 'هذه استغاثتك أنت', 'يغلقها بالغ آخر في العائلة.')}${btn('حالة استغاثتي', 'sosStart', 'sec')}`;
     const ackOk = can('location.sos.acknowledge'), resOk = can('location.sos.resolve');
-    return `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)"><div class="fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n} ${vb(m, 'يستغيث', 'تستغيث')}</b><div class="sm">${s.st === 'resolved' ? 'انتهت' : 'قبل لحظات'} · ${sms ? 'برسالة نصية' : 'عبر الإنترنت'}</div><div style="margin-top:6px">${chip(st[0], st[1], st[2])}</div></div></div></div>
+    return `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)"><div class="fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(20px*var(--ts))">${m.n} ${vb(m, 'يستغيث', 'تستغيث')}</b><div class="sm">${s.st === 'resolved' ? 'انتهت' : 'قبل لحظات'} · ${sms ? 'برسالة نصية' : 'عبر الإنترنت'}</div><div style="margin-top:8px">${chip(st[0], st[1], st[2])}</div></div></div></div>
     ${s.st !== 'resolved' && s.exh ? callout('<b>لم يؤكد أحد استلام هذه الاستغاثة</b><br>أُعيد التنبيه خمس مرات خلال ساعة ونصف، ثم توقف. أُرسلت رسالة نصية إلى أحمد. التنبيه باقٍ هنا حتى يُغلق.', 'da', 'priority_high') : ''}
     ${s.fix === 'last' ? callout(`<b>هذا آخر مكان معروف ${minTxt(s.lk || 18)}، لا مكان اللحظة</b><br>لم يلتقط الهاتف مكاناً جديداً عند الاستغاثة. يتحدّث هنا فور التقاطه.`, 'wa', 'history') : ''}
     ${fMap(200, { ids: k ? [s.from] : [], big: 1 })}<div class="gap"></div>
