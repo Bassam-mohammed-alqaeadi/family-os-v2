@@ -296,24 +296,25 @@ erDiagram
 ### 3-أ. تسجيل الدخول بالهاتف + OTP — اللوحة 1 من 2: طلب الرمز وتوجيهه (REQ-001/002/003 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
     participant Router as الموجّه
     participant Channels as قنوات
-    Father->>Client: إدخال رقم الهاتف
-    Client->>Ktor: POST /api/v1/identity/otp/request {phone, region}
+    Father->>App: إدخال رقم الهاتف
+    App->>Ktor: طلب رمز التحقق
     alt الرقم مقفل بعد 5 رموز خاطئة
-        Ktor-->>Client: 423 مع retry_after
-        Client-->>Father: الطلب مقفل
+        Ktor-->>App: 423 مع retry_after
+        App-->>Father: الطلب مقفل
     else الرقم غير مقفل
         Ktor->>Ktor: التحقق من الصيغة الدولية
         Ktor->>Router: توجيه OTP
         Router->>Channels: إرسال عبر WhatsApp
         alt فشل التوصيل
-            Router->>Channels: تحويل تلقائي إلى SMS المجمّع
+            Router->>Channels: تحويل تلقائي إلى المجمّع — SMS
             alt فشل SMS
                 Router->>Channels: تحويل تلقائي إلى مكالمة فائتة
             end
@@ -321,41 +322,48 @@ sequenceDiagram
     end
 ```
 
+- الرسالة 2: `POST /api/v1/identity/otp/request {phone, region}`.
+
 - يتبع في اللوحة 2: وصول الرمز والتحقق منه والخطوة الثانية. والبريد طريق مساوٍ (3-ب). والتوجيه: WhatsApp أولاً.
 
 ### 3-أ. تسجيل الدخول بالهاتف + OTP — اللوحة 2 من 2: التحقق والخطوة الثانية (REQ-003/004/005 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
     participant Channels as قنوات
     Channels-->>Father: وصول الرمز
-    Father->>Client: إدخال الرمز
-    Client->>Ktor: POST /api/v1/identity/otp/verify {phone, code}
+    Father->>App: إدخال الرمز
+    App->>Ktor: التحقق من الرمز
     alt الرمز صحيح
-        Ktor-->>Client: {access_token, refresh_token, totp_enrolled}
+        Ktor-->>App: {access_token, refresh_token, totp_enrolled}
         opt totp_enrolled = false
-            Client->>Ktor: POST /api/v1/identity/totp/enroll {}
-            Ktor-->>Client: {secret, qr}
-            Client->>Client: حفظ secret في المخزن
+            App->>Ktor: تسجيل الخطوة الثانية
+            Ktor-->>App: {secret, qr}
+            App->>App: حفظ السر في المخزن — secret
         end
         opt دخول حساس
-            Client->>Client: توليد الرمز على الهاتف
-            Client->>Ktor: POST /api/v1/identity/totp/verify {code}
-            Ktor-->>Client: {verified: true}
+            App->>App: توليد الرمز على الهاتف
+            App->>Ktor: التحقق من رمز الخطوة الثانية
+            Ktor-->>App: {verified: true}
         end
-        Client-->>Father: دخول ناجح
+        App-->>Father: دخول ناجح
     else الرمز خاطئ (أقل من 5)
-        Ktor-->>Client: 401 رمز خاطئ
-        Client-->>Father: رفض + المتبقية
+        Ktor-->>App: 401 رمز خاطئ
+        App-->>Father: رفض + المتبقية
     else 5 أخطاء
-        Ktor-->>Client: 423 مقفل 15 دقيقة
-        Client-->>Father: مقفل 15 دقيقة
+        Ktor-->>App: 423 مقفل 15 دقيقة
+        App-->>Father: مقفل 15 دقيقة
     end
 ```
+
+- الرسالة 3: `POST /api/v1/identity/otp/verify {phone, code}`.
+- الرسالة 5: `POST /api/v1/identity/totp/enroll {}`.
+- الرسالة 9: `POST /api/v1/identity/totp/verify {code}`.
 
 - إعادة الإرسال بعد 60 ثانية؛ بعد 5 طلبات فاشلة 429 (§4.1)؛ وإعادة الإرسال تُحسب طلباً وتُصدر رمزاً جديداً يُبطل السابق (جدول العدّادات — SPEC §3)؛ عند فشل كل القنوات: رسالة واضحة «تعذر الإرسال — حاول لاحقاً» ولا يُعرض الرمز على الشاشة أبداً (§7/سيناريو 2-5)؛ ورسائل SMS الاحتياطية عبر الموجّه تُحسب من حصة SMS لخطة العائلة (Q-106 · REQ-002)؛ وعند صفر حصة يُرفض OTP SMS وينتقل الموجّه إلى مكالمة فائتة مع إعلام المستخدم بالسبب؛ وOTP لا يستهلك رسائل الطوارئ أبداً — تجاوز Q-106 SOS فقط (Q-247). والتحقق من الصيغة الدولية E.164 عبر libphonenumber (REQ-019)؛ ولا يصفّر عدّاد الأخطاء إلا تحقق ناجح أو انتهاء القفل. الرمز صالح 5 دقائق؛ وإدخاله أو قراءته تلقائياً من SMS حيث يدعم الجهاز. `totp/enroll` يستدعيه العميل وحده بعد أول تحقق (Q-246)؛ ويُحفظ `secret` في مخزن الهاتف الآمن ولا يُعرض هو ولا `qr` — الهاتف صار موثوقاً. والخطوة الثانية (REQ-005) بلا تطبيق خارجي؛ والدخول الناجح جلسة 30 يوماً.
 
@@ -366,34 +374,38 @@ sequenceDiagram
 ### 3-ب. تسجيل الدخول بالبريد الإلكتروني (REQ-022/023/024 — §4.1/§4.2)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
     participant FBAuth as Firebase
-    Father->>Client: إدخال البريد الإلكتروني
-    Client->>Client: التحقق من صيغة البريد
-    Client->>FBAuth: طلب رابط البريد
+    Father->>App: إدخال البريد الإلكتروني
+    App->>App: التحقق من صيغة البريد
+    App->>FBAuth: طلب رابط البريد
     FBAuth-->>Father: رابط إلى البريد
-    Father->>Client: فتح الرابط
-    Client->>FBAuth: التحقق من الرابط
-    FBAuth-->>Client: ID Token
-    Client->>Ktor: POST /api/v1/identity/email/verify {firebase_id_token}
+    Father->>App: فتح الرابط
+    App->>FBAuth: التحقق من الرابط
+    FBAuth-->>App: ID Token
+    App->>Ktor: التحقق من البريد
     alt ID Token صالح والبريد غير مسجل لحساب آخر
         Ktor->>FBAuth: التحقق عبر Firebase Admin SDK
         FBAuth-->>Ktor: ID Token صالح
-        Ktor-->>Client: {access_token, refresh_token}
+        Ktor-->>App: {access_token, refresh_token}
         opt أول تحقق
-            Client->>Ktor: POST /api/v1/identity/totp/enroll {}
-            Ktor-->>Client: {secret, qr}
-            Client->>Client: حفظ secret في المخزن
+            App->>Ktor: تسجيل الخطوة الثانية
+            Ktor-->>App: {secret, qr}
+            App->>App: حفظ السر في المخزن — secret
         end
-        Client-->>Father: دخول ناجح
+        App-->>Father: دخول ناجح
     else بريد مسجل لحساب آخر
-        Ktor-->>Client: رفض برسالة واضحة
+        Ktor-->>App: رفض برسالة واضحة
     end
 ```
+
+- الرسالة 8: `POST /api/v1/identity/email/verify {firebase_id_token}`.
+- الرسالة 12: `POST /api/v1/identity/totp/enroll {}`.
 
 - البريد للبالغين فقط؛ لا يُطلب من الطفل إطلاقاً (D-006). عند تعذر الوصول إلى Firebase يُعرض خيار الهاتف وOTP تلقائياً دون انقطاع (REQ-024)؛ Firebase موصّل مصادقة لا سلطة — بيانات العائلة لا تعيش فيه (REQ-023). والطريق مساوٍ للهاتف (3-أ)؛ ولا يُطلب رقم هاتف بعد البريد (Q-400)؛ وبعد أول تحقق بالبريد يُسجَّل الهاتف موثوقاً كما في 3-أ؛ والدخول الناجح جلسة 30 يوماً بدوران. ورفض البريد المسجل لحساب آخر برسالة واضحة لا يُكشف فيها لمن ينتمي البريد. و`totp/enroll` يستدعيه العميل وحده.
 
@@ -404,34 +416,39 @@ sequenceDiagram
 ### 3-ج. إنشاء العائلة + الدعوة والانضمام (REQ-007/008/009/010 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     actor Mother as الأم
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
     participant Audit as التدقيق
-    Client-->>Father: اقتراح المنطقة والتوقيت
-    Father->>Client: تسمية العائلة والموافقة
-    Client->>Ktor: POST /api/v1/identity/families {name, region, time_zone}
+    App-->>Father: اقتراح المنطقة والتوقيت
+    Father->>App: تسمية العائلة والموافقة
+    App->>Ktor: إنشاء العائلة
     alt بلا عائلة بعد
-        Ktor-->>Client: {family_id, invite_code}
+        Ktor-->>App: {family_id, invite_code}
         Ktor->>Audit: AuditEvent — إنشاء عائلة
-        Client-->>Father: العائلة أُنشئت
+        App-->>Father: العائلة أُنشئت
     else لديه عائلة (عائلة واحدة لكل حساب)
-        Ktor-->>Client: رفض: عائلة ثانية
+        Ktor-->>App: رفض: عائلة ثانية
     end
-    Father->>Client: طلب رمز دعوة جديد
-    Client->>Ktor: POST /api/v1/identity/families/{id}/invite
-    Ktor-->>Client: {invite_code, expires_at}
+    Father->>App: طلب رمز دعوة جديد
+    App->>Ktor: طلب رمز دعوة
+    Ktor-->>App: {invite_code, expires_at}
     Father->>Mother: إرسال الرابط العميق
-    Mother->>Client: فتح الرابط
-    Mother->>Client: توثيق (3-أ) أو (3-ب)
-    Client->>Ktor: POST /api/v1/identity/families/join {invite_code}
+    Mother->>App: فتح الرابط
+    Mother->>App: توثيق (3-أ) أو (3-ب)
+    App->>Ktor: الانضمام بالرمز
     Ktor->>Audit: AuditEvent — انضمام بالغة
-    Ktor-->>Client: {family_id, role: adult}
-    Client-->>Mother: انضمت للعائلة
+    Ktor-->>App: {family_id, role: adult}
+    App-->>Mother: انضمت للعائلة
 ```
+
+- الرسالة 3: `POST /api/v1/identity/families {name, region, time_zone}`.
+- الرسالة 9: `POST /api/v1/identity/families/{id}/invite`.
+- الرسالة 14: `POST /api/v1/identity/families/join {invite_code}`.
 
 - المالك يلغي أي رمز دعوة معلق في أي وقت (REQ-010) — النقطة: `POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke`؛ رمز منتهٍ/غير صالح يُرفض دون كشف إن كان موجوداً أصلاً (§7). والرمز عشوائي، استخدام واحد، 7 أيام. والمنشئ مالك is_owner؛ والمنضمّة بلا صلاحيات إشرافية حتى يفوّضها الأب (Q-007). والموافقة على region و time_zone المقترحين من الهاتف؛ وعائلة ثانية غير مسموحة (Q-008).
 
@@ -442,13 +459,14 @@ sequenceDiagram
 ### 3-د. ملف طفل + اقتران جهاز + موافقة مشتركة — اللوحة 1 من 2: الملف ورمز الجهاز (REQ-011/012/013/014/021 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant ParentApp as جهاز الأب
     participant Ktor as الخادم
     Father->>ParentApp: إنشاء ملف طفل {nickname, avatar, color, birth_year}
-    ParentApp->>Ktor: POST /api/v1/identity/children {nickname, avatar, color, birth_year}
+    ParentApp->>Ktor: إنشاء ملف الطفل
     Ktor->>Ktor: سنة الميلاد ضمن النطاق
     alt سنة الميلاد خارج النطاق
         Ktor-->>ParentApp: رفض برسالة واضحة
@@ -457,15 +475,19 @@ sequenceDiagram
     Ktor-->>ParentApp: {membership_id}
     Father->>ParentApp: طلب رمز جهاز
     ParentApp->>ParentApp: توليد سر توقيع SOS
-    ParentApp->>Ktor: POST /api/v1/identity/devices/pairing-code {membership_id, device_hmac_secret, device_hmac_key_id}
+    ParentApp->>Ktor: إصدار رمز الجهاز
     Ktor-->>ParentApp: رمز الجهاز
 ```
+
+- الرسالة 2: `POST /api/v1/identity/children {nickname, avatar, color, birth_year}`.
+- الرسالة 9: `POST /api/v1/identity/devices/pairing-code {membership_id, device_hmac_secret, device_hmac_key_id}`.
 
 - سنة الميلاد ضمن النطاق: السنة الحالية − 99 … السنة الحالية (REQ-021). الدور والقالب: دون 13 child/standard، 13–17 teen/standard — لا حد أدنى للعمر ولا قالب لدون 7 (Q-426). رمز الجهاز 6 أحرف، صالح 15 دقيقة؛ وسر توقيع SOS (HMAC — 256 بت) مع معرّف device_hmac_key_id (UUID).
 
 ### 3-د. ملف طفل + اقتران جهاز + موافقة مشتركة — اللوحة 2 من 2: الإقران والموافقة (REQ-014/017 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -482,22 +504,25 @@ sequenceDiagram
     else الأب والطفل يوافقان
         Father->>ChildApp: كتابة الرقم السري للبوابة
         ChildApp->>ChildApp: توليد مفتاح توقيع
-        ChildApp->>Ktor: POST /api/v1/identity/devices/pair {pairing_code, device_cert, device_public_key}
+        ChildApp->>Ktor: إقران الجهاز
         alt الرمز صحيح والجهاز غير مقترن لعائلة أخرى
             Ktor->>Ktor: تبادل الشهادة وتسجيل المفتاح
             Ktor->>Ktor: حدث device.paired-new
             Ktor->>Audit: AuditEvent — إقران وموافقة
             Ktor->>Ktor: تسجيل device_hmac_key_id
-            Ktor-->>ChildApp: {device_id, mode: child, device_hmac_key_id, device_hmac_secret}
+            Ktor-->>ChildApp: تأكيد الإقران
             ChildApp->>ChildApp: حفظ سر SOS
             ChildApp-->>Child: جهازك في وضع الطفل
         else الجهاز مقترن لعائلة أخرى
-            Ktor-->>ChildApp: رفض: PIN العائلة الأولى
+            Ktor-->>ChildApp: رفض: الرقم السري للعائلة الأولى — PIN
         else رمز إقران منتهٍ (بعد 15 دقيقة)
             Ktor-->>ChildApp: رفض: يولّد الأب رمزاً
         end
     end
 ```
+
+- الرسالة 7: `POST /api/v1/identity/devices/pair {pairing_code, device_cert, device_public_key}`.
+- الرسالة 12: `{device_id, mode: child, device_hmac_key_id, device_hmac_secret}`.
 
 - الإقران ذري: إما يكتمل كاملاً (شهادة + مفتاح توقيع + سر توقيع SOS + وضع + عضوية) أو لا شيء (§7)؛ وسر توقيع SOS لا يمر عبر MQTT أبداً (MQTT-BROKER-SPEC:18)؛ والخادم يحفظه عابراً مربوطاً برمز الإقران (15 دقيقة كحد أقصى) ثم يتلفه؛ ويُخزَّن دائماً في `device_pairing` معرّف المفتاح فقط (S1-02 §5). الوضع يتحدد بالإقران ويُسلَّم للغلاف S1-01؛ وتبديل الملفات مؤجل للمرحلة 2 (Q-063) فلا تبديل للوضع في المرحلة 1؛ وشهادة الجهاز هي اعتماد MQTT (mTLS — Q-168 · REQ-014)؛ والموافقة شفافية عن الفئات المراقَبة لا عن المحتوى (REQ-017). والموافقة المشتركة: ما نجمعه ولماذا ومن يراه (S102-15) — «أوافق» و«ليس الآن» متساويان؛ و«ليس الآن» يوقف الإقران بلا سجل موافقة (Q-400). كتابة الرقم السري على جهاز الطفل (S1-01 3-ط — Q-397 · Q-142). مفتاح التوقيع (ECDSA P-256) مربوط بالعتاد (Q-164). تبادل الشهادة وتسجيل المفتاح العام (Q-181) + تحديد الوضع (طفل) نهائياً (Q-062). ورفض فك الإقران يتطلب PIN أب العائلة الأولى (REQ-015).
 
@@ -508,25 +533,29 @@ sequenceDiagram
 ### 3-هـ. الجلسة: تجديد ودوران وتسجيل خروج (REQ-006 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    Father->>Client: فتح التطبيق
-    Client->>Ktor: POST /api/v1/identity/sessions/refresh {refresh_token}
+    Father->>App: فتح التطبيق
+    App->>Ktor: تجديد الجلسة
     alt Refresh صالح
-        Ktor->>Ktor: إبطال Refresh القديم
-        Ktor-->>Client: {access_token, refresh_token}
-        Client-->>Father: الجلسة مستمرة
+        Ktor->>Ktor: إبطال الرمز القديم — Refresh
+        Ktor-->>App: {access_token, refresh_token}
+        App-->>Father: الجلسة مستمرة
     else Refresh منتهٍ أو مبطل
-        Ktor-->>Client: 401: إعادة تسجيل الدخول
+        Ktor-->>App: 401: إعادة تسجيل الدخول
     end
-    Father->>Client: تسجيل الخروج
-    Client->>Ktor: POST /api/v1/identity/sessions/logout
+    Father->>App: تسجيل الخروج
+    App->>Ktor: تسجيل الخروج
     Ktor->>Ktor: إبطال كل رموز الجلسة
-    Ktor-->>Client: تم تسجيل الخروج
+    Ktor-->>App: تم تسجيل الخروج
 ```
+
+- الرسالة 2: `POST /api/v1/identity/sessions/refresh {refresh_token}`.
+- الرسالة 8: `POST /api/v1/identity/sessions/logout`.
 
 - الجلسة مستمرة حتى سقف 30 يوماً من تسجيل الدخول (REQ-006)؛ وفتح التطبيق بـ Access Token منتهٍ؛ وتسجيل الخروج يبطل كل الرموز فوراً.
 
@@ -535,27 +564,28 @@ sequenceDiagram
 ### 3-و. استرداد الحساب بعد فقدان الهاتف والرقم (REQ-020 — §4.1/§7)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     actor Trusted as الموثوق
-    participant Client as العميل
+    participant App as التطبيق
     participant Old as الهاتف القديم
     participant Ktor as الخادم
-    participant MQTT as إشعار — family/{family_id}/alerts/new
-    Father->>Client: تعيين جهة الاسترداد الموثوقة
-    Client->>Ktor: POST /api/v1/identity/recovery/trusted-contact
-    Father->>Client: طلب استرداد
-    Client->>Ktor: POST /api/v1/identity/recovery/request {old_phone, new_phone}
+    participant MQTT as وسيط MQTT
+    Father->>App: تعيين جهة الاسترداد الموثوقة
+    App->>Ktor: تعيين جهة الاسترداد
+    Father->>App: طلب استرداد
+    App->>Ktor: طلب الاسترداد
     Ktor->>Trusted: طلب تأكيد الاسترداد
-    Trusted->>Ktor: POST /api/v1/identity/recovery/{id}/confirm
+    Trusted->>Ktor: تأكيد الاسترداد
     Ktor->>Ktor: بدء انتظار 7 أيام
     Ktor->>MQTT: إشعار كل أجهزة العائلة
     MQTT-->>Old: يظهر الطلب للهاتف القديم
     MQTT-->>Father: إشعار لكل جهاز
-    Father->>Ktor: GET /api/v1/identity/recovery/{id}
+    Father->>Ktor: الاستعلام عن الطلب
     alt صاحب الحساب يوقف الطلب
-        Old->>Ktor: POST /api/v1/identity/recovery/{id}/object
+        Old->>Ktor: إيقاف الطلب
         Ktor-->>Father: أُلغي طلب الاسترداد
     else اعتراض بالغ خلال الانتظار
         Ktor->>Ktor: إلغاء الطلب فوراً
@@ -564,6 +594,12 @@ sequenceDiagram
         Ktor-->>Father: استرداد الحساب بالرقم الجديد
     end
 ```
+
+- الرسالة 2: `POST /api/v1/identity/recovery/trusted-contact`.
+- الرسالة 4: `POST /api/v1/identity/recovery/request {old_phone, new_phone}`.
+- الرسالة 6: `POST /api/v1/identity/recovery/{id}/confirm`.
+- الرسالة 11: `GET /api/v1/identity/recovery/{id}`.
+- الرسالة 12: `POST /api/v1/identity/recovery/{id}/object`.
 
 - لا استيلاء صامت على الحساب: الانتظار + الإشعار + الاعتراض هي الضمانات الثلاث (سيناريو 2-7). والتسلسل نفسه يغطي الحالات الثلاث: فقدان الهاتف والرقم، أو فقدان الهاتف الموثوق، أو نسيان الرقم السري (Q-400). تعيين الجهة الموثوقة مسبقاً للمالك فقط. والطالب يكتب رقمه القديم والجديد ولا يختار الجهة ولا يُكشف له اسمها؛ وتأكيد الجهة بعد أن تسمع صوت صاحب الطلب؛ وحالة الطلب والأيام المتبقية في عداد S102-22. والإلغاء عبر POST …/recovery/{id}/object، والاكتمال عبر POST …/recovery/{id}/complete. والإشعار عبر family/{family_id}/alerts/new (Q-022 · Q-210).
 
@@ -575,37 +611,38 @@ sequenceDiagram
 ### 3-ز. حذف الحساب / المغادرة / التصدير — اللوحة 1 من 3: حذف الحساب (REQ-025/028 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    participant S103 as الصلاحية الكاملة — S1-03
+    participant S103 as الأدوار
     participant Audit as التدقيق
-    participant MQTT as الوسيط — family/{family_id}/alerts/new
-    Adult->>Client: طلب حذف حسابه
-    Client->>Ktor: DELETE /api/v1/identity/me
+    participant MQTT as وسيط MQTT
+    Adult->>App: طلب حذف حسابه
+    App->>Ktor: DELETE /api/v1/identity/me
     Ktor->>Ktor: فحص المفتاح delete_self
     Ktor->>S103: من يحمل الصلاحية الكاملة؟
     alt الطالب مالك ولا بالغ يحمل الصلاحية الكاملة
-        Ktor-->>Client: 403: أعطِ الصلاحية أولاً
+        Ktor-->>App: 403: أعطِ الصلاحية أولاً
     else الطالب يحمل الصلاحية الكاملة والمالك في مهلة حذف حسابه
-        Ktor-->>Client: 403: أنت تدير العائلة
+        Ktor-->>App: 403: أنت تدير العائلة
     else بالغ غير المالك — أو مالك والصلاحية الكاملة عند بالغ آخر
-        Ktor->>Client: طلب إعادة مصادقة
-        Client->>Ktor: إعادة مصادقة ناجحة
+        Ktor->>App: طلب إعادة مصادقة
+        App->>Ktor: إعادة مصادقة ناجحة
         Ktor->>Ktor: حذف ناعم وسجل الطلب
         Ktor->>Ktor: إبطال جلسات الطالب فوراً
         Ktor->>MQTT: إشعار الأب بالطلب
         Ktor->>Audit: تسجيل طلب الحذف
-        Ktor-->>Client: {status: "pending_deletion", purge_at}
+        Ktor-->>App: {status: "pending_deletion", purge_at}
         alt يلغي أثناء السماح — بنفسه فقط
-            Client->>Ktor: POST /api/v1/identity/me/deletion/cancel
+            App->>Ktor: إلغاء الحذف المعلق
             Ktor->>Ktor: إلغاء الحذف المعلق فوراً
-            Ktor-->>Client: {status: "active"}
+            Ktor-->>App: {status: "active"}
         else بلا إلغاء بعد 30 يوماً
             opt الطالب مالك
-                Ktor->>Ktor: نقل is_owner إلى الحامل
+                Ktor->>Ktor: نقل الملكية إلى الحامل — is_owner
                 Ktor->>MQTT: إشعار المالك الجديد
             end
             Ktor->>Ktor: حذف صلب وتطهير النسخ
@@ -613,47 +650,57 @@ sequenceDiagram
     end
 ```
 
+- الرسالة 4: `GET /api/v1/families/{id}/full-authority`.
+- الرسالة 14: `POST /api/v1/identity/me/deletion/cancel`.
+- موضوع MQTT: `family/{family_id}/alerts/new` (Q-210).
+
 - فحص المفتاح identity.account.delete_self (deny-override) — حق أصيل ممنوح عند الانضمام دائماً، لا يملك الأب سحبه (Q-291)؛ ومحاولة سحبه تُرفض: «حق الخروج لا يُسلب». الحذف الناعم: deleted_at + scheduled_purge_at (+30 يوماً) + سجل deletion_request (type: account) — REQ-028. إبطال الجلسات مرسوم رسالة ذاتية للخادم (الجلسات مخزن S102 في §5). إشعار الأب: وإن كان الطالب مالكاً فإشعار الحامل أنه يدير العائلة (Q-210 · Q-402).
 
 ### 3-ز. حذف الحساب / المغادرة / التصدير — اللوحة 2 من 3: المغادرة (REQ-026 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    participant S103 as الصلاحية الكاملة — S1-03
-    Adult->>Client: طلب المغادرة
-    Client->>Ktor: POST /api/v1/identity/me/leave
+    participant S103 as الأدوار
+    Adult->>App: طلب المغادرة
+    App->>Ktor: طلب المغادرة
     Ktor->>Ktor: فحص المفتاح family.leave
     alt الطالب مالك
-        Ktor-->>Client: 403: المالك لا يغادر
+        Ktor-->>App: 403: المالك لا يغادر
     else الطالب يحمل الصلاحية الكاملة والمالك في مهلة حذف حسابه
-        Ktor-->>Client: 403: أنت تدير العائلة
+        Ktor-->>App: 403: أنت تدير العائلة
     else المفتاح ممنوح
         Ktor->>S103: سحب الصلاحية الكاملة
         Ktor->>Ktor: مغادرة فورية
-        Ktor-->>Client: {status: "left"}
+        Ktor-->>App: {status: "left"}
     end
 ```
+
+- الرسالة 2: `POST /api/v1/identity/me/leave`.
 
 - فحص المفتاح identity.family.leave — حق أصيل ممنوح عند الانضمام دائماً (Q-291). سحب الصلاحية الكاملة إن كان يحملها (S1-03 §7-15). المغادرة الفورية: حذف العضوية + تجهيل الرسائل.
 
 ### 3-ز. حذف الحساب / المغادرة / التصدير — اللوحة 3 من 3: التصدير (REQ-027 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    Adult->>Client: طلب التصدير
-    Client->>Ktor: POST /api/v1/identity/me/export
+    Adult->>App: طلب التصدير
+    App->>Ktor: طلب التصدير
     Ktor->>Ktor: مهمة تصدير غير متزامنة
-    Ktor-->>Client: {export_id, status: "preparing"}
-    Ktor-->>Client: رابط تنزيل 7 أيام
+    Ktor-->>App: {export_id, status: "preparing"}
+    Ktor-->>App: رابط تنزيل 7 أيام
 ```
+
+- الرسالة 2: `POST /api/v1/identity/me/export`.
 
 - أو تصدير بيانات قاصر عبر POST /api/v1/identity/families/{id}/members/{memberId}/export. الصيغة JSON + وسائط؛ والرابط عند الجاهزية.
 
@@ -668,24 +715,27 @@ sequenceDiagram
 ### 3-ح. إعادة تسجيل مفتاح التوقيع بعد تغيير بصمة الأب (REQ-016 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Gate as بوابة الوالدين
     participant Ktor as الخادم
-    Father->>Client: فتح بالبصمة
+    Father->>App: فتح بالبصمة
     alt بصمات الأب تغيرت
-        Client->>Client: مفتاح التوقيع باطل
-        Client->>Gate: طلب PIN الأب
-        Gate-->>Client: PIN صحيح
-        Client->>Client: توليد مفتاح توقيع جديد
-        Client->>Ktor: POST /api/v1/identity/devices/{deviceId}/public-key
-        Ktor-->>Client: المفتاح الجديد مسجل
+        App->>App: مفتاح التوقيع باطل
+        App->>Gate: طلب الرقم السري للأب — PIN
+        Gate-->>App: PIN صحيح
+        App->>App: توليد مفتاح توقيع جديد
+        App->>Ktor: تسجيل المفتاح الجديد
+        Ktor-->>App: المفتاح الجديد مسجل
     else البصمات كما هي
-        Client-->>Father: فتح وضع الأهل
+        App-->>Father: فتح وضع الأهل
     end
 ```
+
+- الرسالة 6: `POST /api/v1/identity/devices/{deviceId}/public-key`.
 
 - تغيير بصمة الأب يُبطل مفتاح توقيع الجهاز (REQ-016)؛ وإعادة التسجيل بـ PIN قبل أي عملية حساسة (Q-164). والبصمة لا تفتح وضع الطفل أبداً ولا تتجاوز بوابة الوالدين. (البوابة هنا هي بوابة الوالدين في S1-01؛ وسُمّيت Gate لئلا يلتبس معرّف S101 مع الغلاف.)
 
@@ -696,45 +746,55 @@ sequenceDiagram
 ### 3-ط. عمليات الإدارة — اللوحة 1 من 2: الجلسات (REQ-006 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    Father->>Client: عرض الجلسات
-    Client->>Ktor: GET /api/v1/identity/sessions
-    Ktor-->>Client: {sessions: [...]}
-    Father->>Client: إبطال جلسة واحدة
-    Client->>Ktor: POST /api/v1/identity/sessions/{sessionId}/revoke
-    Ktor-->>Client: {session_id, status: "revoked"}
-    Father->>Client: إبطال كل جلساتي
-    Client->>Ktor: POST /api/v1/identity/sessions/revoke-all
-    Ktor-->>Client: {revoked_count}
+    Father->>App: عرض الجلسات
+    App->>Ktor: جلب الجلسات
+    Ktor-->>App: {sessions: [...]}
+    Father->>App: إبطال جلسة واحدة
+    App->>Ktor: إبطال الجلسة المحددة
+    Ktor-->>App: {session_id, status: "revoked"}
+    Father->>App: إبطال كل جلساتي
+    App->>Ktor: إبطال كل الجلسات
+    Ktor-->>App: {revoked_count}
 ```
+
+- الرسالة 2: `GET /api/v1/identity/sessions`.
+- الرسالة 5: `POST /api/v1/identity/sessions/{sessionId}/revoke`.
+- الرسالة 8: `POST /api/v1/identity/sessions/revoke-all`.
 
 - إبطال كل جلساتي فعل منفصل ببوابة الأب (PIN — Q-065). الإبطال الصريح يبطل رموز تلك الجلسة فقط؛ وبلا تتالٍ صامت إلى المنح — إلغاء منح لا يبطل أي جلسة (Q-257). إبطال الكل يبطل جلسات الشخص نفسه فقط على كل أجهزته؛ وبلا أثر على جلسات أي عضو آخر ولا على المنح (Q-257). حقول الجلسة: {session_id, device_id, device_label, last_active_at, expires_at, is_current}.
 
 ### 3-ط. عمليات الإدارة — اللوحة 2 من 2: الدعوات والملفات والإقران والموافقة (NEW-S102-08 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Client as العميل
+    participant App as التطبيق
     participant Ktor as الخادم
-    Father->>Client: إلغاء رمز دعوة معلق
-    Client->>Ktor: POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke
-    Ktor-->>Client: {invite_id, status: "revoked"}
-    Father->>Client: تعديل ملف طفل
-    Client->>Ktor: PATCH /api/v1/identity/children/{membershipId}
-    Ktor-->>Client: {membership_id}
-    Father->>Client: فك إقران جهاز
-    Client->>Ktor: POST /api/v1/identity/devices/{deviceId}/unpair
-    Ktor-->>Client: {device_id, status: "unpaired"}
-    Father->>Client: تسجيل موافقة مشتركة
-    Client->>Ktor: POST /api/v1/identity/consent
-    Ktor-->>Client: {consent_id}
+    Father->>App: إلغاء رمز دعوة معلق
+    App->>Ktor: إلغاء رمز الدعوة
+    Ktor-->>App: {invite_id, status: "revoked"}
+    Father->>App: تعديل ملف طفل
+    App->>Ktor: تعديل ملف الطفل
+    Ktor-->>App: {membership_id}
+    Father->>App: فك إقران جهاز
+    App->>Ktor: فك إقران الجهاز
+    Ktor-->>App: {device_id, status: "unpaired"}
+    Father->>App: تسجيل موافقة مشتركة
+    App->>Ktor: POST /api/v1/identity/consent
+    Ktor-->>App: {consent_id}
 ```
+
+- الرسالة 2: `POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke`.
+- الرسالة 5: `PATCH /api/v1/identity/children/{membershipId}`.
+- الرسالة 8: `POST /api/v1/identity/devices/{deviceId}/unpair`.
 
 - فك الإقران بـ PIN. إلغاء الإقران يبطل كل جلسات ذلك الجهاز فوراً؛ وبلا أثر على جلسات أجهزة أخرى (Q-257).
 
@@ -745,20 +805,23 @@ sequenceDiagram
 ### 3-ي. المهمة اليومية لبلوغ 13 (سيناريو 2-9 — Q-189 · Q-235 · Q-183 · Q-426)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     participant Job as المهمة اليومية (خادم Ktor)
     participant Bus as ناقل أحداث Ktor الداخلي (لا MQTT)
-    participant S103 as S1-03 — الأدوار
-    participant S110 as S1-10 — الحماية
+    participant S103 as الأدوار
+    participant S110 as الحماية
     Job->>Job: 1 يناير — منتصف الليل المحلي للعائلة (Q-183)
     opt طفل يبلغ 13 في هذه السنة (Q-235)
-        Job->>Bus: member.turned-teen — family_id + membership_id + birth_year (Q-189)
+        Job->>Bus: نشر حدث بلوغ 13
         Bus->>S103: member.turned-teen
         S103->>S103: role = teen
         Bus->>S110: member.turned-teen — بطاقة مراجعة
     end
 ```
+
+- الرسالة 2: `member.turned-teen — family_id + membership_id + birth_year (Q-189)`.
 
 - بلوغ 7 لا يُطلق شيئاً في المرحلة 1: قالب `minimal` وحدثه `member.turned-seven` معلّقان (Q-426)، والطفل دون 7 يرى قالب الطفل نفسه. بطاقة المراجعة في S1-10 (REQ-027). ومراجعة المنح غير الإشرافية + إشعار الأب مع تحويل الدور إلى teen.
 
@@ -769,59 +832,66 @@ sequenceDiagram
 ### 3-ك. طريق دخول ثانٍ لحساب قائم — اللوحة 1 من 2: الإضافة (REQ-029 — §4.1 — Q-425 · Q-427)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
-    participant Client as العميل
-    participant Gate as إعادة المصادقة على الجهاز
+    participant App as التطبيق
+    participant Gate as بوابة الوالدين
     participant Ktor as الخادم
     participant FBAuth as Firebase
     participant Channels as قنوات
-    Adult->>Client: إضافة طريق دخول
-    Client->>Gate: إعادة مصادقة
-    Gate-->>Client: إعادة مصادقة ناجحة
+    Adult->>App: إضافة طريق دخول
+    App->>Gate: إعادة مصادقة
+    Gate-->>App: إعادة مصادقة ناجحة
     alt يضيف بريداً
-        Client->>FBAuth: طلب رابط البريد
+        App->>FBAuth: طلب رابط البريد
         FBAuth-->>Adult: رابط إلى البريد
-        Adult->>Client: فتح الرابط
-        Client->>FBAuth: التحقق من الرابط
-        FBAuth-->>Client: ID Token
+        Adult->>App: فتح الرابط
+        App->>FBAuth: التحقق من الرابط
+        FBAuth-->>App: ID Token
     else يضيف رقماً
-        Client->>Ktor: POST /api/v1/identity/otp/request {phone}
+        App->>Ktor: طلب رمز التحقق
         Ktor->>Channels: إرسال رمز التحقق
         Channels-->>Adult: وصول الرمز
-        Adult->>Client: كتابة الرمز
+        Adult->>App: كتابة الرمز
     end
-    Client->>Ktor: POST /api/v1/identity/me/login-methods {type, …}
+    App->>Ktor: إضافة طريق الدخول
     alt البريد أو الرقم لحساب آخر
-        Ktor-->>Client: 409: يُرفض
+        Ktor-->>App: 409: يُرفض
     else ثبتت الملكية
         Ktor->>Ktor: إضافة الطريق + AuditEvent
-        Ktor-->>Client: {methods}
+        Ktor-->>App: {methods}
     end
     opt تعذّر الإيصال
-        Client-->>Adult: لم يُضَف: طريقك يعمل
+        App-->>Adult: لم يُضَف: طريقك يعمل
     end
 ```
+
+- الرسالة 9: `POST /api/v1/identity/otp/request {phone}`.
+- الرسالة 13: `POST /api/v1/identity/me/login-methods {type, …}`.
 
 - إعادة المصادقة: الرقم السري، أو البصمة لمن اختارها (Q-418). جسم POST: {type: email, firebase_id_token} أو {type: phone, phone, code}. خمس محاولات خاطئة للرمز ثم انتظار 15 دقيقة (Q-427). يدخل بعد الإضافة بأيهما. عند تعذّر إيصال الرمز أو الرابط لا يُضاف شيء، ويُقال إن طريق الدخول الحالي يعمل (REQ-024).
 
 ### 3-ك. طريق دخول ثانٍ لحساب قائم — اللوحة 2 من 2: الإزالة (REQ-029 — §4.1 — Q-425)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
-    participant Client as العميل
-    participant Gate as إعادة المصادقة على الجهاز
+    participant App as التطبيق
+    participant Gate as بوابة الوالدين
     participant Ktor as الخادم
-    Adult->>Client: أزل طريقاً
-    Client->>Gate: إعادة مصادقة
-    Gate-->>Client: إعادة مصادقة ناجحة
-    Client->>Ktor: DELETE /api/v1/identity/me/login-methods/{type}
+    Adult->>App: أزل طريقاً
+    App->>Gate: إعادة مصادقة
+    Gate-->>App: إعادة مصادقة ناجحة
+    App->>Ktor: إزالة طريق الدخول
     Ktor->>Ktor: إزالة الطريق + AuditEvent
-    Ktor-->>Client: {methods}
+    Ktor-->>App: {methods}
 ```
+
+- الرسالة 4: `DELETE /api/v1/identity/me/login-methods/{type}`.
 
 - الإزالة بالرقم السري؛ ولا يُزال آخر طريق دخول (409). الإضافة والإزالة تُسجَّلان في التدقيق (REQ-029(5)). للبالغين فقط (REQ-022). لا يظهر الطريق الجديد في الحساب قبل إثبات ملكيته.
 
@@ -830,34 +900,39 @@ sequenceDiagram
 ### 3-ل. تعديل العائلة بعد إنشائها (REQ-030 — §4.1 — Q-264 · Q-425)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Owner as المالك أو حامل الصلاحية الكاملة
-    participant Client as العميل
-    participant Gate as إعادة المصادقة على الجهاز
+    participant App as التطبيق
+    participant Gate as بوابة الوالدين
     participant Ktor as الخادم
-    Owner->>Client: «العائلة» — تعديل
+    Owner->>App: «العائلة» — تعديل
     opt الاسم — من حرفين إلى 30
-        Client->>Ktor: PATCH /api/v1/identity/families/{id} {name}
+        App->>Ktor: تعديل الاسم
         Ktor->>Ktor: AuditEvent بالقيمتين
-        Ktor-->>Client: حُفظ مع تراجع
+        Ktor-->>App: حُفظ مع تراجع
     end
     opt البلد
-        Client->>Gate: إعادة مصادقة
-        Client->>Ktor: PATCH /api/v1/identity/families/{id} {region}
+        App->>Gate: إعادة مصادقة
+        App->>Ktor: تعديل البلد
         Ktor->>Ktor: AuditEvent بالقيمتين
-        Ktor-->>Client: حُفظ: الأسعار لما بعده
+        Ktor-->>App: حُفظ: الأسعار لما بعده
     end
     opt المنطقة الزمنية
-        Client->>Gate: إعادة مصادقة
-        Client->>Ktor: PATCH /api/v1/identity/families/{id} {time_zone}
+        App->>Gate: إعادة مصادقة
+        App->>Ktor: تعديل المنطقة الزمنية
         Ktor->>Ktor: AuditEvent بالقيمتين
-        Ktor-->>Client: يسري فوراً
+        Ktor-->>App: يسري فوراً
     end
     opt بلا اتصال
-        Client-->>Owner: الحفظ معطَّل بلا اتصال
+        App-->>Owner: الحفظ معطَّل بلا اتصال
     end
 ```
+
+- الرسالة 2: `PATCH /api/v1/identity/families/{id} {name}`.
+- الرسالة 6: `PATCH /api/v1/identity/families/{id} {region}`.
+- الرسالة 10: `PATCH /api/v1/identity/families/{id} {time_zone}`.
 
 - تغيير البلد لا يغيّر المنطقة الزمنية ولا العكس (Q-264). بمفتاح `shell.config.edit` القائم. البلد يغيّر الأسعار وطرق الدفع وقناة رمز التحقق لما يأتي بعده، ولا يمس اشتراكاً قائماً حتى نهاية فترته. التوقيت يسري فوراً على كل أجهزة الأبناء فتُحسب بها نوافذ النوم والمدرسة ونهاية اليوم، والقواعد نفسها لا تتغير. آلية إبلاغ الأبناء بالتوقيت الجديد غير مسماة في المواصفة — سؤال للمالك (س-2).
 
@@ -878,27 +953,27 @@ flowchart TD
     Login -->|برقم الهاتف| Phone[إدخال رقم الهاتف]
     Login -->|بالبريد — طريق مساوٍ| EmailX[الدخول بالبريد — 4-ب]
     Phone --> Fmt{صيغة دولية صالحة؟ — E.164}
-    Fmt -->|لا| BadPhone[رفض فوراً برسالة واضحة]
+    Fmt -->|لا — صيغة خاطئة| BadPhone[رفض فوراً برسالة واضحة]
     BadPhone --> Phone
-    Fmt -->|نعم| OTP[طلب OTP — WhatsApp أولاً]
+    Fmt -->|نعم — صيغة صالحة| OTP[طلب رمز التحقق — WhatsApp]
     OTP --> Chan{القناة نجحت؟}
     Chan -->|لا — WhatsApp| SMS[تحويل تلقائي إلى SMS]
-    SMS --> Chan2{نجح SMS؟}
-    Chan2 -->|لا| Call[تحويل تلقائي إلى مكالمة فائتة]
+    SMS --> Chan2{نجح الإرسال؟ — SMS}
+    Chan2 -->|لا — فشل SMS| Call[تحويل تلقائي إلى مكالمة فائتة]
     Call --> Chan3{نجحت المكالمة؟}
-    Chan3 -->|لا| FailAll[تعذّر الإرسال — حاول لاحقاً]
+    Chan3 -->|لا — فشلت المكالمة| FailAll[تعذّر الإرسال — حاول لاحقاً]
     FailAll -->|إعادة بعد فاصل| OTP
-    Chan -->|نعم| Code[إدخال الرمز أو قراءته تلقائياً]
-    Chan2 -->|نعم| Code
-    Chan3 -->|نعم| Code
+    Chan -->|نعم — نجحت القناة| Code[إدخال الرمز أو قراءته تلقائياً]
+    Chan2 -->|نعم — نجح SMS| Code
+    Chan3 -->|نعم — نجحت المكالمة| Code
     Code --> CodeOK{الرمز صحيح؟}
     CodeOK -->|أقل من 5| Wrong[رفض + المحاولات المتبقية]
     Wrong --> Code
     CodeOK -->|لا — 5 أخطاء| Lock[قفل 15 دقيقة]
-    CodeOK -->|نعم| TOTP[الخطوة الثانية تُسجَّل وحدها]
+    CodeOK -->|نعم — الرمز صحيح| TOTP[الخطوة الثانية تُسجَّل وحدها]
 ```
 
-- «تعذّر الإرسال» يعيد المحاولة بعد فاصل إلى طلب OTP. والقفل 15 دقيقة لا تفكّه إعادة الإرسال. والخطوة الثانية تُسجَّل وحدها — الهاتف صار موثوقاً. وقراءة الرمز تلقائياً من SMS حيث يدعم الجهاز. وتابع في 4-ج بعد الخطوة الثانية.
+- «تعذّر الإرسال» يعيد المحاولة بعد فاصل إلى طلب OTP. والقناة الأولى WhatsApp. والقفل 15 دقيقة لا تفكّه إعادة الإرسال. والخطوة الثانية تُسجَّل وحدها — الهاتف صار موثوقاً. وقراءة الرمز تلقائياً من SMS حيث يدعم الجهاز. وتابع في 4-ج بعد الخطوة الثانية.
 
 ### 4-ب. الدخول بالبريد (REQ-022…024)
 
@@ -910,13 +985,13 @@ flowchart TD
     Login -->|بالبريد| Email[إدخال البريد الإلكتروني]
     Login -->|برقم الهاتف| PhoneX[الدخول بالهاتف — 4-أ]
     Email --> EmailFmt{صيغة بريد صالحة؟}
-    EmailFmt -->|لا| BadEmail[رفض برسالة واضحة]
+    EmailFmt -->|لا — صيغة خاطئة| BadEmail[رفض برسالة واضحة]
     BadEmail --> Email
-    EmailFmt -->|نعم| FB[Firebase Auth — رابط البريد]
+    EmailFmt -->|نعم — صيغة صالحة| FB[Firebase Auth — رابط البريد]
     FB --> FBDown{Firebase متاح؟}
-    FBDown -->|لا| FBFail[عرض خيار الهاتف وOTP تلقائياً]
+    FBDown -->|لا — الخدمة متعذرة| FBFail[عرض خيار الهاتف تلقائياً — OTP]
     FBFail --> PhoneX
-    FBDown -->|نعم| EmailLink[فتح رابط البريد]
+    FBDown -->|نعم — الخدمة متاحة| EmailLink[فتح رابط البريد]
     EmailLink --> TOTP[الخطوة الثانية تُسجَّل وحدها]
 ```
 
@@ -935,17 +1010,17 @@ flowchart TD
     Owner --> Bio[فتح سريع بالبصمة]
     Join --> Bio
     Bio --> ChildQ{إنشاء ملف طفل؟}
-    ChildQ -->|نعم| ChildProf[ملف طفل]
+    ChildQ -->|نعم — إنشاء ملف| ChildProf[ملف طفل]
     ChildProf --> Template[القالب حسب سنة الميلاد]
     Template --> Pair[إصدار رمز جهاز]
     Pair --> Consent{الموافقة المشتركة؟}
     Consent -->|ليس الآن| NotNow[يتوقف — لا إقران]
     Consent -->|أوافق| GatePin[كتابة الرقم السري للبوابة]
     GatePin --> PairOK{الإقران نجح؟}
-    PairOK -->|جهاز لعائلة أخرى| PairNo[رفض: PIN العائلة الأولى]
+    PairOK -->|جهاز لعائلة أخرى| PairNo[رفض: الرقم السري للعائلة الأولى — PIN]
     PairOK -->|رمز منتهٍ| PairExp[يولّد الأب رمزاً جديداً]
-    PairOK -->|نعم| Mode[وضع الطفل نهائي]
-    ChildQ -->|لا| ReadyX[جاهز — 4-د]
+    PairOK -->|نعم — نجح الإقران| Mode[وضع الطفل نهائي]
+    ChildQ -->|لا — بلا ملف| ReadyX[جاهز — 4-د]
     Mode --> ReadyX
 ```
 
@@ -1010,7 +1085,7 @@ flowchart LR
     Father -->|رقم الهاتف| P1
     P1 -->|طلب OTP| OTPCh
     OTPCh -->|نجاح / فشل القناة| P1
-    P1 -->|حفظ code_hash + المحاولات| D2
+    P1 -->|حفظ بصمة الرمز والمحاولات — code_hash| D2
     D2 -->|التحقق من الرمز| P1
     P1 -->|إنشاء / تحديث الشخص| D1
     P1 -->|إضافة رقم دخول ثانٍ| D1
@@ -1040,7 +1115,7 @@ flowchart LR
     P2 -->|إضافة بريد دخول ثانٍ| D1
     P2 -->|إصدار رموز الجلسة| P3
     P3 -->|حفظ refresh_token_hash| D3
-    D3 -->|دوران Refresh / إبطال| P3
+    D3 -->|دوران الرمز وإبطاله — Refresh| P3
     P2 <-->|"عقود (3-ب/3-ك)"| Ktor
     P3 <-->|"عقود (3-هـ/3-ط)"| Ktor
 ```
@@ -1206,7 +1281,7 @@ flowchart TD
     CL1[التحقق من الصيغة]
     V1[موجّه OTP]
     E1[WhatsApp / SMS / مكالمة]
-    CL2[قراءة OTP تلقائياً]
+    CL2[قراءة الرمز تلقائياً — OTP]
     F3[إدخال رمز التحقق]
     V2[التحقق من OTP]
     CL3[تسجيل الخطوة الثانية وحده]
