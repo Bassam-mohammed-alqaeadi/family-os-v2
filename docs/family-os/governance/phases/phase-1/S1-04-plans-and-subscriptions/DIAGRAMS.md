@@ -221,7 +221,7 @@ sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
-    participant K as "وحدة Kotlin"
+    participant K as وحدة Kotlin
     participant Ktor as الخادم
     participant Audit as التدقيق
     participant AppStore as المتجر
@@ -245,6 +245,8 @@ sequenceDiagram
 - الرسالة 5: `POST /api/v1/families/{id}/billing/purchase/verify-receipt {receipt_data}`
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين (قاعدة البيانات قبل الخارجية). لا تغيير في المحتوى.
+
+- رُسم 2026-11-19 (Q-440): أُزيلت علامتا الاقتباس عن اسم المشارك وحدة Kotlin.
 
 - لا يُرسَل `father_pin` إطلاقاً في هذا المسار — التحقق من الأب محلي على الجهاز (§4)؛ والإيصالات المكررة تُرفض (409) وتُسجَّل كـ FRAUD_SUSPECT (§6/§7).
 
