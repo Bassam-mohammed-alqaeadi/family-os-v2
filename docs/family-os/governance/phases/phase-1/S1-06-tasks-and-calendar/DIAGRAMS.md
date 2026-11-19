@@ -12,99 +12,115 @@
 
 18 حالة استخدام من السيناريوهات السبعة والمتطلبات (§2/§3): الأب والبالغ المفوَّض ينشئان المهام ويلغيانها، الطفل والمراهق يسلّمان، الذكاء يتحقق والأب احتياطي، والمحفظة (S1-05) ومركز الأوامر (S1-09) ممثلان كجهات خارجية. وإسناد مهمة بدلاً من منح الوقت (6-6) هو نفس حالة إنشاء المهمة، لا حالة مستقلة. والمساعد (REQ-018 · Q-415) بثلاث درجات: لا يُعدّ، يقترح، يسند ضمن حدود يضبطها الأب.
 
-### 1-أ. حالات الاستخدام — الأب والبالغ والمساعد
+### 1-أ. حالات الاستخدام — إنشاء المهام والفئات والتقويم (REQ-013 — UC10 عرض التقويم المزدوج)
+
+```mermaid
+flowchart LR
+    Father([الأب — المالك])
+    Adult([البالغ المفوَّض])
+
+    subgraph S106a [S1-06: المهام — الإنشاء والتقويم]
+        direction TB
+        UC1(UC1 إنشاء مهمة وإسنادها)
+        UC2(UC2 إضافة فئة مهمة)
+        UC3(UC3 إلغاء مهمة)
+        UC9(UC9 إنشاء حدث تقويم)
+        UC10(UC10 عرض التقويم المزدوج)
+        UC11(UC11 استلام تذكير)
+        UC18(UC18 تحذير التعارض عند الحفظ)
+    end
+
+    Father --> UC1
+    Father --> UC2
+    Father --> UC3
+    Father --> UC9
+    Father --> UC10
+    Father --> UC11
+    Adult --> UC1
+    Adult --> UC3
+    Adult --> UC9
+    Adult --> UC10
+    Adult --> UC11
+    UC1 -.->|يتضمن| UC18
+    UC9 -.->|يتضمن| UC18
+```
+
+### 1-ب. حالات الاستخدام — الاعتماد والرفض وإلغاء التحقق
+
+```mermaid
+flowchart LR
+    Father([الأب — المالك])
+    Adult([البالغ المفوَّض])
+    S105([محفظة النقاط S1-05])
+
+    subgraph S106b [S1-06: المهام — الاعتماد والرفض]
+        direction TB
+        UC6(UC6 الاعتماد اليدوي للأب)
+        UC7(UC7 رفض تسليم مع ملاحظات)
+        UC8(UC8 إلغاء تحقق)
+        UC14x["UC14 حدث الكسب — 1-د"]
+    end
+
+    Father --> UC6
+    Father --> UC7
+    Father --> UC8
+    Adult --> UC6
+    UC6 --> UC14x
+    UC14x --> S105
+    UC8 --> S105
+```
+
+### 1-ج. حالات الاستخدام — المساعد بدرجاته الثلاث
 
 ```mermaid
 flowchart LR
     Father([الأب — المالك])
     Adult([البالغ المفوَّض])
     AI([بوابة الذكاء Q-054])
-    S105([محفظة النقاط S1-05])
-    S109([مركز الأوامر S1-09])
-    MinIO([تخزين MinIO Q-058])
 
-    subgraph S106a [S1-06: المهام — الأب والبالغ]
+    subgraph S106c [S1-06: المهام — المساعد]
         direction TB
-        UC1(UC1 إنشاء مهمة وإسنادها)
-        UC2(UC2 إضافة فئة مهمة)
-        UC3(UC3 إلغاء مهمة)
-        UC6(UC6 الاعتماد اليدوي للأب)
-        UC7(UC7 رفض تسليم مع ملاحظات)
-        UC8(UC8 إلغاء تحقق)
-        UC9(UC9 إنشاء حدث تقويم)
-        UC10(UC10 عرض التقويم المزدوج)
-        UC11(UC11 استلام تذكير)
         UC15(UC15 ضبط تفويض المساعد)
         UC16(UC16 المساعد يقترح أو يسند)
         UC17(UC17 قبول الاقتراح أو صرفه)
-        UC18(UC18 تحذير التعارض عند الحفظ)
-        UC14x["UC14 حدث الكسب — 1-ب"]
+        UC1x["UC1 إنشاء مهمة — 1-أ"]
     end
 
-    Father --> UC1
-    Father --> UC2
-    Father --> UC3
-    Father --> UC6
-    Father --> UC7
-    Father --> UC8
-    Father --> UC9
-    Father --> UC10
-    Father --> UC11
     Father --> UC15
     Father --> UC17
-    Adult --> UC1
-    Adult --> UC3
-    Adult --> UC6
-    Adult --> UC9
-    Adult --> UC10
-    Adult --> UC11
     Adult --> UC17
     AI --> UC16
     UC15 -.->|يضبط| UC16
     UC16 --> UC17
-    UC17 --> UC1
-    UC16 --> UC1
-    UC1 -.->|يتضمن| UC18
-    UC9 -.->|يتضمن| UC18
-    UC6 --> UC14x
-    UC14x --> S105
-    UC8 --> S105
+    UC17 --> UC1x
+    UC16 --> UC1x
 ```
 
-### 1-ب. حالات الاستخدام — الطفل والمراهق والأنظمة
+### 1-د. حالات الاستخدام — الطفل
 
 ```mermaid
 flowchart LR
     Child([الطفل])
-    Teen([المراهق])
     AI([بوابة الذكاء Q-054])
     Server([خادم Ktor])
     S105([محفظة النقاط S1-05])
     S109([مركز الأوامر S1-09])
     MinIO([تخزين MinIO Q-058])
 
-    subgraph S106b [S1-06: المهام — الطفل والمراهق]
+    subgraph S106d [S1-06: المهام — الطفل]
         direction TB
         UC4(UC4 تسليم مهمة مع الإثبات)
         UC5(UC5 التحقق بالذكاء من الإنجاز)
-        UC12(UC12 مهمة شخصية — مراهق)
         UC13(UC13 تسليم مهمة دون اتصال)
         UC14(UC14 إصدار حدث الكسب)
         UC10x["UC10 عرض التقويم — 1-أ"]
         UC11x["UC11 استلام تذكير — 1-أ"]
-        UC3x["UC3 إلغاء مهمة — 1-أ"]
     end
 
     Child --> UC4
     Child --> UC10x
     Child --> UC11x
     Child --> UC13
-    Teen --> UC4
-    Teen --> UC10x
-    Teen --> UC11x
-    Teen --> UC12
-    Teen --> UC13
-    Teen -->|self only — Q-253| UC3x
     UC4 -.->|يتضمن| UC5
     UC4 --> AI
     UC5 --> AI
@@ -113,10 +129,36 @@ flowchart LR
     UC4 --> S109
     MinIO --> UC5
     UC13 --> Server
-    UC12 -.->|تسليم بلا نقاط Q-109| UC4
+```
+
+### 1-هـ. حالات الاستخدام — المراهق
+
+```mermaid
+flowchart LR
+    Teen([المراهق])
+
+    subgraph S106e [S1-06: المهام — المراهق]
+        direction TB
+        UC12(UC12 مهمة شخصية — مراهق)
+        UC4x["UC4 تسليم مهمة مع الإثبات — 1-د"]
+        UC10x["UC10 عرض التقويم — 1-أ"]
+        UC11x["UC11 استلام تذكير — 1-أ"]
+        UC13x["UC13 تسليم مهمة دون اتصال — 1-د"]
+        UC3x["UC3 إلغاء مهمة — 1-أ"]
+    end
+
+    Teen --> UC4x
+    Teen --> UC10x
+    Teen --> UC11x
+    Teen --> UC12
+    Teen --> UC13x
+    Teen -->|self only — Q-253| UC3x
+    UC12 -.->|تسليم بلا نقاط Q-109| UC4x
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — REQ-018 · Q-415 · Q-419): الحالات 14 ← 18 على لوحتين؛ وأُضيفت UC15 (ضبط تفويض المساعد — المالك وحده) وUC16 (المساعد يقترح أو يسند ضمن الحدود) وUC17 (قبول الاقتراح أو صرفه) وUC18 (تحذير التعارض عند الحفظ — يتضمنه إنشاء المهمة وإنشاء الحدث)؛ وقُصّرت التسميات إلى 5 كلمات. والعقد والأسهم قبل التقسيم وبعده: 23 عقدة/35 سهماً ← 35 عقدة/47 سهماً (الزيادة: UC15–UC18 الأربع + عقد مرجعية UC14x وUC10x وUC11x وUC3x + تكرار AI وS105 وS109 وMinIO في اللوحتين).
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): اللوحتان ← خمس لوحات (1-أ إنشاء المهام والفئات والتقويم، 1-ب الاعتماد والرفض وإلغاء التحقق، 1-ج المساعد، 1-د الطفل، 1-هـ المراهق)؛ والعقد والأسهم: 35 عقدة/47 سهماً ← 42 عقدة/47 سهماً (تكرار الأب والبالغ وUC1x وUC4x وUC10x وUC11x وUC13x؛ وحُذف إعلان S109 وMinIO غير المرتبطين من لوحات الأب — بلا أسهم لهما هناك، وهما مرسومان في 1-د). وأُعيد REQ-013 إلى عنوان 1-أ (UC10 عرض التقويم المزدوج).
 
 - ملاحظة: إلغاء التحقق (UC8) للأب وحده (§6 `tasks.revoke`)، وإضافة الفئة (UC2) للأب وحده (§6 `tasks.category.create`) — البالغ المفوَّض لا يملكهما. والمهمة الشخصية للمراهق (UC12) تُسلَّم وتُسجَّل منجزة بلا نقاط ولا يصدر عنها حدث كسب (§7). وإلغاء المهمة (UC3) للأب لأي مهمة، وللمراهق لمهامه التي أنشأها بنفسه فقط (Q-253)؛ وإلغاء مهمة لا يودع نقاطاً، ولا يكسر السلسلة ولا يقدّمها؛ وإلغاء مهمة معتمدة يُصدر `verification-revoked` + حالة CANCELLED (REQ-005 — مرسوم في §6).
 - المساعد (REQ-018 · Q-415): ضبط التفويض (UC15) للمالك وحده؛ ودرجاته ثلاث: لا يُعدّ، يقترح (يقرر الأب)، يسند ضمن الحدود (أقصى نقاط 5/10/15، 1–3 مهام لكل طفل في اليوم، والمُسند إليهم يحددهم الأب)؛ وكل اقتراح يظهر سببه وأساسه؛ والمساعد لا يلغي ولا يعدّل، ولا يمنح نقاطاً بلا مهمة، ولا يسند مهمة إثباتها شهادة، ولا يقرأ رسائل أو صوراً؛ وإلغاء التحقق (UC8) في يومه فقط وللمالك وحده ويتطلب اتصالاً (Q-415). وتحذير التعارض (UC18 · Q-419) عند حفظ المهمة أو الحدث: بطاقة واحدة بثلاثة مخارج (عدّل / إصلاح جاهز / احفظ كما هو بوسم «متعارض»).
@@ -259,30 +301,37 @@ erDiagram
 ### 3-أ. إنشاء مهمة وإسنادها (REQ-001/002/003 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
-    participant DB as قاعدة_البيانات
+    participant PG as المخزن
     participant Assignee as جهاز المُسند إليه
-    Father->>App: إنشاء مهمة (عنوان + مُسند واحد + فئة + نقاط + استحقاق + إثبات)
-    App->>Ktor: POST /api/v1/families/{id}/tasks {tasks.create}
+    Father->>App: إنشاء مهمة (عنوان + مُسند + فئة + نقاط)
+    App->>Ktor: إنشاء المهمة
     Ktor->>Ktor: التحقق من الصلاحية + النقاط (0 للمراهق Q-109)
     alt فئة جديدة
-        Ktor->>DB: إنشاء task_category (الأب وحده)
+        Ktor->>PG: إنشاء فئة مهمة (الأب وحده) — task_category
     end
-    Ktor->>DB: إدراج task (status=PENDING)
-    Ktor->>Ktor: جدولة تذكير المهمة (افتراضي قبل 60 دقيقة Q-124 — الخادم مالك الجدولة، مصدر الحقيقة الوحيد Q-280)
-    Note over Ktor,Assignee: المنبّه المحلي على جهاز المُسند إليه احتياط للتسليم فقط (§6)؛ والخادم يجدول التذكير ولو كان جهاز الطفل مطفأً (Q-280)
-    Ktor->>Assignee: نشر family/{family_id}/tasks.created (QoS 1 — §4) — المهمة ظهرت للمُسند إليه فوراً
+    Ktor->>PG: إدراج task (status=PENDING)
+    Ktor->>Ktor: جدولة تذكير المهمة (قبل 60 دقيقة)
+    Note over Ktor,Assignee: المنبّه المحلي احتياط للتسليم فقط؛ والخادم يجدول ولو كان الجهاز مطفأً
+    Ktor->>Assignee: نشر إنشاء المهمة
     Ktor-->>App: Task {task_id}
     App-->>Father: المهمة ظهرت للمُسند إليه فوراً
 ```
+- الرسالة 1: إنشاء مهمة (عنوان + مُسند واحد + فئة + نقاط + استحقاق + إثبات).
+- الرسالة 2: `POST /api/v1/families/{id}/tasks {tasks.create}`.
+- الرسالة 6: جدولة تذكير المهمة (افتراضي قبل 60 دقيقة Q-124 — الخادم مالك الجدولة، مصدر الحقيقة الوحيد Q-280).
+- الرسالة 7: نشر `family/{family_id}/tasks.created` (QoS 1 — §4) — المهمة ظهرت للمُسند إليه فوراً.
+- ملاحظة: المنبّه المحلي على جهاز المُسند إليه احتياط للتسليم فقط (§6)؛ والخادم يجدول التذكير ولو كان جهاز الطفل مطفأً (Q-280).
 
 ### 3-ب. التسليم والتحقق بالذكاء — نجاح (REQ-006/007 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -292,32 +341,42 @@ sequenceDiagram
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     Child->>App: تسليم المهمة مع الإثبات (صورة/تسجيل/تسليم ذاتي Q-122)
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/proof (ملف الإثبات — رفع عبر Ktor إلى MinIO — §4-1-أ)
+    App->>Ktor: رفع ملف الإثبات
     Ktor-->>App: {proof_ref}
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
-    Ktor->>Ktor: التحقق: المُسند إليه؟ تسليم نشط واحد؟ (TSK_ALREADY_SUBMITTED إن تكرر — والإعادة بنفس client_request_id تُعيد التسليم الأصلي)
-    Ktor->>Ktor: حفظ الإثبات في MinIO + proof_ref في task + status=SUBMITTED_BY_CHILD
-    Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
-    Note over Ktor,AI: مهلة الاستدعاء + إعادة محاولة واحدة تُحسب من الميزانية؛ وعند الفشل النهائي → احتياطي الأب (Q-121 — §7)
+    App->>Ktor: تسليم المهمة
+    Ktor->>Ktor: التحقق: المُسند وتسليم نشط واحد
+    Ktor->>Ktor: حفظ الإثبات وتحديث الحالة
+    Ktor->>AI: تحقق من الإنجاز (عقد Q-167) — agent.task.verify
+    Note over Ktor,AI: مهلة الاستدعاء + محاولة واحدة من الميزانية؛ وعند الفشل → احتياطي الأب
     alt دليل مباشر — منح تلقائي
         AI-->>Ktor: مطابق للمطلوب (مباشر)
     else دليل مقدَّم — تحقق ثم منح
         AI-->>Ktor: مطابق للمطلوب (مقدَّم)
     end
     Ktor->>Ktor: status=APPROVED + verified_by=ai
-    Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + طبقة الثقة
-    Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06} (Q-118)
-    Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
-    Note over Ktor,MQTT: فشل نشر MQTT لا يفقد الإيداع: الحدث الداخلي إلى S1-05 هو المرجع (Q-209 — §7)
+    Ktor->>Ktor: تسجيل الفعل والدليل — AgentActionLog
+    Ktor->>S105: نشر اكتمال المهمة
+    Ktor->>MQTT: نشر الاكتمال على MQTT
+    Note over Ktor,MQTT: فشل النشر لا يفقد الإيداع — MQTT
     S105-->>Ktor: إيداع النقاط في المحفظة
     Ktor-->>App: تم — النقاط دخلت المحفظة
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/proof` (ملف الإثبات — رفع عبر Ktor إلى MinIO — §4-1-أ).
+- الرسالة 4: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}`.
+- الرسالة 5: التحقق — المُسند إليه؟ تسليم نشط واحد؟ (`TSK_ALREADY_SUBMITTED` إن تكرر — والإعادة بنفس `client_request_id` تُعيد التسليم الأصلي).
+- الرسالة 6: حفظ الإثبات في MinIO + `proof_ref` في task + `status=SUBMITTED_BY_CHILD`.
+- الرسالة 11: `AgentActionLog` — الفعل + المفتاح `agent.task.verify` + الدليل + طبقة الثقة.
+- الرسالة 12: `family/{family_id}/tasks.completed {source_system=S1-06}` (Q-118).
+- الرسالة 13: `publish family/{family_id}/tasks.completed` (QoS 1 — Q-209).
+- ملاحظة: مهلة الاستدعاء + إعادة محاولة واحدة تُحسب من الميزانية؛ وعند الفشل النهائي → احتياطي الأب (Q-121 — §7).
+- ملاحظة: فشل نشر MQTT لا يفقد الإيداع: الحدث الداخلي إلى S1-05 هو المرجع (Q-209 — §7).
 
 - لا تُودع نقطة قبل التحقق (Q-110) — التسليم الذاتي وحده لا يودع شيئاً (§6).
 
 ### 3-ج-1. الذكاء لا يستطيع التحقق — الاعتماد اليدوي للأب (REQ-008 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -327,22 +386,28 @@ sequenceDiagram
     participant AI as الذكاء
     participant S105 as المحفظة
     Child->>App: تسليم المهمة مع الإثبات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
+    App->>Ktor: تسليم المهمة
     Ktor->>AI: تحقق من الإنجاز
     AI-->>Ktor: لا يستطيع التحقق
-    Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة (Q-121)
-    Note over Ktor: بطاقة "يتطلب انتباهك" في S1-09 (REQ-015) هي ما يبلّغ الأب — والنشر على MQTT موازٍ للحدث الداخلي (Q-209 — انظر 3-ب)
+    Ktor->>Ktor: تبقى معلّقة (Q-121)
+    Note over Ktor: بطاقة "يتطلب انتباهك" هي ما يبلّغ الأب — S1-09
     Father->>App: مراجعة الإثبات والنتيجة المسجلة مع السبب
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
+    Father->>Ktor: اعتماد يدوي
     Ktor->>Ktor: status=APPROVED + verified_by=father
-    Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
+    Ktor->>S105: نشر اكتمال المهمة
     S105-->>Ktor: إيداع النقاط
     Ktor-->>Father: اعتُمدت يدوياً وأُودعت النقاط
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}`.
+- الرسالة 5: تبقى `SUBMITTED_BY_CHILD` — معلّقة (Q-121).
+- الرسالة 7: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}`.
+- الرسالة 9: `family/{family_id}/tasks.completed {source_system=S1-06}`.
+- ملاحظة: بطاقة "يتطلب انتباهك" في S1-09 (REQ-015) هي ما يبلّغ الأب — والنشر على MQTT موازٍ للحدث الداخلي (Q-209 — انظر 3-ب).
 
 ### 3-ج-2. الذكاء يرفض الإنجاز — اعتماد يدوي يتجاوز الرفض (REQ-008 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -352,19 +417,23 @@ sequenceDiagram
     participant AI as الذكاء
     participant S105 as المحفظة
     Child->>App: تسليم المهمة مع الإثبات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
+    App->>Ktor: تسليم المهمة
     Ktor->>AI: تحقق من الإنجاز
     AI-->>Ktor: رفض الإنجاز لعدم المطابقة
     Ktor->>App: إشعار الطفل بسبب الرفض — بلا إيداع
     App-->>Child: أُشعِرت بسبب الرفض
-    Note over Ktor: بطاقة "يتطلب انتباهك" في S1-09 (REQ-015) — الأب يرى الرفض؛ والنشر على MQTT موازٍ للحدث الداخلي (Q-209 — انظر 3-ب)
+    Note over Ktor: بطاقة "يتطلب انتباهك" — الأب يرى الرفض — S1-09
     Father->>App: مراجعة الرفض
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id} — اعتماد يدوي يتجاوز الرفض
+    Father->>Ktor: اعتماد يدوي يتجاوز الرفض
     Ktor->>Ktor: status=APPROVED + verified_by=father
-    Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
+    Ktor->>S105: نشر اكتمال المهمة
     S105-->>Ktor: إيداع النقاط
     Ktor-->>Father: اعتُمدت يدوياً رغم الرفض وأُودعت النقاط
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}`.
+- الرسالة 8: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}` — اعتماد يدوي يتجاوز الرفض.
+- الرسالة 10: `family/{family_id}/tasks.completed {source_system=S1-06}`.
+- ملاحظة: بطاقة "يتطلب انتباهك" في S1-09 (REQ-015) — الأب يرى الرفض؛ والنشر على MQTT موازٍ للحدث الداخلي (Q-209 — انظر 3-ب).
 
 - أُعيد رسمه 2026-11-19 (Q-434): قُسّم 3-ج إلى لوحتين (كان 8 مشاركين و24 رسالة): 3-ج-1 لا يستطيع التحقق (6 مشاركين، 11 رسالة)، و3-ج-2 يرفض لعدم المطابقة (6 مشاركين، 12 رسالة). وبطاقة S1-09 والنشر على MQTT صارا ملاحظتين (المحتوى نفسه في §3 أعلاه و3-ب). والرسائل نفسها قبل التقسيم وبعده.
 
@@ -373,6 +442,7 @@ sequenceDiagram
 ### 3-د. الرفض مع ملاحظات وإلغاء تحقق (REQ-009 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -382,53 +452,68 @@ sequenceDiagram
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     Father->>App: رفض تسليم مع ملاحظات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}
+    App->>Ktor: رفض مع ملاحظات
     Ktor->>Ktor: status=PENDING + rejection_notes
     Note over Ktor: سجل التحقق يُغلق «مرفوض» (مُسجَّل في التدقيق — Q-254)
-    Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
+    Ktor-->>App: عادت المهمة ليعيدها الطفل — PENDING
     Child->>App: إعادة التسليم بإثبات جديد
     Note over Father,S105: إلغاء تحقق بعد الإيداع (الأب وحده — في اليوم نفسه فقط — Q-254)
-    Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification {client_request_id}
-    Ktor->>S105: family/{family_id}/tasks.verification-revoked → قيد تعويضي يخصم النقاط
-    Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
+    Father->>Ktor: إلغاء التحقق
+    Ktor->>S105: إصدار قيد تعويضي
+    Ktor->>MQTT: نشر إلغاء التحقق
     S105-->>Ktor: خصم من الرصيد الحالي (صفراً ولا سالب أبداً — §7)
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}`.
+- الرسالة 6: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification {client_request_id}`.
+- الرسالة 7: `family/{family_id}/tasks.verification-revoked` → قيد تعويضي يخصم النقاط.
+- الرسالة 8: `publish family/{family_id}/tasks.verification-revoked` (QoS 1 — Q-209).
 
 ### 3-هـ. التكرار RRULE وحدث التقويم والتذكير (REQ-010/011/012/013/014 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     actor Family as العائلة
     participant App as التطبيق
     participant Ktor as الخادم
-    participant K as Kotlin
+    participant K as "وحدة Kotlin"
     Father->>App: تفعيل التكرار لهذه المهمة (معطّل افتراضياً — Q-282)
-    Father->>App: إنشاء مهمة متكررة (RRULE: الأحد–الخميس)
-    App->>Ktor: POST /api/v1/families/{id}/tasks {rrule}
-    Ktor->>Ktor: التحقق من RRULE (TSK_INVALID_RRULE إن باطلة)
-    Note over Ktor,App: RRULE خام (iCalendar): byDay + byMonthDay + interval + endDate/endOccurrence + exdate + rdate — النسخ محسوبة عند الطلب (REQ-010 · ملحق RE)
+    Father->>App: إنشاء مهمة متكررة (الأحد–الخميس) — RRULE
+    App->>Ktor: إنشاء المهمة
+    Ktor->>Ktor: التحقق من التكرار — RRULE
+    Note over Ktor,App: قاعدة التكرار خام — iCalendar
     Ktor->>Ktor: النسخ محسوبة عند الطلب — لا صفوف مادية
     Ktor-->>App: نسخة اليوم ظاهرة؛ نسخة الغد تظهر صباحاً
-    Note over Ktor,App: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم (Q-123 · Q-183 · REQ-011)
+    Note over Ktor,App: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم
     Father->>App: إنشاء حدث تقويم (موعد طبيب الأسنان)
-    App->>Ktor: POST /api/v1/families/{id}/events
+    App->>Ktor: إنشاء حدث تقويم
     Note over Ktor: التكرار الماضي يبقى في السجل ولا يتكرر (REQ-012)
     Ktor->>Ktor: عرض مزدوج هجري (أم القرى) / ميلادي (Q-124)
-    Ktor->>Ktor: جدولة التذكير (الخادم مالك الجدولة — مصدر الحقيقة الوحيد، Q-280)
-    Note over Ktor,K: المنبّه المحلي احتياط للتسليم فقط: التطبيق يسلّحه بـ scheduleLocalReminder من بيانات الحدث المزامَنة (مرآة Drift — §5)؛ ويعمل دون اتصال (REQ-014)
+    Ktor->>Ktor: جدولة التذكير (الخادم مالكها)
+    Note over Ktor,K: المنبّه المحلي احتياط للتسليم فقط ويعمل دون اتصال
     K->>K: منبّه محلي دقيق يعمل دون اتصال (REQ-014)
     K-->>Family: تذكير لصاحب الحدث والأب قبل الموعد بساعة (Q-281)
-    Ktor->>Family: family/{family_id}/calendar.event.reminder — لصاحب الحدث + الأب كمراقب (Q-281 — §4)
-    Note over K,Family: التذكير الواحد لا يُعرض مرتين: المنبّه المحلي والحدث نسختا تسليم للتذكير نفسه (reminder_id واحد) — أول وصول يفوز ويُكتم الثاني (§6/§7)
+    Ktor->>Family: تذكير حدث التقويم
+    Note over K,Family: التذكير الواحد لا يُعرض مرتين — أول وصول يفوز
 ```
+- الرسالة 3: `POST /api/v1/families/{id}/tasks {rrule}`.
+- الرسالة 4: التحقق من RRULE — `TSK_INVALID_RRULE` إن باطلة.
+- الرسالة 8: `POST /api/v1/families/{id}/events`.
+- الرسالة 10: جدولة التذكير — الخادم مالك الجدولة، مصدر الحقيقة الوحيد (Q-280).
+- الرسالة 13: `family/{family_id}/calendar.event.reminder` — لصاحب الحدث + الأب كمراقب (Q-281 — §4).
+- ملاحظة: RRULE خام (iCalendar): `byDay` + `byMonthDay` + `interval` + `endDate`/`endOccurrence` + `exdate` + `rdate` — النسخ محسوبة عند الطلب (REQ-010 · ملحق RE).
+- ملاحظة: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم (Q-123 · Q-183 · REQ-011).
+- ملاحظة: المنبّه المحلي احتياط للتسليم فقط: التطبيق يسلّحه بـ `scheduleLocalReminder` من بيانات الحدث المزامَنة (مرآة Drift — §5)؛ ويعمل دون اتصال (REQ-014).
+- ملاحظة: التذكير الواحد لا يُعرض مرتين: المنبّه المحلي والحدث نسختا تسليم للتذكير نفسه (`reminder_id` واحد) — أول وصول يفوز ويُكتم الثاني (§6/§7).
 
 - تذكير حدث في الماضي يُتجاهل بصمت والحدث نفسه يبقى (§7)؛ وعرض التقويم 3 أشهر مقدماً كحد أقصى (REQ-010)؛ والتكرار معطّل افتراضياً ويُفعَّل صراحةً لكل مهمة (Q-282).
 
 ### 3-و. التسليم دون اتصال (REQ-016 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -436,19 +521,22 @@ sequenceDiagram
     participant OB as Outbox
     participant Ktor as الخادم
     Child->>App: تسليم مهمة دون اتصال
-    App->>OB: حفظ التسليم في Outbox (Drift محلي)
-    Note over App,OB: عند عودة الاتصال — إعادة محاولة محدودة بتراجع أسي؛ وإزالة التكرار بـ client_request_id لكل نسخة؛ واحتفاظ 7 أيام (§7)
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit (من Outbox) {proof_ref, client_request_id}
+    App->>OB: حفظ التسليم محلياً — Outbox / Drift
+    Note over App,OB: عند عودة الاتصال — إعادة محاولة بتراجع أسي؛ واحتفاظ 7 أيام
+    App->>Ktor: تسليم من Outbox
     alt المهمة أُلغيت أثناء الانقطاع
         Ktor-->>App: رفض التسليم + إشعار الطفل (§7)
     else المهمة ما زالت PENDING
         Ktor-->>App: قُبل التسليم — يمضي لمسار التحقق (3-ب/3-ج)
     end
 ```
+- الرسالة 3: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit` (من Outbox) `{proof_ref, client_request_id}`.
+- ملاحظة: عند عودة الاتصال — إعادة محاولة محدودة بتراجع أسي؛ وإزالة التكرار بـ `client_request_id` لكل نسخة؛ واحتفاظ 7 أيام (§7).
 
 ### 3-ز-1. شك الذكاء — إحالة للأب بنقرة واحدة (REQ-017 — عقد Q-167 §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -456,19 +544,24 @@ sequenceDiagram
     participant App as التطبيق
     participant Ktor as الخادم
     participant AI as الذكاء
-    participant S109 as المركز
+    participant S109 as مركز الأوامر
     Child->>App: تسليم المهمة مع الإثبات
-    App->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}
-    Ktor->>AI: تحقق من الإنجاز (مفتاح agent.task.verify — عقد Q-167)
-    AI-->>Ktor: شك — الدليل غير حاسم (confidence_tier=مشكوك)
-    Ktor->>Ktor: تبقى SUBMITTED_BY_CHILD — معلّقة + AgentActionLog (الشك + الدليل)
-    Ktor->>S109: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" — اعتماد بنقرة واحدة (REQ-015)
+    App->>Ktor: تسليم المهمة
+    Ktor->>AI: تحقق من الإنجاز (عقد Q-167) — agent.task.verify
+    AI-->>Ktor: شك — الدليل غير حاسم — confidence_tier
+    Ktor->>Ktor: تبقى معلّقة وتُسجَّل
+    Ktor->>S109: إحالة بطاقة انتباه
     Father->>App: مراجعة الإثبات + الشك المسجل مع السبب
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/submit {proof_ref, client_request_id}`.
+- الرسالة 4: شك — الدليل غير حاسم (`confidence_tier=مشكوك`).
+- الرسالة 5: تبقى `SUBMITTED_BY_CHILD` — معلّقة + `AgentActionLog` (الشك + الدليل).
+- الرسالة 6: `family/{family_id}/tasks.submitted` → بطاقة "يتطلب انتباهك" — اعتماد بنقرة واحدة (REQ-015).
 
 ### 3-ز-2. قرار الأب بعد الشك — اعتماد أو رفض (REQ-017 — عقد Q-167 §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -477,23 +570,28 @@ sequenceDiagram
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     alt الأب يعتمد بنقرة واحدة
-        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}
+        Father->>Ktor: اعتماد بنقرة واحدة
         Ktor->>Ktor: status=APPROVED + verified_by=father
-        Ktor->>S105: family/{family_id}/tasks.completed {source_system=S1-06}
-        Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
+        Ktor->>S105: نشر اكتمال المهمة
+        Ktor->>MQTT: نشر الاكتمال على MQTT
         S105-->>Ktor: إيداع النقاط
     else الأب يرفض
-        Father->>Ktor: POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}
+        Father->>Ktor: رفض مع ملاحظات
         Ktor->>Ktor: status=PENDING + rejection_notes
-        Ktor-->>App: عادت المهمة PENDING ليعيدها الطفل
+        Ktor-->>App: عادت المهمة ليعيدها الطفل — PENDING
     end
 ```
+- الرسالة 1: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {APPROVE, client_request_id}`.
+- الرسالة 3: `family/{family_id}/tasks.completed {source_system=S1-06}`.
+- الرسالة 4: `publish family/{family_id}/tasks.completed` (QoS 1 — Q-209).
+- الرسالة 6: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/approve {REJECT_WITH_NOTES, client_request_id}`.
 
 - أُعيد رسمه 2026-11-19 (Q-434): قُسّم 3-ز إلى لوحتين (كان 8 مشاركين و15 رسالة): 3-ز-1 الشك والإحالة (6 مشاركين، 7 رسائل)، و3-ز-2 قرار الأب بعد الشك (5 مشاركين، 8 رسائل). والرسائل نفسها قبل التقسيم وبعده.
 
 ### 3-ح. إلغاء مهمة (REQ-005 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Canceller as الأب / المراهق
@@ -501,24 +599,31 @@ sequenceDiagram
     participant Ktor as الخادم
     participant S105 as المحفظة
     participant MQTT as وسيط MQTT
-    Canceller->>App: إلغاء مهمة (الأب لأي مهمة؛ والمراهق لمهامه التي أنشأها بنفسه فقط — Q-253)
-    App->>Ktor: DELETE /api/v1/families/{id}/tasks/{taskId} {tasks.cancel}
-    Ktor->>Ktor: التحقق: الأب لأي مهمة؛ والمراهق scope=self فقط (Q-253)
+    Canceller->>App: إلغاء مهمة
+    App->>Ktor: إلغاء المهمة
+    Ktor->>Ktor: التحقق من الصلاحية — scope=self
     alt المهمة APPROVED بعد الإيداع
         Ktor->>Ktor: status=CANCELLED
-        Ktor->>S105: family/{family_id}/tasks.verification-revoked → قيد تعويضي واحد يخصم النقاط (REQ-009)
-        Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
+        Ktor->>S105: إصدار قيد تعويضي
+        Ktor->>MQTT: نشر إلغاء التحقق
         S105-->>Ktor: خصم من الرصيد الحالي (صفراً ولا سالب أبداً — §7)
     else المهمة غير معتمدة
-        Ktor->>Ktor: status=CANCELLED — بلا نقاط؛ والسلسلة لا تنكسر ولا تتقدم (Q-253)
+        Ktor->>Ktor: إلغاء بلا نقاط
     end
     Ktor->>Ktor: الإلغاء مُسجَّل في التدقيق (AuditEvent — REQ-005)
     Ktor-->>App: {task_id, status: "CANCELLED"}
 ```
+- الرسالة 1: إلغاء مهمة (الأب لأي مهمة؛ والمراهق لمهامه التي أنشأها بنفسه فقط — Q-253).
+- الرسالة 2: `DELETE /api/v1/families/{id}/tasks/{taskId} {tasks.cancel}`.
+- الرسالة 3: التحقق: الأب لأي مهمة؛ والمراهق `scope=self` فقط (Q-253).
+- الرسالة 5: `family/{family_id}/tasks.verification-revoked` → قيد تعويضي واحد يخصم النقاط (REQ-009).
+- الرسالة 6: `publish family/{family_id}/tasks.verification-revoked` (QoS 1 — Q-209).
+- الرسالة 8: `status=CANCELLED` — بلا نقاط؛ والسلسلة لا تنكسر ولا تتقدم (Q-253).
 
 ### 3-ط. المساعد بدرجاته الثلاث — تفويض واقتراح وإسناد (REQ-018 · Q-415 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Owner as المالك
@@ -528,43 +633,49 @@ sequenceDiagram
     participant Ktor as الخادم
     participant AI as الذكاء
     Owner->>App: ضبط تفويض المساعد (المالك وحده)
-    App->>Ktor: PUT /api/v1/families/{id}/task-delegation {level, max_points, per_child_per_day, member_ids}
+    App->>Ktor: حفظ تفويض المساعد
     Ktor->>Ktor: حفظ صف التفويض (صف واحد لكل عائلة)
     alt درجة SUGGEST — يقترح والأب يقرر
-        Ktor->>AI: اقتراح مهام ضمن الحدود (نقاط ≤ الحد، 1–3 مهام/طفل/يوم، المُسند إليهم فقط)
+        Ktor->>AI: اقتراح مهام ضمن الحدود
         AI-->>Ktor: اقتراح + السبب + الأساس
         Ktor->>App: عرض الاقتراح (السبب والأساس ظاهران)
         App-->>Owner: اقتراح مساعد بانتظار قرارك
         alt الأب يقبل
-            Owner->>Ktor: POST /api/v1/families/{id}/task-suggestions/{suggestionId}/decision {ACCEPTED}
-            Ktor->>Ktor: إنشاء task {created_by_type=agent}
+            Owner->>Ktor: قبول الاقتراح
+            Ktor->>Ktor: إنشاء مهمة (من المساعد)
             Ktor-->>Child: مهمة جديدة من المساعد
         else الأب يصرف
-            Owner->>Ktor: POST /api/v1/families/{id}/task-suggestions/{suggestionId}/decision {DISMISSED}
+            Owner->>Ktor: صرف الاقتراح
             Ktor->>Ktor: status=DISMISSED — بلا مهمة
         end
     else درجة ASSIGN — يسند مباشرة ضمن الحدود
         Ktor->>AI: إسناد مهام ضمن الحدود
         AI-->>Ktor: مهمة مسندة
-        Ktor->>Ktor: إنشاء task {created_by_type=agent}
+        Ktor->>Ktor: إنشاء مهمة (من المساعد)
         Ktor-->>Child: مهمة جديدة من المساعد
     else درجة OFF — لا يُعدّ
         Note over Ktor: المساعد لا يُعدّ شيئاً — لا اقتراح ولا إسناد
     end
 ```
+- الرسالة 2: `PUT /api/v1/families/{id}/task-delegation {level, max_points, per_child_per_day, member_ids}`.
+- الرسالة 4: اقتراح مهام ضمن الحدود (نقاط ≤ الحد، 1–3 مهام/طفل/يوم، المُسند إليهم فقط).
+- الرسالة 8: `POST /api/v1/families/{id}/task-suggestions/{suggestionId}/decision {ACCEPTED}`.
+- الرسالة 11: `POST /api/v1/families/{id}/task-suggestions/{suggestionId}/decision {DISMISSED}`.
+- الرسالتان 9 و15: إنشاء `task {created_by_type=agent}` — مهمة جديدة من المساعد.
 
 - أُضيف 2026-11-19 (Q-434 — REQ-018 · Q-415): درجات المساعد الثلاث (OFF / SUGGEST / ASSIGN) يضبطها المالك وحده؛ وحدود الإسناد: أقصى نقاط 5/10/15، و1–3 مهام لكل طفل في اليوم، والمُسند إليهم يحددهم الأب؛ وكل اقتراح يظهر سببه وأساسه؛ والمساعد لا يلغي ولا يعدّل، ولا يمنح نقاطاً بلا مهمة، ولا يسند مهمة إثباتها شهادة، ولا يقرأ رسائل أو صوراً. (6 مشاركين، 16 رسالة.)
 
 ### 3-ي. تحذير التعارض عند حفظ المهمة أو الحدث (Q-419 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
     Father->>App: حفظ مهمة أو حدث (عنوان + وقت + مُسند)
-    App->>Ktor: POST /api/v1/families/{id}/tasks {task} — أو POST /api/v1/families/{id}/events
+    App->>Ktor: حفظ مهمة أو حدث
     Ktor->>Ktor: فحص التعارض (الحالات السبع Q-419)
     alt تعارض وُجد
         Ktor-->>Father: بطاقة التعارض (السبب + إصلاح جاهز)
@@ -576,9 +687,10 @@ sequenceDiagram
             Father->>Ktor: حفظ بوسم «متعارض»
         end
     else لا تعارض
-        Ktor->>Ktor: إنشاء task أو calendar_event
+        Ktor->>Ktor: إنشاء مهمة أو حدث تقويم — task / calendar_event
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/tasks {task}` — أو `POST /api/v1/families/{id}/events`.
 
 - أُضيف 2026-11-19 (Q-434 — Q-419): بطاقة تعارض واحدة عند الحفظ بثلاثة مخارج: «عدّل هذا» / زر إصلاح جاهز / «احفظ كما هو» بوسم «متعارض»؛ والحالات السبع المفحوصة: (1) حد تطبيق > الحصة اليومية، (2) «مسموح دائماً» لا يفتح في النوم/المدرسة، (3) وقت إضافي والابن في نوم/مدرسة/وضع سارٍ — انظر S1-05 3-ج، (4) مهمة/حدث داخل نوم/مدرسة — إلا مهام فئة المدرسة وأحداث وقت المدرسة، (5) حدثان لنفس الشخص بفارق < ساعة، (6) تطبيق محظور وموقعه مفتوح في مرشح الويب أو العكس، (7) وضع مخصّص يفتح تطبيقاً محظوراً أو ترتيب يفتح تطبيقات في النوم/المدرسة. (3 مشاركين، 8 رسائل.)
 
@@ -612,19 +724,19 @@ flowchart TD
     Do([الطفل ينجز بنود قائمة الفحص]) --> Submit[تسليم مع الإثبات المطلوب]
     Submit --> Who{من يتحقق؟}
     Who -->|الذكاء يستطيع| AIOK{مطابق للمطلوب؟}
-    AIOK -->|نعم| TeenCheck{مراهق؟}
+    AIOK -->|نعم — مطابق| TeenCheck{مراهق؟}
     AIOK -->|لا — رفض| Notify[لا إيداع + إشعار بالسبب]
     Who -->|الذكاء لا يستطيع| Pending[تبقى معلّقة — بطاقة S1-09]
     Who -->|الذكاء يشك| Doubt[شك — يُحال للأب]
     Doubt --> FatherRev
     Pending --> FatherRev{الأب يراجع}
     FatherRev -->|يعتمد| TeenCheck
-    FatherRev -->|يرفض مع ملاحظات| Back[تعود PENDING — يعيدها الطفل]
+    FatherRev -->|يرفض مع ملاحظات| Back[يعيدها الطفل — PENDING]
     Back --> Redo[إعادة التسليم تذهب إلى البالغ]
     Redo --> Submit
     Notify --> FatherRev
-    TeenCheck -->|نعم| NoEvent[تُسجَّل منجزة بلا نقاط]
-    TeenCheck -->|لا| Deposit[إيداع النقاط إلى S1-05]
+    TeenCheck -->|نعم — مراهق| NoEvent[تُسجَّل منجزة بلا نقاط]
+    TeenCheck -->|لا — طفل| Deposit[إيداع النقاط إلى S1-05]
     Deposit --> Streak[السلسلة تُحدَّث في S1-05]
     Streak --> Spend[يصرفها الطفل كوقت إضافي]
     NoEvent --> End([منجزة])
@@ -638,7 +750,7 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–6.0، والمخازن D1–D4 وD7–D8 جداول خادم (PostgreSQL). المخزنان المحليان (مرآة Drift D5 + Outbox D6) على الجهاز (SQLite) وليسا جدولَي خادم. والمخازن الخارجية: `points_ledger` (S1-05) و`AuditEvent` (النواة) وMinIO (Q-058). والمخطط على لوحتين LR مع subgraph يجمّع كل طرف (خارجي / عمليات / مخازن) بترتيب واحد في اللوحتين: 5-أ إنشاء المهام والفئات والتفويض، و5-ب التسليم والتحقق والمراجعة والتقويم ودون اتصال؛ والعقد المشتركة (P1، D1، الأب، الطفل، AI) تتكرر بالاسم. والحمولات الكاملة في §3 و§4.
+العمليات مرقمة 1.0–6.0، والمخازن D1–D4 وD7–D8 جداول خادم (PostgreSQL). المخزنان المحليان (مرآة Drift D5 + Outbox D6) على الجهاز (SQLite) وليسا جدولَي خادم. والمخازن الخارجية: `points_ledger` (S1-05) و`AuditEvent` (النواة) وMinIO (Q-058). والمخطط على ست لوحات LR: 5-أ إنشاء المهام والفئات والتفويض (مع subgraph يجمّع كل طرف بترتيب واحد)، و5-ب التسليم والإثبات، و5-ج التحقق بالذكاء، و5-د مراجعة الأب والقرار، و5-هـ التكرار والتقويم والتذكير، و5-و المزامنة دون اتصال؛ والعقد المشتركة (P1، D1، الأب، الطفل، AI) تتكرر بالاسم. والحمولات الكاملة في §3 و§4.
 
 - **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 مذكورة هنا على الأقل: `GET /api/v1/families/{id}/tasks` و`GET /api/v1/families/{id}/tasks/{taskId}` و`PATCH /api/v1/families/{id}/tasks/{taskId}` (قراءة/تعديل مهمة — تمر عبر P1) · `DELETE /api/v1/families/{id}/tasks/{taskId}` (إلغاء مهمة — REQ-005، تمر عبر P1) · `GET /api/v1/families/{id}/task-categories` و`POST /api/v1/families/{id}/task-categories` (الفئات — REQ-002، تمر عبر P1) · `GET /api/v1/families/{id}/events` و`PATCH /api/v1/families/{id}/events/{eventId}` و`DELETE /api/v1/families/{id}/events/{eventId}` (أحداث التقويم — تمر عبر P5)؛ و`POST .../occurrences/{occurrenceId}/proof` و`PATCH .../tasks/{taskId}/checklist/{itemId}` (رفع إثبات + تبديل بند — تمر عبر P2)؛ والنقاط الخمس (إنشاء مهمة، submit، approve، revoke-verification، إنشاء حدث) مفصلة في §3 ومذكورة هنا بالإحالة لا مرسومة في مخطط DFD نفسه.
 
@@ -677,59 +789,86 @@ flowchart LR
     P1 -->|حفظ التفويض| D8
 ```
 
-### 5-ب. التسليم والتحقق والمراجعة والتقويم ودون اتصال
+### 5-ب. التسليم والإثبات
 
 ```mermaid
 flowchart LR
-    subgraph ExtB [خارجي]
-        direction TB
-        Father([الأب / البالغ المفوَّض])
-        Child([الطفل / المراهق])
-        AI([بوابة الذكاء Q-054])
-        S105([محفظة النقاط S1-05])
-        S109([مركز الأوامر S1-09])
-        Kotlin([وحدة Kotlin — منبّهات])
-        Ktor([خادم Ktor])
-    end
-    subgraph ProcB [عمليات]
-        direction TB
-        P2(2.0 التسليم والإثبات)
-        P3(3.0 التحقق بالذكاء)
-        P4(4.0 مراجعة الأب والقرار)
-        P5(5.0 التكرار والتقويم والتذكير)
-        P6(6.0 المزامنة دون اتصال)
-    end
-    subgraph StoresB [مخازن]
-        direction TB
-        D1[(D1 task)]
-        D4[(D4 calendar_event)]
-        D5[(D5 مرآة Drift — محلية)]
-        D6[(D6 Outbox — محلي)]
-    end
-
-    Audit([AuditEvent])
-    AgentActionLog([سجل أفعال الوكيل])
+    D1[(D1 task)]
+    Child([الطفل / المراهق])
     MinIO([MinIO — صور الإثبات])
+    S109([مركز الأوامر S1-09])
+    P2(2.0 التسليم والإثبات)
+    P3x["P3 التحقق بالذكاء — 5-ج"]
 
     D1 -->|المهمة + حالتها| P2
     Child -->|تسليم + إثبات| P2
     P2 -->|صورة الإثبات| MinIO
     P2 -->|proof_ref + SUBMITTED_BY_CHILD| D1
     P2 -->|"tasks.submitted"| S109
-    P2 -->|الإثبات للتحقق| P3
+    P2 -->|الإثبات للتحقق| P3x
+```
+
+- يقرأ: الطفل يسلّم مع الإثبات؛ والإثبات يُحفظ ويُحال للتحقق.
+
+### 5-ج. التحقق بالذكاء
+
+```mermaid
+flowchart LR
+    AI([بوابة الذكاء Q-054])
+    S105([محفظة النقاط S1-05])
+    D1[(D1 task)]
+    AgentActionLog([سجل أفعال الوكيل])
+    P3(3.0 التحقق بالذكاء)
+    P2x["P2 التسليم والإثبات — 5-ب"]
+    P4x["P4 مراجعة الأب والقرار — 5-د"]
+
+    P2x -->|الإثبات للتحقق| P3
     AI -->|نتيجة التحقق + الدليل| P3
     P3 -->|نجاح: tasks.completed| S105
     P3 -->|نجاح التحقق: APPROVED| D1
-    P3 -->|لا يستطيع التحقق| P4
-    P3 -->|شك — إحالة للأب بنقرة| P4
+    P3 -->|لا يستطيع التحقق| P4x
+    P3 -->|شك — إحالة للأب بنقرة| P4x
     P3 -->|سجل الفعل + الدليل| AgentActionLog
-    P3 -->|"رفض التحقق (غير مطابق)"| P4
+    P3 -->|"رفض التحقق (غير مطابق)"| P4x
+```
+
+- يقرأ: الذكاء يتحقق؛ والنجاح يودع النقاط، والتعذر أو الشك أو الرفض يُحال للأب.
+
+### 5-د. مراجعة الأب والقرار
+
+```mermaid
+flowchart LR
+    Father([الأب / البالغ المفوَّض])
+    D1[(D1 task)]
+    S105([محفظة النقاط S1-05])
+    Audit([AuditEvent])
+    P4(4.0 مراجعة الأب والقرار)
+    P3x["P3 التحقق بالذكاء — 5-ج"]
+
+    P3x -->|لا يستطيع التحقق| P4
+    P3x -->|شك — إحالة للأب بنقرة| P4
+    P3x -->|"رفض التحقق (غير مطابق)"| P4
     Father -->|اعتماد / رفض / إلغاء| P4
     P4 -->|اعتماد: APPROVED| D1
     P4 -->|اعتماد: tasks.completed| S105
     P4 -->|رفض: PENDING| D1
     P4 -->|"verification-revoked"| S105
     P4 -->|تسجيل كل حدث| Audit
+```
+
+- يقرأ: الأب يعتمد أو يرفض أو يلغي؛ وكل قرار يُسجَّل.
+
+### 5-هـ. التكرار والتقويم والتذكير
+
+```mermaid
+flowchart LR
+    Father([الأب / البالغ المفوَّض])
+    Child([الطفل / المراهق])
+    Kotlin([منبّهات — وحدة Kotlin])
+    D1[(D1 task)]
+    D4[(D4 calendar_event)]
+    P5(5.0 التكرار والتقويم والتذكير)
+
     P5 -->|حساب النسخ عند الطلب| D1
     Father -->|إنشاء حدث تقويم| P5
     P5 -->|حفظ الحدث| D4
@@ -738,21 +877,40 @@ flowchart LR
     Kotlin -->|تذكير حدث| Father
     P5 -->|تذكير حدث التقويم| Child
     P5 -->|تذكير حدث التقويم| Father
+```
+
+- يقرأ: التقويم والتذكير؛ والنسخ محسوبة عند الطلب.
+
+### 5-و. المزامنة دون اتصال
+
+```mermaid
+flowchart LR
+    Child([الطفل / المراهق])
+    D5[(D5 مرآة محلية — Drift)]
+    D6[(D6 Outbox — محلي)]
+    Ktor([خادم Ktor])
+    P6(6.0 المزامنة دون اتصال)
+    P2x["P2 التسليم والإثبات — 5-ب"]
+
     Child -->|تسليم دون اتصال| P6
     P6 -->|حفظ في Outbox| D6
     P6 -->|قراءة المهام المحفوظة| D5
     D6 -->|عند عودة الاتصال| Ktor
     Ktor -->|قبول / رفض التسليم| P6
-    P6 -->|التسليم المقبول| P2
+    P6 -->|التسليم المقبول| P2x
 ```
 
+- يقرأ: التسليم دون اتصال يُحفظ في Outbox ويُزامَن عند عودة الاتصال.
+
 - أُعيد رسمه 2026-11-19 (Q-434 — REQ-018 · Q-415 · Q-419): قُسّم المخطط الواحد (22 عقدة/39 سهماً) إلى لوحتين LR مع subgraph يجمّع كل طرف بترتيب واحد: 5-أ إنشاء المهام والفئات والتفويض (9 عقد/10 أسهم)، و5-ب التسليم والتحقق والمراجعة والتقويم ودون اتصال (19 عقدة/33 سهماً)؛ وأُضيفت خمسة أسهم: ضبط التفويض (المالك وحده) وقبول الاقتراح أو صرفه واقتراح المساعد وحفظ الاقتراح في D7 وحفظ التفويض في D8؛ وحافة P1→P5 (RRULE) صارت قراءة P5 للنسخ من D1 — النسخ محسوبة عند الطلب لا صفوفاً (§5)؛ وفحص التعارض عند الحفظ في P1 (مهمة) وP5 (حدث) بوسم «متعارض» (Q-419 — انظر 3-ي)؛ وقُصّرت التسميات (الحمولات الكاملة في §3 و§4). والتدفقات نفسها قبل التقسيم وبعده.
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 5-ب (19 عقدة/33 سهماً) ← خمس لوحات: 5-ب 6 عقد/6 أسهم، 5-ج 7/8، 5-د 6/10، 5-هـ 6/8، 5-و 6/6 — المجموع 30 عقدة/38 سهماً (التكرار: D1 ×3 والطفل ×3 وS105 ×2 والأب ×2 + مراجع P2x وP3x وP4x؛ والأسهم الخمسة الزائدة حدود مشتركة مرسومة في لوحتين). ولوحة 5-أ بقيت كما هي (9 عقد/10 أسهم).
 
 ## 6. مخطط النشاط (Activity) — دورة حياة المهمة والتقويم
 
 المسارات الخمسة (الأب / الطفل / الذكاء / الخادم / المحفظة ومركز الأوامر) كمسارات متوازية. ومسار التقويم والتذكير يعمل **بالتوازي** مع دورة حياة المهمة.
 
-ثلاث لوحات TD: 6-أ إنشاء المهمة (بالغ ومساعد)، و6-ب التسليم والتحقق، و6-ج مراجعة الأب والإلغاء؛ والعقد المشتركة (C1، C3، F2، V3، W2) تتكرر بالاسم في اللوحات. ومسار التقويم والتذكير يعمل **بالتوازي** مع دورة حياة المهمة.
+أربع لوحات TD: 6-أ إنشاء المهمة (بالغ ومساعد)، و6-ب التسليم والتحقق، و6-ج مراجعة الأب — الاعتماد والرفض، و6-د إلغاء التحقق وإلغاء المهمة؛ والعقد المشتركة (C1، C3، C4، F2، V3، W2) تتكرر بالاسم في اللوحات. ومسار التقويم والتذكير يعمل **بالتوازي** مع دورة حياة المهمة.
 
 ### 6-أ. إنشاء المهمة — بالغ ومساعد
 
@@ -763,12 +921,12 @@ flowchart TD
     F10 -->|يقبل| F1[إنشاء مهمة وإسنادها]
     F10 -->|يصرف| F10d([الاقتراح مصروف])
     F1 --> F9a{تعارض في الوقت أو النوع؟}
-    F9a -->|لا| V1[حفظ المهمة PENDING]
-    F9a -->|نعم| F11[بطاقة التعارض — ثلاثة مخارج]
+    F9a -->|لا — بلا تعارض| V1[حفظ المهمة PENDING]
+    F9a -->|نعم — تعارض| F11[بطاقة التعارض — ثلاثة مخارج]
     F11 -->|احفظ كما هو / إصلاح| V1
     F11 -->|عدّل| F1
     V1 --> C1[استلام المهمة + التذكير]
-    F1 --> V4[حساب نسخ RRULE عند الطلب]
+    F1 --> V4[حساب النسخ عند الطلب — RRULE]
     V4 --> V5[إنهاء نسخة اليوم الفائتة]
     F7[إنشاء حدث تقويم] --> V9[جدولة تذكير الحدث]
     V9 --> C1
@@ -796,7 +954,7 @@ flowchart TD
     W2 --> C5[صرف النقاط كوقت]
 ```
 
-### 6-ج. مراجعة الأب والإلغاء
+### 6-ج. مراجعة الأب — الاعتماد والرفض
 
 ```mermaid
 flowchart TD
@@ -809,13 +967,25 @@ flowchart TD
     F5 --> C4[إعادة التسليم بعد الرفض]
     C4 --> C3x["C3 إعادة التسليم — 6-ب"]
     C3x --> F2
+```
+
+- يقرأ: الأب يراجع التسليم المعلّق فيعتمد أو يرفض؛ والرفض يعيد المهمة للطفل.
+
+### 6-د. إلغاء التحقق وإلغاء المهمة
+
+```mermaid
+flowchart TD
     F6[إلغاء تحقق] --> W3[قيد تعويضي]
     F6 --> V7[إعادة الحالة إلى PENDING]
-    V7 --> C4
-    F8[إلغاء مهمة] --> V8[حالة CANCELLED — بلا نقاط]
+    V7 --> C4x["C4 إعادة التسليم بعد الرفض — 6-ج"]
+    F8[إلغاء مهمة] --> V8[حالة الإلغاء بلا نقاط — CANCELLED]
     F8 -->|إن كانت معتمدة| W3
 ```
 
+- يقرأ: إلغاء التحقق في يومه يعيد الحالة؛ وإلغاء المهمة بلا نقاط.
+
 - أُعيد رسمه 2026-11-19 (Q-434 — REQ-018 · Q-415 · Q-419): صار المخطط TD على ثلاث لوحات بدل LR بخمسة مسارات (30 عقدة/33 سهماً ← 6-أ 13 عقدة/14 سهماً و6-ب 15 عقدة/16 سهماً و6-ج 14 عقدة/14 سهماً)؛ وأُضيفت عقد المساعد (F9 التفويض، A5 الاقتراح، F10 القبول/الصرف) ومعيّن التعارض وبطاقته (F9a/F11)؛ وإعادة التسليم بعد الرفض تذهب إلى البالغ لا إلى الذكاء (Q-415)؛ وإلغاء التحقق في يومه فقط وللمالك وحده ويتطلب اتصالاً (Q-415). ومواضيع الأحداث: W1 ‏`family/{family_id}/tasks.submitted`‏، وW2 ‏`family/{family_id}/tasks.completed`‏، وW3 ‏`family/{family_id}/tasks.verification-revoked`‏.
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 6-ج (14 عقدة/14 سهماً) ← لوحتين: 6-ج 9 عقد/9 أسهم، 6-د 6/5 — المجموع 15 عقدة/14 سهماً (مرجع C4x).
 
 - ملاحظة: نسخة اليوم الفائتة تنتهي بنهاية اليوم ولا تتراكم أبداً (Q-123 · Q-183)؛ وتظهر نسخة الغد صباحاً (§2 مخطط التكرار). والمراهق يمر بنفس المسارات لكن إيداعه صفر نقاط ولا حدث كسب يصدر (§7). وإنهاء نسخة اليوم الفائتة (REQ-011)؛ وجدولة تذكير الحدث خادمية — الخادم مالك الجدولة (Q-280)؛ وإلغاء مهمة: الأب لأي مهمة والمراهق لمهامه التي أنشأها بنفسه فقط (Q-253)، وإلغاء مهمة معتمدة بلا نقاط والسلسلة لا تنكسر ولا تتقدم.
