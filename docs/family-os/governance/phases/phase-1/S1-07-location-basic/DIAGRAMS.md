@@ -7,7 +7,7 @@
 - **السياق المحدد (Bounded Context):** #4 الموقع والسلامة (Location & Safety) — `CONTEXT-MAP.md` §2 صف 4
 - **القرارات الحاكمة:** Q-001 · Q-003 · Q-007 · Q-020 · Q-056 · Q-061 · Q-064 · Q-067 · Q-101 · Q-102 · Q-103 · Q-104 · Q-105 · Q-106 · Q-129 · Q-136 · Q-138 · Q-160 · Q-161 · Q-163 · Q-166 · Q-168 · Q-283 · Q-284 · Q-285 · Q-286 · Q-287 · Q-288 · Q-408 · Q-409 · Q-411 · Q-416 · Q-424 · D-021 · D-023 · D-038 · G-006 · G-011
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
-- **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
+- **الأشكال الموحدة:** مستطيل بطرفين مستديرين = طرف خارج العملية المرسومة (مستخدم، نظام مجاور، خدمة، أو الخادم) · مستطيل = شاشة أو خطوة، وفي مخطط تدفق البيانات عملية مرسومة في لوحة أخرى · مستطيل مستدير الزوايا = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
 ## 1-أ. حالات الاستخدام — الأب والبالغ
 
@@ -763,9 +763,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Child[طفل / مراهق]
-    Ktor[خادم Ktor]
-    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
+    Child([طفل / مراهق])
+    Ktor([خادم Ktor])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
     P1(1.0 التتبع التكيفي — جهاز — GPS / Kalman)
     D1[(D1 location_point)]
     D2[(D2 last_known_location)]
@@ -786,9 +786,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Father[الأب / البالغ المفوَّض]
-    S103[الأدوار والصلاحيات S1-03]
-    S109[مركز الأوامر S1-09]
+    Father([الأب / البالغ المفوَّض])
+    S103([الأدوار والصلاحيات S1-03])
+    S109([مركز الأوامر S1-09])
     P2(2.0 قراءة الخريطة والسجل — تصفية حسب المنح — خادم)
     D1[(D1 location_point)]
     D2[(D2 last_known_location)]
@@ -809,9 +809,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Father[الأب / البالغ المفوَّض]
-    Ktor[خادم Ktor]
-    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
+    Father([الأب / البالغ المفوَّض])
+    Ktor([خادم Ktor])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
     P6(6.0 مزامنة الصندوق الصادر — جهاز)
     D1[(D1 location_point)]
     C1[(C1 نقاط الصندوق الصادر — محلي)]
@@ -832,14 +832,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Child[طفل / مراهق]
-    Father[الأب / البالغ المفوَّض]
-    S101[غلاف التطبيق S1-01]
-    S104[الخطط والفواتير S1-04]
-    Ktor[خادم Ktor]
-    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
-    SMS[بوابة SMS]
-    Audit[AuditEvent]
+    Child([طفل / مراهق])
+    Father([الأب / البالغ المفوَّض])
+    S101([غلاف التطبيق S1-01])
+    S104([الخطط والفواتير S1-04])
+    Ktor([خادم Ktor])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
+    SMS([بوابة SMS])
+    Audit([AuditEvent])
     P3(3.0 إطلاق الاستغاثة — جهاز — SOS)
     D3[(D3 sos_alert)]
     C3[(C3 مرآة الحصة المحلية — محلي)]
@@ -866,11 +866,11 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Father[الأب / البالغ المفوَّض]
-    Ktor[خادم Ktor]
-    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
-    S109[مركز الأوامر S1-09]
-    Audit[AuditEvent]
+    Father([الأب / البالغ المفوَّض])
+    Ktor([خادم Ktor])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
+    S109([مركز الأوامر S1-09])
+    Audit([AuditEvent])
     P4(4.0 تأكيد وحل الاستغاثة وتصعيدها — خادم — SOS)
     D3[(D3 sos_alert)]
 
@@ -894,7 +894,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Father[الأب / البالغ المفوَّض]
+    Father([الأب / البالغ المفوَّض])
     P5(5.0 إدارة جهات الطوارئ — خادم)
     D4[(D4 emergency_contact)]
     P3x["P3 إطلاق الاستغاثة — 5-د"]
@@ -910,10 +910,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Father[المالك]
-    Adult2[بالغ]
-    Ktor[خادم Ktor]
-    Audit[AuditEvent]
+    Father([المالك])
+    Adult2([بالغ])
+    Ktor([خادم Ktor])
+    Audit([AuditEvent])
     P7(7.0 «ما يراه الأبناء» — خادم)
     P8(8.0 «مشاركة موقعي» — خادم)
     P9(9.0 مهمة استبقاء الاستغاثات — خادم)
