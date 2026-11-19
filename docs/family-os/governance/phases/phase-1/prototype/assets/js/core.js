@@ -280,7 +280,8 @@ function toast(msg, undo, icn = 'check_circle') {
   toastT = setTimeout(() => { $('#toast').innerHTML = ''; toastUndo = null; }, undo ? 10000 : 3200);
 }
 function notif(title, body, icn = 'notifications', a = '') {
-  $('#notif').innerHTML = `<button class="notif" data-a="${a || 'nclose'}"><span class="ap">${ic(icn)}</span><span><b>${title}</b>${body}</span></button>`;
+  const cel = icn === 'celebration' || icn === 'workspace_premium';   /* لحظة نجاح (Q-450): النافذة المضيئة بأشعتها مكان مربع الأيقونة؛ النص والمكان والإغلاق كما هي */
+  $('#notif').innerHTML = `<button class="notif${cel ? ' cel' : ''}" data-a="${a || 'nclose'}">${cel ? art(icn, 'fest') : `<span class="ap">${ic(icn)}</span>`}<span><b>${title}</b>${body}</span></button>`;
   setTimeout(() => { $('#notif').innerHTML = ''; }, 5200);
 }
 function confetti() {

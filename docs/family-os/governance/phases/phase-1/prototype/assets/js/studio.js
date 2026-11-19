@@ -297,9 +297,16 @@ const Studio = {
 window.Studio = Studio;
 function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="125"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
 /* رابط المراجعة (Q-448): ?show=الشاشة[:معامل]&as=child|teen&theme=dark&plan=basic|premium&pin=1 يفتح النموذج على شاشة بعينها، ليرى المالك كل تحسين في مكانه. أداة عرض، لا مسار في التطبيق. */
+/* لحظات النجاح (Q-450): حالة لا يفتحها show وحده، فلكلٍّ منها اسم في الرابط: moment=earn|paired|paid */
+const MOMENT = {
+  earn() { ACT.taskOk('t1'); $('#toast').innerHTML = ''; setPersona('child'); },
+  paired() { S.pin.set = true; S.pcSt = 'done'; go('pair-code', 'layan'); },
+  paid() { BL().pend = { w: 'premium', yr: 0, ch: 'jaib', ref: '70451300', at: 'اليوم · 5:12 م' }; blEv('ver'); },
+};
 function reviewLink() {
-  const q = new URLSearchParams(location.search), id = (q.get('show') || '').split(':'); if (!id[0] || !SC[id[0]]) return;
-  if (q.get('theme') === 'dark') S.theme = 'dark'; if (['child', 'teen'].includes(q.get('as'))) setPersona(q.get('as'));
+  const q = new URLSearchParams(location.search), id = (q.get('show') || '').split(':'), mo = MOMENT[q.get('moment')]; if (!mo && (!id[0] || !SC[id[0]])) return;
+  if (q.get('theme') === 'dark') S.theme = 'dark'; if (mo) { mo(); render(); return; }
+  if (['child', 'teen'].includes(q.get('as'))) setPersona(q.get('as'));
   if (PLAN[q.get('plan')]) S.plan = q.get('plan'); if (q.get('pin')) S.pin.set = true;
   go(id[0], ...id.slice(1)); render();
 }

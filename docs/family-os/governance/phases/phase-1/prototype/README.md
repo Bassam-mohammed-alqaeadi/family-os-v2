@@ -19,7 +19,7 @@ python3 tools/serve.py 8000                     # ثم افتح http://localhost
 
 يعمل أيضاً بفتح `index.html` مباشرة من القرص (كل الأصول محلية ولا يوجد `fetch`).
 
-**رابط المراجعة (Q-448):** `index.html?show=plan&plan=premium&theme=dark` يفتح النموذج على شاشة بعينها. المعاملات: `show=الشاشة[:معامل]` و`as=child|teen` و`theme=dark` و`plan=basic|premium` و`pin=1`. تستعمله صفحة `../visual-review/index.html` ليرى المالك كل تحسين في مكانه. أداة عرض، لا مسار في التطبيق.
+**رابط المراجعة (Q-448):** `index.html?show=plan&plan=premium&theme=dark` يفتح النموذج على شاشة بعينها. المعاملات: `show=الشاشة[:معامل]` و`as=child|teen` و`theme=dark` و`plan=basic|premium` و`pin=1`، و`moment=earn|paired|paid` للحظات النجاح التي هي حالة لا شاشة (Q-450). تستعمله صفحة `../visual-review/index.html` ليرى المالك كل تحسين في مكانه. أداة عرض، لا مسار في التطبيق.
 
 ## ما الذي في الشاشة
 
