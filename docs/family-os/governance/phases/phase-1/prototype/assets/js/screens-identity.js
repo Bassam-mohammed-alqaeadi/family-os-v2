@@ -199,8 +199,13 @@ Object.assign(ACT, {
   recObject() { confirmDlg('إيقاف طلب الاسترداد؟', 'يُلغى الطلب فوراً ويُبلَّغ كل البالغين. إن كان الطلب من أحمد فعلاً فعليه أن يطلب من جديد.', 'أوقف الطلب', () => { S.recReq = { st: 'cancelled' }; audit(`اعترض ${me().n} على طلب استرداد حساب أحمد فأُلغي`, 'identity.recovery'); toast('أُلغي الطلب', null, 'cancel'); }, true); },
   /* المشاركة تسلّم الرسالة لتطبيق آخر، وتبقى الدعوة ظاهرة «شوركت · بانتظار انضمامه» حتى تُستخدم أو تُلغى (Q-435). */
   invShare() { const x = S.invs[0]; if (x && !x.sent) { x.sent = 1; audit('شوركت دعوة بالغ', 'identity.family.invite'); } toast('فُتحت قائمة المشاركة · الرسالة فيها الرابط والرمز', null, 'share'); },
-  invNew() { const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = n => Array.from({ length: n }, () => A[Math.floor(Math.random() * A.length)]).join(''); S.invs.unshift({ c: r(4) + '-' + r(4), d: 'الآن', left: 7 }); audit('أُنشئت دعوة بالغ جديدة', 'identity.family.invite'); toast('دعوة جديدة جاهزة · الدعوات السابقة ما زالت تعمل'); },
-  invRevoke(i) { const x = S.invs[+i]; confirmDlg('إلغاء هذه الدعوة؟', `الرمز ${x.c} لن يعمل بعد الآن. الدعوات الأخرى لا تتأثر.`, 'ألغِها', () => { S.invs.splice(+i, 1); audit('أُلغيت دعوة معلقة', 'identity.family.invite'); toast('أُلغيت الدعوة', null, 'cancel'); }, true); },
+  /* Q-441: الدعوة باسم المدعو — حقل واحد قبل توليد الرمز */
+  invNew() { S.invF = { n: '', e: '' }; },
+  invNo() { S.invF = null; },
+  invMake() { const n = (($('#invN') || {}).value || '').replace(/[<>&"`]/g, '').trim().slice(0, 40); if (!n) { S.invF = { n: '', e: 'اكتب اسم من تدعوه' }; return; }
+    const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = k => Array.from({ length: k }, () => A[Math.floor(Math.random() * A.length)]).join('');
+    S.invs.unshift({ c: r(4) + '-' + r(4), n, d: 'الآن', left: 7 }); S.invF = null; audit(`أُنشئت دعوة بالغ: ${n}`, 'identity.family.invite'); toast(`دعوة ${n} جاهزة · الدعوات السابقة ما زالت تعمل`); },
+  invRevoke(i) { const x = S.invs[+i]; confirmDlg(`إلغاء دعوة ${x.n}؟`, `الرمز ${x.c} لن يعمل بعد الآن. الدعوات الأخرى لا تتأثر.`, 'ألغِها', () => { S.invs.splice(+i, 1); audit(`أُلغيت دعوة معلقة: ${x.n}`, 'identity.family.invite'); toast('أُلغيت الدعوة', null, 'cancel'); }, true); },
   cnSet(k, v) { S.cn.n = ($('#cnN') || {}).value; S.cn[k] = k === 'y' ? +v : v; },
   cnGo() { const c = S.cn, n = ($('#cnN') || {}).value.trim(); if (!n) { toast('اكتب اسم الطفل', null, 'error'); return; }
     if (c.id) { const m = M[c.id], x = (S.addK || []).find(k => k.id === c.id), tn = 2026 - c.y >= 13; Object.assign(m, { n, i: c.i, c: c.c, by: c.y }); if (x) Object.assign(x, { n, en: n, i: c.i, c: c.c, by: c.y, role: tn ? 'teen' : 'child', rel: `${tn ? 'مراهق' : 'طفل'} · ${ageTxt(c.y)}` });
@@ -224,12 +229,12 @@ surface('add-member', {
 });
 surface('invite', {
   t: 'دعوة بالغ', sys: 'S1-02', p: 'adult', req: '02:9,10 03:2',
-  note: 'رمز عشوائي لكل دعوة، لمرة واحدة، صالح 7 أيام، ويُلغى في أي وقت. الرسالة المشارَكة فيها رابط https يُفتح من واتساب، والرمز مكتوب نصاً لمن نزّل التطبيق بعد الرابط. الدعوات المعلقة كلها ظاهرة وكلٌّ منها يُلغى وحده.',
-  r() { const I = S.invs, c = I[0]; return `${c ? `<p class="sub" style="text-align:start">أرسل هذه الدعوة لمن تريد ضمّه. تُستخدم مرة واحدة.</p><div class="code" style="font-size:28px;letter-spacing:5px">${c.c}</div><div class="chips" style="justify-content:center;margin-bottom:16px">${chip('صالحة 7 أيام', 'in', 'schedule')}${chip('لشخص واحد', 'ol', 'counter_1')}</div>
+  note: 'الدعوة لشخص واحد باسمه: يكتب الداعي اسم المدعو فتُعرف به في القائمة وعند الإلغاء، ولا يُرسل إليه (Q-441). رمز عشوائي لكل دعوة، لمرة واحدة، صالح 7 أيام، ويُلغى في أي وقت. الرسالة المشارَكة فيها رابط https يُفتح من واتساب، والرمز مكتوب نصاً لمن نزّل التطبيق بعد الرابط. الدعوات المعلقة كلها ظاهرة وكلٌّ منها يُلغى وحده.',
+  r() { const I = S.invs, c = I[0], F = S.invF; return `${c ? `<p class="ttl md" style="text-align:start;margin-bottom:2px">دعوة ${c.n}</p><p class="sub" style="text-align:start">تُرسل لشخص واحد وتُستخدم مرة واحدة.</p><div class="code" style="font-size:28px;letter-spacing:5px">${c.c}</div><div class="chips" style="justify-content:center;margin-bottom:16px">${chip('صالحة 7 أيام', 'in', 'schedule')}${chip('لشخص واحد', 'ol', 'counter_1')}</div>
     <div class="card flat" style="margin-bottom:12px"><div class="xs muted" style="margin-bottom:4px">نص الرسالة التي تُرسل</div><div class="sm" style="line-height:1.9">أحمد يدعوك إلى ${famN()} في «عائلتي».<br>اضغط: <span class="ltr" style="color:var(--info)">https://ailati.example/i/${c.c}</span><br>أو نزّل التطبيق واكتب الرمز: <span class="ltr b">${c.c}</span></div></div>
     <div class="btns">${btn('انسخ الرمز', 'cpy', 'sec', 'content_copy')}${btn('شارك الدعوة', 'invShare', '', 'share')}</div>` : empty('group_add', 'لا دعوات معلقة', 'أنشئ دعوة لمن تريد ضمّه إلى العائلة.')}
-    <div class="gap"></div>${btn('أنشئ دعوة لشخص آخر', 'invNew', 'ton', 'add')}
-    ${I.length ? sec('دعوات لم تُستخدم بعد') + list(I.map((x, i) => row(x.sent ? 'mark_email_read' : 'forward_to_inbox', `<span class="ltr mono">${x.c}</span>`, `${x.sent ? 'شوركت · بانتظار انضمامه' : 'أُنشئت ' + x.d + ' · لم تُشارك بعد'} · تنتهي بعد ${x.left} أيام`, { v: `<button class="btn txt sm" style="color:var(--danger)" data-a="invRevoke:${i}">ألغِها</button>` }))) : ''}
+    <div class="gap"></div>${F ? `<div class="card flat"><label class="fld ${F.e ? 'err' : ''}"><span>لمن هذه الدعوة؟</span><input id="invN" maxlength="40" placeholder="مثال: أم خالد" value="">${F.e ? `<small>${F.e}</small>` : '<small>اسمه كما تعرفه. يظهر لك فقط لتميّز الدعوة.</small>'}</label><div class="btns">${btn('إلغاء', 'invNo', 'sec')}${btn('أنشئ الدعوة', 'invMake', '', 'add')}</div></div>` : btn(c ? 'أنشئ دعوة لشخص آخر' : 'أنشئ دعوة', 'invNew', 'ton', 'add')}
+    ${I.length ? sec('دعوات لم تُستخدم بعد') + list(I.map((x, i) => row(x.sent ? 'mark_email_read' : 'forward_to_inbox', x.n, `${x.sent ? 'شوركت · بانتظار انضمامه' : 'أُنشئت ' + x.d + ' · لم تُشارك بعد'} · تنتهي بعد ${x.left} أيام · <span class="ltr mono">${x.c}</span>`, { v: `<button class="btn txt sm" style="color:var(--danger)" data-a="invRevoke:${i}">ألغِها</button>` }))) : ''}
     ${callout('كل من ينضم يوثّق رقم هاتفه أو بريده أولاً، ويُسجَّل انضمامه. يبدأ بلا صلاحيات، ويصلك تنبيه لتحدد ما يراه ويتحكم فيه.', '', 'info')}`; },
 });
 const tplOf = y => { const a = 2026 - y; return a < 0 || a > 17 ? null : a < 13 ? ['طفل', 'واجهة الأطفال', 'face', 'مهام ونجوم ووقت الشاشة'] : ['مراهق', 'واجهة المراهقين', 'person', 'استقلالية أكثر وصفحة «ما يراه أهلي»']; };
