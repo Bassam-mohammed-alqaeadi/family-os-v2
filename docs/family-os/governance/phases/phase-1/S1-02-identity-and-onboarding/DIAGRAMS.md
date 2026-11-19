@@ -427,15 +427,15 @@ sequenceDiagram
     Father->>App: تسمية العائلة والموافقة
     App->>Ktor: إنشاء العائلة
     alt بلا عائلة بعد
-        Ktor-->>App: {family_id, invite_code}
+        Ktor-->>App: {family_id}
         Ktor->>Audit: AuditEvent — إنشاء عائلة
         App-->>Father: العائلة أُنشئت
     else لديه عائلة (عائلة واحدة لكل حساب)
         Ktor-->>App: رفض: عائلة ثانية
     end
-    Father->>App: طلب رمز دعوة جديد
-    App->>Ktor: طلب رمز دعوة
-    Ktor-->>App: {invite_code, expires_at}
+    Father->>App: دعوة جديدة: يكتب اسم المدعو
+    App->>Ktor: طلب رمز دعوة {label}
+    Ktor-->>App: {invite_id, invite_code, label, expires_at}
     Father->>Mother: إرسال الرابط العميق
     Mother->>App: فتح الرابط
     Mother->>App: توثيق (3-أ) أو (3-ب)
@@ -446,7 +446,9 @@ sequenceDiagram
 ```
 
 - الرسالة 3: `POST /api/v1/identity/families {name, region, time_zone}`.
-- الرسالة 9: `POST /api/v1/identity/families/{id}/invite`.
+- الرسالة 9: `POST /api/v1/identity/families/{id}/invite {label}` — الاسم تسمية عند الداعي، لا يُرسل للمدعو (REQ-010).
+- قائمة الدعوات المعلقة: `GET /api/v1/identity/families/{id}/invites` — بالأسماء والحال، بلا الرموز.
+- عُدّل 2026-11-19 (Q-441): الدعوة باسم المدعو، وإنشاء العائلة لا يولّد دعوة. عدد الرسائل كما هو.
 - الرسالة 14: `POST /api/v1/identity/families/join {invite_code}`.
 
 - المالك يلغي أي رمز دعوة معلق في أي وقت (REQ-010) — النقطة: `POST /api/v1/identity/families/{id}/invites/{inviteId}/revoke`؛ رمز منتهٍ/غير صالح يُرفض دون كشف إن كان موجوداً أصلاً (§7). والرمز عشوائي، استخدام واحد، 7 أيام. والمنشئ مالك is_owner؛ والمنضمّة بلا صلاحيات إشرافية حتى يفوّضها الأب (Q-007). والموافقة على region و time_zone المقترحين من الهاتف؛ وعائلة ثانية غير مسموحة (Q-008).
@@ -1161,7 +1163,7 @@ flowchart LR
     P4 -->|تعديل الاسم والبلد والتوقيت| D4
     P4 -->|عضوية مالك is_owner| D5
     P4 -->|عضوية adult| D5
-    P4 -->|توليد رمز دعوة عشوائي| D6
+    P4 -->|دعوة باسم المدعو ورمز عشوائي| D6
     D6 -->|الرمز + 7 أيام| P4
     P4 -->|تسجيل الانضمام| Audit
     P4 -->|تسجيل التعديل بالقيمتين| Audit
@@ -1169,7 +1171,7 @@ flowchart LR
     P4 <-->|"عقود (3-ج/3-ط/3-ل)"| Ktor
 ```
 
-- عقود Ktor هنا: families، invite، invites/{inviteId}/revoke، join، PATCH families/{id}؛ وردود Ktor: family_id + invite_code، وrole: adult، وتأكيد إلغاء الرمز، وحُفظ التعديل.
+- عقود Ktor هنا: families، invite، invites (القائمة)، invites/{inviteId}/revoke، join، PATCH families/{id}؛ وردود Ktor: family_id، ورمز الدعوة مع تسميتها، وrole: adult، وتأكيد إلغاء الرمز، وحُفظ التعديل. (عُدّل 2026-11-19 — Q-441: `label` و`GET …/invites`.)
 
 ### 5-د. ملفات الأطفال (P5 — REQ-011…013)
 
