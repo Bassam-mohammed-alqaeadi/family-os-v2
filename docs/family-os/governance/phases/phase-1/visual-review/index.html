@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>رسم القمرية — الدفعة 5</title>
+<title>التحسين البصري — أين حصل كل تغيير</title>
 <style>
 @font-face{font-family:P;font-weight:400;src:url(../prototype/assets/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2)}
 @font-face{font-family:P;font-weight:600;src:url(../prototype/assets/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2)}
@@ -15,12 +15,37 @@ p{margin:0 0 12px;color:#494536;font-size:16px}
 img{width:100%;height:auto;display:block;border-radius:16px;background:#fff}
 .pick{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
 .pick b{background:#1F3A6B;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600}
+h2 small{font-size:14px;font-weight:400;color:#6b6552}
+.where{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 12px}
+.where a{background:#1F3A6B;color:#fff;text-decoration:none;border-radius:999px;padding:7px 15px;font-size:15px;font-weight:600}
+.where a:hover,.where a:focus{background:#142749}
+.livebox{background:#fff;border-radius:16px;overflow:hidden;margin:14px 0 8px;border:2px solid #1F3A6B}
+.livebox .bar{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;padding:8px 14px;background:#1F3A6B;color:#fff}
+.livebox .bar span{font-size:14px;opacity:.85}
+.livebox iframe{display:block;width:100%;height:900px;border:0;background:#f4f1e6}
 </style>
 </head>
 <body>
 <main>
-<h1>رسم القمرية — مبني في النموذج</h1>
-<p>اختار المالك العيّنة (أ). هذه صورها من النموذج نفسه بعد البناء، بأربع درجات ضوء.</p>
+<h1>التحسين البصري — أين حصل كل تغيير</h1>
+<p>تحت كل تحسين: الشاشات التي تغيّرت. اضغط اسم الشاشة فتفتح حيّة في الإطار أسفل هذه الفقرة، ثم انظر صورة «قبل وبعد».</p>
+
+<div class="livebox" id="livebox"><div class="bar"><b>الشاشة الحيّة من النموذج</b><span>الخطة المميزة · اضغط أي اسم شاشة أدناه لتبديلها</span></div><iframe name="live" title="النموذج" src="../prototype/index.html?show=plan&amp;plan=premium"></iframe></div>
+
+<h2>التحسين ٢ — البطاقات البارزة <small>(جديد · عيّنة تنتظر رأيك)</small></h2>
+<div class="where"><b>أين:</b>
+<a href="../prototype/index.html?show=plan" target="live">الخطة المجانية</a><a href="../prototype/index.html?show=plan&plan=basic" target="live">الخطة الأساسية</a><a href="../prototype/index.html?show=plan&plan=premium" target="live">الخطة المميزة</a><a href="../prototype/index.html?show=plan&plan=premium&theme=dark" target="live">الخطة في الوضع الداكن</a><a href="../prototype/index.html?show=pair-code:layan&pin=1" target="live">رمز الاقتران</a><a href="../prototype/index.html?show=wallet-admin:layan" target="live">محفظة ليان</a><a href="../prototype/index.html?show=emergency" target="live">رسم مصغَّر: جهات الطوارئ</a>
+</div>
+<p><b>ما تغيّر:</b> بطاقة الخطة كانت بيضاء فصارت كحلية مثل رأس الصفحة الرئيسية، وعليها نافذة صغيرة تضيء بقدر الخطة (زجاجة واحدة للمجانية، ثلاث للأساسية، خمس للمميزة). رمز الاقتران كان نصاً في صندوق رمادي فصار لوحة كحلية، كل حرف في خانة. والرسم صار أصغر حين يقع داخل قسم.</p>
+<p><b>الطريق في النموذج:</b> «المزيد» ← «الخطة والفوترة». وتغيير الخطة من لوحة الضبط بجانب الهاتف.</p>
+<img src="batch5-cards-before-after.jpg" alt="قبل وبعد: بطاقة الخطة ورمز الاقتران وحجم الرسم داخل القسم">
+
+<h2>التحسين ١ — رسم القمرية في الشاشات الفارغة <small>(تمّ)</small></h2>
+<div class="where"><b>أين:</b>
+<a href="../prototype/index.html?show=receipts" target="live">لا شيء بعد: سجل المدفوعات</a><a href="../prototype/index.html?show=sos-status" target="live">كل شيء بخير: الاستغاثة</a><a href="../prototype/index.html?show=ob-done" target="live">نجاح: عائلتك جاهزة</a><a href="../prototype/index.html?show=plan&as=child" target="live">غير متاح: الخطة على جهاز الطفل</a><a href="../prototype/index.html?show=receipts&theme=dark" target="live">الوضع الداكن: سجل المدفوعات</a><a href="../prototype/index.html?show=tamper:layan" target="live">تنبيهات العبث</a><a href="../prototype/index.html?show=c-rewards&as=teen" target="live">المراهق: مكافآتي</a>
+</div>
+<p><b>ما تغيّر:</b> كان في كل شاشة فارغة مربع رمادي فيه أيقونة؛ صار نافذة قمرية درجة ضوئها تقول الحال: زجاجة واحدة = لا شيء بعد، مضاءة كلها = كل شيء بخير، مضاءة بأشعة = نجاح، مطفأة = غير متاح لك. يظهر في كل الشاشات الفارغة (93 موضعاً).</p>
+<p><b>الطريق في النموذج:</b> «المزيد» ← «الخطة والفوترة» ← «سجل المدفوعات».</p>
 <img src="batch5-illustration-built.jpg" alt="رسم القمرية في النموذج: الفاتح والداكن وداخل الشاشات">
 
 <h1 style="margin-top:44px">العيّنات التي عُرضت للاختيار</h1>
@@ -39,5 +64,9 @@ img{width:100%;height:auto;display:block;border-radius:16px;background:#fff}
 <p>الصف الأعلى شاشات فيها شخصية، والأسفل شاشات عادية نريد رفعها إلى المستوى نفسه.</p>
 <img src="now-strong-vs-plain.jpg" alt="شاشات قوية وشاشات عادية في النموذج الحالي">
 </main>
+<script>
+/* عند الضغط على اسم شاشة: يظهر الإطار الحيّ ويُمرَّر إليه. */
+document.querySelectorAll('.where a').forEach(a=>a.addEventListener('click',()=>{const b=document.getElementById('livebox');b.querySelector('.bar span').textContent=a.textContent;b.scrollIntoView({behavior:'smooth',block:'start'})}));
+</script>
 </body>
 </html>

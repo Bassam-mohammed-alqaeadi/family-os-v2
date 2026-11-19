@@ -105,7 +105,7 @@ function blCard() {
         : b.down ? `تنتقل إلى ${PLAN[b.down.to].n} في ${e}`
           : blAuto() ? `تتجدد من نفسها في ${e} · عبر ${BL_CH[blChan()][0]}`
             : b.noAuto ? `أُلغي التجديد · ميزاتك باقية حتى ${e}` : `تنتهي ${e} · لا تتجدد من نفسها`;
-  return `<div class="blc ${paid ? 'pd' : ''}"><div class="fx sb top"><div><small>خطة العائلة</small><h5>${p.n}</h5></div>${chipS}</div><p>${line}</p>${paid && !st ? `<p class="pr">${blAmt(blPrice(S.plan, b.cyr))} ${b.cyr ? 'في السنة' : 'في الشهر'}</p>` : ''}</div>`;
+  return `<div class="blc plt ${paid ? 'pd' : ''}"><div class="fx sb top"><div><small>خطة العائلة</small><h5>${p.n}</h5></div>${chipS}</div><p>${line}</p>${paid && !st ? `<p class="pr">${blAmt(blPrice(S.plan, b.cyr))} ${b.cyr ? 'في السنة' : 'في الشهر'}</p>` : ''}${wmark(S.plan === 'premium' ? 5 : paid ? 3 : 1)}</div>`;
 }
 const blMeter = (i, t, n, pct, c, sub, a) => `<${a ? 'button' : 'div'} class="blm" ${a ? `data-a="${a}"` : ''}><span class="lead ${toneOf(i)}">${ic(i)}</span><span class="tx"><span class="hd"><b>${t}</b><span>${n}</span></span>${pct === null ? '' : pbar(pct, c)}${sub ? `<small>${sub}</small>` : ''}</span>${a ? `<span class="chev">${ic('chevron_right')}</span>` : ''}</${a ? 'button' : 'div'}>`;
 function blUsage(own) {

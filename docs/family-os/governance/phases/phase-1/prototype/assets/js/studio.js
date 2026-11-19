@@ -296,7 +296,14 @@ const Studio = {
 };
 window.Studio = Studio;
 function boot() { $('#fx').innerHTML = `<div class="boot"><div><img src="assets/brand/logo-symbol-dark.svg" alt="عائلتي" width="150" height="125"><div class="ld"><i></i></div></div></div>`; setTimeout(() => { $('#fx').innerHTML = ''; }, 1150); }
-addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot();
+/* رابط المراجعة (Q-448): ?show=الشاشة[:معامل]&as=child|teen&theme=dark&plan=basic|premium&pin=1 يفتح النموذج على شاشة بعينها، ليرى المالك كل تحسين في مكانه. أداة عرض، لا مسار في التطبيق. */
+function reviewLink() {
+  const q = new URLSearchParams(location.search), id = (q.get('show') || '').split(':'); if (!id[0] || !SC[id[0]]) return;
+  if (q.get('theme') === 'dark') S.theme = 'dark'; if (['child', 'teen'].includes(q.get('as'))) setPersona(q.get('as'));
+  if (PLAN[q.get('plan')]) S.plan = q.get('plan'); if (q.get('pin')) S.pin.set = true;
+  go(id[0], ...id.slice(1)); render();
+}
+addEventListener('DOMContentLoaded', () => { mountSprite(); Studio.init(); render(); boot(); reviewLink();
   /* الشعار حُكم فيه («القمرية» — Q-433): لا تُفتح صفحته تلقائياً بعد الآن؛ مدخلها زر «الشعار والأيقونة». */
 });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#brandOv').hidden) Studio.act.brandClose(); });

@@ -236,7 +236,10 @@ function art(i, lv) {
   lv = lv || (ART_OFF.has(i) ? 'off' : ART_LIT.has(i) ? 'lit' : 'one');
   return `<div class="art ${lv}"><svg viewBox="0 0 240 150" aria-hidden="true"><g transform="translate(120 124)">${lv === 'fest' ? ART_RAYS : ''}${ART_GLASS}<path class="ar" d="M-90 8V0A90 90 0 0 1 90 0V8"/><path class="sl" d="M-104 21H104"/></g></svg><span class="aic">${lv === 'off' ? '' : ic(lv === 'lit' ? 'check' : i)}</span></div>`;
 }
-const empty = (i, t, s, cta = '', lv) => `<div class="empty">${art(i, lv)}<b>${t}</b><div class="sm">${s}</div>${cta ? `<div style="margin-top:16px">${cta}</div>` : ''}</div>`;
+/* علامة النافذة على البطاقة الكحلية (Q-448): عدد الزجاجات المضاءة = درجة الخطة. 1 المجانية · 3 الأساسية (ألوان الشعار) · 5 المميزة. */
+const wmark = n => `<span class="wm l${n}" aria-hidden="true"><svg viewBox="0 0 240 150"><g transform="translate(120 124)">${ART_GLASS}<path class="ar" d="M-90 8V0A90 90 0 0 1 90 0V8"/><circle class="ct" r="13"/></g></svg></span>`;
+/* الحالة الفارغة: الرسم كامل حين يكون هو رسالة الشاشة، ومصغَّر (cp) تحت حقل بحث أو تحت عنوان قسم (القاعدة الثانية في app.css). */
+const empty = (i, t, s, cta = '', lv) => `<div class="empty${i === 'search' || i === 'search_off' ? ' cp' : ''}">${art(i, lv)}<b>${t}</b><div class="sm">${s}</div>${cta ? `<div style="margin-top:16px">${cta}</div>` : ''}</div>`;
 /* شارات التوفر السبع الصادقة (settings-patterns.md) */
 const AVAIL = {
   unavailable_on_device: ['غير متاح على هذا الجهاز', 'mobile_off', ''], pending_approval: ['بانتظار الموافقة', 'pending', 'wa'], not_delegated: ['غير مفوَّض لك', 'lock_person', ''],

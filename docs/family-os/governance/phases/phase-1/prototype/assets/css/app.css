@@ -334,6 +334,34 @@ button.chip{min-height:28px}
 .art .aic{position:absolute;left:50%;top:82.67%;width:21%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--on-primary)}
 .art .aic svg{width:56%;height:56%}
 .art.off .aic{width:13.5%;background:var(--muted);opacity:.55}
+.empty.cp,.sec+.empty{padding:16px 20px 20px}
+.empty.cp .art,.sec+.empty .art{width:124px;margin-bottom:10px}
+/* البطاقة البارزة (Q-448): معالجة رأس الرئيسية (كحلي متدرّج) للبطاقة التي هي جواب الشاشة. */
+.blc.plt,.blc.plt.pd,.phone[data-theme="dark"] .blc.plt.pd,.cplate{background:linear-gradient(170deg,var(--hero),var(--hero2));color:var(--on-hero);border:0;box-shadow:var(--lift);position:relative;overflow:hidden}
+.phone[data-theme="dark"] .blc.plt,.phone[data-theme="dark"] .cplate{box-shadow:inset 0 0 0 1px #ffffff1f}
+.blc.plt{min-height:140px;padding:18px}
+.blc.plt.pd{box-shadow:inset 0 0 0 1.5px var(--gold),var(--lift)}
+.phone[data-theme="dark"] .blc.plt.pd{box-shadow:inset 0 0 0 1.5px var(--gold)}
+.blc.plt small{color:var(--on-hero-2)}
+.blc.plt h5{color:var(--on-hero)}
+.blc.plt p{color:var(--on-hero-2);padding-inline-end:124px}
+.blc.plt p.pr{color:var(--on-hero)}
+.blc.plt .top{position:relative;z-index:1}
+.wm{position:absolute;inset-inline-end:16px;bottom:16px;width:108px;aspect-ratio:8/5;pointer-events:none}
+.wm svg{display:block;width:100%;height:100%;overflow:visible}
+.wm path{fill:#fff;fill-opacity:.13}
+.wm .ar{fill:none;stroke:var(--on-hero);stroke-width:9;stroke-linecap:round}
+.wm .ct{fill:var(--on-hero)}
+.wm .g1,.wm.l3 .g2,.wm.l3 .g3,.wm.l5 path{fill-opacity:1}
+.wm .g1{fill:#C8A24A}.wm.l3 .g2,.wm.l5 .g2{fill:#73AB82}.wm.l3 .g3,.wm.l5 .g3{fill:#E47951}.wm.l5 .g0,.wm.l5 .g4{fill:#719CE0}
+.wm.l5 .ar{fill:none}
+.cplate{border-radius:var(--r-xl);padding:22px 14px 16px;margin:8px 0 12px;text-align:center}
+.wallet::after{content:"";position:absolute;inset-inline-end:-60px;top:-70px;width:230px;height:230px;opacity:.09;background:conic-gradient(from 22.5deg,#C8A24A 0 12.5%,transparent 0 25%,#C8A24A 0 37.5%,transparent 0 50%,#C8A24A 0 62.5%,transparent 0 75%,#C8A24A 0 87.5%,transparent 0);border-radius:50%;pointer-events:none}
+.cplate .cells{display:flex;justify-content:center;gap:6px;direction:ltr;margin-bottom:14px;position:relative;z-index:1}
+.cplate .cells span{flex:1;max-width:44px;height:58px;display:grid;place-items:center;border-radius:var(--r-md);background:#ffffff1f;box-shadow:inset 0 0 0 1px #ffffff38;font-family:var(--mono);font-size:32px;font-weight:700;color:var(--on-hero)}
+.cplate .cells span:nth-child(3){margin-right:10px}
+.cplate .chips{justify-content:center;position:relative;z-index:1}
+.cplate .chip.ol{color:var(--on-hero-2);box-shadow:inset 0 0 0 1px #ffffff40}
 .skel{border-radius:var(--r-md);background:linear-gradient(90deg,var(--sunken) 25%,var(--subtle) 50%,var(--sunken) 75%);background-size:200% 100%;animation:sk 1.3s linear infinite;height:16px;margin-bottom:12px}
 @keyframes sk{to{background-position:-200% 0}}
 .ring{position:relative;display:grid;place-items:center;flex:none}
