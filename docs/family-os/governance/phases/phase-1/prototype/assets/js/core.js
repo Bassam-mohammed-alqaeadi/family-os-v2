@@ -216,7 +216,14 @@ const TONE = {};
  ['da', 'delete_forever delete block person_remove logout link_off key_off location_off mobile_off emergency_home contact_emergency gpp_maybe flag'],
 ].forEach(([t, L]) => L.split(' ').forEach(k => { TONE[k] = t; }));
 const toneOf = i => TONE[String(i).replace(/-fill$/, '')] || '';
+/* Q-436 الدفعة 3 (تجربة): «الشكل الجديد» يعمل على ثلاث شاشات فقط حتى يوافق المالك على التعميم.
+   x3 = سطر الشرح يُحذف في الشكل الجديد؛ v3 = سطر الشرح يصير قيمة في طرف الصف. */
+const V3S = { home: 1, protection: 1, more: 1 };
+const V3 = () => !!(S.v3 && V3S[topE().id]);
+const x3 = s => V3() ? '' : s;
 function row(i, t, s, o = {}) {
+  if (V3() && o.x3) s = '';
+  if (V3() && o.v3 && !o.v) { o = { ...o, v: s }; s = ''; }
   const tag = o.a ? 'button' : 'div';
   const lead = o.lead || (i ? `<span class="lead ${o.ic ? 't-raw' : toneOf(i)}" ${o.ic ? `style="color:${o.ic}"` : ''}>${ic(i)}</span>` : '');
   const end = (o.v ? `<span class="val">${o.v}</span>` : '') + (o.tg !== undefined ? tg(o.tg, o.ta || '', t) : '') + (o.a && o.chev !== false ? `<span class="chev">${ic('chevron_right')}</span>` : '');
@@ -333,7 +340,7 @@ function render() {
   /* صلاحية سُحبت والمستخدم داخل تبويبها: يعود لأقرب تبويب مسموح مع رسالة */
   if (S.persona === 'delegate' && TAB_KEY[S.stack[0].id] && !can(TAB_KEY[S.stack[0].id])) { S.stack = [{ id: tabsFor()[0][0], a: [] }]; S.sheet = null; toast('لم يعد هذا القسم ضمن صلاحياتك', null, 'lock'); }
   const ph = $('#phone'), t = topE(), d = SC[t.id];
-  ph.dataset.theme = S.theme; ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
+  ph.dataset.theme = S.theme; ph.toggleAttribute('data-v3', V3()); ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
   const old = $('#scr'), keep = old && old.dataset.id === t.id + t.a.join() ? old.scrollTop : 0;
   const hero = d.hero && !offline() && !(S.lbw) && !(fmAny().length && isAdult());

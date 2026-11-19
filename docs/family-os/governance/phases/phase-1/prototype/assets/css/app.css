@@ -1060,3 +1060,18 @@ button.fx,button.strip{min-height:var(--touch)}
 .row .tx .lgo em{display:block;margin-top:8px;font-style:normal;font-size:calc(12px*var(--ts));color:var(--muted)}
 .row .tx span.krt{font-weight:600;color:var(--text)}
 button.card:active{background:var(--subtle)}
+
+/* ═══ Q-436 الدفعة 3 (تجربة على الرئيسية والحماية والمزيد): النص الثانوي 14، وهرمية أوضح بين عنوان القسم وعنوان الصف وشرحه.
+   تعمل تحت data-v3 فقط؛ عند موافقة المالك تُرفع القيم إلى القواعد الأصلية ويُحذف هذا القسم. ═══ */
+.phone[data-v3] h3.sec{font-size:calc(15px*var(--ts)*var(--tk));font-weight:700;color:var(--text2);margin-top:24px}
+.phone[data-v3] h3.sec button{font-size:calc(14px*var(--ts)*var(--tk))}
+.phone[data-v3] .row{padding-block:12px}
+.phone[data-v3] .row .tx b{font-weight:600}
+.phone[data-v3] .row .tx span{font-size:calc(14px*var(--ts)*var(--tk));margin-top:2px}
+.phone[data-v3] .row .val{color:var(--muted)}
+.phone[data-v3] .scr .sm{font-size:calc(14px*var(--ts)*var(--tk))}
+.phone[data-v3] .card.stat span{font-size:calc(14px*var(--ts)*var(--tk))}
+.phone[data-v3] .hero .hi small,.phone[data-v3] .strip{font-size:calc(14px*var(--ts))}
+.phone[data-v3] .orb b{font-size:calc(14px*var(--ts))}.phone[data-v3] .orb small{font-size:calc(13px*var(--ts))}
+.phone[data-v3] .att .hd b{font-size:calc(15px*var(--ts))}.phone[data-v3] .att .hd span:not(.pr){font-size:calc(14px*var(--ts))}
+.phone[data-v3] .qa button{font-size:calc(13px*var(--ts))}
