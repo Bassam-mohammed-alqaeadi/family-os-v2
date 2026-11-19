@@ -634,8 +634,24 @@ button.ans:active{filter:brightness(1.15)}
 .full .body{flex:1;overflow-y:auto;padding:8px 22px 22px;display:flex;flex-direction:column;scrollbar-width:none}
 .full.dark{background:linear-gradient(175deg,#142749,#081122);color:#fff}
 .full.red{background:linear-gradient(175deg,#B42318,#6d130c);color:#fff}
-.bigic{width:96px;height:96px;border-radius:32px;display:grid;place-items:center;margin:0 auto 16px;background:var(--primary-soft);color:var(--primary)}
-.bigic svg{width:48px;height:48px}
+/* علامة الشاشة الجادة (Q-453): شكل واحد هادئ. دائرة بحلقة رفيعة، بلا رسم.
+   الحجم: 72 في الشاشة، 56 في النافذة السفلية وفي الصف. اللون من خمس نبرات لا غير:
+   الأصل كحلي (معلومة، انتظار، بوابة)، wa تنبيه يُتراجع عنه، da فقدٌ لا يعود، ok أمر جاد تمّ، gd ملكية وخطة. */
+.bigic{position:relative;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;background:var(--primary-soft);color:var(--primary);flex:none}
+.bigic::after{content:"";position:absolute;inset:0;border-radius:inherit;border:1.5px solid currentColor;opacity:.3;pointer-events:none}
+.bigic svg{width:34px;height:34px}
+.bigic.wa{background:var(--warning-soft);color:var(--warning)}
+.bigic.da{background:var(--danger-soft);color:var(--danger)}
+.bigic.ok{background:var(--success-soft);color:var(--success)}
+.bigic.gd{background:var(--gold-soft);color:var(--text)}
+.bigic.gd::after{border-color:var(--gold);opacity:.75}
+.bigic.mu{background:var(--sunken);color:var(--muted)}
+.sheet .bigic,.bigic.sm{width:56px;height:56px;margin-bottom:12px}
+.sheet .bigic svg,.bigic.sm svg{width:28px;height:28px}
+.bigic.sm{margin:0}
+.bigic.fp{width:112px;height:112px}
+.bigic.fp svg{width:56px;height:56px}
+.bigic.fp.bad{background:var(--danger-soft);color:var(--danger)}
 .full.dark .bigic,.full.red .bigic{background:#ffffff1c;color:#fff}
 .ttl{font-size:calc(28px*var(--ts)*var(--tk));font-weight:700;line-height:1.35;margin:0 0 8px;text-align:center}
 .ttl.md{font-size:calc(24px*var(--ts)*var(--tk))}   /* عنوان حالة أصغر درجة (headline.md) — Q-436: بدل حجم مكتوب داخل الشاشة */
@@ -1062,9 +1078,9 @@ button.ans:active{filter:brightness(1.15)}
 .btn.t48{min-height:48px}.blm small .btn.txt.t48{min-height:48px}
 .blseg .seg button{min-height:48px}
 /* Q-418: التأكيد بالبصمة */
-.bcfp{width:112px;height:112px;border-radius:50%;margin:24px auto 16px}
-.bcfp svg{width:56px;height:56px}
-.bcfp.bad{background:var(--danger-soft);color:var(--danger);animation:shake .35s}
+.bigic.bcfp{width:112px;height:112px;margin:24px auto 16px}
+.bigic.bcfp svg{width:56px;height:56px}
+.bigic.bcfp.bad{background:var(--danger-soft);color:var(--danger);animation:shake .35s}
 .pinwhy{display:flex;gap:6px;align-items:flex-start;justify-content:center;text-align:start;color:var(--text2);background:var(--sunken);border-radius:var(--r-md);padding:10px 12px;margin:0 0 4px}
 .pinwhy svg{width:18px;height:18px;flex:none;margin-top:2px}
 
