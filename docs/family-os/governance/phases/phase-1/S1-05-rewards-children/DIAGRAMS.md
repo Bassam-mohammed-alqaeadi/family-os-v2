@@ -12,7 +12,7 @@
 
 17 حالة استخدام من السيناريوهات الثلاثة عشر والمتطلبات (§2/§3) والتصميم المعتمد (§9-8): الأب يملك كل القرارات (المنح المباشر، إسناد مهمة بدلاً من المنح، ضبط المعاملات، تجميد السلسلة، القرار في الاعتراض، إلغاء الإيداع في يومه)؛ والبالغ المفوَّض يعمل حسب القالب (S1-03)؛ والطفل يرى محفظته فقط ويطلب ويصرف ويعترض؛ والمراهق **لا** محفظة له إطلاقاً (Q-109) فيظهر كجهة مرفوضة في الصرف، لكنه يطلب وقتاً ويصله المنح المباشر (Q-414) وتبقى له قناة الاعتراض/النقاش بلا نقاط؛ والكسب يأتي من أي نظام مسجَّل عبر عقد عام (Q-118)؛ والفرض نفسه محرك S1-10 لا S1-05 (REQ-015).
 
-الحالات السبع عشرة على لوحتين ليُقرأ كل خط: الأولى لما يفعله الأب والبالغ، والثانية لما يفعله الطفل والمراهق والأنظمة المجاورة.
+الحالات السبع عشرة على ثلاث لوحات ليُقرأ كل خط: الأولى لما يفعله الأب والبالغ، والثانية لما يفعله الطفل والمراهق، والثالثة لما تفعله الأنظمة المجاورة.
 
 ### 1-أ. حالات الاستخدام — الأب والبالغ
 
@@ -56,28 +56,24 @@ flowchart LR
     UC4 --> S109
 ```
 
-### 1-ب. حالات الاستخدام — الطفل والمراهق والأنظمة
+### 1-ب. حالات الاستخدام — الطفل والمراهق
 
 ```mermaid
 flowchart LR
     Child([الطفل])
     Teen([المراهق — بلا محفظة])
-    S106([نظام المهام S1-06])
-    Other([أنظمة أخرى مسجَّلة])
-    AI([بوابة الذكاء Q-054])
     S110([محرك الفرض S1-10])
     S109([مركز الأوامر S1-09])
 
     subgraph S105b [S1-05: المكافآت — الطفل والمراهق]
         direction TB
-        UC11(UC11 استقبال حدث كسب وإيداعه)
-        UC12(UC12 مكافأة سلسلة 7 أيام)
-        UC10(UC10 إنجاز مهمة وتسليمها)
         UC8(UC8 طلب وقت إضافي)
         UC9(UC9 صرف نقاط كوقت)
+        UC10(UC10 إنجاز مهمة وتسليمها)
         UC13(UC13 المحفظة دون اتصال)
         UC14(UC14 اعتراض الطفل على قرار)
         UC1x["UC1 عرض المحفظة — انظر 1-أ"]
+        UC11x["UC11 استقبال حدث كسب — انظر 1-ج"]
     end
 
     Child --> UC8
@@ -89,16 +85,37 @@ flowchart LR
     Teen --> UC8
     Teen -.->|مرفوض + مسجَّل — Q-109| UC9
     Teen -.->|قناة نقاش بلا نقاط — Q-414| UC14
-    UC10 --> UC11
-    UC11 -.->|يتضمن| UC12
+    UC10 --> UC11x
     UC9 --> S110
     UC8 --> S109
-    S106 --> UC11
-    Other --> UC11
-    AI -.->|تحقق| UC11
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — Q-414 · Q-419): الحالات 13 ← 17 على لوحتين؛ وأُضيفت UC14 (اعتراض الطفل) وUC15 (القرار في الاعتراض: قبول يعيد الحق، رفض بسبب يقرؤه الطفل) وUC16 (إلغاء الإيداع في يومه فقط) وUC17 (تحذير التعارض قبل المنح — نوم / مدرسة / وضع سارٍ)؛ والمراهق يطلب وقتاً (UC8) ويصله المنح المباشر بلا محفظة وبلا نقاط (REQ-011)؛ وقُصّرت التسميات إلى 5 كلمات. والعقد والأسهم قبل التقسيم وبعده: 22 عقدة/25 سهماً ← 29 عقدة/33 سهماً (الزيادة: UC14–UC17 الأربع + عقدتان مرجعيتان UC1x وUC14x + تكرار S109 في 1-أ).
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 1-ب قُسّمت لوحتين (1-ب الطفل والمراهق، 1-ج الأنظمة والكسب)؛ والعقد والأسهم 29/33 ← 31/34 (الزيادة: مرجعا UC10x وUC11x + تكرار حافة UC10→UC11 في اللوحتين).
+
+### 1-ج. حالات الاستخدام — الأنظمة والكسب
+
+```mermaid
+flowchart LR
+    S106([نظام المهام S1-06])
+    Other([أنظمة أخرى مسجَّلة])
+    AI([بوابة الذكاء Q-054])
+
+    subgraph S105c [S1-05: المكافآت — الأنظمة والكسب]
+        direction TB
+        UC11(UC11 استقبال حدث كسب وإيداعه)
+        UC12(UC12 مكافأة سلسلة 7 أيام)
+        UC10x["UC10 إنجاز مهمة — انظر 1-ب"]
+    end
+
+    S106 --> UC11
+    Other --> UC11
+    AI -.->|تحقق| UC11
+    UC10x --> UC11
+    UC11 -.->|يتضمن| UC12
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الأنظمة والكسب من 1-ب القديمة؛ وUC10x مرجع إلى 1-ب.
 
 - المصدر: §2 (السيناريوهات 5-1…5-13) · §3 (REQ-001…REQ-018 — ومنها REQ-017/REQ-018 عقد التحقق Q-167: المفتاح `agent.task.verify` + البوابة + السجل + التراجع) · §6 (مفاتيح `rewards.*`)؛ وUC1 يغطي REQ-002 (الرصيد + سجل الحركات ظاهران للطفل وللأب).
 - `rewards.settings.edit` و`rewards.streak.freeze` للأب وحده (مالك العائلة) — §6؛ وبقية المفاتيح للأب + البالغ المفوَّض حسب القالب.
@@ -232,40 +249,55 @@ erDiagram
 ### 3-أ-1. كسب نقاط عبر تحقق الذكاء — الدليل المباشر والمقدَّم (REQ-004 / REQ-005 — §4: `family/{family_id}/tasks.completed`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     participant S106 as المهام
     participant AI as الذكاء
     participant Ktor as الخادم
-    participant Wallet as المحفظة
+    participant S105 as المحفظة
     participant MQTT as وسيط MQTT
     Child->>S106: إنجاز المهمة وتسليمها
-    S106->>AI: طلب تحقق — أُنجزت كما هو مطلوب؟ (مفتاح agent.task.verify — عقد Q-167)
+    S106->>AI: طلب تحقق من الإنجاز
     alt دليل مباشر (قراءة جهاز/تطبيق تثبت الإنجاز)
         AI-->>S106: verified = true (مباشر — منح تلقائي)
-        S106->>Ktor: family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}
+        S106->>Ktor: حدث اكتمال المهمة
         Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس event_id
-        Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
-        Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
-        Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
-        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: event_id — §7)
-        Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
+        Ktor->>S105: إيداع النقاط مع الدليل — points_ledger
+        Ktor->>MQTT: نشر اكتمال المهمة — QoS 1
+        Ktor->>Ktor: سجل فعل الوكيل مع الدليل
+        Ktor->>S105: أول كسب اليوم؟ أطِل السلسلة
+        Ktor-->>Child: تحديث المحفظة — نقاط دخلت
     else دليل مقدَّم (صورة/إثبات يرفعه الطفل)
         AI-->>S106: verified = true (مقدَّم — تحقق ثم منح)
-        S106->>Ktor: family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}
+        S106->>Ktor: حدث اكتمال المهمة
         Ktor->>Ktor: النظام مسجَّل؟ + لا إيداع مكرر لنفس event_id
-        Ktor->>Wallet: إيداع النقاط + سجل في points_ledger مع الدليل (evidence)
-        Ktor->>MQTT: publish family/{family_id}/tasks.completed (QoS 1 — Q-209)
-        Ktor->>Ktor: AgentActionLog — الفعل + المفتاح agent.task.verify + الدليل + النتيجة
-        Ktor->>Wallet: أول كسب موثَّق اليوم؟ أطِل السلسلة (عدم تكرار: event_id — §7)
-        Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت + احتفالية قصيرة
+        Ktor->>S105: إيداع النقاط مع الدليل — points_ledger
+        Ktor->>MQTT: نشر اكتمال المهمة — QoS 1
+        Ktor->>Ktor: سجل فعل الوكيل مع الدليل
+        Ktor->>S105: أول كسب اليوم؟ أطِل السلسلة
+        Ktor-->>Child: تحديث المحفظة — نقاط دخلت
     end
 ```
+- الرسالة 2: أُنجزت كما هو مطلوب؟ (مفتاح `agent.task.verify` — عقد Q-167)
+- الرسالة 4: `family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}`
+- الرسالة 6: سجل في `points_ledger` مع الدليل (`evidence`)
+- الرسالة 7: `publish family/{family_id}/tasks.completed (QoS 1 — Q-209)`
+- الرسالة 8: `AgentActionLog` — الفعل + المفتاح `agent.task.verify` + الدليل + النتيجة
+- الرسالة 9: عدم تكرار: `event_id` (§7)
+- الرسالة 10: `family/{family_id}/wallet/updated` — نقاط دخلت + احتفالية قصيرة
+- الرسالة 12: `family/{family_id}/tasks.completed {event_id, task_id, occurrence_id, source_system=S1-06, reward_points, verified_by}`
+- الرسالة 14: سجل في `points_ledger` مع الدليل (`evidence`)
+- الرسالة 15: `publish family/{family_id}/tasks.completed (QoS 1 — Q-209)`
+- الرسالة 16: `AgentActionLog` — الفعل + المفتاح `agent.task.verify` + الدليل + النتيجة
+- الرسالة 17: عدم تكرار: `event_id` (§7)
+- الرسالة 18: `family/{family_id}/wallet/updated` — نقاط دخلت + احتفالية قصيرة
 
 ### 3-أ-2. كسب نقاط عبر تحقق الذكاء — لا إيداع: شك أو إقرار أو رفض (REQ-004 / REQ-005 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -274,19 +306,19 @@ sequenceDiagram
     participant Ktor as الخادم
     actor Father as الأب
     Child->>S106: إنجاز المهمة وتسليمها
-    S106->>AI: طلب تحقق — أُنجزت كما هو مطلوب؟ (مفتاح agent.task.verify — عقد Q-167)
+    S106->>AI: طلب تحقق من الإنجاز
     alt شك (الدليل غير حاسم)
         AI-->>S106: شك — يُحال للأب بنقرة واحدة
-        S106->>Ktor: family/{family_id}/tasks.submitted → بطاقة "يتطلب انتباهك" في S1-09
-        Note over S106,Ktor: لا إيداع حتى يقرر الأب (اعتماد يودع، رفض يعيد PENDING) — ولا سلسلة بلا إيداع
+        S106->>Ktor: إحالة الشك للأب
+        Note over S106,Ktor: لا إيداع قبل قرار الأب — اعتماد يودع، رفض يعيد معلقاً — PENDING
     else إقرار ذاتي وحده (تسليم بلا دليل)
         AI-->>S106: verified = false — الإقرار وحده لا يودع شيئاً (REQ-005)
-        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed — ولا سلسلة
+        Note over S106,Ktor: لا حدث اكتمال ولا سلسلة
         Ktor-->>Child: لا إيداع + إشعار بالسبب
         Ktor->>Ktor: الأب يرى الرفض
     else رفض — لم تُنجز كما هو مطلوب
         AI-->>S106: verified = false
-        Note over S106,Ktor: لا يُصدر حدث family/{family_id}/tasks.completed — verified = false تعني لا إيداع ولا سلسلة
+        Note over S106,Ktor: لا إيداع ولا سلسلة — verified = false
         Ktor-->>Child: لا إيداع + إشعار بالسبب
         Ktor->>Ktor: الأب يرى الرفض
         opt اعتراض الطفل على الرفض (REQ-018 · Q-167)
@@ -295,6 +327,11 @@ sequenceDiagram
         end
     end
 ```
+- الرسالة 2: أُنجزت كما هو مطلوب؟ (مفتاح `agent.task.verify` — عقد Q-167)
+- الرسالة 4: `family/{family_id}/tasks.submitted` → بطاقة "يتطلب انتباهك" في S1-09
+- ملاحظة: ولا سلسلة بلا إيداع.
+- ملاحظة: لا يُصدر حدث `family/{family_id}/tasks.completed`.
+- ملاحظة: لا يُصدر حدث `family/{family_id}/tasks.completed`؛ `verified = false` تعني لا إيداع ولا سلسلة.
 
 - أُعيد رسمه 2026-11-19 (Q-434): قُسّم 3-أ إلى لوحتين (كان 7 مشاركين و29 رسالة): 3-أ-1 الدليل المباشر والمقدَّم (6 مشاركين، 18 رسالة)، و3-أ-2 الشك والإقرار والرفض مع اعتراض الطفل (5 مشاركين، 13 رسالة). والرسائل نفسها قبل التقسيم وبعده.
 
@@ -303,21 +340,22 @@ sequenceDiagram
 ### 3-ب. صرف نقاط كوقت إضافي (REQ-008 / REQ-009 / REQ-010 — §4: `POST /api/v1/families/{id}/children/{childId}/wallet/redeem`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     participant Shell as الغلاف
     participant Ktor as الخادم
-    participant S110 as الفرض
+    participant S110 as الحماية
     Child->>Shell: صرف نقاط كوقت للتطبيق الذي نفد وقته
-    Shell->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/redeem {app_package, points, client_request_id} — points بمضاعفات 10 (الحد الأدنى 10، والحد الأقصى = الرصيد — Q-273)
+    Shell->>Ktor: طلب صرف نقاط كوقت
     Ktor->>Ktor: معاملة ذرية — فحص الرصيد + الحد اليومي (60 دقيقة افتراضياً)
     alt الرصيد يكفي والحد لم يُبلغ
         Ktor->>Ktor: خصم النقاط — 10 نقاط = 10 دقائق
-        Ktor->>Ktor: إنشاء granted_time {source=REDEEM, expires_at=نهاية اليوم}
-        Ktor->>Ktor: سجل TIME_REDEEMED في points_ledger + AuditEvent
-        Ktor-->>Shell: family/{family_id}/wallet/updated — الرصيد الجديد
-        Shell->>S110: الوقت الإضافي متاح للتطبيق (S1-05 لا يفرض)
+        Ktor->>Ktor: إنشاء وقت ممنوح حتى نهاية اليوم
+        Ktor->>Ktor: سجل الصرف في السجل والتدقيق
+        Ktor-->>Shell: تحديث المحفظة — الرصيد الجديد
+        Shell->>S110: الوقت الإضافي متاح للتطبيق
         S110-->>Child: التطبيق يستمر
     else رصيد غير كافٍ
         Ktor-->>Shell: REW_INSUFFICIENT_POINTS + الرصيد الحالي
@@ -327,48 +365,65 @@ sequenceDiagram
         Ktor-->>Shell: النتيجة الأصلية بلا خصم جديد
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/children/{childId}/wallet/redeem {app_package, points, client_request_id}` — `points` بمضاعفات 10 (الحد الأدنى 10، والحد الأقصى = الرصيد — Q-273)
+- الرسالة 5: `granted_time {source=REDEEM, expires_at=نهاية اليوم}`
+- الرسالة 6: `TIME_REDEEMED` في `points_ledger` + `AuditEvent`
+- الرسالة 7: `family/{family_id}/wallet/updated` — الرصيد الجديد
+- الرسالة 8: S1-05 لا يفرض.
 
 - سعر الصرف ثابت 1:1 للأبد في المرحلة 1 (Q-111 · Q-279)؛ والصرف بخطوات ثابتة 10 نقاط: الحد الأدنى 10، والحد الأقصى = الرصيد، ومبلغ ليس من مضاعفات 10 يُرفض بـ `REW_VALIDATION_FAILED` (Q-273)؛ والصرف على التطبيق الذي نفد وقته تحديداً (Q-116)؛ والوقت المصروف ينتهي بنهاية اليوم وما لم يُستخدم لا يُسترد — النقاط نفسها لا تنتهي (Q-112/REQ-009 · Q-183)؛ والحد اليومي يُفرض على الخادم (Q-114)؛ والحد اليومي هنا حد الوقت الإضافي كله: المنح المباشر (مصدر GRANT) يزيد `daily_spent_minutes` ويستهلك الحد مثل الصرف (Q-272 — §6).
 
 ### 3-ج. طلب وقت إضافي وقرار الأب (REQ-011 / REQ-012 / REQ-013 / REQ-014 — §4: `POST /api/v1/families/{id}/children/{childId}/time-requests` + `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
-    actor Child as الطفل أو المراهق
+    actor Child as الطفل
     actor Father as الأب
     participant Shell as الغلاف
     participant Ktor as الخادم
-    participant S109 as الأوامر
-    Child->>Shell: نفد وقت التطبيق — طلب وقت إضافي (10 / 15 / 30 دقيقة بقدر ما يسمح الحد)
-    Shell->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests {app_package, minutes_requested}
+    participant S109 as مركز الأوامر
+    Child->>Shell: طلب وقت إضافي
+    Shell->>Ktor: إنشاء طلب وقت
     Ktor->>Ktor: طلب معلَّق لنفس التطبيق؟ أعد الأصلي
     Ktor->>Ktor: إنشاء time_request {status=PENDING}
-    Ktor->>S109: family/{family_id}/time-request/new — بطاقة يتطلب انتباهك
+    Ktor->>S109: بطاقة يتطلب انتباهك
     S109-->>Father: الطلب معروض — قرار بنقرة واحدة
     alt الأب يمنح
-        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {APPROVED, minutes}
-        Ktor->>Ktor: الدقائق > 0 و≤ المتبقي من الحد اليومي؟ (Q-274 — وإلا REW_DAILY_CAP_REACHED أو REW_VALIDATION_FAILED) + الابن في نوم/مدرسة/وضع سارٍ؟
+        Father->>Ktor: قرار المنح
+        Ktor->>Ktor: فحص الدقائق والحد والتعارض
         opt الابن الآن في وقت نوم أو مدرسة أو وضع سارٍ (Q-419)
             Ktor-->>Father: تحذير: الدقائق تُضاف ولن تُستعمل حتى ينتهي ذلك
             Father->>Ktor: «امنح على أي حال»
         end
-        Ktor->>Ktor: إنشاء granted_time {source=GRANT, minutes, ينتهي بنهاية اليوم} — والمنح يزيد daily_spent_minutes (Q-272)
+        Ktor->>Ktor: إنشاء وقت ممنوح
         Ktor->>Ktor: سجل TIME_GRANTED + AuditEvent
-        Ktor-->>Child: family/{family_id}/time-request/decided — التطبيق يستمر
+        Ktor-->>Child: القرار — التطبيق يستمر
     else الأب يرفض
-        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {REJECTED}
-        Ktor-->>Child: family/{family_id}/time-request/decided — مرفوض
+        Father->>Ktor: قرار الرفض
+        Ktor-->>Child: القرار — مرفوض
     else الأب يسند مهمة بدلاً من المنح
-        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {TASK_ASSIGNED, assigned_task_id}
+        Father->>Ktor: قرار إسناد مهمة
         Ktor->>Ktor: الطلب يتحول إلى TASK_ASSIGNED
         Ktor-->>Child: المهمة تظهر فوراً مع قيمتها النقطية
         Note over Child,Ktor: عند إنجاز المهمة + تحقق الذكاء تُودع النقاط — انظر 3-أ
     else لم يقرر الأب حتى منتصف الليل
-        Note over Ktor: الطلب المعلّق يسقط عند منتصف الليل بتوقيت العائلة — حالة تُشتق من الوقت ولا تُخزَّن
+        Note over Ktor: الطلب المعلّق يسقط عند منتصف الليل
         Ktor-->>Child: الطلب انتهى مع يومه — يطلب من جديد إن أراد
     end
 ```
+- الرسالة 1: نفد وقت التطبيق (10 / 15 / 30 دقيقة بقدر ما يسمح الحد)
+- الرسالة 2: `POST /api/v1/families/{id}/children/{childId}/time-requests {app_package, minutes_requested}`
+- الرسالة 5: `family/{family_id}/time-request/new`
+- الرسالة 7: `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {APPROVED, minutes}`
+- الرسالة 8: الدقائق > 0 و≤ المتبقي من الحد اليومي؟ (Q-274 — وإلا `REW_DAILY_CAP_REACHED` أو `REW_VALIDATION_FAILED`) + الابن في نوم/مدرسة/وضع سارٍ؟
+- الرسالة 11: `granted_time {source=GRANT, minutes, ينتهي بنهاية اليوم}` — والمنح يزيد `daily_spent_minutes` (Q-272)
+- الرسالة 13: `family/{family_id}/time-request/decided` — التطبيق يستمر
+- الرسالة 14: `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {REJECTED}`
+- الرسالة 15: `family/{family_id}/time-request/decided` — مرفوض
+- الرسالة 16: `POST /api/v1/families/{id}/children/{childId}/time-requests/{requestId}/decide {TASK_ASSIGNED, assigned_task_id}`
+- ملاحظة: بتوقيت العائلة — حالة تُشتق من الوقت ولا تُخزَّن.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — Q-414 · Q-419): تحذير التعارض قبل المنح (opt داخل فرع المنح: إن كان الابن في نوم/مدرسة/وضع سارٍ يُحذَّر الأب ويختار «امنح على أي حال» أو «لا تمنح الآن» فينتهي بلا منح)؛ وسقوط الطلب المعلّق عند منتصف الليل؛ والمراهق يطلب وقتاً أيضاً؛ ومدد الطلب السريعة 10 / 15 / 30 دقيقة. والرسائل 16 ← 19 (5 مشاركين).
 
@@ -377,28 +432,36 @@ sequenceDiagram
 ### 3-د. منح يدوي من الأب + تجميد السلسلة (REQ-006 / REQ-007 / REQ-011 — §4: `POST /api/v1/families/{id}/children/{childId}/wallet/grant` + `POST /api/v1/families/{id}/children/{childId}/streak/freeze`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     actor Child as الطفل
     participant Ktor as الخادم
-    participant Wallet as المحفظة
-    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grant {points ≤ 60, note} — مكافأة استثنائية بلا مهمة (Q-278)
-    Ktor->>Wallet: إيداع فوري + سجل MANUAL_GRANT في points_ledger
+    participant S105 as المحفظة
+    Father->>Ktor: منح يدوي استثنائي
+    Ktor->>S105: إيداع فوري مع السجل
     Ktor->>Ktor: AuditEvent (domain=rewards)
-    Ktor-->>Child: family/{family_id}/wallet/updated — نقاط دخلت
-    Ktor-->>Father: Snackbar «منحت {child} {points} نقطة» + تراجع 10 ثوانٍ (Q-275 — العكس السريع عبر S05-09 بقيد تعويضي — REQ-018)
-    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/streak/freeze — تجميد ليوم واحد (مرض / سفر)
+    Ktor-->>Child: تحديث المحفظة — نقاط دخلت
+    Ktor-->>Father: إشعار المنح مع تراجع 10 ثوانٍ
+    Father->>Ktor: طلب تجميد السلسلة
     alt تجميد نشط موجود
         Ktor-->>Father: REW_ALREADY_FROZEN — تجميد واحد نشط في كل مرة
     else بلغ حد التجميدين في هذه السلسلة
-        Ktor-->>Father: REW_FREEZE_LIMIT_REACHED — تجميدان كحد أقصى لكل سلسلة (Q-278)
+        Ktor-->>Father: بلغ حد التجميدين
     else لا تجميد نشط ولم يُبلغ الحد
-        Ktor->>Wallet: streak_frozen_until = الغد — التجميد يمدّد السلسلة يوماً واحداً
+        Ktor->>S105: تجميد السلسلة حتى الغد
         Ktor->>Ktor: سجل التجميد في streak_freeze (§5)
         Ktor-->>Father: السلسلة مجمَّدة — لن تنقطع
     end
 ```
+- الرسالة 1: `POST /api/v1/families/{id}/children/{childId}/wallet/grant {points ≤ 60, note}` — مكافأة استثنائية بلا مهمة (Q-278)
+- الرسالة 2: سجل `MANUAL_GRANT` في `points_ledger`
+- الرسالة 4: `family/{family_id}/wallet/updated` — نقاط دخلت
+- الرسالة 5: `Snackbar` «منحت `{child}` `{points}` نقطة» (Q-275 — العكس السريع عبر S05-09 بقيد تعويضي — REQ-018)
+- الرسالة 6: `POST /api/v1/families/{id}/children/{childId}/streak/freeze` — تجميد ليوم واحد (مرض / سفر)
+- الرسالة 8: `REW_FREEZE_LIMIT_REACHED` — تجميدان كحد أقصى لكل سلسلة (Q-278)
+- الرسالة 9: `streak_frozen_until` = الغد — التجميد يمدّد السلسلة يوماً واحداً
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): ترتيب المشاركين موحّد (المستخدم، ثم التطبيق، ثم الخادم، ثم قاعدة البيانات). والرسائل نفسها قبل وبعد.
 
@@ -407,6 +470,7 @@ sequenceDiagram
 ### 3-هـ. العمل دون اتصال والمزامنة (REQ-003 — §4: `getCachedWallet` + `queueTimeRequest` + `queueRedeem` + `queueObjection`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -420,43 +484,53 @@ sequenceDiagram
     Child->>Shell: طلب وقت دون اتصال
     Shell->>K: queueTimeRequest — يُحفظ في Outbox
     Child->>Shell: صرف دون اتصال
-    Shell->>K: queueRedeem {app_package, points, client_request_id} — يُحفظ في Outbox (مفتاح عدم التكرار client_request_id — آلية S1-01)
+    Shell->>K: حفظ الصرف في Outbox
     Child->>Shell: اعتراض دون اتصال
-    Shell->>K: queueObjection {subject_type, subject_id, objection_text} — يُحفظ في Outbox
+    Shell->>K: حفظ الاعتراض في Outbox
     Note over Shell,K: عند عودة الاتصال
-    Shell->>Ktor: إرسال Outbox بترتيب زمني
+    Shell->>Ktor: إرسال الصندوق بترتيب زمني
     alt الرصيد يكفي
-        Ktor-->>Shell: family/{family_id}/wallet/updated — مزامنة بلا خصم مكرر
+        Ktor-->>Shell: تحديث المحفظة بعد المزامنة
     else الرصيد لا يكفي — صُرف من جهاز آخر
         Ktor-->>Shell: يُرفض مع إشعار
     end
 ```
+- الرسالة 8: `queueRedeem {app_package, points, client_request_id}` — مفتاح عدم التكرار `client_request_id` (آلية S1-01)
+- الرسالة 10: `queueObjection {subject_type, subject_id, objection_text}`
+- الرسالة 11: إرسال `Outbox` بترتيب زمني.
+- الرسالة 12: `family/{family_id}/wallet/updated` — مزامنة بلا خصم مكرر
 
 - المحفظة تعمل دون اتصال (مخزن محلي Drift) وتُزامَن عند عودة الاتصال عبر Outbox بلا خصم مكرر (REQ-003/Q-064)؛ والرصيد المعروض دون اتصال هو آخر رصيد معروف مع وقت صريح (§6).
 
 ### 3-و. إلغاء تحقق — قيد تعويضي يعكس الإيداع (REQ-018/§6 — §4: `family/{family_id}/tasks.verification-revoked`)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     actor Child as الطفل
     participant S106 as المهام
     participant Ktor as الخادم
-    participant Wallet as المحفظة
+    participant S105 as المحفظة
     participant MQTT as وسيط MQTT
-    Father->>S106: إلغاء تحقق مهمة سبق اعتمادها (POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification — S1-06 §4)
-    S106->>Ktor: family/{family_id}/tasks.verification-revoked {event_id, task_id, occurrence_id, revoked_by, at} — حمولة الناشر (S1-06 §4)
+    Father->>S106: إلغاء تحقق مهمة معتمدة
+    S106->>Ktor: حدث إلغاء التحقق
     Ktor->>Ktor: البحث عن الإيداع الأصلي بنفس occurrence_id
     alt وُجد إيداع أصلي لم يُعكَس بعد
-        Ktor->>Wallet: قيد تعويضي سالب بنفس القيمة — الرصيد لا يقل عن صفر أبداً
-        Ktor->>MQTT: publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)
+        Ktor->>S105: قيد تعويضي سالب بنفس القيمة — الرصيد لا يقل عن صفر أبداً
+        Ktor->>MQTT: نشر إلغاء التحقق — QoS 1
         Ktor->>Ktor: AuditEvent (domain=rewards)
-        Ktor-->>Child: family/{family_id}/wallet/updated — الرصيد الجديد بعد العكس
+        Ktor-->>Child: تحديث المحفظة — الرصيد بعد العكس
     else لا إيداع أصلي / سبق عكسه
-        Ktor-->>Father: لا عكس — سبق عكسه / لا إيداع أصلي؛ وتُعاد نتيجة العكس الأصلية إن وُجدت بلا خصم ثانٍ (§7 — عملية عكس واحدة)
+        Ktor-->>Father: لا عكس — سبق عكسه أو لا إيداع أصلي
     end
 ```
+- الرسالة 1: `POST /api/v1/families/{id}/tasks/{taskId}/occurrences/{occurrenceId}/revoke-verification` (S1-06 §4)
+- الرسالة 2: `family/{family_id}/tasks.verification-revoked {event_id, task_id, occurrence_id, revoked_by, at}` — حمولة الناشر (S1-06 §4)
+- الرسالة 5: `publish family/{family_id}/tasks.verification-revoked (QoS 1 — Q-209)`
+- الرسالة 7: `family/{family_id}/wallet/updated` — الرصيد الجديد بعد العكس
+- الرسالة 8: وتُعاد نتيجة العكس الأصلية إن وُجدت بلا خصم ثانٍ (§7 — عملية عكس واحدة)
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): ترتيب المشاركين موحّد (المستخدم، ثم التطبيق، ثم الخادم، ثم قاعدة البيانات، ثم الخارجية). والرسائل نفسها قبل وبعد.
 
@@ -465,33 +539,40 @@ sequenceDiagram
 ### 3-ز. اعتراض الطفل على منح أو رفض + تراجع S1-05 (REQ-018 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
-    participant Wallet as المحفظة
+    participant S105 as المحفظة
     Child->>App: اعتراض على منح أو رفض
-    App->>Ktor: POST /api/v1/families/{id}/children/{childId}/objections — اعتراض الطفل (يُشعَر به الأب فوراً — REQ-018 · Q-193)
+    App->>Ktor: تقديم اعتراض الطفل
     Ktor->>Father: إشعار فوري بالاعتراض + الدليل (AgentActionLog)
     Father->>App: مراجعة المنح/الرفض
-    Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/objections/{objectionId}/decide {ACCEPTED | REJECTED, reason?}
-    Ktor->>Ktor: كتابة صف الاعتراض (status / decided_by / decided_at / decision_reason)
+    Father->>Ktor: قرار الأب في الاعتراض
+    Ktor->>Ktor: كتابة صف الاعتراض
     alt الأب يقبل الاعتراض (تراجع عن المنح)
-        Father->>Ktor: POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse — في يومه فقط
-        Ktor->>Wallet: قيد تعويضي — لمنح كسب مهمة: عبر `revoke-verification` في S1-06 (اليوم نفسه — Q-254)؛ ولمنح غير مهام: محاسبي محلي بلا حدث
+        Father->>Ktor: تراجع عن المنح في يومه
+        Ktor->>S105: قيد تعويضي يعكس المنح
         Ktor-->>Child: أُلغي المنح
     else الأب يرفض الاعتراض
         Ktor-->>Child: الاعتراض مرفوض + السبب
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/children/{childId}/objections` — اعتراض الطفل (يُشعَر به الأب فوراً — REQ-018 · Q-193)
+- الرسالة 5: `POST /api/v1/families/{id}/children/{childId}/objections/{objectionId}/decide {ACCEPTED | REJECTED, reason?}`
+- الرسالة 6: `status / decided_by / decided_at / decision_reason`
+- الرسالة 7: `POST /api/v1/families/{id}/children/{childId}/wallet/grants/{walletGrantId}/reverse` — في يومه فقط
+- الرسالة 8: لمنح كسب مهمة: عبر `revoke-verification` في S1-06 (اليوم نفسه — Q-254)؛ ولمنح غير مهام: محاسبي محلي بلا حدث
 
 - أُعيد رسمه 2026-11-19 (Q-434 — Q-414): التراجع عن المنح (reverse) في يوم الإيداع نفسه فقط ويتطلب اتصالاً (§4 · Q-414)؛ وترتيب المشاركين موحّد (المستخدم، ثم التطبيق، ثم الخادم، ثم قاعدة البيانات).
 
 ### 3-ح. تجمّد المحفظة عند بلوغ 13 ومنح الوقت من الرصيد المجمّد (REQ-011 · Q-237 · Q-414)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Teen as المراهق — بلغ 13
@@ -501,7 +582,7 @@ sequenceDiagram
     Teen->>Ktor: يدخل في يوم بلوغ 13 — بلا طلب منه
     Ktor->>S102: تاريخ الميلاد؟ بلغ 13؟
     S102-->>Ktor: بلغ 13 — المحفظة تتجمّد
-    Ktor->>Ktor: تجميد المحفظة: الرصيد محفوظ بلا مصادرة — لا كسب ولا صرف ولا سلسلة
+    Ktor->>Ktor: تجميد المحفظة بلا مصادرة
     Ktor-->>Teen: محفظتك مجمّدة — رصيدك محفوظ
     Ktor-->>Father: ابنك بلغ 13 — محفظته مجمّدة
     Father->>Ktor: منح وقت من الرصيد المجمّد (10 / 15 / 30 دقيقة)
@@ -509,9 +590,11 @@ sequenceDiagram
         Ktor-->>Father: تحذير: الدقائق تُضاف ولن تُستعمل حتى ينتهي ذلك
         Father->>Ktor: «امنح على أي حال»
     end
-    Ktor->>Ktor: إنشاء granted_time {source=GRANT, minutes, ينتهي بنهاية اليوم}
+    Ktor->>Ktor: إنشاء وقت ممنوح
     Ktor-->>Teen: وقت إضافي من رصيدك المجمّد — التطبيق يستمر
 ```
+- الرسالة 4: الرصيد محفوظ بلا مصادرة — لا كسب ولا صرف ولا سلسلة
+- الرسالة 10: `granted_time {source=GRANT, minutes, ينتهي بنهاية اليوم}`
 
 - أُضيف 2026-11-19 (Q-434 — Q-237 · Q-414): عند بلوغ 13 تتجمّد المحفظة: الرصيد محفوظ بلا مصادرة، بلا كسب ولا صرف ولا سلسلة؛ وللأب أن يمنح وقتاً منه (REQ-011)؛ والمنح من الرصيد المجمّد كالمنح المباشر: يُحسب ضمن الحد اليومي (Q-272) ويخضع لتحذير التعارض (Q-419)؛ والمراهق بلا محفظة إطلاقاً بعد التجميد (Q-109). (4 مشاركين، 10 رسائل.)
 
@@ -579,87 +662,89 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–6.0، والمخازن D1–D5 وD8 جداول الخادم من §5، وD6–D7 مخزنان محليان على الجهاز (موثقان في §5: مرآة Drift + Outbox). كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards — §5). والمخطط على لوحتين LR مع subgraph يجمّع كل طرف (خارجي / عمليات / مخازن وسجلات) بترتيب واحد في اللوحتين. والحمولات الكاملة للتدفقات في §3 و§4.
+العمليات مرقمة 1.0–6.0، والمخازن D1–D5 وD8 جداول الخادم من §5، وD6–D7 مخزنان محليان على الجهاز (موثقان في §5: مرآة Drift + Outbox). كل منح/صرف/قرار يُسجَّل في AuditEvent (domain=rewards — §5). والمخطط على سبع لوحات LR، لوحة لكل عملية (أو لكل وجه من عملية واحدة): 5-أ استقبال حدث الكسب (P1)، و5-ب إدارة المحفظة والسجل (P2)، و5-ج السلاسل والتجميد (P5)، و5-د الصرف كوقت إضافي (P3)، و5-هـ طلب الوقت وقرار الأب (P4)، و5-و الاعتراض والتحذير قبل المنح (P4)، و5-ز الإعدادات والمزامنة (P6)؛ والعقدة المشتركة تُكرَّر باسمها مع مرجع اللوحة الأخرى. والحمولات الكاملة للتدفقات في §3 و§4.
 
 - **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4 تظهر هنا على الأقل: نقاط القراءة `GET /api/v1/families/{id}/children/{childId}/wallet` و`GET /api/v1/families/{id}/children/{childId}/wallet/ledger` و`GET /api/v1/families/{id}/rewards/settings` و`PATCH /api/v1/families/{id}/rewards/settings` مذكورة في §3 (تُقرأ عبر P2/P6)؛ وبقية النقاط مرسومة في §3 (grant، redeem، time-requests، decide، streak/freeze)؛ ونقطة `POST …/wallet/grants/{walletGrantId}/reverse` (REQ-018 · Q-167) مرسومة في 3-ز؛ ونقطة `POST …/children/{childId}/objections` (REQ-018 · Q-193) مرسومة في 3-ز؛ ونقطة `POST …/objections/{objectionId}/decide` (REQ-018) مرسومة في 3-ز وتكتب في D8.
 
-### 5-أ. الكسب والإيداع والسلاسل
+### 5-أ. استقبال حدث الكسب
 
 ```mermaid
 flowchart LR
-    subgraph ExtA [خارجي]
-        direction TB
-        S106([المهام وأنظمة مسجَّلة أخرى])
-        AI([بوابة الذكاء Q-054])
-        Child([الطفل])
-        Father([الأب / البالغ المفوَّض])
-        S109([مركز الأوامر S1-09 — REQ-016])
-    end
-    subgraph ProcA [عمليات]
-        direction TB
-        P1(1.0 استقبال حدث كسب والتحقق)
-        P2(2.0 إدارة المحفظة والسجل)
-        P5(5.0 محرك السلاسل والتجميد)
-    end
-    subgraph StoresA [مخازن وسجلات]
-        direction TB
-        D1[(D1 child_wallet)]
-        D2[(D2 points_ledger)]
-        AgentActionLog([سجل أفعال الوكيل])
-        Audit([AuditEvent — domain=rewards])
-    end
+    S106([المهام وأنظمة مسجَّلة أخرى])
+    AI([بوابة الذكاء Q-054])
+    P1(1.0 استقبال حدث كسب والتحقق)
+    AgentActionLog([سجل أفعال الوكيل])
+    Audit([AuditEvent — domain=rewards])
+    P2x(["2.0 إدارة المحفظة والسجل — 5-ب"])
 
     S106 -->|"tasks.completed — عدم تكرار بـ event_id"| P1
     S106 -->|"verification-revoked — قيد تعويضي"| P1
     AI -->|"نتيجة التحقق + الدليل"| P1
     P1 -->|"سجل الفعل + الدليل"| AgentActionLog
     P1 -->|رفض نظام غير مسجَّل| Audit
-    P1 -->|إيداع موثَّق| P2
+    P1 -->|إيداع موثَّق| P2x
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة استقبال حدث الكسب من 5-أ القديمة؛ وP2x مرجع إلى 5-ب.
+
+### 5-ب. إدارة المحفظة والسجل
+
+```mermaid
+flowchart LR
+    P1x(["1.0 استقبال حدث كسب والتحقق — 5-أ"])
+    Father([الأب / البالغ المفوَّض])
+    P2(2.0 إدارة المحفظة والسجل)
+    P5x(["5.0 محرك السلاسل والتجميد — 5-ج"])
+    D1[(D1 child_wallet)]
+    D2[(D2 points_ledger)]
+    Child([الطفل])
+    S109([مركز الأوامر S1-09 — REQ-016])
+    Audit([AuditEvent — domain=rewards])
+
+    P1x -->|إيداع موثَّق| P2
+    Father -->|منح يدوي + ملاحظة| P2
+    Father -->|إلغاء إيداع في يومه| P2
     P2 -->|الرصيد + السلسلة| D1
     P2 -->|كل حركة| D2
     P2 -->|"wallet/updated"| Child
     P2 -->|الرصيد والسلسلة والطلبات| S109
-    Father -->|منح يدوي + ملاحظة| P2
-    Father -->|إلغاء إيداع في يومه| P2
-    P2 -->|أول كسب موثَّق اليوم| P5
-    P5 -->|السلسلة + التجميد| D1
-    Father -->|تجميد يوم واحد| P5
-    P5 -->|مكافأة السلسلة + شارة| P2
+    P2 -->|أول كسب موثَّق اليوم| P5x
+    P5x -->|مكافأة السلسلة + شارة| P2
     P2 -->|كل منح / صرف| Audit
 ```
 
-### 5-ب. الصرف والطلبات والقرارات
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة إدارة المحفظة والسجل من 5-أ القديمة؛ وP1x مرجع إلى 5-أ وP5x مرجع إلى 5-ج.
+
+### 5-ج. السلاسل والتجميد
 
 ```mermaid
 flowchart LR
-    subgraph ExtB [خارجي]
-        direction TB
-        Father([الأب / البالغ المفوَّض])
-        Child([الطفل])
-        Teen([المراهق])
-        S110([محرك الفرض S1-10])
-        S109([مركز الأوامر S1-09 — REQ-016])
-        Ktor([خادم Ktor — وحدة rewards])
-    end
-    subgraph ProcB [عمليات]
-        direction TB
-        P2(2.0 إدارة المحفظة والسجل)
-        P3(3.0 الصرف كوقت إضافي)
-        P4(4.0 طلبات الوقت وقرار الأب)
-        P6(6.0 إعدادات المكافآت والمزامنة)
-    end
-    subgraph StoresB [مخازن وسجلات]
-        direction TB
-        D1[(D1 child_wallet)]
-        D2[(D2 points_ledger)]
-        D3[(D3 time_request)]
-        D4[(D4 granted_time)]
-        D5[(D5 rewards_settings)]
-        D6[(D6 مرآة المحفظة Drift — محلي)]
-        D7[(D7 Outbox — محلي)]
-        D8[(D8 objection)]
-        Audit([AuditEvent — domain=rewards])
-    end
+    P2x(["2.0 إدارة المحفظة والسجل — 5-ب"])
+    Father([الأب / البالغ المفوَّض])
+    P5(5.0 محرك السلاسل والتجميد)
+    D1[(D1 child_wallet)]
+
+    P2x -->|أول كسب موثَّق اليوم| P5
+    Father -->|تجميد يوم واحد| P5
+    P5 -->|السلسلة + التجميد| D1
+    P5 -->|مكافأة السلسلة + شارة| P2x
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة السلاسل والتجميد من 5-أ القديمة؛ وP2x مرجع إلى 5-ب.
+
+### 5-د. الصرف كوقت إضافي
+
+```mermaid
+flowchart LR
+    Child([الطفل])
+    Teen([المراهق])
+    P3(3.0 الصرف كوقت إضافي)
+    D1[(D1 child_wallet)]
+    D5[(D5 rewards_settings)]
+    D2[(D2 points_ledger)]
+    D4[(D4 granted_time)]
+    S110([محرك الفرض S1-10])
+    Audit([AuditEvent — domain=rewards])
 
     Child -->|"صرف: التطبيق + النقاط"| P3
     P3 -->|فحص الرصيد والحد ذرياً| D1
@@ -668,6 +753,24 @@ flowchart LR
     P3 -->|وقت ممنوح لنهاية اليوم| D4
     P3 -->|الوقت الإضافي متاح| S110
     P3 -->|كل صرف| Audit
+    Teen -.->|مرفوض + مسجَّل| Audit
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الصرف كوقت إضافي من 5-ب القديمة؛ وحافة المراهق المرفوضة هنا لأن الرفض في الصرف (Q-109).
+
+### 5-هـ. طلب الوقت وقرار الأب
+
+```mermaid
+flowchart LR
+    Child([الطفل])
+    Father([الأب / البالغ المفوَّض])
+    P4(4.0 طلبات الوقت وقرار الأب)
+    D3[(D3 time_request)]
+    D1[(D1 child_wallet)]
+    D4[(D4 granted_time)]
+    S109([مركز الأوامر S1-09 — REQ-016])
+    Audit([AuditEvent — domain=rewards])
+
     Child -->|طلب وقت إضافي| P4
     P4 -->|حفظ الطلب PENDING| D3
     P4 -->|بطاقة يتطلب انتباهك| S109
@@ -676,83 +779,162 @@ flowchart LR
     P4 -->|فحص المتبقي قبل المنح| D1
     P4 -->|منح مباشر ليوم واحد| D4
     P4 -->|"time-request/decided"| Child
-    Child -->|اعتراض على القرار| P4
-    P4 -->|حفظ الاعتراض PENDING| D8
-    Father -->|قرار على الاعتراض| P4
-    P4 -->|القرار + السبب| D8
-    P4 -->|قبول الاعتراض يعكس المنح| P2
     P4 -->|كل قرار| Audit
-    S110 -->|حالة الطفل الآن| P4
-    P4 -->|تحذير قبل المنح| Father
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة طلب الوقت وقرار الأب من 5-ب القديمة (وجه الطلب والقرار من P4).
+
+### 5-و. الاعتراض والتحذير قبل المنح
+
+```mermaid
+flowchart LR
+    Child([الطفل])
+    Father([الأب / البالغ المفوَّض])
+    S110([محرك الفرض S1-10])
+    P4x(["4.0 طلبات الوقت وقرار الأب — 5-هـ"])
+    D8[(D8 objection)]
+    P2x(["2.0 إدارة المحفظة والسجل — 5-ب"])
+    Audit([AuditEvent — domain=rewards])
+
+    Child -->|اعتراض على القرار| P4x
+    P4x -->|حفظ الاعتراض PENDING| D8
+    Father -->|قرار على الاعتراض| P4x
+    P4x -->|القرار + السبب| D8
+    P4x -->|قبول الاعتراض يعكس المنح| P2x
+    P4x -->|كل قرار| Audit
+    S110 -->|حالة الطفل الآن| P4x
+    P4x -->|تحذير قبل المنح| Father
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الاعتراض والتحذير قبل المنح من 5-ب القديمة (وجه الاعتراض والتحذير من P4)؛ وP4x مرجع إلى 5-هـ وP2x مرجع إلى 5-ب.
+
+### 5-ز. الإعدادات والمزامنة
+
+```mermaid
+flowchart TD
+    Father([الأب / البالغ المفوَّض])
+    Child([الطفل])
+    P6(6.0 إعدادات المكافآت والمزامنة)
+    D5[(D5 rewards_settings)]
+    D6[(D6 مرآة المحفظة — محلي — Drift)]
+    D7[(D7 Outbox — محلي)]
+    Ktor([خادم المكافآت — Ktor])
+
     Father -->|ضبط الحد والمصادر والمكافأة| P6
     P6 -->|الضوابط| D5
     P6 -->|آخر رصيد معروف| D6
     Child -->|طلب أو صرف| P6
     P6 -->|حفظ في Outbox| D7
     D7 -->|مزامنة عند عودة الاتصال| Ktor
-    Teen -.->|مرفوض + مسجَّل| Audit
 ```
 
-- أُعيد رسمه 2026-11-19 (Q-434 — Q-414 · Q-419): قُسّم المخطط الواحد (24 عقدة/44 سهماً) إلى لوحتين LR مع subgraph يجمّع كل طرف (خارجي / عمليات / مخازن وسجلات) بترتيب واحد في اللوحتين: 5-أ الكسب والإيداع والسلاسل (12 عقدة/17 سهماً)، و5-ب الصرف والطلبات والقرارات (19 عقدة/30 سهماً)؛ وأُضيفت ثلاثة أسهم: S110→P4 حالة الطفل (نوم/مدرسة/وضع سارٍ) وP4→Father تحذير قبل المنح (Q-419)، وFather→P2 إلغاء إيداع في يومه (Q-414)؛ وقُصّرت التسميات (الحمولات الكاملة في §3 و§4). والتدفقات نفسها قبل التقسيم وبعده. (ملاحظة فحص العين: النسخة الأولى بلا subgraph رُسمت وفشلت — شبكة متشابكة يصعب قراءتها؛ فأُعيدت بالـsubgraph حسب §3-4.)
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الإعدادات والمزامنة من 5-ب القديمة.
 
-- المصدر: §4 (REST + MQTT + MethodChannel) · §5 (الجداول السبعة + مخزنا العميل) · §6 (الصلاحيات والثوابت).
-- الحد اليومي الذي يفحصه P3 حد الوقت الإضافي كله (مصدرا REDEEM وGRANT)؛ والمنح المباشر يستهلكه مثل الصرف (Q-272 — §6).
-- S1-05 يستهلك حدود S1-10 وأرصدته ولا يملك الفرض (REQ-015) — فلا عملية فرض في هذا المخطط؛ والفرض والحظر يبقيان في S1-10.
+- أُعيد رسمه 2026-11-19 (Q-434 — Q-414 · Q-419): قُسّم المخطط الواحد (24 عقدة/44 سهماً) إلى لوحتين LR مع subgraph يجمّع كل طرف (خارجي / عمليات / مخازن وسجلات) بترتيب واحد في اللوحتين: 5-أ الكسب والإيداع والسلاسل (12 عقدة/17 سهماً)، و5-ب الصرف والطلبات والقرارات (19 عقدة/30 سهماً)؛ وأُضيفت ثلاثة أسهم: S110→P4 حالة الطفل (نوم/مدرسة/وضع سارٍ) وP4→Father تحذير قبل المنح (Q-419)، وFather→P2 إلغاء إيداع في يومه (Q-414)؛ وقُصّرت التسميات (الحمولات الكاملة في §3 و§4). والتدفقات نفسها قبل التقسيم وبعده. (ملاحظة فحص العين: النسخة الأولى بلا subgraph رُسمت وفشلت — شبكة متشابكة يصعب قراءتها؛ فأُعيدت بالـsubgraph حسب §3-4.)
 
 ## 6. مخطط النشاط (Activity) — دورة حياة المحفظة
 
 المسارات الخمسة (الطفل / الأب / خادم المكافآت / الذكاء / محرك S1-10) كمسارات متوازية. والأنشطة الخلفية (انتهاء الوقت المصروف بنهاية اليوم — Q-183، انقطاع السلسلة في يوم بلا كسب) تعمل **بالتوازي** مع استخدام التطبيق.
 
-لوحتان TD: 6-أ من الطلب إلى الإيداع، و6-ب المحفظة والصرف والاعتراض؛ والعقد المشتركة (C4، V5، V6) تتكرر بالاسم في اللوحتين. والأنشطة الخلفية (انتهاء الوقت المصروف بنهاية اليوم — Q-183، انقطاع السلسلة في يوم بلا كسب) تعمل **بالتوازي** مع استخدام التطبيق.
+ثلاث لوحات TD: 6-أ طلب الوقت وقرار الأب، و6-ب الإنجاز والتحقق والإيداع، و6-ج المحفظة والصرف والاعتراض؛ والعقد المشتركة (C3، C4، V5، V6، F1) مراجع باسمها ولوحتها. والأنشطة الخلفية (انتهاء الوقت المصروف بنهاية اليوم — Q-183، انقطاع السلسلة في يوم بلا كسب) تعمل **بالتوازي** مع استخدام التطبيق.
 
-### 6-أ. من الطلب إلى الإيداع
+### 6-أ. طلب الوقت وقرار الأب
 
 ```mermaid
 flowchart TD
-    E1([محرك S1-10 يطبق الحدود والحظر]) --> C1([نفد وقت التطبيق])
-    C1 --> C2[طلب وقت إضافي]
-    C2 --> F1[قرار على الطلب]
-    F1 -->|يسند مهمة| C3[إنجاز مهمة وتسليمها]
-    F1 -->|يمنح مباشرة| V5a{نوم أو مدرسة أو وضع؟}
-    V5a -->|لا| F3[منح وقت مباشر]
-    V5a -->|نعم — تحذير| F3b{امنح على أي حال؟}
+    E1([محرك الفرض يطبق الحدود والحظر — S1-10])
+    C1([نفد وقت التطبيق])
+    C2[طلب وقت إضافي]
+    F1[قرار على الطلب]
+    V5a{نوم أو مدرسة أو وضع؟}
+    F3b{امنح على أي حال؟}
+    F3[منح وقت مباشر]
+    C7([مرفوض — يُشعَر الطفل])
+    V5[وقت ممنوح لنهاية اليوم]
+    C3x(["إنجاز مهمة وتسليمها — 6-ب"])
+
+    E1 --> C1
+    C1 --> C2
+    C2 --> F1
+    F1 -->|يسند مهمة| C3x
+    F1 -->|يمنح مباشرة| V5a
+    V5a -->|لا| F3
+    V5a -->|نعم — تحذير| F3b
     F3b -->|نعم| F3
-    F3b -->|لا| C7([مرفوض — يُشعَر الطفل])
+    F3b -->|لا| C7
     F1 -->|يرفض| C7
-    F3 --> V5[وقت ممنوح لنهاية اليوم]
-    C3 --> A1[التحقق أن المهمة أُنجزت]
-    A1 --> A2{النتيجة؟}
-    A2 -->|أُنجزت| V1[استقبال حدث كسب]
-    A2 -->|لم تُنجز| F6[الأب يرى الرفض]
-    F6 --> C3
-    V1 --> V2[إيداع النقاط + سجل]
-    V2 --> V3[إطالة السلسلة ومكافأتها]
-    V2 --> C4[عرض الرصيد والسلسلة والسجل]
-    V3 --> C4
-    F2[منح نقاط يدوياً] --> V2
-    F4[تجميد السلسلة يوماً] --> V3
-    V2 --> V6[تسجيل كل منح وصرف وقرار]
-    F1 --> V6
+    F3 --> V5
 ```
 
-### 6-ب. المحفظة والصرف والاعتراض
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة طلب الوقت وقرار الأب من 6-أ القديمة؛ وC3x مرجع إلى 6-ب.
+
+### 6-ب. الإنجاز والتحقق والإيداع
 
 ```mermaid
 flowchart TD
-    C4[عرض الرصيد والسلسلة والسجل] --> C5[صرف نقاط كوقت للتطبيق]
-    C5 --> V4[صرف ذري يفحص الرصيد والحد]
-    V4 --> V5[وقت ممنوح لنهاية اليوم]
-    V5 --> E2[إتاحة الوقت الممنوح]
-    E2 --> C6([التطبيق يستمر])
-    V5 --> E3[انتهاء الوقت المصروف بنهاية اليوم]
-    C8[اعتراض على منح أو رفض] --> F7[قرار على الاعتراض]
-    F7 -->|يقبل الاعتراض| V7[قيد تعويضي يعكس المنح]
-    F7 -->|يرفض + السبب| C4
-    V7 --> C4
-    V7 --> V6[تسجيل كل منح وصرف وقرار]
-    V4 --> V6
-    F5[ضبط الحد والمصادر والمكافأة] --> V4
+    C3[إنجاز مهمة وتسليمها]
+    A1[التحقق أن المهمة أُنجزت]
+    A2{النتيجة؟}
+    V1[استقبال حدث كسب]
+    F6[الأب يرى الرفض]
+    V2[إيداع النقاط + سجل]
+    V3[إطالة السلسلة ومكافأتها]
+    C4[عرض الرصيد والسلسلة والسجل]
+    F2[منح نقاط يدوياً]
+    F4[تجميد السلسلة يوماً]
+    V6[تسجيل كل منح وصرف وقرار]
+    F1x(["قرار على الطلب — 6-أ"])
+
+    C3 --> A1
+    A1 --> A2
+    A2 -->|أُنجزت| V1
+    A2 -->|لم تُنجز| F6
+    F6 --> C3
+    V1 --> V2
+    V2 --> V3
+    V2 --> C4
+    V3 --> C4
+    F2 --> V2
+    F4 --> V3
+    V2 --> V6
+    F1x --> V6
 ```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الإنجاز والتحقق والإيداع من 6-أ القديمة؛ وF1x مرجع إلى 6-أ.
+
+### 6-ج. المحفظة والصرف والاعتراض
+
+```mermaid
+flowchart TD
+    C4x(["عرض الرصيد والسلسلة والسجل — 6-ب"])
+    C5[صرف نقاط كوقت للتطبيق]
+    V4[صرف ذري يفحص الرصيد والحد]
+    V5x(["وقت ممنوح لنهاية اليوم — 6-أ"])
+    E2[إتاحة الوقت الممنوح]
+    C6([التطبيق يستمر])
+    E3[انتهاء الوقت المصروف بنهاية اليوم]
+    C8[اعتراض على منح أو رفض]
+    F7[قرار على الاعتراض]
+    V7[قيد تعويضي يعكس المنح]
+    V6[تسجيل كل منح وصرف وقرار]
+    F5[ضبط الحد والمصادر والمكافأة]
+
+    C4x --> C5
+    C5 --> V4
+    V4 --> V5x
+    V5x --> E2
+    E2 --> C6
+    V5x --> E3
+    C8 --> F7
+    F7 -->|يقبل الاعتراض| V7
+    F7 -->|يرفض + السبب| C4x
+    V7 --> C4x
+    V7 --> V6
+    V4 --> V6
+    F5 --> V4
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة المحفظة والصرف والاعتراض من 6-ب القديمة؛ وC4x وV5x مرجعان إلى 6-ب و6-أ.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — Q-414 · Q-419): صار المخطط TD على لوحتين بدل LR بخمسة مسارات (27 عقدة/34 سهماً ← 6-أ 20 عقدة/24 سهماً و6-ب 12 عقدة/13 سهماً)؛ وأُضيف معيّن التحذير قبل المنح المباشر (V5a) مع تأكيد «امنح على أي حال؟» (F3b)؛ وسقوط الطلب عند منتصف الليل في 3-ج و4-أ. والقيد التعويضي (V7) يكتب في الإيداع V2 في 6-أ؛ ورفض الأب للطلب (Q-179) يُشعَر به الطفل؛ وانتهاء الوقت المصروف EXPIRED بنهاية اليوم (Q-183).
 

@@ -63,8 +63,8 @@ flowchart LR
     Adult([البالغ المفوَّض])
     Minor([الطفل / المراهق — الفوترة مخفية])
     Admin([مسؤول اللوحة])
-    S109([مركز الأوامر S1-09 — قراءة فقط])
-    S102([نظام الهوية S1-02 — عدد الأعضاء])
+    S109([مركز الأوامر — قراءة فقط — S1-09])
+    S102([نظام الهوية — عدد الأعضاء — S1-02])
     S107([نظام الموقع S1-07 — SOS])
 
     subgraph S104B [S1-04: العرض والعمليات]
@@ -216,31 +216,33 @@ erDiagram
 ### 3-أ. الترقية عبر المتجر — الخليج (REQ-005/007 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
-    participant K as Kotlin
+    participant K as "وحدة Kotlin"
     participant Ktor as الخادم
     participant Audit as التدقيق
-    participant Store as المتجر
+    participant AppStore as المتجر
     Father->>App: اختيار المميزة من شاشة المقارنة
     App->>K: launchStorePurchase
-    K->>Store: فتح ورقة شراء Google Play
-    Store-->>K: إيصال الشراء
-    K->>Ktor: POST /api/v1/families/{id}/billing/purchase/verify-receipt {receipt_data}
-    Note over Ktor: تحقق خادمي S2S فقط — لا يُعتد بأي تأكيد محلي
-    Ktor->>Store: تحقق S2S من الإيصال
-    Store-->>Ktor: الإيصال صحيح
+    K->>AppStore: فتح ورقة شراء Google Play
+    AppStore-->>K: إيصال الشراء
+    K->>Ktor: تحقق من الإيصال
+    Note over Ktor: تحقق من الخادم فقط — لا يُعتد بتأكيد محلي — S2S
+    Ktor->>AppStore: تحقق من الإيصال — S2S
+    AppStore-->>Ktor: الإيصال صحيح
     alt إيصال صحيح وغير مكرر
         Ktor->>Ktor: تفعيل الاشتراك + الاستحقاقات فوراً
         Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>App: اشتراك ACTIVE — الميزات مفتوحة على كل أجهزة العائلة
+        Ktor-->>App: اشتراك مفعّل — الميزات مفتوحة على كل الأجهزة — ACTIVE
     else إيصال مزور أو مكرر
         Ktor->>Audit: AuditEvent — FRAUD_SUSPECT
         Ktor-->>App: 409 RECEIPT_INVALID / RECEIPT_DUPLICATE
     end
 ```
+- الرسالة 5: `POST /api/v1/families/{id}/billing/purchase/verify-receipt {receipt_data}`
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين (قاعدة البيانات قبل الخارجية). لا تغيير في المحتوى.
 
@@ -249,6 +251,7 @@ sequenceDiagram
 ### 3-ج. نفاد SMS والتعبئة وتجاوز الطوارئ (REQ-009/010/011 — §4/§6)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -256,11 +259,11 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Guard as الحارس
     participant S107 as الموقع
-    participant Broker as الوسيط MQTT
+    participant MQTT as وسيط MQTT
     rect rgb(235, 245, 235)
         Note over Father,Ktor: شراء حزمة تعبئة
-        Father->>App: شراء حزمة تعبئة 50 رسالة (الخليج 5.99 ر.س / اليمن 250 ر.ي — Q-339 · Q-340)
-        App->>Ktor: POST /api/v1/families/{id}/billing/topup
+        Father->>App: شراء حزمة تعبئة 50 رسالة
+        App->>Ktor: شراء حزمة التعبئة
         Ktor->>Ktor: تحقق الدفع خادمياً + إضافة 50 إلى topup_sms_balance
         Ktor-->>App: الرصيد أُضيف فوراً إلى رصيد التعبئة
         Note over Ktor: رصيد التعبئة ينتهي بنهاية الشهر التقويمي ولا يتراكم (Q-252)
@@ -272,19 +275,24 @@ sequenceDiagram
         alt رصيد متاح
             Guard-->>S107: سماح بالإرسال
         else الحصة نفدت — رسالة SOS
-            Guard->>Guard: فحص sms_emergency_used < 3 في الشهر التقويمي (Q-252)
+            Guard->>Guard: فحص الطوارئ المستخدمة — sms_emergency_used < 3
             alt أقل من 3
-                Guard-->>S107: سماح — رسالة طوارئ (SOS فقط)
-                Guard->>Broker: نشر family/{family_id}/billing/quota-warning
-                Broker->>Father: إشعار فوري بكل رسالة طارئة
+                Guard-->>S107: سماح — رسالة طوارئ فقط — SOS
+                Guard->>MQTT: نشر تحذير الحصة
+                MQTT->>Father: إشعار فوري بكل رسالة طارئة
             else 3 مستخدمة
                 Guard-->>S107: حظر حتى التعبئة أو التجديد
-                Guard->>Broker: نشر family/{family_id}/billing/quota-warning
-                Broker->>Father: إشعار فوري عند النفاد
+                Guard->>MQTT: نشر تحذير الحصة
+                MQTT->>Father: إشعار فوري عند النفاد
             end
         end
     end
 ```
+- الرسالة 1: الخليج 5.99 ر.س / اليمن 250 ر.ي (Q-339 · Q-340)
+- الرسالة 2: `POST /api/v1/families/{id}/billing/topup`
+- الرسالة 8: في الشهر التقويمي (Q-252)
+- الرسالة 10: `family/{family_id}/billing/quota-warning`
+- الرسالة 13: `family/{family_id}/billing/quota-warning`
 
 - أُعيد رسمه 2026-11-19 (Q-434 — توضيح): «الرصيد أُضيف فوراً إلى رصيد التعبئة» — رصيد تعبئة منفصل (`topup_sms_balance`) لا يصفّر عدّاد الاستخدام؛ ولا تغيير آخر في المحتوى.
 
@@ -293,15 +301,16 @@ sequenceDiagram
 ### 3-د. بدء التجربة وتذكيراها والاشتراك الصريح (REQ-012/021 — §4/§6)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
     participant Sched as المجدول
-    participant Broker as الوسيط MQTT
+    participant MQTT as وسيط MQTT
     Father->>App: بدء التجربة 7 أيام للمميزة — بلا وسيلة دفع
-    App->>Ktor: POST /api/v1/families/{id}/plan/trial/start
+    App->>Ktor: بدء التجربة
     alt لم تُستخدم التجربة من قبل
         Ktor->>Ktor: status=TRIAL + trial_used=true — 7 أيام
         Ktor-->>App: تجربة مفعّلة — لا خصم تلقائي عند نهايتها
@@ -309,14 +318,16 @@ sequenceDiagram
         Ktor-->>App: TRIAL_ALREADY_USED
     end
     Note over Sched: تذكيرا نهاية التجربة (REQ-021)
-    Sched->>Broker: نشر تذكير قبل النهاية بيومين
-    Broker->>Father: تذكير — تنتهي التجربة بعد يومين
-    Sched->>Broker: نشر تذكير في اليوم الأخير
-    Broker->>Father: تذكير — اليوم الأخير للتجربة
+    Sched->>MQTT: نشر تذكير قبل النهاية بيومين
+    MQTT->>Father: تذكير — تنتهي التجربة بعد يومين
+    Sched->>MQTT: نشر تذكير في اليوم الأخير
+    MQTT->>Father: تذكير — اليوم الأخير للتجربة
     Father->>App: اشتراك صريح — نقرة الأب
-    App->>Ktor: POST /api/v1/families/{id}/plan/upgrade {plan_id, billing_interval}
+    App->>Ktor: ترقية الخطة
     Ktor-->>App: تفاصيل الدفع حسب القناة — بلا تفعيل بعد
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/plan/trial/start`
+- الرسالة 11: `POST /api/v1/families/{id}/plan/upgrade {plan_id, billing_interval}`
 
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى): رُسمت أحكام REQ-021 — لا وسيلة دفع عند البدء ولا خصم تلقائي عند النهاية، والتذكيران، والاشتراك نقرة صريحة؛ وانتقلت نهاية التجربة بلا اشتراك إلى 3-ل.
 - لا طريقة دفع عند بدء التجربة ولا خصم تلقائي عند نهايتها (REQ-021)؛ والانتهاء بطابع وقت الخادم فقط — ساعة العميل لا يُعتد بها أبداً (§6)؛ والتجربة مرة واحدة لكل عائلة وغير قابلة للتحويل (§6).
@@ -325,6 +336,7 @@ sequenceDiagram
 ### 3-هـ. تجاوز حصة الأفراد وبطاقة الترقية اللبقة (REQ-009 — §2 سيناريو 4-6)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -339,10 +351,10 @@ sequenceDiagram
     Ktor-->>App: QUOTA_EXCEEDED + بطاقة ترقية لبقة
     App-->>Father: بطاقة ترقية لبقة (لا حظر قاسٍ)
     Father->>App: الترقية للأساسية (حتى 10 أفراد)
-    App->>Ktor: POST /api/v1/families/{id}/plan/upgrade
+    App->>Ktor: ترقية الخطة
     Ktor-->>App: تفاصيل الدفع حسب القناة (المتجر / محفظة) — بلا تفعيل بعد
     Father->>App: إتمام الدفع بالقناة المختارة
-    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm حسب القناة
+    App->>Ktor: تحقق من الدفع حسب القناة
     alt تحقق خادمي صحيح
         Ktor->>Ktor: تفعيل الاشتراك
         Ktor-->>App: ترقية مفعّلة — إضافة العضو تنجح
@@ -350,6 +362,8 @@ sequenceDiagram
         Ktor-->>App: 409 FRAUD_SUSPECT / REFERENCE_DUPLICATE — بلا تفعيل
     end
 ```
+- الرسالة 9: `POST /api/v1/families/{id}/plan/upgrade`
+- الرسالة 12: `POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data}` — أو `wallet/confirm`
 
 - الأعضاء الحاليون عند التراجع اللبق يبقون فعالين مع حظر إضافة جدد فقط (REQ-014)؛ وحد الأفراد: 5 / 10 / غير محدود (§1).
 - الترقية وسط الفترة والأيام الإضافية في 3-ي (REQ-020).
@@ -357,6 +371,7 @@ sequenceDiagram
 ### 3-و. بدء دفع محفظة يمنية والتحقق منه (REQ-006 — §4/§5 — Q-251)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -365,17 +380,17 @@ sequenceDiagram
     participant Audit as التدقيق
     participant Adapter as محول مزوّد المحفظة
     Father->>App: اختيار محفظة يمنية من S04-05
-    App->>Ktor: POST /api/v1/families/{id}/billing/wallet/initiate {plan_id, provider}
+    App->>Ktor: بدء دفع المحفظة
     Ktor->>Ktor: إنشاء سجل دفع payment_confirmation (status=INITIATED)
     Ktor-->>App: {payment_id, status: "initiated"}
     Father->>App: إتمام الدفع في تطبيق المحفظة
-    App->>Ktor: POST /api/v1/families/{id}/billing/wallet/confirm {payment_id, wallet_reference}
+    App->>Ktor: تأكيد دفع المحفظة
     alt رقم مرجعي مستخدم من قبل
         Ktor-->>App: 409 REFERENCE_DUPLICATE
     else رقم مرجعي جديد
-        Ktor->>Ktor: status=PENDING_VERIFICATION — بانتظار تحقق المزوّد
+        Ktor->>Ktor: بانتظار تحقق المزوّد
         Ktor-->>App: {payment_id, status: "pending_verification"}
-        Adapter->>Ktor: تأكيد المزوّد عبر المحول — بلا تفاصيل API حتى عقد حقيقي
+        Adapter->>Ktor: تأكيد المزوّد عبر المحول — بلا تفاصيل حتى عقد حقيقي — API
         alt تأكيد صحيح
             Ktor->>Ktor: status=VERIFIED + تفعيل الاشتراك + سجل purchase_receipt
             Ktor->>Audit: AuditEvent (domain=billing)
@@ -386,6 +401,9 @@ sequenceDiagram
         end
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/billing/wallet/initiate {plan_id, provider}`
+- الرسالة 6: `POST /api/v1/families/{id}/billing/wallet/confirm {payment_id, wallet_reference}`
+- الرسالة 8: `status=PENDING_VERIFICATION`
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين (قاعدة البيانات قبل الخارجية). لا تغيير في المحتوى.
 
@@ -394,20 +412,22 @@ sequenceDiagram
 ### 3-ط. مفتاح إيقاف الذكاء للمسؤول (Q-338 — D-10 — §4-2)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Operator as مشغّل المنصة
-    participant App as لوحة المسؤول
+    participant App as التطبيق
     participant Ktor as الخادم
     participant Audit as التدقيق
-    participant Gateway as بوابة الذكاء
+    participant AI as الذكاء
     Operator->>App: قلب مفتاح إيقاف الذكاء (enabled: true/false)
-    App->>Ktor: POST /api/v1/admin/ai/kill-switch — المفتاح billing.plan.edit (Q-260)
+    App->>Ktor: قلب مفتاح الإيقاف
     Ktor->>Ktor: قلب المفتاح على مستوى المنصة
-    Ktor->>Gateway: إيقاف مزايا الذكاء غير الآمنة (المصنف مستمر — Q-335)
+    Ktor->>AI: إيقاف مزايا الذكاء غير الآمنة (المصنف مستمر — Q-335)
     Ktor->>Audit: AuditEvent (domain=billing) — كل قلب مسجل
     Ktor-->>App: {enabled, updated_at}
 ```
+- الرسالة 2: `POST /api/v1/admin/ai/kill-switch` — المفتاح `billing.plan.edit` (Q-260)
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): وُحّد ترتيب المشاركين (قاعدة البيانات قبل الخارجية). لا تغيير في المحتوى.
 
@@ -416,6 +436,7 @@ sequenceDiagram
 ### 3-ي. الترقية وسط الفترة والأيام الإضافية (REQ-004/020 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -423,21 +444,24 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Audit as التدقيق
     Father->>App: اختيار خطة أعلى من شاشة المقارنة
-    App->>Ktor: POST /api/v1/families/{id}/plan/upgrade {plan_id, billing_interval}
+    App->>Ktor: ترقية الخطة
     Ktor->>Ktor: حساب الأيام الإضافية من المدة الباقية (REQ-020)
-    Ktor-->>App: {plan_id, channel, payment_details, credit_days, period_end_after}
-    Note over Father,Ktor: في دفع المتجر credit_days صفر — يحسب المتجر الفرق بنظامه
+    Ktor-->>App: تفاصيل الدفع والأيام الإضافية
+    Note over Father,Ktor: في دفع المتجر يحسب المتجر الفرق بنظامه — credit_days = 0
     Father->>App: إتمام الدفع بالقناة المختارة
-    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm حسب القناة
+    App->>Ktor: تحقق من الدفع حسب القناة
     alt تحقق خادمي صحيح
         Ktor->>Ktor: تفعيل الاشتراك + الأيام الإضافية فوراً
         Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>App: اشتراك ACTIVE — الميزات مفتوحة
+        Ktor-->>App: اشتراك مفعّل — الميزات مفتوحة — ACTIVE
     else إيصال مزوَّر أو مكرر
         Ktor->>Audit: AuditEvent — FRAUD_SUSPECT
         Ktor-->>App: 409 RECEIPT_INVALID / RECEIPT_DUPLICATE
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/plan/upgrade {plan_id, billing_interval}`
+- الرسالة 4: `{plan_id, channel, payment_details, credit_days, period_end_after}`
+- الرسالة 6: `POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data}` — أو `wallet/confirm`
 
 - مخطط جديد 2026-11-19 (Q-434): الترقية وسط الفترة والأيام الإضافية (REQ-020).
 - القاعدة: قيمة اليوم = سعر الفترة ÷ أيامها (365 للسنوية، 30 للشهرية)؛ والأيام الإضافية = ⌊الأيام الباقية × قيمة يوم القديمة ÷ قيمة يوم الجديدة⌋، يحسبها الخادم وتُعرض قبل الدفع (REQ-020).
@@ -448,6 +472,7 @@ sequenceDiagram
 ### 3-ك. التجديد المبكر لمن لا تجديد تلقائي له (REQ-004/013 — §4)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
@@ -455,20 +480,24 @@ sequenceDiagram
     participant Ktor as الخادم
     participant Audit as التدقيق
     Father->>App: تجديد قبل انتهاء الفترة (محفظة أو بطاقة — بلا تجديد تلقائي)
-    App->>Ktor: POST /api/v1/families/{id}/plan/renew {plan_id} — المفتاح billing.manage
-    Ktor->>Ktor: الفترة الجديدة تبدأ بعد نهاية الحالية — current_period_start = نهاية الفترة الحالية
+    App->>Ktor: طلب التجديد المبكر
+    Ktor->>Ktor: الفترة الجديدة بعد نهاية الحالية
     Ktor-->>App: تفاصيل الدفع حسب القناة
     Father->>App: إتمام الدفع بالقناة المختارة
-    App->>Ktor: POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data} — أو wallet/confirm حسب القناة
+    App->>Ktor: تحقق من الدفع حسب القناة
     alt تحقق خادمي صحيح
         Ktor->>Ktor: تجديد الفترة — status=ACTIVE
         Ktor->>Audit: AuditEvent (domain=billing)
-        Ktor-->>App: {plan_id, status: "ACTIVE", current_period_start, current_period_end}
+        Ktor-->>App: تفاصيل الفترة المجددة
     else إيصال مزوَّر أو مكرر
         Ktor->>Audit: AuditEvent — FRAUD_SUSPECT
         Ktor-->>App: 409 RECEIPT_INVALID / RECEIPT_DUPLICATE
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/plan/renew {plan_id}` — المفتاح `billing.manage`
+- الرسالة 3: `current_period_start` = نهاية الفترة الحالية
+- الرسالة 6: `POST /api/v1/families/{id}/billing/verify-receipt {provider, receipt_data}` — أو `wallet/confirm`
+- الرسالة 9: `{plan_id, status: "ACTIVE", current_period_start, current_period_end}`
 
 - مخطط جديد 2026-11-19 (Q-434): التجديد المبكر (Q-420).
 - التجديد المبكر لمن لا تجديد تلقائي له (محفظة، بطاقة — Q-420 · Q-422)؛ والفترة الجديدة تبدأ بعد نهاية الحالية. والتجديد التلقائي (المتجر) يتم عبر Webhook المتجر idempotent بمفتاح المعاملة — لا ترقية مزدوجة (§7).
@@ -476,30 +505,35 @@ sequenceDiagram
 ### 3-ل. نهاية التجربة بلا اشتراك — عودة المدفوعة وسماح المجانية (REQ-013/014/021 — §4/§6)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
     participant Sched as المجدول
-    participant Broker as الوسيط MQTT
+    participant MQTT as وسيط MQTT
     Note over Sched: عند انتهاء التجربة بلا اشتراك
     Sched->>Ktor: انتهت التجربة — ما خطة العائلة قبلها؟
     alt عائلة مدفوعة جرّبت المميزة
         Ktor->>Ktor: عودة إلى الخطة المدفوعة مباشرة — بلا سماح
         Ktor-->>App: خطتك المدفوعة كما كانت — فترتها تستمر في العدّ
     else عائلة مجانية
-        Sched->>Ktor: دخول فترة السماح — status=IN_GRACE_PERIOD — 3 أيام
-        Ktor->>Broker: نشر family/{family_id}/billing/sub-grace-period
-        Broker->>Father: حدث فترة السماح — الميزات تبقى
+        Sched->>Ktor: دخول فترة السماح 3 أيام — status=IN_GRACE_PERIOD
+        Ktor->>MQTT: نشر حدث فترة السماح
+        MQTT->>Father: حدث فترة السماح — الميزات تبقى
         Father->>App: تجديد الآن أثناء السماح (زر S04-09)
-        App->>Ktor: POST /api/v1/families/{id}/plan/renew {plan_id} — المفتاح billing.manage
-        Ktor-->>App: {plan_id, status: "ACTIVE", current_period_start, current_period_end}
+        App->>Ktor: طلب التجديد أثناء السماح
+        Ktor-->>App: تفاصيل الفترة المجددة
     end
     Note over Sched: عند انتهاء السماح بلا تجديد
-    Sched->>Ktor: تراجع لبق — كتابة واحدة: status=ACTIVE على الخطة المجانية + AuditEvent بانتهاء الخطة المدفوعة
+    Sched->>Ktor: تراجع لبق — كتابة واحدة على الخطة المجانية
     Ktor-->>Father: بلا قفل وبلا حذف بيانات — الأعضاء الحاليون يبقون
 ```
+- الرسالة 5: `family/{family_id}/billing/sub-grace-period`
+- الرسالة 8: `POST /api/v1/families/{id}/plan/renew {plan_id}` — المفتاح `billing.manage`
+- الرسالة 9: `{plan_id, status: "ACTIVE", current_period_start, current_period_end}`
+- الرسالة 10: كتابة واحدة: `status=ACTIVE` على الخطة المجانية + `AuditEvent` بانتهاء الخطة المدفوعة
 
 - مخطط جديد 2026-11-19 (Q-434): نهاية التجربة بلا اشتراك (REQ-021 · Q-420).
 - إن انتهت الفترة المدفوعة أثناء التجربة دخلت خطتها سماحها هي (Q-420). والترقية أثناء فترة السماح تنهي السماح فوراً وتفعّل الخطة الجديدة (§7).
@@ -522,13 +556,13 @@ flowchart TD
     Channel -->|متجر / بطاقة| Store[شراء عبر المتجر أو البطاقات]
     Channel -->|محفظة يمنية| Wallet[دفع Jaib / OneCash / Mahfathati]
     Channel -->|تجربة| Trial[بدء تجربة 7 أيام]
-    Store --> Verify[تحقق خادمي S2S من الإيصال]
+    Store --> Verify[تحقق من الإيصال من الخادم — S2S]
     Wallet --> Verify
     Trial --> Active[مميزة ACTIVE]
     Verify -->|صحيح| Active
     Verify -->|مزور / مكرر| Reject[رفض 409 + تسجيل FRAUD_SUSPECT]
     Active --> Use[استخدام الميزات على كل الأجهزة]
-    View --> Hub{عرض من مركز الأوامر S1-09؟}
+    View --> Hub{عرض من مركز الأوامر؟ — S1-09}
     Hub -->|نعم| ReadOnly[عرض قراءة فقط + زر إدارة]
     ReadOnly --> View
 ```
@@ -558,7 +592,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    B1([بدء تجربة 7 أيام]) --> B2[مميزة TRIAL — بلا وسيلة دفع]
+    B1([بدء تجربة 7 أيام]) --> B2[مميزة تجريبية — بلا وسيلة دفع — TRIAL]
     B2 --> B3[تذكير قبل النهاية بيومين]
     B3 --> B4[تذكير في اليوم الأخير]
     B4 --> B5{اشترك الأب؟}
@@ -586,9 +620,9 @@ flowchart TD
     C2 -->|ذكاء — نفاد الميزانية| C5[إيقاف مزايا الذكاء — السلامة مستمرة]
     C4 --> C6[ترقية فورية]
     C6 --> C1
-    C2 -->|SMS نفد| C7[3 رسائل طوارئ SOS فقط]
+    C2 -->|SMS نفد| C7[3 رسائل طوارئ فقط — SOS]
     C7 --> C8{بقي طارئ؟}
-    C8 -->|نعم| C9[إرسال SOS + إشعار فوري للأب]
+    C8 -->|نعم| C9[إرسال الطوارئ + إشعار فوري للأب — SOS]
     C8 -->|لا| C10[حظر حتى التعبئة أو التجديد]
     C4 --> C11([شراء تعبئة 50 رسالة])
     C11 --> C1
@@ -656,7 +690,7 @@ flowchart LR
 ### 5-ب. الحصص والتعبئة
 
 ```mermaid
-flowchart LR
+flowchart TD
     Father([الأب — المالك])
     S102([نظام الهوية S1-02])
     S107([نظام الموقع S1-07])
@@ -666,50 +700,53 @@ flowchart LR
 
     S102 -->|عدد الأعضاء| P4
     S107 -->|طلب SMS| P4
-    Father -->|"GET /api/v1/families/{id}/billing/usage — استهلاك الحصص (REQ-017)"| P4
+    Father -->|طلب استهلاك الحصص| P4
     P4 -->|الاستهلاك والحدود والرصيد| Father
     P4 -->|قراءة / تحديث العدّادات| D6
     P4 -->|قراءة سعر الحزمة| D9
     P4 -->|تجاوز → بطاقة ترقية لبقة| Father
-    P4 -->|نفاد SMS — طوارئ SOS| S107
+    P4 -->|نفاد الرسائل — طوارئ — SMS / SOS| S107
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الثانية من تقسيم DFD — الحصص والتعبئة وحدها؛ والمخزن D9 مكرر هنا بلا تعريف جديد؛ وقُصّرت تسميات الحواف.
+- أُعيد ترتيبه 2026-11-19 (دفعة الشكل 2): اللوحة عمودية (TD) لا أفقية — انحراف موثّق عن أمر Q-434؛ تسميات الحواف الأفقية كانت مشطوبة بخط السهم في محرك GitHub 10.9.3 (لا خلفية خلف التسمية)، والاتجاه العمودي يزيل الشطب دون حذف أي عقدة أو حافة.
+- المسار الكامل لحافة Father→P4: `GET /api/v1/families/{id}/billing/usage` (استهلاك الحصص — REQ-017) — قُصّرت التسمية 2026-11-19 (تنسيق المنسق: تسمية السهم 3 كلمات).
 
 ### 5-ج. المجدول والأحداث
 
 ```mermaid
-flowchart LR
-    Father([الأب — المالك])
-    S109([مركز الأوامر S1-09])
-    S107([نظام الموقع S1-07])
-    Broker([الوسيط MQTT])
+flowchart TD
     P1(1.0 كتالوج الخطط والاستحقاقات)
     P5(5.0 مجدول التجربة والسماح والتراجع)
     P6(6.0 أحداث الفوترة والإشعارات)
     D3[(D3 family_subscription)]
     Audit([AuditEvent — domain=billing])
+    MQTT([وسيط MQTT])
+    S109([مركز الأوامر S1-09])
+    S107([نظام الموقع S1-07])
+    Father([الأب — المالك])
 
     P1 -->|إلغاء تجديد → auto_renew=false| P5
     P5 -->|انتهاء تجربة أو سماح| D3
     P5 -->|كل تراجع| Audit
-    P6 -->|"family/{family_id}/billing/subscription-changed<br/>family/{family_id}/billing/quota-warning<br/>family/{family_id}/billing/sub-grace-period<br/>family/{family_id}/billing/sub-renewed"| Broker
-    Broker -->|المواضيع الأربعة — اشتراك S1-09| S109
-    Broker -->|"family/{family_id}/billing/quota-mirror"| S107
+    P6 -->|"family/{family_id}/billing/subscription-changed<br/>family/{family_id}/billing/quota-warning<br/>family/{family_id}/billing/sub-grace-period<br/>family/{family_id}/billing/sub-renewed"| MQTT
+    MQTT -->|المواضيع الأربعة — اشتراك S1-09| S109
+    MQTT -->|"family/{family_id}/billing/quota-mirror"| S107
     P6 -->|تنبيه 80% وإشعار طارئ| Father
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الثالثة من تقسيم DFD — المجدول والأحداث؛ والمخزن D3 وAuditEvent والعملية P1 مكررة هنا بلا تعريف جديد؛ ودُمجت حافتا P5→D3 في واحدة؛ وتسمية حافة المواضيع الأربعة مكسورة على 4 أسطر (نفس المواضيع، نفس الحافة).
+- أُعيد ترتيبه 2026-11-19 (دفعة الشكل 2): اللوحة عمودية (TD) لا أفقية — انحراف موثّق عن أمر Q-434؛ تسميات الحواف الأفقية كانت مشطوبة بخط السهم في محرك GitHub 10.9.3 (لا خلفية خلف التسمية)، والاتجاه العمودي يزيل الشطب دون حذف أي عقدة أو حافة؛ وكيان الوسيط صار `MQTT` باسم «وسيط MQTT» الموحّد.
 
 ### 5-د. العرض دون اتصال
 
 ```mermaid
-flowchart LR
-    Father([الأب — المالك])
+flowchart TD
     S109([مركز الأوامر S1-09])
-    App([التطبيق — Flutter])
     P1(1.0 كتالوج الخطط والاستحقاقات)
+    App([التطبيق — Flutter])
     D7[(D7 الخطة المحفوظة — محلي)]
+    Father([الأب — المالك])
 
     S109 -->|زر إدارة| P1
     P1 -->|الخطة — قراءة فقط| S109
@@ -719,14 +756,15 @@ flowchart LR
 ```
 
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الرابعة من تقسيم DFD — العرض دون اتصال؛ والعملية P1 مكررة هنا بلا تعريف جديد.
+- أُعيد ترتيبه 2026-11-19 (دفعة الشكل 2): اللوحة عمودية (TD) لا أفقية — انحراف موثّق عن أمر Q-434؛ العرض الطبيعي 1539 بكسل أفقياً بخمس عقد فقط، والاتجاه العمودي ينزل به تحت الحد دون حذف أي عقدة أو حافة.
 
 - ملاحظة: Webhook المتجر للتجديد التلقائي يُعالج idempotent بمفتاح المعاملة — لا ترقية مزدوجة (§7)؛ وفشل التحقق من الإيصال لعطل اتصال بالمتجر يعطي سماحاً مؤقتاً 24 ساعة (Q-215) ثم إعادة محاولة (§7).
 
 ## 6. مخطط النشاط (Activity) — دورة حياة الاشتراك
 
-المسارات الخمسة (الأب / التطبيق / الخادم / مزودو الدفع / المجدول) كمسارات متوازية، على لوحتين باتجاه TD: 6-أ الدفع والتفعيل، و6-ب الحصص والمجدول والإشعارات. وحارس الحصص والمجدول يعملان **بالتوازي** مع استخدام التطبيق، والسلامة (SOS والموقع الأساسي والدردشة والمهام) لا تُحجب بأي خطة أبداً.
+المسارات الخمسة (الأب / التطبيق / الخادم / مزودو الدفع / المجدول) كمسارات متوازية، على خمس لوحات باتجاه TD: 6-أ الإقلاع واختيار الخطة، و6-ب الدفع عبر المزودين، و6-ج التحقق والتفعيل، و6-د دورة التجربة والسماح، و6-هـ الحصص والتعبئة والإشعارات. وحارس الحصص والمجدول يعملان **بالتوازي** مع استخدام التطبيق، والسلامة (SOS والموقع الأساسي والدردشة والمهام) لا تُحجب بأي خطة أبداً.
 
-### 6-أ. الدفع والتفعيل
+### 6-أ. الإقلاع واختيار الخطة
 
 ```mermaid
 flowchart TD
@@ -734,26 +772,42 @@ flowchart TD
         direction TB
         F1([عائلة جديدة])
         F2[اختيار خطة أو بدء تجربة]
-        F3[الدفع بالطريقة المختارة]
-        F5[إلغاء التجديد التلقائي]
     end
     subgraph App [التطبيق — Flutter + Kotlin]
         direction TB
         A1[بدء تلقائي على المجانية ACTIVE]
         A2[عرض المقارنة والأسعار]
-        A3[فتح ورقة شراء المتجر]
-        A4[إرسال الإيصال أو الرقم المرجعي]
-        A5[عرض الخطة المحفوظة دون اتصال]
         A7[عرض تأكيد الدفع والأيام الإضافية]
     end
     subgraph Server [الخادم — Ktor billing]
         direction TB
-        V1["GET /api/v1/plans + GET /api/v1/families/{id}/plan"]
-        V2[تحقق S2S من الإيصال والدفعة]
-        V3[تفعيل الاشتراك + الاستحقاقات]
-        V6[تسجيل AuditEvent]
-        V7[تعيين auto_renew=false]
+        V1["GET /api/v1/plans<br/>+ GET /api/v1/families/{id}/plan"]
         V8[حساب الأيام الإضافية قبل الدفع]
+    end
+
+    F1 --> A1
+    A1 --> V1
+    F2 --> A2
+    A2 --> V8
+    V8 --> A7
+```
+
+- أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الأولى من تقسيم النشاط وتحويله إلى TD؛ وأُضيف V8 (حساب الأيام الإضافية — REQ-020) وA7 (شاشة تأكيد الدفع)؛ وقُصّرت التسميات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 6-أ القديمة (19 عقدة) قُسّمت ثلاث لوحات 6-أ/6-ب/6-ج.
+
+### 6-ب. الدفع عبر المزودين
+
+```mermaid
+flowchart TD
+    subgraph Father [الأب — المالك]
+        direction TB
+        F3[الدفع بالطريقة المختارة]
+    end
+    subgraph App [التطبيق — Flutter + Kotlin]
+        direction TB
+        A7x(["عرض تأكيد الدفع والأيام الإضافية — 6-أ"])
+        A3[فتح ورقة شراء المتجر]
+        A4[إرسال الإيصال أو الرقم المرجعي]
     end
     subgraph Provider [مزودو الدفع]
         direction TB
@@ -762,12 +816,7 @@ flowchart TD
         R3[Jaib / OneCash / Mahfathati — محافظ]
     end
 
-    F1 --> A1
-    A1 --> V1
-    F2 --> A2
-    A2 --> V8
-    V8 --> A7
-    A7 --> F3
+    A7x --> F3
     F3 --> A3
     A3 --> R1
     A3 --> R2
@@ -775,16 +824,41 @@ flowchart TD
     R1 --> A4
     R2 --> A4
     R3 --> A4
-    A4 --> V2
+```
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الدفع عبر المزودين من 6-أ القديمة؛ وA7x مرجع إلى 6-أ.
+
+### 6-ج. التحقق والتفعيل
+
+```mermaid
+flowchart TD
+    subgraph Father [الأب — المالك]
+        direction TB
+        F5[إلغاء التجديد التلقائي]
+    end
+    subgraph App [التطبيق — Flutter + Kotlin]
+        direction TB
+        A4x(["إرسال الإيصال أو الرقم المرجعي — 6-ب"])
+        A5[عرض الخطة المحفوظة دون اتصال]
+    end
+    subgraph Server [الخادم — Ktor billing]
+        direction TB
+        V2[تحقق من الإيصال والدفعة من الخادم — S2S]
+        V3[تفعيل الاشتراك + الاستحقاقات]
+        V6[تسجيل AuditEvent]
+        V7[تعيين auto_renew=false]
+    end
+
+    A4x --> V2
     V2 --> V3
     V3 --> V6
     V3 --> A5
     F5 --> V7
 ```
 
-- أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الأولى من تقسيم النشاط وتحويله إلى TD؛ وأُضيف V8 (حساب الأيام الإضافية — REQ-020) وA7 (شاشة تأكيد الدفع)؛ وقُصّرت التسميات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة التحقق والتفعيل من 6-أ القديمة؛ وA4x مرجع إلى 6-ب.
 
-### 6-ب. الحصص والمجدول والإشعارات
+### 6-د. دورة التجربة والسماح
 
 ```mermaid
 flowchart TD
@@ -797,19 +871,43 @@ flowchart TD
         G2[سماح 3 أيام]
         G3[تراجع لبق للمجانية]
         G5["انتهاء الفترة المدفوعة بلا تجديد"]
+    end
+    subgraph Server [الخادم — Ktor billing]
+        direction TB
+        V3x(["تفعيل الاشتراك + الاستحقاقات — 6-ج"])
+    end
+
+    G6 --> G7
+    G7 --> G1
+    G1 -->|عائلة مدفوعة| G8
+    G1 -->|عائلة مجانية| G2
+    G8 --> V3x
+    G2 --> G3
+    G3 --> V3x
+    G5 --> G3
+```
+
+- أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): أُضيف G6 وG7 (تذكيرا التجربة — REQ-021) وG8 (عودة العائلة المدفوعة — Q-420)؛ وقُصّرت التسميات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة دورة التجربة والسماح من 6-ب القديمة؛ وV3x مرجع إلى 6-ج.
+
+### 6-هـ. الحصص والتعبئة والإشعارات
+
+```mermaid
+flowchart TD
+    subgraph Sched [المجدول]
+        direction TB
         G4["تصفير الحصص أول كل شهر"]
     end
     subgraph Father [الأب — المالك]
         direction TB
-        F2[اختيار خطة أو بدء تجربة]
         F4[شراء تعبئة SMS]
+        F2x(["اختيار خطة أو بدء تجربة — 6-أ"])
         F6(["استلام إشعار 80% أو طارئ"])
     end
     subgraph Server [الخادم — Ktor billing]
         direction TB
-        V2[تحقق S2S من الإيصال والدفعة]
-        V3[تفعيل الاشتراك + الاستحقاقات]
-        V4[حارس الحصص — أفراد / SMS / ذكاء]
+        V2x(["تحقق من الإيصال والدفعة من الخادم — 6-ج — S2S"])
+        V4[حارس الحصص — أفراد / رسائل / ذكاء — SMS]
         V5[إصدار أحداث MQTT]
     end
     subgraph App [التطبيق — Flutter + Kotlin]
@@ -817,24 +915,16 @@ flowchart TD
         A6[عرض بطاقة ترقية لبقة]
     end
 
-    G6 --> G7
-    G7 --> G1
-    G1 -->|عائلة مدفوعة| G8
-    G1 -->|عائلة مجانية| G2
-    G8 --> V3
-    G2 --> G3
-    G3 --> V3
-    G5 --> G3
     G4 --> V4
-    F4 --> V2
-    V2 -->|إضافة رصيد التعبئة| V4
+    F4 --> V2x
+    V2x -->|إضافة رصيد التعبئة| V4
     V4 --> A6
-    A6 --> F2
+    A6 --> F2x
     V5 --> F6
     V4 --> F6
 ```
 
-- أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): اللوحة الثانية من تقسيم النشاط وتحويله إلى TD؛ وأُضيف G6 وG7 (تذكيرا التجربة — REQ-021) وG8 (عودة العائلة المدفوعة — Q-420)؛ وV2 وV3 وF2 مكررة من 6-أ بلا تعريف جديد؛ وقُصّرت التسميات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة الحصص والتعبئة والإشعارات من 6-ب القديمة؛ وV2x وF2x مرجعان إلى 6-ج و6-أ.
 
 - عند انتهاء الفترة دون اتصال بالخادم، تُعرض الخطة المحفوظة مع وقت صريح، ويُتحقق من الانتهاء عند أول اتصال بطابع الخادم (§7)؛ وميزانية ذكاء لكل عائلة حسب خطتها (300/1,000/3,000 وحدة — Q-336) + مفتاح إيقاف، ونفاد الميزانية يوقف مزايا الذكاء دون أن يمس السلامة (REQ-016)؛ وسقف المنصة الشهري $200 (Q-337 — تنبيه 80% / إيقاف صلب 100% لمزايا الذكاء غير الآمنة، والمصنف مستمر)؛ ومفتاح إيقاف المسؤول `POST /api/v1/admin/ai/kill-switch` (Q-338 — مشغّل المنصة وحده، المفتاح `billing.plan.edit` — مرسوم في 3-ط).
 - تنبيه 80% (Q-216)؛ وتصفير الحصص أول كل شهر تقويمي (Q-252)؛ وإضافة رصيد التعبئة عند تحقق الدفع (Q-180)؛ وV7 يبقي الميزات حتى نهاية الفترة؛ وانتهاء الفترة بلا تجديد تعني auto_renew=false.

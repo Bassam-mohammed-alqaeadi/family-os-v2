@@ -12,17 +12,94 @@
 
 19 حالة استخدام من السيناريوهات الستة والمتطلبات (§2/§3 — REQ-001…REQ-017؛ وREQ-010 وREQ-015 بلا حالة استخدام لأنهما بلا واجهة — يُغطَّيان في §9-5 — وREQ-016 سطحه في S1-09 لا حالة استخدام له هنا): أي عضو يراسل أي عضو، الأب يرى محادثات القاصرين ويغلقها، والبالغ المفوَّض يراها حسب قالب التفويض (REQ-013 — `chat.minor.view`)، قناة الوالدين للبالغين فقط بـ PIN الأب ومخفية عن أجهزة الأطفال، والمصنف الخفيف على الخادم (Q-165) يحرس كل رسائل محادثات الأطفال دون 13 سنة بالاتجاهين (Q-292) دائماً، وكل رسائل محادثات المراهقين 13–17 سنة بالاتجاهين بمفتاح تحكم لكل عائلة يملكه مالك العائلة والافتراضي تشغيل (Q-083 كما عدّله Q-140). والتسليم إلى أنظمة الهوية (S1-02) والصلاحيات (S1-03) ومركز الأوامر (S1-09) ممثل كجهات خارجية. والجديد (Q-410 · Q-413): الأب يراجع تنبيه المصنف بنص لا يظهر إلا بطلب صريح مسجَّل (UC15)، ويشغّل/يوقف مصنف المراهق وحده (UC16)، ويعيد فتح المحادثة المغلقة وحده بتأكيد بلا سبب إلزامي (UC17)، ويُخبَر مرسل الرسالة المحظورة أنها لم تُسلَّم (UC18).
 
+### 1-أ. الأب — الإرسال والقراءة (REQ-001/002/003/005/006/007/008/011/014/017)
+
 ```mermaid
 flowchart LR
     Father([الأب — المالك])
+    MinIO([MinIO — تخزين الوسائط])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
+    S102([نظام الهوية S1-02])
+    S109([مركز الأوامر S1-09])
+
+    subgraph S108 [S1-08: الدردشة العائلية الأساسية]
+        direction TB
+        UC1(إرسال رسالة)
+        UC2(قراءة رسائل قناة)
+        UC3(إنشاء قناة ثنائية)
+        UC3b(إنشاء قناة جماعية)
+        UC4(فتح قناة الوالدين)
+        UC5(إرسال رسالة في قناة الوالدين)
+        UC10(إرسال دون اتصال)
+        UC11(استرداد سجل قناة الوالدين)
+        UC13(تأكيد القراءة)
+        UC14(رؤية مؤشر كتابة حي)
+    end
+
+    Father --> UC1
+    Father --> UC2
+    Father --> UC3
+    Father --> UC3b
+    Father --> UC4
+    Father --> UC5
+    Father --> UC10
+    Father --> UC11
+    Father --> UC13
+    Father --> UC14
+    UC1 -.->|يتضمن| UC10
+    UC4 -.->|يتضمن| UC5
+    UC1 --> MinIO
+    UC1 --> MQTT
+    S102 --> UC2
+    UC2 --> S109
+```
+
+- ما يُقرأ منه: كيف يرسل الأب ويقرأ — قنوات ثنائية وجماعية وقناة الوالدين، والإرسال دون اتصال عبر الصندوق الصادر.
+
+### 1-ب. الأب — الإشراف والتنبيهات (REQ-004/009/012/013)
+
+```mermaid
+flowchart LR
+    Father([الأب — المالك])
+    S103([نظام الصلاحيات S1-03])
+    S109([مركز الأوامر S1-09])
+
+    subgraph S108 [S1-08: الدردشة العائلية الأساسية]
+        direction TB
+        UC6(عرض محادثات القاصرين)
+        UC7(إغلاق محادثة قاصر)
+        UC8(حذف رسالة للجميع)
+        UC12(تلقي تنبيه المصنف)
+        UC15(مراجعة تنبيه المصنف)
+        UC16(تشغيل / إيقاف مصنف المراهق)
+        UC17(إعادة فتح محادثة مغلقة)
+    end
+
+    Father --> UC6
+    Father --> UC7
+    Father --> UC8
+    Father --> UC12
+    Father --> UC15
+    Father --> UC16
+    Father --> UC17
+    S103 --> UC6
+    S103 --> UC7
+    S103 --> UC8
+    UC12 --> S109
+```
+
+- ما يُقرأ منه: إشراف الأب وحده — رؤية محادثات القاصرين وإغلاقها وحذف رسائلها، وتنبيهات المصنف ومراجعتها ومفتاح مصنف المراهق.
+
+### 1-ج. البالغ — الإرسال والإشراف حسب القالب (REQ-001/002/003/005/006/007/008/009/011/013/014)
+
+```mermaid
+flowchart LR
     Adult([البالغ — الأم / المفوَّض])
-    Teen([المراهق])
-    Child([الطفل])
+    MinIO([MinIO — تخزين الوسائط])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
     S102([نظام الهوية S1-02])
     S103([نظام الصلاحيات S1-03])
     S109([مركز الأوامر S1-09])
-    MinIO([MinIO — تخزين الوسائط])
-    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
 
     subgraph S108 [S1-08: الدردشة العائلية الأساسية]
         direction TB
@@ -37,33 +114,11 @@ flowchart LR
         UC8(حذف رسالة للجميع)
         UC9(حذف رسالة لنفسي)
         UC10(إرسال دون اتصال)
-        UC11(استرداد سجل قناة الوالدين)
-        UC12(تلقي تنبيه المصنف)
         UC13(تأكيد القراءة)
         UC14(رؤية مؤشر كتابة حي)
-        UC15(مراجعة تنبيه المصنف)
-        UC16(تشغيل / إيقاف مصنف المراهق)
-        UC17(إعادة فتح محادثة مغلقة)
         UC18(إبلاغ المرسل بالحظر)
     end
 
-    Father --> UC1
-    Father --> UC2
-    Father --> UC3
-    Father --> UC3b
-    Father --> UC4
-    Father --> UC5
-    Father --> UC6
-    Father --> UC7
-    Father --> UC8
-    Father --> UC10
-    Father --> UC11
-    Father --> UC12
-    Father --> UC13
-    Father --> UC14
-    Father --> UC15
-    Father --> UC16
-    Father --> UC17
     Adult --> UC1
     Adult --> UC2
     Adult --> UC3
@@ -78,6 +133,42 @@ flowchart LR
     Adult --> UC13
     Adult --> UC14
     Adult --> UC18
+    UC1 -.->|يتضمن| UC10
+    UC4 -.->|يتضمن| UC5
+    UC1 --> MinIO
+    UC1 --> MQTT
+    S102 --> UC2
+    S103 --> UC6
+    S103 --> UC7
+    S103 --> UC8
+    UC2 --> S109
+```
+
+- ما يُقرأ منه: البالغ يرسل ويقرأ كالأب، ويرى محادثات القاصرين حسب قالب التفويض فقط؛ ويُخبَر بالحظر حين تُحظر رسالته.
+
+### 1-د. المراهق والطفل — الإرسال والقراءة (REQ-001/002/005/006/007/008/009/014)
+
+```mermaid
+flowchart LR
+    Teen([المراهق])
+    Child([الطفل])
+    MinIO([MinIO — تخزين الوسائط])
+    MQTT([وسيط MQTT — Mosquitto 2.x — 8883 + mTLS])
+    S102([نظام الهوية S1-02])
+    S109([مركز الأوامر S1-09])
+
+    subgraph S108 [S1-08: الدردشة العائلية الأساسية]
+        direction TB
+        UC1(إرسال رسالة)
+        UC2(قراءة رسائل قناة)
+        UC3(إنشاء قناة ثنائية)
+        UC9(حذف رسالة لنفسي)
+        UC10(إرسال دون اتصال)
+        UC13(تأكيد القراءة)
+        UC14(رؤية مؤشر كتابة حي)
+        UC18(إبلاغ المرسل بالحظر)
+    end
+
     Teen --> UC1
     Teen --> UC2
     Teen --> UC3
@@ -95,22 +186,20 @@ flowchart LR
     Child --> UC14
     Child --> UC18
     UC1 -.->|يتضمن| UC10
-    UC4 -.->|يتضمن| UC5
     UC1 --> MinIO
     UC1 --> MQTT
     S102 --> UC2
-    S103 --> UC6
-    S103 --> UC7
-    S103 --> UC8
-    UC12 --> S109
     UC2 --> S109
 ```
+
+- ما يُقرأ منه: المراهق والطفل يرسلان ويقرآن فقط — لا إغلاق محادثة ولا حذف للجميع ولا رؤية قناة الوالدين؛ ويُخبَران بالحظر حين تُحظر رسالة أحدهما.
 
 - ملاحظات: قناة الوالدين **لا تظهر أصلاً** على جهاز الطفل أو المراهق — لا في القائمة ولا في البحث (REQ-003)؛ والمراهق والطفل لا يغلقان محادثة ولا يحذفان رسالة للجميع أبداً (§6-1 — `chat.channel.close` و`chat.message.delete.any` للبالغين فقط — Q-010)؛ والبالغ المفوَّض يرى محادثات القاصرين حسب قالب التفويض فقط (REQ-013 — `chat.minor.view` — Q-089).
 - ملاحظة: UC1 نص / إيموجي / صورة / صوت (REQ-005)؛ وUC4 بطلب PIN الأب (Q-065)؛ وUC5 مشفرة E2E (REQ-011)؛ وUC6 الأب كاملة والمفوَّض حسب القالب (REQ-013)؛ وUC10 عبر الصندوق الصادر (REQ-014)؛ وUC11 بمصادقة PIN + OTP (REQ-017)؛ وUC12 دون 13 دائماً و13–17 بمفتاح المالك (Q-140).
 - ملاحظة (Q-410 · Q-413): UC15 نص الرسالة المرصودة لا يظهر إلا بطلب صريح ويُسجَّل العرض في التدقيق؛ وUC16 عنصر سطح تحكم للمالك وحده — ليس مفتاح صلاحية ولا يُفوَّض (مفاتيح `chat.*` تبقى 8)؛ وUC17 الأب وحده بتأكيد بلا سبب إلزامي (Q-242)؛ وUC18 المرسل يُخبَر بالمحظور فقط — لا يُخبَر بتنبيه عن رسالة سُلّمت.
 - خريطة المتطلبات إلى الحالات: REQ-001 ← UC2/UC3/UC3b؛ REQ-002 ← UC3/UC3b؛ REQ-003 ← UC4؛ REQ-004 ← UC6/UC7/UC17؛ REQ-005 ← UC1؛ REQ-006 ← UC1/UC10؛ REQ-007 ← UC13؛ REQ-008 ← UC14؛ REQ-009 ← UC8/UC9؛ REQ-011 ← UC5؛ REQ-012 ← UC12/UC15/UC16/UC18؛ REQ-013 ← UC6؛ REQ-014 ← UC10؛ REQ-017 ← UC11؛ وREQ-010 وREQ-015 بلا حالة استخدام (بلا واجهة — §9-5)؛ وREQ-016 سطحه في S1-09.
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): أُضيفت UC15…UC18 (Q-410 · Q-413)؛ وقُصّرت كل التسميات إلى 5 كلمات فأقل ونُقلت أرقام REQ والتفاصيل إلى الملاحظات أعلاه؛ ورُتّبت العقد بترتيب القراءة.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوحة واحدة (28 عقدة) → أربع لوحات حسب الفاعل (1-أ الأب إرسال/قراءة 15 عقدة، 1-ب الأب إشراف 10 عقد، 1-ج البالغ 20 عقدة، 1-د المراهق والطفل 14 عقدة)؛ والجهات الخارجية مكررة باسمها في كل لوحة تحتاجها.
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -209,69 +298,85 @@ erDiagram
 ### 3-أ. إرسال رسالة فورياً — العرض المتفائل ثم المزامنة (REQ-006/007 — §4.1 + §4.2)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Drift as Drift
     participant Ktor as الخادم
-    participant MQTT as MQTT
+    participant MQTT as وسيط MQTT
     actor Mother as الأم
     Father->>App: كتابة رسالة وإرسالها
-    App->>Drift: حفظ محلياً بـ client_message_id (علامة ساعة)
+    App->>Drift: حفظ محلياً (علامة ساعة) — client_message_id
     App-->>Father: الرسالة تظهر فوراً (<10ms)
-    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload}
-    Ktor->>Ktor: فحص الصلاحية chat.message.send (S1-03 — Q-010) + منع التكرار بـ client_message_id
+    App->>Ktor: إرسال الرسالة
+    Ktor->>Ktor: فحص الصلاحية ومنع التكرار
     Ktor-->>App: الرسالة + server_seq_id
     App->>Drift: تحديث الحالة (صح التسليم) بـ server_seq_id
-    Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
+    Ktor->>MQTT: نشر الرسالة
     MQTT-->>Mother: دفع الرسالة فوراً
-    Mother->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/read {last_read_seq}
+    Mother->>Ktor: إرسال إيصال القراءة
     Ktor-->>Mother: {ok: true}
-    Ktor->>MQTT: family/{family_id}/chat/{channelId}/read (QoS 1)
+    Ktor->>MQTT: نشر إيصال القراءة
     MQTT-->>Father: تحديث الحالة (صحا القراءة)
 ```
+- الرسالة 2: حفظ محلياً بـ client_message_id (علامة ساعة).
+- الرسالة 4: `POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload}`.
+- الرسالة 5: فحص الصلاحية chat.message.send (S1-03 — Q-010) + منع التكرار بـ client_message_id.
+- الرسالة 8: `family/{family_id}/chat/{channelId}/message (QoS 1)`.
+- الرسالة 10: `POST /api/v1/families/{id}/channels/{channelId}/read {last_read_seq}`.
+- الرسالة 12: `family/{family_id}/chat/{channelId}/read (QoS 1)`.
 
 - نفس `client_message_id` مرتين تُعيد الرسالة الأصلية بلا تكرار (§7-6)؛ والترتيب بـ `server_seq_id` لكل قناة (§6-3). عند إعادة الاتصال: كشف الفجوات وإصلاحها عبر `GET .../messages` بقاعدة §4-2 (مقارنة آخر `server_seq_id` مرئي) — QoS 1 وحده لا يغلق فجوة جلسة ساقطة.
 
 ### 3-ب. فتح قناة الوالدين وإرسال رسالة E2E (REQ-003/011 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
-    participant K as Kotlin
+    participant K as "وحدة Kotlin"
     participant Ktor as الخادم
     participant Audit as التدقيق
     Father->>App: فتح قناة الوالدين
-    App->>K: طلب PIN الأب (بوابة الوالدين — Q-065)
+    App->>K: طلب الرقم السري للأب — بوابة الوالدين — PIN
     Father->>K: إدخال PIN
-    K->>K: التحقق من PIN محلياً (بوابة الوالدين — Q-142)
-    K->>Audit: AuditEvent — إثبات تحقق ناجح (يدخل الصندوق الصادر كإدخال تدقيق عند عدم الاتصال — §6-3)
-    K-->>App: فتح القناة + مفاتيح E2E من Android Keystore
-    App->>Ktor: GET /api/v1/families/{id}/channels/{channelId}/messages ?before&limit (§4-1)
-    Ktor-->>App: سجل الرسائل (نص مشفر E2E فقط)
+    K->>K: التحقق المحلي من الرقم — PIN (Q-142)
+    K->>Audit: إثبات تحقق ناجح — AuditEvent
+    K-->>App: فتح القناة + المفاتيح — E2E
+    App->>Ktor: جلب سجل الرسائل
+    Ktor-->>App: سجل الرسائل المشفر — E2E
     App->>App: فك التشفير محلياً — الخادم لا يرى المحتوى أبداً
     Father->>App: كتابة رسالة خاصة
-    App->>K: تشفير E2E محلياً
+    App->>K: تشفير الرسالة محلياً — E2E
     K-->>App: حمولة مشفرة
-    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages (حمولة مشفرة)
-    Ktor->>Ktor: حمولة غير مشفرة تُرفض CHAT_E2E_REQUIRED (§7-5)
+    App->>Ktor: إرسال الحمولة المشفرة
+    Ktor->>Ktor: حمولة غير مشفرة تُرفض
     Ktor-->>App: الرسالة + server_seq_id
 ```
+- الرسالة 2: طلب PIN الأب (بوابة الوالدين — Q-065).
+- الرسالة 5: `AuditEvent` — إثبات تحقق ناجح (يدخل الصندوق الصادر كإدخال تدقيق عند عدم الاتصال — §6-3).
+- الرسالة 6: فتح القناة + مفاتيح E2E من Android Keystore.
+- الرسالة 7: `GET /api/v1/families/{id}/channels/{channelId}/messages ?before&limit (§4-1)`.
+- الرسالة 8: سجل الرسائل (نص مشفر E2E فقط).
+- الرسالة 13: `POST /api/v1/families/{id}/channels/{channelId}/messages (حمولة مشفرة)`.
+- الرسالة 14: حمولة غير مشفرة تُرفض CHAT_E2E_REQUIRED (§7-5).
 
 - على جهاز الطفل: القناة غير موجودة أصلاً — لا في القائمة ولا في البحث — ولا معاينة محتوى في الإشعارات (REQ-003).
 
 ### 3-ج. دون اتصال — الصندوق الصادر والتسليم التسلسلي (REQ-014 — §4.1/§4.3)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     participant App as التطبيق
     participant Drift as Drift
-    participant K as Kotlin
+    participant K as "وحدة Kotlin"
     participant Ktor as الخادم
     Child->>App: كتابة رسالة دون اتصال
     App->>Drift: حفظ في الصندوق الصادر (علامة ساعة)
@@ -280,8 +385,8 @@ sequenceDiagram
     App->>K: getOutboxStatus() → {pending, failed} — MethodChannel (§4-3)
     App->>Drift: قراءة الرسائل المعلقة تسلسلياً
     App->>K: startChatSync() — تسليم قائمة المعلقة إلى خدمة المزامنة
-    K->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages — رسالة واحدة (Content-Encoding: br عند النفع — §4-1)
-    Ktor-->>K: الرسالة + server_seq_id (بلا تكرار — client_message_id)
+    K->>Ktor: تسليم رسالة واحدة
+    Ktor-->>K: الرسالة ورقم تسلسلها — server_seq_id
     K-->>App: اكتمل التسليم
     App->>Drift: تحديث الحالات (صح التسليم)
     App-->>Child: التسليم مكتمل
@@ -289,28 +394,34 @@ sequenceDiagram
         K-->>Child: تبقى معلقة مع زر إعادة المحاولة (§7-7)
     end
 ```
+- الرسالة 7: `POST /api/v1/families/{id}/channels/{channelId}/messages — رسالة واحدة (Content-Encoding: br عند النفع — §4-1)`.
+- الرسالة 8: الرسالة + server_seq_id (بلا تكرار — client_message_id).
 
 - وضع النطاق المنخفض (Q-064): ضغط Brotli على جسم كل طلب عند النفع (بلا دفعة مجمّعة — §4-1 يعرّف POST واحداً لكل رسالة) + تسليم تسلسلي بلا تكرار (§2 8-5).
 
 ### 3-د. حذف رسالة للجميع (REQ-009 — §4.1 + §4.2)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
-    participant MQTT as MQTT
+    participant MQTT as وسيط MQTT
     participant Audit as التدقيق
     Father->>App: اختيار "حذف للجميع" على رسالة
-    App->>Ktor: DELETE /api/v1/families/{id}/channels/{channelId}/messages/{messageId}
-    Ktor->>Ktor: فحص chat.message.delete.any (S1-03 — قابل للتفويض Q-010)
+    App->>Ktor: حذف الرسالة
+    Ktor->>Ktor: فحص صلاحية الحذف — chat.message.delete.any
     Ktor->>Ktor: deleted_for = all + deleted_at
     Ktor->>Audit: AuditEvent (نطاق chat)
-    Ktor->>MQTT: family/{family_id}/chat/{channelId}/deleted (QoS 1)
+    Ktor->>MQTT: نشر حدث الحذف
     MQTT-->>App: مزامنة الحذف على كل الأجهزة
     App-->>Father: مكان الرسالة "حُذفت هذه الرسالة"
 ```
+- الرسالة 2: `DELETE /api/v1/families/{id}/channels/{channelId}/messages/{messageId}`.
+- الرسالة 3: فحص chat.message.delete.any (S1-03 — قابل للتفويض Q-010).
+- الرسالة 6: `family/{family_id}/chat/{channelId}/deleted (QoS 1)`.
 
 - العضو يحذف رسائله لنفسه فقط (`deleted_for = self`)؛ وحذف رسالة محذوفة أصلاً يُعيد النتيجة نفسها (idempotent — §7-8).
 - الاحتفاظ بعد الحذف (Q-295): المحتوى المُعلَّم يُحتفظ به 30 يوماً للمراجعة ثم يُحذف نهائياً؛ وغير المُعلَّم يُطهر خلال 7 أيام — يُوثَّق للأب في حوار التأكيد.
@@ -319,24 +430,25 @@ sequenceDiagram
 ### 3-ط. إغلاق محادثة قاصر وإعادة فتحها ومفتاح المصنف (REQ-004 · REQ-012 — §4.1 + §4.2 — Q-242 · Q-410)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
     participant Ktor as الخادم
-    participant MQTT as MQTT
+    participant MQTT as وسيط MQTT
     participant Audit as التدقيق
     Father->>App: إغلاق محادثة قاصر (محتوى غير مناسب)
-    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/close {reason}
+    App->>Ktor: إغلاق المحادثة
     Ktor->>Ktor: فحص chat.channel.close (Q-010) + closed_at / closed_by
     Ktor->>Audit: AuditEvent (نطاق chat)
-    Ktor->>MQTT: family/{family_id}/chat/{channelId}/closed (QoS 1)
+    Ktor->>MQTT: نشر حدث الإغلاق
     MQTT-->>App: إغلاق متزامن على كل الأجهزة
     Ktor-->>App: {channel_id, closed: true}
     App-->>Father: المحادثة مغلقة — السبب ظاهر لأعضائها مع اسم من أغلقها
     Father->>App: إعادة فتح المحادثة المغلقة
-    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/reopen {reason?}
-    Ktor->>Ktor: فحص الأب وحده (is_owner — Q-242)؛ ليست مفتاحاً قابلاً للتفويض — مفتاح chat.channel.close لا يكفي
+    App->>Ktor: إعادة فتح المحادثة
+    Ktor->>Ktor: فحص الأب وحده — is_owner
     Ktor->>Ktor: closed_at / closed_by = null + reopened_at / reopened_by
     Ktor->>Audit: AuditEvent (نطاق chat)
     Ktor-->>App: {channel_id, closed: false}
@@ -347,6 +459,10 @@ sequenceDiagram
     Ktor-->>App: {enabled: false}
     App-->>Father: المصنف متوقف — تشغيله بنقرة واحدة
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/channels/{channelId}/close {reason}`.
+- الرسالة 5: `family/{family_id}/chat/{channelId}/closed (QoS 1)`.
+- الرسالة 10: `POST /api/v1/families/{id}/channels/{channelId}/reopen {reason?}`.
+- الرسالة 11: فحص الأب وحده (is_owner — Q-242)؛ ليست مفتاحاً قابلاً للتفويض — مفتاح chat.channel.close لا يكفي.
 
 - محاولة إعادة فتح من بالغ مفوَّض (أو مراهق/طفل) → `403` + تسجيل في التدقيق (§7-14)؛ وإعادة الفتح لا تعيد رسائل محذوفة — الحذف دائم بلا تراجع، والإغلاق وحده قابل للعكس (Q-242).
 - سبب الإغلاق إلزامي ويُعرض لأعضاء المحادثة مع اسم من أغلقها (Q-410)؛ وإعادة الفتح بتأكيد من الأب بلا سبب إلزامي (Q-410 — `{reason?}`)، ولا انتهاء تلقائي للإغلاق — إعادة فتح الأب هي الطريق الوحيد (Q-242). وأي إرسال لاحق في محادثة مغلقة → `CHAT_CLOSED` + سبب الإغلاق (§7-3).
@@ -356,93 +472,112 @@ sequenceDiagram
 ### 3-هـ. استرداد سجل قناة الوالدين على جهاز جديد (REQ-017 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant Device as الجهاز
     participant Ktor as الخادم
     Father->>Device: فتح قناة الوالدين على جهاز جديد
-    Device->>Ktor: POST /api/v1/families/{id}/parents-channel/recovery/request-otp — إصدار OTP بغرض recovery (موجّه S1-02 — Q-021)
+    Device->>Ktor: طلب رمز الاسترداد — OTP
     Ktor-->>Device: {otp_sent_via, expires_in_sec: 300}
-    Father->>Device: إدخال OTP (6 خانات — FosOtpField)
-    Device->>Ktor: POST /api/v1/families/{id}/parents-channel/backup {otp} — مصادقة الأب (OTP إلى الخادم + PIN محلي لاشتقاق المفتاح — §4-1، بلا مفتاح chat.*)
+    Father->>Device: إدخال رمز الاسترداد — OTP
+    Device->>Ktor: إرسال رمز الاسترداد — OTP
     alt OTP صحيح
-        Ktor-->>Device: النسخة المشفرة (payload) + parents_key_backup.encrypted_key
+        Ktor-->>Device: النسخة المشفرة ومفتاحها
         Device->>Device: اشتقاق مفتاح الاسترداد من PIN (Argon2id — kdf_params)
         Device->>Device: فك مفتاح القناة ثم فك السجل محلياً
         Device-->>Father: سجل قناة الوالدين مستعاد — الخادم لم يرَ المحتوى أبداً
     else OTP خاطئ
-        Ktor-->>Device: CHAT_RECOVERY_OTP_INVALID — لا نسخة تُسلَّم
+        Ktor-->>Device: رمز خاطئ — لا نسخة
         Device-->>Father: OTP خاطئ — أعد الإدخال (5 محاولات خاطئة ← قفل 15 دقيقة)
     else تعذرت المصادقة تماماً
         Ktor-->>Device: رفض — السجل غير قابل للاسترداد
         Device-->>Father: رسالة صريحة: لا وعد كاذب (§7-12)
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/parents-channel/recovery/request-otp — إصدار OTP بغرض recovery (موجّه S1-02 — Q-021)`.
+- الرسالة 4: إدخال OTP (6 خانات — FosOtpField).
+- الرسالة 5: `POST /api/v1/families/{id}/parents-channel/backup {otp} — مصادقة الأب (OTP إلى الخادم + PIN محلي لاشتقاق المفتاح — §4-1، بلا مفتاح chat.*)`.
+- الرسالة 6: النسخة المشفرة (payload) + parents_key_backup.encrypted_key.
+- الرسالة 10: CHAT_RECOVERY_OTP_INVALID — لا نسخة تُسلَّم.
 
 - النسخة المشفرة ومفتاحها المشفر لا يُسلَّمان إلا بعد مصادقة الأب (PIN + OTP) (§6-2)؛ وإعادة تعيين PIN (Q-077) تُعيد تغليف مفتاح الاسترداد (§6-3).
 
 ### 3-و. إرسال صورة/صوت — رفع عبر Ktor ثم إرسال بـ media_id (REQ-005 — §4.1)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Member as العضو
     participant App as التطبيق
     participant Ktor as الخادم
     participant MinIO as MinIO
-    participant MQTT as MQTT
+    participant MQTT as وسيط MQTT
     Member->>App: اختيار صورة / تسجيل صوت
-    alt صورة > 10MB أو صوت > 5MB
-        App-->>Member: رفض CHAT_MEDIA_TOO_LARGE + الحد ظاهر
+    alt صورة فوق 10MB أو صوت فوق 5MB
+        App-->>Member: رفض — تجاوز الحد
     else ضمن الحد
-        App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/media (multipart {file}) — الرفع عبر Ktor لا برابط موقّع مباشر
-        Ktor->>MinIO: كتابة البايتات (في قناة الوالدين: البايتات مشفرة E2E على الجهاز قبل الرفع — الخادم لا يرى المحتوى)
+        App->>Ktor: رفع الوسائط
+        Ktor->>MinIO: كتابة البايتات — E2E
         MinIO-->>Ktor: storage_ref
         Ktor-->>App: {media_id, storage_ref, size_bytes}
-        App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload, media_id}
-        Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
+        App->>Ktor: إرسال الرسالة مع الوسائط
+        Ktor->>MQTT: نشر الرسالة
         Ktor-->>App: الرسالة + server_seq_id
         App-->>Member: ظهور الرسالة مع الوسائط
     end
 ```
+- الرسالة 2: رفض CHAT_MEDIA_TOO_LARGE + الحد ظاهر.
+- الرسالة 3: `POST /api/v1/families/{id}/channels/{channelId}/media (multipart {file}) — الرفع عبر Ktor لا برابط موقّع مباشر`.
+- الرسالة 4: كتابة البايتات (في قناة الوالدين: البايتات مشفرة E2E على الجهاز قبل الرفع — الخادم لا يرى المحتوى).
+- الرسالة 7: `POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload, media_id}`.
+- الرسالة 8: `family/{family_id}/chat/{channelId}/message (QoS 1)`.
 
 - `media_id` إلزامي عند `kind` صورة/صوت؛ و`payload` ظرف مشفَّر فقط — لا بايتات وسائط فيه (§4-1)؛ ومخرج `GET .../messages` يسرد `server_seq_id` و`media_id` و`deleted_for` لكل رسالة.
 
 ### 3-ز. إرسال في محادثة قاصر — بوابة المصنف بفئاته السبع (REQ-012 — Q-292 · Q-293 · Q-294 · Q-413)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Adult as البالغ
     participant App as التطبيق
     participant Ktor as الخادم
     participant Classifier as المصنف الخفيف (خادم — Q-165)
-    participant MQTT as MQTT
-    participant S109 as مركز الأوامر S1-09
+    participant MQTT as وسيط MQTT
+    participant S109 as مركز الأوامر
     Adult->>App: كتابة رسالة إلى قاصر وإرسالها
-    App->>Ktor: POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload}
-    Ktor->>Ktor: فحص الصلاحية chat.message.send (S1-03 — Q-010) + منع التكرار بـ client_message_id
-    Ktor->>Classifier: فحص الرسالة — المحادثة تضم قاصراً (Q-292) — نص + صور (Q-293)
+    App->>Ktor: إرسال الرسالة
+    Ktor->>Ktor: فحص الصلاحية ومنع التكرار
+    Ktor->>Classifier: فحص الرسالة — نص + صور
     alt محتوى جنسي يخص قاصراً / تشجيع إيذاء النفس / استدراج — «مؤكَّد» أو «محتمل»
         Classifier-->>Ktor: فئة خطيرة — عالية
         Ktor->>Ktor: حفظ الرسالة موسومة محظورة — بلا نشر ولا ظهور في سجل القناة
-        Ktor->>S109: تنبيه المصنف للأب — الفئة + الخطورة + معرّف الرسالة (CH-06 — قائمة المراجعة)
+        Ktor->>S109: تنبيه المصنف للأب
         Ktor-->>App: محظورة قبل التسليم — في قائمة مراجعة الأب
         App-->>Adult: «لم تُسلَّم هذه الرسالة» — أُحيلت إلى الأب (Q-410)
     else ضيق شديد / حديث القاصر عن إيذاء نفسه — «مؤكَّد» أو «محتمل»
         Classifier-->>Ktor: ضيق — عالية — تُسلَّم دائماً
-        Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
+        Ktor->>MQTT: نشر الرسالة
         Ktor->>S109: تنبيه فوري للأب — يبدأ بـ«تحدّث معه» — بلا حذف ولا إغلاق
     else تهديد بالأذى / تنمّر / كلام غير لائق — «مؤكَّد» فقط
         Classifier-->>Ktor: متوسطة
-        Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
-        Ktor->>S109: تنبيه للأب — الفئة + الخطورة + معرّف الرسالة — واحد لكل محادثة ولكل فئة في اليوم
+        Ktor->>MQTT: نشر الرسالة
+        Ktor->>S109: تنبيه مدمج للأب
     else سليم — شتيمة عابرة / خلاف عادي / حزن عابر
         Classifier-->>Ktor: سليم — بلا تنبيه
-        Ktor->>MQTT: family/{family_id}/chat/{channelId}/message (QoS 1)
+        Ktor->>MQTT: نشر الرسالة
     end
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/channels/{channelId}/messages {client_message_id, kind, payload}`.
+- الرسالة 3: فحص الصلاحية chat.message.send (S1-03 — Q-010) + منع التكرار بـ client_message_id.
+- الرسالة 4: فحص الرسالة — المحادثة تضم قاصراً (Q-292) — نص + صور (Q-293).
+- الرسالة 7: تنبيه المصنف للأب — الفئة + الخطورة + معرّف الرسالة (CH-06 — قائمة المراجعة).
+- الرسائل 11 و14 و17: `family/{family_id}/chat/{channelId}/message (QoS 1)`.
+- الرسالة 15: تنبيه للأب — الفئة + الخطورة + معرّف الرسالة — واحد لكل محادثة ولكل فئة في اليوم.
 
 - رسالة بالغ إلى قاصر تُفحص كرسالة القاصر نفسه (Q-292 — بالاتجاهين)؛ والمحظور لا يُسلَّم ولا يُسقط — يبقى في قائمة المراجعة 30 يوماً حتى يقرر الأب (Q-294 · Q-295 · Q-296).
 - الفئات السبع قائمة مغلقة في المرحلة 1 (Q-413 — §6-4): الثلاث المحظورة تُحظر عند «مؤكَّد» أو «محتمل»؛ والضيق يُسلَّم دائماً مع تنبيه فوري عالٍ؛ والتهديد والتنمّر والكلام غير اللائق تُسلَّم مع تنبيه متوسط عند «مؤكَّد» فقط. والتنمّر: «مؤكَّد» شديد مرة واحدة، أو تكرار من المرسل نفسه في المحادثة نفسها في اليوم نفسه (قيمة البداية: 3 رسائل مرصودة). وما عدا السبع لا ينبّه — المصنف ليس رقيب أدب.
@@ -452,32 +587,38 @@ sequenceDiagram
 ### 3-ح. مراجعة تنبيه المصنف — النص بطلب صريح والتصرف عليه (REQ-012 — Q-165 · Q-410 · Q-413)
 
 ```mermaid
+%%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant App as التطبيق
-    participant S109 as مركز الأوامر S1-09
+    participant S109 as مركز الأوامر
     participant Ktor as الخادم
     participant Audit as التدقيق
     Father->>App: فتح تنبيه المصنف من مركز الأوامر
     App->>S109: عرض التنبيه — الفئة + الخطورة + معرّف الرسالة
-    S109-->>App: تنبيه المصنف — «قد يكون تقديره خاطئاً» — بلا رقم ثقة — بلا نص الرسالة
+    S109-->>App: تنبيه المصنف بلا نص
     Father->>App: طلب «اعرض الرسالة»
     App->>Ktor: طلب عرض نص الرسالة المُعلَّمة (بموجب الرؤية الإشرافية Q-100)
     Ktor->>Audit: AuditEvent — عُرضت الرسالة المُعلَّمة (من فعل ومتى)
     Ktor-->>App: النص المُعلَّم
     App-->>Father: نص الرسالة المُعلَّمة
     alt تنبيه ضيق — يُسلَّم دائماً
-        App-->>Father: يبدأ بـ«تحدّث معه» — نصيحة بطلب مساعدة مختص — بلا حذف ولا إغلاق
+        App-->>Father: نصيحة: تحدّث معه
     else تنبيه آخر — تجاهل
         Father->>App: تجاهل التنبيه
-        App->>Ktor: تجاهل التنبيه — بيانات وصفية فقط (معرّف الرسالة + الفئة + علامة التجاهل — بلا نص)
+        App->>Ktor: تجاهل التنبيه
     else تنبيه آخر — حذف أو إغلاق
         Father->>App: حذف الرسالة المُعلَّمة أو إغلاق المحادثة
-        App->>Ktor: DELETE .../messages/{messageId} أو POST .../channels/{channelId}/close {reason}
-        Ktor-->>App: نُفّذ (بعد فحص الصلاحية — chat.message.delete.any / chat.channel.close)
+        App->>Ktor: حذف الرسالة أو إغلاق المحادثة
+        Ktor-->>App: نُفّذ بعد فحص الصلاحية
     end
 ```
+- الرسالة 3: تنبيه المصنف — «قد يكون تقديره خاطئاً» — بلا رقم ثقة — بلا نص الرسالة.
+- الرسالة 9: يبدأ بـ«تحدّث معه» — نصيحة بطلب مساعدة مختص — بلا حذف ولا إغلاق.
+- الرسالة 11: تجاهل التنبيه — بيانات وصفية فقط (معرّف الرسالة + الفئة + علامة التجاهل — بلا نص).
+- الرسالة 13: `DELETE .../messages/{messageId} أو POST .../channels/{channelId}/close {reason}`.
+- الرسالة 14: نُفّذ (بعد فحص الصلاحية — chat.message.delete.any / chat.channel.close).
 
 - نص الرسالة لا يُعرض إلا بطلب صريح («اعرض الرسالة»)، ويُسجَّل العرض في التدقيق (Q-410 (ب))؛ والتنبيه نفسه يحمل الفئة والخطورة ومعرّف الرسالة فقط — بلا نص وبلا رقم ثقة — مع عبارة «قد يكون تقديره خاطئاً» (Q-165 · Q-413).
 - الخيارات: تحدث مع الطفل / افتح المحادثة / تجاهل / احذف الرسالة / أغلق المحادثة — وآخر اثنين لمن مُنحا فقط (Q-410 (ب))؛ والتجاهل يُسجَّل بيانات وصفية فقط (معرّف الرسالة + الفئة + علامة التجاهل — بلا نص) (§7-10).
@@ -494,11 +635,11 @@ sequenceDiagram
 flowchart TD
     Start([فتح الدردشة]) --> Pick{اختيار قناة؟}
     Pick -->|مجلس العائلة| Lounge[مجلس العائلة]
-    Pick -->|قناة الوالدين| Pin[طلب PIN الأب]
+    Pick -->|قناة الوالدين| Pin[طلب الرقم السري للأب — PIN]
     Pick -->|ثنائية| Direct[محادثة ثنائية]
     Pin --> PinOK{PIN صحيح؟}
-    PinOK -->|لا| Deny[رفض — القناة مخفية]
-    PinOK -->|نعم| E2E[قناة الوالدين — E2E]
+    PinOK -->|لا — رفض| Deny[رفض — القناة مخفية]
+    PinOK -->|نعم — صحيح| E2E[قناة الوالدين — E2E]
     Lounge --> Write[كتابة رسالة]
     Direct --> Write
     E2E --> Write
@@ -507,13 +648,13 @@ flowchart TD
     Media -->|لا / ضمن الحد| Show[ظهور فوري محلي]
     TooBig --> Write
     Show --> Conn{اتصال؟}
-    Conn -->|لا| Outbox[الصندوق الصادر]
+    Conn -->|لا — دون اتصال| Outbox[الصندوق الصادر]
     Outbox --> Back[عودة الشبكة — تسليم تسلسلي]
     Back --> Sent
-    Conn -->|نعم| Sent[إرسال — صح التسليم]
+    Conn -->|نعم — متصل| Sent[إرسال — صح التسليم]
     Sent --> Read{قُرئت؟}
-    Read -->|نعم| ReadOK[صحا القراءة]
-    Read -->|لا| Sent
+    Read -->|نعم — قُرئت| ReadOK[صحا القراءة]
+    Read -->|لا — لم تُقرأ| Sent
 ```
 
 - قائمة القنوات مصفاة حسب الرؤية والمنح؛ وقناة الوالدين لا تظهر للقاصرين أصلاً، وبلا معاينة في الإشعارات. والكتابة نص / إيموجي / صورة / صوت؛ والحد: صورة > 10MB أو صوت > 5MB → `CHAT_MEDIA_TOO_LARGE` والحد ظاهر. والظهور الفوري المحلي <10ms — علامة ساعة. والتسليم دون اتصال تسلسلي بلا تكرار — ضغط Brotli.
@@ -563,11 +704,11 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-العمليات مرقمة 1.0–7.0، والمخازن D1–D5. المخازن جداول خادم (PostgreSQL) مع نسخة محلية في Drift على العميل (`channel` + `message`)؛ ووسائط `media` تُخزن في MinIO (Q-058) ومرجعها فقط في قاعدة البيانات. لوحان (Q-434 — المخطط الواحد كان 22 عقدة): 5-أ القنوات والرسائل والوسائط والتشفير، 5-ب الإشراف ودون اتصال والحذف والتطهير.
+العمليات مرقمة 1.0–7.0، والمخازن D1–D5. المخازن جداول خادم (PostgreSQL) مع نسخة محلية في Drift على العميل (`channel` + `message`)؛ ووسائط `media` تُخزن في MinIO (Q-058) ومرجعها فقط في قاعدة البيانات. سبع لوحات (دفعة الشكل 2 — المخطط الواحد كان 22 عقدة): 5-أ إدارة القنوات (P1)، 5-ب إرسال الرسائل — الحفظ والدفع (P2)، 5-ج إرسال الرسائل — الوسائط (P2)، 5-د التشفير E2E ‏(P3)، 5-هـ الإشراف والمصنف (P4)، 5-و الصندوق الصادر (P5)، 5-ز الحذف والتطهير (P6+P7).
 
 - **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4.1 تظهر هنا على الأقل: `GET /api/v1/families/{id}/channels` (قائمة القنوات — REQ-001، تُقرأ عبر P1) · `POST /api/v1/families/{id}/channels` (إنشاء قناة ثنائية/جماعية — REQ-002، تمر عبر P1؛ وقناة الوالدين تُنشأ مع العائلة لا هنا)؛ وبقية النقاط مرسومة في §3 (messages إرسال/قراءة/حذف، read، close).
 
-### 5-أ. القنوات والرسائل والوسائط والتشفير (P1–P3)
+### 5-أ. إدارة القنوات (P1 — REQ-001/002)
 
 ```mermaid
 flowchart LR
@@ -576,27 +717,41 @@ flowchart LR
     S102[نظام الهوية S1-02]
     S103[نظام الصلاحيات S1-03]
     MQTT[وسيط MQTT]
-    MinIO[MinIO — وسائط]
-    Kotlin[وحدة Kotlin]
-    Ktor(خادم Ktor)
     Audit[(AuditEvent)]
     P1(1.0 إدارة القنوات)
-    P2(2.0 إرسال الرسائل)
-    P3(3.0 التشفير E2E)
     D1[(D1 channel)]
-    D2[(D2 channel_member)]
-    D3[(D3 message)]
-    D4[(D4 media)]
-    D5[(D5 parents_key_backup)]
 
     S102 -->|العضوية| P1
     S103 -->|"مفاتيح chat.* (Q-010)"| P1
-    S103 -->|"مفاتيح chat.* (Q-010)"| P2
     Father -->|إنشاء / إغلاق قناة| P1
     Minor -->|بدء ثنائية| P1
     P1 -->|حفظ القناة| D1
     D1 -->|قائمة القنوات المصفاة| P1
     P1 -->|القنوات| Father
+    P1 -->|إنشاء/إغلاق قناة| MQTT
+    MQTT -->|دفع فوري| Father
+    MQTT -->|دفع فوري| Minor
+    P1 -->|إغلاق محادثة قاصر| Audit
+```
+
+- ما يُقرأ منه: كيف تُدار القنوات — إنشاؤها وإغلاقها وقائمتها المصفاة، ودفع أحداثها فوراً.
+- أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §5 (كان 22 عقدة + لوحا subgraph)؛ وتسميات ≤5 كلمات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P1 وحده — 8 عقد و11 سهماً؛ والخارجيات مستطيلات؛ وبلا subgraph (الاستثناء نفسه).
+
+### 5-ب. إرسال الرسائل (P2 — REQ-005/006/007/008)
+
+```mermaid
+flowchart LR
+    Father[الأب / البالغ]
+    Minor[الطفل / المراهق]
+    S103[نظام الصلاحيات S1-03]
+    MQTT[وسيط MQTT]
+    P2(2.0 إرسال الرسائل)
+    P3x(["التشفير (5-د) — حمولة مشفرة — E2E"])
+    D2[(D2 channel_member)]
+    D3[(D3 message)]
+
+    S103 -->|"مفاتيح chat.* (Q-010)"| P2
     Father -->|رسالة| P2
     Minor -->|رسالة| P2
     P2 -->|فحص العضوية| D2
@@ -606,48 +761,104 @@ flowchart LR
     P2 -->|رسالة جديدة| MQTT
     P2 -->|مؤشر كتابة| MQTT
     P2 -->|إيصال قراءة| MQTT
-    P1 -->|إنشاء/إغلاق قناة| MQTT
     MQTT -->|دفع فوري| Father
     MQTT -->|دفع فوري| Minor
-    P2 -->|بايتات الوسائط| Ktor
+    P3x -->|حمولة مشفرة| P2
+```
+
+- ما يُقرأ منه: كيف تُرسل الرسالة وتُحفظ وتُدفع فوراً.
+- مواضيع MQTT (QoS 1): `family/{family_id}/chat/{channelId}/message` (رسالة جديدة) · `.../typing` (مؤشر كتابة) · `.../read` (إيصال قراءة) · `.../created | .../closed` (إنشاء/إغلاق قناة). والوسيط Mosquitto 2.x — 8883 + mTLS.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P2 وحده — 8 عقد و13 سهماً؛ وحافة P3→P2 مرسومة هنا وفي 5-د؛ والوسائط في 5-ج.
+
+### 5-ج. إرسال الرسائل — الوسائط (P2 — REQ-005)
+
+```mermaid
+flowchart LR
+    P2x(["إرسال الرسائل (5-ب)"])
+    Ktor(خادم Ktor)
+    MinIO[MinIO — وسائط]
+    D4[(D4 media)]
+    D3[(D3 message)]
+
+    P2x -->|بايتات الوسائط| Ktor
     Ktor -->|كتابة البايتات| MinIO
     MinIO -->|storage_ref| D4
     D4 -->|مرجع الوسيط| D3
+```
+
+- ما يُقرأ منه: رفع الوسائط عبر الخادم إلى MinIO، ومرجعها فقط في قاعدة البيانات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح الوسائط وحده — 5 عقد و4 أسهم؛ والعملية نفسها (P2) مرجع إلى 5-ب.
+
+### 5-د. التشفير E2E ‏(P3 — REQ-010/011)
+
+```mermaid
+flowchart LR
+    Kotlin[وحدة Kotlin]
+    P3(3.0 التشفير E2E)
+    P2x(["إرسال الرسائل (5-ب) — حمولة مشفرة"])
+    D3[(D3 message)]
+    D5[(D5 parents_key_backup)]
+
     P3 -->|مفاتيح Envelope| D3
     P3 -->|مفتاح القناة المشفر| D5
     D5 -->|encrypted_key + kdf_params| P3
     Kotlin -->|مفاتيح E2E — Keystore| P3
-    P3 -->|حمولة مشفرة| P2
-    P1 -->|إغلاق محادثة قاصر| Audit
+    P3 -->|حمولة مشفرة| P2x
 ```
 
-- مواضيع MQTT (QoS 1): `family/{family_id}/chat/{channelId}/message` (رسالة جديدة) · `.../typing` (مؤشر كتابة) · `.../read` (إيصال قراءة) · `.../created | .../closed` (إنشاء/إغلاق قناة). والوسيط Mosquitto 2.x — 8883 + mTLS.
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §5 (كان 22 عقدة + لوحا subgraph)؛ 17 عقدة و30 سهماً؛ والخارجيات مستطيلات حسب الأشكال الموحدة في الترويسة؛ وبلا subgraph (استثناء موثق — سابقة S1-01/S1-07: التجميع يشتت العقد ويطيل الأسهم)؛ وتسميات ≤5 كلمات.
+- ما يُقرأ منه: مفاتيح التشفير — Envelope للقنوات العائلية، وE2E لقناة الوالدين في Keystore.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P3 وحده — 5 عقد و5 أسهم؛ وحافة P3→P2 مرسومة هنا وفي 5-ب.
 
-### 5-ب. الإشراف ودون اتصال والحذف والتطهير (P4–P7)
+### 5-هـ. الإشراف والمصنف (P4 — REQ-004/012/013)
 
 ```mermaid
 flowchart LR
     Father[الأب / البالغ]
     Minor[الطفل / المراهق]
     S109[مركز الأوامر S1-09]
-    MQTT[وسيط MQTT]
-    Ktor(خادم Ktor)
-    Audit[(AuditEvent)]
     P4(4.0 الإشراف والمصنف)
-    P5(5.0 الصندوق الصادر)
-    P6(6.0 الحذف والمزامنة)
-    P7(7.0 تطهير الاحتفاظ)
     D3[(D3 message)]
 
     P4 -->|قراءة رسائل القاصرين| D3
     P4 -->|تنبيه تنمر / خطر| S109
     Father -->|رؤية محادثات القاصرين| P4
     P4 -->|محادثات القاصرين — حسب القالب| Father
+```
+
+- ما يُقرأ منه: كيف يرى الأب محادثات القاصرين، وكيف يصل تنبيه المصنف إلى مركز الأوامر.
+- المصنف على الخادم (Q-165): دون 13 دائماً / 13–17 بمفتاح الأب (Q-140)؛ والرؤية: الأب كاملة / البالغ المفوَّض ضمن القالب (REQ-013 — `chat.minor.view` — Q-010).
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P4 وحده — 5 عقد و4 أسهم.
+
+### 5-و. الصندوق الصادر (P5 — REQ-014)
+
+```mermaid
+flowchart LR
+    Minor[الطفل / المراهق]
+    Ktor(خادم Ktor)
+    P5(5.0 الصندوق الصادر)
+    D3[(D3 message)]
+
     Minor -->|رسالة دون اتصال| P5
     P5 -->|تسليم تسلسلي — Brotli| Ktor
     Ktor -->|server_seq_id| P5
     P5 -->|حفظ محلي — Drift| D3
+```
+
+- ما يُقرأ منه: كيف تُسلَّم رسائل دون اتصال تسلسلياً عند عودة الشبكة.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P5 وحده — 4 عقد و4 أسهم.
+
+### 5-ز. الحذف والتطهير (P6+P7 — REQ-009/015)
+
+```mermaid
+flowchart LR
+    Father[الأب / البالغ]
+    S109[مركز الأوامر S1-09]
+    MQTT[وسيط MQTT]
+    Audit[(AuditEvent)]
+    P6(6.0 الحذف والمزامنة)
+    P7(7.0 تطهير الاحتفاظ)
+    D3[(D3 message)]
+
     Father -->|حذف للجميع| P6
     P6 -->|deleted_for = all| D3
     P6 -->|حدث حذف| MQTT
@@ -657,16 +868,17 @@ flowchart LR
     P7 -->|حذف صلب| D3
 ```
 
-- المصنف على الخادم (Q-165): دون 13 دائماً / 13–17 بمفتاح الأب (Q-140)؛ والرؤية: الأب كاملة / البالغ المفوَّض ضمن القالب (REQ-013 — `chat.minor.view` — Q-010). وموضوع الحذف: `family/{family_id}/chat/{channelId}/deleted` — QoS 1. والاحتفاظ (Q-295): المُعلَّم 30 يوماً / غير المُعلَّم 7 أيام.
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §5؛ 11 عقدة و15 سهماً؛ والخارجيات مستطيلات؛ وبلا subgraph (الاستثناء نفسه)؛ وتسميات ≤5 كلمات.
+- ما يُقرأ منه: كيف يُحذف للجميع ويُزامَن الحذف، وكيف يُطهَّر المحذوف برمجياً بعد الاحتفاظ.
+- موضوع الحذف: `family/{family_id}/chat/{channelId}/deleted` — QoS 1. والاحتفاظ (Q-295): المُعلَّم 30 يوماً / غير المُعلَّم 7 أيام.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): لوح P6+P7 — 7 عقد و7 أسهم.
 
 - ودجة S1-09 "أحدث الرسائل" تعرض آخر رسائل القنوات العائلية حسب المنح؛ وقناة الوالدين تظهر كعدد فقط بلا محتوى (REQ-016).
 
 ## 6. مخطط النشاط (Activity) — دورة حياة الرسالة من الإرسال إلى الإشراف
 
-المسارات الستة (المرسل / التطبيق / وحدة Kotlin / الخادم / الأب / البالغ المفوَّض) كمسارات متوازية — من §2/§7: العرض المتفائل (REQ-006)، حالات التسليم والقراءة (REQ-007)، مؤشرات الكتابة (REQ-008)، فحص المصنف لرسائل القاصرين على الخادم — دون 13 دائماً، و13–17 بمفتاح مالك العائلة والافتراضي تشغيل (REQ-012 — Q-083/Q-140/Q-165)؛ وحدود الفحص الخمسة (Q-165) في ملاحظة §4، رؤية القاصرين (الأب كاملة + البالغ المفوَّض حسب قالب التفويض — REQ-013) وإغلاق الأب (REQ-004)، والحذف (REQ-009). والأنشطة الخلفية (المزامنة الخلفية للصندوق الصادر + دفع MQTT + فحص المصنف) تعمل **بالتوازي** مع استخدام الدردشة. لوحان (Q-434 — المخطط الواحد كان 27 عقدة): 6-أ الإرسال والتسليم، 6-ب المصنف والإشراف والحذف. والاتجاه TD بدلاً من LR.
+المسارات الستة (المرسل / التطبيق / وحدة Kotlin / الخادم / الأب / البالغ المفوَّض) كمسارات متوازية — من §2/§7: العرض المتفائل (REQ-006)، حالات التسليم والقراءة (REQ-007)، مؤشرات الكتابة (REQ-008)، فحص المصنف لرسائل القاصرين على الخادم — دون 13 دائماً، و13–17 بمفتاح مالك العائلة والافتراضي تشغيل (REQ-012 — Q-083/Q-140/Q-165)؛ وحدود الفحص الخمسة (Q-165) في ملاحظة §4، رؤية القاصرين (الأب كاملة + البالغ المفوَّض حسب قالب التفويض — REQ-013) وإغلاق الأب (REQ-004)، والحذف (REQ-009). والأنشطة الخلفية (المزامنة الخلفية للصندوق الصادر + دفع MQTT + فحص المصنف) تعمل **بالتوازي** مع استخدام الدردشة. ثلاثة ألواح (دفعة الشكل 2): 6-أ الإرسال (المرسل والتطبيق وKotlin)، 6-ب الخادم (الفحص والحفظ والدفع)، 6-ج المصنف والإشراف والحذف. والاتجاه TD بدلاً من LR.
 
-### 6-أ. الإرسال والتسليم — من فتح القناة إلى صح القراءة
+### 6-أ. الإرسال — من فتح القناة إلى الفحص
 
 ```mermaid
 flowchart TD
@@ -681,10 +893,10 @@ flowchart TD
         direction TB
         A1[عرض القنوات المصفاة]
         A2{قناة الوالدين؟}
-        A3[طلب PIN الأب]
+        A3[طلب الرقم السري للأب<br/>— PIN]
         A4[حفظ محلي متفائل]
         A5[تحديث الحالة]
-        A6[عرض مؤشر كتابة حي]
+        A6[مؤشر كتابة حي]
     end
     subgraph Kotlin [وحدة Kotlin]
         direction TB
@@ -692,40 +904,63 @@ flowchart TD
         K2[خدمة مزامنة خلفية]
         K3[حالة الصندوق الصادر]
     end
-    subgraph Server [الخادم — Ktor + MQTT + MinIO + المصنف]
+    V1x(["فحص العضوية (6-ب)"])
+    V4x(["دفع MQTT (6-ب)"])
+
+    U1 --> A1
+    A1 --> A2
+    A2 -->|نعم — قناة الوالدين| A3
+    A2 -->|لا — قناة عادية| U2
+    A3 --> U2
+    U2 --> U3
+    U3 --> A4
+    A4 -->|قناة الوالدين فقط| K1
+    K1 --> V1x
+    A4 --> V1x
+    A4 --> K2
+    K2 --> V1x
+    K2 --> K3
+    V4x --> A5
+    A5 --> U4
+    V4x --> A6
+```
+
+- القنوات مصفاة حسب الرؤية والمنح؛ والحفظ المتفائل بـ `client_message_id` — علامة ساعة؛ وتحديث الحالة بـ `server_seq_id`. والتشفير E2E — مفاتيح في Keystore؛ وخدمة المزامنة `startChatSync`؛ وحالة الصندوق `getOutboxStatus`.
+- أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §6 (كان 27 عقدة)؛ 17 عقدة و20 سهماً؛ والاتجاه TD بدلاً من LR؛ وتسميات ≤5 كلمات.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): مسارات المرسل والتطبيق وKotlin وحدهما — 15 عقدة و16 سهماً؛ والفحص والدفع مرجعان إلى 6-ب.
+
+### 6-ب. الخادم — الفحص والحفظ والدفع
+
+```mermaid
+flowchart TD
+    subgraph Server [الخادم والمصنف — Ktor — MQTT — MinIO]
         direction TB
         V1[فحص العضوية والمنح]
         V2[حفظ الرسالة]
         V3[رفع الوسائط — MinIO]
         V4[دفع MQTT]
     end
+    K1x(["تشفير الرسالة (6-أ) — E2E"])
+    A4x(["حفظ محلي متفائل (6-أ)"])
+    K2x(["خدمة مزامنة خلفية (6-أ)"])
+    A5x(["تحديث الحالة (6-أ)"])
+    A6x(["مؤشر كتابة حي (6-أ)"])
 
-    U1 --> A1
-    A1 --> A2
-    A2 -->|نعم| A3
-    A2 -->|لا| U2
-    A3 --> U2
-    U2 --> U3
-    U3 --> A4
-    A4 -->|قناة الوالدين فقط| K1
-    K1 --> V1
+    K1x --> V1
+    A4x --> V1
+    K2x --> V1
     V1 --> V2
     V1 --> V3
     V3 --> V2
     V2 --> V4
-    V4 --> A5
-    A5 --> U4
-    A4 --> K2
-    A4 --> V1
-    K2 --> V1
-    K2 --> K3
-    V4 --> A6
+    V4 --> A5x
+    V4 --> A6x
 ```
 
-- القنوات مصفاة حسب الرؤية والمنح؛ والحفظ المتفائل بـ `client_message_id` — علامة ساعة؛ وتحديث الحالة بـ `server_seq_id`. والتشفير E2E — مفاتيح في Keystore؛ وخدمة المزامنة `startChatSync`؛ وحالة الصندوق `getOutboxStatus`. وفحص العضوية والمنح `chat.*` (Q-010)؛ والحفظ — Envelope / E2E؛ ورفع الوسائط — 10MB صور / 5MB صوت؛ ودفع MQTT — رسالة / كتابة / حذف.
-- أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §6 (كان 27 عقدة)؛ 17 عقدة و20 سهماً؛ والاتجاه TD بدلاً من LR؛ وتسميات ≤5 كلمات.
+- ما يُقرأ منه: كل مسار إرسال يمر بفحص العضوية والمنح قبل الحفظ؛ ورفع الوسائط شرط مسبق للحفظ في رسائل الوسائط (media_id مع الرسالة — 3-و)، لا تالٍ له.
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): مسار الخادم وحده — 9 عقد و9 أسهم.
 
-### 6-ب. المصنف والإشراف والحذف — من الحفظ إلى التنبيه والتصرف
+### 6-ج. المصنف والإشراف والحذف — من الحفظ إلى التنبيه والتصرف
 
 ```mermaid
 flowchart TD
@@ -737,7 +972,7 @@ flowchart TD
         direction TB
         U5[حذف رسالة لنفسي]
     end
-    subgraph Server [الخادم — Ktor + MQTT + MinIO + المصنف]
+    subgraph Server [الخادم والمصنف — Ktor — MQTT — MinIO]
         direction TB
         V2[رسالة محفوظة]
         V5[المصنف على الخادم]
@@ -762,7 +997,7 @@ flowchart TD
     V6 --> F4
     F1 --> F2
     D1 --> F2
-    F2 -->|نعم| F3
+    F2 -->|نعم — غير مناسب| F3
     F3 --> V7
     V7 --> V4
     V4 --> A7
@@ -771,5 +1006,6 @@ flowchart TD
 
 - المصنف على الخادم (Q-165 · Q-292): دون 13 دائماً / 13–17 بمفتاح الأب (افتراضي تشغيل — Q-083/Q-140)؛ والتنبيه للأب عبر S1-09؛ وتلقي التنبيه وتجاهله أو التصرف (3-ح). والرؤية ضمن القالب — `chat.minor.view` (Q-010). وحذف الرسالة لنفسي (U5) يمر بالخادم أيضاً — `deleted_for = self` — ولا يمس أجهزة الآخرين (§7-8).
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل): لوح مقسوم من §6؛ 12 عقدة و10 أسهم؛ والاتجاه TD بدلاً من LR؛ وتسميات ≤5 كلمات.
+- أُعيد ترقيمه 2026-11-19 (دفعة الشكل 2): كان 6-ب فصار 6-ج بعد تقسيم 6-أ إلى لوحين.
 
 - عند إعادة الفتح بعد الإغلاق القسري، يعود المستخدم لنفس القناة والمسودة (S1-01 §7 — سلوك الغلاف، يسري على كل الأنظمة)؛ والرسائل الفاشلة في الصندوق الصادر تبقى معلقة حتى تنجح أو يحذفها مرسلها (§6-3). وكل مسار إرسال (عادي عبر A4، أو قناة والدين عبر K1، أو صندوق صادر عبر K2) يمر بفحص العضوية والمنح V1 قبل الحفظ V2؛ ورفع الوسائط (V3) شرط مسبق للحفظ (V2) في رسائل الوسائط (media_id مع الرسالة — 3-و)، لا تالٍ له.

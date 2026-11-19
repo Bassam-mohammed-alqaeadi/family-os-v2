@@ -9,7 +9,7 @@
 - **الأنواع الستة:** 1. حالات الاستخدام · 2. ERD · 3. التسلسل · 4. تدفق المستخدم · 5. DFD · 6. النشاط
 - **الأشكال الموحدة:** مستطيل = جهة خارجية · مستطيل مستدير = عملية · معين = قرار · أسطوانة = مخزن بيانات · خط متقطع = يتضمن / اختياري
 
-## 1. حالات الاستخدام
+## 1-أ. حالات الاستخدام — الأب والبالغ
 
 19 حالة استخدام من السيناريوهات الستة والمتطلبات (§2/§3) + حالتا REQ-017/REQ-018 (UC13/UC14) + خمس من REQ-019…REQ-022 (UC15…UC19 — Q-409): الأب يرى كل المواقع الدقيقة (طفلاً ومراهقاً)، والبالغ المفوَّض يرى حسب منحِه فقط، والكبار على الخريطة حسب مشاركتهم (REQ-019)، والطفل يعمل دون اتصال. زر SOS على أجهزة الأبناء فقط (Q-416)؛ والبالغ يستقبل الاستغاثة ويؤكدها ويحلّها ولا يرسلها من التطبيق. وزر SOS يأتي من الغلاف (S1-01)، والرؤية تُصفّى بمنح S1-03، وتنبيهات SOS وودجة الخريطة المصغرة تُسلَّمان إلى S1-09.
 
@@ -17,37 +17,22 @@
 flowchart LR
     Father([الأب — المالك])
     Adult([البالغ المفوَّض])
-    Teen([المراهق])
-    Child([الطفل])
-    S101([غلاف التطبيق S1-01])
-    S102([نظام الهوية S1-02])
     S103([الأدوار والصلاحيات S1-03])
-    S104([الخطط والفواتير S1-04])
     S109([مركز الأوامر S1-09])
-    Ktor([خادم Ktor])
-    SMS([بوابة SMS])
 
-    subgraph S107 [S1-07: الموقع الأساسي وSOS]
+    subgraph S107a [S1-07: الموقع الأساسي — الأب والبالغ — SOS]
         direction TB
         UC1(فتح خريطة العائلة)
         UC2(عرض بطارية كل جهاز)
         UC3(عرض آخر موقع معروف)
+        UC6(تأكيد استلام SOS)
+        UC7(عرض سجل المواقع)
+        UC8(إدارة جهات الطوارئ)
+        UC14(حل تنبيه SOS)
         UC15(مشاركة موقعي)
         UC16(حدّث الآن)
         UC17(ما يراه الأبناء)
         UC18(من يرى مكاني)
-        UC4(ضغط زر SOS)
-        UC5(إطلاق SOS دون اتصال)
-        UC6(تأكيد استلام SOS)
-        UC14(حل تنبيه SOS)
-        UC7(عرض سجل المواقع)
-        UC8(إدارة جهات الطوارئ)
-        UC13(عدّ حصة SMS)
-        UC9(تتبع تكيفي في الخلفية)
-        UC10(مزامنة الصندوق الصادر)
-        UC11(تسليم ودجة الخريطة)
-        UC12(تسليم تنبيهات SOS)
-        UC19(حذف الاستغاثات السابقة)
     end
 
     Father --> UC1
@@ -66,34 +51,79 @@ flowchart LR
     Adult --> UC15
     Adult --> UC16
     Adult --> UC18
-    Teen --> UC1
-    Teen --> UC2
-    Teen --> UC3
-    Teen --> UC4
-    Teen --> UC11
-    Teen --> UC18
-    Child --> UC1
-    Child --> UC2
-    Child --> UC3
-    Child --> UC4
-    Child --> UC11
-    Child --> UC13
-    Child --> UC18
     UC17 -.->|يحدّ ما يراه الابن| UC1
     UC15 -.->|المتوقف لا يُعرض| UC1
     UC1 -.->|يصفّي حسب المنح| S103
     UC7 -.->|يصفّي حسب المنح| S103
+    UC14 --> S109
+```
+
+### 1-ب. حالات الاستخدام — الطفل والمراهق
+
+```mermaid
+flowchart LR
+    Teen([المراهق])
+    Child([الطفل])
+    S101([غلاف التطبيق S1-01])
+    SMS([بوابة SMS])
+
+    subgraph S107b [S1-07: الموقع الأساسي — الطفل والمراهق — SOS]
+        direction TB
+        UC4(ضغط زر SOS)
+        UC5(إطلاق دون اتصال — SOS)
+        UC11(تسليم ودجة الخريطة)
+        UC13(عدّ حصة SMS)
+        UC1x["UC1 فتح خريطة العائلة — 1-أ"]
+        UC2x["UC2 عرض بطارية كل جهاز — 1-أ"]
+        UC3x["UC3 عرض آخر موقع معروف — 1-أ"]
+        UC18x["UC18 من يرى مكاني — 1-أ"]
+    end
+    S109x([S1-09 مركز الأوامر — 1-أ])
+
+    Teen --> UC1x
+    Teen --> UC2x
+    Teen --> UC3x
+    Teen --> UC4
+    Teen --> UC11
+    Teen --> UC18x
+    Child --> UC1x
+    Child --> UC2x
+    Child --> UC3x
+    Child --> UC4
+    Child --> UC11
+    Child --> UC13
+    Child --> UC18x
     S101 --> UC4
-    S102 -.->|العضوية والأعمار| UC1
     UC4 --> UC5
     UC5 --> SMS
     UC13 --> SMS
-    S104 --> UC13
+    UC11 --> S109x
+```
+
+### 1-ج. حالات الاستخدام — النظام
+
+```mermaid
+flowchart LR
+    Ktor([خادم Ktor])
+    S102([نظام الهوية S1-02])
+    S104([الخطط والفواتير S1-04])
+    S109([مركز الأوامر S1-09])
+
+    subgraph S107c [S1-07: الموقع الأساسي — النظام — SOS]
+        direction TB
+        UC9(تتبع تكيفي في الخلفية)
+        UC10(مزامنة الصندوق الصادر)
+        UC12(تسليم تنبيهات SOS)
+        UC19(حذف الاستغاثات السابقة)
+        UC1x["UC1 فتح خريطة العائلة — 1-أ"]
+        UC13x["UC13 عدّ حصة الرسائل — 1-ب"]
+    end
+
+    S102 -.->|العضوية والأعمار| UC1x
+    S104 --> UC13x
     UC9 --> Ktor
     UC10 --> Ktor
-    UC11 --> S109
     UC12 --> S109
-    UC14 --> S109
     Ktor --> UC19
 ```
 
@@ -101,6 +131,8 @@ flowchart LR
 - ملاحظة: الطفل والمراهق يريان مكانهما فقط افتراضاً؛ ومن يظهر لهما من إخوتهما ووالديهما يقرره المالك في «ما يراه الأبناء» (UC17 — REQ-021)، اتجاهاً واحداً، والمكان الحالي فقط بلا بطارية ولا سجل. والبالغ يستقبل الاستغاثة ويؤكدها ويحلّها ولا يرسلها من التطبيق (Q-416). ومدخل «أحتاج مساعدة» عند الطفل والمراهق يفضي إلى الوالدين أو إلى الاستغاثة وليس بديلاً عن زرها (Q-424).
 - خريطة المتطلبات إلى الحالات: REQ-011 ← UC1؛ REQ-002 ← UC2؛ REQ-003 ← UC3؛ REQ-007 ← UC4؛ REQ-009 ← UC5؛ REQ-008 ← UC6؛ REQ-013 ← UC7؛ REQ-010 ← UC8؛ REQ-004/005 ← UC9؛ REQ-006 ← UC10؛ REQ-015 ← UC11؛ REQ-016 ← UC12؛ REQ-017 ← UC13؛ REQ-018 ← UC14؛ REQ-019 ← UC15؛ REQ-020 ← UC16؛ REQ-021 ← UC17/UC18؛ REQ-022 ← UC19؛ REQ-023 ← UC1 (العنوان بسلّمه في العرض).
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): أُضيفت UC15…UC19 (Q-409)؛ وحُذف سهما الأب والبالغ إلى UC4 — زر SOS على أجهزة الأبناء فقط (Q-416)؛ وصارت UC1 لكل الأفراد (REQ-019)؛ وقُصّرت كل التسميات إلى 5 كلمات فأقل ونُقلت أرقام REQ إلى خريطة المتطلبات أعلاه؛ ورُتّبت العقد بترتيب القراءة.
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): اللوحة الواحدة (30 عقدة) ← ثلاث لوحات حسب الفاعل (1-أ الأب والبالغ 15 عقدة/21 سهماً، 1-ب الطفل والمراهق 13/18، 1-ج النظام 10/6)؛ والعقد والأسهم: 30 عقدة/45 سهماً ← 38 عقدة/45 سهماً (مراجع UC1x وUC2x وUC3x وUC18x وUC13x وS109x)؛ وUC5 «إطلاق SOS دون اتصال» ← «إطلاق دون اتصال — SOS»؛ وتسمية مرجع UC13 «عدّ حصة الرسائل» بدل «SMS» لأن «SMS — 1-ب» يضع اللفظ اللاتيني بين كلمتين عربيتين (B1).
 
 ## 2. مخطط قاعدة البيانات (ERD)
 
@@ -208,44 +240,53 @@ erDiagram
 ### 3-أ. التتبع التكيفي — الإبلاغ عن نقطة موقع (REQ-004/005/006 — §4-1 + §4-3)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
-    participant Kotlin as خدمة
+    participant K as "وحدة Kotlin"
     participant Ktor as الخادم
     participant PG as المخزن
-    Kotlin->>Kotlin: حساس الحركة يحدد التردد (5 دقائق سكون / دقيقة حركة)
-    Kotlin->>Kotlin: قراءة GPS + تنعيم Kalman (رفض القفزات الوهمية)
+    K->>K: حساس الحركة يحدد التردد (5 دقائق سكون / دقيقة حركة)
+    K->>K: قراءة الموقع + تنعيمها (رفض القفزات الوهمية) — GPS / Kalman
     alt متصل
-        Kotlin->>Ktor: POST /api/v1/families/{id}/locations {device_id, client_point_id, lat, lng, accuracy, battery, at}
-        Ktor->>PG: حفظ location_point + تحديث last_known_location
-        Ktor-->>Kotlin: النقطة + server_seq
-        Ktor->>Ktor: نشر family/{family_id}/location/updated (MQTT — QoS 0)
+        K->>Ktor: إبلاغ نقطة موقع
+        Ktor->>PG: حفظ النقطة وتحديث آخر موقع
+        Ktor-->>K: النقطة + server_seq
+        Ktor->>Ktor: نشر تحديث الموقع — QoS 0
     else دون اتصال
-        Kotlin->>Kotlin: حفظ النقطة في الصندوق الصادر (محلي)
-        Note over Kotlin,Ktor: تُزامَن عند عودة الاتصال بلا تكرار (مفتاح client_point_id — §7)؛ نقاط أقدم من 7 أيام تُتجاهل؛ وسعة الصندوق LOCATION_OUTBOX_MAX_POINTS (§5-5)
+        K->>K: حفظ النقطة في الصندوق الصادر (محلي)
+        Note over K,Ktor: تُزامَن عند عودة الاتصال بلا تكرار
     end
 ```
+- الرسالة 3: `POST /api/v1/families/{id}/locations {device_id, client_point_id, lat, lng, accuracy, battery, at}`.
+- الرسالة 4: حفظ `location_point` + تحديث `last_known_location`.
+- الرسالة 6: `publish family/{family_id}/location/updated` (MQTT — QoS 0).
+- ملاحظة: تُزامَن عند عودة الاتصال بلا تكرار (مفتاح `client_point_id` — §7)؛ نقاط أقدم من 7 أيام تُتجاهل؛ وسعة الصندوق `LOCATION_OUTBOX_MAX_POINTS` (§5-5).
 
 - بطارية منخفضة جداً تقلّل تردد التتبع تلقائياً إلى كل `LOW_BATTERY_CADENCE_MIN` دقيقة دون `LOW_BATTERY_THRESHOLD_PCT` (§7-8 — قيمتا مختبر Q-027)؛ ولا تنبيه بطارية منخفضة في المرحلة 1 — عرض فقط (§6-3). و«الحركة» كما عرّفها REQ-004 (عتبات سرعة/إزاحة/تثبيت — قيم مختبر Q-027)؛ ومعيار رفض Kalman كما في REQ-005.
 
 ### 3-ب. خريطة العائلة — قراءة آخر المواقع (REQ-001/002/003/011/012 — §4-1)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Flutter as التطبيق
+    participant App as التطبيق
     participant Ktor as الخادم
     participant PG as المخزن
-    Father->>Flutter: فتح خريطة العائلة
-    Flutter->>Ktor: GET /api/v1/families/{id}/locations
+    Father->>App: فتح خريطة العائلة
+    App->>Ktor: قراءة المواقع
     Ktor->>Ktor: تصفية حسب منح location.view (deny-override — Q-007)
-    Ktor->>PG: قراءة last_known_location لكل عضو مرئي
+    Ktor->>PG: قراءة آخر موقع لكل عضو مرئي — last_known_location
     PG-->>Ktor: المواقع + البطارية + الوسم الزمني
-    Ktor-->>Flutter: [{member_id, lat, lng, accuracy, battery, at}]
-    Flutter->>Flutter: حي أم آخر موقع معروف؟ (عمر القراءة ≤ عتبة الحداثة LOCATION_STALENESS_THRESHOLD — قيمة مختبر Q-027 — Q-283؛ والأقدم وسم "آخر تحديث: قبل X" — لا يُعرض كحي)
-    Flutter-->>Father: خريطة OSM + مواقع حية + بطارية كل جهاز (قراءات p95 < 300ms — Q-061)
+    Ktor-->>App: [{member_id, lat, lng, accuracy, battery, at}]
+    App->>App: حي أم آخر موقع معروف؟
+    App-->>Father: خريطة ومواقع حية وبطارية كل جهاز — OSM
 ```
+- الرسالة 2: `GET /api/v1/families/{id}/locations`.
+- الرسالة 7: حي أم آخر موقع معروف؟ (عمر القراءة ≤ عتبة الحداثة `LOCATION_STALENESS_THRESHOLD` — قيمة مختبر Q-027 — Q-283؛ والأقدم وسم "آخر تحديث: قبل X" — لا يُعرض كحي).
+- الرسالة 8: خريطة `OSM` + مواقع حية + بطارية كل جهاز (قراءات p95 < 300ms — Q-061).
 
 - الأب يرى الموقع الدقيق لكل قاصر — طفلاً كان أو مراهقاً (Q-102)؛ والبالغ المفوَّض يرى حسب منحِه فقط (REQ-012).
 - الكبار على الخريطة (REQ-019): البالغ يظهر بمكانه الحالي ما لم يوقف «مشاركة موقعي» — والمتوقف يظهر «أوقف مشاركة موقعه» بلا موقع ولا موقع قديم؛ والابن يرى بالغاً فقط إن أظهره له المالك في «ما يراه الأبناء» (REQ-021)؛ ولا سجل تنقل للبالغ.
@@ -256,6 +297,7 @@ sequenceDiagram
 ### 3-ج. SOS متصل — تنبيه في أقل من 10 ثوانٍ (REQ-007/008 — §4-1 + §4-2 + §4-3)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
@@ -267,20 +309,23 @@ sequenceDiagram
     Child->>Shell: ضغط مطول 3 ثوانٍ على زر SOS (Q-067)
     Shell->>S107: triggerSos() — MethodChannel (§4-3)
     opt إلغاء محلي خلال 10 ثوانٍ قبل الإرسال (Q-286)
-        Child->>S107: إلغاء SOS بالخطأ
-        S107->>S107: إلغاء الضغطة المحلية — بلا تنبيه ولا SMS ولا خصم حصة
+        Child->>S107: إلغاء بالخطأ — SOS
+        S107->>S107: إلغاء الضغطة المحلية — بلا تنبيه ولا رسالة ولا خصم حصة — SMS
     end
-    S107->>Ktor: POST /api/v1/families/{id}/sos {lat, lng, at, last_known_at?} + ترويسة Idempotency-Key (UUID لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال)
+    S107->>Ktor: إرسال الاستغاثة
     alt يوجد SOS نشط
         Ktor-->>S107: LOC_SOS_ALREADY_ACTIVE — تُعاد بيانات النشط بدل التكرار
     else لا SOS نشط
         Ktor->>Ktor: إنشاء sos_alert (status=active, channel=server)
-        Ktor->>Adults: نشر family/{family_id}/sos/new (MQTT — QoS 1 — أولوية عالية)
-        Ktor->>Audit: AuditEvent (إطلاق SOS — النطاق location)
+        Ktor->>Adults: نشر تنبيه الاستغاثة — QoS 1
+        Ktor->>Audit: تسجيل إطلاق الاستغاثة — AuditEvent
         Ktor-->>S107: {sos_id, at}
         Note over Ktor,Adults: التنبيه يصل للأب وكل البالغين في أقل من 10 ثوانٍ مع الموقع (Q-061 · Q-104)
     end
 ```
+- الرسالة 5: `POST /api/v1/families/{id}/sos {lat, lng, at, last_known_at?}` + ترويسة `Idempotency-Key` (UUID لكل حدث SOS — يمنع التنبيه المكرر عند إعادة الإرسال).
+- الرسالة 8: `publish family/{family_id}/sos/new` (MQTT — QoS 1 — أولوية عالية).
+- الرسالة 9: `AuditEvent` (إطلاق `SOS` — النطاق `location`).
 
 - SOS لا يُحجب بأي صلاحية (Q-067 · §6-2)؛ ومفتاح `location.sos.trigger` باقٍ لكل الأدوار في السجل (§6-1)، والواجهة تعرض الزر على أجهزة الأبناء فقط (Q-416).
 - نافذة إلغاء SOS 10 ثوانٍ (Q-286): تلغي الضغطة المحلية فقط قبل الإرسال؛ وبعد الإرسال لا يلغي SOS إلا الأب عبر الحل (REQ-018).
@@ -289,70 +334,82 @@ sequenceDiagram
 ### 3-د1. SOS دون اتصال — الحصة متبقية (REQ-009/017 — §4-1 + §6-3)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     participant S107 as الموقع
     participant Ktor as الخادم
     participant Recipients as المستلمون
-    Child->>S107: ضغط SOS 3 ثوانٍ — لا اتصال بالخادم
+    Child->>S107: ضغط زر الاستغاثة 3 ثوانٍ — لا اتصال بالخادم — SOS
     opt إلغاء محلي خلال 10 ثوانٍ قبل الإرسال (Q-286)
-        Child->>S107: إلغاء SOS بالخطأ
-        S107->>S107: إلغاء الضغطة المحلية — بلا SMS ولا خصم حصة
+        Child->>S107: إلغاء بالخطأ — SOS
+        S107->>S107: إلغاء الضغطة المحلية — بلا رسالة ولا خصم حصة — SMS
     end
     S107->>S107: قرار الإرسال من مرآة الحصة المحلية (Q-163)
     alt Android — إرسال SMS مباشر
-        S107->>Recipients: SMS موقّع HMAC-SHA256 (10 أحرف) — العائلة، العضو، الوقت، الإحداثيات (REQ-017)
-        S107->>S107: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
+        S107->>Recipients: رسالة موقّعة بالإحداثيات — SMS / HMAC-SHA256
+        S107->>S107: تسجيل التنبيه محلياً للمزامنة لاحقاً — sos_alert
     else iOS — مؤلف SMS النظام (Q-229)
-        S107->>Child: فتح مؤلف SMS معبأً إلى الأب وكل البالغين وجهات الطوارئ — المستخدم يضغط إرسال
+        S107->>Child: فتح مؤلف رسالة معبأً — المستخدم يضغط إرسال — SMS
         alt المستخدم يضغط إرسال
-            S107->>S107: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
+            S107->>S107: تسجيل التنبيه محلياً للمزامنة لاحقاً — sos_alert
         else المستخدم ألغى المؤلف دون إرسال (Q-238)
             S107->>S107: حالة نهائية: معلّقة — مؤلف ملغى (تبقى دائمة على الجهاز)
-            S107-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس Idempotency-Key)
+            S107-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف — Idempotency-Key
             S107->>S107: مزامنة الحالة عند عودة الاتصال
         end
     end
 ```
+- الرسالة 5: `SMS` موقّع `HMAC-SHA256` (10 أحرف) — العائلة، العضو، الوقت، الإحداثيات (REQ-017).
+- الرسالة 6: تسجيل `sos_alert` محلياً (`channel=sms`) للمزامنة لاحقاً.
+- الرسالة 7: فتح مؤلف `SMS` معبأً إلى الأب وكل البالغين وجهات الطوارئ — المستخدم يضغط إرسال.
+- الرسالة 8: تسجيل `sos_alert` محلياً (`channel=sms`) للمزامنة لاحقاً.
+- الرسالة 10: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس `Idempotency-Key`).
 
 ### 3-د2. SOS دون اتصال — الطوارئ الثلاث والنفاد (REQ-009/017 — §4-1 + §6-3)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Child as الطفل
     participant S107 as الموقع
     participant Ktor as الخادم
     participant Recipients as المستلمون
-    Child->>S107: ضغط SOS 3 ثوانٍ — لا اتصال بالخادم
+    Child->>S107: ضغط زر الاستغاثة 3 ثوانٍ — لا اتصال بالخادم — SOS
     opt إلغاء محلي خلال 10 ثوانٍ قبل الإرسال (Q-286)
-        Child->>S107: إلغاء SOS بالخطأ
-        S107->>S107: إلغاء الضغطة المحلية — بلا SMS ولا خصم حصة
+        Child->>S107: إلغاء بالخطأ — SOS
+        S107->>S107: إلغاء الضغطة المحلية — بلا رسالة ولا خصم حصة — SMS
     end
-    S107->>S107: قرار الإرسال من مرآة الحصة المحلية (Q-163) — الحصة منتهية
+    S107->>S107: قرار الإرسال من مرآة الحصة المحلية — الحصة منتهية — Q-163
     alt الطوارئ الثلاث متبقية — SOS فقط
         alt Android — إرسال SMS مباشر
-            S107->>Recipients: SMS طارئ موقّع (10 أحرف — REQ-017) — 1 من 3 في الشهر التقويمي (Q-163 · Q-252)
-            S107->>Recipients: رسالة الطوارئ نفسها إلى الأب هي الإشعار — بلا رسالة ثانية (Q-285)
+            S107->>Recipients: رسالة طارئة موقّعة — 1 من 3 في الشهر التقويمي — SMS
+            S107->>Recipients: رسالة الطوارئ نفسها هي الإشعار — بلا رسالة ثانية — Q-285
         else iOS — مؤلف SMS النظام (Q-229)
-            S107->>Child: فتح مؤلف SMS معبأً إلى الأب وكل البالغين وجهات الطوارئ — المستخدم يضغط إرسال
+            S107->>Child: فتح مؤلف رسالة معبأً — المستخدم يضغط إرسال — SMS
             alt المستخدم يضغط إرسال
-                S107->>S107: تسجيل sos_alert محلياً (channel=sms) للمزامنة لاحقاً
+                S107->>S107: تسجيل التنبيه محلياً للمزامنة لاحقاً — sos_alert
                 S107->>Recipients: رسالة الطوارئ نفسها إلى الأب هي الإشعار (Q-285)
             else المستخدم ألغى المؤلف دون إرسال (Q-238)
                 S107->>S107: حالة نهائية: معلّقة — مؤلف ملغى (تبقى دائمة على الجهاز)
-                S107-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس Idempotency-Key)
+                S107-->>Child: إعادة عرض المطالبة — إعادة فتح المؤلف — Idempotency-Key
                 S107->>S107: مزامنة الحالة عند عودة الاتصال
             end
         end
     else الحصة والطوارئ الثلاث مستنفدة
         S107->>S107: SOS يبقى "معلقاً" على الجهاز — لا يُعرض كأنه أُرسل
-        S107->>S107: إشعار النفاد يُحفظ في طابور على الجهاز للتسليم عند عودة الاتصال
-        S107-->>Child: عرض محلي للطفل: SOS معلّق — سيُرسَل عند عودة الاتصال
-        Note over S107,Ktor: لا قناة لإشعار الأب فوراً دون اتصال — لا SMS متبقية ولا مسار خادم؛ ويُسلَّم إشعار النفاد عبر الخادم فور عودة الاتصال (§7-5)
+        S107->>S107: إشعار النفاد يُحفظ في الطابور — للتسليم عند عودة الاتصال
+        S107-->>Child: عرض محلي للطفل: معلّق — سيُرسَل عند عودة الاتصال — SOS
+        Note over S107,Ktor: لا قناة لإشعار الأب فوراً دون اتصال
     end
 ```
+- الرسالة 5: `SMS` طارئ موقّع (10 أحرف — REQ-017) — 1 من 3 في الشهر التقويمي (Q-163 · Q-252).
+- الرسالة 6: رسالة الطوارئ نفسها إلى الأب هي الإشعار — بلا رسالة ثانية (Q-285).
+- الرسالة 8: تسجيل `sos_alert` محلياً (`channel=sms`) للمزامنة لاحقاً.
+- الرسالة 11: إعادة عرض المطالبة — إعادة فتح المؤلف لنفس الحدث (نفس `Idempotency-Key`).
+- ملاحظة: لا قناة لإشعار الأب فوراً دون اتصال — لا `SMS` متبقية ولا مسار خادم؛ ويُسلَّم إشعار النفاد عبر الخادم فور عودة الاتصال (§7-5).
 
 - أُعيد رسمه 2026-11-19 (Q-434 — شكل فقط): قُسّم 3-د (22 رسالة) إلى 3-د1 (11 رسالة) و3-د2 (15 رسالة)؛ والرسائل والعقد نفسها قبل التقسيم وبعده.
 
@@ -369,53 +426,68 @@ sequenceDiagram
 ### 3-هـ. تأكيد استلام SOS وحلّه (REQ-008/REQ-018 — §4-1 + §4-2)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
-    actor Father as الأب / البالغ المفوَّض
-    participant Flutter as التطبيق
+    actor Father as الأب
+    participant App as التطبيق
     participant Ktor as الخادم
     participant Audit as التدقيق
     participant Adults as البالغون
-    Father->>Flutter: تأكيد استلام تنبيه SOS
-    Flutter->>Ktor: POST /api/v1/families/{id}/sos/{sosId}/acknowledge
-    Ktor->>Ktor: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
-    Ktor->>Adults: نشر family/{family_id}/sos/acknowledged (MQTT — QoS 1)
-    Ktor->>Audit: AuditEvent (تأكيد SOS — النطاق location)
-    Ktor-->>Flutter: {sos_id, acknowledged_by, at}
-    Flutter-->>Father: مؤكد — ثم يتصل بالطفل
-    Father->>Flutter: حل التنبيه بعد التعامل معه — الأب أو البالغ المفوَّض حسب القالب (Q-136 · Q-160)
-    Flutter->>Ktor: POST /api/v1/families/{id}/sos/{sosId}/resolve
+    Father->>App: تأكيد استلام تنبيه SOS
+    App->>Ktor: تأكيد استلام التنبيه
+    Ktor->>Ktor: تحديث الحالة: مؤكد — sos_alert.status
+    Ktor->>Adults: نشر تأكيد الاستغاثة — QoS 1
+    Ktor->>Audit: تسجيل تأكيد الاستغاثة — AuditEvent
+    Ktor-->>App: {sos_id, acknowledged_by, at}
+    App-->>Father: مؤكد — ثم يتصل بالطفل
+    Father->>App: حل التنبيه بعد التعامل معه
+    App->>Ktor: حل التنبيه
     Ktor->>Ktor: sos_alert.status = resolved + resolved_by + resolved_at
-    Ktor->>Adults: نشر family/{family_id}/sos/resolved (MQTT — QoS 1)
-    Ktor->>Audit: AuditEvent (حل SOS — النطاق location)
-    Ktor-->>Flutter: {sos_id, resolved_by, at, status: "resolved"}
+    Ktor->>Adults: نشر حل الاستغاثة — QoS 1
+    Ktor->>Audit: تسجيل حل الاستغاثة — AuditEvent
+    Ktor-->>App: {sos_id, resolved_by, at, status: "resolved"}
 ```
+- الرسالة 2: `POST /api/v1/families/{id}/sos/{sosId}/acknowledge`.
+- الرسالة 3: `sos_alert.status = acknowledged + acknowledged_by + acknowledged_at`.
+- الرسالة 4: `publish family/{family_id}/sos/acknowledged` (MQTT — QoS 1).
+- الرسالة 5: `AuditEvent` (تأكيد `SOS` — النطاق `location`).
+- الرسالة 8: حل التنبيه بعد التعامل معه — الأب أو البالغ المفوَّض حسب القالب (Q-136 · Q-160).
+- الرسالة 9: `POST /api/v1/families/{id}/sos/{sosId}/resolve`.
+- الرسالة 11: `publish family/{family_id}/sos/resolved` (MQTT — QoS 1).
+- الرسالة 12: `AuditEvent` (حل `SOS` — النطاق `location`).
 
 - SOS بالخطأ (ضغط عرضي): الأب يؤكد أو يلغي عبر نقطة الحل `POST /api/v1/families/{id}/sos/{sosId}/resolve` (الأب + البالغ المفوَّض حسب القالب — Q-136)؛ والحالة تصبح `resolved` ويتوقف التصعيد؛ والإلغاء يُسجَّل في التدقيق (§7-10).
 
 ### 3-و. إدارة جهات الطوارئ — أرقام خارجية (REQ-010 — §4-1 — Q-408)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Flutter as التطبيق
+    participant App as التطبيق
     participant Ktor as الخادم
     participant PG as المخزن
-    Father->>Flutter: فتح جهات الطوارئ
-    Flutter->>Ktor: GET /api/v1/families/{id}/emergency-contacts
-    Ktor-->>Flutter: [{contact_id, member_id: null, phone}]
+    Father->>App: فتح جهات الطوارئ
+    App->>Ktor: قراءة جهات الطوارئ
+    Ktor-->>App: [{contact_id, member_id: null, phone}]
     Note over Father,Ktor: الأب وكل بالغ في العائلة مستلمون دائماً — لا يُضافون ولا يُحذفون من هنا
-    Father->>Flutter: إضافة رقم خارجي باسمه ورقمه
-    Flutter->>Ktor: POST /api/v1/families/{id}/emergency-contacts {member_id: null, phone}
-    Ktor->>PG: حفظ emergency_contact (added_by = الأب)
-    Ktor-->>Flutter: جهة الطوارئ
-    Note over Father,Ktor: عند أي استغاثة لاحقة يصل الرقم الخارجي رسالة بالمكان واسم الابن — بلا تتبع وبلا حساب
-    Father->>Flutter: حذف جهة طوارئ
-    Flutter-->>Father: تأكيد — ثم شريط تراجع بعد الحذف
-    Flutter->>Ktor: DELETE /api/v1/families/{id}/emergency-contacts/{contactId}
-    Ktor-->>Flutter: {ok: true}
+    Father->>App: إضافة رقم خارجي باسمه ورقمه
+    App->>Ktor: إضافة رقم خارجي
+    Ktor->>PG: حفظ جهة الطوارئ — emergency_contact
+    Ktor-->>App: جهة الطوارئ
+    Note over Father,Ktor: الرقم الخارجي يستلم رسالة عند كل استغاثة
+    Father->>App: حذف جهة طوارئ
+    App-->>Father: تأكيد — ثم شريط تراجع بعد الحذف
+    App->>Ktor: حذف جهة الطوارئ
+    Ktor-->>App: {ok: true}
 ```
+- الرسالة 2: `GET /api/v1/families/{id}/emergency-contacts`.
+- الرسالة 5: `POST /api/v1/families/{id}/emergency-contacts {member_id: null, phone}`.
+- الرسالة 6: حفظ `emergency_contact` (`added_by` = الأب).
+- الرسالة 10: `DELETE /api/v1/families/{id}/emergency-contacts/{contactId}`.
+- ملاحظة: عند أي استغاثة لاحقة يصل الرقم الخارجي رسالة بالمكان واسم الابن — بلا تتبع وبلا حساب.
 
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى): جهة الطوارئ رقم خارجي فقط (`member_id` فارغ — Q-287)؛ والبالغون في العائلة مستلمون دائماً بحكم عضويتهم (Q-408)؛ والحذف تأكيد ثم شريط تراجع.
 
@@ -424,62 +496,78 @@ sequenceDiagram
 ### 3-ز. سجل المواقع — 7 أيام (REQ-013/014 — §4-1)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
-    participant Flutter as التطبيق
+    participant App as التطبيق
     participant Ktor as الخادم
     participant PG as المخزن
-    Father->>Flutter: طلب سجل مواقع عضو (7 أيام كحد أقصى)
-    Flutter->>Ktor: GET /api/v1/families/{id}/members/{memberId}/locations?from&to&limit&cursor
+    Father->>App: طلب سجل مواقع عضو (7 أيام كحد أقصى)
+    App->>Ktor: طلب سجل المواقع
     Ktor->>Ktor: فحص منح location.history.view (deny-override — Q-007)
     alt بلا منح رؤية
-        Ktor-->>Flutter: LOC_NOT_VISIBLE
+        Ktor-->>App: LOC_NOT_VISIBLE
     else عضو غير موجود
-        Ktor-->>Flutter: LOC_MEMBER_NOT_FOUND
+        Ktor-->>App: LOC_MEMBER_NOT_FOUND
     else طلب أقدم من 7 أيام
-        Ktor-->>Flutter: فارغ — محذوف تلقائياً، لا خطأ (§7-12)
+        Ktor-->>App: فارغ — محذوف تلقائياً، لا خطأ (§7-12)
     else طلب صالح
-        Ktor->>PG: قراءة location_point في النطاق
+        Ktor->>PG: قراءة نقاط الموقع في النطاق — location_point
         PG-->>Ktor: [{lat, lng, accuracy, battery, at, server_seq}]
-        Ktor-->>Flutter: {points, next_cursor} — صفحة محدودة (limit افتراضي 100، أقصى 500)
+        Ktor-->>App: صفحة محدودة من النقاط
     end
 ```
+- الرسالة 2: `GET /api/v1/families/{id}/members/{memberId}/locations?from&to&limit&cursor`.
+- الرسالة 7: قراءة `location_point` في النطاق.
+- الرسالة 9: `{points, next_cursor}` — صفحة محدودة (`limit` افتراضي 100، أقصى 500).
 
 - سجل التنقل للقاصر فقط (REQ-013/014): لا سجل للبالغ — مكانه الحالي فقط (REQ-019).
 
 ### 3-ح. سلم تصعيد SOS — مهلة إقرار 5 دقائق + 5 دفعات إعادة كحد أقصى بتراجع (5/10/20/30/30 دقيقة) ثم الحالة النهائية (REQ-018 — §6-3 — Q-284)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Father as الأب
     participant Ktor as الخادم
     participant Adults as البالغون
     participant Audit as التدقيق
-    Ktor->>Adults: دفع تنبيه SOS فوراً — لكل البالغين (family/{family_id}/sos/new — أولوية عالية)
+    Ktor->>Adults: دفع تنبيه الاستغاثة فوراً — لكل البالغين — SOS
     Ktor->>Ktor: مؤقت مهلة إقرار 5 دقائق
     alt أقرّ أي بالغ خلال 5 دقائق
-        Adults-->>Ktor: POST .../sos/{sosId}/acknowledge
-        Ktor->>Ktor: sos_alert.status = acknowledged + acknowledged_by + acknowledged_at
-        Ktor->>Adults: نشر family/{family_id}/sos/acknowledged (MQTT — QoS 1)
-        Ktor->>Audit: AuditEvent (تأكيد SOS — النطاق location)
+        Adults-->>Ktor: تأكيد استلام التنبيه
+        Ktor->>Ktor: تحديث الحالة: مؤكد — sos_alert.status
+        Ktor->>Adults: نشر تأكيد الاستغاثة — QoS 1
+        Ktor->>Audit: تسجيل تأكيد الاستغاثة — AuditEvent
     else بلا إقرار خلال 5 دقائق
         loop إعادة الدفع بحد أقصى 5 مرات — بتراجع مضاعف (5/10/20/30/30 دقيقة) (Q-284)
             Ktor->>Adults: إعادة دفع التنبيه + تذكير (دفع + تنبيه)
             Ktor->>Ktor: مؤقت التراجع التالي (10/20/30/30 دقيقة)
         end
-        Ktor->>Ktor: الحالة النهائية: بلا إقرار — استُنفد التصعيد (status=unacknowledged_exhausted — تبقى ظاهرة في LO-06 — لا تُسقط بصمت)
-        Ktor->>Father: SMS إلى الأب: التصعيد استُنفد والتنبيه ما زال بلا إقرار (Q-284)
-        Ktor->>Audit: AuditEvent (استنفاد التصعيد — النطاق location)
+        Ktor->>Ktor: الحالة النهائية: بلا إقرار — استُنفد التصعيد
+        Ktor->>Father: رسالة إلى الأب: التصعيد استُنفد — SMS
+        Ktor->>Audit: تسجيل استنفاد التصعيد — AuditEvent
     end
     opt الأب أو المفوَّض يحل التنبيه (REQ-018)
-        Father->>Ktor: POST /api/v1/families/{id}/sos/{sosId}/resolve
-        Ktor->>Ktor: sos_alert.status = resolved + resolved_by + resolved_at — يتوقف التصعيد
-        Ktor->>Adults: نشر family/{family_id}/sos/resolved (MQTT — QoS 1)
-        Ktor->>Audit: AuditEvent (حل SOS — النطاق location)
+        Father->>Ktor: حل التنبيه
+        Ktor->>Ktor: تحديث الحالة: محلول — يتوقف التصعيد — sos_alert.status
+        Ktor->>Adults: نشر حل الاستغاثة — QoS 1
+        Ktor->>Audit: تسجيل حل الاستغاثة — AuditEvent
     end
 ```
+- الرسالة 1: دفع تنبيه `SOS` فوراً — لكل البالغين (`family/{family_id}/sos/new` — أولوية عالية).
+- الرسالة 3: `POST /api/v1/families/{id}/sos/{sosId}/acknowledge`.
+- الرسالة 4: `sos_alert.status = acknowledged + acknowledged_by + acknowledged_at`.
+- الرسالة 5: `publish family/{family_id}/sos/acknowledged` (MQTT — QoS 1).
+- الرسالة 6: `AuditEvent` (تأكيد `SOS` — النطاق `location`).
+- الرسالة 9: الحالة النهائية: بلا إقرار — استُنفد التصعيد (`status=unacknowledged_exhausted` — تبقى ظاهرة في LO-06 — لا تُسقط بصمت).
+- الرسالة 10: `SMS` إلى الأب: التصعيد استُنفد والتنبيه ما زال بلا إقرار (Q-284).
+- الرسالة 12: `POST /api/v1/families/{id}/sos/{sosId}/resolve`.
+- الرسالة 13: `sos_alert.status = resolved + resolved_by + resolved_at` — يتوقف التصعيد.
+- الرسالة 14: `publish family/{family_id}/sos/resolved` (MQTT — QoS 1).
+- الرسالة 15: `AuditEvent` (حل `SOS` — النطاق `location`).
 
 - **الحالة النهائية (Q-284):** بعد 5 دفعات إعادة بلا إقرار يدخل التنبيه `unacknowledged_exhausted` «بلا إقرار — استُنفد التصعيد»؛ وتبقى ظاهرة في LO-06 ولا تُسقط بصمت؛ ويُرسل SMS إلى الأب؛ والحل (REQ-018) ما زال ممكناً منها.
 
@@ -488,96 +576,116 @@ sequenceDiagram
 ### 3-ط. «حدّث الآن» — قراءة فورية بنتيجة صادقة (REQ-020 — §4-1 + §4-2 — Q-409)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Viewer as من يرى موقع الفرد
-    participant Flutter as التطبيق
+    participant App as التطبيق
     participant Ktor as الخادم
-    participant Broker as الوسيط MQTT
+    participant MQTT as وسيط MQTT
     participant Device as جهاز الفرد
-    Viewer->>Flutter: «حدّث الآن» — من بطاقة الفرد
-    Flutter->>Ktor: POST /api/v1/families/{id}/members/{memberId}/locations/refresh
+    Viewer->>App: «حدّث الآن» — من بطاقة الفرد
+    App->>Ktor: طلب تحديث فوري للموقع
     alt بالغ أوقف مشاركته
-        Ktor-->>Flutter: LOC_NOT_VISIBLE — الزر لا يُعرض له أصلاً
+        Ktor-->>App: LOC_NOT_VISIBLE — الزر لا يُعرض له أصلاً
     else طلب قائم للفرد نفسه
-        Ktor-->>Flutter: LOC_RATE_LIMITED
+        Ktor-->>App: LOC_RATE_LIMITED
     else مقبول
-        Ktor-->>Flutter: {request_id, status: "requested"}
-        Ktor->>Broker: family/{family_id}/location/refresh-requested {request_id, member_id}
-        Broker->>Device: طلب قراءة فورية
+        Ktor-->>App: {request_id, status: "requested"}
+        Ktor->>MQTT: طلب قراءة فورية عبر الوسيط
+        MQTT->>Device: طلب قراءة فورية
         alt الجهاز ردّ قبل المهلة
             Device->>Ktor: نقطة موقع عادية (POST .../locations)
-            Ktor-->>Flutter: الموقع الجديد
-            Flutter-->>Viewer: «حُدّث الآن»
-        else انتهت المهلة LOCATION_REFRESH_TIMEOUT_S
-            Flutter-->>Viewer: السبب بنصه — ويبقى آخر موقع بوسمه
+            Ktor-->>App: الموقع الجديد
+            App-->>Viewer: «حُدّث الآن»
+        else انتهت المهلة
+            App-->>Viewer: السبب بنصه — ويبقى آخر موقع بوسمه
         end
     end
 ```
+- الفرع: انتهت المهلة `LOCATION_REFRESH_TIMEOUT_S`.
+- الرسالة 2: `POST /api/v1/families/{id}/members/{memberId}/locations/refresh`.
+- الرسالة 6: `family/{family_id}/location/refresh-requested {request_id, member_id}`.
 
 - مفتاح `location.view`. طلب واحد قائم لكل فرد. والسبب عند انتهاء المهلة: جهازه بلا اتصال، أو مغلق، أو لم يتصل بعد، أو iPhone قد لا يرد حتى يُفتح التطبيق. ويُرفض الطلب والمشاهد دون اتصال. والفعل نفسه معروض في مركز التحكم بنوع «فعل» (S1-09 REQ-008 — Q-425).
 
 ### 3-ي. «مشاركة موقعي» للبالغ (REQ-019 — §4-1 — Q-409)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
-    actor Adult as بالغ عن نفسه
-    participant Flutter as التطبيق
+    actor Adult as البالغ
+    participant App as التطبيق
     participant Ktor as الخادم
     actor Others as بقية الكبار
-    Adult->>Flutter: يوقف «مشاركة موقعي»
-    Flutter-->>Adult: تأكيد — ما يتوقف وما يبقى — يحتاج اتصالاً
-    Flutter->>Ktor: PUT /api/v1/families/{id}/members/{memberId}/location-sharing {paused: true}
-    Ktor->>Ktor: memberId = صاحب الجلسة وبالغ؟ وإلا LOC_UNAUTHORIZED
+    Adult->>App: يوقف «مشاركة موقعي»
+    App-->>Adult: تأكيد — ما يتوقف وما يبقى — يحتاج اتصالاً
+    App->>Ktor: إيقاف مشاركة موقعي
+    Ktor->>Ktor: صاحب الجلسة وبالغ؟ وإلا مرفوض
     Ktor->>Ktor: location_sharing.paused = true
-    Others->>Ktor: GET /api/v1/families/{id}/locations
-    Ktor-->>Others: {member_id, sharing_paused: true} — «أوقف مشاركة موقعه» بلا موقع ولا موقع قديم
-    Adult->>Flutter: يعيد المشاركة متى شاء
-    Flutter->>Ktor: PUT .../location-sharing {paused: false}
+    Others->>Ktor: قراءة المواقع
+    Ktor-->>Others: أوقف مشاركة موقعه — بلا موقع ولا موقع قديم
+    Adult->>App: يعيد المشاركة متى شاء
+    App->>Ktor: استئناف مشاركة موقعي
 ```
+- الرسالة 3: `PUT /api/v1/families/{id}/members/{memberId}/location-sharing {paused: true}`.
+- الرسالة 4: `memberId` = صاحب الجلسة وبالغ؟ وإلا `LOC_UNAUTHORIZED`.
+- الرسالة 6: `GET /api/v1/families/{id}/locations`.
+- الرسالة 7: `{member_id, sharing_paused: true}` — «أوقف مشاركة موقعه» بلا موقع ولا موقع قديم.
+- الرسالة 9: `PUT /api/v1/families/{id}/members/{memberId}/location-sharing {paused: false}`.
 
 - لا سجل تنقل للبالغ: المكان الحالي فقط. القاصر لا يملك هذا المفتاح، والأب يراه دائماً (REQ-011).
 
 ### 3-ك. «ما يراه الأبناء» — قرار المالك وحده (REQ-021 — §4-1 — Q-409)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     actor Owner as المالك
-    participant Flutter as التطبيق
+    participant App as التطبيق
     participant Ktor as الخادم
     actor Minor as الابن
     actor Subject as من يُعرض مكانه
-    Owner->>Flutter: يفتح «ما يراه الأبناء»
-    Flutter->>Ktor: GET /api/v1/families/{id}/location-visibility
-    Ktor-->>Flutter: [{viewer_member_id, subject_member_id}] — الافتراضي فارغ: كل ابن يرى مكانه فقط
-    Owner->>Flutter: يُظهر أخاً أو والداً لابن بعينه
-    Flutter->>Ktor: PUT /api/v1/families/{id}/location-visibility {viewer_member_id, subject_member_id, visible: true}
-    Ktor->>Ktor: المالك أو صاحب الصلاحية الكاملة؟ — بلا مفتاح يُفوَّض — + AuditEvent
-    Minor->>Ktor: GET /api/v1/families/{id}/locations
-    Ktor-->>Minor: مصفّى على صفوفه — المكان الحالي فقط، بلا بطارية ولا سجل ولا تفاصيل
-    Subject->>Flutter: يفتح «من يرى مكاني»
-    Flutter-->>Subject: اسم الابن
+    Owner->>App: يفتح «ما يراه الأبناء»
+    App->>Ktor: قراءة قواعد الرؤية
+    Ktor-->>App: قواعد الرؤية — الافتراضي فارغ
+    Owner->>App: يُظهر أخاً أو والداً لابن بعينه
+    App->>Ktor: تغيير قاعدة رؤية
+    Ktor->>Ktor: تحقق المالك + تسجيل التدقيق — AuditEvent
+    Minor->>Ktor: قراءة المواقع
+    Ktor-->>Minor: مصفّى على صفوفه — المكان الحالي فقط
+    Subject->>App: يفتح «من يرى مكاني»
+    App-->>Subject: اسم الابن
 ```
+- الرسالة 2: `GET /api/v1/families/{id}/location-visibility`.
+- الرسالة 3: `[{viewer_member_id, subject_member_id}]` — الافتراضي فارغ: كل ابن يرى مكانه فقط.
+- الرسالة 5: `PUT /api/v1/families/{id}/location-visibility {viewer_member_id, subject_member_id, visible: true}`.
+- الرسالة 6: المالك أو صاحب الصلاحية الكاملة؟ — بلا مفتاح يُفوَّض — + `AuditEvent`.
+- الرسالة 7: `GET /api/v1/families/{id}/locations`.
+- الرسالة 8: مصفّى على صفوفه — المكان الحالي فقط، بلا بطارية ولا سجل ولا تفاصيل.
 
 - الإظهار اتجاه واحد لا متبادل. وإظهار بالغ لابن لا يعمل والبالغ موقف مشاركته (REQ-019). التغيير يحتاج اتصالاً.
 
 ### 3-ل. حفظ الاستغاثات السابقة (REQ-022 — §5-6 — Q-409)
 
 ```mermaid
+    %%{init: {"sequence": {"wrap": true}}}%%
 sequenceDiagram
     autonumber
     participant Ktor as الخادم
-    participant Sched as المهمة المجدولة
+    participant Sched as المجدول
     participant PG as المخزن
     Ktor->>PG: إغلاق استغاثة — resolved_at
-    Ktor->>PG: coords_expire_at = resolved_at + 7 أيام · expires_at = resolved_at + 90 يوماً
+    Ktor->>PG: تحديد مهلتي الحفظ والمحو
     Note over Sched: كل يوم
-    Sched->>PG: عند coords_expire_at — محو lat / lng — يبقى من استغاث ومتى ومن أغلقها وملاحظته
-    Sched->>PG: عند expires_at — حذف الصف
+    Sched->>PG: عند انتهاء مهلة الإحداثيات — محوها
+    Sched->>PG: عند انتهاء مهلة الحفظ — حذف الصف — expires_at
     Note over PG: الاستغاثة غير المغلقة لا تُحذف مهما طال عمرها — وحدث التدقيق بلا إحداثيات
 ```
+- الرسالة 2: `coords_expire_at = resolved_at + 7 أيام` · `expires_at = resolved_at + 90 يوماً`.
+- الرسالة 3: عند `coords_expire_at` — محو `lat` / `lng` — يبقى من استغاث ومتى ومن أغلقها وملاحظته.
 
 - الشاشة تذكر المدتين بنص صريح (90 يوماً للقائمة و7 أيام للمكان).
 
@@ -614,17 +722,17 @@ flowchart TD
 flowchart TD
     Kid([الطفل أو المراهق يفتح الخريطة]) --> Mine[يرى مكانه — ومن أظهره له المالك فقط]
     Mine --> Who[«من يرى مكاني» بالأسماء]
-    Child([الابن يضغط SOS 3 ثوانٍ<br/>أو من «أحتاج مساعدة»]) --> Net{اتصال بالخادم؟}
-    Net -->|نعم| Online[تنبيه للأب وكل البالغين < 10 ثوانٍ]
-    Net -->|لا| Quota{حصة SMS أم طوارئ متبقية؟}
-    Quota -->|نعم| SMS[SMS بالإحداثيات إلى الأب وكل البالغين وجهات الطوارئ]
-    Quota -->|لا| Pending[SOS معلّق على الجهاز + إشعار النفاد في الطابور]
+    Child([الابن يضغط زر الاستغاثة 3 ثوانٍ أو من «أحتاج مساعدة» — SOS]) --> Net{اتصال بالخادم؟}
+    Net -->|نعم — متصل| Online[تنبيه للأب وكل البالغين < 10 ثوانٍ]
+    Net -->|لا — دون اتصال| Quota{حصة رسائل أم طوارئ متبقية؟ — SMS}
+    Quota -->|نعم — حصة متبقية| SMS[SMS بالإحداثيات إلى الأب وكل البالغين وجهات الطوارئ]
+    Quota -->|لا — بلا حصة| Pending[SOS معلّق على الجهاز + إشعار النفاد في الطابور]
     Online --> Ack[بالغ يؤكد ويتصل بالابن]
     Ack --> Resolve[بالغ يحل التنبيه — يتوقف التصعيد]
     Resolve --> Keep[تبقى في القائمة 90 يوماً — ومكانها يُمحى بعد 7 أيام]
     SMS --> Ack
     Pending --> Reconnect{عودة الاتصال؟}
-    Reconnect -->|نعم| Online
+    Reconnect -->|نعم — عاد الاتصال| Online
 ```
 
 ### 4-ج. التحكم — المالك والبالغ
@@ -645,105 +753,163 @@ flowchart TD
 
 ## 5. مخطط تدفق البيانات (DFD — المستوى 1) — من §4/§5
 
-ثلاث لوحات: 5-أ التتبع والخريطة والسجل، 5-ب SOS والتصعيد وجهات الطوارئ، 5-ج الرؤية والمشاركة والاستبقاء.
+سبع لوحات: 5-أ التتبع، 5-ب قراءة الخريطة، 5-ج المزامنة و«حدّث الآن»، 5-د إطلاق SOS، 5-هـ تأكيد وحل SOS، 5-و جهات الطوارئ، 5-ز الرؤية والمشاركة والاستبقاء.
 
 العمليات مرقمة 1.0–9.0، والمخازن D1–D6 جداول خادم (PostgreSQL) + ثلاثة مخازن عميل (C1–C3) على الجهاز. **كل عملية موسومة: جهاز / خادم** — وكل أحداث MQTT ينشرها الخادم (Ktor) نيابة عن العمليات (مطابقةً للتسلسلات §3 وQ-168 — لا نشر مباشر من عمليات الجهاز)؛ وتنبيهات SOS وودجة الخريطة المصغرة تُسلَّمان إلى S1-09 (REQ-015/016).
 
 - **تغطية نقاط §4:** كل نقاط §4-1 مرسومة في §3 (locations قراءة/إبلاغ/سجل/تحديث فوري، sos إطلاق/تأكيد/حلّ، emergency-contacts قراءة/إضافة/حذف، location-sharing، location-visibility)؛ والتسلسلات تغطي التدفقات الأساسية فقط.
 
-### 5-أ. التتبع والخريطة والسجل
+### 5-أ. التتبع
 
 ```mermaid
-flowchart LR
+flowchart TD
     Child[طفل / مراهق]
-    Father[الأب / البالغ المفوَّض]
-    S103[الأدوار والصلاحيات S1-03]
-    S109[مركز الأوامر S1-09]
     Ktor[خادم Ktor]
     MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
-    P1(1.0 التتبع التكيفي — GPS + Kalman — جهاز)
-    P2(2.0 قراءة الخريطة والسجل — تصفية حسب المنح — خادم)
-    P6(6.0 مزامنة الصندوق الصادر — جهاز)
+    P1(1.0 التتبع التكيفي — جهاز — GPS / Kalman)
     D1[(D1 location_point)]
     D2[(D2 last_known_location)]
     C1[(C1 نقاط الصندوق الصادر — محلي)]
-    C2[(C2 بلاطات MBTiles دون اتصال — محلي)]
-    C3[(C3 مرآة الحصة المحلية — محلي)]
 
-    Child -->|قراءات GPS + بطارية| P1
+    Child -->|قراءات الموقع والبطارية — GPS| P1
     P1 -->|نقطة منعمّة| D1
     P1 -->|تحديث آخر موقع| D2
     P1 -->|نقطة للإبلاغ| Ktor
-    Ktor -->|"family/{family_id}/location/updated — QoS 0"| MQTT
+    Ktor -->|تحديث الموقع — QoS 0| MQTT
     P1 -->|دون اتصال: حفظ النقطة| C1
-    C1 -->|عند عودة الاتصال| P6
-    P6 -->|نقاط بلا تكرار| D1
-    P6 -->|نقاط أقدم من 7 أيام: تُتجاهل| P6
+    MQTT -->|طلب قراءة فورية| P1
+```
+
+- الموضوع: `family/{family_id}/location/updated` — QoS 0.
+
+### 5-ب. قراءة الخريطة
+
+```mermaid
+flowchart TD
+    Father[الأب / البالغ المفوَّض]
+    S103[الأدوار والصلاحيات S1-03]
+    S109[مركز الأوامر S1-09]
+    P2(2.0 قراءة الخريطة والسجل — تصفية حسب المنح — خادم)
+    D1[(D1 location_point)]
+    D2[(D2 last_known_location)]
+    C2[(C2 بلاطات دون اتصال — محلي — MBTiles)]
+
     Father -->|فتح الخريطة / السجل| P2
     S103 -->|منح location.view / history.view| P2
     D2 -->|آخر المواقع + البطارية| P2
     D1 -->|سجل 7 أيام| P2
     C2 -->|بلاطات دون اتصال| P2
-    P2 -->|خريطة OSM + مواقع + بطارية| Father
+    P2 -->|خريطة ومواقع وبطارية — OSM| Father
     P2 -->|ودجة الخريطة المصغرة| S109
-    Father -->|«حدّث الآن»| Ktor
-    Ktor -->|"family/{family_id}/location/refresh-requested"| MQTT
-    MQTT -->|طلب قراءة فورية| P1
 ```
 
-### 5-ب. SOS والتصعيد وجهات الطوارئ
+- يقرأ: الخريطة والسجل؛ والمنح يصفّي ما يظهر.
+
+### 5-ج. المزامنة و«حدّث الآن»
 
 ```mermaid
-flowchart LR
+flowchart TD
+    Father[الأب / البالغ المفوَّض]
+    Ktor[خادم Ktor]
+    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
+    P6(6.0 مزامنة الصندوق الصادر — جهاز)
+    D1[(D1 location_point)]
+    C1[(C1 نقاط الصندوق الصادر — محلي)]
+    P1x["P1 التتبع التكيفي — 5-أ"]
+
+    C1 -->|عند عودة الاتصال| P6
+    P6 -->|نقاط بلا تكرار| D1
+    P6 -->|نقاط أقدم من 7 أيام: تُتجاهل| P6
+    Father -->|«حدّث الآن»| Ktor
+    Ktor -->|طلب تحديث فوري| MQTT
+    MQTT -->|طلب قراءة فورية| P1x
+```
+
+- الموضوع: `family/{family_id}/location/refresh-requested`.
+- يقرأ: المزامنة دون اتصال؛ و«حدّث الآن» يطلب قراءة فورية.
+
+### 5-د. إطلاق SOS
+
+```mermaid
+flowchart TD
     Child[طفل / مراهق]
     Father[الأب / البالغ المفوَّض]
     S101[غلاف التطبيق S1-01]
     S104[الخطط والفواتير S1-04]
-    S109[مركز الأوامر S1-09]
     Ktor[خادم Ktor]
     MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
     SMS[بوابة SMS]
     Audit[AuditEvent]
-    P3(3.0 إطلاق SOS — جهاز)
-    P4(4.0 تأكيد وحل SOS + تصعيد — خادم)
-    P5(5.0 إدارة جهات الطوارئ — خادم)
+    P3(3.0 إطلاق الاستغاثة — جهاز — SOS)
     D3[(D3 sos_alert)]
-    D4[(D4 emergency_contact)]
     C3[(C3 مرآة الحصة المحلية — محلي)]
 
-    S101 -->|ضغط SOS 3 ثوانٍ| P3
-    Child -->|ضغط SOS 3 ثوانٍ| P3
+    S101 -->|ضغط زر الاستغاثة 3 ثوانٍ — SOS| P3
+    Child -->|ضغط زر الاستغاثة 3 ثوانٍ — SOS| P3
     P3 -->|POST /sos| Ktor
     Ktor -->|إنشاء sos_alert| D3
-    Ktor -->|"family/{family_id}/sos/new — QoS 1"| MQTT
+    Ktor -->|تنبيه الاستغاثة — QoS 1| MQTT
     MQTT -->|تنبيه < 10 ثوانٍ| Father
-    P3 -->|دون اتصال: SMS بالإحداثيات| SMS
+    P3 -->|دون اتصال: رسالة بالإحداثيات — SMS| SMS
     SMS -->|إحداثيات| Father
-    S104 -->|حصة SMS + 3 طوارئ| P3
+    S104 -->|حصة الرسائل + 3 طوارئ — SMS| P3
     Ktor -->|مزامنة المرآة عند كل اتصال| C3
     C3 -->|قرار الإرسال دون اتصال| P3
     P3 -->|تحديث المرآة بعد كل SMS| C3
     P3 -->|تسجيل الإطلاق| Audit
+```
+
+- الموضوع: `family/{family_id}/sos/new` — QoS 1.
+- يقرأ: إطلاق SOS؛ والمتصل عبر الخادم ودون اتصال عبر SMS.
+
+### 5-هـ. تأكيد وحل SOS
+
+```mermaid
+flowchart TD
+    Father[الأب / البالغ المفوَّض]
+    Ktor[خادم Ktor]
+    MQTT[وسيط MQTT — Mosquitto 2.x — 8883 + mTLS]
+    S109[مركز الأوامر S1-09]
+    Audit[AuditEvent]
+    P4(4.0 تأكيد وحل الاستغاثة وتصعيدها — خادم — SOS)
+    D3[(D3 sos_alert)]
+
     Father -->|تأكيد الاستلام| P4
     P4 -->|status = acknowledged| D3
     P4 -->|تأكيد / حل| Ktor
-    Ktor -->|"family/{family_id}/sos/acknowledged — QoS 1"| MQTT
-    Ktor -->|"family/{family_id}/sos/resolved — QoS 1"| MQTT
+    Ktor -->|تأكيد الاستغاثة — QoS 1| MQTT
+    Ktor -->|حل الاستغاثة — QoS 1| MQTT
     P4 -->|تسجيل التأكيد| Audit
-    P4 -->|تنبيهات SOS تظهر في S1-09| S109
+    P4 -->|تنبيهات الاستغاثة تظهر في مركز الأوامر — SOS| S109
     Father -->|"حل التنبيه (POST .../resolve)"| P4
     P4 -->|status = resolved + resolved_by/at| D3
     P4 -->|تسجيل الحل| Audit
     P4 -->|إيقاف التصعيد + تحديث العرض| S109
-    Father -->|إضافة / حذف رقم خارجي| P5
-    P5 -->|حفظ / حذف| D4
-    D4 -->|هواتف جهات الطوارئ| P3
 ```
 
-### 5-ج. الرؤية والمشاركة والاستبقاء
+- الموضوعان: `family/{family_id}/sos/acknowledged` و`family/{family_id}/sos/resolved` — QoS 1.
+- يقرأ: تأكيد الاستلام وحل التنبيه؛ والتصعيد يتوقف بالحل.
+
+### 5-و. جهات الطوارئ
 
 ```mermaid
-flowchart LR
+flowchart TD
+    Father[الأب / البالغ المفوَّض]
+    P5(5.0 إدارة جهات الطوارئ — خادم)
+    D4[(D4 emergency_contact)]
+    P3x["P3 إطلاق الاستغاثة — 5-د"]
+
+    Father -->|إضافة / حذف رقم خارجي| P5
+    P5 -->|حفظ / حذف| D4
+    D4 -->|هواتف جهات الطوارئ| P3x
+```
+
+- يقرأ: جهات الطوارئ أرقام خارجية؛ وهواتفها تصل للإطلاق.
+
+### 5-ز. الرؤية والمشاركة والاستبقاء
+
+```mermaid
+flowchart TD
     Father[المالك]
     Adult2[بالغ]
     Ktor[خادم Ktor]
@@ -771,11 +937,13 @@ flowchart LR
 - مرآة الحصة المحلية (C3): الرصيد + الطوارئ الثلاث + نهاية الشهر التقويمي (Q-252).
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): قُسّم مخطط واحد (25 عقدة / 43 سهماً) إلى ثلاث لوحات (5-أ: 14 عقدة / 19 سهماً؛ 5-ب: 15 عقدة / 27 سهماً؛ 5-ج: 10 عقد / 10 أسهم)؛ والجديد: «حدّث الآن» في 5-أ (REQ-020)، والعمليات 7.0–9.0 والمخزنان D5 وD6 في 5-ج (REQ-019/021/022)؛ وجهات الطوارئ في 5-ب أرقام خارجية فقط (Q-408)؛ والجهات الخارجية صارت مستطيلات حسب «الأشكال الموحدة» في الترويسة (كانت أقواساً)؛ وبلا subgraph — الاستثناء المثبت في S1-01 (Q-434): الـsubgraph يباعد العقد ويطيل الأسهم فيفسد القراءة.
 
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 5-أ (14 عقدة/19 سهماً) ← ثلاث لوحات (5-أ 7/7، 5-ب 7/7، 5-ج 7/6 — المجموع 21 عقدة/20 سهماً، والسهم الزائد حد مشترك MQTT→P1 مرسوم في لوحتين)؛ و5-ب (15/27) ← ثلاث لوحات (5-د 11/13، 5-هـ 7/11، 5-و 4/3 — المجموع 22/27)؛ و5-ج صارت 5-ز بلا تغيير (10/10). والمجموع الكلي: 39 عقدة/56 سهماً ← 53 عقدة/57 سهماً. ومواضيع MQTT الكاملة تحت كل لوحة سطر تفاصيل.
+
 ## 6. مخطط النشاط (Activity) — دورة حياة الموقع وSOS
 
-لوحتان TD: 6-أ التتبع والخريطة و«حدّث الآن»، 6-ب SOS والتصعيد والاستبقاء. والمسارات الأربعة (جهاز الطفل / وحدة Kotlin / الخادم / الأب والبالغون) كمسارات متوازية. والتتبع التكيفي يعمل **بالتوازي** مع استخدام التطبيق، وSOS له مساران (متصل / SMS) يلتقيان عند التأكيد.
+ثلاث لوحات TD: 6-أ التتبع، 6-ب الخريطة و«حدّث الآن»، 6-ج SOS والتصعيد والاستبقاء. والمسارات الأربعة (جهاز الطفل / وحدة Kotlin / الخادم / الأب والبالغون) كمسارات متوازية. والتتبع التكيفي يعمل **بالتوازي** مع استخدام التطبيق، وSOS له مساران (متصل / SMS) يلتقيان عند التأكيد.
 
-### 6-أ. التتبع والخريطة و«حدّث الآن»
+### 6-أ. التتبع
 
 ```mermaid
 flowchart TD
@@ -784,21 +952,46 @@ flowchart TD
         U1([فتح التطبيق])
         U4([إغلاق / فقدان الاتصال])
     end
-    subgraph Kotlin [وحدة Kotlin — خدمة الموقع]
+    subgraph Kotlin [خدمة الموقع — وحدة Kotlin]
         direction TB
-        K1[قراءة GPS كل 5 دقائق سكون / دقيقة حركة]
-        K2[تنعيم Kalman — رفض القفزات الوهمية]
+        K1[قراءة الموقع كل 5 دقائق سكون / دقيقة حركة — GPS]
+        K2[تنعيم القراءة — رفض القفزات الوهمية — Kalman]
         K3{اتصال؟}
         K4[إرسال النقطة إلى الخادم]
         K5[حفظ النقطة في الصندوق الصادر]
         K6[مزامنة الصندوق عند عودة الاتصال]
-        K8[طلب «حدّث الآن» — قراءة فورية]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V1[حفظ location_point + تحديث last_known_location]
+        V1[حفظ النقطة وتحديث آخر موقع — location_point / last_known_location]
         V2["نشر family/{family_id}/location/updated"]
         V4[حذف سجل أقدم من 7 أيام تلقائياً]
+    end
+
+    U1 --> K1
+    K1 --> K2
+    K2 --> K3
+    K3 -->|نعم — متصل| K4
+    K3 -->|لا — دون اتصال| K5
+    K4 --> V1
+    V1 --> V2
+    K5 --> K6
+    K6 --> K4
+    V1 --> V4
+    U4 --> K5
+```
+
+### 6-ب. الخريطة و«حدّث الآن»
+
+```mermaid
+flowchart TD
+    subgraph Kotlin [خدمة الموقع — وحدة Kotlin]
+        direction TB
+        K8[طلب «حدّث الآن» — قراءة فورية]
+        K4x["K4 إرسال النقطة إلى الخادم — 6-أ"]
+    end
+    subgraph Server [الخادم — Ktor]
+        direction TB
         V7[طلب «حدّث الآن» — دفع عبر الوسيط]
     end
     subgraph Parent [الأب / البالغون]
@@ -811,50 +1004,41 @@ flowchart TD
         F8[«حدّث الآن»]
     end
 
-    U1 --> K1
-    K1 --> K2
-    K2 --> K3
-    K3 -->|نعم| K4
-    K3 -->|لا| K5
-    K4 --> V1
-    V1 --> V2
-    K5 --> K6
-    K6 --> K4
-    V1 --> V4
-    U4 --> K5
     F8 --> V7
     V7 --> K8
-    K8 --> K4
+    K8 --> K4x
     F1 --> F2
-    F2 -->|نعم| F3
-    F2 -->|لا| F4
+    F2 -->|نعم — حي| F3
+    F2 -->|لا — آخر موقع معروف| F4
     F1 --> F7
 ```
 
-### 6-ب. SOS والتصعيد والاستبقاء
+- يقرأ: الخريطة؛ والحي يُعرض حياً والقديم بوسمه، و«حدّث الآن» يطلب قراءة فورية.
+
+### 6-ج. SOS والتصعيد والاستبقاء
 
 ```mermaid
 flowchart TD
     subgraph Device [جهاز الطفل]
         direction TB
-        U2[ضغط SOS 3 ثوانٍ]
+        U2[ضغط زر الاستغاثة 3 ثوانٍ — SOS]
     end
-    subgraph Kotlin [وحدة Kotlin — خدمة الموقع]
+    subgraph Kotlin [خدمة الموقع — وحدة Kotlin]
         direction TB
         K7[إطلاق SOS: triggerSos]
     end
     subgraph Server [الخادم — Ktor]
         direction TB
-        V3[إنشاء sos_alert + نشر sos/new]
-        V5[تأكيد SOS + نشر sos/acknowledged]
-        V6[حل SOS + نشر sos/resolved]
+        V3[إنشاء تنبيه ونشره — sos_alert / sos/new]
+        V5[تأكيد الاستغاثة ونشره — sos/acknowledged]
+        V6[حل الاستغاثة ونشره — sos/resolved]
         V8[مهمة الاستبقاء — يومياً]
         V9[محو إحداثيات المغلقة بعد 7 أيام]
         V10[حذف المغلقة بعد 90 يوماً]
     end
     subgraph Parent [الأب / البالغون]
         direction TB
-        F5[استلام تنبيه SOS < 10 ثوانٍ]
+        F5[استلام تنبيه الاستغاثة < 10 ثوانٍ — SOS]
         F6[تأكيد الاستلام والاتصال بالطفل]
     end
 
@@ -874,3 +1058,5 @@ flowchart TD
 - التصعيد (Q-284): إعادة الدفع بحد أقصى 5 مرات بتراجع 5/10/20/30/30 دقيقة؛ ثم الحالة النهائية «بلا إقرار — استُنفد التصعيد» الظاهرة في LO-06 مع SMS إلى الأب — بلا إسقاط صامت؛ وحلّ التنبيه يوقف التصعيد.
 - عند إعادة الفتح بعد الإغلاق القسري، يعود المستخدم لنفس الشاشة والمدخلات (نمط S1-01 §7)؛ ونقاط الصندوق الصادر أقدم من 7 أيام تُتجاهل عند المزامنة (§7-13).
 - أُعيد رسمه 2026-11-19 (Q-434 — محتوى وشكل): من LR إلى TD وقُسّم مخطط واحد (28 عقدة / 23 سهماً) إلى لوحتين (6-أ: 23 عقدة / 18 سهماً؛ 6-ب: 14 عقدة / 9 أسهم)؛ والجديد: «حدّث الآن» (6-أ — REQ-020) ومهمة الاستبقاء (6-ب — REQ-022: محو الإحداثيات بعد 7 أيام وحذف الصف بعد 90 يوماً)؛ وحُذفت عقدة «فعل دون اتصال» المكررة مع حفظ الصندوق (K5)؛ والمسارات بقيت lanes في subgraph (بنية النشاط نفسها).
+
+- أُعيد تقسيمه 2026-11-19 (دفعة الشكل 2): 6-أ (23 عقدة مع المسارات / 18 سهماً) ← لوحتين: 6-أ التتبع (11 عقدة + 3 مسارات / 11 سهماً)، 6-ب الخريطة و«حدّث الآن» (9 + 3 / 7 أسهم — مرجع K4x)؛ و6-ب القديمة صارت 6-ج بلا تغيير في البنية (10 + 4 / 9). والتسميتان العاريتان «نعم/لا» في 6-أ وُسّعتا («نعم — متصل» / «لا — دون اتصال»، «نعم — حي» / «لا — آخر موقع معروف»).
