@@ -41,7 +41,7 @@
   --tk:1;                       /* مضاعف وضع الطفل ×1.15 / المبسط ×1.35 */
   --touch:48px;
   --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-full:999px;   /* spacing-and-grid §4: لا زاوية خارج هذه الستة (Q-436) */
-  --fast:140ms;--mid:230ms;--slow:380ms;--ease:cubic-bezier(.2,.8,.2,1);
+  --fast:140ms;--mid:230ms;--slow:380ms;--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.45,.5,1);
 }
 .phone[data-theme="dark"]{
   --bg:#081122;--surface:#0A152A;--subtle:#0F1E39;--sunken:#0F1E39;--border:#263852;--border-strong:#7089B5;
@@ -57,8 +57,11 @@
   --lift:none;
 }
 .phone[data-mode="child"]{--tk:1.15;--touch:56px}
-.phone[data-motion="off"] *,.phone[data-motion="off"] *::before,.phone[data-motion="off"] *::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
-@media (prefers-reduced-motion:reduce){.phone *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+/* تقليل الحركة: كل حركة تصير فورية، وما يتكرر يتوقف (مرة واحدة بلا تأخير) بدل أن يدور بسرعة قصوى (Q-451). */
+.phone[data-motion="off"] *,.phone[data-motion="off"] *::before,.phone[data-motion="off"] *::after{animation-duration:.001ms!important;transition-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important}
+@media (prefers-reduced-motion:reduce){.phone *,.phone *::before,.phone *::after{animation-duration:.001ms!important;transition-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important}}
+/* استجابة اللمس (Q-451): كل ما يُضغط يستجيب فوراً. ما له استجابة خاصة (زر، صف، بطاقة، بلاطة، محطة، مفتاح، استغاثة) يبقى على استجابته. */
+.phone button:not(.btn):not(.row):not(.card):not(.ktile):not(.stop):not(.tg):not(.sw):not(.sos):active,.phone a[data-a]:not(.row):active{opacity:.68}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
@@ -197,6 +200,7 @@ svg.ic{width:1.5em;height:1.5em;flex:none;fill:currentColor;display:block}
 .scr.flush{padding:0}
 .scr.in{animation:in var(--mid) var(--ease)}
 .scr.inb{animation:inb var(--mid) var(--ease)}
+.scr.tabf{animation:fd var(--fast)}
 @keyframes in{from{opacity:0;transform:translateX(-18px)}}
 @keyframes inb{from{opacity:0;transform:translateX(18px)}}
 [dir="ltr"] .scr.in{animation-name:inb}[dir="ltr"] .scr.inb{animation-name:in}
@@ -589,7 +593,7 @@ button.chip{min-height:28px}
 .week .on i{background:var(--accent);color:#fff}
 .week .td i{box-shadow:0 0 0 2.5px var(--accent)}
 .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:80}
-.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:var(--r-xs);animation:fall 1.3s var(--ease) forwards}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:var(--r-xs);animation:fall 1.15s var(--ease) forwards}
 @keyframes fall{to{transform:translateY(900px) rotate(540deg);opacity:0}}
 
 /* ---------- الطبقات: أوراق، حوارات، إشعارات ---------- */
@@ -646,6 +650,18 @@ button.chip{min-height:28px}
 .notif.cel .art{width:96px;margin:0;flex:none}
 .notif.cel b{font-size:calc(17px*var(--ts));margin-bottom:2px}
 .artc .art{width:124px;margin-bottom:10px}
+/* حركة لحظة النجاح (Q-451): الزجاجات تضيء واحدة بعد واحدة ثم الأشعة والعلامة؛ أقل من نصف ثانية ومرة واحدة (الصنف nw يضعه render حين يظهر النجاح). */
+.art.nw .g0,.art.nw .g1,.art.nw .g2,.art.nw .g3,.art.nw .g4,.art.nw .ry{animation:lt var(--mid) var(--ease) both}
+.art.nw .g1{animation-delay:40ms}.art.nw .g2{animation-delay:80ms}.art.nw .g3{animation-delay:120ms}.art.nw .g4{animation-delay:160ms}.art.nw .ry{animation-delay:240ms}
+.art.nw .aic{animation:aicp var(--mid) var(--spring) 200ms both}
+@keyframes lt{from{fill-opacity:.18;stroke-opacity:0}}
+@keyframes aicp{from{opacity:0;transform:translate(-50%,-50%) scale(.6)}}
+/* قالب الطفل: ارتداد خفيف لبطاقة الكسب، ونبضة لعدّاد النقاط (motion §3 و§5). */
+.phone[data-mode="child"] .notif.cel{animation:dn var(--slow) var(--spring)}
+.chip.pls{animation:pls var(--slow) var(--spring)}
+@keyframes pls{50%{transform:scale(1.2)}}
+/* ما هو مفتوح لا يدخل مرة ثانية عند إعادة الرسم. */
+.scrim.st,.scrim.st>.sheet,.scrim.st>.dlg,.full.st{animation:none}
 .tl{position:relative;padding-inline-start:22px;margin:4px 0}
 .tl::before{content:"";position:absolute;inset-block:8px;inset-inline-start:6px;width:2px;background:var(--border)}
 .tl .ev{position:relative;padding:5px 0 11px}

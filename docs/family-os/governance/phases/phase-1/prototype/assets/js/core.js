@@ -268,7 +268,7 @@ let anim = '';
 function go(id, ...a) { if (!SC[id]) return console.warn('screen?', id); const d = SC[id]; if (d.kind === 'sheet') { S.sheet = { id, a }; return; } if (d.kind === 'full') { S.full = { id, a }; return; } if (S.stack[S.stack.length - 1].id === 'more' && RECENT_OK(id)) S.recent = [id, ...(S.recent || []).filter(x => x !== id)].slice(0, 3); S.sheet = null; S.stack.push({ id, a }); anim = 'in'; }
 /* «آخر ما فتحته» في «المزيد» (S1-09 H09-14): آخر ثلاثة أقسام فُتحت منه بلا معاملات؛ لا عدّ للاستعمال ولا شيء يغادر الجهاز. */
 const RECENT_OK = id => !['account', 'about', 'help'].includes(id);
-function tab(id) { S.sheet = null; S.stack = [{ id, a: [] }]; anim = ''; }
+function tab(id) { const same = S.stack.length === 1 && S.stack[0].id === id; S.sheet = null; S.stack = [{ id, a: [] }]; anim = same ? '' : 'tabf'; }   /* تبديل التبويب: تلاشٍ سريع بلا انزلاق (motion §4 · Q-451) */
 function back() { if (S.dlg) { S.dlg = null; return; } if (S.sheet) { S.sheet = null; return; } if (S.full) { S.full = null; return; } if (window.leaveGuard && window.leaveGuard()) return; if (S.stack.length > 1) { S.stack.pop(); anim = 'inb'; } }
 function setPersona(p, keep) { kidSync(); S.persona = p; S.sheet = S.full = S.dlg = null; if (!keep) S.stack = [{ id: rootOf(p), a: [] }]; anim = ''; }
 
@@ -281,14 +281,14 @@ function toast(msg, undo, icn = 'check_circle') {
 }
 function notif(title, body, icn = 'notifications', a = '') {
   const cel = icn === 'celebration' || icn === 'workspace_premium';   /* لحظة نجاح (Q-450): النافذة المضيئة بأشعتها مكان مربع الأيقونة؛ النص والمكان والإغلاق كما هي */
-  $('#notif').innerHTML = `<button class="notif${cel ? ' cel' : ''}" data-a="${a || 'nclose'}">${cel ? art(icn, 'fest') : `<span class="ap">${ic(icn)}</span>`}<span><b>${title}</b>${body}</span></button>`;
+  $('#notif').innerHTML = `<button class="notif${cel ? ' cel' : ''}" data-a="${a || 'nclose'}">${cel ? art(icn, 'fest').replace('art fest', 'art fest nw') : `<span class="ap">${ic(icn)}</span>`}<span><b>${title}</b>${body}</span></button>`;
   setTimeout(() => { $('#notif').innerHTML = ''; }, 5200);
 }
 function confetti() {
   if (S.motion === 'off') return;
   const cols = ['#C8A24A', '#CF5B2C', '#1F6B3B', '#2457A6', '#F3DC9B'];
-  $('#fx').innerHTML = `<div class="confetti">${Array.from({ length: 34 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};animation-delay:${Math.random() * .35}s;transform:rotate(${Math.random() * 90}deg)"></i>`).join('')}</div>`;
-  setTimeout(() => { $('#fx').innerHTML = ''; }, 1700);
+  $('#fx').innerHTML = `<div class="confetti">${Array.from({ length: 34 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};animation-delay:${Math.random() * .3}s;transform:rotate(${Math.random() * 90}deg)"></i>`).join('')}</div>`;
+  setTimeout(() => { $('#fx').innerHTML = ''; }, 1500);   /* motion.celebrate: 800–1500ms */
 }
 const audit = (t, k, deny) => S.audit.unshift({ t, w: me().n, at: 'الآن', k, deny });
 /* الصندوق الصادر: الأفعال دون اتصال تُحفظ ثم تُرسل بالترتيب عند عودة الاتصال (S1-01 REQ-009). */
@@ -348,7 +348,7 @@ function render() {
   const ph = $('#phone'), t = topE(), d = SC[t.id];
   ph.dataset.theme = S.theme; ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
-  const old = $('#scr'), keep = old && old.dataset.id === t.id + t.a.join() ? old.scrollTop : 0;
+  const old = $('#scr'), sameScr = old && old.dataset.id === t.id + t.a.join(), keep = sameScr ? old.scrollTop : 0, hadArt = sameScr && !!old.querySelector(ART_WIN);
   const hero = d.hero && !offline() && !(S.lbw) && !(fmAny().length && isAdult());
   $('#sbar').className = 'sbar' + (hero ? ' onhero' : '');
   $('#sbar').innerHTML = `<span>5:12</span><span class="g">${ic(offline() ? 'signal_wifi_off' : S.lbw ? 'signal_cellular_alt_1_bar' : 'wifi')}${ic(offline() ? 'signal_cellular_alt_1_bar' : 'signal_cellular_alt')}${ic('battery_5_bar')}</span>`;
@@ -356,17 +356,29 @@ function render() {
     `<main class="scr ${d.flush ? 'flush' : ''} ${anim}" id="scr" data-id="${t.id + t.a.join()}">${d.r(...t.a)}</main>` +
     (d.foot ? d.foot(...t.a) : '') + (S.stack.length === 1 && !d.nonav && S.persona !== 'guest' ? navbar() : '');
   $('#scr').scrollTop = keep; anim = '';
+  artNew($('#scr'), sameScr, hadArt);
   renderOv();
   if (window.Studio) Studio.sync();
 }
+/* إضاءة النافذة (Q-451): تتحرك مرة واحدة حين يظهر النجاح، لا عند كل إعادة رسم. fest عند ظهورها دائماً؛ lit حين تظهر بتغيّر حالة داخل الشاشة نفسها فقط. */
+const ART_WIN = '.art.fest,.art.lit';
+function artNew(box, same, had) { if (box && !had) box.querySelectorAll(same ? ART_WIN : '.art.fest').forEach(e => e.classList.add('nw')); }
+/* الورقة والحوار والشاشة الكاملة تدخل بحركة مرة واحدة عند الفتح؛ وإعادة الرسم وهي مفتوحة لا تعيد الحركة ولا تعيد التمرير إلى الأعلى (Q-451). */
+let ovPrev = {};
 function renderOv() {
   let h = '';
+  const kS = S.sheet ? S.sheet.id + '|' + S.sheet.a.join() : '', kF = S.full ? S.full.id + '|' + S.full.a.join() : '', kD = S.dlg ? S.dlg.t : '';
+  const stS = !!kS && ovPrev.s === kS, stF = !!kF && ovPrev.f === kF, stD = !!kD && ovPrev.d === kD, oS = stS && $('#ov .sheet'), oF = stF && $('#ov .full .body');
+  const yS = oS ? oS.scrollTop : 0, yF = oF ? oF.scrollTop : 0, hadS = !!(oS && oS.querySelector(ART_WIN)), hadF = !!(stF && $('#ov .full') && $('#ov .full').querySelector(ART_WIN));
+  ovPrev = { s: kS, f: kF, d: kD };
   /* الورقة السفلية تعلو شاشة الحجب، لكنها تبقى تحت بوابة الرقم السري والاستغاثة وشاشات النظام */
   const up = S.sheet && S.full && !/^(pin|sos-|sys-)/.test(S.full.id);
-  if (S.sheet) { const d = SC[S.sheet.id]; h += `<div class="scrim" ${up ? 'style="z-index:45"' : ''} data-a="scrimClose"><div class="sheet" role="dialog" aria-modal="true" data-stop>${d.r(...S.sheet.a)}</div></div>`; }
-  if (S.full) { const d = SC[S.full.id]; h += `<div class="full ${d.cls || ''}" role="dialog" aria-modal="true">${d.r(...S.full.a)}</div>`; }
-  if (S.dlg) h += `<div class="scrim mid" style="z-index:50"><div class="dlg" role="alertdialog" aria-modal="true"><h4>${S.dlg.t}</h4><p>${S.dlg.b}</p><div class="btns">${btn(S.dlg.no || 'إلغاء', 'dlgNo', 'sec')}${btn(S.dlg.yes, 'dlgYes', S.dlg.danger ? 'dng' : '')}</div></div></div>`;
+  if (S.sheet) { const d = SC[S.sheet.id]; h += `<div class="scrim${stS ? ' st' : ''}" ${up ? 'style="z-index:45"' : ''} data-a="scrimClose"><div class="sheet" role="dialog" aria-modal="true" data-stop>${d.r(...S.sheet.a)}</div></div>`; }
+  if (S.full) { const d = SC[S.full.id]; h += `<div class="full ${d.cls || ''}${stF ? ' st' : ''}" role="dialog" aria-modal="true">${d.r(...S.full.a)}</div>`; }
+  if (S.dlg) h += `<div class="scrim mid${stD ? ' st' : ''}" style="z-index:50"><div class="dlg" role="alertdialog" aria-modal="true"><h4>${S.dlg.t}</h4><p>${S.dlg.b}</p><div class="btns">${btn(S.dlg.no || 'إلغاء', 'dlgNo', 'sec')}${btn(S.dlg.yes, 'dlgYes', S.dlg.danger ? 'dng' : '')}</div></div></div>`;
   $('#ov').innerHTML = h;
+  const nS = $('#ov .sheet'), nF = $('#ov .full'), nFb = $('#ov .full .body');
+  if (nS) { nS.scrollTop = yS; artNew(nS, stS, hadS); } if (nFb) nFb.scrollTop = yF; if (nF) artNew(nF, stF, hadF);
   /* زر الاستغاثة يعلو الأوراق ونوافذ التأكيد (S1-01 REQ-007 · DS-SP-07) */
   sosLift(); clearTimeout(sosLiftT); sosLiftT = setTimeout(sosLift, 340);
 }

@@ -9,7 +9,7 @@ surface('c-home', {
   t: 'الرئيسية', sys: 'S1-01', p: 'child', bar: false, req: '01:2,4,7,15,18 10:25 05:2,7 06:6',
   note: 'قالب الطفل: لكل ابن دون 13، ومنهم من هو دون 7 (Q-426). اعتمده المالك في 2026-11-18 (Q-426، يغلق Q-090). الفكرة: «مسار اليوم» يحوّل المهام إلى محطات، والوقت المتبقي يُعرض بصورة ودّية لا برقم ضاغط. لا شاشات إدارية، لا مشتريات، لا روابط خارجية.',
   r() { const id = kidId(), m = M[id], k = S.kid[id], T = S.tasks.filter(t => t.kid === id && t.st !== 'CANCELLED' && t.st !== 'EXPIRED'), md = timeMood(id), pc = left(id) / (k.quota + k.extra);
-    const cele = T.find(t => t.cele); if (cele) { cele.cele = 0; setTimeout(() => { rwCele(); if (RW().cele !== 'off') notif('أحسنتِ يا ' + m.n + '!', `اعتُمدت «${cele.t}» · +${cele.pts} نقاط`, 'celebration'); }, 250); }
+    const cele = T.find(t => t.cele); if (cele) { cele.cele = 0; setTimeout(() => { rwCele(); if (RW().cele !== 'off') { notif('أحسنتِ يا ' + m.n + '!', `اعتُمدت «${cele.t}» · +${cele.pts} نقاط`, 'celebration'); const p = $('#app .bar .chip.go'); if (p) p.classList.add('pls'); } }, 250); }
     const req = S.reqs.find(r => r.kid === id && r.st !== 'PENDING' && !r.seen);
     return `<header class="bar"><button data-a="go:c-me" aria-label="ملفي" style="margin-inline-start:8px">${av(m)}</button><h2>أهلاً ${m.n}</h2><button class="chip go" data-a="tab:c-rewards" style="min-height:48px;padding:0 12px;font-size:15px">${coin()}&nbsp;${k.pts}</button>${sosBtn()}</header>
     <div class="khero">${ring(fmOf(id) ? 1 : pc, 92, 9, '#F3DC9B', ic(md[0]), '#ffffff2e')}<div style="position:relative;z-index:1"><h4>${md[1]}</h4><p>${md[2]}</p></div></div>
