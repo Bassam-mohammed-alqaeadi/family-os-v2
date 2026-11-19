@@ -340,6 +340,22 @@ button.chip{min-height:28px}
 .art.off .aic{width:13.5%;background:var(--muted);opacity:.55}
 .empty.cp,.sec+.empty{padding:16px 20px 20px}
 .empty.cp .art,.sec+.empty .art{width:124px;margin-bottom:10px}
+/* جواب الشاشة أولاً (Q-452): بطاقة كحلية واحدة في أعلى الشاشة تحمل جوابها («من عائلتي؟»، «من أنا هنا؟»، «كيف حال ابني الآن؟»).
+   داخلها رموز السطح الداكن، فكل شارة وحلقة وزر فيها تأخذ ألوان الداكن في السمتين بلا قاعدة لكل عنصر. */
+.ans{display:block;width:100%;text-align:start;background:linear-gradient(170deg,var(--hero),var(--hero2));color:var(--on-hero);border-radius:var(--r-xl);padding:16px;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:var(--lift);
+  --text:#F7F6F0;--text2:#DEDACB;--muted:#B3BED0;--sunken:#ffffff1f;--border:#ffffff38;--primary:#C9D6EE;--primary-soft:#ffffff1f;
+  --success:#8FD3A5;--success-soft:#0E4424;--warning:#E2B181;--warning-soft:#4F2D06;--danger:#F29C8F;--danger-soft:#5E100B;--info:#9DBDEE;--info-soft:#12356B;--accent:#F0A07C;--accent-text:#F3B79C;--accent-soft:#4A2413}
+.ans::after{content:"";position:absolute;inset-inline-end:-60px;top:-70px;width:230px;height:230px;opacity:.09;background:conic-gradient(from 22.5deg,#C8A24A 0 12.5%,transparent 0 25%,#C8A24A 0 37.5%,transparent 0 50%,#C8A24A 0 62.5%,transparent 0 75%,#C8A24A 0 87.5%,transparent 0);border-radius:50%;pointer-events:none}
+.ans>*{position:relative;z-index:1}
+.ans.fx{display:flex}
+.ans .an{font-size:calc(20px*var(--ts));font-weight:600;line-height:1.35}
+.ans .chip.ol{color:var(--on-hero-2);box-shadow:inset 0 0 0 1px #ffffff40}
+.ans .av{box-shadow:0 0 0 2.5px #ffffff2e}
+.ans>svg.ic{color:var(--on-hero-2)}
+.ans .faces{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.ans .now{margin-top:14px;padding-top:14px;border-top:1px solid #ffffff24;flex-wrap:wrap}
+.ans .now .grow{flex:1 1 calc(130px*var(--ts))}   /* بالخط المكبّر ينزل زر «منح وقت» سطراً بدل أن يضيق النص */
+button.ans:active{filter:brightness(1.15)}
 /* البطاقة البارزة (Q-448): معالجة رأس الرئيسية (كحلي متدرّج) للبطاقة التي هي جواب الشاشة. */
 .blc.plt,.blc.plt.pd,.phone[data-theme="dark"] .blc.plt.pd,.cplate{background:linear-gradient(170deg,var(--hero),var(--hero2));color:var(--on-hero);border:0;box-shadow:var(--lift);position:relative;overflow:hidden}
 .phone[data-theme="dark"] .blc.plt,.phone[data-theme="dark"] .cplate{box-shadow:inset 0 0 0 1px #ffffff1f}
