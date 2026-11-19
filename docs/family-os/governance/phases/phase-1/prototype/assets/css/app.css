@@ -229,14 +229,14 @@ button.row:active,a.row:active{background:var(--subtle)}
 .row .lead svg.ic{width:20px;height:20px}
 .phone[data-theme="dark"] .row .lead{color:var(--primary-strong)}
 /* خانة الأيقونة الملوّنة بحسب المجال — تُستعمل في الصفوف والبلاطات وبطاقات الخدمات */
+/* Q-436 د4: مربع الأيقونة بلون واحد هادئ. اللون للحالة فقط: ok يعمل، wa تحذير، da خطر أو فعل لا رجعة فيه. ولون الفرد يبقى. */
 .lead.ok,.qi.ok{background:var(--success-soft);color:var(--success)}
-.lead.ac,.qi.ac{background:var(--accent-soft);color:var(--accent-text)}
-.lead.go,.qi.go{background:var(--gold-soft);color:var(--warning)}
+.lead.wa,.qi.wa{background:var(--warning-soft);color:var(--warning)}
 .lead.in,.qi.in{background:var(--info-soft);color:var(--info)}
 .lead.da,.qi.da{background:var(--danger-soft);color:var(--danger)}
 .phone[data-theme="dark"] .row .lead.ok,.phone[data-theme="dark"] .qi.ok{color:var(--success)}
-.phone[data-theme="dark"] .row .lead.ac,.phone[data-theme="dark"] .qi.ac{color:var(--accent-text)}
-.phone[data-theme="dark"] .row .lead.go,.phone[data-theme="dark"] .qi.go{color:var(--gold)}
+
+
 .phone[data-theme="dark"] .row .lead.in,.phone[data-theme="dark"] .qi.in{color:var(--info)}
 .phone[data-theme="dark"] .row .lead.da,.phone[data-theme="dark"] .qi.da{color:var(--danger)}
 .row .lead.t-raw{background:color-mix(in srgb,currentColor 12%,transparent)}
@@ -257,12 +257,14 @@ button.row:active,a.row:active{background:var(--subtle)}
 .chip.in{background:var(--info-soft);color:var(--info)}
 .chip.ac{background:var(--accent-soft);color:var(--accent-text)}
 .chip.go{background:var(--gold-soft);color:var(--text)}
+/* Q-436 د4 — قاعدة الشرائح: المملوءة حالة (رمادي محايد، in ينتظر، ok تم، wa تحذير، da خطر، go نقاط)؛ ذات الإطار ol صفة أو مصدر أو موعد لا حالة؛ stale بيانات قديمة. */
 .chip.ol{background:none;box-shadow:inset 0 0 0 1px var(--border);color:var(--muted)}
 .chip.stale{background:none;box-shadow:inset 0 0 0 1px var(--border-strong);color:var(--muted);border-radius:var(--r-xs)}
 button.chip{min-height:28px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .fch{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:2px 16px}
 .fch::-webkit-scrollbar{display:none}
+.fch .fsep{flex:none;width:1px;align-self:stretch;margin:8px 4px;background:var(--border-strong);opacity:.45}   /* Q-436 د4: فاصل بين مجموعات التصفية في صف واحد يُمرَّر */
 .fch button{flex:none;min-height:36px;padding:0 14px;border-radius:var(--r-full);font-size:calc(14px*var(--ts));font-weight:500;box-shadow:inset 0 0 0 1px var(--border);background:var(--surface);color:var(--text2);display:inline-flex;align-items:center;gap:6px}
 .fch button[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);box-shadow:none;font-weight:600}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--touch);padding:0 20px;border-radius:var(--r-md);font-weight:600;font-size:calc(16px*var(--ts)*var(--tk));background:var(--primary);color:var(--on-primary);width:100%;transition:transform var(--fast),filter var(--fast);text-align:center;line-height:1.3}
@@ -282,9 +284,9 @@ button.chip{min-height:28px}
 .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;font-weight:700;font-size:20px;position:relative;background:var(--c,#1F3A6B)}
 .av svg.ic{width:62%;height:62%}
 .av.sm{width:32px;height:32px}.av.lg{width:64px;height:64px}.av.xl{width:88px;height:88px}
-.tg{width:52px;height:32px;border-radius:var(--r-full);background:var(--border-strong);position:relative;flex:none;transition:background var(--fast)}
-.tg::after{content:"";position:absolute;top:4px;inset-inline-start:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform var(--fast) var(--ease);box-shadow:var(--e1)}
-.tg[aria-checked="true"]{background:var(--success-fill)}
+.tg{width:52px;height:32px;border-radius:var(--r-full);background:var(--sunken);box-shadow:inset 0 0 0 1.5px var(--border-strong);position:relative;flex:none;transition:background var(--fast)}   /* Q-436 د4: المطفأ مسار فاتح بإطار، فلا يُقرأ مشغَّلاً بلون آخر */
+.tg::after{content:"";position:absolute;top:4px;inset-inline-start:4px;width:24px;height:24px;border-radius:50%;background:var(--border-strong);transform:scale(.7);transition:transform var(--fast) var(--ease),background var(--fast)}
+.tg[aria-checked="true"]{background:var(--success-fill);box-shadow:none}.tg[aria-checked="true"]::after{background:#fff;box-shadow:var(--e1)}
 [dir="rtl"] .tg[aria-checked="true"]::after{transform:translateX(-20px)}
 [dir="ltr"] .tg[aria-checked="true"]::after{transform:translateX(20px)}
 .seg{display:flex;background:var(--sunken);border-radius:var(--r-md);padding:4px;gap:2px;margin-bottom:12px}
@@ -309,7 +311,7 @@ button.chip{min-height:28px}
 .callout.wa{background:var(--warning-soft)}.callout.wa svg.ic{color:var(--warning)}
 .callout.da{background:var(--danger-soft)}.callout.da svg.ic{color:var(--danger)}
 .callout.ok{background:var(--success-soft)}.callout.ok svg.ic{color:var(--success)}
-.callout.nt{background:var(--subtle);border:1px dashed var(--border-strong)}.callout.nt svg.ic{color:var(--muted)}
+.callout.nt{background:var(--subtle);border:1px solid var(--border)}.callout.nt svg.ic{color:var(--muted)}
 .why{display:inline-flex;align-items:center;gap:3px;color:var(--info);font-size:calc(13px*var(--ts));font-weight:600;min-height:28px;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
 .why svg.ic{width:15px;height:15px}
 .empty{text-align:center;padding:36px 20px;color:var(--muted)}
@@ -375,7 +377,6 @@ button.chip{min-height:28px}
 @keyframes hl{50%{background:var(--surface)}}
 .row.unread .tx b{font-weight:700}
 .udot{width:9px;height:9px;border-radius:50%;background:var(--info);display:inline-block}
-.fld.gs input{background:var(--surface)}
 .qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
 .qa button{box-shadow:var(--lift);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);font-size:calc(12px*var(--ts));font-weight:500;text-align:center;line-height:1.35;min-height:76px}
 .qa button:active{background:var(--subtle)}
@@ -487,8 +488,8 @@ button.chip{min-height:28px}
 .msg.blk{background:var(--warning-soft);color:var(--text);border:1.5px dashed var(--warning);font-size:calc(14px*var(--ts))}
 .msg.del svg.ic,.msg.blk svg.ic{width:15px;height:15px;vertical-align:-2px;display:inline-block}
 .msg .tk{display:inline-flex}
-.srch{display:flex;align-items:center;gap:8px;min-height:48px;border-radius:var(--r-full);border:1px solid var(--border);background:var(--surface);padding:0 16px;margin-bottom:12px;color:var(--muted)}
-.srch svg.ic{width:20px;height:20px;flex:none}.srch input{flex:1;min-width:0;min-height:46px;border:0;background:none;outline:0;font-size:calc(15px*var(--ts));color:var(--text)}
+.srch{display:flex;align-items:center;gap:8px;min-height:48px;border-radius:var(--r-full);border:1.5px solid var(--border-strong);background:var(--surface);padding:0 16px;margin-bottom:12px;color:var(--muted)}   /* Q-436 د4: شكل واحد لكل حقول البحث */
+.srch svg.ic{width:20px;height:20px;flex:none}.srch input{flex:1;min-width:0;min-height:44px;border:0;background:none;outline:0;font-size:calc(16px*var(--ts));color:var(--text);appearance:none;-webkit-appearance:none}.srch input::-webkit-search-cancel-button{display:none}
 .srch:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .chv{display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:var(--muted)}.chv small{font-size:12px;direction:ltr}.chv svg.ic{width:16px;height:16px}
 .unr{min-width:22px;height:22px;padding:0 6px;border-radius:var(--r-full);background:var(--primary);color:var(--on-primary);font-size:12px;font-weight:700;display:grid;place-items:center}
@@ -569,7 +570,7 @@ button.chip{min-height:28px}
 .otp{display:flex;gap:8px;justify-content:center;direction:ltr;margin:8px 0 16px}
 .otp i{width:46px;height:56px;border-radius:var(--r-md);border:1.5px solid var(--border-strong);display:grid;place-items:center;font-style:normal;font-size:24px;font-weight:600;background:var(--surface)}
 .otp i.cur{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
-.code{font-family:var(--mono);font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;direction:ltr;padding:16px;border-radius:var(--r-lg);background:var(--subtle);border:2px dashed var(--border-strong);margin:8px 0 12px}
+.code{font-family:var(--mono);font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;direction:ltr;padding:16px;border-radius:var(--r-lg);background:var(--subtle);border:1.5px solid var(--border-strong);margin:8px 0 12px}
 .cnt{width:150px;height:150px;border-radius:50%;margin:8px auto 16px;display:grid;place-items:center;font-size:64px;font-weight:700;background:#ffffff1f;box-shadow:0 0 0 12px #ffffff12;animation:beat 1s infinite}
 @keyframes beat{50%{box-shadow:0 0 0 22px #ffffff08}}
 .notif{position:absolute;top:44px;inset-inline:10px;background:var(--surface);color:var(--text);border-radius:var(--r-xl);padding:12px 14px;z-index:75;box-shadow:var(--e3);display:flex;gap:10px;align-items:flex-start;animation:dn var(--mid) var(--ease);border:1px solid var(--border);font-size:calc(14px*var(--ts));line-height:1.6;width:calc(100% - 20px)}
@@ -686,8 +687,6 @@ button.chip{min-height:28px}
 .wk > b.td{color:var(--primary);font-weight:700}
 .wk .sched{height:20px;margin:0;border-radius:var(--r-xs)}
 .sched u{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);text-decoration:none}
-.fld.srch{margin-bottom:12px}
-.fld.srch input{min-height:44px}
 .fch.w{flex-wrap:wrap;overflow:visible;margin:0 0 12px;padding:0}
 
 /* ---------- S1-05 المكافآت ---------- */

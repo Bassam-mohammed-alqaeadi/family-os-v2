@@ -173,7 +173,7 @@ surface('map', {
       : S.os === 'ios' ? `<div class="mstrip nt">${ic('info')}<span>هواتف الأطفال iPhone: النظام يؤخر تحديث الموقع في الخلفية. ${why('ios')}</span></div>`
       : old.length ? `<div class="mstrip wa">${ic('history')}<span>${old.map(l => pname(M[l.id])).join(' و')}: يُعرض آخر موقع معروف، لا الموقع الحي.</span></div>` : '';
     const chips = ids.length > 1 && !S.privacy ? `<div class="fch mfch"><button aria-pressed="${!F.length}" data-a="mapFit">${ic('groups')}الكل</button>${ids.map(id => `<button aria-pressed="${one === id}" data-a="mapF:${id}">${av(M[id], 'sm')}${pname(M[id])}</button>`).join('')}</div>` : '';
-    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.paused ? pausedTxt(m) : l.nodev ? 'لم يُقرن جهازه بعد · يظهر هنا بعد الإقران' : l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: l.nodev ? 'go:pair-code:' + id : 'mapF:' + id, v: l.paused ? chip('متوقفة', 'stale', 'location_off') : l.nodev ? chip('بلا جهاز', 'ol', 'mobile_off') : batChip(l), chev: !!l.nodev }); };
+    const rowOf = id => { const l = locOf(id), m = M[id]; return row('', pname(m), l.paused ? pausedTxt(m) : l.nodev ? 'لم يُقرن جهازه بعد · يظهر هنا بعد الإقران' : l.none ? 'لا موقع معروف بعد' : `${S.privacy ? '••••' : l.place}<br>${locStat(l, m)}`, { lead: av(m), a: l.nodev ? 'go:pair-code:' + id : 'mapF:' + id, v: l.paused ? chip('متوقفة', 'stale', 'location_off') : l.nodev ? chip('بلا جهاز', '', 'mobile_off') : batChip(l), chev: !!l.nodev }); };
     let body;
     if (one) {
       const l = locOf(one), m = M[one], d = distTxt(l), kid = !!S.kid[one];

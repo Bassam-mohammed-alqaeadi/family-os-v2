@@ -209,16 +209,14 @@ const coin = () => `<span class="coin">${ic('star-fill')}</span>`;
 /* لون خانة الأيقونة بحسب المجال (color-tokens.md — الألوان الدلالية وألوان العلامة فقط):
    الحماية والإعدادات كحلي (الافتراضي) · الموقع والأمان أخضر · المهام والتقويم برتقالي العلامة · المكافآت والخطة ذهبي · المحادثة والمساعد أزرق المعلومات · الحذف والمنع أحمر. */
 const TONE = {};
-[['ok', 'location_on map near_me pin_drop my_location verified_user verified check_circle done_all thumb_up family_home child_care handshake'],
- ['ac', 'task_alt add_task checklist check_box event today event_upcoming calendar_month alarm schedule cake school menu_book'],
- ['go', 'stars star workspace_premium redeem local_fire_department credit_card confirmation_number inventory_2 sms'],
- ['in', 'forum chat chat_error mail forward_to_inbox wand_stars smart_toy support_agent contact_support help quiz info translate notifications'],
- ['da', 'delete_forever delete block person_remove logout link_off key_off location_off mobile_off emergency_home contact_emergency gpp_maybe flag'],
+/* Q-436 د4: اللون للحالة فقط. ok = تم أو يعمل، da = خطر أو فعل لا رجعة فيه. لا لون للمجال (موقع، مهام، محادثة، نقاط). الصف الذي حالته متغيّرة يمرّر o.tone. */
+[['ok', 'verified check_circle done_all thumb_up'],
+ ['da', 'delete_forever delete block person_remove logout link_off key_off location_off mobile_off emergency_home contact_emergency'],
 ].forEach(([t, L]) => L.split(' ').forEach(k => { TONE[k] = t; }));
 const toneOf = i => TONE[String(i).replace(/-fill$/, '')] || '';
 function row(i, t, s, o = {}) {
   const tag = o.a ? 'button' : 'div';
-  const lead = o.lead || (i ? `<span class="lead ${o.ic ? 't-raw' : toneOf(i)}" ${o.ic ? `style="color:${o.ic}"` : ''}>${ic(i)}</span>` : '');
+  const lead = o.lead || (i ? `<span class="lead ${o.ic ? 't-raw' : o.tone ?? toneOf(i)}" ${o.ic ? `style="color:${o.ic}"` : ''}>${ic(i)}</span>` : '');
   const end = (o.v ? `<span class="val">${o.v}</span>` : '') + (o.tg !== undefined ? tg(o.tg, o.ta || '', t) : '') + (o.a && o.chev !== false ? `<span class="chev">${ic('chevron_right')}</span>` : '');
   return `<${tag} class="row ${i || o.lead ? '' : 'noic'} ${o.c || ''}" ${o.a ? `data-a="${o.a}"` : ''}>${lead}<span class="tx"><b>${t}</b>${s ? `<span>${s}</span>` : ''}</span>${end}</${tag}>`;
 }

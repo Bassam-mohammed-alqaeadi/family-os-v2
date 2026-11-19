@@ -128,7 +128,7 @@ const dayRow = (i, v, a, step, extra = '') => `<div class="dq"><b>${DAYN[i]}${i 
 /* مبدّل الطفل: يغيّر وسيط الشاشة الحالية، ويحذّر إن كان فيها تعديل غير محفوظ */
 const kidTabs = cur => `<div class="fch w">${KIDS.map(id => `<button aria-pressed="${cur === id}" data-a="pkid:${id}">${av(M[id], 'sm')}${kn(id)}</button>`).join('')}</div>`;
 const iosNote = () => (S.os === 'ios' ? callout('على أجهزة iOS لا يستطيع التطبيق إغلاق التطبيقات. تُحفظ القواعد هنا وتتبع الطفل إلى أي جهاز Android يقترن به. ' + why('ios'), 'wa', 'ios') : '');
-const searchBox = (ph, sel) => `<label class="fld srch"><input type="search" placeholder="${ph}" data-filter="${sel}" aria-label="${ph}"></label>`;
+const searchBox = (ph, sel) => `<label class="srch">${ic('search')}<input type="search" placeholder="${ph}" data-filter="${sel}" aria-label="${ph}"></label>`;
 
 /* ---------- المسودات وتحذير المغادرة (DS-SE-06): لا ضياع صامت ---------- */
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -162,7 +162,7 @@ surface('protection', {
   t: 'الحماية ووقت الشاشة', sys: 'S1-10', p: 'adult', req: '10:1,2,6,10,18,24,25,27,28 09:8,9 01:19',
   note: 'مدخل واحد لكل ما يخص الحماية. تختار الطفل فترى ما يحكمه الآن ثم قواعده. ما يخص العائلة كلها في الأسفل. بطاقة «مراجعة القواعد» تظهر فقط حين يُقرن جهاز جديد أو يبلغ طفل 13.',
   r() { const id = S.ctlKid || 'layan', nr = nowRule(id), e = ENF[S.kid[id].enf], rv = reviews(), ap = S.apps[id];
-    const R = (i, t, s, key, a, v) => row(i, t, s, { a: can(key, id) ? a : 'denied:' + key, v: can(key, id) ? v : ic('lock') });
+    const R = (i, t, s, key, a, v, tone) => row(i, t, s, { tone, a: can(key, id) ? a : 'denied:' + key, v: can(key, id) ? v : ic('lock') });
     return `${iosNote()}${rv.length ? `<button class="card fx" style="border-color:var(--info)" data-a="go:rules-review">${ic('rule')}<div class="grow"><b>${rv.length === 1 ? 'قواعد تحتاج مراجعتك' : rv.length + ' مراجعات للقواعد'}</b><div class="sm muted">${rv[0].k === 'teen' ? `بلغت ${kn(rv[0].kid)} 13 سنة` : `قُرن جهاز جديد لـ${kn(rv[0].kid)}`}</div></div>${ic('chevron_right')}</button>` : ''}
     ${kidTabs(id)}
     ${noDev(id) ? `<div class="card nodev">${ic('mobile_off')}<div class="grow"><b>لم يُقرن جهاز ${kn(id)} بعد</b><div class="sm muted">القواعد التي تضعها الآن تسري من لحظة الإقران.</div></div>${isOwner() ? btn('اقرن جهازه', 'go:pair-code:' + id, 'sm', 'devices') : ''}</div>` : ''}
@@ -173,7 +173,7 @@ surface('protection', {
       R('hourglass_top', 'الحصة اليومية', 'مجموع وقت الشاشة في اليوم', 'protection.rule.view', `go:quota:${id}`, S.kid[id].quota + ' د'),
       R('calendar_month', 'الجدول الأسبوعي', schedSum(id), 'protection.rule.view', `go:schedule:${id}`),
       R('travel_explore', 'تصفية الويب', `${wfCount(id)} فئات محظورة`, 'protection.filter.view', `go:webfilter:${id}`),
-      R('gpp_maybe', 'تنبيهات العبث', tamOpen(id).length ? 'محاولة تعطيل تنتظر مراجعتك' : 'لا محاولات تعطيل', 'protection.tamper.view', `go:tamper:${id}`, tamOpen(id).length ? chip(String(tamOpen(id).length), 'wa') : ''))}
+      R('gpp_maybe', 'تنبيهات العبث', tamOpen(id).length ? 'محاولة تعطيل تنتظر مراجعتك' : 'لا محاولات تعطيل', 'protection.tamper.view', `go:tamper:${id}`, tamOpen(id).length ? chip(String(tamOpen(id).length), 'wa') : '', tamOpen(id).length ? 'wa' : undefined))}
     ${sec('للعائلة كلها')}${list(
       row('bolt', 'الأوضاع', `دراسة · نوم · حر${S.modes.length ? ' · ' + S.modes.map(m => m.n).join(' · ') : ''}`, { a: 'go:presets:study' }),
       row('verified_user', 'حالة الحماية لكل الأطفال', 'كل جهاز في سطر: حالته وما يحكمه الآن', { a: can('protection.state.view') ? 'go:enf-all' : 'denied:protection.state.view', v: can('protection.state.view') ? '' : ic('lock') }),
@@ -504,8 +504,8 @@ const paList = f => S.audit.map((a, i) => [a, i]).filter(([a]) => /^protection\.
 surface('prot-audit', {
   t: 'سجل تغييرات الحماية', sys: 'S1-10', p: 'adult', a: ['all'], req: '10:26 03:18',
   note: 'S10-13. كل تغيير في القواعد والحصة والجدول والترتيب والأوضاع والعبث والتصفية: من غيّر وماذا ومتى، والأحدث أعلى. ثلاث تصفيات: بالطفل وبالنوع وبالفترة. «تراجع» حيث يمكن. للقراءة فقط: لا حذف.',
-  r(kid0) { const f = S.paF || (S.paF = {}); if (f.src !== kid0) { f.kid = M[kid0] ? kid0 : 'all'; f.src = kid0; } const L2 = paList(f), any = S.audit.some(a => /^protection\./.test(a.k || '')), fc = (opts, cur, a) => `<div class="fch w">${opts.map(([k, t]) => `<button aria-pressed="${(cur ?? 'all') === k}" data-a="${a}:${k}">${t}</button>`).join('')}</div>`;
-    return `${offline() ? callout('غير متصل: ترى الأحداث المحفوظة على هاتفك.', 'nt', 'cloud_off') : ''}${fc([['all', 'كل الأطفال'], ...KIDS.map(id => [id, kn(id)])], f.kid, 'paF:kid')}${fc(PAT, f.ty, 'paF:ty')}${fc([['all', 'كل الوقت'], ['0', 'اليوم'], ['7', '7 أيام']], f.per, 'paF:per')}
+  r(kid0) { const f = S.paF || (S.paF = {}); if (f.src !== kid0) { f.kid = M[kid0] ? kid0 : 'all'; f.src = kid0; } const L2 = paList(f), any = S.audit.some(a => /^protection\./.test(a.k || '')), fc = (opts, cur, a) => opts.map(([k, t]) => `<button aria-pressed="${(cur ?? 'all') === k}" data-a="${a}:${k}">${t}</button>`).join(''), SEP = '<i class="fsep" aria-hidden="true"></i>';
+    return `${offline() ? callout('غير متصل: ترى الأحداث المحفوظة على هاتفك.', 'nt', 'cloud_off') : ''}<div class="fch">${fc([['all', 'كل الأطفال'], ...KIDS.map(id => [id, kn(id)])], f.kid, 'paF:kid')}${SEP}${fc(PAT, f.ty, 'paF:ty')}${SEP}${fc([['all', 'كل الوقت'], ['0', 'اليوم'], ['7', '7 أيام']], f.per, 'paF:per')}</div>
     ${L2.length ? `<div class="list">${L2.map(([a, i]) => `<div class="row"><span class="lead">${ic(PATI[a.ty] || 'receipt_long')}</span><span class="tx"><b>${a.t}</b><span>${a.w} · ${a.at}${a.undone ? ' · تُراجع عنه' : ''}</span></span>${a.un && !a.undone && !offline() ? btn('تراجع', 'paUndo:' + i, 'sm txt') : ''}</div>`).join('')}</div>` : empty('receipt_long', any ? 'لا تغييرات بهذه التصفية' : 'لا تغييرات بعد', any ? 'غيّر التصفية أو اعرض الكل.' : 'كل تغيير في قواعد الحماية يُكتب هنا.', any ? btn('اعرض الكل', 'paClear', 'sm sec') : '')}${can('roles.audit.view') ? `<button class="card fx" style="margin-top:12px" data-a="go:audit">${ic('key')}<div class="grow"><b>سجل الصلاحيات</b><div class="sm muted">من مُنح ماذا، ومن سُحب منه</div></div>${ic('chevron_right')}</button>` : ''}`; },
 });
 Object.assign(ACT, {

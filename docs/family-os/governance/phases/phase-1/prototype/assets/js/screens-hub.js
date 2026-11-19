@@ -18,7 +18,7 @@ const svcOf = id => SVC.find(s => s.id === id);
 const svcOn = id => S.svcGone !== id;
 const svcIos = s => !!s.ios && S.os === 'ios';
 function svcState(s) {
-  if (!svcOn(s.id)) return chip('أُزيلت', 'ol', 'visibility_off');
+  if (!svcOn(s.id)) return chip('أُزيلت', '', 'visibility_off');
   if (!can(s.k)) return avail('not_delegated');
   if (svcIos(s)) return avail('unavailable_on_device');
   return chip('تعمل', 'ok', 'check');

@@ -98,7 +98,7 @@ function blFall() {
 /* ---------- أجزاء مشتركة ---------- */
 function blCard() {
   const b = BL(), p = PLAN[S.plan], st = blSt(), paid = S.plan !== 'free', e = blDate(blEnd());
-  const chipS = st === 'trial' ? chip('تجربة · ' + blLeft(blEnd()), 'go', 'redeem') : st === 'grace' ? chip('مهلة · ' + blLeft(blEnd()), 'wa', 'schedule') : b.tmp ? chip('تفعيل مؤقت', 'wa', 'schedule') : paid && !blAuto() && b.noAuto ? chip('لن تتجدد', 'ol') : chip('فعّالة', 'ok', 'check_circle');
+  const chipS = st === 'trial' ? chip('تجربة · ' + blLeft(blEnd()), 'go', 'redeem') : st === 'grace' ? chip('مهلة · ' + blLeft(blEnd()), 'wa', 'schedule') : b.tmp ? chip('تفعيل مؤقت', 'wa', 'schedule') : paid && !blAuto() && b.noAuto ? chip('لن تتجدد', '') : chip('فعّالة', 'ok', 'check_circle');
   const line = st === 'trial' ? `تجربة مجانية تنتهي ${e} · لا نخصم شيئاً بعدها`
     : st === 'grace' ? `انتهى الاشتراك · ميزاتك باقية حتى ${e}`
       : !paid ? 'بلا تكلفة وبلا مدة'
