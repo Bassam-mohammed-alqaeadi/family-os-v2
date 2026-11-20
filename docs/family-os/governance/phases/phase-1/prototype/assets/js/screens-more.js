@@ -204,8 +204,9 @@ Object.assign(ACT, {
 });
 surface('login-code', {
   t: 'رمز الدخول لجهاز جديد', sys: 'S1-02', p: 'adult', req: '02:5',
-  note: 'بديل شاشة «تفعيل TOTP»، اعتمده المالك (Q-400): التطبيق نفسه يولّد الرمز على الهاتف الموثوق، فلا تطبيق خارجي ولا QR ولا مفتاح يُنسخ. التفعيل ما زال إلزامياً بلا تخطٍّ (Q-246) لكنه يحدث تلقائياً عند أول تحقق.',
-  r() { return `<p class="sub" style="text-align:start">إن دخلت من هاتف آخر وطلبنا منك رمزاً، فاكتب هذا الرمز هناك.</p><div class="code">314 159</div><div class="chips" style="justify-content:center;margin-bottom:16px">${chip('يتغير بعد 18 ثانية', 'in', 'timer')}</div>${callout('لا ترسل هذا الرمز لأحد ولا تقله في الهاتف. «عائلتي» لا تتصل بك لتطلبه.', 'wa', 'warning')}${callout('يعمل بلا إنترنت. الرمز يخرج من هذا الهاتف نفسه.', 'nt', 'cloud_off')}`; },
+  note: 'بديل شاشة «تفعيل TOTP»، اعتمده المالك (Q-400): التطبيق نفسه يولّد الرمز على الهاتف الموثوق، فلا تطبيق خارجي ولا QR ولا مفتاح يُنسخ. التفعيل ما زال إلزامياً بلا تخطٍّ (Q-246) لكنه يحدث تلقائياً عند أول تحقق. وإن فشل التسجيل الصامت أُعيد وحده عند كل فتح باتصال، وهذه الصفحة تقول «رمزك يُجهَّز» حتى ينجح (Q-460) — جرّبها من لوحة العرض.',
+  r() { if (S.totpPend) return `${empty('hourglass_top', 'رمزك يُجهَّز', 'لم يكتمل تسجيل هذا الهاتف هاتفاً موثوقاً بعد. يكتمل وحده عند فتح التطبيق وهو متصل.')}${callout(offline() ? 'أنت غير متصل الآن. اتصل ثم افتح هذه الصفحة.' : 'نحاول الآن. عُد بعد لحظات.', 'nt', offline() ? 'cloud_off' : 'sync')}`;
+    return `<p class="sub" style="text-align:start">إن دخلت من هاتف آخر وطلبنا منك رمزاً، فاكتب هذا الرمز هناك.</p><div class="code">314 159</div><div class="chips" style="justify-content:center;margin-bottom:16px">${chip('يتغير بعد 18 ثانية', 'in', 'timer')}</div>${callout('لا ترسل هذا الرمز لأحد ولا تقله في الهاتف. «عائلتي» لا تتصل بك لتطلبه.', 'wa', 'warning')}${callout('يعمل بلا إنترنت. الرمز يخرج من هذا الهاتف نفسه.', 'nt', 'cloud_off')}`; },
 });
 surface('bio-unlock', {
   kind: 'full', t: 'الفتح بالبصمة', sys: 'S1-02', p: 'adult', req: '02:16 01:5',
@@ -465,7 +466,7 @@ surface('sys-update', {
 });
 surface('sys-maint', {
   kind: 'full', cls: 'dark', t: 'صيانة', sys: 'S1-01', p: 'any', req: '01:7,9',
-  note: 'مقترح: حالة «صيانة» مذكورة في نظام التصميم (states) كحالة نظام. القواعد تبقى مفروضة محلياً والاستغاثة عبر SMS تعمل.',
+  note: 'معتمد (Q-397 · Q-460): تظهر حين يجيب الخادم بأنه في صيانة (الرمز 503 ومعه موعد إعادة المحاولة). القواعد تبقى مفروضة محلياً والاستغاثة عبر SMS تعمل.',
   r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('construction')}</div><p class="ttl">نُجري صيانة قصيرة</p><p class="sub">نعود خلال دقائق. قواعد الأطفال ما زالت تعمل على أجهزتهم، وما تفعله الآن يُحفظ ويُرسل لاحقاً.</p>${btn('حاول مجدداً', 'maintTry', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'refresh')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
 });
 surface('sys-first', {

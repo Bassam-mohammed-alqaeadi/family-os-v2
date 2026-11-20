@@ -132,6 +132,9 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  // جمع النموذجين (Q-457): مفتاح التحليلات مقترح بلا حكم — مطفأ افتراضاً والشاشة موسومة
  S=fresh();go('privacy');render();ok('privacy: no kids-analytics switch until Q-046 is ruled (Q-458)',S.kidAnalytics===undefined&&!/تحليلات استخدام الأطفال/.test(txt())&&!document.querySelector('#scr [data-a="flip:kidAnalytics"]'));ok('privacy: marked as awaiting a ruling, not closed',SC.privacy.st==='un'&&/Q-046/.test(SC.privacy.note)&&!/مغلق/.test(SC.privacy.note));
  ok('privacy: says no usage data comes from the child screens',/لا نجمع أي بيانات تحليلية من حسابات الأطفال/.test(txt()));
+ // Q-460
+ S=fresh();go('age-up','khaled');render();ok('turning 18: approved screen carries no «unruled» banner',!/غير محسوم/.test(txt())&&/يصير خالد بالغاً/.test(txt()));
+ S=fresh();go('login-code');render();ok('login code: shown on a trusted phone',/314 159/.test(txt()));S.totpPend=true;render();ok('login code: pending enrolment says so and shows no code',/رمزك يُجهَّز/.test(txt())&&!/314 159/.test(txt())&&/نحاول الآن/.test(txt()));S.net='off';render();ok('login code: pending and offline asks for a connection',/أنت غير متصل الآن/.test(txt()));
  // 14 كل أسطح S1-02: إنجليزي + لا تجاوز أفقي + لا كلام مهندسين
  const over=[],eng=[];for(const id of Object.keys(SC).filter(k=>SC[k].sys==='S1-02')){for(const lang of ['ar','en']){try{S=fresh();jump(id);S.lang=lang;render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id+':'+lang);
    if(lang==='ar'&&/TOTP|HMAC|JSON|IANA|mTLS|MQTT|مفتاح التوقيع|مفتاح توقيع|العتاد|E\.164|Firebase/.test(txt()))eng.push(id);}catch(e){F.push('ERR '+id+' '+lang+' '+e.message)}}}
