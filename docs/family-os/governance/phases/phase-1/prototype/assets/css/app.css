@@ -32,11 +32,11 @@
   --danger:#B42318;--danger-soft:#FFF2EF;--info:#2457A6;--info-soft:#F0F6FF;
   --accent:#CF5B2C;--accent-text:#7F300E;--accent-soft:#FDEDE5;--gold:#C8A24A;--gold-soft:#F8F0DA;
   --hero:#1F3A6B;--hero2:#142749;--on-hero:#FFFFFF;--on-hero-2:#D5DDEC;
-  --danger-fill:#B42318;--success-fill:#1F6B3B;--on-fill:#FFFFFF;--card-edge:var(--border);   /* تعبئة الزر الخطِر والناجح (غير لون نصهما) وحدّ البطاقة — Q-436 */
+  --danger-fill:#B42318;--success-fill:#1F6B3B;--on-fill:#FFFFFF;--card-edge:color-mix(in srgb,var(--border) 62%,transparent);   /* تعبئة الزر الخطِر والناجح (غير لون نصهما) وحدّ البطاقة — Q-436 */
   --badge:#7F300E;--on-badge:#FFFFFF;   /* شارة العدد: orange.700 مع أبيض (color-tokens §4: الأبيض على orange.500 لا يصلح للنص العادي) — Q-430 */
   --shadow:0 1px 2px rgba(10,21,42,.06),0 6px 18px rgba(10,21,42,.06);
   --e1:0 1px 3px rgba(10,21,42,.18);--e2:0 2px 8px rgba(10,21,42,.22);--e3:0 10px 30px rgba(10,21,42,.34);   /* ثلاث درجات ارتفاع لا غير (spacing-and-grid §5) — Q-436 */
-  --lift:0 1px 2px rgba(10,21,42,.04),0 2px 8px rgba(10,21,42,.035);   /* رفع خفيف للبطاقة عن الخلفية الكريمية */
+  --lift:0 1px 2px rgba(10,21,42,.04),0 6px 18px -4px rgba(10,21,42,.065),0 0 0 1px rgba(10,21,42,.02);   /* رفع خفيف للبطاقة عن الخلفية الكريمية */
   --ts:1;                       /* مضاعف حجم النص (إمكانية الوصول) */
   --tk:1;                       /* مضاعف وضع الطفل ×1.15 / المبسط ×1.35 */
   --touch:48px;
@@ -54,7 +54,7 @@
   --danger-fill:#D4301F;--success-fill:#24804A;--on-fill:#FFFFFF;--card-edge:#34496F;   /* Q-436: في الداكن يبقى زر الاستغاثة أحمر والاعتماد أخضر بنص أبيض (تباين 4.9)، ودرجة 300 للنص والأيقونة فقط */
   --badge:#E9865C;--on-badge:#081122;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);
-  --lift:none;
+  --lift:inset 0 1px 0 rgba(255,255,255,.05),0 8px 20px -4px rgba(0,0,0,.38);
 }
 .phone[data-mode="child"]{--tk:1.15;--touch:56px}
 /* تقليل الحركة: كل حركة تصير فورية، وما يتكرر يتوقف (مرة واحدة بلا تأخير) بدل أن يدور بسرعة قصوى (Q-451). */
@@ -1175,3 +1175,272 @@ button.fx,button.strip{min-height:var(--touch)}
 .row .tx .lgo em{display:block;margin-top:8px;font-style:normal;font-size:calc(12px*var(--ts));color:var(--muted)}
 .row .tx span.krt{font-weight:600;color:var(--text)}
 button.card:active{background:var(--subtle)}
+
+/* ============================================================
+   ترقية شاملة لشاشات التطبيق داخل الهاتف (Modern 2026 Flagship UI/UX)
+   تحافظ 100% على الإعدادات، المنطق، الألوان المجمّدة، سلّم الخط، وأهداف اللمس
+   ============================================================ */
+
+/* 1. الأساس العام والطباعة الرقمية */
+.phone{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;box-shadow:inset 0 0 0 1px rgba(10,21,42,.08)}
+.phone[data-theme="dark"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.phone .sbar,.phone .stat b,.phone .tnn b,.phone .tnst b,.phone .agt b,.phone .blcd b,.phone .blsum .am,.phone .plan .pr,.phone .wallet .big,.phone .rwbig,.phone .cnt{font-variant-numeric:tabular-nums}
+
+/* 2. الشريط العلوي، شريط الحالة، ومقبض الإيماءات */
+.phone .sbar{padding:8px 24px 0}
+.phone .gest{background:var(--surface);border-top:0}
+.phone .gest::after{width:124px;height:4.5px;opacity:.32}
+.phone[data-theme="dark"] .gest::after{opacity:.42}
+
+.phone .bar{padding:4px 8px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid color-mix(in srgb,var(--border) 42%,transparent)}
+.phone .ib{transition:background var(--fast) var(--ease),transform var(--fast) var(--ease)}
+.phone .ib:hover{background:var(--sunken)}
+.phone .ib:active{transform:scale(.92);background:var(--sunken)}
+.phone .ib .dot{box-shadow:0 2px 6px rgba(10,21,42,.24)}
+
+/* زر الاستغاثة */
+.phone .sos{box-shadow:0 3px 10px rgba(180,35,24,.28),inset 0 1px 0 rgba(255,255,255,.22);transition:transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease)}
+.phone .sos:active{transform:scale(.95)}
+.phone .sos.holding{box-shadow:0 0 0 4px rgba(180,35,24,.25),0 6px 16px rgba(180,35,24,.4)}
+
+/* 3. التنقل السفلي */
+.phone .nav{padding:6px 8px 2px;box-shadow:0 -4px 20px rgba(10,21,42,.05);border-top:1px solid color-mix(in srgb,var(--border) 55%,transparent)}
+.phone[data-theme="dark"] .nav{box-shadow:0 -8px 24px rgba(0,0,0,.42)}
+.phone .nav button{transition:color var(--fast) var(--ease)}
+.phone .nav button .pl{transition:background var(--mid) var(--ease),transform var(--fast) var(--ease),box-shadow var(--fast)}
+.phone .nav button:active .pl{transform:scale(.92)}
+.phone .nav button[aria-current="page"] .pl{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--primary) 16%,transparent)}
+.phone .nav button[aria-current="page"] svg.ic{transform:scale(1.06)}
+
+/* 4. عناوين الأقسام الحديثة (حبة إجراء بدل الرابط النصي البسيط) */
+.phone h3.sec{font-weight:700;color:var(--text2);margin:22px 4px 10px}
+.phone h3.sec button{background:var(--primary-soft);padding:0 12px;border-radius:var(--r-full);min-height:32px;transition:background var(--fast),transform var(--fast)}
+.phone h3.sec button:active{transform:scale(.95)}
+.phone[data-theme="dark"] h3.sec button{background:color-mix(in srgb,var(--primary) 22%,transparent)}
+
+/* 5. الترويسات الرئيسية (الأب، المراهق، الطفل، المحفظة) */
+.phone .hero{background:radial-gradient(120% 90% at 15% 0%,rgba(200,162,74,.16) 0%,transparent 52%),linear-gradient(170deg,var(--hero) 0%,var(--hero2) 100%);box-shadow:0 10px 28px -6px rgba(10,21,42,.24)}
+.phone[data-theme="dark"] .hero{background:radial-gradient(120% 90% at 15% 0%,rgba(112,137,181,.18) 0%,transparent 52%),linear-gradient(170deg,var(--hero) 0%,var(--hero2) 100%);box-shadow:0 12px 30px rgba(0,0,0,.48)}
+.phone .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 72%,rgba(0,0,0,.14) 100%);pointer-events:none}
+.phone .hero::after{opacity:.06;filter:blur(1px)}
+.phone .orb{transition:background var(--fast) var(--ease),transform var(--fast) var(--ease)}
+.phone .orb:hover{background:rgba(255,255,255,.08)}
+.phone .orb:active{transform:scale(.95);background:rgba(255,255,255,.14)}
+.phone .orb .av{box-shadow:0 3px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.22)}
+.phone .orb .bd{box-shadow:0 2px 6px rgba(0,0,0,.28)}
+.phone .strip{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background var(--fast),transform var(--fast)}
+.phone .strip:active{transform:scale(.985);background:rgba(255,255,255,.17)}
+
+.phone .hero.tn .tns{border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px)}
+.phone .hero.tn .tnst{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px)}
+.phone .hero.tn .tnp{box-shadow:inset 0 1px 2px rgba(0,0,0,.22)}
+
+.phone .khero{background:radial-gradient(110% 100% at 85% 10%,rgba(243,220,155,.24) 0%,transparent 55%),linear-gradient(155deg,#1F3A6B 0%,#2457A6 100%);box-shadow:0 10px 26px -4px rgba(31,58,107,.32),inset 0 1px 0 rgba(255,255,255,.2)}
+.phone .wallet{background:radial-gradient(110% 90% at 15% 0%,rgba(200,162,74,.24) 0%,transparent 52%),linear-gradient(145deg,#142749 0%,#1F3A6B 52%,#1F6B3B 100%);box-shadow:0 12px 28px -6px rgba(20,39,73,.36),inset 0 1px 0 rgba(255,255,255,.2)}
+.phone .wallet.fz{background:linear-gradient(150deg,#5b6472,#7a8494);box-shadow:var(--lift)}
+.phone .coin{box-shadow:0 2px 6px rgba(156,122,44,.32),inset 0 1px 1px rgba(255,255,255,.55)}
+
+/* 6. البطاقات، القوائم، والبلاطات التفاعلية — وداعاً للصناديق الكلاسيكية */
+.phone .card,.phone .list,.phone .att,.phone .plan,.phone .cfc,.phone .agl,.phone .blc,.phone .blwh,.phone .blkv{border-color:var(--card-edge);box-shadow:var(--lift);transition:transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease),border-color var(--fast) var(--ease)}
+.phone .card.flat{background:color-mix(in srgb,var(--sunken) 65%,var(--surface));border-color:transparent;box-shadow:none}
+.phone .row{padding:11px 14px}
+.phone .row + .row::before{background:color-mix(in srgb,var(--border) 55%,transparent)}
+.phone button.card:active,.phone button.row:active,.phone a.row:active,.phone .qa button:active,.phone .tna button:active,.phone .tnla button:active,.phone .rwch button:active,.phone .tkch button:active,.phone .opt:active{transform:scale(.986)}
+.phone button.row,.phone a.row{transition:background var(--fast) var(--ease),transform var(--fast) var(--ease)}
+.phone button.row:hover,.phone a.row:hover{background:color-mix(in srgb,var(--subtle) 70%,transparent)}
+.phone .row .lead,.phone .qi,.phone .blm .lead{width:38px;height:38px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 12%,transparent);transition:transform var(--fast) var(--ease),background var(--fast) var(--ease)}
+
+.phone .qa button,.phone .tna button,.phone .rwch button,.phone .tnla button{border-color:var(--card-edge);box-shadow:var(--lift);transition:transform var(--fast) var(--ease),border-color var(--fast) var(--ease),background var(--fast) var(--ease),box-shadow var(--fast) var(--ease)}
+.phone .qa button:hover,.phone .tna button:hover,.phone .rwch button:hover{border-color:color-mix(in srgb,var(--primary) 30%,var(--border))}
+.phone .qa button[aria-pressed="true"]{box-shadow:inset 0 0 0 1.5px var(--primary),0 4px 12px color-mix(in srgb,var(--primary) 16%,transparent)}
+
+.phone .stat{text-align:start;padding:16px 14px}
+
+.phone .opt,.phone .tkch button{border-color:var(--card-edge);box-shadow:0 1px 4px rgba(10,21,42,.04);transition:border-color var(--fast),background var(--fast),box-shadow var(--fast),transform var(--fast)}
+.phone .opt[aria-pressed="true"],.phone .tkch button[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 14%,transparent)}
+
+/* 7. بطاقة المساعد الذكي والخطط والباقات */
+.phone .ai{box-shadow:0 6px 20px -4px rgba(200,162,74,.18),inset 0 1px 0 rgba(255,255,255,.5)}
+.phone[data-theme="dark"] .ai{box-shadow:0 8px 22px rgba(0,0,0,.38),inset 0 1px 0 rgba(200,162,74,.14)}
+.phone .plan.best,.phone .blc.pd,.phone .bltop{box-shadow:0 8px 24px -6px rgba(200,162,74,.22),var(--lift)}
+.phone .plan.cur{box-shadow:0 4px 16px -2px rgba(31,107,59,.15),var(--lift)}
+.phone .blft > div{border-color:var(--card-edge)}
+.phone .blft > div.to{box-shadow:0 4px 14px color-mix(in srgb,var(--primary) 14%,transparent)}
+.phone .osb .oi{border:1px solid var(--card-edge)}
+
+/* 8. الأزرار والمفاتيح وحقول الإدخال والبحث */
+.phone .btn{transition:transform var(--fast) var(--ease),filter var(--fast) var(--ease),box-shadow var(--fast) var(--ease),background var(--fast) var(--ease)}
+.phone .btn:not(.sec):not(.ton):not(.txt):not(.dng):not(.ok){box-shadow:0 3px 10px color-mix(in srgb,var(--primary) 26%,transparent),inset 0 1px 0 rgba(255,255,255,.16)}
+.phone .btn.ok:not(.sec){box-shadow:0 3px 10px color-mix(in srgb,var(--success) 26%,transparent),inset 0 1px 0 rgba(255,255,255,.16)}
+.phone .btn.dng:not(.sec){box-shadow:0 3px 10px color-mix(in srgb,var(--danger) 26%,transparent),inset 0 1px 0 rgba(255,255,255,.16)}
+.phone .btn.sec{box-shadow:inset 0 0 0 1.25px color-mix(in srgb,var(--border-strong) 75%,transparent)}
+.phone .btn:not([disabled]):hover{filter:brightness(1.04)}
+.phone .btn:active{transform:scale(.975);filter:brightness(.95)}
+.phone .btn.sec:hover{background:var(--subtle)}
+
+.phone .tg::after{transition:transform var(--mid) cubic-bezier(.34,1.56,.64,1),background var(--fast) var(--ease)}
+.phone .seg{border-radius:var(--r-lg);padding:4px;box-shadow:inset 0 1px 2px rgba(10,21,42,.06)}
+.phone .seg button{border-radius:var(--r-md);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),box-shadow var(--fast) var(--ease)}
+.phone .seg button[aria-pressed="true"]{box-shadow:0 2px 8px rgba(10,21,42,.09)}
+
+/* حقول الإدخال والبحث الحديثة */
+.phone .fld input,.phone .fld select,.phone .fld textarea,.phone .inp{background:var(--subtle);border:1.5px solid color-mix(in srgb,var(--border-strong) 45%,transparent);transition:border-color var(--fast) var(--ease),box-shadow var(--fast) var(--ease),background var(--fast) var(--ease)}
+.phone[data-theme="dark"] .fld input,.phone[data-theme="dark"] .fld select,.phone[data-theme="dark"] .fld textarea,.phone[data-theme="dark"] .inp{background:var(--surface)}
+.phone .fld input:focus,.phone .fld textarea:focus,.phone .fld select:focus{background:var(--surface);border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)}
+.phone .srch{background:var(--surface);border:1px solid var(--card-edge);box-shadow:var(--lift);transition:border-color var(--fast) var(--ease),box-shadow var(--fast) var(--ease)}
+.phone .srch:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)}
+
+/* شرائح التصفية */
+.phone .fch button,.phone .tkf button,.phone .chs button{box-shadow:0 1px 3px rgba(10,21,42,.04),inset 0 0 0 1px var(--card-edge);transition:background var(--fast) var(--ease),color var(--fast) var(--ease),box-shadow var(--fast) var(--ease),transform var(--fast) var(--ease)}
+.phone .fch button:active,.phone .tkf button:active,.phone .chs button:active{transform:scale(.96)}
+.phone .fch button[aria-pressed="true"],.phone .tkf button[aria-pressed="true"],.phone .chs button[aria-pressed="true"]{box-shadow:0 3px 10px color-mix(in srgb,var(--primary) 26%,transparent)}
+.phone .chip.ol{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--border-strong) 55%,transparent)}
+
+/* 9. الشاشات الكاملة (التهيئة، البصمة، الرمز السري، الحجب، الاستغاثة) */
+.phone .full.dark{background:radial-gradient(circle at 50% 25%,rgba(36,87,166,.35) 0%,transparent 55%),linear-gradient(175deg,#142749,#081122)}
+.phone .full.red{background:radial-gradient(circle at 50% 25%,rgba(238,122,106,.22) 0%,transparent 55%),linear-gradient(175deg,#B42318,#6d130c)}
+.phone .bigic{box-shadow:0 0 0 8px color-mix(in srgb,var(--primary-soft) 55%,transparent),0 8px 24px color-mix(in srgb,var(--primary) 14%,transparent)}
+.phone .full.dark .bigic,.phone .full.red .bigic{box-shadow:0 0 0 8px rgba(255,255,255,.07),0 10px 28px rgba(0,0,0,.28)}
+.phone .empty .em{box-shadow:0 0 0 10px color-mix(in srgb,var(--primary-soft) 50%,transparent)}
+.phone .pad button{background:var(--surface);border-color:var(--card-edge);box-shadow:0 2px 8px rgba(10,21,42,.06),inset 0 1px 0 rgba(255,255,255,.6);transition:transform var(--fast),background var(--fast),box-shadow var(--fast)}
+.phone[data-theme="dark"] .pad button{box-shadow:0 3px 10px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}
+.phone .pad button:active{transform:scale(.94)}
+.phone .otp i{background:var(--subtle);border-color:color-mix(in srgb,var(--border-strong) 55%,transparent);transition:border-color var(--fast),box-shadow var(--fast),background var(--fast)}
+.phone .otp i.cur{background:var(--surface);border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)}
+.phone .code{border-color:var(--card-edge);box-shadow:inset 0 2px 6px rgba(10,21,42,.05)}
+
+/* 10. الحماية، الجداول، التقويم، المهام، المحادثة، والخريطة */
+.phone .sched{border-radius:var(--r-full);padding:3px;background:var(--sunken);box-shadow:inset 0 1px 2px rgba(10,21,42,.08)}
+.phone .sched i{border-radius:var(--r-full);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.phone .wk .sched{padding:2px;border-radius:var(--r-sm)}
+.phone .wk .sched i{border-radius:var(--r-xs)}
+.phone .eq{border:1px solid var(--card-edge);border-radius:var(--r-lg)}
+.phone .mx thead th{background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px)}
+.phone .mx tbody tr:hover{background:color-mix(in srgb,var(--subtle) 65%,transparent)}
+.phone .days button{border-color:var(--card-edge);box-shadow:0 1px 3px rgba(10,21,42,.04);transition:background var(--fast),transform var(--fast)}
+.phone .days button[aria-pressed="true"]{box-shadow:0 3px 10px color-mix(in srgb,var(--primary) 26%,transparent)}
+.phone .cal button{transition:background var(--fast),transform var(--fast)}
+.phone .cal button:active{transform:scale(.92)}
+.phone .cal button.td{box-shadow:0 3px 10px color-mix(in srgb,var(--primary) 30%,transparent)}
+.phone .tl::before{background:color-mix(in srgb,var(--border-strong) 45%,transparent)}
+.phone .tl .ev::before{box-shadow:0 0 0 3px var(--bg)}
+.phone .agn{background:linear-gradient(90deg,var(--primary-soft),color-mix(in srgb,var(--primary-soft) 50%,var(--surface)))}
+
+.phone .map{box-shadow:var(--lift)}
+.phone .mpanel{box-shadow:0 -12px 32px rgba(10,21,42,.14);border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
+.phone[data-theme="dark"] .mpanel{box-shadow:0 -12px 34px rgba(0,0,0,.5)}
+.phone .map .mctl button{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--card-edge);transition:transform var(--fast),background var(--fast)}
+.phone .map .mctl button:active{transform:scale(.92)}
+
+.phone .msg{border-color:var(--card-edge);box-shadow:0 2px 6px rgba(10,21,42,.05);border-end-start-radius:var(--r-xs)}
+.phone .msg.me{border-end-start-radius:var(--r-lg);border-end-end-radius:var(--r-xs);box-shadow:0 3px 10px color-mix(in srgb,var(--primary) 24%,transparent)}
+.phone .composer{box-shadow:0 -4px 16px rgba(10,21,42,.04);border-top-color:var(--card-edge)}
+.phone .composer input{border-color:var(--card-edge);transition:border-color var(--fast),background var(--fast),box-shadow var(--fast)}
+.phone .composer input:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-soft)}
+
+.phone .stop .nd{box-shadow:0 6px 0 color-mix(in srgb,var(--kc,#1F6B3B) 62%,#000),inset 0 2px 0 rgba(255,255,255,.3)}
+.phone .rwbdg > div{border-color:var(--card-edge);box-shadow:var(--lift)}
+.phone .rwbdg .got i{box-shadow:0 4px 12px color-mix(in srgb,var(--bc,var(--primary)) 36%,transparent),inset 0 1px 0 rgba(255,255,255,.28)}
+.phone .callout{border:1px solid color-mix(in srgb,currentColor 8%,transparent)}
+.phone .callout.nt{border-color:var(--card-edge)}
+
+/* 11. الأوراق السفلية، الحوارات، الإشعارات، وشاشة الإقلاع */
+.phone .scrim{backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.phone .sheet{box-shadow:0 -14px 44px rgba(10,21,42,.26);border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
+.phone .dlg{box-shadow:var(--e3);border:1px solid var(--card-edge)}
+.phone .notif{background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:var(--card-edge)}
+.phone .toast{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.phone .boot{background:radial-gradient(circle at 50% 35%,rgba(200,162,74,.18) 0%,transparent 52%),linear-gradient(170deg,#1F3A6B 0%,#081122 100%)}
+
+/* تكافؤ الأجهزة اللوحية والقابلة للطي (Q-392) */
+.phone[data-device="tablet"]{width:min(820px,96vw);height:min(1024px,92vh);border-radius:var(--r-xl)}
+.phone[data-device="tablet"] .g2{grid-template-columns:repeat(3,1fr)}
+.phone[data-device="tablet"] .qa{grid-template-columns:repeat(6,1fr)}
+.phone[data-device="tablet"] .scr{padding-inline:28px}
+
+.phone[data-device="tablet"] .thread{padding-inline:48px}
+.phone[data-device="tablet"] .list,.phone[data-device="tablet"] .card,.phone[data-device="tablet"] .att{max-width:760px;margin-inline:auto}
+
+/* ============================================================
+   إصلاحات الفحص البصري الشامل (LTR · الداكن · النص 1.3× · اللوحي · الطفل 56px)
+   ============================================================ */
+
+/* 1. إصلاحات اتجاه LTR (الإنجليزية) */
+[dir="ltr"] .pane.r{transform:translateX(-105%)}
+[dir="ltr"] .pane.l{transform:translateX(105%)}
+[dir="ltr"] .map .pin,[dir="ltr"] .map .medot label{direction:ltr}
+[dir="ltr"] .map .mctl{left:auto;right:8px}
+[dir="ltr"] .map .attr{left:auto;right:6px}
+.sos{padding-block:0;padding-inline:12px 10px}
+.phone[data-mode="child"] .sos{padding-block:0;padding-inline:16px 12px}
+[dir="rtl"] .sos i{transform-origin:right}
+#sosL.float{padding-block:8px;padding-inline:12px 16px}
+.tns{padding-block:0;padding-inline:12px 10px}
+.ag{padding-block:6px;padding-inline:12px 8px}
+.agn{padding-block:0;padding-inline:12px 8px}
+.att .hd .atx{margin-block:-12px -14px;margin-inline:-4px -14px}
+[dir="ltr"] .tkau i{background:linear-gradient(to right,var(--primary) 35%,var(--border-strong) 35%)}
+
+/* 2. إصلاحات التباين والحدود في الوضع الداكن */
+.phone[data-theme="dark"] .row .lead.wa,.phone[data-theme="dark"] .qi.wa{color:var(--warning)}
+.phone[data-theme="dark"] .bigic,
+.phone[data-theme="dark"] .dq button,
+.phone[data-theme="dark"] .opt > svg.ic,
+.phone[data-theme="dark"] .tkpk button[aria-pressed="true"],
+.phone[data-theme="dark"] .card.tnsh > svg.ic,
+.phone[data-theme="dark"] .blm .lead{color:var(--primary-strong)}
+.card.bltr .lead,.bltop .bg{background:var(--gold);color:#081122}
+.phone .wallet.fz{background:linear-gradient(150deg,#3E4652,#525B69)}
+.phone[data-theme="dark"] .lockn{border:1px solid var(--card-edge)}
+.phone[data-theme="dark"] .card.flat{border-color:color-mix(in srgb,var(--border) 50%,transparent)}
+.phone[data-theme="dark"] .map .pin .av,
+.phone[data-theme="dark"] .map .hp,
+.phone[data-theme="dark"] .map .pin .cn,
+.phone[data-theme="dark"] .map .pin .mvb,
+.phone[data-theme="dark"] .map .pin.sk,
+.phone[data-theme="dark"] .map .medot{border-color:var(--surface)}
+.phone[data-theme="dark"] .map .pin::after{background:var(--surface)}
+
+/* 3. إصلاحات النص الكبير 1.3× ومنع القصّ والتداخل */
+.chip{white-space:normal;text-align:start}
+.qa button{min-width:0;overflow-wrap:anywhere}
+.cal button{aspect-ratio:auto;min-height:var(--touch);padding-block:4px 8px}
+.tns{height:auto;min-height:32px;padding-block:4px;white-space:normal;text-align:center}
+.agt{width:auto;min-width:50px}
+.agt b.s{white-space:normal;text-align:center}
+.agn{height:auto;min-height:30px;padding-block:4px;flex-wrap:wrap}
+.agn b,.agn small{white-space:normal}
+.tkau{height:auto;min-height:56px;padding-block:8px}
+.tnla .go{height:auto;min-height:36px;padding-block:6px}
+.blbal .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* 4. استجابة الوضع اللوحي (Tablet) */
+.dev:has(.phone[data-device="tablet"]){width:auto;height:auto;border-radius:calc(var(--r-xl) + 12px)}
+.dev:has(.phone[data-device="tablet"])::before,.dev:has(.phone[data-device="tablet"])::after{display:none}
+.phone[data-device="tablet"] .qa:not(.tnq){grid-template-columns:repeat(6,1fr)}
+.phone[data-device="tablet"] .fch,.phone[data-device="tablet"] .tkf{margin-inline:-28px;padding-inline:28px}
+.phone[data-device="tablet"] .sheet,.phone[data-device="tablet"] .dlg{max-width:520px;margin-inline:auto}
+
+/* 5. امتثال أهداف اللمس 56px وفواصل 12px في قالب الطفل */
+.sys button,.msg .rt,.days button{position:relative}
+.sys button::before,.msg .rt::before,.days button::before{content:"";position:absolute;top:50%;left:50%;width:max(100%,var(--touch));height:max(100%,var(--touch));transform:translate(-50%,-50%)}
+.phone[data-mode="child"] .atx,.phone[data-mode="child"] .agc{width:var(--touch);height:var(--touch)}
+.phone[data-mode="child"] .emo button{min-width:var(--touch)}
+.toast button{min-height:var(--touch);min-width:var(--touch)}
+.btn.t48,.blm small .btn.txt.t48,.blseg .seg button,.vabar .btn{min-height:var(--touch)}
+.phone[data-mode="child"] .bar,
+.phone[data-mode="child"] .hero .top,
+.phone[data-mode="child"] .pulse,
+.phone[data-mode="child"] .att .ft,
+.phone[data-mode="child"] .btns3,
+.phone[data-mode="child"] .composer,
+.phone[data-mode="child"] .emo,
+.phone[data-mode="child"] .days,
+.phone[data-mode="child"] .rwch,
+.phone[data-mode="child"] .tkch,
+.phone[data-mode="child"] .tkpk,
+.phone[data-mode="child"] .tnla,
+.phone[data-mode="child"] .cff,
+.phone[data-mode="child"] .btns{gap:12px}
+.phone[data-mode="child"] .nav{gap:12px;padding-inline:12px}
+.phone[data-mode="child"] .fch,.phone[data-mode="child"] .tkf{gap:12px;padding-block:10px}

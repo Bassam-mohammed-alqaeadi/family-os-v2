@@ -115,7 +115,7 @@ surface('tasks', {
   note: 'S06-01 وS06-06 في شاشة واحدة بتبويبين. المهام مرتبة بما يحتاج قراراً أولاً، ثم ما هو قيد التنفيذ، ثم المنجز، ثم ما فات أو أُلغي. اقتراحات المساعد بطاقة هادئة أعلى القائمة ولا تدخل «يتطلب انتباهك». البالغ المفوَّض يرى أبناء نطاقه فقط، ولا يظهر له زر لا يملك صلاحيته. القائمة تُقرأ دون اتصال.',
   act: () => (KIDS.some(id => can('tasks.create', id)) ? `<button class="ib" data-a="go:task-new" aria-label="مهمة جديدة">${ic('add')}</button>` : ''),
   r(kid) {
-    const v = S.tv || 'tasks', V = KIDS.filter(id => can('tasks.view', id)); if (!S.tf && kid && V.includes(kid)) S.tf = kid;
+    const v = S.tv || 'tasks', V = KIDS.filter(id => can('tasks.view', id)); if (kid && V.includes(kid) && S.tfKid !== kid) { S.tf = kid; S.tfKid = kid; } else if (!S.tf && kid && V.includes(kid)) { S.tf = kid; }
     if (!V.length) return empty('lock_person', 'المهام ليست ضمن صلاحياتك', 'يمنحك المالك صلاحية المهام من «العائلة».');
     const f = V.includes(S.tf) ? S.tf : 'all', T = S.tasks.filter(t => V.includes(t.kid) && (f === 'all' || t.kid === f)), G = (...st) => T.filter(t => st.includes(t.st)), mk = KIDS.some(id => can('tasks.create', id));
     const grp = (h, L, more, a) => (L.length ? sec(h + ' · ' + L.length, more, a) + list(L.map(tkRowT)) : '');
@@ -215,7 +215,7 @@ surface('task', {
 /* ---------- إنشاء مهمة وتعديلها ---------- */
 function tkDraft(arg) {
   const ed = tkT(arg), K = KIDS.filter(id => can('tasks.create', id)), kid = K.includes(arg) ? arg : K.includes('layan') ? 'layan' : K[0];
-  if (S.nt && (S.nt.id || '') === (ed ? ed.id : '') && (ed || !K.includes(arg) || S.nt.kid === arg || S.nt.dirty)) return S.nt;
+  if (S.nt && (S.nt.id || '') === (ed ? ed.id : '') && (ed || !K.includes(arg) || S.nt.kid === arg)) return S.nt;
   return (S.nt = ed ? { id: ed.id, t: ed.t, kid: ed.kid, cat: ed.cat, pts: ed.pts, proof: ed.proof, dk: tkDk(ed), hm: ed.hm || '1800', rr: tkRR(ed), wd: tkWd(ed).slice(), rem: ed.rem || TK().rem, sub: (ed.sub || []).slice() }
     : { t: '', kid, cat: 'home', pts: kid && tkTeen(kid) ? 0 : TK().pts, proof: TK().proof, dk: TK_TODAY, hm: '1800', rr: 'none', wd: [0, 3], rem: TK().rem, sub: [] });
 }
@@ -475,7 +475,7 @@ Object.assign(ACT, {
   tkSend(id) { tkSubmit(id); },
   cSubmit(id) { tkSubmit(id); },
   teenDone(id) { const t = tkT(id); if (t.by !== t.kid) return void (S.sheet = { id: 'c-task', a: [id] }); t.st = 'APPROVED'; S.sheet = null; toast('أُنجزت', () => { t.st = 'PENDING'; render(); }); },
-  tkOwnUndo(id) { const t = tkT(id); if (t.by === t.kid) t.st = 'PENDING'; },
+  tkOwnUndo(id) { const t = tkT(id); if (t.by === t.kid) { t.st = 'PENDING'; toast('أُعيدت إلى قائمة مهامك', null, 'undo'); } },
   tkOwnDel(id) { const t = tkT(id), i = S.tasks.indexOf(t); if (t.by !== t.kid) return; S.tasks.splice(i, 1); S.sheet = null; toast('حُذفت مهمتك', () => { S.tasks.splice(i, 0, t); render(); }); },
   teenTask() { if (!S.teenTasks) { toast('لم يسمح والدك بإنشاء المهام بعد · اطلبها من «ملفي»', null, 'lock'); return; } S.tt = null; S.sheet = { id: 't-task-new', a: [] }; },
   tkTt(k, v) { const a = $('#ttT'); if (a) S.tt.t = a.value; S.tt[k] = k === 'rem' ? +v : v; },

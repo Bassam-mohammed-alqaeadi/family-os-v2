@@ -57,7 +57,7 @@ function roleCopy(keys, sc, un, at) { const g = {}; keys.forEach(k => { g[k] = {
 const seedRoles = () => ({ partner: { n: 'شريك', d: 'يدير شؤون الأطفال اليومية معك: القواعد والمهام والنقاط والمحادثات والموقع.', keys: window.FOS_PERM.partner.slice() }, guardian: { n: 'وصي محدود', d: 'يتابع الأطفال ويعتمد مهامهم ويقرأ محادثاتهم، ولا يغيّر القواعد.', keys: window.FOS_PERM.guardian.slice() }, observer: { n: 'مراقب', d: 'يرى فقط: الموقع والمهام وحالة الحماية. لا يغيّر شيئاً.', keys: window.FOS_PERM.observer.slice() } });
 const fresh = () => ({
   persona: 'owner', theme: 'light', lang: 'ar', ts: 1, net: 'on', lbw: false, stale: false, motion: 'on', plan: 'free', memX: 0, reg: 'YE', os: 'android', sys: 'ok',
-  tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, fm: {}, pm: {}, modes: [{ id: 'm1', n: 'رحلة السيارة', i: 'route', open: 'list', apps: ['ytk', 'mc'], lim: 0 }], rankKid: {}, cfOk: { 'layan|web.tt': { by: 'ahmad', at: 'أمس' } }, warned: {}, pendR: {}, rvT: 0, kidOff: '', aiLevel: 'suggest', aiKill: false, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
+  tpl: 'partner', roles: seedRoles(), g: roleCopy(window.FOS_PERM.partner, 'all', '', 'أمس 8:02 م'), rt: { sc: null, un: null, up: null }, co: null, ownDel: 0, teenUn: '', famDel: 0, removed: {}, preq: [], teenTasks: true, rev13: 0, privacy: false, fm: {}, pm: {}, modes: [{ id: 'm1', n: 'رحلة السيارة', i: 'route', open: 'list', apps: ['ytk', 'mc'], lim: 0 }], rankKid: {}, cfOk: { 'layan|web.tt': { by: 'ahmad', at: 'أمس' } }, warned: {}, pendR: {}, rvT: 0, kidOff: '', aiLevel: 'suggest', aiKill: false, kidAnalytics: false, rvRate: {}, device: 'phone', persistLocal: false, tmExp: {}, auExp: {}, checklist: { family: 1, pin: 1, child: 1, pair: 1, rules: 1, emergency: 0, adult: 1 },
   stack: [{ id: 'home', a: [] }], sheet: null, full: null, dlg: null,
   /* الهوية (S1-02): الدعوات المعلقة، جهة الاسترداد، الأجهزة الداخلة، البصمة مطفأة افتراضاً (Q-219) */
   invs: [{ c: 'MNSR-7K2P', n: 'هدى', d: 'اليوم', left: 7 }], rec: 'sara', sess: [{ n: 'Samsung Galaxy A54', i: 'mobile', cur: 1 }, { n: 'Lenovo Tab M10', i: 'tablet_android', at: 'آخر دخول قبل 3 أيام', pl: 'صنعاء' }], bio: false, bioAct: false, pinAgo: 12, bioChg: 0, exp: {}, unp: {}, delP: 0, recReq: null, pcSt: 'live',
@@ -173,7 +173,123 @@ const gLive = g => !!g && !g.d && (g.un === '' || gDays(g) >= 0);
 function grantsOf() { return Object.keys(S.g).filter(k => gLive(S.g[k])); }
 /* للاستوديو والاختبارات: يعطي سارة دوراً كاملاً على كل الأطفال بلا مدة */
 function setRole(t) { S.tpl = t; S.g = t === 'none' ? {} : roleCopy(S.roles[t].keys, 'all', '', 'الآن'); }
-const L = (ar, en) => (S.lang === 'en' && en ? en : ar);
+const EN_DICT = {
+  'الرئيسية': 'Home', 'العائلة': 'Family', 'التحكم': 'Control', 'المحادثات': 'Chats', 'المزيد': 'More',
+  'يومي': 'My Day', 'تعلّم': 'Learn', 'المهام': 'Tasks', 'أنا': 'Me', 'العب وتعلّم': 'Play & Learn',
+  'مكافآتي': 'Rewards', 'ملفي': 'Profile', 'التنبيهات': 'Alerts', 'الخريطة': 'Map', 'الخطط': 'Plans',
+  'الخصوصية والبيانات': 'Privacy & Data', 'عن التطبيق': 'About', 'حفظ': 'Save', 'رجوع': 'Back',
+  'إلغاء': 'Cancel', 'تأكيد': 'Confirm', 'يتطلب انتباهك': 'Needs Attention', 'الأوضاع': 'Modes',
+  'أين العائلة الآن': 'Family Location', 'وقت الشاشة اليوم': 'Screen Time Today', 'البالغون': 'Adults',
+  'المراهقون والأطفال': 'Teens & Children', 'القواعد': 'Rules', 'المهام والمكافآت': 'Tasks & Rewards',
+  'الملف والجهاز': 'Profile & Device', 'معلومات تشخيصية': 'Diagnostics', 'الشروط والخصوصية': 'Terms & Privacy',
+  'البيانات والمزامنة': 'Data & Sync', 'سجل الصلاحيات': 'Permissions Audit', 'قواعدي': 'My Rules',
+  'تطبيقاتي': 'My Apps', 'وقتي اليوم': 'My Time Today', 'أوقاتي': 'My Schedules', 'الإنترنت': 'Internet',
+  'الكل': 'All', 'منح وقت': 'Grant Time', 'مهمة جديدة': 'New Task', 'منح نقاط': 'Grant Points',
+  'وقت الدراسة': 'Study Time', 'وقت النوم': 'Bedtime', 'وضع حر': 'Free Mode', 'وضع جديد': 'New Mode'
+};
+Object.assign(EN_DICT, {
+  'أحمد': 'Ahmad', 'سارة': 'Sara', 'خالد': 'Khaled', 'ليان': 'Layan',
+  'الأب': 'Father', 'بابا': 'Dad', 'ماما': 'Mom', 'والدك': 'your parent',
+  'الأب · المالك': 'Father · Owner', 'الأم · بالغ مفوَّض': 'Mother · Delegated Adult',
+  'مراهق · 15 سنة': 'Teen · 15 yrs', 'طفلة · 9 سنوات': 'Child · 9 yrs',
+  'المالك': 'Owner', 'مراهق': 'Teen', 'طفل': 'Child', 'النظام': 'System', 'أنت': 'You', 'فرد': 'Member',
+  'شريك': 'Partner', 'وصي محدود': 'Limited Guardian', 'مراقب': 'Observer', 'الصلاحية الكاملة': 'Full Access',
+  'حسناً': 'OK', 'فهمت': 'Got it', 'ليس الآن': 'Not now', 'إغلاق': 'Close', 'تمّ': 'Done', 'تم': 'Done',
+  'حاول مجدداً': 'Try again', 'أعد المحاولة': 'Retry', 'اعرض الخطط': 'View Plans', 'اقرن جهازه': 'Pair Device',
+  'تراجع': 'Undo', 'حذف': 'Delete', 'أقل': 'Less', 'أكثر': 'More', 'اختر': 'Choose', 'عرض': 'View',
+  'حدّث': 'Update', 'فعّلها': 'Enable', 'إنهاء': 'End', 'لماذا؟': 'Why?', 'إرسال استغاثة؟': 'Send SOS?',
+  'نعم، استغاثة': 'Yes, send SOS', 'يبدأ عدّ تنازلي 10 ثوانٍ، ويمكنك الإلغاء خلاله.': 'A 10-second countdown will start; you can cancel during it.',
+  'استمر بالضغط 3 ثوانٍ لإرسال الاستغاثة': 'Hold for 3 seconds to send SOS',
+  'اليوم': 'Today', 'أمس': 'Yesterday', 'يومياً': 'Daily', 'جديد': 'New', 'الحالي': 'Current',
+  'مسموح': 'Allowed', 'غير مسموح': 'Not allowed', 'ممنوع': 'Blocked', 'مفعّل': 'Enabled', 'متوقف': 'Off',
+  'فعّالة': 'Active', 'لن تتجدد': 'Will not renew', 'مسجَّل': 'Registered', 'محال': 'Escalated',
+  'بانتظارك': 'Awaiting you', 'رُفض': 'Denied', 'ثابت': 'Fixed', 'افتراضي': 'Default', 'بلا': 'None', 'لا شيء': 'Nothing',
+  'غير متاح على هذا الجهاز': 'Unavailable on this device', 'بانتظار الموافقة': 'Pending approval',
+  'غير مفوَّض لك': 'Not delegated to you', 'أوقفه الأب': 'Disabled by parent',
+  'يتطلب ترقية': 'Requires upgrade', 'قريباً': 'Coming soon', 'غير متصل': 'Offline',
+  'الخطة والفوترة': 'Plan & Billing', 'الدفع': 'Payment', 'نافذة الدفع': 'Checkout',
+  'تعبئة الرسائل النصية': 'SMS Top-up', 'تجربة المميزة': 'Premium Trial', 'بلغت حد الخطة': 'Plan Limit Reached',
+  'إدارة الاشتراك': 'Manage Subscription', 'سجل المدفوعات': 'Payment History',
+  'محادثة جديدة': 'New Chat', 'مجموعة جديدة': 'New Group', 'معلومات المحادثة': 'Chat Info',
+  'إجراءات الرسالة': 'Message Actions', 'إغلاق محادثة': 'Close Chat', 'محادثات الأبناء': 'Children’s Chats',
+  'محادثات العائلة': 'Family Chats', 'تنبيه المصنّف': 'Classifier Alert', 'رسائل أوقفها المصنّف': 'Held Messages',
+  'المهام والتقويم': 'Tasks & Calendar', 'تقويم العائلة': 'Family Calendar', 'التقويم': 'Calendar',
+  'حدث في التقويم': 'Calendar Event', 'حدث تقويم': 'New Event', 'مهمة': 'Task', 'مراجعة تسليم مهمة': 'Review Submission',
+  'الحماية ووقت الشاشة': 'Protection & Screen Time', 'تنبيهات العبث': 'Tamper Alerts',
+  'حالة الحماية': 'Protection Status', 'سجل تغييرات الحماية': 'Protection Audit', 'مراجعة القواعد': 'Rules Review',
+  'الوقت والتطبيقات': 'Time & Apps', 'الحصة اليومية': 'Daily Quota', 'النوم': 'Sleep',
+  'المكافآت': 'Rewards', 'صرف النقاط': 'Redeem Points', 'طلب وقت إضافي': 'Request Extra Time',
+  'جهات الطوارئ': 'Emergency Contacts', 'جهة طوارئ جديدة': 'New Emergency Contact',
+  'عدّ تنازلي للاستغاثة': 'SOS Countdown', 'حالة الاستغاثة': 'SOS Status', 'استغاثة': 'SOS',
+  'إغلاق الاستغاثة': 'Resolve SOS', 'تنبيهات الاستغاثة': 'SOS Alerts', 'موقعي': 'My Location',
+  'حسابي': 'My Account', 'مغادرة العائلة': 'Leave Family', 'القوالب': 'Templates', 'الخدمات': 'Services',
+  'المساعد الذكي': 'Smart Assistant', 'المساعد وأنا': 'Assistant & Me', 'تصفية سجل المساعد': 'Filter Assistant Log',
+  'ماذا يحدث': 'What’s Happening', 'منطقة الخطر': 'Danger Zone', 'خدمات قادمة': 'Upcoming Services',
+  'سجل التغييرات': 'Change Log', 'صلاحياتي': 'My Permissions', 'على من': 'Who', 'إلى متى': 'Until When', 'النتيجة': 'Result',
+  'توفير البيانات · الصور والخرائط عند الطلب': 'Data Saver · Images & maps on demand',
+  'لا إعلانات ولا أدوات تتبع في التطبيق، وهذا ثابت لا يُغيَّر بإعداد.': 'No ads or tracking SDKs in the app; this is strictly permanent.',
+  'تحليلات تحسين الخدمة': 'Service Analytics', 'تحليلات استخدام الأطفال': 'Child Usage Analytics',
+  'معطّلة افتراضياً · لا تُجمع بيانات استخدام الطفل': 'Disabled by default · No child usage data collected',
+  'مفعّلة بموافقتك · مجهولة الهوية وبلا تتبع': 'Enabled with your consent · Anonymous, zero tracking',
+  'هذه الصفحة للأهل': 'This page is for parents', 'هذه الصفحة للمالك': 'This page is for the owner',
+  'أنتِ من يدير العائلة الآن': 'You are managing the family now', 'للأب فقط': 'Father only',
+  'لا بالغ آخر في العائلة': 'No other adult in the family', 'لا تطبيق بهذا الاسم': 'No app with this name',
+  'ليست ضمن صلاحياتك': 'Not within your permissions', 'أنت على المجانية': 'You are on the Free plan',
+  'لا مهلة الآن': 'No grace period active', 'لا مدفوعات بعد': 'No payments yet',
+  'لا محادثات بعد': 'No chats yet', 'لا محادثة بهذا الاسم': 'No chat with this name',
+  'مسح البحث': 'Clear search', 'رصد صحيح': 'Accurate', 'إنذار خاطئ': 'False alarm',
+  'المرشد الصغير معك': 'Little Mentor is with you', 'أنشطة تعليمية مقترحة': 'Suggested Learning Activities',
+  'تحدّي القراءة (10 دقائق)': 'Reading Challenge (10m)', 'مسابقة الحساب الذهني': 'Mental Math Quiz',
+  'حفظ ومراجعة السور': 'Quran Memorization', 'عتبات تنبيهات صحة الحماية': 'Protection Health Thresholds',
+  'كل شيء على ما يرام · لا شيء يحتاج قرارك': 'Everything looks good · Nothing needs your decision',
+  'أكمل إعداد عائلتك': 'Complete your family setup', 'ما يراه أهلي وما لا يرونه': 'What my parents see & don’t see',
+  'توسيع': 'Expand', 'طيّ': 'Collapse', 'التنقل الرئيسي': 'Main navigation', 'دقة المصنّف:': 'Classifier accuracy:'
+});
+const EN_PATTERNS = [
+  [/^قبل (\d+) د$/, '$1m ago'],
+  [/^قبل (\d+) س$/, '$1h ago'],
+  [/^(\d+) د$/, '$1m'],
+  [/^(\d+) س$/, '$1h'],
+  [/^(\d+) (?:نقطة|نقاط)$/, '$1 pts'],
+  [/^(\d+) (?:سنة|سنوات)$/, '$1 yrs'],
+  [/^بقي (\d+) د$/, '$1m left'],
+  [/^بقي (\d+) دقيقة اليوم$/, '$1 min left today'],
+  [/^وضع حر:\s*(.+?)\s*—\s*ينتهي خلال (\d+) د$/, 'Free Mode: $1 — ends in $2m'],
+  [/^وضع حر — ينتهي خلال (\d+) د$/, 'Free Mode — ends in $1m'],
+  [/^آخر تحديث (.+)$/, 'Last updated $1'],
+  [/^جهاز (.+)$/, '$1’s device'],
+  [/^(\d+) غير مقروءة$/, '$1 unread'],
+  [/^(\d+) من (\d+) د$/, '$1 of $2m'],
+  [/^(\d+) من (\d+)$/, '$1 of $2'],
+];
+function trEn(s) {
+  if (S.lang !== 'en' || !s) return s;
+  const t = s.trim();
+  if (!/[؀-ۿ]/.test(t)) return s;
+  if (EN_DICT[t]) return s.replace(t, EN_DICT[t]);
+  for (const [re, rep] of EN_PATTERNS) {
+    if (re.test(t)) return s.replace(t, t.replace(re, rep));
+  }
+  return s;
+}
+function translateDom(root) {
+  if (S.lang !== 'en' || !root) return;
+  const skip = el => !el || el.closest('svg,script,style,.mono,.ltr,[data-latn]');
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => (/[؀-ۿ]/.test(n.nodeValue) && !skip(n.parentElement) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+  });
+  const nodes = [];
+  while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => { n.nodeValue = trEn(n.nodeValue); });
+  root.querySelectorAll('[aria-label],[placeholder],[title],[alt]').forEach(el => {
+    if (skip(el)) return;
+    ['aria-label', 'placeholder', 'title', 'alt'].forEach(attr => {
+      const v = el.getAttribute(attr);
+      if (v && /[؀-ۿ]/.test(v)) el.setAttribute(attr, trEn(v));
+    });
+  });
+}
+const L = (ar, en) => (S.lang === 'en' ? (en || EN_DICT[ar] || trEn(ar)) : ar);
 const offline = () => S.net === 'off';
 /* وسم الحداثة الصادق: لا تُعرض بيانات قديمة كأنها حية (S1-09 REQ-011). */
 function age(min, word) {
@@ -183,6 +299,7 @@ function age(min, word) {
   return `<span class="chip ${stale ? 'stale' : 'ol'}">${ic(stale ? 'history' : 'schedule')}${stale ? 'آخر تحديث ' : (word || '')}${txt}</span>`;
 }
 const dateAr = () => {
+  if (S.lang === 'en') return { g: 'Sunday, Nov 15, 2026', h: '5 Jumada II 1448 AH', s: 'Sun, Nov 15 · 5 Jumada II' };
   const d = new Date(2026, 10, 15);
   let h = '5 جمادى الآخرة 1448';
   try { h = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }).format(d).replace(' هـ', ''); } catch (e) { }
@@ -276,12 +393,12 @@ function setPersona(p, keep) { kidSync(); S.persona = p; S.sheet = S.full = S.dl
 let toastT, toastUndo;
 function toast(msg, undo, icn = 'check_circle') {
   clearTimeout(toastT); toastUndo = undo;
-  $('#toast').innerHTML = `<div class="toast" role="status">${ic(icn)}<span>${msg}</span>${undo ? '<button data-a="undo">تراجع</button>' : ''}</div>`;
+  $('#toast').innerHTML = `<div class="toast" role="status">${ic(icn)}<span>${msg}</span>${undo ? '<button data-a="undo">تراجع</button>' : ''}</div>`; translateDom($('#toast'));
   toastT = setTimeout(() => { $('#toast').innerHTML = ''; toastUndo = null; }, undo ? 10000 : 3200);
 }
 function notif(title, body, icn = 'notifications', a = '') {
   const cel = icn === 'celebration' || icn === 'workspace_premium';   /* لحظة نجاح (Q-450): النافذة المضيئة بأشعتها مكان مربع الأيقونة؛ النص والمكان والإغلاق كما هي */
-  $('#notif').innerHTML = `<button class="notif${cel ? ' cel' : ''}" data-a="${a || 'nclose'}">${cel ? art(icn, 'fest').replace('art fest', 'art fest nw') : `<span class="ap">${ic(icn)}</span>`}<span><b>${title}</b>${body}</span></button>`;
+  $('#notif').innerHTML = `<button class="notif${cel ? ' cel' : ''}" data-a="${a || 'nclose'}">${cel ? art(icn, 'fest').replace('art fest', 'art fest nw') : `<span class="ap">${ic(icn)}</span>`}<span><b>${title}</b>${body}</span></button>`; translateDom($('#notif'));
   setTimeout(() => { $('#notif').innerHTML = ''; }, 5200);
 }
 function confetti() {
@@ -333,7 +450,7 @@ function banners() {
 function sosBtn() { if (isAdult()) return ''; return `<button class="sos" data-hold="sos" aria-label="${S.sos2 ? 'استغاثة — اضغط ثم أكّد' : 'استغاثة — اضغط مطولاً 3 ثوانٍ'}"><i></i>${ic('emergency_home-fill')}<span>SOS</span></button>`; }
 function appbar(d, t) {
   const root = S.stack.length === 1;
-  const title = typeof d.t === 'function' ? d.t(...t.a) : d.t;
+  const title = L(typeof d.t === 'function' ? d.t(...t.a) : d.t);
   return `<header class="bar">${root ? '' : `<button class="ib" data-a="back" aria-label="رجوع">${ic('arrow_back')}</button>`}<h2>${title}</h2>${d.act ? d.act(...t.a) : ''}${S.persona === 'guest' ? '' : sosBtn()}</header>`;
 }
 function navbar() {
@@ -346,7 +463,7 @@ function render() {
   /* صلاحية سُحبت والمستخدم داخل تبويبها: يعود لأقرب تبويب مسموح مع رسالة */
   if (S.persona === 'delegate' && TAB_KEY[S.stack[0].id] && !can(TAB_KEY[S.stack[0].id])) { S.stack = [{ id: tabsFor()[0][0], a: [] }]; S.sheet = null; toast('لم يعد هذا القسم ضمن صلاحياتك', null, 'lock'); }
   const ph = $('#phone'), t = topE(), d = SC[t.id];
-  ph.dataset.theme = S.theme; ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.style.setProperty('--ts', S.ts);
+  ph.dataset.theme = S.theme; ph.dataset.mode = d.vmode ? d.vmode(...t.a) : mode(); ph.dataset.motion = S.lbw ? 'off' : S.motion; ph.dataset.device = S.device || 'phone'; ph.style.setProperty('--ts', S.ts);
   ph.dir = S.lang === 'en' ? 'ltr' : 'rtl'; ph.lang = S.lang;
   const old = $('#scr'), sameScr = old && old.dataset.id === t.id + t.a.join(), keep = sameScr ? old.scrollTop : 0, hadArt = sameScr && !!old.querySelector(ART_WIN);
   const hero = d.hero && !offline() && !(S.lbw) && !(fmAny().length && isAdult());
@@ -357,7 +474,9 @@ function render() {
     (d.foot ? d.foot(...t.a) : '') + (S.stack.length === 1 && !d.nonav && S.persona !== 'guest' ? navbar() : '');
   $('#scr').scrollTop = keep; anim = '';
   artNew($('#scr'), sameScr, hadArt);
+  translateDom($('#app'));
   renderOv();
+  if (S.persistLocal) { try { localStorage.setItem('fos_proto_state_v1', JSON.stringify(S)); } catch (e) {} }
   if (window.Studio) Studio.sync();
 }
 /* إضاءة النافذة (Q-451): تتحرك مرة واحدة حين يظهر النجاح، لا عند كل إعادة رسم. fest عند ظهورها دائماً؛ lit حين تظهر بتغيّر حالة داخل الشاشة نفسها فقط. */
@@ -379,6 +498,7 @@ function renderOv() {
   $('#ov').innerHTML = h;
   const nS = $('#ov .sheet'), nF = $('#ov .full'), nFb = $('#ov .full .body');
   if (nS) { nS.scrollTop = yS; artNew(nS, stS, hadS); } if (nFb) nFb.scrollTop = yF; if (nF) artNew(nF, stF, hadF);
+  translateDom($('#ov'));
   /* زر الاستغاثة يعلو الأوراق ونوافذ التأكيد (S1-01 REQ-007 · DS-SP-07) */
   sosLift(); clearTimeout(sosLiftT); sosLiftT = setTimeout(sosLift, 340);
 }
@@ -414,7 +534,18 @@ const ACT = {
   go: (id, ...a) => go(id, ...a.filter(x => typeof x === 'string')), tab: id => tab(id), back: () => back(),
   undo() { const u = toastUndo; $('#toast').innerHTML = ''; toastUndo = null; if (u) u(); },
   nclose() { $('#notif').innerHTML = ''; },
-  scrimClose() { S.sheet = null; },
+  scrimClose() {
+    const id = S.sheet && S.sheet.id;
+    if (id === 'event-new' && S.ev && (S.ev.t || '').trim()) {
+      return confirmDlg('تجاهل الحدث؟', 'أدخلت عنواناً ولم تحفظه بعد.', 'تجاهل', () => { S.ev = null; S.sheet = null; }, true);
+    }
+    if (id === 'win-edit' && S.wd) {
+      const orig = (S.sched[S.wd.kid] || []).find(x => x.id === S.wd.id);
+      const dirty = !orig || orig.type !== S.wd.type || orig.s !== S.wd.s || orig.e !== S.wd.e || orig.days.join() !== S.wd.days.join();
+      if (dirty) return confirmDlg('تجاهل التعديلات؟', 'عدّلت النافذة ولم تحفظها بعد.', 'تجاهل', () => { S.wd = null; S.sheet = null; }, true);
+    }
+    S.ev = null; S.wd = null; S.sheet = null;
+  },
   close() { S.sheet = null; S.full = null; },
   dlgNo() { S.dlg = null; },
   dlgYes() { S.dlg = null; const c = dlgCb; dlgCb = null; if (c) c(); },

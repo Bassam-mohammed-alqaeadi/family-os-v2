@@ -242,7 +242,7 @@ surface('quota', {
     ${sec('الحصة لكل يوم', own && !dflt ? 'أعد الكل إلى 60' : '', 'qdReset')}<div class="list">${DAYN.map((_, i) => (own ? dayRow(i, d.v[i], 'qdDay', 15) : `<div class="dq"><b>${DAYN[i]}${i === NOW.d ? ' ' + chip('اليوم', 'in') : ''}</b><span class="n">${d.v[i]}<small>دقيقة</small></span>${ic('lock')}</div>`)).join('')}</div>
     <p class="sm muted" style="margin:8px 4px 0">${dflt ? 'هذه القيمة التي يبدأ بها كل طفل: 60 دقيقة لكل يوم.' : 'صفر يعني لا وقت شاشة في ذلك اليوم.'}</p>
     ${callout('الحصة تحكم التطبيقات التي ليس لها قاعدة خاصة. والتطبيق الذي له حدّ يتبع حدّه. ' + why('rank'), '', 'info')}
-    ${own ? saveBar('احفظ الحصة', 'qdSave', dirty) : ''}`; },
+    ${dirty ? `<div class="callout in">${ic('compare_arrows')}<div><b>معاينة الأثر اليوم (${DAYN[NOW.d]}):</b> الحصة ${k.quota} د ← <b>${d.v[NOW.d]} د</b> · المتبقي سيصبح <b>${Math.max(0, d.v[NOW.d] - k.used) + k.extra} د</b></div></div>` : ''}${own ? saveBar('احفظ الحصة', 'qdSave', dirty) : ''}`; },
 });
 Object.assign(ACT, {
   qdDay(i, op) { S.qd.v[+i] = stepV(S.qd.v[+i], op); },
@@ -271,7 +271,7 @@ surface('win-edit', {
     return `<h4>${isNew ? 'نافذة جديدة' : 'تعديل نافذة'} · ${kn(kid)}</h4>${seg([['sleep', 'نوم'], ['school', 'مدرسة']], d.type, 'wdType')}<p class="d">${d.type === 'sleep' ? 'في نافذة النوم لا يُفتح أي تطبيق. زر الاستغاثة يعمل دائماً.' : 'في نافذة المدرسة تُفتح تطبيقات الدراسة فقط.'}</p>
     <div class="fx sb" style="margin-bottom:8px"><b class="sm">الأيام</b><span>${btn('كل يوم', 'wdDays:0123456', 'sm txt" aria-pressed="' + (d.days.slice().sort().join('') === '0123456'))}${btn('الأحد–الخميس', 'wdDays:01234', 'sm txt" aria-pressed="' + (d.days.slice().sort().join('') === '01234'))}</span></div><div class="days">${DAYN.map((n, i) => `<button aria-pressed="${d.days.includes(i)}" data-a="wdDay:${i}" aria-label="${n}">${n.replace(/^ال/, '').slice(0, 3)}</button>`).join('')}</div>
     <div class="fx" style="gap:10px"><label class="fld grow"><span>من</span><input type="time" dir="ltr" data-ch="wdT:s" value="${d.s}"></label><label class="fld grow"><span>إلى</span><input type="time" dir="ltr" data-ch="wdT:e" value="${d.e}"></label></div>
-    <p class="sm muted" style="margin:-4px 0 12px">${hm(t2m(d.s))} – ${hm(t2m(d.e))}${over ? ' · تمتد إلى اليوم التالي' : ''}</p>
+    <p class="sm muted" style="margin:-4px 0 8px">${hm(t2m(d.s))} – ${hm(t2m(d.e))}${over ? ' · تمتد إلى اليوم التالي' : ''}</p><div style="margin-bottom:12px"><div class="xs muted" style="margin-bottom:4px">معاينة النافذة على شريط اليوم (24 ساعة):</div><div class="sched">${over ? `<i class="${WT[d.type][2]}" style="left:${t2m(d.s)/14.4}%;width:${(1440-t2m(d.s))/14.4}%"></i><i class="${WT[d.type][2]}" style="left:0;width:${t2m(d.e)/14.4}%"></i>` : `<i class="${WT[d.type][2]}" style="left:${t2m(d.s)/14.4}%;width:${Math.max(2,(t2m(d.e)-t2m(d.s))/14.4)}%"></i>`}</div></div>
     ${!d.days.length ? callout('اختر يوماً واحداً على الأقل.', 'wa', 'event_busy') : clash ? cfCard(cfClash(kid, d), { mode: 'inline' }) : nowIn ? callout(`هذه النافذة تشمل هذه اللحظة: عند الحفظ ${d.type === 'sleep' ? 'تُغلق التطبيقات' : 'تُغلق غير تطبيقات الدراسة'} على جهاز ${kn(kid)} فوراً.`, 'wa', 'bolt') : ''}
     ${offline() ? callout('الحفظ يحتاج اتصالاً.', 'wa', 'cloud_off') : ''}
     ${btn(isNew ? 'أضف النافذة' : 'احفظ النافذة', ok ? 'wdSave' : 'noop', ok ? '' : '" disabled="')}${isNew ? '' : `<div class="c" style="margin-top:8px">${btn('احذف النافذة', offline() ? 'noop' : 'wdDel', 'txt" style="color:var(--danger)', 'delete')}</div>`}`; },
@@ -363,7 +363,7 @@ function modeLine(m, id) { const A = S.apps[id];
   return X.join(' '); }
 const WTN = { sleep: 'النوم', school: 'المدرسة' };
 function psLine(k, id, n) { const c = crossOf(id, n), ask = k !== 'free' && crossAsk(k, c), stop = ask && S.psX === 'stop', u = untilTxt(stop ? c[0] : n), wn = schedNow(id), cur = S.pm[id], X = [];
-  X.push(k === 'free' ? `حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. وقته الآن يظهر في التقارير ولا يُخصم من حصته.` : `حتى ${u}: ${modeLine(modeOf(k), id)}`);
+  X.push(k === 'free' ? `حتى ${u} تتوقف كل القواعد: الحدود والحظر والجدول. استخدامه يُحسب في التقارير ولا يُحدّ.` : `حتى ${u}: ${modeLine(modeOf(k), id)}`);
   if (k !== 'free' && fmOf(id)) X.push('ينتهي الوضع الحر الجاري.');
   if (cur && cur.k !== k) X.push(`ينتهي ${modeQ(cur.k)} الجاري: وضع واحد لكل طفل.`);
   if (cur && cur.k === k) X.push('سارٍ الآن: تبدأ مدته من جديد.');
@@ -415,7 +415,7 @@ surface('mode-edit', {
   note: 'S10-17. الأب ينشئ وضعاً باسمه: اسم وأيقونة، ثم ماذا يُفتح فيه (لا شيء، تطبيقات يختارها، أو كل التطبيقات بحدودها مع تجاوز النوم والمدرسة). لا مدة في الوضع: تُختار عند كل تطبيق. قبل الحفظ يرى أثره على كل طفل باسمه. ما يمنع التعارض: الاسم لا يتكرر، المحظور يبقى مغلقاً في كل وضع، وفتح كل شيء بلا حدود للوضع الحر وحده. إن كان الوضع سارياً قيل إن التعديل يسري فوراً، والحذف ينهيه أولاً. حفظ صريح وتحذير عند الخروج.',
   r(id0) { const isNew = !S.modes.some(m => m.id === id0), mid = isNew ? 'new' : id0; if (!S.md || S.md.id !== mid) S.md = mdOf(mid); const d = S.md, ok = can(isNew ? 'protection.rule.create' : 'protection.rule.edit'), err = mdErr(d), dirty = DRAFT['mode-edit'].dirty(), on = isNew ? [] : KIDS.filter(k => pmOf(k) === mid), ne = err && err[0] === 'n' && d.n.trim() ? err[1] : '';
     const O = [['none', 'block', 'لا شيء', 'كل التطبيقات مغلقة. مثل وقت الطعام أو الصلاة.'], ['list', 'checklist', 'تطبيقات أختارها فقط', 'ما تختاره يُفتح، والباقي مغلق.'], ['all', 'wb_sunny', 'كل التطبيقات كالعادة', 'يتجاوز وقت النوم والمدرسة فقط. الحدود والحصة باقية. مثل سهرة العيد.']];
-    const Lm = [[1, 'الحدود باقية', 'يُفتح التطبيق ما دام له وقت اليوم، ووقته يُحسب من حدّه ومن الحصة.'], [0, 'بلا حد داخل الوضع', 'يُفتح طول مدة الوضع ولو نفد وقته. وقته داخل الوضع يظهر في التقارير ولا يُخصم من حدّه ولا من الحصة.']];
+    const Lm = [[1, 'الحدود باقية', 'يُفتح التطبيق ما دام له وقت اليوم، ووقته يُحسب من حدّه ومن الحصة.'], [0, 'بلا حد داخل الوضع', 'يُفتح طول مدة الوضع ولو نفد وقته. الاستخدام يُحسب في التقارير ولا يُحدّ.']];
     return `${ok ? '' : callout('ترى الوضع ولا تعدّله. ' + why('nd:' + (isNew ? 'protection.rule.create' : 'protection.rule.edit')), 'nt', 'lock')}${offNote()}
     ${on.length ? callout(`سارٍ الآن على ${on.map(kn).join(' و')}: التعديل يسري فور الحفظ.`, 'nt', 'bolt') : ''}
     <label class="fld ${ne ? 'err' : ''}"><span>اسم الوضع</span><input id="mdN" data-ch="mdN" maxlength="30" autocomplete="off" placeholder="مثال: وقت الضيوف" value="${d.n}" ${ok ? '' : 'disabled'}><small>${ne || 'يظهر بهذا الاسم لك ولطفلك.'}</small></label>

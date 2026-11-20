@@ -261,7 +261,7 @@ function locSelf() {
   if (!l) return empty('location_off', 'لا موقع', '');
   const see = sibSeen(id), seen = sibSees(id);
   const sibRow = k => { const s = locOf(k), n = M[k]; return row('', kidNm(k), s.paused ? pausedTxt(n) : s.none ? 'لا مكان معروف بعد' : `${S.privacy ? '••••' : s.place}<br>${s.live ? minTxt(s.ago) : 'آخر مكان معروف ' + minTxt(s.ago)}`, { lead: av(n) }); };
-  const foot = [seen.length ? '' : 'إخوتك لا يرون مكانك', see.length ? '' : (seen.length ? 'لا ترى مكان إخوتك' : 'وأنت لا ترى مكانهم')].filter(Boolean).join('، ');
+  const foot = [seen.length ? '' : 'إخوتك لا يرون مكانك', see.length ? '' : (seen.length ? vb(M[id], 'لا ترى مكان إخوتك', 'لا ترين مكان إخوتك') : 'وأنت لا ترى مكانهم')].filter(Boolean).join('، ');
   return `${fMap(230, { ids: [id, ...see], big: 1, pin: () => '', clu: () => '', lab: s => (s.id === id ? 'أنت' : `${kidNm(s.id)} · ${minTxt(s.ago)}`) })}<div class="gap"></div>
   <div class="card fx">${av(m, 'lg')}<div class="grow"><b style="font-size:calc(18px*var(--ts))">${l.why === 'gps' ? 'آخر مكان عرفه هاتفك' : 'أنت هنا'}</b><div class="sm muted">${S.privacy ? '••••' : l.place}${l.why === 'gps' ? ' · ' + minTxt(l.ago) : ''}</div></div>${batChip(l)}</div>
   ${l.why === 'gps' ? callout(`<b>تحديد الموقع متوقف في هاتفك</b><br>${teen ? 'شغّله ليعرف أهلك مكانك.' : 'اطلب من بابا أن يشغّله.'} زر الاستغاثة يعمل في كل حال، ويرسل آخر مكان معروف.`, 'wa', 'location_off') : ''}

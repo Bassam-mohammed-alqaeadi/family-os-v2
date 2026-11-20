@@ -72,8 +72,8 @@ function chRow(id, obs) {
     v: `<span class="chv">${l ? `<small>${l.at}</small>` : ''}${c.closed ? chip('مغلقة', 'stale', 'lock') : fl ? chip('للمراجعة', 'wa', 'chat_error') : id === 'parents' && !n ? ic('lock') : n ? `<b class="unr" aria-label="${n} غير مقروءة">${n}</b>` : ''}</span>` });
 }
 function chListBody() {
-  const u = me().id, q = (S.chQ || '').trim().replace(/^ال/, ''), mine = myChs().filter(id => !q || chName(id, u).includes(q));
-  if (!mine.length) return q ? empty('search', 'لا محادثة بهذا الاسم', 'جرّب اسم أحد أفراد العائلة.') : empty('forum', 'لا محادثات بعد', 'ابدأ محادثة مع أي فرد من العائلة.', btn('ابدأ محادثة', 'go:chat-new', 'sm', 'edit'));
+  const u = me().id, q = (S.chQ || '').trim().replace(/^ال/, ''), mine = myChs().filter(id => !q || arNorm(chName(id, u)).includes(arNorm(q)));
+  if (!mine.length) return q ? empty('search', 'لا محادثة بهذا الاسم', 'جرّب اسم أحد أفراد العائلة.', btn('مسح البحث', 'chClearQ', 'sm sec')) : empty('forum', 'لا محادثات بعد', 'ابدأ محادثة مع أي فرد من العائلة.', btn('ابدأ محادثة', 'go:chat-new', 'sm', 'edit'));
   return list(mine.map(id => chRow(id)));
 }
 surface('chat', {
@@ -234,7 +234,7 @@ surface('chat-review', {
     const R = S.review || []; if (!R.length) return empty('check_circle', 'لا رسائل موقوفة', 'لم يوقف المصنّف أي رسالة. ما يوقفه يظهر هنا ولا يصل إلى أحد.');
     return `${callout('هذه الرسائل <b>لم تصل</b> إلى أحد. مرسلها يعلم أنها أُوقفت وأنك ستراها.', 'wa', 'block')}${R.map((r, n) => { const c = chOf(r.ch), show = S.rvShow === r.id;
       return `<div class="card"><div class="chips">${chip(RV_CAT[r.cat], 'da', 'block')}${chip('الخطورة: عالية', 'ol')}</div><p style="margin:12px 0 2px"><b>من ${M[r.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">${r.at} · لم تُسلَّم</p>
-      ${show ? `<div class="card flat" style="margin:12px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div></div>`; }).join('')}
+      ${show ? `<div class="card flat" style="margin:12px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div><div class="fx sb" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span class="xs muted">دقة المصنّف:</span><div class="fx">${S.rvRate && S.rvRate[r.id] ? chip(S.rvRate[r.id] === 'good' ? 'رصد صحيح · شكراً' : 'إنذار خاطئ · سُجّل', S.rvRate[r.id] === 'good' ? 'ok' : 'in', 'check') : `${btn('رصد صحيح', 'rvRate:' + r.id + ':good', 'sm txt')}${btn('إنذار خاطئ', 'rvRate:' + r.id + ':false', 'sm txt')}`}</div></div></div>`; }).join('')}
     <p class="xs muted" style="margin:12px 4px">تبقى هنا 30 يوماً ثم تُحذف نهائياً. التجاهل يُسجَّل بلا نص الرسالة.</p>`;
   },
 });
@@ -279,7 +279,7 @@ function chLog(t, k) { S.audit.unshift({ t, w: me().n, at: 'الآن', k }); }
 /* وصول الرسالة: للخادم ثم مقروءة. تُستدعى بمؤقت في العرض ومباشرة في الفحص. */
 function chDeliver(m, read) { if (m.q || m.fail || m.blk || m.del) return; m.st = read ? 2 : Math.max(m.st, 1); }
 Object.assign(ACT, {
-  openCh(id) { if (id === 'parents') return gate('قناة الوالدين محمية', () => { S.sheet = null; go('thread', id); }); go('thread', id); },
+  openCh(id) { S.emo = false; S.cmpErr = ''; if (id === 'parents') return gate('قناة الوالدين محمية', () => { S.sheet = null; go('thread', id); }); go('thread', id); },
   dmStart(x) { S.sheet = null; const u = me().id; let id = dmId(u, x); if (!id) { if (offline()) { toast('بدء محادثة جديدة يحتاج اتصالاً', null, 'cloud_off'); return; } id = `dm-${u}-${x}`; CHS()[id] = { mem: [u, x], k: 'dm' }; } msgsOf(id); go('thread', id); },
   grpNew() { S.grp = { n: '', mem: [] }; S.sheet = { id: 'chat-group', a: [] }; },
   grpT(x) { const g = S.grp, i = g.mem.indexOf(x); if (i >= 0) g.mem.splice(i, 1); else g.mem.push(x); },
@@ -344,3 +344,7 @@ Object.assign(ACT, {
   },
 });
 function crDone() { if (S.cr.step === 2) { S.cr.step = 3; chLog('استرد سجل قناة الوالدين على هذا الجهاز', 'chat.parents.view'); } }
+
+ACT.rvRate = (id, val) => { S.rvRate = S.rvRate || {}; S.rvRate[id] = val; toast(val === 'good' ? 'شكرًا · سُجّل كتأكيد مفيد' : 'شكرًا · سُجّل لتحسين دقة المصنّف'); };
+
+ACT.chClearQ = () => { S.chQ = ''; };

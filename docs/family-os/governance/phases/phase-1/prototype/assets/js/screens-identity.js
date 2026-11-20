@@ -7,7 +7,7 @@ const obBar = (step, n = 5) => `<header class="bar"><button class="ib" data-a="b
 ACT.langT = () => { S.lang = S.lang === 'ar' ? 'en' : 'ar'; };
 
 surface('ob-welcome', {
-  t: 'أول تشغيل', sys: 'S1-02', p: 'guest', bar: false, nonav: true, flush: true, req: '01:1,2,17,21 02:1,18,22', st: 'un',
+  t: 'أول تشغيل', sys: 'S1-02', p: 'guest', bar: false, nonav: true, flush: true, req: '01:1,2,17,21 02:1,18,22',
   note: 'تطبيق واحد لكل الأدوار: الوضع يُحدَّد عند الإقران لا عند التنزيل. البالغ ينشئ عائلة أو ينضم بدعوة، ويسجّل حسابه برقم الهاتف أو بالبريد الإلكتروني وهما متساويان (حكم المالك Q-400). من له حساب يدخل من «لديّ حساب». جهاز الطفل يُقرن برمز. الشعار «القمرية»: اختاره المالك (Q-433). كل شاشات التهيئة بالعربية والإنجليزية.',
   r() { return `<div style="min-height:100%;display:flex;flex-direction:column;background:linear-gradient(170deg,#1F3A6B,#081122);color:#fff;padding:14px 22px 26px"><div style="display:flex;justify-content:flex-end"><button class="chip" style="min-height:36px;background:#ffffff1f;color:#fff" data-a="langT">${ic('translate')}${S.lang === 'ar' ? 'English' : 'العربية'}</button></div>
     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center"><img src="assets/brand/logo-symbol-dark.svg" alt="" width="132" height="110" style="margin:0 auto 2px"><img src="assets/brand/${L('logo-wordmark-ar-dark', 'logo-wordmark-en-dark')}.svg" alt="${L('عائلتي', 'Family OS')}" height="${L('86', '48')}" style="margin:0 auto"><p style="opacity:.85;font-size:17px;margin:8px 0 0;line-height:1.8">${L('أمان العائلة ووقتها ومهامها<br>في تطبيق واحد', 'Family safety, time and tasks<br>in one app')}</p>

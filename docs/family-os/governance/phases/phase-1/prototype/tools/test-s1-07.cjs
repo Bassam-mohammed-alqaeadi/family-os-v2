@@ -64,7 +64,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S.net='off';render();q('#scr [data-a="shareT:layan:khaled"]').click();ok('sharing change refused offline',S.locShare.layan.length===0&&/يحتاج اتصالاً/.test(document.querySelector('#toast').textContent));S.net='on';document.querySelector('#toast').innerHTML='';
  setPersona('teen',1);open('map');ok('teen now sees himself and that sibling only, markers do not open details',PIN().length===2&&/ليان/.test(q('#scr .map').textContent)&&has(/من أراه على الخريطة/)&&!q('#scr .map .pin[data-a]'));
  ok('…sibling shown without battery',!/41%/.test(q('#scr').innerText));
- setPersona('child',1);open('map');ok('the shown child is told who sees her, and sees no one herself',has(/يرى مكانك لأن بابا سمح/)&&PIN().length===1&&has(/لا ترى مكان إخوتك/));
+ setPersona('child',1);open('map');ok('the shown child is told who sees her, and sees no one herself',has(/يرى مكانك لأن بابا سمح/)&&PIN().length===1&&has(/لا ترين مكان إخوتك/));setPersona('teen',1);open('map');ok('the wording follows the member: a boy reads the masculine form',!has(/لا ترين/));
  setPersona('delegate',1);setRole('partner');open('loc-share');ok('only the family owner decides sharing',has(/هذا القرار لصاحب العائلة/)&&!q('#scr .tg'));
  // 3 موقع فرد
  S=fresh();open('loc','khaled');ok('member: live chip, accuracy, battery, actions',has(/موقع حي/)&&has(/بحدود 12 متراً/)&&!!q('[data-a="locMsg:khaled"]')&&!!q('[data-a="locCall:khaled"]')&&!!q('[data-a="go:history:khaled"]'));

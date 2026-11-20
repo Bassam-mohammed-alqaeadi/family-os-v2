@@ -69,7 +69,55 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 7 سحب الكل
  S=fresh();go('member','sara');render();ACT.revokeAll();render();ok('revoke all confirm',top()==='dlg');dlgYes();ok('revoked all',S.tpl==='none'&&grantsOf().length===0&&/بلا صلاحيات/.test(txt()));setPersona('delegate');render();ok('delegate none: still in family',top()!=='ob-welcome'&&isAdult());
  // 8 الأدوار: محتواها يُعدَّل بحفظ صريح
- S=fresh();go('roles');render();ok('roles: 3 cards',ph.querySelectorAll('[data-a^="go:role-edit:"]').length===3&&/(24|٢٤) صلاحية/.test(txt()));
+ S=fresh();go('roles');render();ok('roles: 3 ready cards',ph.querySelectorAll('[data-a^="roleEd:"]').length===3&&/(24|٢٤) صلاحية/.test(txt())&&!ph.querySelector('[data-a^="roleDel:"]'));
+ // الأدوار المخصصة (Q-455) وحصتها في الخطة (Q-456): 0 / 3 / 10
+ const nk=PGIVE.filter(k=>!SENS.includes(k)&&!FAMK.includes(k)),mk=()=>{S=fresh();S.plan='basic';S.roles.c1={n:'مربية',d:'ترعى الأطفال نهاراً',keys:nk.slice(0,3)};},setN=v=>{ph.querySelector('#reN').value=v};
+ ok('quota per plan 0/3/10',PLAN.free.roles===0&&PLAN.basic.roles===3&&PLAN.premium.roles===10);
+ ok('free: says where custom roles start',/يبدأ من الخطة الأساسية/.test(txt())&&/الأدوار الجاهزة/.test(txt()));
+ ACT.roleNew();render();ok('free: new role opens the limit card',top()==='plan-limit'&&/الأدوار المخصصة في الخطط المدفوعة/.test(txt())&&!!ph.querySelector('.sheet [data-a="go:plans"]'));
+ S.sheet=null;ACT.roleDup('guardian');render();ok('free: copy opens the limit card too',top()==='plan-limit'&&Object.keys(S.roles).length===3);
+ S=fresh();S.plan='basic';go('roles');render();ok('basic: counter 0 of 3',/أدوارك المخصصة · 0 من 3/.test(txt())&&/لا دور مخصص بعد/.test(txt()));
+ ACT.roleNew();render();ok('new role: empty editor',top()==='role-edit'&&ph.querySelector('#reN').value===''&&/دور مخصص جديد/.test(txt()));
+ ACT.reT(nk[0]);render();ACT.reSave();render();ok('new role: name required',top()==='role-edit'&&/اكتب اسماً للدور/.test(txt())&&Object.keys(S.roles).length===3);
+ setN('شريك');ACT.reSave();render();ok('new role: name must be unique',top()==='role-edit'&&/عندك دور بهذا الاسم/.test(txt())&&Object.keys(S.roles).length===3);
+ setN('مربية');ACT.reSave();render();const cid=roleCust()[0];ok('new role saved: back to the list, 1 of 3, nobody changed',top()==='roles'&&!!cid&&S.roles[cid].n==='مربية'&&S.roles[cid].keys.length===1&&/1 من 3/.test(txt())&&S.tpl==='partner'&&grantsOf().length===43);
+ ok('new role: logged, nobody notified',/أُنشئ دور «مربية»/.test(S.audit[0].t)&&!S.audit[0].sn&&!!ph.querySelector('[data-a="roleDel:'+cid+'"]'));
+ ACT.roleDup('guardian');render();ok('copy: a draft, nothing created before save',top()==='role-edit'&&ph.querySelector('#reN').value==='نسخة من وصي محدود'&&roleCust().length===1&&S.rd.keys.length===24);
+ ACT.reSave();render();ok('copy saved: 2 of 3',roleCust().length===2&&/2 من 3/.test(txt())&&top()==='roles');
+ ACT.roleDup('observer');render();setN('سائق');ACT.reSave();render();ok('third saved: 3 of 3',roleCust().length===3&&/3 من 3/.test(txt()));
+ ok('basic at the limit: button off with the reason, wider plan one tap away',dis('[data-a="roleNew"]')&&/بلغت الحد · احذف دوراً لتضيف غيره/.test(txt())&&!!ph.querySelector('[data-a="go:plans"]')&&ph.querySelectorAll('[data-a^="roleDup:"][disabled]').length===6);
+ ACT.roleNew();render();ok('basic at the limit: nothing created behind the button',top()==='plan-limit'&&/بلغت حدّ الأدوار المخصصة/.test(txt())&&roleCust().length===3);
+ S.sheet=null;ACT.roleDel(roleCust()[2]);render();dlgYes();ok('basic: delete one and the button is back',!dis('[data-a="roleNew"]')&&/2 من 3/.test(txt())&&!/بلغت الحد/.test(txt()));
+ S.plan='premium';render();ACT.roleNew();render();ok('premium: room for 10',top()==='role-edit');
+ S=fresh();S.plan='premium';for(let i=0;i<10;i++)S.roles['c'+i]={n:'دور '+i,d:'',keys:[]};go('roles');render();ok('premium at 10: button off, no higher plan offered',dis('[data-a="roleNew"]')&&/بلغت الحد · احذف دوراً لتضيف غيره/.test(txt())&&!/خطة أوسع/.test(txt())&&!ph.querySelector('[data-a="go:plans"]'));
+ S=fresh();go('plans');render();ok('plans: custom roles row on each card',/الأدوار الثلاثة الجاهزة/.test(txt())&&/3 أدوار مخصصة/.test(txt())&&/10 أدوار مخصصة/.test(txt()));
+ // تعديل دور محمول يسري فوراً: يُضاف ما أُضيف، ويُسحب ما جاء من الدور، ولا يُمس الممنوح بعينه ولا الممنوع
+ mk();setRole('c1');go('role-edit','c1');render();ok('held role: says it reaches Sara at once',/سارة تحمل هذا الدور/.test(txt())&&/يسري عليها فوراً/.test(txt())&&!ph.querySelector('.tg'));
+ ACT.reT(nk[5]);ACT.reT(nk[0]);render();ok('held role: the bar says what changes for her',/يتغيّر عند سارة فور الحفظ: تُضاف 1، تُسحب 1/.test(txt())&&/احفظ الدور/.test(txt()));
+ ACT.reSave();render();ok('held role saved: synced at once, no number asked',!S.full&&!!S.g[nk[5]]&&S.g[nk[5]].src==='role'&&!S.g[nk[0]]&&S.tpl==='c1'&&!roleEdited()&&grantsOf().length===3);
+ ok('held role: logged and Sara told',/عُدّل دور «مربية»/.test(S.audit[0].t)&&/سرى على سارة/.test(S.audit[0].t)&&/عدّل أحمد دوركِ «مربية»/.test(S.audit[0].sn));
+ S.g[nk[7]]={d:0,sc:'all',un:'',at:'الآن'};S.g[nk[1]].d=1;go('role-edit','c1');render();ACT.reT(nk[1]);ACT.reT(nk[7]);render();ok('nothing to sync: denied and personally given keys are hers',!/يتغيّر عند سارة/.test(txt()));
+ ACT.reSave();render();ok('sync leaves the explicit deny and the personal grant alone',S.g[nk[1]]&&S.g[nk[1]].d===1&&S.g[nk[7]]&&S.g[nk[7]].src===undefined&&!S.roles.c1.keys.includes(nk[1])&&S.roles.c1.keys.includes(nk[7]));
+ mk();setRole('c1');go('role-edit','c1');render();setN('مربية النهار');ACT.reSave();render();ok('rename only: no sync notice',S.roles.c1.n==='مربية النهار'&&!S.audit[0].sn&&grantsOf().length===3);
+ mk();setRole('c1');go('role-edit','c1');render();ACT.reT(SENS[0]);render();ok('held + sensitive: save by the secret number',/احفظ بالرقم السري/.test(txt())&&/فيها حساسة/.test(txt()));
+ ACT.reSave();render();ok('held + sensitive: gate first, nothing saved',!!S.full&&!S.g[SENS[0]]&&!S.roles.c1.keys.includes(SENS[0]));pin();ok('held + sensitive: after the number it reaches her',!!S.g[SENS[0]]&&S.roles.c1.keys.includes(SENS[0])&&!S.full);
+ mk();setRole('c1');S.net='off';go('role-edit','c1');render();ACT.reT(SENS[1]);render();ok('held + sensitive offline: save disabled with the reason',dis('[data-a="reSave"]')&&/تحتاج اتصالاً/.test(txt()));ACT.reSave();render();ok('held + sensitive offline: nothing saved',!S.g[SENS[1]]&&!S.roles.c1.keys.includes(SENS[1]));
+ mk();go('role-edit','c1');render();ACT.reT(SENS[0]);render();ACT.reSave();render();ok('unheld + sensitive: saved without the number, nobody gets it',!S.full&&S.roles.c1.keys.includes(SENS[0])&&grantsOf().length===43&&!S.audit[0].sn&&S.tpl==='partner');
+ // الحذف: غير المحمول بتأكيد؛ والمحمول يطلب دور سارة بعده أو «بلا صلاحيات»
+ mk();go('roles');render();ACT.roleDel('c1');render();ok('delete unheld: plain confirm',top()==='dlg'&&/لا أحد يحمل هذا الدور/.test(txt()));dlgYes();ok('delete unheld: gone, nobody changed',!S.roles.c1&&S.tpl==='partner'&&grantsOf().length===43&&/حُذف دور «مربية»/.test(S.audit[0].t));
+ ACT.roleDel('partner');render();ok('ready roles are never deleted',!!S.roles.partner&&top()==='roles');
+ mk();setRole('c1');go('roles');render();ACT.roleDel('c1');render();ok('delete held: asks for her next role',top()==='role-pick'&&/سارة تحمل دور «مربية»/.test(txt())&&ph.querySelectorAll('[data-a^="roleDelTo:c1:"]').length===3&&!!ph.querySelector('[data-a="roleDelNone:c1"]')&&!!S.roles.c1);
+ ACT.roleDelTo('c1','guardian');render();ok('delete held: preview says the old role goes',top()==='tpl-diff'&&/بعد التطبيق يُحذف دور «مربية»/.test(txt())&&/طبّق واحذف بالرقم السري/.test(txt())&&!!S.roles.c1);
+ ACT.tplApply('guardian');render();ok('delete held: the number first',!!S.full&&!!S.roles.c1&&S.tpl==='c1');pin();ok('delete held: new role applied and old one gone',S.tpl==='guardian'&&!S.roles.c1&&grantsOf().length===24&&S.audit.some(a=>/حُذف دور «مربية»/.test(a.t))&&!S.audit.some(a=>a.undo&&JSON.parse(a.undo)[0]==='c1'));
+ mk();setRole('c1');ACT.roleDel('c1');ACT.roleDelTo('c1','guardian');S.sheet=null;ACT.rolePick('observer');render();ok('a closed delete does not ride on a later apply',!/يُحذف دور/.test(txt()));ACT.tplApply('observer');pin();ok('later apply keeps the role',S.tpl==='observer'&&!!S.roles.c1);
+ const pk=nk.find(k=>!S.roles.guardian.keys.includes(k)&&!nk.slice(0,3).includes(k));
+ mk();setRole('c1');S.g[pk]={d:0,sc:'all',un:'',at:'الآن'};S.g[nk[1]].d=1;ACT.roleDel('c1');render();ok('delete held: last choice is no role',/بلا دور/.test(txt())&&/ما أعطيتها بعينه وما منعته يبقى/.test(txt()));ACT.roleDelTo('c1','guardian');render();ok('delete held: preview keeps what was given to her by name',/ما أعطيتَه لسارة بعينه يبقى معها/.test(txt())&&!/عدّلتَ صلاحيات بعينها/.test(txt()));
+ ACT.tplApply('guardian');pin();ok('delete held: only what came from the role is withdrawn',S.tpl==='guardian'&&!S.roles.c1&&!!S.g[pk]&&S.g[pk].src===undefined&&S.g[nk[1]].d===1&&grantsOf().length===24+1-(S.roles.guardian.keys.includes(nk[1])?1:0));
+ mk();setRole('c1');S.g[pk]={d:0,sc:'all',un:'',at:'الآن'};S.g[nk[1]].d=1;ACT.roleDel('c1');ACT.roleDelNone('c1');render();ok('delete held, no role after: says only this role is withdrawn',top()==='dlg'&&/حذف دور «مربية» وسحب صلاحياته من سارة/.test(txt())&&/ما أعطيتها بعينه وما منعته يبقى كما هو/.test(txt()));dlgYes();ok('delete held, no role after: role grants gone, personal grant and deny stay',!S.roles.c1&&S.tpl==='none'&&!S.g[nk[0]]&&!S.g[nk[2]]&&!!S.g[pk]&&S.g[nk[1]].d===1&&grantsOf().length===1&&/حذف أحمد دور «مربية» وسحب صلاحياته منكِ/.test(S.audit[0].sn));
+ // بعد تخفيض الخطة: الدور القائم يعمل ويُحذف، ولا يُعدَّل ولا يُضاف
+ mk();setRole('c1');S.plan='free';go('roles');render();ok('after downgrade: still held and working, notice shown',/بلا أدوار مخصصة وعندك 1/.test(txt())&&grantsOf().length===3&&S.tpl==='c1');
+ ACT.roleEd('c1');render();ok('after downgrade: edit stops at the limit card',top()==='plan-limit'&&/أكثر من حد الخطة/.test(txt()));S.sheet=null;ACT.roleEd('partner');render();ok('ready roles stay editable on free',top()==='role-edit');
+ mk();S.plan='free';go('roles');render();ACT.roleDel('c1');render();dlgYes();ok('after downgrade: delete still works',!S.roles.c1);
  go('role-edit','guardian');render();ok('role editor: 44 boxes, no save bar yet',ph.querySelectorAll('[data-a^="reT:"]').length===44&&!ph.querySelector('[data-a="reSave"]'));ACT.reT('protection.rule.edit');render();ok('unsaved bar',!!ph.querySelector('[data-a="reSave"]')&&/تغييرات غير محفوظة/.test(txt())&&S.roles.guardian.keys.length===24);
  const g0=JSON.stringify(S.g);ACT.reSave();render();ok('role saved, member copies untouched',S.roles.guardian.keys.length===25&&JSON.stringify(S.g)===g0&&!rdDirty());
  go('role-edit','observer');render();ACT.reT('location.view');ACT.reDrop();render();ok('discard keeps role',S.roles.observer.keys.length===10);

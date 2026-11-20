@@ -152,6 +152,7 @@ function blAtt() {
 const BL_LIM = {
   mem: ['groups', () => `بلغت حدّ الخطة ${PLAN[S.plan].n}`, () => `خطتك تتسع لـ${PLAN[S.plan].mem} أفراد وعائلتك مكتملة. أفرادك الحاليون يبقون كما هم.`],
   sms: ['sms', () => 'نفد رصيد الرسائل النصية', () => `أُرسلت رسائل هذا الشهر كلها (${PLAN[S.plan].sms}). الاستغاثة لا تتوقف: لها ${smsEm()} من 3 رسائل احتياطية، ويتجدد الرصيد في ${blDate(blNextMonth())}.`],
+  role: ['tune', () => (roleOver() ? 'أدوارك المخصصة أكثر من حد الخطة' : roleMax() ? 'بلغت حدّ الأدوار المخصصة' : 'الأدوار المخصصة في الخطط المدفوعة'), () => (roleOver() ? `خطتك ${PLAN[S.plan].n} ${roleMax() ? `تتسع لـ${roleMax()} أدوار مخصصة` : 'بلا أدوار مخصصة'} وعندك ${roleCust().length}. أدوارك تبقى تعمل كما هي وتستطيع حذفها، ولا تُعدَّل ولا يُضاف إليها.` : roleMax() ? `خطتك ${PLAN[S.plan].n} تتسع لـ${roleMax()} أدوار مخصصة. احذف دوراً لتضيف غيره${S.plan === 'premium' ? '' : '، أو انتقل إلى خطة أوسع'}.` : 'الأدوار الثلاثة الجاهزة لك دائماً وتعدّلها كما تشاء. الدور المخصص باسمك وصلاحياتك يبدأ من الخطة الأساسية.')],
   ai: ['wand_stars', () => 'نفدت عمليات المساعد لهذا الشهر', () => `المساعد توقف بهدوء، وكل شيء يعمل يدوياً: كل تسليم مهمة يأتيك أنت. يتجدد العدّ في ${blDate(blNextMonth())}.`],
 };
 function blLimit(why, sheet) {
@@ -185,12 +186,12 @@ surface('plan', {
 
 /* ---------- S04-02 الخطط ---------- */
 surface('plans', {
-  t: 'الخطط', sys: 'S1-04', p: 'owner', req: '04:1,3,4,12',
+  t: 'الخطط', sys: 'S1-04', p: 'owner', req: '04:1,3,4,12,22',
   note: 'S04-02. ما تشترك فيه كل الخطط يُقال مرة واحدة في الأعلى، والبطاقات تعرض ما يختلف فقط: الأفراد والرسائل النصية وعمليات المساعد والسعر. الأسعار بعملة سوق العائلة وحدها (اليمن بالريال، الخليج بالريال السعودي). المجانية تمرّ بتأكيد التخفيض دائماً. لا زر يشتري من هنا: كل اختيار يذهب إلى شاشة التأكيد.',
   r() {
     if (!blCanM()) return blNo(1);
     const b = BL(), yr = !!b.yr, cur = S.plan, st = blSt(), e = blDate(blEnd());
-    const F = k => { const p = PLAN[k]; return `<ul><li>${ic('groups')}<span>${p.mem === Infinity ? '<b>أفراد بلا حد</b>' : `حتى <b>${p.mem}</b> أفراد`}</span></li><li>${ic('sms')}<span><b>${p.sms}</b> رسالة نصية في الشهر</span></li><li>${ic('wand_stars')}<span><b>${blNum(p.ai)}</b> عملية للمساعد في الشهر<small>${BL_AI[k]}</small></span></li></ul>`; };
+    const F = k => { const p = PLAN[k]; return `<ul><li>${ic('groups')}<span>${p.mem === Infinity ? '<b>أفراد بلا حد</b>' : `حتى <b>${p.mem}</b> أفراد`}</span></li><li>${ic('sms')}<span><b>${p.sms}</b> رسالة نصية في الشهر</span></li><li>${ic('wand_stars')}<span><b>${blNum(p.ai)}</b> عملية للمساعد في الشهر<small>${BL_AI[k]}</small></span></li><li>${ic('tune')}<span>${p.roles ? `<b>${p.roles}</b> أدوار مخصصة` : 'الأدوار الثلاثة الجاهزة'}</span></li></ul>`; };
     const P = k => (k === 'free' ? `<div class="pr">مجاناً <small>دائماً</small></div>` : `<div class="pr">${blNum(blPrice(k, yr))} <small>${blYE() ? 'ريال' : 'ر.س'} ${yr ? 'في السنة' : 'في الشهر'}</small></div>${yr ? `<div class="sv">توفّر ${blAmt(blSave(k))} عن الدفع شهراً بشهر</div>` : ''}`);
     const C = k => {
       const pend = b.pend && b.pend.w === k, down = b.down && b.down.to === k;
@@ -285,6 +286,7 @@ surface('pay-wallet', {
     if (!blCanM()) return blNo(1);
     if (!blYE()) return SC.pay.r(w, yr, ch);              /* سوق الخليج لا محافظ يمنية فيه */
     w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend;
+    if (b.wErr) { return `<div class="bigic da">${ic('wifi_off')}</div><p class="ttl md">تعذّر التحقق من المحفظة</p><p class="sub">لم يصل رد من بوابة ${BL_CH[ch][0]} بسبب انقطاع الاتصال. لم يُخصم أي مبلغ إضافي.</p>${btn('إعادة التحقق دون خصم مكرر', 'blWRetry', '', 'refresh')}${btn('تغيير طريقة الدفع', 'blWBack', 'sec')}`; }
     if (d) { const it = blItem(d.w, d.yr);
       return `<div class="bigic wa">${ic('hourglass_top')}</div><p class="ttl md">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن تؤكد ${BL_CH[d.ch][0]} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
       <dl class="blkv"><dt>ما دفعت له</dt><dd>${it.t}${it.per ? ' · ' + it.per : ''}</dd><dt>المبلغ</dt><dd>${blAmt(it.n)}</dd><dt>الطريقة</dt><dd>${BL_CH[d.ch][0]}</dd><dt>الرقم المرجعي</dt><dd><span class="ltr">${blMask(d.ref)}</span></dd><dt>سُجّلت</dt><dd>${d.at}</dd></dl>
@@ -362,8 +364,8 @@ surface('plan-grace', {
 
 /* ---------- S04-10 بطاقة بلوغ الحد ---------- */
 surface('plan-limit', {
-  kind: 'sheet', t: 'بلغت حد الخطة', sys: 'S1-04', p: 'adult', a: ['mem'], req: '04:9,14 03:2',
-  note: 'S04-10. تظهر حين يبلغ الأب حداً: الأفراد، أو الرسائل النصية، أو عمليات المساعد. سبب واحد وإجراء واحد و«لاحقاً» بلا عقوبة. للرسائل الإجراء الأول هو التعبئة لأنها الأرخص. على المميزة لا خطة أعلى، فلا زر ترقية. البالغ غير المالك لا يرى زر شراء: «اطلب من أحمد» يرسل طلباً واحداً يظهر عند المالك.',
+  kind: 'sheet', t: 'بلغت حد الخطة', sys: 'S1-04', p: 'adult', a: ['mem'], req: '04:9,14,22 03:2',
+  note: 'S04-10. تظهر حين يبلغ الأب حداً: الأفراد، أو الرسائل النصية، أو عمليات المساعد، أو الأدوار المخصصة (Q-456). سبب واحد وإجراء واحد و«لاحقاً» بلا عقوبة. للرسائل الإجراء الأول هو التعبئة لأنها الأرخص. على المميزة لا خطة أعلى، فلا زر ترقية. البالغ غير المالك لا يرى زر شراء: «اطلب من أحمد» يرسل طلباً واحداً يظهر عند المالك.',
   r(why) { return isAdult() ? blLimit(BL_LIM[why] ? why : 'mem', 1) : ''; },
 });
 
@@ -487,3 +489,6 @@ function blEv(v) {
   else if (v === 'aiout') { S.aiKill = false; S.aiUse = PLAN[S.plan].ai; }
   render();
 }
+
+ACT.blWRetry = () => { BL().wErr = 0; toast('جارٍ التحقق من حالة الدفع…', null, 'sync'); };
+ACT.blWBack = () => { BL().wErr = 0; back(); };

@@ -1,9 +1,9 @@
 /* أسطح «المزيد»: الإعدادات التسعة، الخطة، الخصوصية، الأمان، المساعد، المنصة، وطبقات النظام (بوابة، SOS، تحديث…). */
 'use strict';
 const PLAN = {
-  free: { n: 'المجانية', mem: 5, sms: 20, ai: 300, sar: 0, yer: 0 },
-  basic: { n: 'الأساسية', mem: 10, sms: 50, ai: 1000, sar: 9.99, sarY: 89.99, yer: 300 },
-  premium: { n: 'المميزة', mem: Infinity, sms: 100, ai: 3000, sar: 19.99, sarY: 179.99, yer: 600 },
+  free: { n: 'المجانية', mem: 5, sms: 20, ai: 300, roles: 0, sar: 0, yer: 0 },
+  basic: { n: 'الأساسية', mem: 10, sms: 50, ai: 1000, roles: 3, sar: 9.99, sarY: 89.99, yer: 300 },
+  premium: { n: 'المميزة', mem: Infinity, sms: 100, ai: 3000, roles: 10, sar: 19.99, sarY: 179.99, yer: 600 },
 };
 surface('more', {
   t: 'المزيد', sys: 'S1-09', p: 'adult', req: '09:4,5,12,13,15 01:11,21',
@@ -135,9 +135,9 @@ surface('registry', {
 
 /* ---------- الخصوصية والأمان ---------- */
 surface('privacy', {
-  t: 'الخصوصية والبيانات', sys: 'S1-02', p: 'adult', req: '02:25,26,27,28 01:15,16 08:15', st: 'un',
-  note: 'UNKNOWN (Q-046): سياسة تحليلات استخدام الأطفال غير محسومة؛ لذلك لا يُعرض لها مفتاح. الخلو من الإعلانات وأدوات التتبع ثابت صلب بلا واجهة.',
-  r() { return `${callout('لا إعلانات ولا أدوات تتبع في التطبيق، وهذا ثابت لا يُغيَّر بإعداد.', 'ok', 'verified_user')}${sec('ما نشاركه مع الطفل')}${list(row('visibility', 'الطفل يعرف ما يُتابَع', 'الوقت والموقع والمحادثات، لا تفاصيلها', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض الوقت المتبقي، لا عبارة رقابية', { a: 'go:persist' }))}
+  t: 'الخصوصية والبيانات', sys: 'S1-02', p: 'adult', req: '02:25,26,27,28 01:15,16 08:15',
+  note: 'مغلق (Q-046): لا إعلانات ولا تتبع إطلاقاً، ومفتاح تحليلات تحسين الخدمة للأطفال معطّل افتراضياً ولا يُفعَّل إلا باختيار الأب الصريح.',
+  r() { return `${callout('لا إعلانات ولا أدوات تتبع في التطبيق، وهذا ثابت لا يُغيَّر بإعداد.', 'ok', 'verified_user')}${sec('تحليلات تحسين الخدمة')}${list(row('analytics', 'تحليلات استخدام الأطفال', S.kidAnalytics ? 'مفعّلة بموافقتك · مجهولة الهوية وبلا تتبع' : 'معطّلة افتراضياً · لا تُجمع بيانات استخدام الطفل', { tg: !!S.kidAnalytics, ta: 'flip:kidAnalytics' }))}${sec('ما نشاركه مع الطفل')}${list(row('visibility', 'الطفل يعرف ما يُتابَع', 'الوقت والموقع والمحادثات، لا تفاصيلها', { a: 'go:consent-view' }), row('notifications', 'الإشعار الدائم', 'يعرض الوقت المتبقي، لا عبارة رقابية', { a: 'go:persist' }))}
     ${sec('نسخة من البيانات')}${list(row('download', 'نسخة من بياناتي', S.exp && S.exp.me ? (S.exp.me === 'ready' ? 'جاهزة للتنزيل' : 'قيد التجهيز') : 'ملف يُجهَّز ويصلك رابطه', { a: 'go:export' }), isOwner() ? KIDS.map(k => row('', 'نسخة من بيانات ' + M[k].n, S.exp && S.exp[k] ? (S.exp[k] === 'ready' ? 'جاهزة للتنزيل' : 'قيد التجهيز') : '', { lead: av(M[k], 'sm'), a: 'go:export:' + k })) : '')}
     ${sec('مدة الحفظ')}${list(row('forum', 'المحادثات', 'تبقى حتى يحذفها الأب', { v: 'دائم' }), row('location_on', 'سجل المواقع', 'يُحذف تلقائياً', { v: '7 أيام' }))}${callout('لا نجمع أي بيانات تحليلية من حسابات الأطفال.', 'ok', 'verified_user')}${sec('منطقة الخطر')}${list(row('delete_forever', 'احذف حسابي', S.delP ? `يُحذف بعد ${S.delP} يوماً · اضغط للإلغاء` : 'مهلة تراجع 30 يوماً', { a: 'go:delete-account', ic: 'var(--danger)' }))}`; },
 });
@@ -285,14 +285,14 @@ surface('health', {
     const ios = S.os === 'ios';
     return `${callout('هذه الصفحة للدعم الفني. إن طلب منك فريق الدعم معلومة عن جهازك فستجدها هنا.', 'nt', 'support_agent')}
     ${sec('هذا الجهاز')}<div class="g2">${[['memory', 'الذاكرة', '3 GB', 'انتقالات كاملة'], ['wifi', 'الاتصال', offline() ? 'منقطع' : S.lbw ? 'ضعيف' : 'جيد', offline() ? 'يعمل محلياً' : S.lbw ? 'توفير البيانات' : 'Wi‑Fi'], ['battery_5_bar', 'البطارية', '72%', 'عادي'], ['rocket_launch', 'الإقلاع البارد', '0.9 ث', 'الهدف < 1.2 ث']].map(([i, t, v, x]) => `<div class="card">${ic(i)}<div class="b" style="font-size:calc(20px*var(--ts));margin-top:4px">${v}</div><div class="sm muted">${t} · ${x}</div></div>`).join('')}</div>
-    ${list(row('speed', 'الانتقالات الثقيلة', 'تُعطَّل تلقائياً على الأجهزة دون 2GB', { v: chip('مفعّلة', 'ok') }), row('shield', 'تطبيق القواعد على الجهاز', ios ? 'غير متاحة على iOS · التحكم العميق على أندرويد فقط' : 'تعمل على أجهزة الأطفال فقط · هذا جهاز أهل', { v: ios ? chip('غير متاحة', '') : chip('لا تنطبق', ''), a: ios ? 'why:ios' : '' }), row('key', 'مفتاح توقيع الجهاز', 'مربوط بالعتاد', { v: chip('مسجَّل', 'ok', 'check') }), row('android', 'المنصة', '', { v: ios ? 'iOS' : 'Android' }))}
+    ${list(row('speed', 'الانتقالات الثقيلة', 'تُعطَّل تلقائياً على الأجهزة دون 2GB', { v: chip('مفعّلة', 'ok') }), row('shield', 'تطبيق القواعد على الجهاز', ios ? 'غير متاحة على iOS · التحكم العميق على أندرويد فقط' : 'تعمل على أجهزة الأطفال فقط · هذا جهاز أهل', { v: ios ? chip('غير متاحة', '') : chip('لا تنطبق', ''), a: ios ? 'why:ios' : '' }), row('key', 'مفتاح توقيع الجهاز', 'مربوط بالعتاد', { v: chip('مسجَّل', 'ok', 'check') }), row('android', 'المنصة', '', { v: ios ? 'iOS' : 'Android' })), row('shield', 'تطبيق القواعد على الجهاز', ios ? 'عبر «مدة استخدام الجهاز» من Apple' : 'عبر خدمة الوصول وإحصاءات الاستخدام في Android', { v: chip(ios ? 'iOS' : 'Android', 'in'), chev: false })}
     ${sec('السجلات المركزية')}${list([['tune', 'ControlRegistry', 'مفاتيح التحكم', ''], ['key', 'PermissionRegistry', 'مفاتيح الصلاحيات', String(FOS_PERM.all.length)], ['widgets', 'WidgetRegistry', 'ودجات الرئيسية', ''], ['notifications', 'NotificationRegistry', 'قنوات التنبيه', '']].map(([i, n, x, c]) => row(i, x, `<span class="mono">${n}</span>`, { v: c ? `<span class="mono">${c}</span>` : chip('مسجَّل', 'ok', 'check'), chev: false })))}
-    ${sec('أعلام الميزات وملف المنطقة')}${list(row('public', 'المنطقة', 'ملف المنطقة يُحمَّل عند الفتح ويُحفظ', { v: '<span class="mono">YE</span>', chev: false }), row('flag', 'low_bandwidth_default', 'صالح حتى إشعار آخر', { v: chip('on', 'ok'), chev: false }), row('flag', 'otp_channels', '', { v: '<span class="mono xs">whatsapp→sms→call</span>', chev: false }), row('flag', 'payment_routes', 'مسارات الدفع من ملف المنطقة · تفاصيلها في «الخطة والفوترة»', { chev: false }), row('smart_toy', 'ai_gateway_hook', 'خطاف العقد فقط · الميزانية ومفتاح الإيقاف في «المساعد الذكي»', { v: chip('hook', 'ol'), chev: false }))}`;
+    ${sec('عتبات تنبيهات صحة الحماية')}${list(row('sync_problem', 'تأخر المزامنة', 'يرفع تنبيه حالة إذا تجاوز التأخر', { v: chip('> 15 دقيقة', 'wa'), chev: false }), row('battery_alert', 'انخفاض بطارية جهاز الابن', 'يرسل إشعاراً فورياً للأهل', { v: chip('< 20%', 'da'), chev: false }), row('gpp_maybe', 'محاولات العبث المتكررة', 'يرفع تنبيه عبث عاجل للأب', { v: chip('≥ 3 محاولات', 'da'), chev: false }))}${sec('أعلام الميزات وملف المنطقة')}${list(row('public', 'المنطقة', 'ملف المنطقة يُحمَّل عند الفتح ويُحفظ', { v: '<span class="mono">YE</span>', chev: false }), row('flag', 'low_bandwidth_default', 'صالح حتى إشعار آخر', { v: chip('on', 'ok'), chev: false }), row('flag', 'otp_channels', '', { v: '<span class="mono xs">whatsapp→sms→call</span>', chev: false }), row('flag', 'payment_routes', 'مسارات الدفع من ملف المنطقة · تفاصيلها في «الخطة والفوترة»', { chev: false }), row('smart_toy', 'ai_gateway_hook', 'خطاف العقد فقط · الميزانية ومفتاح الإيقاف في «المساعد الذكي»', { v: chip('hook', 'ol'), chev: false }))}`;
   },
 });
 ACT.syncNow = () => { if (offline()) return toast('لا يوجد اتصال الآن · يُرسل كل شيء تلقائياً عند عودته', null, 'cloud_off'); flushOutbox(); S.lastSync = S.lastSync || { n: 0, at: 'الآن' }; S.lastSync.at = 'الآن'; toast('تمت المزامنة', null, 'cloud_done'); };
 surface('about', {
-  t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20', st: 'un',
+  t: 'عن التطبيق', sys: 'S1-01', p: 'any', req: '01:1,3,19,20',
   note: 'الشعار «القمرية»: اختاره المالك (Q-433). شخصية المرشد (B-002) ما زالت مفتوحة ولا تظهر.',
   r() { return `<div class="c" style="padding:16px 0"><img src="assets/brand/logo-horizontal-ar${S.theme === 'dark' ? '-dark' : ''}.svg" alt="عائلتي" height="96" style="margin:0 auto"><div class="sm muted">تطبيق واحد لكل العائلة · الإصدار 1.0.0</div></div>${list(S.sys === 'avail' || S.sys === 'soft' ? row('system_update_alt', 'تحديث متاح', S.sys === 'soft' ? 'إصدارك قديم · حدّث لتبقى كل الخدمات تعمل' : 'الإصدار 1.1.0 · عبر متجر Google Play', { a: 'updGo', v: chip('حدّث', S.sys === 'soft' ? 'wa' : 'in') }) : row('system_update_alt', 'تحقق من التحديثات', 'عبر متجر Google Play', { a: 'updCheck' }), row('android', 'المنصة', 'Android: كامل · iOS: واجهة مشتركة، والتحكم العميق لاحقاً', { v: S.os === 'ios' ? 'iOS' : 'Android' }), row('description', 'الشروط والخصوصية', 'شروط الاستخدام · سياسة الخصوصية · خصوصية الأطفال', { a: 'go:legal' }), isAdult() ? row('contact_support', 'المساعدة والدعم', '', { a: 'go:help' }) : '', row('gavel', 'تراخيص المصادر المفتوحة', 'IBM Plex Sans Arabic · Material Symbols', { a: 'go:licenses' }))}${isAdult() ? list(row('support_agent', 'معلومات تشخيصية', 'للدعم الفني', { a: 'go:health' })) : ''}`; },
 });
@@ -464,7 +464,7 @@ surface('sys-update', {
   r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('system_update_alt')}</div><p class="ttl">تحديث مطلوب للأمان</p><p class="sub">هذا الإصدار لم يعد مدعوماً. حدّث التطبيق لتواصل استخدامه بأمان. بياناتك وما لم يُرسل بعد محفوظة.</p>${btn('حدّث من المتجر', 'updGo', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'download')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
 });
 surface('sys-maint', {
-  kind: 'full', cls: 'dark', t: 'صيانة', sys: 'S1-01', p: 'any', req: '01:7,9', st: 'pr',
+  kind: 'full', cls: 'dark', t: 'صيانة', sys: 'S1-01', p: 'any', req: '01:7,9',
   note: 'مقترح: حالة «صيانة» مذكورة في نظام التصميم (states) كحالة نظام. القواعد تبقى مفروضة محلياً والاستغاثة عبر SMS تعمل.',
   r() { return `<div class="body" style="justify-content:center"><div class="bigic">${ic('construction')}</div><p class="ttl">نُجري صيانة قصيرة</p><p class="sub">نعود خلال دقائق. قواعد الأطفال ما زالت تعمل على أجهزتهم، وما تفعله الآن يُحفظ ويُرسل لاحقاً.</p>${btn('حاول مجدداً', 'maintTry', 'sec" style="background:#fff;color:#142749;box-shadow:none', 'refresh')}<div class="gap"></div><div class="c">${sosBtn()}</div></div>`; },
 });
@@ -518,7 +518,7 @@ const LEGAL = [
   ['privacy', 'policy', 'سياسة الخصوصية', 'ما نجمعه ولماذا ومن يراه', ['ما نجمعه', 'لماذا نجمعه', 'من يراه داخل العائلة', 'أين يُحفظ وكم يبقى', 'حقك في التصدير والحذف', 'بيانات الأطفال وموافقة ولي الأمر']],
 ];
 surface('legal', {
-  t: 'الشروط والخصوصية', sys: 'S1-01', p: 'any', req: '', st: 'un',
+  t: 'الشروط والخصوصية', sys: 'S1-01', p: 'any', req: '',
   note: 'SCR-15 في S1-01: لازمة إطلاق ومتاجر بلا متطلب مرقَّم (Q-397 ب-13): شروط الاستخدام وسياسة الخصوصية يجب أن تُفتحا من داخل التطبيق ومن صفحة المتجر. النص القانوني يُكتب بصياغة عادية مرنة ويعتمده المحامي قبل الإطلاق (Q-412)؛ الشاشة تثبّت الموضع والبنية فقط.',
   r() { return `${callout('النص النهائي يعتمده المحامي قبل الإطلاق. هذه الصفحة تثبّت مكانه في التطبيق.', 'nt', 'info')}${list(...LEGAL.map(([k, i, t, d, H]) => row(i, t, S.lgQ === k ? `<span class="lgo">${H.map((h, n) => `<span>${n + 1}. ${h}</span>`).join('')}<em>هذه أبواب الوثيقة. صياغتها النهائية تُنشر هنا بعد اعتماد المحامي.</em></span>` : d, { a: 'legalDoc:' + k, chev: false, v: ic(S.lgQ === k ? 'keyboard_arrow_up' : 'keyboard_arrow_down') })), row('child_care', 'خصوصية الأطفال', 'ما يراه ولي الأمر وما لا يراه', { a: isAdult() ? 'go:privacy' : 'go:consent-view' }))}${isAdult() ? sec('بياناتك') + list(row('privacy_tip', 'الخصوصية والبيانات', 'تصدير · حذف · شفافية', { a: 'go:privacy' })) : ''}${callout('لا إعلانات ولا أدوات تتبع في التطبيق.', 'ok', 'verified_user')}`; },
 });
