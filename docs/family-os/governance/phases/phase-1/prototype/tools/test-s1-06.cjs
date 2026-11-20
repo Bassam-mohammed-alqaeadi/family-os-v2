@@ -297,6 +297,8 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  // 15 الروابط
  ok('every task link leads to a surface',TKS.every(id=>{try{S=fresh();jump(id);render();return [...ph.querySelectorAll('[data-a^="go:"]')].every(e=>!!SC[e.dataset.a.split(':')[1]])}catch(e){return false}}));
  S=fresh();go('tasks','layan');render();ok('tasks opened from a child: filter preset to that child (Q-457)',S.tf==='layan');
+ S=fresh();S.tv='cal';open('tasks');ACT.tkEvNew('2026-11-20');render();ACT.scrimClose();render();ok('event form: closing empty does not ask (Q-458)',top()!=='dlg'&&!S.sheet);
+ ACT.tkEvNew('2026-11-20');render();S.ev.t='موعد الطبيب';ACT.scrimClose();render();ok('event form: closing with a typed title asks first',top()==='dlg'&&has(/أدخلت عنواناً ولم تحفظه بعد/));dlgYes();ok('event form: discard closes and drops the draft',!S.sheet&&!S.ev);
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-06: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-06');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

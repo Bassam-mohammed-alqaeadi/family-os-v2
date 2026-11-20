@@ -619,6 +619,10 @@ sequenceDiagram
         App->>Ktor: حذف الرسالة أو إغلاق المحادثة
         Ktor-->>App: نُفّذ بعد فحص الصلاحية
     end
+    opt رأيه في الرصد
+        Father->>App: «رصد صحيح» أو «إنذار خاطئ»
+        App->>Ktor: تسجيل الرأي بلا نص الرسالة
+    end
 ```
 - الرسالة 3: تنبيه المصنف — «قد يكون تقديره خاطئاً» — بلا رقم ثقة — بلا نص الرسالة.
 - الرسالة 5: `POST /api/v1/families/{id}/flagged-messages/{messageId}/reveal` — يُكتب العرض في التدقيق.
@@ -626,6 +630,7 @@ sequenceDiagram
 - الرسالة 11: `POST /api/v1/families/{id}/flagged-messages/{messageId}/dismiss`.
 - الرسالة 13: `DELETE .../messages/{messageId} أو POST .../channels/{channelId}/close {reason}`.
 - الرسالة 14: نُفّذ (بعد فحص الصلاحية — chat.message.delete.any / chat.channel.close).
+- الرسالة 16: `POST /api/v1/families/{id}/flagged-messages/{messageId}/feedback {verdict}` — لقياس نسبة الإنذارات الخاطئة فقط (Q-458).
 
 - نص الرسالة لا يُعرض إلا بطلب صريح («اعرض الرسالة»)، ويُسجَّل العرض في التدقيق (Q-410 (ب))؛ والتنبيه نفسه يحمل الفئة والخطورة ومعرّف الرسالة فقط — بلا نص وبلا رقم ثقة — مع عبارة «قد يكون تقديره خاطئاً» (Q-165 · Q-413).
 - الخيارات: تحدث مع الطفل / افتح المحادثة / تجاهل / احذف الرسالة / أغلق المحادثة — وآخر اثنين لمن مُنحا فقط (Q-410 (ب))؛ والتجاهل يُسجَّل بيانات وصفية فقط (معرّف الرسالة + الفئة + علامة التجاهل — بلا نص) (§7-10).
@@ -713,7 +718,7 @@ flowchart TD
 
 العمليات مرقمة 1.0–7.0، والمخازن D1–D5. المخازن جداول خادم (PostgreSQL) مع نسخة محلية في Drift على العميل (`channel` + `message`)؛ ووسائط `media` تُخزن في MinIO (Q-058) ومرجعها فقط في قاعدة البيانات. سبع لوحات (دفعة الشكل 2 — المخطط الواحد كان 22 عقدة): 5-أ إدارة القنوات (P1)، 5-ب إرسال الرسائل — الحفظ والدفع (P2)، 5-ج إرسال الرسائل — الوسائط (P2)، 5-د التشفير E2E ‏(P3)، 5-هـ الإشراف والمصنف (P4)، 5-و الصندوق الصادر (P5)، 5-ز الحذف والتطهير (P6+P7).
 
-- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4.1 تظهر هنا على الأقل: `GET /api/v1/families/{id}/channels` (قائمة القنوات — REQ-001، تُقرأ عبر P1) · `POST /api/v1/families/{id}/channels` (إنشاء قناة ثنائية/جماعية — REQ-002، تمر عبر P1؛ وقناة الوالدين تُنشأ مع العائلة لا هنا) · `GET /api/v1/families/{id}/flagged-messages` (قائمة ما رصده المصنف — REQ-012، تُقرأ عبر P4) · `POST /api/v1/families/{id}/flagged-messages/{messageId}/reveal` (عرض نص الرسالة المُعلَّمة — REQ-012، تمر عبر P4) · `POST /api/v1/families/{id}/flagged-messages/{messageId}/dismiss` (تجاهل التنبيه — REQ-012، تمر عبر P4)؛ وبقية النقاط مرسومة في §3 (messages إرسال/قراءة/حذف، read، close).
+- **تغطية نقاط §4:** التسلسلات في §3 تغطي التدفقات الأساسية فقط؛ وكل نقطة §4.1 تظهر هنا على الأقل: `GET /api/v1/families/{id}/channels` (قائمة القنوات — REQ-001، تُقرأ عبر P1) · `POST /api/v1/families/{id}/channels` (إنشاء قناة ثنائية/جماعية — REQ-002، تمر عبر P1؛ وقناة الوالدين تُنشأ مع العائلة لا هنا) · `GET /api/v1/families/{id}/flagged-messages` (قائمة ما رصده المصنف — REQ-012، تُقرأ عبر P4) · `POST /api/v1/families/{id}/flagged-messages/{messageId}/reveal` (عرض نص الرسالة المُعلَّمة — REQ-012، تمر عبر P4) · `POST /api/v1/families/{id}/flagged-messages/{messageId}/dismiss` (تجاهل التنبيه — REQ-012، تمر عبر P4) · `POST /api/v1/families/{id}/flagged-messages/{messageId}/feedback` (رأي وليّ الأمر في الرصد — REQ-012 · Q-458، تمر عبر P4)؛ وبقية النقاط مرسومة في §3 (messages إرسال/قراءة/حذف، read، close).
 
 ### 5-أ. إدارة القنوات (P1 — REQ-001/002)
 

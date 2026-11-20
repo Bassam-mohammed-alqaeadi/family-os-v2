@@ -196,7 +196,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();S.net='off';open('chat-restore');ok('restore needs a connection',q('#scr [data-a="crGo"]').disabled&&has(/الاسترداد يحتاج اتصالاً/));
  // جمع النموذجين (Q-457)
  S=fresh();tab('chat');S.chQ='ززز';render();ok('chat search: empty result offers to clear',has(/لا محادثة بهذا الاسم/)&&!!q('[data-a="chClearQ"]'));ACT.chClearQ();render();ok('chat search: cleared',S.chQ===''&&!has(/لا محادثة بهذا الاسم/));
- ok('review: classifier feedback marked as a proposal',/UNKNOWN/.test(SC['chat-review'].note));
+ ok('review: classifier feedback has a contract (Q-458)',!/UNKNOWN/.test(SC['chat-review'].note)&&/Q-458/.test(SC['chat-review'].note));
+ S=fresh();S.review=[{id:'rz',ch:K,f:'khaled',cat:Object.keys(RV_CAT)[0],at:'اليوم 4:10 م',x:'نص تجريبي'}];open('chat-review');ok('review: both verdict buttons shown, text still hidden',!!q('#scr [data-a="rvRate:rz:good"]')&&!!q('#scr [data-a="rvRate:rz:false"]')&&!/نص تجريبي/.test(txt()));
+ ACT.rvRate('rz','false');render();ok('review: verdict recorded once, without the text, no training claim',S.rvRate.rz==='false'&&has(/إنذار خاطئ · سُجّل/)&&!q('#scr [data-a^="rvRate:rz"]')&&!/لتحسين دقة/.test(txt())&&S.review.length===1);
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-08: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-08');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

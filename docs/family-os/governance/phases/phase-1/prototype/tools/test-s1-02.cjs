@@ -130,8 +130,8 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  S=fresh();S.net='off';go('family-settings');ACT.famEdit('reg');ACT.famPick('reg','SA');render();ok('family edit: needs connection',ph.querySelector('[data-a="famSave:reg"]').disabled);
  S=fresh();setPersona('delegate');go('family-settings');render();ok('family: delegate cannot edit',!ph.querySelector('#scr [data-a^="famEdit:"]'));
  // جمع النموذجين (Q-457): مفتاح التحليلات مقترح بلا حكم — مطفأ افتراضاً والشاشة موسومة
- S=fresh();go('privacy');render();ok('privacy: kids analytics off by default',S.kidAnalytics===false&&/معطّلة افتراضياً/.test(txt()));ok('privacy: marked as awaiting a ruling, not closed',SC.privacy.st==='un'&&/Q-046/.test(SC.privacy.note)&&!/مغلق/.test(SC.privacy.note));
- ACT.flip('kidAnalytics');render();ok('privacy: on only by the father\'s own tap',S.kidAnalytics===true&&/مفعّلة بموافقتك/.test(txt()));
+ S=fresh();go('privacy');render();ok('privacy: no kids-analytics switch until Q-046 is ruled (Q-458)',S.kidAnalytics===undefined&&!/تحليلات استخدام الأطفال/.test(txt())&&!document.querySelector('#scr [data-a="flip:kidAnalytics"]'));ok('privacy: marked as awaiting a ruling, not closed',SC.privacy.st==='un'&&/Q-046/.test(SC.privacy.note)&&!/مغلق/.test(SC.privacy.note));
+ ok('privacy: says no usage data comes from the child screens',/لا نجمع أي بيانات تحليلية من حسابات الأطفال/.test(txt()));
  // 14 كل أسطح S1-02: إنجليزي + لا تجاوز أفقي + لا كلام مهندسين
  const over=[],eng=[];for(const id of Object.keys(SC).filter(k=>SC[k].sys==='S1-02')){for(const lang of ['ar','en']){try{S=fresh();jump(id);S.lang=lang;render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id+':'+lang);
    if(lang==='ar'&&/TOTP|HMAC|JSON|IANA|mTLS|MQTT|مفتاح التوقيع|مفتاح توقيع|العتاد|E\.164|Firebase/.test(txt()))eng.push(id);}catch(e){F.push('ERR '+id+' '+lang+' '+e.message)}}}

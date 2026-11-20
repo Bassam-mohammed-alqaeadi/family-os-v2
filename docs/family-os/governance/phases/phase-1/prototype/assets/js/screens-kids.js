@@ -1,6 +1,5 @@
 
-const mentorCard = () => `<div class="card fx" style="background:linear-gradient(135deg,var(--primary-soft),var(--gold-soft));border-color:var(--gold)"><svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true" style="flex:none"><circle cx="32" cy="32" r="30" fill="#1F3A6B"/><circle cx="32" cy="28" r="14" fill="#FCFAED"/><circle cx="27" cy="26" r="2.2" fill="#0A152A"/><circle cx="37" cy="26" r="2.2" fill="#0A152A"/><path d="M26 33 Q32 38 38 33" stroke="#CF5B2C" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M18 16 Q32 6 46 16" stroke="#C8A24A" stroke-width="4" fill="none" stroke-linecap="round"/></svg><div class="grow"><b>المرشد الصغير معك</b><div class="sm muted">ابدأ بتطبيقات الدراسة، ثم العب بوقتك المتبقي.</div></div></div>`;
-ACT.tmTog = k => { S.tmExp = S.tmExp || {}; S.tmExp[k] = !S.tmExp[k]; };
+const tipCard = () => `<div class="card fx" style="background:linear-gradient(135deg,var(--primary-soft),var(--gold-soft));border-color:var(--gold)"><span aria-hidden="true" style="flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--on-primary)">${ic('lightbulb')}</span><div class="grow"><b>ابدأ بالدراسة أولاً</b><div class="sm muted">تطبيقات الدراسة مفتوحة دائماً، واللعب بوقتك المتبقي.</div></div></div>`;
 /* أسطح وضع الطفل والمراهق + شاشة الحظر. المحادثة في screens-chat.js، والمكافآت في screens-rewards.js. */
 'use strict';
 /* ============ الطفل (القالب القياسي 7–12) ============ */
@@ -169,7 +168,7 @@ surface('t-home', {
 surface('t-me', {
   t: 'أنا', sys: 'S1-03', p: 'teen', req: '03:15 02:17 08:12 01:5,6,18,21',
   note: 'شفافية للمراهق: لكل فئة تُتابَع سطر يقول ما يراه أهله وسطر يقول ما لا يرونه، ثم ما سُمح له به، ثم حقوقه (ما اتُّفق عليه، ما فعله المساعد بخصوصه، مناقشة قرار)، ثم الجهاز. لا مشتريات ولا روابط خارجية.',
-  r() { const m = me(), on = S.clsTeen ?? true, ex = S.tmExp || {}, see = (y, n) => `<span class="tsee">${ic('visibility')}${y}</span>${n ? `<span class="tsee no">${ic('visibility_off')}${n}</span>` : ''}`;
+  r() { const m = me(), on = S.clsTeen ?? true, see = (y, n) => `<span class="tsee">${ic('visibility')}${y}</span>${n ? `<span class="tsee no">${ic('visibility_off')}${n}</span>` : ''}`;
     return `<div class="tnpf">${av(m, 'lg')}<div><b>${m.n}</b><span>15 سنة · حساب مراهق</span></div></div>
     ${sec('ما يراه أهلي')}<p class="sm muted" style="margin:-4px 4px 8px">الفئات التي تُتابَع، لا المحتوى.</p>${list(row('hourglass_top', 'وقت الشاشة', see('المدة لكل تطبيق', 'ما تفعله داخله'), { chev: false }), row('location_on', 'موقعي', see('الآن وسجل 7 أيام'), { a: 'go:map' }), row('forum', 'محادثات العائلة', see('مرئية ' + chSeers('khaled', 1)), { chev: false }), row('chat_error', 'المصنّف الآلي للرسائل', see(on ? 'مفعّل · ينبّه والدك عند خطر فقط' : 'أوقفه والدك'), { chev: false, v: chip(on ? 'مفعّل' : 'متوقف', on ? 'ok' : 'ol') }), row('travel_explore', 'المواقع', see('فئة الموقع', 'كل صفحة تفتحها'), { chev: false }))}
     ${sec('ما سُمح لي به')}${list(row('task_alt', `أنشئ مهامي بنفسي${pnNew('khaled').length ? ' ' + chip('جديد', 'in') : ''}`, S.teenTasks ? `مهامك أنت فقط · ${unTxt(S.teenUn).replace('تلغيها', 'يلغيها والدك')}` : 'لم يسمح بها والدك بعد', { v: S.teenTasks ? chip('مسموح', 'ok', 'check') : (S.preq.find(q => q.k === 'teen' && q.st === 'pending') ? chip('بانتظار والدك', 'wa', 'pending') : btn('اطلب', 'preqSend:teen', 'sm txt')) }), row('supervisor_account', 'الإشراف على إخوتي', 'لا يُفوَّض للمراهق', { v: ic('lock'), c: 'dis' }))}
@@ -182,7 +181,7 @@ Object.assign(ACT, {
 });
 surface('learn', {
   t: () => (mode() === 'teen' ? 'تعلّم' : 'العب وتعلّم'), sys: 'S1-10', p: 'kid', req: '10:7,24 09:9',
-  note: 'معتمد (Q-397 · Q-417): التبويب في التنقل، ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002).',
+  note: 'معتمد (Q-397 · Q-417): التبويب في التنقل، ومحتواه التعليمي في المرحلة 3. في المرحلة 1 يعرض تطبيقات الطفل التي سمح بها الأب فقط: الدراسة المفتوحة دائماً، ثم اللعب بوقته المتبقي. لا بلاطات «قريباً» (G-002). بطاقة التلميح في الأعلى بأيقونة عامة: شخصية المرشد لا تُرسم حتى تُحسم (Q-043 — Q-458).',
   r() { const id = kidId(), A = S.apps[id].filter(a => a.act !== 'BLOCK'), st = A.filter(a => a.study), pl = A.filter(a => !a.study), teen = mode() === 'teen';
     if (teen) {
       const on = winNow(id) === 'school', sc = S.sched[id].find(x => x.type === 'school'), used = st.reduce((n, a) => n + (a.used || 0), 0);
@@ -193,6 +192,6 @@ surface('learn', {
     }
     /* قالب الطفل (Q-449): كل تطبيق بلاطة. اللون للحالة: أخضر مفتوح للدراسة، كحلي للّعب، رمادي لما انتهى وقته؛ والشريط هو الوقت الباقي. */
     const end = a => a.act === 'LIMIT' && a.used >= a.lim;
-    return `${mentorCard()}${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + `<div class="ktg app">${st.map(a => ktile(a.i, a.n, 'مفتوح حتى في وقت المدرسة', 'openApp:' + a.id, chip('متاح', 'ok', 'check'), '#1F6B3B')).join('')}</div>` : ''}${pl.length && !teen ? sec('ألعب') + `<div class="ktg app">${pl.map(a => ktile(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', 'openApp:' + a.id, end(a) ? chip('انتهى وقته', '') : '', end(a) ? '#827B69' : '#1F3A6B', a.act === 'LIMIT' ? pbar((a.lim - a.used) / a.lim * 100) : '')).join('')}</div>` : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
+    return `${tipCard()}${st.length ? sec(teen ? 'تطبيقات الدراسة' : 'أتعلّم') + `<div class="ktg app">${st.map(a => ktile(a.i, a.n, 'مفتوح حتى في وقت المدرسة', 'openApp:' + a.id, chip('متاح', 'ok', 'check'), '#1F6B3B')).join('')}</div>` : ''}${pl.length && !teen ? sec('ألعب') + `<div class="ktg app">${pl.map(a => ktile(a.i, a.n, a.act === 'LIMIT' ? `${Math.max(0, a.lim - a.used)} دقيقة متبقية اليوم` : 'مسموح', 'openApp:' + a.id, end(a) ? chip('انتهى وقته', '') : '', end(a) ? '#827B69' : '#1F3A6B', a.act === 'LIMIT' ? pbar((a.lim - a.used) / a.lim * 100) : '')).join('')}</div>` : ''}${!st.length && (teen || !pl.length) ? empty('school', 'لا تطبيقات هنا بعد', teen ? 'حين يحدد والدك تطبيقات الدراسة تظهر هنا.' : 'اطلب من بابا أن يضيف تطبيقاتك.') : ''}`; },
 });
 

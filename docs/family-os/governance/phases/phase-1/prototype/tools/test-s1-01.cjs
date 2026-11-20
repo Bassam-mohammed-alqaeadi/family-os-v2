@@ -77,6 +77,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();Studio.act.flip('bioAct');ok('studio: the switch turns it on',S.bioAct===true);Studio.act.set('pinAgo','31');ok('studio: thirty-one days since the number',S.pinAgo===31);
  ok('journey exists with six steps',JOURNEYS.some(j=>j.t==='التأكيد بالبصمة'&&j.s.length===6));
  ok('journey steps run without error',(()=>{try{S=fresh();JOURNEYS.find(j=>j.t==='التأكيد بالبصمة').s.forEach(x=>{x[1]();render()});return top()==='pin'&&mode()!=='parent'}catch(e){return String(e)}})()===true);
+ S=fresh();go('health');render();ok('health: alert rules match the rulings (Q-458)',/< 15%/.test(txt())&&/كل محاولة تنبّه الأب فوراً/.test(txt())&&/بلا إشعار/.test(txt())&&!/20%/.test(txt())&&!/3 محاولات/.test(txt())&&!/UNKNOWN/.test(SC.health.note));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-01: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-01');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

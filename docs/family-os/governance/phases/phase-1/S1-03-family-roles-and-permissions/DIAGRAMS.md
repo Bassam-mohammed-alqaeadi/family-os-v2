@@ -326,8 +326,8 @@ erDiagram
 - `scope` + `valid_until` إلزاميان في كل منح (Q-007 · Q-087)؛ `is_granted=false` رفض صريح وليس غياباً (Q-007).
 - `verification_method` قيمه `pin` / `biometric` — للمنح الحساس فقط (REQ-012).
 - **`full_authority` (§5-5 — Q-401):** حلّ محل `ownership_transfer`. `status` قيمتاه `active` / `revoked` فقط — لا `pending` ولا `accepted` ولا `expired` ولا `expires_at`؛ صف `active` واحد على الأكثر لكل عضو؛ `auth_method` PIN أو بصمة (Q-093)؛ `notice_seen_at` متى رأى الحامل إشعاره. و`membership.is_owner` لا ينتقل إلا عند اكتمال مهلة حذف حساب المالك (Q-402).
-- **`family_role` + `family_role_key` (§5-3-ب — Q-401 · Q-455):** تعديل العائلة لدور جاهز، أو دور مخصص أنشأته (`is_custom`)؛ صفوف تُكتب فقط حين تعدّل أو تنشئ، ومفتاحاهما المركبان (`family_id`, `template_id`) و(`family_id`, `template_id`, `permission_key`). `template_id` معرّف دور جاهز أو معرّف يولّده الخادم لدور مخصص، فليس مفتاحاً أجنبياً. البذرة (`role_template` + `template_key`) لا تُمس.
-- **`member_role` (§5-3-ج — Q-455):** آخر دور طُبّق على العضو ونطاقه ومدته — لا يدخل في التقييم؛ يُعرف به حاملو الدور عند سريان تعديله وعند حذفه (REQ-022 · REQ-023).
+- **`family_role` + `family_role_key` (§5-3-ج — Q-401 · Q-455):** تعديل العائلة لدور جاهز، أو دور مخصص أنشأته (`is_custom`)؛ صفوف تُكتب فقط حين تعدّل أو تنشئ، ومفتاحاهما المركبان (`family_id`, `template_id`) و(`family_id`, `template_id`, `permission_key`). `template_id` معرّف دور جاهز أو معرّف يولّده الخادم لدور مخصص، فليس مفتاحاً أجنبياً. البذرة (`role_template` + `template_key`) لا تُمس.
+- **`member_role` (§5-3-د — Q-455):** آخر دور طُبّق على العضو ونطاقه ومدته — لا يدخل في التقييم؛ يُعرف به حاملو الدور عند سريان تعديله وعند حذفه (REQ-022 · REQ-023).
 - **`permission_grant.source_role_id` (§5-4 — Q-455):** الدور الذي نُسخ منه المنح؛ فارغ لمنح أُعطي للعضو بعينه. سريان تعديل الدور وحذفه يسحبان ما جاء من الدور وحده.
 - المنع الصريح صف في `permission_grant` بـ `is_granted=false`؛ `valid_until` فيه اختياري وغيابه يعني «حتى يُرفع» (Q-402).
 

@@ -201,9 +201,14 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  open('mode-edit','m1');ok('editor read-only without permission',can('protection.rule.edit')||(!q('.btn[data-a="mdSave"]')&&has(/ترى الوضع ولا تعدّله/)));
  S=fresh();S.net='off';open('mode-edit','new');ACT.mdN('تجربة');ACT.mdOpen('none');render();ok('offline: mode save disabled with reason',dis('.btn[data-a="mdSave"]')&&has(/يحتاج اتصالاً/));
  // جمع النموذجين (Q-457)
- S=fresh();setPersona('child');go('learn');render();ok('learn: no coming-soon rows (Q-397)',!/قريباً/.test(txt())&&!/أنشطة تعليمية مقترحة/.test(txt())&&/المرشد الصغير معك/.test(txt()));
+ S=fresh();setPersona('child');go('learn');render();ok('learn: no coming-soon rows (Q-397)',!/قريباً/.test(txt())&&!/أنشطة تعليمية مقترحة/.test(txt())&&/ابدأ بالدراسة أولاً/.test(txt())&&!/المرشد/.test(txt()));
  go('my-rules');render();ok('my rules: summary card on top',/باقي اليوم/.test(txt())&&/تطبيقات بحدّ/.test(txt())&&/البحث الآمن/.test(txt()));
  S=fresh();go('quota','layan');render();ok('quota: no preview before a change',!/معاينة الأثر اليوم/.test(txt()));ACT.qdDay(NOW.d,'+');render();ok('quota: preview of today before saving',/معاينة الأثر اليوم/.test(txt())&&S.kid.layan.quota!==S.qd.v[NOW.d]);
+ // Q-458: شريط النافذة والتراجع عن تعديل غير محفوظ
+ S=fresh();open('win-edit','layan','w1');ACT.scrimClose();render();ok('win-edit: closing unchanged does not ask',top()!=='dlg'&&!S.sheet);
+ S=fresh();open('win-edit','layan','w1');ACT.wdT('s','08:00');ACT.wdT('e','12:00');render();ok('win-edit: day bar draws one piece at the right place',(()=>{const b=[...document.querySelectorAll('.sheet .sched i')];return b.length===1&&Math.abs(parseFloat(b[0].style.left)-480/14.4)<0.01&&Math.abs(parseFloat(b[0].style.width)-240/14.4)<0.01})());
+ ACT.wdT('s','22:00');ACT.wdT('e','05:00');render();ok('win-edit: overnight window draws two pieces',(()=>{const b=[...document.querySelectorAll('.sheet .sched i')];return b.length===2&&Math.abs(parseFloat(b[0].style.left)-1320/14.4)<0.01&&parseFloat(b[1].style.left)===0&&Math.abs(parseFloat(b[1].style.width)-300/14.4)<0.01})());
+ ACT.scrimClose();render();ok('win-edit: closing with unsaved edits asks first',top()==='dlg'&&has(/عدّلت النافذة ولم تحفظها بعد/)&&!!S.sheet);dlgYes();ok('win-edit: discard closes and drops the draft',!S.sheet&&!S.wd&&top()!=='dlg');
  // 17 كل أسطح S1-10: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-10');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;
  for(const id of ids){for(const pre of [null,'guardian','none','co','ios','off']){try{S=fresh();if(pre==='co')S.co={since:'اليوم',seen:0};else if(pre==='ios')S.os='ios';else if(pre==='off')S.net='off';else if(pre)setRole(pre);jump(id);render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id);const sh=ph.querySelector('.sheet');if(sh&&sh.scrollWidth>sh.clientWidth+1)over.push(id+':sheet');

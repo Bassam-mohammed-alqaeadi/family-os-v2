@@ -228,13 +228,13 @@ surface('chat-flag', {
 const RV_CAT = { harm: 'تشجيع على إيذاء النفس', groom: 'نمط استدراج', sexual: 'محتوى جنسي يخص قاصراً' };
 surface('chat-review', {
   t: 'رسائل أوقفها المصنّف', sys: 'S1-08', p: 'owner', req: '08:12,15',
-  note: 'ثلاث فئات خطيرة فقط تُوقف قبل أن تصل: محتوى جنسي يخص قاصراً، تشجيع على إيذاء النفس، نمط استدراج. الرسالة لا تصل ولا تختفي بصمت: تأتي هنا، ومرسلها يعلم. تبقى 30 يوماً ثم تُحذف نهائياً. جرّب من الاستوديو: «المصنّف يوقف الرسالة التالية» ثم أرسل من هاتف خالد. UNKNOWN: زرّا «رصد صحيح» و«إنذار خاطئ» مقترحان من نموذج المالك، بلا عقد في المواصفة بعد (Q-457).',
+  note: 'ثلاث فئات خطيرة فقط تُوقف قبل أن تصل: محتوى جنسي يخص قاصراً، تشجيع على إيذاء النفس، نمط استدراج. الرسالة لا تصل ولا تختفي بصمت: تأتي هنا، ومرسلها يعلم. تبقى 30 يوماً ثم تُحذف نهائياً. جرّب من الاستوديو: «المصنّف يوقف الرسالة التالية» ثم أرسل من هاتف خالد. زرّا «رصد صحيح» و«إنذار خاطئ» يسجّلان رأي الأب في الرصد بلا نص الرسالة، لقياس نسبة الإنذارات الخاطئة فقط (REQ-012 — Q-458).',
   r() {
     if (!isOwner()) return empty('lock', 'هذه القائمة لصاحب العائلة', `${M.ahmad.n} هو من يراجع ما أوقفه المصنّف.`);
     const R = S.review || []; if (!R.length) return empty('check_circle', 'لا رسائل موقوفة', 'لم يوقف المصنّف أي رسالة. ما يوقفه يظهر هنا ولا يصل إلى أحد.');
     return `${callout('هذه الرسائل <b>لم تصل</b> إلى أحد. مرسلها يعلم أنها أُوقفت وأنك ستراها.', 'wa', 'block')}${R.map((r, n) => { const c = chOf(r.ch), show = S.rvShow === r.id;
       return `<div class="card"><div class="chips">${chip(RV_CAT[r.cat], 'da', 'block')}${chip('الخطورة: عالية', 'ol')}</div><p style="margin:12px 0 2px"><b>من ${M[r.f].n} في محادثة ${c.mem.map(x => M[x].n).join(' و')}</b></p><p class="sm muted">${r.at} · لم تُسلَّم</p>
-      ${show ? `<div class="card flat" style="margin:12px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div><div class="fx sb" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span class="xs muted">دقة المصنّف:</span><div class="fx">${S.rvRate && S.rvRate[r.id] ? chip(S.rvRate[r.id] === 'good' ? 'رصد صحيح · شكراً' : 'إنذار خاطئ · سُجّل', S.rvRate[r.id] === 'good' ? 'ok' : 'in', 'check') : `${btn('رصد صحيح', 'rvRate:' + r.id + ':good', 'sm txt')}${btn('إنذار خاطئ', 'rvRate:' + r.id + ':false', 'sm txt')}`}</div></div></div>`; }).join('')}
+      ${show ? `<div class="card flat" style="margin:12px 0">«${r.x}»</div>` : ''}<div class="btns3">${show ? '' : btn('اعرض الرسالة', 'rvShow:' + r.id, 'sm sec', 'visibility')}${btn(`تحدّث مع ${M[r.f].n}`, 'dmStart:' + r.f, 'sm sec', 'forum')}${c.closed ? '' : btn('أغلق المحادثة', 'go:chat-close:' + r.ch, 'sm sec', 'lock')}${btn('تجاهل', 'rvOk:' + r.id, 'sm sec', 'thumb_up')}</div><div class="fx sb" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span class="xs muted">هل أصاب المصنّف؟</span><div class="fx">${S.rvRate && S.rvRate[r.id] ? chip(S.rvRate[r.id] === 'good' ? 'رصد صحيح · شكراً' : 'إنذار خاطئ · سُجّل', S.rvRate[r.id] === 'good' ? 'ok' : 'in', 'check') : `${btn('رصد صحيح', 'rvRate:' + r.id + ':good', 'sm txt')}${btn('إنذار خاطئ', 'rvRate:' + r.id + ':false', 'sm txt')}`}</div></div></div>`; }).join('')}
     <p class="xs muted" style="margin:12px 4px">تبقى هنا 30 يوماً ثم تُحذف نهائياً. التجاهل يُسجَّل بلا نص الرسالة.</p>`;
   },
 });
@@ -345,6 +345,6 @@ Object.assign(ACT, {
 });
 function crDone() { if (S.cr.step === 2) { S.cr.step = 3; chLog('استرد سجل قناة الوالدين على هذا الجهاز', 'chat.parents.view'); } }
 
-ACT.rvRate = (id, val) => { S.rvRate = S.rvRate || {}; S.rvRate[id] = val; toast(val === 'good' ? 'شكرًا · سُجّل كتأكيد مفيد' : 'شكرًا · سُجّل لتحسين دقة المصنّف'); };
+ACT.rvRate = (id, val) => { S.rvRate = S.rvRate || {}; S.rvRate[id] = val; toast(val === 'good' ? 'سُجّل رأيك: رصد صحيح' : 'سُجّل رأيك: إنذار خاطئ · بلا نص الرسالة'); };
 
 ACT.chClearQ = () => { S.chQ = ''; };
