@@ -268,6 +268,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  ok('every billing action exists',BLS.every(id=>{try{S=F5();S.plan='basic';jump(id);render();return [...ph.querySelectorAll('#scr [data-a],.sheet [data-a]')].every(e=>!!ACT[e.dataset.a.split(':')[0]])}catch(e){return false}}));
  ok('nothing undefined on any billing surface, in any state',BLS.every(id=>[['free',''],['basic',''],['premium',''],['premium','trial'],['basic','grace']].every(([p,st])=>['YE','GCC'].every(r=>{try{S=F5();S.plan=p;S.planSt=st;S.reg=r;jump(id);render();return !/undefined|null|NaN/.test(txt())}catch(e){return false}}))));
  ok('touch targets 48 on every billing surface, both markets',BLS.every(id=>['YE','GCC'].every(r=>{S=F5();S.plan='basic';S.reg=r;jump(id);render();return (S.sheet?[...ph.querySelectorAll('.sheet button')].filter(b=>b.getBoundingClientRect().height<48):b48()).length===0})));
+ // جمع النموذجين (Q-457): انقطاع الاتصال عند إرسال الرقم المرجعي
+ S=F5();S.reg='YE';go('pay-wallet','basic','','jaib');render();blEv('werr');render();ok('wallet: lost reply says do not pay twice',/تعذّر إرسال الرقم المرجعي/.test(txt())&&/لا تدفع مرة ثانية/.test(txt())&&!!q('[data-a="blWRetry"]')&&S.plan==='free');
+ S.net='off';ACT.blWRetry();render();ok('wallet: retry needs a connection',!!BL().wErr);S.net='';ACT.blWRetry();render();ok('wallet: retry leaves the error, plan unchanged',!BL().wErr&&S.plan==='free'&&!/تعذّر إرسال/.test(txt()));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-04: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-04');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

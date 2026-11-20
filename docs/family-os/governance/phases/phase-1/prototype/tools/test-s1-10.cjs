@@ -200,6 +200,10 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();setPersona('delegate');setRole('observer');open('presets','m1');ok('no create permission → no new-mode link, no edit link',can('protection.rule.create')===!!q('[data-a="go:mode-edit:new"]')&&can('protection.rule.edit')===!!q('[data-a="go:mode-edit:m1"]'));
  open('mode-edit','m1');ok('editor read-only without permission',can('protection.rule.edit')||(!q('.btn[data-a="mdSave"]')&&has(/ترى الوضع ولا تعدّله/)));
  S=fresh();S.net='off';open('mode-edit','new');ACT.mdN('تجربة');ACT.mdOpen('none');render();ok('offline: mode save disabled with reason',dis('.btn[data-a="mdSave"]')&&has(/يحتاج اتصالاً/));
+ // جمع النموذجين (Q-457)
+ S=fresh();setPersona('child');go('learn');render();ok('learn: no coming-soon rows (Q-397)',!/قريباً/.test(txt())&&!/أنشطة تعليمية مقترحة/.test(txt())&&/المرشد الصغير معك/.test(txt()));
+ go('my-rules');render();ok('my rules: summary card on top',/باقي اليوم/.test(txt())&&/تطبيقات بحدّ/.test(txt())&&/البحث الآمن/.test(txt()));
+ S=fresh();go('quota','layan');render();ok('quota: no preview before a change',!/معاينة الأثر اليوم/.test(txt()));ACT.qdDay(NOW.d,'+');render();ok('quota: preview of today before saving',/معاينة الأثر اليوم/.test(txt())&&S.kid.layan.quota!==S.qd.v[NOW.d]);
  // 17 كل أسطح S1-10: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-10');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;
  for(const id of ids){for(const pre of [null,'guardian','none','co','ios','off']){try{S=fresh();if(pre==='co')S.co={since:'اليوم',seen:0};else if(pre==='ios')S.os='ios';else if(pre==='off')S.net='off';else if(pre)setRole(pre);jump(id);render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id);const sh=ph.querySelector('.sheet');if(sh&&sh.scrollWidth>sh.clientWidth+1)over.push(id+':sheet');

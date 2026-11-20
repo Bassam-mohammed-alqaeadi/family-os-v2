@@ -194,6 +194,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  crDone();render();ok('done: restored, the server never read it',S.cr.step===3&&has(/عاد سجل قناة الوالدين/)&&has(/لم يقرأه الخادم/)&&!!q('#scr [data-a="openCh:parents"]'));
  S=fresh();S.crDead=true;open('chat-restore');ACT.crGo();pin();render();ok('old secret number lost: said plainly, no false promise',S.cr.step===9&&has(/السجل القديم لا يمكن استرداده/)&&has(/ولا طريقاً آخر/));
  S=fresh();S.net='off';open('chat-restore');ok('restore needs a connection',q('#scr [data-a="crGo"]').disabled&&has(/الاسترداد يحتاج اتصالاً/));
+ // جمع النموذجين (Q-457)
+ S=fresh();tab('chat');S.chQ='ززز';render();ok('chat search: empty result offers to clear',has(/لا محادثة بهذا الاسم/)&&!!q('[data-a="chClearQ"]'));ACT.chClearQ();render();ok('chat search: cleared',S.chQ===''&&!has(/لا محادثة بهذا الاسم/));
+ ok('review: classifier feedback marked as a proposal',/UNKNOWN/.test(SC['chat-review'].note));
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-08: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-08');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;

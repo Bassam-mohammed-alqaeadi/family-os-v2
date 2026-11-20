@@ -281,12 +281,12 @@ surface('store-buy', {
 /* ---------- S04-05 الدفع بالمحفظة (اليمن) ---------- */
 surface('pay-wallet', {
   t: 'الدفع', sys: 'S1-04', p: 'owner', a: ['basic', '', 'jaib'], req: '04:6,7,10',
-  note: 'S04-05. اليمن: الدفع بالمحافظ وحدها — محفظة جيب، ون كاش، محفظتي؛ لا قسائم (Q-421) ولا دفع عند وكيل (Q-422). خطوتان: تدفع من المحفظة خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد المحفظة وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة تُكتب عند التعاقد، ولم يُخترع لها شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة».',
+  note: 'S04-05. اليمن: الدفع بالمحافظ وحدها — محفظة جيب، ون كاش، محفظتي؛ لا قسائم (Q-421) ولا دفع عند وكيل (Q-422). خطوتان: تدفع من المحفظة خارج التطبيق، ثم تكتب الرقم المرجعي كما وصلك. بعدها «بانتظار التحقق»: لا تتغير الخطة حتى تؤكد المحفظة وصول المبلغ. الرقم المكرر يُرفض بجانب الحقل. طريقة تحويل المبلغ إلى المحفظة تُكتب عند التعاقد، ولم يُخترع لها شيء هنا. من لوحة الضبط: «أكّدت الدفعة» و«رفضت الدفعة» و«انقطع الاتصال عند إرسال الرقم» (Q-457).',
   r(w, yr, ch) {
     if (!blCanM()) return blNo(1);
     if (!blYE()) return SC.pay.r(w, yr, ch);              /* سوق الخليج لا محافظ يمنية فيه */
     w = w === 'topup' || BL_PR[w] ? w : 'basic'; ch = BL_WAL.includes(ch) ? ch : BL_WAL[0]; const b = BL(), d = b.pend;
-    if (b.wErr) { return `<div class="bigic da">${ic('wifi_off')}</div><p class="ttl md">تعذّر التحقق من المحفظة</p><p class="sub">لم يصل رد من بوابة ${BL_CH[ch][0]} بسبب انقطاع الاتصال. لم يُخصم أي مبلغ إضافي.</p>${btn('إعادة التحقق دون خصم مكرر', 'blWRetry', '', 'refresh')}${btn('تغيير طريقة الدفع', 'blWBack', 'sec')}`; }
+    if (b.wErr) { return `<div class="bigic da">${ic('wifi_off')}</div><p class="ttl md">تعذّر إرسال الرقم المرجعي</p><p class="sub">انقطع الاتصال قبل أن يصل الرد. ما دفعته من ${BL_CH[ch][0]} محفوظ: لا تدفع مرة ثانية.</p>${btn('أعد الإرسال', 'blWRetry', '', 'refresh')}${btn('تغيير طريقة الدفع', 'blWBack', 'sec')}`; }
     if (d) { const it = blItem(d.w, d.yr);
       return `<div class="bigic wa">${ic('hourglass_top')}</div><p class="ttl md">دفعتك بانتظار التحقق</p><p class="sub">${d.w === 'topup' ? 'نضيف الرصيد' : `نفعّل ${it.t}`} فور أن تؤكد ${BL_CH[d.ch][0]} وصول المبلغ، ويصلك إشعار. ${d.w === 'topup' ? 'رصيدك' : 'خطتك'} الآن كما ${d.w === 'topup' ? 'هو' : 'هي'}.</p>
       <dl class="blkv"><dt>ما دفعت له</dt><dd>${it.t}${it.per ? ' · ' + it.per : ''}</dd><dt>المبلغ</dt><dd>${blAmt(it.n)}</dd><dt>الطريقة</dt><dd>${BL_CH[d.ch][0]}</dd><dt>الرقم المرجعي</dt><dd><span class="ltr">${blMask(d.ref)}</span></dd><dt>سُجّلت</dt><dd>${d.at}</dd></dl>
@@ -476,6 +476,7 @@ function blEv(v) {
   const b = BL(); S.sheet = S.full = S.dlg = null;
   if (v === 'ver' && b.pend) { const d = b.pend, it = blItem(d.w, d.yr); blDone(d.w, d.yr, d.ch); b.pend = null; $('#toast').innerHTML = ''; notif(d.w === 'topup' ? 'أُضيفت 50 رسالة' : 'تمت الترقية', d.w === 'topup' ? 'تأكد الدفع، والرصيد في حسابك الآن' : `تأكد الدفع · ${it.t} فعّالة الآن`, 'workspace_premium', 'go:plan'); }
   else if (v === 'rej' && b.pend) { const d = b.pend, it = blItem(d.w, d.yr); b.rej = { w: d.w, yr: d.yr, ch: d.ch }; blRc(it.t + (it.per ? ' · ' + it.per : ''), blAmt(it.n), d.ch, 'rej', d.ref); b.pend = null; S.audit.unshift({ t: 'دفعة لم تتأكد · لم تتغير الخطة', w: 'النظام', at: 'الآن', k: 'billing.manage', deny: 1 }); notif('لم تتأكد دفعتك', 'لم تتغير خطتك · افتح الخطة للتفاصيل', 'error', 'go:plan'); }
+  else if (v === 'werr') { b.wErr = 1; }
   else if (v === 'tr2' || v === 'tr0') { if (S.planSt !== 'trial') { if (S.plan !== 'free' && !S.planSt) b.back = { plan: S.plan, end: blEnd(), ch: blChan(), cyr: b.cyr }; S.plan = 'premium'; S.planSt = 'trial'; b.trialUsed = 1; } b.trialEnd = tkAdd(TK_TODAY, v === 'tr2' ? 2 : 0); b.trSeen = 0;
     notif(v === 'tr2' ? 'تجربة المميزة تنتهي بعد يومين' : 'تجربة المميزة تنتهي اليوم', b.back ? `بعدها تعود العائلة إلى ${PLAN[b.back.plan].n} · لا نخصم شيئاً` : 'لا نخصم شيئاً · اشترك إن أردت أن تبقى ميزاتها', 'redeem', 'go:trial'); }
   else if (v === 'trend') { if (S.planSt !== 'trial') { if (S.plan !== 'free' && !S.planSt) b.back = { plan: S.plan, end: blEnd(), ch: blChan(), cyr: b.cyr }; S.plan = 'premium'; b.trialUsed = 1; }
@@ -490,5 +491,5 @@ function blEv(v) {
   render();
 }
 
-ACT.blWRetry = () => { BL().wErr = 0; toast('جارٍ التحقق من حالة الدفع…', null, 'sync'); };
+ACT.blWRetry = () => { if (offline()) { toast('إعادة الإرسال تحتاج اتصالاً بالإنترنت', null, 'cloud_off'); return; } BL().wErr = 0; toast('أُعيد الإرسال · الرقم نفسه لا يُحسب مرتين', null, 'sync'); };   /* S1-04 §7: إعادة الطلب نفسه تعيد حالته ولا تُرفض كمكرر (Q-457) */
 ACT.blWBack = () => { BL().wErr = 0; back(); };

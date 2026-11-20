@@ -129,6 +129,9 @@ R=await page.evaluate(()=>{const R={},F=[];const ph=document.getElementById('pho
  S=fresh();go('family-settings');ACT.famEdit('tz');ACT.famPick('tz','دبي');render();ok('family time zone: applies to all children',/عند كل الأبناء/.test(txt()));ACT.famSave('tz');render();pin();ok('family time zone: changed by PIN, country untouched',S.tz==='دبي'&&S.reg==='YE');
  S=fresh();S.net='off';go('family-settings');ACT.famEdit('reg');ACT.famPick('reg','SA');render();ok('family edit: needs connection',ph.querySelector('[data-a="famSave:reg"]').disabled);
  S=fresh();setPersona('delegate');go('family-settings');render();ok('family: delegate cannot edit',!ph.querySelector('#scr [data-a^="famEdit:"]'));
+ // جمع النموذجين (Q-457): مفتاح التحليلات مقترح بلا حكم — مطفأ افتراضاً والشاشة موسومة
+ S=fresh();go('privacy');render();ok('privacy: kids analytics off by default',S.kidAnalytics===false&&/معطّلة افتراضياً/.test(txt()));ok('privacy: marked as awaiting a ruling, not closed',SC.privacy.st==='un'&&/Q-046/.test(SC.privacy.note)&&!/مغلق/.test(SC.privacy.note));
+ ACT.flip('kidAnalytics');render();ok('privacy: on only by the father\'s own tap',S.kidAnalytics===true&&/مفعّلة بموافقتك/.test(txt()));
  // 14 كل أسطح S1-02: إنجليزي + لا تجاوز أفقي + لا كلام مهندسين
  const over=[],eng=[];for(const id of Object.keys(SC).filter(k=>SC[k].sys==='S1-02')){for(const lang of ['ar','en']){try{S=fresh();jump(id);S.lang=lang;render();const sc=document.getElementById('scr');if(sc&&sc.scrollWidth>sc.clientWidth+1)over.push(id+':'+lang);
    if(lang==='ar'&&/TOTP|HMAC|JSON|IANA|mTLS|MQTT|مفتاح التوقيع|مفتاح توقيع|العتاد|E\.164|Firebase/.test(txt()))eng.push(id);}catch(e){F.push('ERR '+id+' '+lang+' '+e.message)}}}

@@ -120,11 +120,11 @@ node tools/build-icons.mjs <node_modules>/@material-symbols/svg-400/rounded
 |---|---|
 | Q-043 | شخصية المرشد الكرتونية ما زالت مفتوحة. الشعار «القمرية» اختاره المالك (Q-433)؛ هو وأيقونة التطبيق يظهران في شاشة البدء وأول تشغيل و«عن التطبيق»، و«المزيد»، وصفحة العرض `brand.html` التي تُفتح من زر «الشعار والأيقونة» (لم تعد تُفتح تلقائياً بعد الحكم — Q-433)؛ ملفاتهما في `client/assets/brand/logo/` ونسخة منها في `assets/brand/` |
 | Q-090 | محتوى قوالب العرض |
-| Q-046 | تحليلات استخدام الطفل |
+| Q-046 | تحليلات استخدام الطفل. المفتاح المعروض في «الخصوصية» مقترح من نموذج المالك بلا حكم (Q-457) |
 | Q-157 | مفتوح في `OPEN-QUESTIONS.md` |
 | F-007 | حُسم (Q-412): مالك المشروع بسام (Bassam) |
 | — | العناوين العربية لمفاتيح الصلاحيات الـ94 (تُعرض بمعرّفاتها) |
-| — | عتبات تنبيهات «صحة الحماية»، محتوى تبويب «العب وتعلّم»، شاشة الصيانة |
+| — | عتبات تنبيهات «صحة الحماية» (الأرقام المعروضة مقترحة بلا حكم — Q-457)، زرّا دقة المصنّف في «رسائل أوقفها المصنّف» (Q-457)، شاشة الصيانة |
 
 ## انحرافات معروفة عن الحوكمة
 
@@ -138,18 +138,18 @@ node tools/build-icons.mjs <node_modules>/@material-symbols/svg-400/rounded
 ```bash
 # تحتاج puppeteer-core و @sparticuz/chromium خارج المستودع
 node tools/test-s1-01.cjs      # بوابة الوالدين والتأكيد بالبصمة — 51 فحصاً
-node tools/test-s1-02.cjs      # الهوية والتهيئة — 155 فحصاً
+node tools/test-s1-02.cjs      # الهوية والتهيئة — 158 فحصاً
 node tools/test-s1-03.cjs      # الأدوار والصلاحيات — 219 فحصاً
-node tools/test-s1-10.cjs      # الحماية والفرض — 228 فحصاً
+node tools/test-s1-10.cjs      # الحماية والفرض — 232 فحصاً
 node tools/test-q419.cjs       # تعارض القواعد — 104 فحوص
 node tools/test-q435.cjs       # إغلاق العمليات — 114 فحصاً
 node tools/flow-audit.cjs      # كل الأزرار وأثرها — يجب أن تخرج silent وreview وerrs فارغة (أضف list للتفصيل، أو أسماء أسطح لتقصر الفحص عليها؛ نحو 4 دقائق)
 node tools/test-s1-09.cjs      # مركز التحكم والإعدادات — 152 فحصاً
 node tools/test-s1-07.cjs      # الموقع والاستغاثة — 193 فحصاً
-node tools/test-s1-08.cjs      # المحادثة العائلية — 148 فحصاً
+node tools/test-s1-08.cjs      # المحادثة العائلية — 151 فحصاً
 node tools/test-s1-05.cjs      # المكافآت — 166 فحصاً
-node tools/test-s1-06.cjs      # المهام والتقويم — 277 فحصاً
-node tools/test-s1-04.cjs      # الخطط والاشتراكات — 229 فحصاً
+node tools/test-s1-06.cjs      # المهام والتقويم — 278 فحصاً
+node tools/test-s1-04.cjs      # الخطط والاشتراكات — 232 فحصاً
 node tools/visual-audit.cjs    # الفحص البصري — يجب أن يخرج tiny وspacing وcontrast وkid وoffscale صفراً (أضف list للتفصيل)
 node tools/audit.cjs           # أهداف اللمس في المنصة كلها — يجب أن يخرج touch وoverlap وgap وjiggle وdead فارغة (أضف 1.3 للخط الكبير أو «1 en» للإنجليزية)
 node tools/reach.cjs           # مداخل الأسطح وتسميتها — يجب أن تخرج unreached وstaleState وunnamed وuncovered فارغة (لا يحتاج متصفحاً)

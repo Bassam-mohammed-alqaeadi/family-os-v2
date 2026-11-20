@@ -296,6 +296,7 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S=fresh();ok('no one-button task screen for small children (Q-426)',!SC['m-task']&&!ACT.mDone);
  // 15 الروابط
  ok('every task link leads to a surface',TKS.every(id=>{try{S=fresh();jump(id);render();return [...ph.querySelectorAll('[data-a^="go:"]')].every(e=>!!SC[e.dataset.a.split(':')[1]])}catch(e){return false}}));
+ S=fresh();go('tasks','layan');render();ok('tasks opened from a child: filter preset to that child (Q-457)',S.tf==='layan');
  }catch(e){F.push('CRASH after check #'+N+': '+e.message)}
  // كل أسطح S1-06: لا تجاوز أفقي + لا كلام مهندسين + لا معرّفات
  const over=[],eng=[];const ids=Object.keys(SC).filter(k=>SC[k].sys==='S1-06');const BAD=/[a-z]+\.[a-z_]+\.[a-z_]+|ALLOW|BLOCK|LIMIT|ALERT|IGNORE|Accessibility|DeviceAdmin|VPN|MQTT|Outbox|bitmask|is[A-Z]\w+|step-up|Parent Gate|PIN|نبضة|الرتيبة|القناع|مزامَن|الفرض|ذرّي|نطاق|undefined|null|NaN/;
