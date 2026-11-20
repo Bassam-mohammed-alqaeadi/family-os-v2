@@ -380,6 +380,7 @@ button.ans:active{filter:brightness(1.15)}
 .cplate .cells{display:flex;justify-content:center;gap:6px;direction:ltr;margin-bottom:14px;position:relative;z-index:1}
 .cplate .cells span{flex:1;max-width:44px;height:58px;display:grid;place-items:center;border-radius:var(--r-md);background:#ffffff1f;box-shadow:inset 0 0 0 1px #ffffff38;font-family:var(--mono);font-size:32px;font-weight:700;color:var(--on-hero)}
 .cplate .cells span:nth-child(3){margin-right:10px}
+.cplate .cells.c8{gap:4px}.cplate .cells.c8 span{max-width:36px;height:50px;font-size:24px}.cplate .cells.c8 span:nth-child(3){margin-right:0}.cplate .cells.c8 span:nth-child(4){margin-right:10px}
 .cplate .chips{justify-content:center;position:relative;z-index:1}
 .cplate .chip.ol{color:var(--on-hero-2);box-shadow:inset 0 0 0 1px #ffffff40}
 .skel{border-radius:var(--r-md);background:linear-gradient(90deg,var(--sunken) 25%,var(--subtle) 50%,var(--sunken) 75%);background-size:200% 100%;animation:sk 1.3s linear infinite;height:16px;margin-bottom:12px}

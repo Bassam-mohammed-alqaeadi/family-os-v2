@@ -69,9 +69,9 @@ R=await page.evaluate(()=>{const R={},F=[];let N=0;const ph=document.getElementB
  S.stack=[{id:'alerts',a:[]}];render();click('go:pair-code:'+id);click('pcSet:done');ok('ب18 شاشة «اقترن جهاز نور»',/اقترن جهاز نور/.test(scr()));click('pcDone');
  ok('ب19 خرج من «بلا جهاز»',!noDev(id)&&!S.unp[id]&&S.kid[id].enf==='active');ok('ب20 وصلت تطبيقاته',S.apps[id].length===3);ok('ب21 سُجّل الإقران',S.audit[0].k==='identity.device.pair');
  S.stack=[{id:'alerts',a:[]}];render();t=scr();ok('ب22 بطاقة «اضبط قواعده» فيما يحتاج قراره',/اقترن جهاز نور: اضبط قواعده/.test(t),t.slice(0,400));ok('ب23 وزالت بطاقة الإقران',!/بقي إقران جهاز نور/.test(t));
- open('rules-review');ok('ب24 بطاقة المراجعة بنص الطفل الجديد',/حصة 120 دقيقة/.test(scr()));click('rvGo:rv-'+id);ok('ب25 «راجع القواعد» يفتح تطبيقاته',S.stack[S.stack.length-1].id==='apps'&&S.stack[S.stack.length-1].a[0]===id&&/YouTube Kids/.test(scr()));
+ open('rules-review');ok('ب24 بطاقة المراجعة بنص الطفل الجديد، والحصة الجاهزة 60 (Q-223)',/حصة 60 دقيقة/.test(scr()));click('rvGo:rv-'+id);ok('ب25 «راجع القواعد» يفتح تطبيقاته',S.stack[S.stack.length-1].id==='apps'&&S.stack[S.stack.length-1].a[0]===id&&/YouTube Kids/.test(scr()));
  S.stack=[{id:'home',a:[]}];render();open('schedule',id);ok('ب26 جدوله يُفتح فارغاً',!/undefined|NaN/.test(scr()));
- S.stack=[{id:'home',a:[]}];render();open('quota',id);ok('ب27 وحصته',/120/.test(scr())&&!/undefined|NaN/.test(scr()));
+ S.stack=[{id:'home',a:[]}];render();open('quota',id);ok('ب27 وحصته',/60/.test(scr())&&!/120/.test(scr())&&!/undefined|NaN/.test(scr()));
  S.stack=[{id:'home',a:[]}];render();open('child-new',id);document.getElementById('cnN').value='نورة';click('cnGo');ok('ب28 تعديل اسمه يثبت',M[id].n==='نورة'&&S.addK[0].n==='نورة');render();ok('ب29 ويبقى بعد الرسم',M[id].n==='نورة');
  const snap=JSON.stringify(S);S=fresh();render();ok('ب30 حالة جديدة: يعود أربعة',Object.keys(M).length===4&&KIDS.length===2&&!M[id],[Object.keys(M),KIDS]);
  S=JSON.parse(snap);render();ok('ب31 واسترجاع الحالة يعيده',!!M[id]&&KIDS.includes(id)&&M[id].n==='نورة');S=fresh();render();

@@ -28,7 +28,7 @@ const KIDS = ['khaled', 'layan'];
 /* طفل يضيفه الأب (Q-435) عضو حقيقي: يظهر في العائلة، يُقرن جهازه، وتُضبط قواعده كإخوته.
    المرجع S.addK (فيعود مع كل استرجاع للحالة أو تراجع)، ومنه يُبنى M و KIDS وجداول الطفل قبل كل رسم وكل ضغطة. */
 const KID0 = KIDS.slice();
-const kidBlank = () => ({ quota: 120, used: 0, pts: 0, streak: 0, bat: 0, place: '', area: '', ago: 0, moving: false, online: false, enf: 'none', x: 50, y: 50, extra: 0, spent: 0, nd: 1 });
+const kidBlank = () => ({ quota: 60,   /* الحصة الجاهزة قبل أن يضبطها الأب: 60 دقيقة لكل الأعمار (Q-223 · Q-463) */ used: 0, pts: 0, streak: 0, bat: 0, place: '', area: '', ago: 0, moving: false, online: false, enf: 'none', x: 50, y: 50, extra: 0, spent: 0, nd: 1 });
 const ageTxt = y => { const a = 2026 - y; return a < 1 ? 'أقل من سنة' : a === 1 ? 'سنة' : a === 2 ? 'سنتان' : a <= 10 ? a + ' سنوات' : a + ' سنة'; };
 function kidSync() {
   const A = (typeof S === 'object' && S && S.addK) || [];
